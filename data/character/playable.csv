@@ -1,0 +1,14 @@
+"ID","Name","Base Health","Max Resource","Strength","Dexterity","Agility","Constitution","Intelligence","Wisdom","Charisma","Physical Resistance","Fire Resistance","Water Resistance","Air Resistance","Earth Resistance","Magic Resistance","Poison Resistance","Size","Ground Movement","Air Movement","Tinkerer","Arm Mastery","Wealth","Immunity","Resourceful","Combat Contest"
+"Vars","Vars",1200,0,40,53,47,50,18,24,32,30,30,30,30,30,30,30,13,2,2,,2,,2,,2
+"Vraesier","Vraesier",1000,50,19,13,15,12,7,8,7,,,10,,,10,,10,,1,,1,,,,
+"Orsanoas","Orsanoas",1400,100,21,7,11,19,5,5,10,10,,,,,,10,15,,,,,,1,,1
+"Minara","Minara",780,35,10,16,8,14,13,14,8,,20,,,,,,11,,,1,,,,1,
+"Rodhinbar","Rodhinbar",600,20,5,20,16,7,11,10,12,,,,10,,,10,10,,1,,,1,,,
+"Omshle","Omshle",720,,10,17,17,12,12,11,2,,,,,,5,15,10,1,,,,1,,,
+"Iri","Iri Kada Whe",640,,2,15,19,6,16,14,4,,,5,15,,,,7,1,,1,,,,,
+"Elmaliern","Elmaliern",450,,3,11,6,5,19,22,10,5,,,,,15,,9,,,,,,1,1,
+"Pasgelo","Pasgelo",570,,4,8,5,5,22,17,14,,10,,10,,,,10,,1,,,,,1,
+"Yuawies","Yuawies",510,,7,9,8,11,13,14,20,,,10,,10,,,10,1,,,,,1,,
+"Duskuksa","Duskuksa",1260,,13,10,6,15,13,14,12,5,,,,15,,,12,,,1,,,,,1
+"Nayedien","Nayedien",750,,13,17,17,9,9,11,6,,10,,10,,,,10,,,,1,,,,1
+"Soheh","Soheh",1150,0,14,14,11,9,7,13,15,,,10,,10,,,7,,,,1,1,,,
