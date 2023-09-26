@@ -132,6 +132,8 @@ class Game:
         Game.data_dir = os.path.join(self.main_dir, "data")
         Game.font_dir = os.path.join(self.data_dir, "font")
 
+        self.config_path = os.path.join(self.main_dir, "configuration.ini")
+
         pygame.init()  # Initialize pygame
 
         pygame.mouse.set_visible(False)  # set mouse as not visible, use in-game mouse sprite
@@ -146,8 +148,9 @@ class Game:
         # Read config file
         config = configparser.ConfigParser()  # initiate config reader
         try:
-            config.read_file(open(os.path.join(self.main_dir, "configuration.ini")))  # read config file
+            config.read_file(open(self.config_path))  # read config file
         except FileNotFoundError:  # Create config file if not found with the default
+            print('hmm')
             config = self.create_config()
 
         try:
@@ -663,7 +666,7 @@ class Game:
                             self.input_popup[1][2]]
                         self.player_key_bind[1][self.config["USER"]["control player 1"]][self.input_popup[1][2]] = old_key
                         edit_config("USER", "keybind player 1", self.player_key_bind[1],
-                                    "configuration.ini", self.config)
+                                    self.config_path, self.config)
                         for key, value in self.keybind_icon.items():
                             if key == self.input_popup[1][1]:
                                 if self.joysticks:

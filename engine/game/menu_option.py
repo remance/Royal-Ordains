@@ -36,7 +36,7 @@ def menu_option(self, esc_press):
 
         else:  # no joystick, reset player 1 to keyboard
             self.config["USER"]["control player 1"] = "keyboard"
-            edit_config("USER", "control player 1", "keyboard", "configuration.ini", self.config)
+            edit_config("USER", "control player 1", "keyboard", self.config_path, self.config)
             self.control_switch.change_control("keyboard")
             self.player_key_control[1] = self.config["USER"]["control player 1"]
             for key, value in self.keybind_icon.items():
@@ -52,7 +52,7 @@ def menu_option(self, esc_press):
     elif self.default_button.event_press:  # revert all setting to original
         for setting in self.config["DEFAULT"]:
             if setting not in ("language", "keybind"):
-                edit_config("USER", setting, self.config["DEFAULT"][setting], "configuration.ini", self.config)
+                edit_config("USER", setting, self.config["DEFAULT"][setting], self.config_path, self.config)
 
         change_resolution(self, resolution_change=(int(self.config["DEFAULT"]["screen_width"]), "",
                                                    int(self.config["DEFAULT"]["screen_height"])))
@@ -70,7 +70,7 @@ def menu_option(self, esc_press):
         else:
             self.fullscreen_box.change_tick(False)
             self.full_screen = 0
-        edit_config("USER", "full_screen", self.full_screen, "configuration.ini",
+        edit_config("USER", "full_screen", self.full_screen, self.config_path,
                     self.config)
         change_resolution(self)
 
@@ -85,13 +85,13 @@ def menu_option(self, esc_press):
             self.show_fps = 0
             self.battle.remove_ui_updater(self.battle.fps_count)
             self.remove_ui_updater(self.fps_count)
-        edit_config("USER", "fps", self.show_fps, "configuration.ini",
+        edit_config("USER", "fps", self.show_fps, self.config_path,
                     self.config)
 
     for key, value in self.option_menu_sliders.items():
         if value.event:  # press on slider bar
             value.player_input(self.value_boxes[key])  # update slider button based on mouse value
-            edit_config("USER", key + "_volume", value.value, "configuration.ini",
+            edit_config("USER", key + "_volume", value.value, self.config_path,
                         self.config)
             self.change_sound_volume()
 
@@ -102,9 +102,9 @@ def change_resolution(self, resolution_change=None):
         self.screen_width = resolution_change[0]
         self.screen_height = resolution_change[2]
 
-        edit_config("USER", "screen_width", resolution_change[0], "configuration.ini",
+        edit_config("USER", "screen_width", resolution_change[0], self.config_path,
                     self.config)
-        edit_config("USER", "screen_height", resolution_change[2], "configuration.ini",
+        edit_config("USER", "screen_height", resolution_change[2], self.config_path,
                     self.config)
 
     pygame.time.wait(1000)

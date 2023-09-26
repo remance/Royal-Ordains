@@ -16,7 +16,7 @@ def menu_keybind(self, esc_press):
         self.default_button.event = False
         for setting in self.config["DEFAULT"]:
             if setting == "keybind":
-                edit_config("USER", setting, self.config["DEFAULT"][setting], "configuration.ini", self.config)
+                edit_config("USER", setting, self.config["DEFAULT"][setting], self.config_path, self.config)
         control_type = self.config["USER"]["control player 1"]
         for key, value in self.keybind_icon.items():
             if self.joysticks:
@@ -36,7 +36,7 @@ def menu_keybind(self, esc_press):
                 self.control_switch.change_control("keyboard")
             self.player_key_control[1] = self.config["USER"]["control player 1"]
             edit_config("USER", "control player 1", self.config["USER"]["control player 1"],
-                        "configuration.ini", self.config)
+                        self.config_path, self.config)
             for key, value in self.keybind_icon.items():
                 if self.joysticks:
                     value.change_key(self.config["USER"]["control player 1"],

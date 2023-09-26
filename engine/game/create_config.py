@@ -52,7 +52,7 @@ def create_config(self):
                          }
 
     config["USER"] = {key: value for key, value in config["DEFAULT"].items()}
-    with open(os.path.join(self.main_dir, "configuration.ini"), "w") as cf:
+    with open(self.config_path, "w") as cf:
         config.write(cf)
-    config.read_file(open(os.path.join(self.main_dir, "configuration.ini")))
+    config.read_file(open(self.config_path))
     return config

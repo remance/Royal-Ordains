@@ -7,7 +7,7 @@ def assign_key(self, key_assign):  # TODO prevent player from input right hat jo
         self.player_key_bind_list[1][self.config["USER"]["control player 1"]][
             self.input_popup[1]] = key_assign
         edit_config("USER", "keybind player 1", self.player_key_bind_list[1],
-                    "configuration.ini", self.config)
+                    self.config_path, self.config)
         for key, value in self.keybind_icon.items():
             if key == self.input_popup[1]:
                 if self.joysticks:

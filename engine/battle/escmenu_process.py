@@ -123,7 +123,7 @@ def escmenu_process(self, esc_press: bool):
         for key, value in self.esc_slider_menu.items():
             if value.event:  # press on slider bar
                 value.player_input(self.esc_value_boxes[key])  # update slider button based on mouse value
-                edit_config("USER", key + "_volume", value.value, "configuration.ini",
+                edit_config("USER", key + "_volume", value.value, self.config_path,
                             self.config)
                 self.game.change_sound_volume()
 
