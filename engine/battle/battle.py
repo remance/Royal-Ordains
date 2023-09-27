@@ -28,7 +28,7 @@ from engine.stageobject.stageobject import StageObject
 from engine.game.activate_input_popup import activate_input_popup
 from engine.game.change_pause_update import change_pause_update
 from engine.lorebook.lorebook import lorebook_process
-from engine.uibattle.uibattle import FPSCount, EventLog, BattleCursor
+from engine.uibattle.uibattle import FPSCount, BattleCursor, YesNo
 from engine.utils.common import clean_group_object
 from engine.utils.data_loading import load_image, load_images, csv_read
 from engine.utils.text_making import number_to_minus_or_plus
@@ -157,6 +157,8 @@ class Battle:
         self.weather_data = self.battle_map_data.weather_data
         self.weather_matter_images = self.battle_map_data.weather_matter_images
         self.weather_list = self.battle_map_data.weather_list
+        self.stage_reward = self.battle_map_data.stage_reward
+        self.reward_list = self.battle_map_data.reward_list
 
         self.character_animation_data = self.game.character_animation_data
         self.body_sprite_pool = self.game.body_sprite_pool
@@ -178,6 +180,7 @@ class Battle:
                               3: pygame.sprite.Group(), 4: pygame.sprite.Group()}
 
         self.players = {}  # player
+        self.player_team_followers = {}
         self.player_objects = {}
         self.players_control_input = {1: None, 2: None, 3: None, 4: None}
         self.later_enemy = {}
@@ -204,9 +207,11 @@ class Battle:
         if self.game.show_fps:
             self.realtime_ui_updater.add(self.fps_count)
 
-        battle_ui_image = load_images(self.data_dir, screen_scale=self.screen_scale, subfolder=("ui", "battle_ui"))
+        battle_ui_images = load_images(self.data_dir, screen_scale=self.screen_scale, subfolder=("ui", "battle_ui"))
 
-        battle_ui_dict = make_battle_ui(battle_ui_image)
+        battle_ui_dict = make_battle_ui(battle_ui_images)
+
+        self.decision_select = YesNo(battle_ui_images)
 
         self.time_ui = battle_ui_dict["time_ui"]
         self.time_number = battle_ui_dict["time_number"]
@@ -270,6 +275,7 @@ class Battle:
         self.end_delay = 0  # delay until stage end and continue to next one
         self.spawn_delay_timer = {}
         self.survive_timer = 0
+        self.stage_end_choice = False
 
     def prepare_new_stage(self, chapter, mission, stage, players):
 
@@ -326,11 +332,6 @@ class Battle:
         yield set_start_load(self, "map events")
         map_event_text = self.localisation.grab_text(("map", str(chapter), str(mission), str(stage), "eventlog"))
         map_event = self.game.preset_map_data[chapter][mission][stage]["eventlog"]
-        for key in map_event:  # insert localisation text into event data
-            map_event[key] = map_event[key].copy()  # make a copy to prevent replacement
-            if key in map_event_text:
-                map_event[key]["Text"] = map_event_text[key]["Text"]
-        EventLog.map_event = map_event
 
         self.time_number.start_setup()
         yield set_done_load()
@@ -344,6 +345,7 @@ class Battle:
         loaded_item = []
         later_enemy = {}
         self.stage_scene_lock = {}
+        self.stage_end_choice = False
         for value in stage_object_data.values():
             if value["Object"] not in loaded_item:  # load image
                 if "stage" in value["Type"]:
@@ -364,6 +366,8 @@ class Battle:
                     later_enemy[value["POS"]] = []
             elif "endpoint" in value["Type"]:
                 self.stage_goal = value["POS"]
+            elif "endchoice" in value["Type"]:
+                self.stage_end_choice = True
             elif "lock" in value["Type"]:
                 self.stage_scene_lock[value["POS"]] = value["Object"]
 
@@ -762,16 +766,34 @@ class Battle:
                     self.ui_timer -= 0.1
 
                 if not self.all_team_enemy[1]:  # all enemies dead
-                    if "Victory" not in self.drama_text.queue:
-                        self.drama_text.queue.append("Victory")
-                    self.end_delay += self.dt
-                    if self.end_delay >= 5:  # end battle
-                        self.end_delay = 0
-                        self.exit_battle()
-                        if self.stage+1 in self.game.preset_map_data[self.chapter][self.mission]:  # has next stage
-                            return True
+                    if not self.end_delay:
+                        if self.decision_select not in self.realtime_ui_updater and self.stage_end_choice:
+                            if "Victory" not in self.drama_text.queue:
+                                self.drama_text.queue.append("Victory")
+                            self.realtime_ui_updater.add(self.decision_select)
+                        elif not self.stage_end_choice:
+                            if "Victory" not in self.drama_text.queue:
+                                self.drama_text.queue.append("Victory")
+                    if self.decision_select.selected or self.decision_select not in self.realtime_ui_updater:
+                        #  player select decision or mission has no decision, count end delay
+                        if self.decision_select.selected == "yes":
+                            self.player_team_followers = self.stage_reward["yes"][self.chapter][self.mission][self.stage]
                         else:
-                            return False
+                            pass
+                            # self.player_equipment_store.append(self.stage_reward["no"][self.chapter][self.mission][self.stage])
+                        self.realtime_ui_updater.remove(self.decision_select)
+                        self.decision_select.selected = None
+                        self.end_delay += self.dt
+                        if self.end_delay >= 5:  # end battle
+                            self.end_delay = 0
+                            self.exit_battle()
+                            if self.stage+1 in self.game.preset_map_data[self.chapter][self.mission]:  # has next stage
+                                return True
+                            else:
+                                if self.mission + 1 in self.game.preset_map_data[self.chapter]:  # has next mission
+                                    return True
+                                else:
+                                    return False
 
             elif self.game_state == "menu":  # Complete battle pause when open either esc menu or lorebook
                 self.screen.fill((0, 0, 0))  # keep reset screen

@@ -25,7 +25,8 @@ from engine.game.setup.make_lorebook import make_lorebook
 from engine.game.setup.make_option_menu import make_option_menu
 from engine.lorebook.lorebook import Lorebook, SubsectionName, lorebook_process
 from engine.menubackground.menubackground import MenuActor, MenuRotate, StaticImage
-from engine.uibattle.uibattle import Profiler, FPSCount, DamageNumber, PlayerPortrait, CharacterTextBox
+from engine.uibattle.uibattle import Profiler, FPSCount, DamageNumber, PlayerPortrait, CharacterTextBox, \
+    CharacterIndicator
 from engine.uimenu.uimenu import OptionMenuText, SliderMenu, MenuCursor, BoxUI, BrownMenuButton, \
     URLIconLink, MenuButton, TextPopup, MapTitle, CharacterSelector
 from engine.updater.updater import ReversedLayeredUpdates
@@ -279,6 +280,7 @@ class Game:
         PlayerPortrait.containers = self.realtime_ui_updater
 
         CharacterTextBox.containers = self.effect_updater, self.battle_camera
+        CharacterIndicator.containers = self.effect_updater, self.battle_camera
         Drop.containers = self.effect_updater, self.battle_camera
         DamageNumber.containers = self.effect_updater, self.battle_camera
         BodyPart.containers = self.effect_updater, self.battle_camera

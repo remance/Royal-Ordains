@@ -18,7 +18,10 @@ def start_battle(self, chapter, mission, stage, players=None):
     gc.collect()  # collect no longer used object in previous battle from memory
 
     if next_stage:
-        self.start_battle(chapter, mission, stage + 1, players=players)
+        if stage + 1 in self.preset_map_data[chapter][mission]:  # has next stage
+            self.start_battle(chapter, mission, stage + 1, players=players)
+        else:  # start next mission
+            self.start_battle(chapter, mission + 1, 1, players=players)
 
     # for when memory leak checking
     # logging.warning(mem_top())

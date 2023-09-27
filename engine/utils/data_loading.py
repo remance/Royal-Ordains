@@ -237,7 +237,7 @@ def stat_convert(row, n, i, percent_column=(), mod_column=(), list_column=(), tu
     :param int_column: list of value header that should be in int number type
     :param float_column: list of value header that should be in float number type
     :param dict_column: list of value header that should be in dict type
-    :param dict_column: list of value header that should be in str type
+    :param str_column: list of value header that should be in str type
     :return: converted row
     """
     if n in percent_column:
@@ -312,6 +312,7 @@ def stat_convert(row, n, i, percent_column=(), mod_column=(), list_column=(), tu
             row[n] = result_i
         else:
             row[n] = {}
+
     elif n in str_column:
         row[n] = str(i)
 

@@ -26,7 +26,7 @@ def keyboard_mouse_press_check(button_type, button, is_button_just_down, is_butt
     :param is_button_just_up: button is just release last update
     :return: new state of is_button_just_down, is_button_down, is_button_just_up
     """
-    if button_type.get_pressed()[button]:  # press left click
+    if button_type.get_pressed()[button]:  # press button
         if not is_button_just_down:
             if not is_button_down:  # fresh press
                 is_button_just_down = True

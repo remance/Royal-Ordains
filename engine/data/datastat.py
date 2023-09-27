@@ -30,7 +30,7 @@ class CharacterData(GameData):
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
-            int_column = ("ID", "Max Stack", "Temperature Change", "Physical Resistance Bonus",
+            int_column = ("ID", "Physical Resistance Bonus",
                           "Fire Resistance Bonus", "Water Resistance Bonus",
                           "Air Resistance Bonus", "Earth Resistance Bonus", "Magic Resistance Bonus",
                           "Heat Resistance Bonus", "Cold Resistance Bonus", "Poison Resistance Bonus",
@@ -119,10 +119,12 @@ class CharacterData(GameData):
                 rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
                 header = rd[0]
                 for row_index, row in enumerate(rd[1:]):
+                    int_column = ("Only Sprite Version",)  # value in tuple only
+                    int_column = [index for index, item in enumerate(header) if item in int_column]
                     tuple_column = ("Property",)  # value in tuple only
                     tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
                     for n, i in enumerate(row):
-                        row = stat_convert(row, n, i, tuple_column=tuple_column)
+                        row = stat_convert(row, n, i, int_column=int_column, tuple_column=tuple_column)
                     self.character_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
                     self.character_list[row[0]]["Move"] = {}
                     if os.path.exists(os.path.join(self.data_dir, "character", folder_list[file_index], row[0], "move.csv")):

@@ -18,7 +18,7 @@ def play_animation(self, dt, hold_check):
             else:
                 if "repeat" in self.current_action:
                     self.show_frame = 0
-                else:
+                elif not self.freeze_timer:  # not has freeze animation timer to run out first
                     done = True
             self.start_animation_body_part()
 

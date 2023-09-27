@@ -73,9 +73,11 @@ def player_input(self, player_index, dt):
                     elif self.last_command_key_input == "Guard" or "Guard" in self.command_key_hold:
                         if "guard" in self.current_action and "Guard" in self.command_key_hold:
                             self.current_action = self.guard_hold_command_action
-                        elif not self.command_action and self.guard_meter >= self.guard_meter20:
+                        elif not (self.current_action or self.stoppable_frame) and self.guard_meter >= self.guard_meter20:
                             # can only start guarding when meter higher than 20%
                             self.engage_combat()
+                            if self.stoppable_frame:
+                                self.interrupt_animation = True
                             self.command_action = self.guard_command_action
 
                     elif self.last_command_key_input == "Special":
@@ -100,6 +102,8 @@ def player_input(self, player_index, dt):
                     elif self.last_command_key_input == "Down" and "couch" not in self.current_action and \
                             "air" not in self.current_action and self.position == "Stand":
                         self.engage_combat()
+                        if self.stoppable_frame:
+                            self.interrupt_animation = True
                         self.command_action = self.couch_command_action
                         # if self.command_key_hold == "Down" and self.position == "Couch":  # hold while already couch
                         #     self.current_action = self.couch_hold_command_action

@@ -12,6 +12,10 @@ def die(self, how):
                 self.battle.all_team_enemy_part[team].remove(part)
             self.battle.all_team_enemy[team].remove(self)
 
+    if self.indicator:
+        self.indicator.kill()
+        self.indicator = None
+
     if how == "flee":
         clean_group_object((self.body_parts, ))
         clean_object(self)

@@ -44,8 +44,8 @@ def move_logic(self, dt):
                 self.y_momentum = 0
                 self.x_momentum = 0
                 self.base_pos[1] = self.ground_pos
-                self.interrupt_animation = True
                 if "forced move" not in self.current_action:
+                    self.interrupt_animation = True
                     self.command_action = self.land_command_action
                     self.can_double_jump = True
                 self.position = "Stand"

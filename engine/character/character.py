@@ -18,6 +18,8 @@ from engine.character.ai_combat import ai_combat_dict
 from engine.character.ai_move import ai_move_dict
 from engine.character.ai_retreat import ai_retreat_dict
 
+from engine.uibattle.uibattle import CharacterIndicator
+
 rotation_list = (90, -90)
 rotation_name = ("l_side", "r_side")
 rotation_dict = {key: rotation_name[index] for index, key in enumerate(rotation_list)}
@@ -155,7 +157,8 @@ class Character(sprite.Sprite):
                               "small damaged": True}
     standup_command_action = {"name": "Standup", "uncontrollable": True, "no dmg": True}
     knockdown_command_action = {"name": "Knockdown", "uncontrollable": True, "movable": True, "forced move": True,
-                                "no dmg": True, "knockdown": True, "next action": standup_command_action, "stand": True}
+                                "no dmg": True, "knockdown": True, "hold": True,
+                                "next action": standup_command_action, "stand": True}
 
     die_command_action = {"name": "Die", "uninterruptible": True, "uncontrollable": True, "stand": True,
                           "forced move": True}
@@ -185,6 +188,7 @@ class Character(sprite.Sprite):
         self.melee_target = None  # target for melee attacking
         self.player_control = player_control  # character controlled by player
         self.taking_damage_angle = None
+        self.indicator = None
 
         self.animation_pool = {}  # list of animation sprite this character can play with its action
         self.status_animation_pool = {}
@@ -390,6 +394,7 @@ class Character(sprite.Sprite):
         # self.max_shoot_range = self.shoot_range[0]
 
         self.max_health = int(self.health)
+        self.health *= stat["Start Health"] / 100
 
         self.run_speed = 1
         self.walk_speed = 1
@@ -403,6 +408,8 @@ class Character(sprite.Sprite):
 
         self.sprite_id = str(stat["ID"])
         self.sprite_ver = str(stat["Sprite Ver"])
+        if "Only Sprite Version" in stat and stat["Only Sprite Version"]:  # data suggest only one sprite version exist
+            self.sprite_ver = str(stat["Only Sprite Version"])
 
         self.arrive_condition = stat["Arrive Condition"]
 
@@ -466,7 +473,6 @@ class Character(sprite.Sprite):
 
                 if self.freeze_timer:
                     self.freeze_timer -= dt
-                    hold_check = True
                     if self.freeze_timer < 0:
                         self.freeze_timer = 0
 
@@ -513,11 +519,14 @@ class Character(sprite.Sprite):
                 self.specific_update(self, dt)
 
                 # Animation and sprite system
+                if self.show_frame >= len(self.current_animation_direction):  # TODO remove when fixed
+                    print(self.name, self.show_frame, self.current_animation, self.current_action)
+
                 if "hold" in self.current_animation_direction[self.show_frame]["property"] and \
                     "hold" in self.current_action and \
-                        (not self.current_moveset or
-                         ("hold" in self.current_moveset["Property"]) or
-                         ("forced move" in self.current_action and (self.x_momentum or self.y_momentum))):
+                        ((not self.current_moveset and "forced move" not in self.current_action) or
+                         ("forced move" in self.current_action and (self.x_momentum or self.y_momentum)) or
+                         (self.current_moveset and "hold" in self.current_moveset["Property"])):
                     hold_check = True
                     self.hold_timer += dt
                     if self.current_moveset:
@@ -649,6 +658,7 @@ class Character(sprite.Sprite):
 class PlayableCharacter(Character):
     def __init__(self, game_id, stat, player_control):
         Character.__init__(self, game_id, stat, player_control=player_control)
+        self.indicator = CharacterIndicator(self)
         self.player_command_key_input = []
         self.player_key_input_timer = []
         self.player_key_hold_timer = {}
@@ -798,6 +808,8 @@ class AICharacter(Character):
         Character.__init__(self, game_id, stat)
         self.old_cursor_pos = None
         self.leader = leader
+        if self.leader:
+            self.indicator = CharacterIndicator(self)
         self.ai_move = ai_move_dict["default"]
         if "Ground Y POS" in stat and stat["Ground Y POS"]:  # replace ground pos based on data in stage
             self.ground_pos = stat["Ground Y POS"]

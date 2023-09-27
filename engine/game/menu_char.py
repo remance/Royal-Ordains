@@ -1,5 +1,5 @@
 playable_character = {"Vraesier": 0, "Rodhinbar": 1}
-default_stat = {"Sprite Ver": 1, "Team": 1, "Playable": True, "Skill Allocation": {}}
+default_stat = {"Sprite Ver": 1, "Team": 1, "Playable": True, "Skill Allocation": {}, "Start Health": 100}
 
 
 def menu_char(self, esc_press):
@@ -11,7 +11,7 @@ def menu_char(self, esc_press):
         self.back_mainmenu()
 
     elif self.start_button.event and any(item is not None for item in self.player_char_select.values()):
-        self.start_battle(1, 1, 1, players={key: value for key, value in self.player_char_select.items() if value})
+        self.start_battle(1, 1, 3, players={key: value for key, value in self.player_char_select.items() if value})
 
     else:
         for player in self.player_key_press:

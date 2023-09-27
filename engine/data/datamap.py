@@ -60,6 +60,29 @@ class BattleMapData(GameData):
         read_folder = Path(os.path.join(self.data_dir, "map", "preset"))
         sub1_directories = [x for x in read_folder.iterdir() if x.is_dir()]
 
+        self.stage_reward = {}
+        self.reward_list = {}
+        with open(os.path.join(self.data_dir, "map", "choice.csv"),
+                  encoding="utf-8", mode="r") as edit_file:
+            rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
+            header = rd[0]
+            dict_column = ("Reward",)
+            dict_column = [index for index, item in enumerate(header) if item in dict_column]
+            for index, row in enumerate(rd[1:]):
+                for n, i in enumerate(row):
+                    row = stat_convert(row, n, i, tuple_column=tuple_column, dict_column=dict_column)
+                if row[0] not in self.stage_reward:  # choice
+                    self.stage_reward[row[0]] = {}
+                if row[1] not in self.stage_reward[row[0]]:  # chapter
+                    self.stage_reward[row[0]][row[1]] = {}
+                if row[2] not in self.stage_reward[row[0]][row[1]]:  # mission
+                    self.stage_reward[row[0]][row[1]][row[2]] = {}
+                if row[3] not in self.stage_reward[row[0]][row[1]][row[2]]:  # stage
+                    self.stage_reward[row[0]][row[1]][row[2]][row[3]] = {}
+                self.stage_reward[row[0]][row[1]][row[2]][row[3]] = {row[4]: row[5]}
+                self.reward_list[row[4]] = row[5]
+        edit_file.close()
+
         preset_map_list = []
         self.preset_map_folder = []  # folder for reading later
         self.battle_campaign = {}

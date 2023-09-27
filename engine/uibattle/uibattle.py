@@ -12,6 +12,8 @@ from engine.utils.text_making import text_render_with_bg, text_render_with_textu
 
 from engine.utils.text_making import number_to_minus_or_plus
 
+team_colour = {1: Color("black"), 2: Color("red"), 3: Color("blue"), 4: Color("green")}
+
 
 class UIBattle(UIMenu):
     def __init__(self, player_interact=True, has_containers=False):
@@ -195,74 +197,116 @@ class FPSCount(UIBattle):
         self.image.blit(fps_text, self.text_rect)
 
 
-class EventLog(UIBattle):
-
-    def __init__(self, image, pos):
-        self._layer = 10
+class YesNo(UIBattle):
+    def __init__(self, images):
         UIBattle.__init__(self)
-        self.font = Font(self.ui_font["manuscript_font"], int(44 * self.screen_scale[1]))
-        self.font_height = self.font.get_height()
-        self.pos = pos
-        self.image = image
-        self.max_col_show = int(image.get_width() / self.font_height)
+        self._layer = 5
+        self.yes_image = images["yes"]
+        self.no_image = images["no"]
+
+        self.yes_zoom_animation_timer = 0
+        self.no_zoom_animation_timer = 0
+
+        self.image = Surface((self.yes_image.get_width() * 2.5, self.yes_image.get_height() * 1.5), SRCALPHA)
         self.base_image = self.image.copy()
+
+        self.pos = Vector2(self.screen_size[0] / 2, 400 * self.screen_scale[1])
+        yes_image_rect = self.yes_image.get_rect(midleft=(0, self.image.get_height() / 2))
+        no_image_rect = self.no_image.get_rect(midright=(self.image.get_width(), self.image.get_height() / 2))
+        self.image.blit(self.yes_image, yes_image_rect)
+        self.image.blit(self.no_image, no_image_rect)
+        self.base_image2 = self.image.copy()
+        self.selected = None
+
+        self.rect = self.image.get_rect(center=self.pos)
+
+    def update(self):
+        yes_image_rect = self.yes_image.get_rect(midleft=(0, self.image.get_height() / 2))
+        no_image_rect = self.no_image.get_rect(midright=(self.image.get_width(),
+                                                         self.image.get_height() / 2))
+        cursor_pos = (self.battle.player1_battle_cursor.pos[0] - self.rect.topleft[0],
+                      self.battle.player1_battle_cursor.pos[1] - self.rect.topleft[1])
+        if yes_image_rect.collidepoint(cursor_pos):
+            self.image = self.base_image.copy()
+            self.no_zoom_animation_timer = 0
+            if not self.yes_zoom_animation_timer:
+                self.yes_zoom_animation_timer = 0.01
+                yes_zoom_animation_timer = 1.01
+            else:
+                self.yes_zoom_animation_timer += self.battle.dt / 5
+                yes_zoom_animation_timer = 1 + self.yes_zoom_animation_timer
+                if self.yes_zoom_animation_timer > 0.2:
+                    yes_zoom_animation_timer = 1.2 - (self.yes_zoom_animation_timer - 0.2)
+                    if self.yes_zoom_animation_timer > 0.4:
+                        self.yes_zoom_animation_timer = 0
+
+            yes_image = smoothscale(self.yes_image, (self.yes_image.get_width() * yes_zoom_animation_timer,
+                                                     self.yes_image.get_height() * yes_zoom_animation_timer))
+            yes_image_rect = yes_image.get_rect(midleft=(0, self.image.get_height() / 2))
+            self.image.blit(yes_image, yes_image_rect)
+            self.image.blit(self.no_image, no_image_rect)
+
+        elif no_image_rect.collidepoint(cursor_pos):
+            self.image = self.base_image.copy()
+            self.yes_zoom_animation_timer = 0
+            if not self.no_zoom_animation_timer:
+                self.no_zoom_animation_timer = 0.01
+                no_zoom_animation_timer = 1.01
+            else:
+                self.no_zoom_animation_timer += self.battle.dt / 5
+                no_zoom_animation_timer = 1 + self.no_zoom_animation_timer
+                if self.no_zoom_animation_timer > 0.2:
+                    no_zoom_animation_timer = 1.2 - (self.no_zoom_animation_timer - 0.2)
+                    if self.no_zoom_animation_timer > 0.4:
+                        self.no_zoom_animation_timer = 0
+
+            no_image = smoothscale(self.no_image, (self.no_image.get_width() * no_zoom_animation_timer,
+                                                   self.no_image.get_height() * no_zoom_animation_timer))
+            no_image_rect = no_image.get_rect(midright=(self.image.get_width(), self.image.get_height() / 2))
+            self.image.blit(no_image, no_image_rect)
+            self.image.blit(self.yes_image, yes_image_rect)
+
+        elif self.no_zoom_animation_timer or self.yes_zoom_animation_timer:
+            self.no_zoom_animation_timer = 0
+            self.yes_zoom_animation_timer = 0
+            self.image = self.base_image2.copy()
+
+        if self.battle.player_key_press[1]["Weak"]:
+            if yes_image_rect.collidepoint(cursor_pos):
+                self.selected = "yes"
+            elif no_image_rect.collidepoint(cursor_pos):
+                self.selected = "no"
+                pass
+
+
+class CharacterIndicator(UIBattle):
+    def __init__(self, character):
+        self._layer = 9999999999999999998
+        UIBattle.__init__(self, has_containers=True)
+        self.font = Font(self.ui_font["main_button"], 42)
+        self.character = character
+        if character.player_control:
+            text = "P" + str(character.game_id)
+
+            self.image = text_render_with_bg(text,
+                                             Font(self.ui_font["manuscript_font"], int(42 * self.screen_scale[1])),
+                                             gf_colour=team_colour[self.character.team], o_colour=Color("white"))
+        else:
+            text = "C" + str(character.team)
+
+            self.image = text_render_with_bg(text,
+                                             Font(self.ui_font["manuscript_font"], int(32 * self.screen_scale[1])),
+                                             gf_colour=team_colour[self.character.team], o_colour=Color("white"))
+
+        self.base_pos = None
+        self.pos = self.character.pos
         self.rect = self.image.get_rect(midbottom=self.pos)
-        self.len_check = 0
-        self.current_start_row = 0
-        self.battle_log = []
-        self.scroll = None  # Link from battle after creation of the object
 
-    def make_new_log(self):
-        self.battle_log = []
-        self.current_start_row = 0
-        self.len_check = 0  # total number of row in the current mode
-
-    def add_event_log(self, map_event):
-        self.map_event = map_event
-
-    def recreate_image(self):
-        self.image = self.base_image.copy()
-        row = 10 * self.screen_scale[1]
-        for index, text in enumerate(self.battle_log[self.current_start_row:]):
-            text_surface = text_render_with_texture(text, self.font, self.font_texture["gold"])
-            text_rect = text_surface.get_rect(topleft=(40, row))
-            self.image.blit(text_surface, text_rect)
-            row += (self.font_height + 10) * self.screen_scale[1]  # Whitespace between text row
-
-    def log_text_process(self, text_output):
-        """Cut up whole log into separate sentence based on space"""
-        if len(text_output) <= self.max_col_show:  # EventLog each row cannot exceed eventlog size
-            self.battle_log.append(text_output)
-        else:  # Cut the text log into multiple row
-            cut_space = [index for index, letter in enumerate(text_output) if letter == " "]
-            loop_number = len(text_output) / 45  # number of row
-            if not loop_number.is_integer():  # always round up if there is decimal number
-                loop_number = int(loop_number) + 1
-            starting_index = 0
-
-            for run in range(1, int(loop_number) + 1):
-                text_cut_number = [number for number in cut_space if number <= run * 45]
-                cut_number = text_cut_number[-1]
-                final_text_output = text_output[starting_index:cut_number]
-                if run == loop_number:
-                    final_text_output = text_output[starting_index:]
-                if run == 1:
-                    self.battle_log.append(final_text_output)
-                else:
-                    self.battle_log.append(final_text_output)
-                starting_index = cut_number + 1
-
-        return True
-
-    def add_log(self, event_id=None):
-        """Add new log to appropriate event log"""
-        self.make_new_log()
-        if event_id and event_id in self.map_event:  # Process whether there is commentary to add to event log
-            text_output = self.map_event[event_id]
-            image_change = self.log_text_process(text_output["Text"])
-            if image_change:
-                self.len_check = len(self.battle_log)
-                self.recreate_image()
+    def update(self, dt):
+        if self.base_pos != self.character.base_pos:
+            self.base_pos = self.character.base_pos.copy()
+            self.pos = (self.character.pos[0], (self.character.pos[1] - self.character.sprite_size * 2.2 ))
+            self.rect.midbottom = self.pos
 
 
 class UIScroll(UIBattle):
@@ -518,8 +562,6 @@ class TimeUI(UIBattle):
 
 
 class DamageNumber(UIBattle):
-    team_colour = {1: Color("black"), 2: Color("red"), 3: Color("blue"), 4: Color("green")}
-
     def __init__(self, value, pos, critical, team, move=True):
         self._layer = 9999999999999999999
         UIBattle.__init__(self, has_containers=True)
@@ -527,10 +569,10 @@ class DamageNumber(UIBattle):
 
         if critical:
             self.image = text_render_with_bg(str(value), Font(self.ui_font["manuscript_font2"], int(76 * self.screen_scale[1])),
-                                             gf_colour=self.team_colour[team])
+                                             gf_colour=team_colour[team])
         else:
             self.image = text_render_with_bg(str(value), Font(self.ui_font["manuscript_font"], int(46 * self.screen_scale[1])),
-                                             gf_colour=self.team_colour[team])
+                                             gf_colour=team_colour[team])
         self.rect = self.image.get_rect(midbottom=pos)
         self.timer = 0.5
 
