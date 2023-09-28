@@ -161,7 +161,7 @@ class Character(sprite.Sprite):
                                 "next action": standup_command_action, "stand": True}
 
     die_command_action = {"name": "Die", "uninterruptible": True, "uncontrollable": True, "stand": True,
-                          "forced move": True}
+                          "forced move": True, "die": True}
 
     # static variable
     default_animation_play_time = 0.1
@@ -198,6 +198,7 @@ class Character(sprite.Sprite):
         self.max_show_frame = 0
         self.stoppable_frame = False
         self.hit_enemy = False
+        self.is_boss = False
         self.frame_timer = 0
         self.effect_timer = 0
         self.effect_frame = 0
@@ -217,7 +218,7 @@ class Character(sprite.Sprite):
 
         self.enemy_list = self.battle.all_team_enemy[self.team]
         self.enemy_part_list = self.battle.all_team_enemy_part[self.team]
-        self.ally_list = self.battle.all_team_unit[self.team]
+        self.ally_list = self.battle.all_team_character[self.team]
         self.near_ally = []
         self.near_enemy = []
         self.nearest_enemy = None
@@ -639,17 +640,20 @@ class Character(sprite.Sprite):
                 self.frame_timer = 0
                 self.pick_animation()
 
-            if self.show_frame < self.max_show_frame:  # play die animation
+            if "die" in self.current_action:
+                if self.show_frame < self.max_show_frame:  # play die animation
+                    self.play_animation(dt, False)
+                else:  # finish die animation
+                    if self.resurrect_count:  # resurrect back
+                        # self.resurrect_count -= 1
+                        self.interrupt_animation = True
+                        self.alive = True
+                        self.command_action = self.standup_command_action
+                        self.health = self.max_health
+                    else:  # permanent death
+                        self.die("dead")
+            else:
                 self.play_animation(dt, False)
-            else:  # finish die animation
-                if self.resurrect_count:  # resurrect back
-                    # self.resurrect_count -= 1
-                    self.interrupt_animation = True
-                    self.alive = True
-                    self.command_action = self.standup_command_action
-                    self.health = self.max_health
-                else:  # permanent death
-                    self.die("dead")
 
     def ai_update(self, dt):
         pass
@@ -808,6 +812,7 @@ class AICharacter(Character):
         Character.__init__(self, game_id, stat)
         self.old_cursor_pos = None
         self.leader = leader
+        self.is_boss = stat["Boss"]
         if self.leader:
             self.indicator = CharacterIndicator(self)
         self.ai_move = ai_move_dict["default"]

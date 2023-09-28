@@ -5,7 +5,7 @@ def die(self, how):
     """Character left battle, either dead or flee"""
 
     # remove from updater
-    self.battle.all_team_unit[self.team].remove(self)
+    self.battle.all_team_character[self.team].remove(self)
     for team in self.battle.all_team_enemy_part:
         if team != self.team:
             for part in self.body_parts.values():

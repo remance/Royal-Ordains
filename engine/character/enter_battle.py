@@ -23,7 +23,7 @@ def enter_battle(self, animation_data_pool):
                        else BodyPart(self, key, can_hurt=False) for key, value in self.body_parts.items()}
 
     # Add character to list
-    self.battle.all_team_unit[self.team].add(self)
+    self.battle.all_team_character[self.team].add(self)
     if not self.invincible:  # not add to list if can't take damage
         for team in self.battle.all_team_enemy:
             if team != self.team:

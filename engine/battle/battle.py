@@ -170,8 +170,8 @@ class Battle:
         self.game_speed = 1
         self.day_time = "Day"
         self.old_day_time = self.day_time
-        self.all_team_unit = {1: pygame.sprite.Group(), 2: pygame.sprite.Group(),
-                              3: pygame.sprite.Group(), 4: pygame.sprite.Group()}
+        self.all_team_character = {1: pygame.sprite.Group(), 2: pygame.sprite.Group(),
+                                   3: pygame.sprite.Group(), 4: pygame.sprite.Group()}
         self.all_team_enemy = {1: pygame.sprite.Group(), 2: pygame.sprite.Group(),
                                3: pygame.sprite.Group(), 4: pygame.sprite.Group()}
         self.all_team_enemy_part = {1: pygame.sprite.Group(), 2: pygame.sprite.Group(),
@@ -398,7 +398,7 @@ class Battle:
         if not self.players:
             self.camera_mode = "Free"
 
-        for this_group in self.all_team_unit.values():
+        for this_group in self.all_team_character.values():
             this_group.empty()
         for this_group in self.all_team_enemy.values():
             this_group.empty()
@@ -774,16 +774,37 @@ class Battle:
                         elif not self.stage_end_choice:
                             if "Victory" not in self.drama_text.queue:
                                 self.drama_text.queue.append("Victory")
+
+                        if self.decision_select.selected:
+                            if self.decision_select.selected == "yes":
+                                self.player_team_followers = self.stage_reward["yes"][self.chapter][self.mission][self.stage]
+                            else:
+                                pass
+                                # self.player_equipment_store.append(self.stage_reward["no"][self.chapter][self.mission][self.stage])
+
+                            for character in self.character_updater:
+                                if character.is_boss:
+                                    # start decision animation
+                                    character.engage_combat()
+                                    character.position = "Stand"  # enforce stand position
+                                    if self.decision_select.selected == "yes":
+                                        character.current_action = {"name": "Submit", "repeat": "True", "movable": "True"}
+                                    else:
+                                        character.current_action = {"name": "Execute", "movable": "True"}
+                                    character.show_frame = 0
+                                    character.frame_timer = 0
+                                    character.pick_animation()
+                                elif character == self.helper:  # helper
+                                    pass
+
+                            self.realtime_ui_updater.remove(self.decision_select)
+                            self.decision_select.selected = None
+
                     if self.decision_select.selected or self.decision_select not in self.realtime_ui_updater:
                         #  player select decision or mission has no decision, count end delay
-                        if self.decision_select.selected == "yes":
-                            self.player_team_followers = self.stage_reward["yes"][self.chapter][self.mission][self.stage]
-                        else:
-                            pass
-                            # self.player_equipment_store.append(self.stage_reward["no"][self.chapter][self.mission][self.stage])
-                        self.realtime_ui_updater.remove(self.decision_select)
-                        self.decision_select.selected = None
+
                         self.end_delay += self.dt
+
                         if self.end_delay >= 5:  # end battle
                             self.end_delay = 0
                             self.exit_battle()

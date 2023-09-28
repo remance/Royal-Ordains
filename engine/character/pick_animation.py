@@ -31,6 +31,9 @@ def pick_animation(self):
             if self.current_moveset:
                 if self.resource >= self.current_moveset["Resource Cost"] and \
                         self.current_moveset["Move"] not in self.attack_cooldown:
+
+                    self.current_action = self.current_action | self.current_moveset["Property"]  # add property
+
                     self.resource -= self.current_moveset["Resource Cost"]
                     if self.current_moveset["Cooldown"]:
                         self.attack_cooldown[self.current_moveset["Move"]] = self.current_moveset["Cooldown"]

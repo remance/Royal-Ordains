@@ -17,7 +17,7 @@
 "Weak","aweak1","Air Kick Down","Air",,,"leg",150,,,31,9,,,10,,"Physical",,,,,,,
 "Weak","aweak2","Air Kick Front","Air",,"aweak1","leg",200,,,48,25,,,6,,"Physical",,,,,,,
 "Weak","aweak3","Air Pierce","Air",,"aweak2","sword",250,,,67,20,,,20,,"Physical",,31,,,,,
-"Down,Strong","adstrong","Air Pierce Down","Air",,,"sword",100,,,140,,,,70,,"Physical",,,,,,,
+"Down,Strong","adstrong","Air Pierce Down","Air",,,"sword",100,,,140,,,,70,,"Physical",,,,,,,"default_drop_speed"
 "Strong","astrong1","Left Air Punch","Air",,,"fist",150,,,81,15,,,12,,"Physical",,,,,,,
 "Strong","astrong2","Two-handed Slash Out","Air",,"astrong1","sword",300,,,100,24,,,12,,"Physical",,,,,,,
 "Strong","astrong3","Full Arc Slash","Air",,"astrong2","sword",300,,,114,,,,60,5,"Physical",,,,,,,
