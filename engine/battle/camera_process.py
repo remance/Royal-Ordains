@@ -9,9 +9,9 @@ def camera_process(self):
             self.camera_fix()
 
     elif self.camera_mode == "Follow":
-        pos_change = (self.player_objects[1].pos[0] - self.camera_pos[0]) / 10
+        pos_change = (self.player_objects[self.first_player].pos[0] - self.camera_pos[0]) / 10
         if pos_change != 0:
             if abs(pos_change) < 10:
-                pos_change = self.player_objects[1].pos[0] - self.camera_pos[0]
+                pos_change = self.player_objects[self.first_player].pos[0] - self.camera_pos[0]
             self.camera_pos[0] += pos_change
             self.camera_fix()

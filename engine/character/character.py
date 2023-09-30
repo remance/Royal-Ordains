@@ -562,11 +562,11 @@ class Character(sprite.Sprite):
                     if done:
                         if self.current_moveset:
                             if "helper" in self.current_moveset["Property"]:
-                                for item in self.current_moveset["Property"]:
-                                    if "helper:" in item:
+                                for key, value in self.current_moveset["Property"].items():
+                                    if key == "drop":
                                         self.battle.helper.interrupt_animation = True
                                         self.battle.helper.command_action = {"name": "special",
-                                                                             "drop": item.split(":")[1]}
+                                                                             "drop": value}
                         if "drop" in self.current_action:
                             Drop(Vector2(self.base_pos), self.current_action["drop"], self.team)
 

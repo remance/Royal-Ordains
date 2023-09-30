@@ -110,8 +110,7 @@ class BattleMapData(GameData):
                     self.preset_map_data[int(campaign_file_name)][int(map_file_name)][int(source_file_name)] = \
                         {"data": csv_read(file_source, "object_pos.csv", header_key=True),
                          "character": self.load_map_unit_data(campaign_file_name, map_file_name, source_file_name),
-                         "map_event": csv_read(file_source, "map_event.csv", header_key=True),
-                         "eventlog": csv_read(file_source, "eventlog.csv", header_key=True)}
+                         "stage_event": csv_read(file_source, "stage_event.csv", header_key=True)}
 
     def load_map_unit_data(self, campaign_id, map_id, map_source):
         try:

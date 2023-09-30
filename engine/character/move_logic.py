@@ -67,11 +67,11 @@ def move_logic(self, dt):
         if self.x_momentum or self.y_momentum:
             new_pos = self.base_pos + Vector2(self.x_momentum, -self.y_momentum)
             if not self.broken:  # cannot go pass map unless in retreat state
-                if self.battle.base_stage_start > new_pos[0]:
-                    new_pos[0] = self.battle.base_stage_start
+                if self.battle.base_camera_begin > new_pos[0]:
+                    new_pos[0] = self.battle.base_camera_begin
                     self.x_momentum = 0
-                elif new_pos[0] > self.battle.base_stage_end:
-                    new_pos[0] = self.battle.base_stage_end
+                elif new_pos[0] > self.battle.base_camera_end:
+                    new_pos[0] = self.battle.base_camera_end
                     self.x_momentum = 0
             move = new_pos - self.base_pos
             if move.length():

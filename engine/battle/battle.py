@@ -89,11 +89,11 @@ class Battle:
         self.play_effect_volume = game.play_effect_volume
         self.play_voice_volume = game.play_voice_volume
         self.joystick_bind_name = game.joystick_bind_name
-        self.player_key_control = {1: self.config["USER"]["control player 1"]}
-        self.player_key_bind = {1: self.game.player_key_bind_list[1][self.player_key_control[1]]}
-        self.player_key_bind_name = {1: {value: key for key, value in self.player_key_bind[1].items()}}
-        self.player_key_press = {1: {key: False for key in self.player_key_bind[1]}}
-        self.player_key_hold = {1: {key: False for key in self.player_key_bind[1]}}  # key that consider holding
+        self.player_key_control = {player: self.config["USER"]["control player " + str(player)] for player in game.player_list}
+        self.player_key_bind = {player: self.game.player_key_bind_list[player][self.player_key_control[player]] for player in game.player_list}
+        self.player_key_bind_name = {player: {value: key for key, value in self.player_key_bind[player].items()} for player in game.player_list}
+        self.player_key_press = {player: {key: False for key in self.player_key_bind[player]} for player in game.player_list}
+        self.player_key_hold = {player: {key: False for key in self.player_key_bind[player]} for player in game.player_list}
         self.screen_rect = game.screen_rect
 
         Battle.battle_camera_size = (self.screen_rect.width, self.screen_rect.height)
@@ -217,6 +217,7 @@ class Battle:
         self.time_number = battle_ui_dict["time_number"]
         self.realtime_ui_updater.add((self.time_ui, self.time_number))
         self.player_1_portrait = battle_ui_dict["player_1_portrait"]
+        self.player_2_portrait = battle_ui_dict["player_2_portrait"]
         self.current_weather = Weather(self.time_ui, 4, 0, 0, None)
 
         TextDrama.images = load_images(self.data_dir, screen_scale=self.screen_scale,
@@ -234,10 +235,11 @@ class Battle:
         self.esc_option_text = esc_menu_dict["volume_texts"]
 
         # Create the game camera
+        self.first_player = 1  # TODO need to add recheck later for when resurrect count run out
         self.camera_mode = "Follow"  # mode of game camera, follow player character or free observation
         self.camera_pos = Vector2(500, 500)  # camera pos on stage
-        self.camera_begin = self.camera_pos[0] - self.battle_camera_center[0]
-        self.camera_end = self.camera_pos[0] + self.battle_camera_center[0]
+        self.base_camera_begin = (self.camera_pos[0] - self.battle_camera_center[0]) / self.screen_scale[0]
+        self.base_camera_end = (self.camera_pos[0] + self.battle_camera_center[0]) / self.screen_scale[0]
 
         self.shown_camera_pos = self.camera_pos  # pos of camera shown to player, in case of screen shaking or other effects
 
@@ -330,8 +332,8 @@ class Battle:
         yield set_done_load()
 
         yield set_start_load(self, "map events")
-        map_event_text = self.localisation.grab_text(("map", str(chapter), str(mission), str(stage), "eventlog"))
-        map_event = self.game.preset_map_data[chapter][mission][stage]["eventlog"]
+        # map_event_text = self.localisation.grab_text(("map", str(chapter), str(mission), str(stage), "eventlog"))
+        # map_event = self.game.preset_map_data[chapter][mission][stage]["eventlog"]
 
         self.time_number.start_setup()
         yield set_done_load()
@@ -457,7 +459,9 @@ class Battle:
         #                                                       150 * self.screen_scale[1]))
         # self.portrait_rect = portrait.get_rect(center=(portrait.get_width() / 1.6,
         #                                                portrait.get_height() * 0.95))
-        self.camera_pos = pygame.Vector2(self.player_objects[1].pos[0], self.battle_camera_center[1])
+        self.first_player = tuple(self.player_objects.keys())[0]
+        self.camera_pos = pygame.Vector2(self.player_objects[self.first_player].pos[0],
+                                         self.battle_camera_center[1])
         self.camera_fix()
 
         self.shown_camera_pos = self.camera_pos
@@ -479,11 +483,16 @@ class Battle:
         self.command_cursor_pos = [0, 0]  # with zoom and screen scale for character command
         mouse.set_pos(Vector2(self.battle.camera_pos[0], 140 * self.screen_scale[1]))  # set cursor to midtop screen
 
-        self.player_key_control = {1: self.config["USER"]["control player 1"]}
-        self.player_key_bind = {1: self.game.player_key_bind_list[1][self.player_key_control[1]]}
-        self.player_key_bind_name = {1: {value: key for key, value in self.player_key_bind[1].items()}}
-        self.player_key_press = {1: {key: False for key in self.player_key_bind[1]}}
-        self.player_key_hold = {1: {key: False for key in self.player_key_bind[1]}}  # key that consider holding
+        self.player_key_control = {player: self.config["USER"]["control player " + str(player)] for player in
+                                   self.game.player_list}
+        self.player_key_bind = {player: self.game.player_key_bind_list[player][self.player_key_control[player]] for
+                                player in self.game.player_list}
+        self.player_key_bind_name = {player: {value: key for key, value in self.player_key_bind[player].items()} for
+                                     player in self.game.player_list}
+        self.player_key_press = {player: {key: False for key in self.player_key_bind[player]} for player in
+                                 self.game.player_list}
+        self.player_key_hold = {player: {key: False for key in self.player_key_bind[player]} for player in
+                                self.game.player_list}
 
         self.screen.fill((0, 0, 0))
         self.realtime_ui_updater.add(self.player1_battle_cursor)

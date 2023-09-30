@@ -271,7 +271,7 @@ class YesNo(UIBattle):
             self.yes_zoom_animation_timer = 0
             self.image = self.base_image2.copy()
 
-        if self.battle.player_key_press[1]["Weak"]:
+        if self.battle.player_key_press[self.battle.first_player]["Weak"]:
             if yes_image_rect.collidepoint(cursor_pos):
                 self.selected = "yes"
             elif no_image_rect.collidepoint(cursor_pos):

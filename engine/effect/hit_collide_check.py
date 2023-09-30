@@ -12,7 +12,7 @@ def hit_collide_check(self, effect=False):
     hit_list = spritecollide(self, self.battle.all_effects, False)
     if hit_list:
         for this_effect in hit_list:
-            if this_effect.owner != self.owner and this_effect.owner.team != self.owner.team and this_effect.dmg:  # TODO add friendly fire check later
+            if this_effect.owner != self.owner and this_effect.owner.team != self.owner.team and this_effect.dmg:
                 dmg_diff = abs(this_effect.dmg - self.dmg) / 2
                 if dmg_diff < self.dmg / 2:  # both dmg quite near in power
                     this_effect.dmg = 0

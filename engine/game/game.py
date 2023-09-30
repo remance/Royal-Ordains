@@ -53,6 +53,8 @@ class Game:
     ui_drawer = None
     battle_camera = None
 
+    player_list = (1, 2)
+    
     screen_rect = None
     screen_scale = (1, 1)
     screen_size = ()
@@ -168,8 +170,8 @@ class Game:
             self.voice_volume = float(self.config["USER"]["voice_volume"])
             self.play_voice_volume = self.master_volume * self.voice_volume / 10000
             self.language = str(self.config["USER"]["language"])
-            self.player_key_bind_list = {1: ast.literal_eval(self.config["USER"]["keybind player 1"])}
-            self.player_key_control = {1: self.config["USER"]["control player 1"]}
+            self.player_key_bind_list = {player: ast.literal_eval(self.config["USER"]["keybind player " + str(player)]) for player in self.player_list}
+            self.player_key_control = {player: self.config["USER"]["control player " + str(player)] for player in self.player_list}
             if self.game_version != self.config["VERSION"]["ver"]:  # remake config as game version change
                 raise KeyError  # cause KeyError to reset config file
         except (KeyError, TypeError, NameError):  # config error will make the game recreate config with default
@@ -187,8 +189,8 @@ class Game:
             self.voice_volume = float(self.config["USER"]["voice_volume"])
             self.play_voice_volume = self.master_volume * self.voice_volume / 10000
             self.language = str(self.config["USER"]["language"])
-            self.player_key_bind_list = {1: ast.literal_eval(self.config["USER"]["keybind player 1"])}
-            self.player_key_control = {1: self.config["USER"]["control player 1"]}
+            self.player_key_bind_list = {player: ast.literal_eval(self.config["USER"]["keybind player " + str(player)]) for player in self.player_list}
+            self.player_key_control = {player: self.config["USER"]["control player " + str(player)] for player in self.player_list}
 
         Game.language = self.language
 
@@ -215,11 +217,11 @@ class Game:
         self.joysticks = {}
         self.joystick_name = {}
 
-        self.player_key_control = {1: self.config["USER"]["control player 1"]}
-        self.player_key_bind = {1: self.player_key_bind_list[1][self.player_key_control[1]]}
-        self.player_key_bind_name = {1: {value: key for key, value in self.player_key_bind[1].items()}}
-        self.player_key_press = {1: {key: False for key in self.player_key_bind[1]}}
-        self.player_key_hold = {1: {key: False for key in self.player_key_bind[1]}}  # key that consider holding
+        self.player_key_control = {player: self.config["USER"]["control player " + str(player)] for player in self.player_list}
+        self.player_key_bind = {player: self.game.player_key_bind_list[player][self.player_key_control[player]] for player in self.player_list}
+        self.player_key_bind_name = {player: {value: key for key, value in self.player_key_bind[player].items()} for player in self.player_list}
+        self.player_key_press = {player: {key: False for key in self.player_key_bind[player]} for player in self.player_list}
+        self.player_key_hold = {player: {key: False for key in self.player_key_bind[player]} for player in self.player_list}  # key that consider holding
 
         Game.ui_font = csv_read(self.data_dir, "ui_font.csv", ("ui",), header_key=True)
         for item in Game.ui_font:  # add ttf file extension for font data reading.
@@ -392,17 +394,6 @@ class Game:
         self.select_button = MenuButton(base_button_image_list,
                                         (self.screen_rect.width - base_button_image_list[0].get_width(), bottom_height),
                                         key_name="select_button")
-        self.start_button = MenuButton(base_button_image_list,
-                                       (self.screen_rect.width / 1.5, self.screen_rect.height / 1.2),
-                                       key_name="start_button")
-        self.map_back_button = MenuButton(base_button_image_list,
-                                          (
-                                              self.screen_rect.width - (self.screen_rect.width - base_button_image_list[
-                                                  0].get_width()),
-                                              bottom_height), key_name="back_button")
-
-        self.map_select_button = (self.select_button, self.map_back_button)
-        self.unit_select_button = (self.start_button, self.map_back_button)
 
         # Option menu button
         option_menu_dict = make_option_menu(base_button_image_list, self.config["USER"],
@@ -432,11 +423,18 @@ class Game:
             self.fullscreen_box, self.fps_box)
 
         # Character select menu button
+        self.start_button = MenuButton(base_button_image_list,
+                                       (self.screen_rect.width / 1.5, self.screen_rect.height / 1.05),
+                                       key_name="start_button")
+        self.char_back_button = MenuButton(base_button_image_list,
+                                           (self.screen_rect.width / 4, self.screen_rect.height / 1.05),
+                                           key_name="back_button")
+
         char_selector_images = load_images(self.data_dir, screen_scale=self.screen_scale,
                                             subfolder=("ui", "charselect_ui"), key_file_name_readable=True)
-        self.player1_char_selector = CharacterSelector((self.screen_width / 2, self.screen_height / 2),
+        self.player1_char_selector = CharacterSelector((self.screen_width / 4, self.screen_height / 2),
                                                        char_selector_images)
-        self.player2_char_selector = CharacterSelector((self.screen_width / 2, self.screen_height / 2),
+        self.player2_char_selector = CharacterSelector((self.screen_width / 1.5, self.screen_height / 2),
                                                        char_selector_images)
         self.player3_char_selector = CharacterSelector((self.screen_width / 2, self.screen_height / 2),
                                                        char_selector_images)
@@ -444,7 +442,8 @@ class Game:
                                                        char_selector_images)
         self.player_char_selectors = {1: self.player1_char_selector, 2: self.player2_char_selector,
                                       3: self.player3_char_selector, 4: self.player4_char_selector}
-        self.char_menu_button = (self.player1_char_selector, self.back_button, self.start_button)
+        self.char_menu_button = (self.player1_char_selector, self.player2_char_selector,
+                                 self.char_back_button, self.start_button)
 
         # User input popup ui
         input_ui_dict = make_input_box(self.data_dir, self.screen_scale, self.screen_rect,
