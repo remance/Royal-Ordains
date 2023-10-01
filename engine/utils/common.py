@@ -1,7 +1,7 @@
+from collections.abc import Iterable
+
 import pygame
 import pygame.freetype
-
-from collections.abc import Iterable
 
 
 def empty_method(*args):

@@ -5,4 +5,3 @@ def use_skill(self, value):
                {"next action": value["Property"] | {"Name": value["Move"], "moveset": True, "skill": True}}
     else:
         return value["Property"] | {"Name": value["Move"], "moveset": True, "skill": True}
-

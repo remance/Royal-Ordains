@@ -1,6 +1,3 @@
-from random import getrandbits
-
-
 def training_ai(self):
     pass
 

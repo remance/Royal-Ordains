@@ -37,7 +37,7 @@ def menu_option(self, esc_press):
         else:  # no joystick, reset player 1 to keyboard
             self.config["USER"]["control player 1"] = "keyboard"
             edit_config("USER", "control player 1", "keyboard", self.config_path, self.config)
-            self.control_switch.change_control("keyboard")
+            self.control_switch.change_control("keyboard", 1)
             self.player_key_control[1] = self.config["USER"]["control player 1"]
             for key, value in self.keybind_icon.items():
                 value.change_key(self.config["USER"]["control player 1"],
@@ -47,7 +47,7 @@ def menu_option(self, esc_press):
         self.remove_ui_updater(*self.option_text_list, *self.option_menu_sliders.values(),
                                *self.value_boxes.values(), self.option_menu_button)
         self.add_ui_updater(*self.keybind_text.values(), *self.keybind_icon.values(), self.control_switch,
-                            self.back_button, self.default_button)
+                            self.back_button, self.default_button, self.control_player_back, self.control_player_next)
 
     elif self.default_button.event_press:  # revert all setting to original
         for setting in self.config["DEFAULT"]:

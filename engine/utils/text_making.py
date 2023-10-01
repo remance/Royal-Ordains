@@ -1,10 +1,10 @@
 import datetime
 import os
+from random import randint
 
 import pygame
-from pygame import Color, Surface, image
 from PIL import Image
-from random import randint
+from pygame import Color, Surface, image
 
 
 def change_number(number):

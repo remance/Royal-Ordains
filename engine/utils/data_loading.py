@@ -1,14 +1,12 @@
 import csv
 import os
 import re
+from pathlib import Path
 
+from PIL import Image
 from pygame import image
 from pygame.mixer import Sound
 from pygame.transform import smoothscale
-
-from PIL import Image
-
-from pathlib import Path
 
 accept_image_types = ("png", "jpg", "jpeg", "svg", "gif", "bmp")
 

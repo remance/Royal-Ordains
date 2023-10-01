@@ -2,8 +2,6 @@ import csv
 import os
 from pathlib import Path
 
-from pygame import Vector2
-
 from engine.data.datastat import GameData
 from engine.utils.data_loading import load_images, stat_convert, recursive_image_load, filename_convert_readable as fcv
 
@@ -56,7 +54,8 @@ class AnimationData(GameData):
                                                        "l_side": []}
                             flip_row = row.copy()  # flip sprite data for left direction
                             for part_index, part_data in enumerate(flip_row):
-                                if part_data and type(part_data) is list and "property" not in part_name_header[part_index]:
+                                if part_data and type(part_data) is list and "property" not in part_name_header[
+                                    part_index]:
                                     flip_row[part_index] = [-item if index in (2, 4) else item for
                                                             index, item in enumerate(part_data)]
                                     if not flip_row[part_index][5]:
@@ -120,7 +119,7 @@ class AnimationData(GameData):
             self.effect_animation_pool[folder_data_name] = {}
             part_folder2 = Path(os.path.join(self.data_dir, "animation", "sprite", "effect", folder[-1]))
             sub_directories2 = [os.path.split(os.sep.join(os.path.normpath(x).split(os.sep)[-1:]))[-1] for x
-                               in part_folder2.iterdir() if x.is_dir()]
+                                in part_folder2.iterdir() if x.is_dir()]
             if sub_directories2:
                 for folder2 in sub_directories2:
                     folder_data_name2 = fcv(folder2)
@@ -141,10 +140,12 @@ class AnimationData(GameData):
                         if "#" in true_name:  # has animation to play
                             animation_list = [value for key, value in images.items() if true_name[:-1] ==
                                               " ".join([string for string in key.split(" ")[:-1]])]
-                            self.effect_animation_pool[folder_data_name][folder_data_name2][true_name[:-1]] = tuple(animation_list)
+                            self.effect_animation_pool[folder_data_name][folder_data_name2][true_name[:-1]] = tuple(
+                                animation_list)
                         else:
                             animation_list = [value for key, value in images.items() if true_name == key]
-                            self.effect_animation_pool[folder_data_name][folder_data_name2][true_name] = tuple(animation_list)
+                            self.effect_animation_pool[folder_data_name][folder_data_name2][true_name] = tuple(
+                                animation_list)
 
         self.stage_object_sprite_pool = {}
         self.stage_object_animation_pool = {}

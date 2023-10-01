@@ -31,7 +31,8 @@ def hit_register(self, target, dmg_text_pos):
                     target.guard_meter -= attacker_dmg
                     if target.guard_meter < 0:  # guard depleted, break with heavy damaged animation
                         if self.owner.player_control:
-                            Effect(None, ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle), 0)
+                            Effect(None, ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle),
+                                   0)
                         else:
                             Effect(None, ("Crash Enemy", "Crash", self.rect.centerx, self.rect.centery, -self.angle), 0)
                         target.guard_meter = 0
@@ -45,7 +46,8 @@ def hit_register(self, target, dmg_text_pos):
                         if self.owner.player_control:  # player hit enemy guard
                             Effect(None, ("Crash Enemy", "Crash", self.rect.centerx, self.rect.centery, -self.angle), 0)
                         else:  # enemy hit player ghard
-                            Effect(None, ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle), 0)
+                            Effect(None, ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle),
+                                   0)
                         target.show_frame -= 3
                 else:  # perfect guard, not reduce meter
                     Effect(None, ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle), 0)
@@ -62,4 +64,3 @@ def hit_register(self, target, dmg_text_pos):
         #     for status in self.stat["Enemy Status"]:
         #         this_unit.apply_status(status, this_unit.status_list[status],
         #                                this_unit.status_effect, this_unit.status_duration)
-

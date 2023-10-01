@@ -1,7 +1,6 @@
 from random import randint
 
-import pygame
-from pygame import Surface, font, transform, Vector2, SRCALPHA
+from pygame import transform, Vector2
 
 from engine.uibattle.uibattle import UIBattle
 from engine.utils.rotation import set_rotate

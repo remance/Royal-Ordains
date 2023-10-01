@@ -1,8 +1,6 @@
-from math import cos, sin, radians
+from random import choice, randint
 
 from pygame import Vector2
-
-from random import choice, randint
 
 follow_distance = 100
 stay_formation_distance = 1
@@ -13,9 +11,9 @@ def stationary_ai(self, dt):
 
 
 def helper_ai(self, dt):
-    if self.battle.player1_battle_cursor.pos != self.old_cursor_pos and \
+    if self.battle.player_1_battle_cursor.pos != self.old_cursor_pos and \
             self.battle.decision_select not in self.battle.realtime_ui_updater:
-        self.old_cursor_pos = Vector2(self.battle.player1_battle_cursor.pos)
+        self.old_cursor_pos = Vector2(self.battle.player_1_battle_cursor.pos)
         self.ai_movement_timer = 0.1
         self.command_pos = self.battle.base_cursor_pos
 
@@ -119,7 +117,8 @@ def pursue_melee_ai(self, dt):
 def sentry_ai(self, dt):
     if not self.current_action and not self.command_action:
         if self.nearest_enemy:
-            if self.nearest_enemy[1] > self.max_attack_range and self.base_pos.distance_to(self.assign_pos) > follow_distance:
+            if self.nearest_enemy[1] > self.max_attack_range and self.base_pos.distance_to(
+                    self.assign_pos) > follow_distance:
                 # no enemy nearby, run to assigned pos
                 angle = self.set_rotate(self.assign_pos)
                 if angle > 0:

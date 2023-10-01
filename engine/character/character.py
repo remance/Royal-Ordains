@@ -4,28 +4,23 @@ from random import randint, random, uniform
 import pygame
 from pygame import sprite, Vector2
 
-from engine.drop.drop import Drop
-
-from engine.utils.common import empty_method
-from engine.utils.rotation import set_rotate
-
-from engine.character.character_specific_special import special_dict
-from engine.character.character_specific_damage import damage_dict
-from engine.character.character_specific_update import update_dict
-from engine.character.character_specific_status_update import status_update_dict
-
 from engine.character.ai_combat import ai_combat_dict
 from engine.character.ai_move import ai_move_dict
 from engine.character.ai_retreat import ai_retreat_dict
-
+from engine.character.character_specific_damage import damage_dict
+from engine.character.character_specific_special import special_dict
+from engine.character.character_specific_status_update import status_update_dict
+from engine.character.character_specific_update import update_dict
+from engine.drop.drop import Drop
 from engine.uibattle.uibattle import CharacterIndicator
+from engine.utils.common import empty_method
+from engine.utils.rotation import set_rotate
 
 rotation_list = (90, -90)
 rotation_name = ("l_side", "r_side")
 rotation_dict = {key: rotation_name[index] for index, key in enumerate(rotation_list)}
 
 infinity = float("inf")
-
 
 """Command dict Guide
 Key:
@@ -151,7 +146,8 @@ class Character(sprite.Sprite):
     arrive_command_action = {"name": "Arrive", "movable": True, "arrive": True, "x_momentum": True}
     arrive_fly_command_action = {"name": "Arrive", "movable": True, "arrive": True, "fly": True, "x_momentum": True}
 
-    heavy_damaged_command_action = {"name": "HeavyDamaged", "uncontrollable": True, "movable": True, "forced move": True,
+    heavy_damaged_command_action = {"name": "HeavyDamaged", "uncontrollable": True, "movable": True,
+                                    "forced move": True,
                                     "heavy damaged": True}
     damaged_command_action = {"name": "SmallDamaged", "uncontrollable": True, "movable": True, "forced move": True,
                               "small damaged": True}
@@ -299,7 +295,8 @@ class Character(sprite.Sprite):
             if position in self.skill:
                 if position not in self.moveset:
                     self.moveset[position] = {}
-                button_key_skill_dict = {value["Buttons"]: {"Move": key} | value for key, value in self.skill[position].items()}
+                button_key_skill_dict = {value["Buttons"]: {"Move": key} | value for key, value in
+                                         self.skill[position].items()}
                 self.moveset[position] = button_key_skill_dict | self.moveset[position]
 
         self.max_physical = 1 + (self.strength / 50) + (self.wisdom / 200)
@@ -368,7 +365,7 @@ class Character(sprite.Sprite):
         self.base_element_resistance = self.original_element_resistance.copy()
 
         self.base_speed = (self.original_speed * (
-                    (100 - self.weight) / 100))  # finalise base speed with weight and grade bonus
+                (100 - self.weight) / 100))  # finalise base speed with weight and grade bonus
 
         self.base_hp_regen = self.original_hp_regen
         self.base_resource_regen = self.original_resource_regen
@@ -405,7 +402,8 @@ class Character(sprite.Sprite):
         self.radians_angle = radians(360 - self.angle)  # radians for apply angle to position
         self.run_direction = 0  # direction check to prevent character able to run in opposite direction right away
         self.sprite_direction = rotation_dict[min(rotation_list,
-                                                  key=lambda x: abs(x - self.angle))]  # find closest in list of rotation for sprite direction
+                                                  key=lambda x: abs(
+                                                      x - self.angle))]  # find closest in list of rotation for sprite direction
 
         self.sprite_id = str(stat["ID"])
         self.sprite_ver = str(stat["Sprite Ver"])
@@ -492,7 +490,8 @@ class Character(sprite.Sprite):
                     self.nearest_enemy = None
                     self.nearest_ally = None
                     self.near_enemy = sorted({key: key.base_pos.distance_to(self.base_pos) for key in
-                                              self.enemy_list}.items(), key=lambda item: item[1])  # sort the closest enemy
+                                              self.enemy_list}.items(),
+                                             key=lambda item: item[1])  # sort the closest enemy
                     self.near_ally = sorted(
                         {key: key.base_pos.distance_to(self.base_pos) for key in self.ally_list}.items(),
                         key=lambda item: item[1])  # sort the closest friend
@@ -524,7 +523,7 @@ class Character(sprite.Sprite):
                     print(self.name, self.show_frame, self.current_animation, self.current_action)
 
                 if "hold" in self.current_animation_direction[self.show_frame]["property"] and \
-                    "hold" in self.current_action and \
+                        "hold" in self.current_action and \
                         ((not self.current_moveset and "forced move" not in self.current_action) or
                          ("forced move" in self.current_action and (self.x_momentum or self.y_momentum)) or
                          (self.current_moveset and "hold" in self.current_moveset["Property"])):
@@ -581,7 +580,8 @@ class Character(sprite.Sprite):
                     elif "arrive" in self.current_action and "Arrive2" in self.skill[self.position]:
                         # has arrival (Arrive2) skill to use after finish arriving
                         self.moveset_command_key_input = self.skill[self.position]["Arrive2"]["Buttons"]
-                        self.current_action = self.use_skill(self.moveset[self.position][self.moveset_command_key_input])
+                        self.current_action = self.use_skill(
+                            self.moveset[self.position][self.moveset_command_key_input])
                     elif "run" in self.current_action and not self.command_action:  # stop running, halt
                         self.current_action = self.halt_command_action
                         if self.angle != 90:
@@ -927,7 +927,8 @@ class BodyPart(sprite.Sprite):
             elif "special" in self.part_name:
                 self.image = self.body_sprite_pool[self.data[0]]["special"][self.sprite_ver][self.mode][self.data[1]]
             else:
-                self.image = self.body_sprite_pool[self.data[0]][self.part_name][self.sprite_ver][self.mode][self.data[1]]
+                self.image = self.body_sprite_pool[self.data[0]][self.part_name][self.sprite_ver][self.mode][
+                    self.data[1]]
             if self.data[7] != 1:  # scale size
                 self.image = pygame.transform.smoothscale(self.image, (self.image.get_width() * self.data[7],
                                                                        self.image.get_height() * self.data[7]))

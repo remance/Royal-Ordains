@@ -14,23 +14,23 @@ from engine.battle.camera_fix import camera_fix
 from engine.battle.camera_process import camera_process
 from engine.battle.escmenu_process import escmenu_process
 from engine.battle.play_sound_effect import play_sound_effect
-from engine.battle.setup_battle_character import setup_battle_character
 from engine.battle.setup.make_battle_ui import make_battle_ui
 from engine.battle.setup.make_esc_menu import make_esc_menu
+from engine.battle.setup_battle_character import setup_battle_character
 from engine.battle.shake_camera import shake_camera
 from engine.battle.spawn_weather_matter import spawn_weather_matter
 from engine.camera.camera import Camera
 from engine.character.character import Character
 from engine.drama.drama import TextDrama
 from engine.effect.effect import Effect
-from engine.stage.stage import Stage
-from engine.stageobject.stageobject import StageObject
 from engine.game.activate_input_popup import activate_input_popup
 from engine.game.change_pause_update import change_pause_update
 from engine.lorebook.lorebook import lorebook_process
+from engine.stage.stage import Stage
+from engine.stageobject.stageobject import StageObject
 from engine.uibattle.uibattle import FPSCount, BattleCursor, YesNo
 from engine.utils.common import clean_group_object
-from engine.utils.data_loading import load_image, load_images, csv_read
+from engine.utils.data_loading import load_image, load_images
 from engine.utils.text_making import number_to_minus_or_plus
 from engine.weather.weather import Weather
 
@@ -89,11 +89,16 @@ class Battle:
         self.play_effect_volume = game.play_effect_volume
         self.play_voice_volume = game.play_voice_volume
         self.joystick_bind_name = game.joystick_bind_name
-        self.player_key_control = {player: self.config["USER"]["control player " + str(player)] for player in game.player_list}
-        self.player_key_bind = {player: self.game.player_key_bind_list[player][self.player_key_control[player]] for player in game.player_list}
-        self.player_key_bind_name = {player: {value: key for key, value in self.player_key_bind[player].items()} for player in game.player_list}
-        self.player_key_press = {player: {key: False for key in self.player_key_bind[player]} for player in game.player_list}
-        self.player_key_hold = {player: {key: False for key in self.player_key_bind[player]} for player in game.player_list}
+        self.player_key_control = {player: self.config["USER"]["control player " + str(player)] for player in
+                                   game.player_list}
+        self.player_key_bind = {player: self.game.player_key_bind_list[player][self.player_key_control[player]] for
+                                player in game.player_list}
+        self.player_key_bind_name = {player: {value: key for key, value in self.player_key_bind[player].items()} for
+                                     player in game.player_list}
+        self.player_key_press = {player: {key: False for key in self.player_key_bind[player]} for player in
+                                 game.player_list}
+        self.player_key_hold = {player: {key: False for key in self.player_key_bind[player]} for player in
+                                game.player_list}
         self.screen_rect = game.screen_rect
 
         Battle.battle_camera_size = (self.screen_rect.width, self.screen_rect.height)
@@ -201,7 +206,7 @@ class Battle:
 
         # Create battle ui
         cursor_images = load_images(self.data_dir, subfolder=("ui", "cursor_battle"))  # no need to scale cursor
-        self.player1_battle_cursor = BattleCursor(cursor_images, self.player_key_control[1])
+        self.player_1_battle_cursor = BattleCursor(cursor_images, self.player_key_control[1])
 
         self.fps_count = FPSCount(self)  # FPS number counter
         if self.game.show_fps:
@@ -218,6 +223,10 @@ class Battle:
         self.realtime_ui_updater.add((self.time_ui, self.time_number))
         self.player_1_portrait = battle_ui_dict["player_1_portrait"]
         self.player_2_portrait = battle_ui_dict["player_2_portrait"]
+        self.player_3_portrait = battle_ui_dict["player_3_portrait"]
+        self.player_4_portrait = battle_ui_dict["player_4_portrait"]
+        self.player_portraits = (self.player_1_portrait, self.player_2_portrait,
+                                 self.player_3_portrait, self.player_4_portrait)
         self.current_weather = Weather(self.time_ui, 4, 0, 0, None)
 
         TextDrama.images = load_images(self.data_dir, screen_scale=self.screen_scale,
@@ -432,9 +441,12 @@ class Battle:
                     new_value[0].append(item)
             self.later_enemy[stage] = new_value
 
-        self.setup_battle_character(self.players,  start_enemy)
+        self.setup_battle_character(self.players, start_enemy)
 
         self.player_objects = {key: value["Object"] for key, value in self.players.items()}
+
+        for player in self.player_objects:
+            self.realtime_ui_updater.add(self.player_portraits[player - 1])
 
         yield set_done_load()
 
@@ -460,8 +472,7 @@ class Battle:
         # self.portrait_rect = portrait.get_rect(center=(portrait.get_width() / 1.6,
         #                                                portrait.get_height() * 0.95))
         self.first_player = tuple(self.player_objects.keys())[0]
-        self.camera_pos = pygame.Vector2(self.player_objects[self.first_player].pos[0],
-                                         self.battle_camera_center[1])
+        self.camera_pos = Vector2(500, self.battle_camera_center[1])
         self.camera_fix()
 
         self.shown_camera_pos = self.camera_pos
@@ -475,7 +486,7 @@ class Battle:
         self.ui_dt = 0  # Realtime used for ui timer
         self.weather_spawn_timer = 0
         self.show_cursor_timer = 0
-        self.player1_battle_cursor.shown = True
+        self.player_1_battle_cursor.shown = True
         self.player_score = 0
         self.player_damage = {1: 0, 2: 0, 3: 0, 4: 0}
 
@@ -495,7 +506,7 @@ class Battle:
                                 self.game.player_list}
 
         self.screen.fill((0, 0, 0))
-        self.realtime_ui_updater.add(self.player1_battle_cursor)
+        self.realtime_ui_updater.add(self.player_1_battle_cursor)
         self.remove_ui_updater(self.cursor)
         # self.map_def_array = []
         # self.mapunitarray = [[x[random.randint(0, 1)] if i != j else 0 for i in range(1000)] for j in range(1000)]
@@ -512,8 +523,10 @@ class Battle:
             key_state = pygame.key.get_pressed()
             esc_press = False
 
-            self.player_key_press = {key: dict.fromkeys(self.player_key_press[key], False) for key in self.player_key_press}
-            self.player_key_hold = {key: dict.fromkeys(self.player_key_hold[key], False) for key in self.player_key_hold}
+            self.player_key_press = {key: dict.fromkeys(self.player_key_press[key], False) for key in
+                                     self.player_key_press}
+            self.player_key_hold = {key: dict.fromkeys(self.player_key_hold[key], False) for key in
+                                    self.player_key_hold}
 
             self.true_dt = self.clock.get_time() / 1000  # dt before game_speed
 
@@ -522,7 +535,8 @@ class Battle:
             for player, key_set in self.player_key_press.items():
                 if self.player_key_control[player] == "keyboard":
                     for key in key_set:  # check for key holding
-                        if type(self.player_key_bind[player][key]) == int and key_state[self.player_key_bind[player][key]]:
+                        if type(self.player_key_bind[player][key]) == int and key_state[
+                            self.player_key_bind[player][key]]:
                             self.player_key_hold[player][key] = True
             else:
                 for joystick in self.joysticks.values():  # TODO recheck this
@@ -547,8 +561,8 @@ class Battle:
                                 self.player_key_press[self.player_key_bind_name[hat_name]] = True
 
             self.base_cursor_pos = Vector2(
-                (self.player1_battle_cursor.pos[0] - self.battle_camera_center[0] + self.camera_pos[0]),
-                (self.player1_battle_cursor.pos[1] - self.battle_camera_center[1] + self.camera_pos[
+                (self.player_1_battle_cursor.pos[0] - self.battle_camera_center[0] + self.camera_pos[0]),
+                (self.player_1_battle_cursor.pos[1] - self.battle_camera_center[1] + self.camera_pos[
                     1]))  # mouse pos on the map based on camera position
             self.command_cursor_pos = Vector2(self.base_cursor_pos[0] / self.screen_scale[0],
                                               self.base_cursor_pos[1] / self.screen_scale[1])  # with screen scale
@@ -650,7 +664,7 @@ class Battle:
                     self.add_ui_updater(self.battle_menu, self.cursor,
                                         self.battle_menu_button)  # add menu and its buttons to drawer
                     esc_press = False  # reset esc press, so it not stops esc menu when open
-                    self.realtime_ui_updater.remove(self.player1_battle_cursor)
+                    self.realtime_ui_updater.remove(self.player_1_battle_cursor)
 
             if self.game_state == "battle":  # game in battle state
                 self.camera_process()
@@ -673,12 +687,14 @@ class Battle:
                             self.survive_timer = 0
                             if type(self.next_lock) is tuple:  # stage lock for multiple scene
                                 self.base_stage_start = self.base_stage_end_list[self.next_lock[0]]
-                                self.stage_start = self.stage_end_list[self.next_lock[0]] + (self.battle_camera_center[0] * 2)
+                                self.stage_start = self.stage_end_list[self.next_lock[0]] + (
+                                        self.battle_camera_center[0] * 2)
                                 self.base_stage_end = self.base_stage_end_list[self.next_lock[1]]
                                 self.stage_end = self.stage_end_list[self.next_lock[1]]
                             else:  # stage lock for single scene
                                 self.base_stage_start = (self.base_stage_end_list[self.battle_stage.current_frame - 1])
-                                self.stage_start = self.stage_end_list[self.battle_stage.current_frame - 1] + (self.battle_camera_center[0] * 2)
+                                self.stage_start = self.stage_end_list[self.battle_stage.current_frame - 1] + (
+                                        self.battle_camera_center[0] * 2)
                                 self.base_stage_end = self.base_stage_end_list[self.battle_stage.current_frame]
                                 self.stage_end = self.stage_end_list[self.battle_stage.current_frame]
 
@@ -707,16 +723,16 @@ class Battle:
                 for player_index, player_object in self.player_objects.items():
                     player_object.player_input(player_index, self.dt)
 
-                if self.player1_battle_cursor.pos_change:  # display cursor when have movement
+                if self.player_1_battle_cursor.pos_change:  # display cursor when have movement
                     self.show_cursor_timer = 0.1
-                    self.player1_battle_cursor.shown = True
+                    self.player_1_battle_cursor.shown = True
 
                 if self.show_cursor_timer:
                     self.show_cursor_timer += self.dt
                     if self.show_cursor_timer > 3:
                         self.show_cursor_timer = 0
-                        self.player1_battle_cursor.shown = False
-                        self.player1_battle_cursor.rect.topleft = (-100, -100)
+                        self.player_1_battle_cursor.shown = False
+                        self.player_1_battle_cursor.rect.topleft = (-100, -100)
 
                 # Drama text function
                 if not self.drama_timer and self.drama_text.queue:  # Start timer and draw if there is event queue
@@ -786,7 +802,8 @@ class Battle:
 
                         if self.decision_select.selected:
                             if self.decision_select.selected == "yes":
-                                self.player_team_followers = self.stage_reward["yes"][self.chapter][self.mission][self.stage]
+                                self.player_team_followers = self.stage_reward["yes"][self.chapter][self.mission][
+                                    self.stage]
                             else:
                                 pass
                                 # self.player_equipment_store.append(self.stage_reward["no"][self.chapter][self.mission][self.stage])
@@ -797,7 +814,8 @@ class Battle:
                                     character.engage_combat()
                                     character.position = "Stand"  # enforce stand position
                                     if self.decision_select.selected == "yes":
-                                        character.current_action = {"name": "Submit", "repeat": "True", "movable": "True"}
+                                        character.current_action = {"name": "Submit", "repeat": "True",
+                                                                    "movable": "True"}
                                     else:
                                         character.current_action = {"name": "Execute", "movable": "True"}
                                     character.show_frame = 0
@@ -817,7 +835,8 @@ class Battle:
                         if self.end_delay >= 5:  # end battle
                             self.end_delay = 0
                             self.exit_battle()
-                            if self.stage+1 in self.game.preset_map_data[self.chapter][self.mission]:  # has next stage
+                            if self.stage + 1 in self.game.preset_map_data[self.chapter][
+                                self.mission]:  # has next stage
                                 return True
                             else:
                                 if self.mission + 1 in self.game.preset_map_data[self.chapter]:  # has next mission
@@ -870,7 +889,8 @@ class Battle:
         # self.battle_camera.clear(self.screen)  # clear all sprite
 
         self.remove_ui_updater(self.battle_menu, self.battle_menu_button, self.esc_slider_menu.values(),
-                               self.esc_value_boxes.values(), self.esc_option_text.values())  # remove menu
+                               self.esc_value_boxes.values(), self.esc_option_text.values(),
+                               self.player_portraits)  # remove menu and ui
 
         self.music_left.stop()
         self.music_right.stop()

@@ -1,5 +1,3 @@
-from pygame import Vector2
-
 rotation_list = (90, -90)
 rotation_name = ("Left", "Right")
 rotation_dict = {key: rotation_list[index] for index, key in enumerate(rotation_name)}
@@ -73,7 +71,8 @@ def player_input(self, player_index, dt):
                     elif self.last_command_key_input == "Guard" or "Guard" in self.command_key_hold:
                         if "guard" in self.current_action and "Guard" in self.command_key_hold:
                             self.current_action = self.guard_hold_command_action
-                        elif not (self.current_action or self.stoppable_frame) and self.guard_meter >= self.guard_meter20:
+                        elif not (
+                                self.current_action or self.stoppable_frame) and self.guard_meter >= self.guard_meter20:
                             # can only start guarding when meter higher than 20%
                             self.engage_combat()
                             if self.stoppable_frame:

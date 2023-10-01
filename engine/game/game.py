@@ -9,15 +9,12 @@ from pygame.locals import *
 
 from engine.battle.battle import Battle
 from engine.character.character import Character, BodyPart
-from engine.drop.drop import Drop
 from engine.data.datalocalisation import Localisation
 from engine.data.datamap import BattleMapData
 from engine.data.datasprite import AnimationData
 from engine.data.datastat import CharacterData
+from engine.drop.drop import Drop
 from engine.effect.effect import Effect, DamageEffect
-from engine.stageobject.stageobject import StageObject
-
-
 # Method in game.setup
 from engine.game.setup.create_sound_effect_pool import create_sound_effect_pool
 from engine.game.setup.make_input_box import make_input_box
@@ -25,7 +22,8 @@ from engine.game.setup.make_lorebook import make_lorebook
 from engine.game.setup.make_option_menu import make_option_menu
 from engine.lorebook.lorebook import Lorebook, SubsectionName, lorebook_process
 from engine.menubackground.menubackground import MenuActor, MenuRotate, StaticImage
-from engine.uibattle.uibattle import Profiler, FPSCount, DamageNumber, PlayerPortrait, CharacterTextBox, \
+from engine.stageobject.stageobject import StageObject
+from engine.uibattle.uibattle import Profiler, FPSCount, DamageNumber, CharacterTextBox, \
     CharacterIndicator
 from engine.uimenu.uimenu import OptionMenuText, SliderMenu, MenuCursor, BoxUI, BrownMenuButton, \
     URLIconLink, MenuButton, TextPopup, MapTitle, CharacterSelector
@@ -53,13 +51,13 @@ class Game:
     ui_drawer = None
     battle_camera = None
 
-    player_list = (1, 2)
-    
+    player_list = (1, 2, 3, 4)
+
     screen_rect = None
     screen_scale = (1, 1)
     screen_size = ()
 
-    game_version = "0.0.1"
+    game_version = "0.1.4"
     joystick_bind_name = {"XBox": {0: "A", 1: "B", 2: "X", 3: "Y", 4: "-", 5: "Home", 6: "+", 7: "Start", 8: None,
                                    9: None, 10: None, 11: "D-Up", 12: "D-Down", 13: "D-Left", 14: "D-Right",
                                    15: "Capture", "axis-0": "L. Stick Left", "axis+0": "L. Stick R.",
@@ -170,8 +168,10 @@ class Game:
             self.voice_volume = float(self.config["USER"]["voice_volume"])
             self.play_voice_volume = self.master_volume * self.voice_volume / 10000
             self.language = str(self.config["USER"]["language"])
-            self.player_key_bind_list = {player: ast.literal_eval(self.config["USER"]["keybind player " + str(player)]) for player in self.player_list}
-            self.player_key_control = {player: self.config["USER"]["control player " + str(player)] for player in self.player_list}
+            self.player_key_bind_list = {player: ast.literal_eval(self.config["USER"]["keybind player " + str(player)])
+                                         for player in self.player_list}
+            self.player_key_control = {player: self.config["USER"]["control player " + str(player)] for player in
+                                       self.player_list}
             if self.game_version != self.config["VERSION"]["ver"]:  # remake config as game version change
                 raise KeyError  # cause KeyError to reset config file
         except (KeyError, TypeError, NameError):  # config error will make the game recreate config with default
@@ -189,8 +189,10 @@ class Game:
             self.voice_volume = float(self.config["USER"]["voice_volume"])
             self.play_voice_volume = self.master_volume * self.voice_volume / 10000
             self.language = str(self.config["USER"]["language"])
-            self.player_key_bind_list = {player: ast.literal_eval(self.config["USER"]["keybind player " + str(player)]) for player in self.player_list}
-            self.player_key_control = {player: self.config["USER"]["control player " + str(player)] for player in self.player_list}
+            self.player_key_bind_list = {player: ast.literal_eval(self.config["USER"]["keybind player " + str(player)])
+                                         for player in self.player_list}
+            self.player_key_control = {player: self.config["USER"]["control player " + str(player)] for player in
+                                       self.player_list}
 
         Game.language = self.language
 
@@ -217,11 +219,16 @@ class Game:
         self.joysticks = {}
         self.joystick_name = {}
 
-        self.player_key_control = {player: self.config["USER"]["control player " + str(player)] for player in self.player_list}
-        self.player_key_bind = {player: self.game.player_key_bind_list[player][self.player_key_control[player]] for player in self.player_list}
-        self.player_key_bind_name = {player: {value: key for key, value in self.player_key_bind[player].items()} for player in self.player_list}
-        self.player_key_press = {player: {key: False for key in self.player_key_bind[player]} for player in self.player_list}
-        self.player_key_hold = {player: {key: False for key in self.player_key_bind[player]} for player in self.player_list}  # key that consider holding
+        self.player_key_control = {player: self.config["USER"]["control player " + str(player)] for player in
+                                   self.player_list}
+        self.player_key_bind = {player: self.game.player_key_bind_list[player][self.player_key_control[player]] for
+                                player in self.player_list}
+        self.player_key_bind_name = {player: {value: key for key, value in self.player_key_bind[player].items()} for
+                                     player in self.player_list}
+        self.player_key_press = {player: {key: False for key in self.player_key_bind[player]} for player in
+                                 self.player_list}
+        self.player_key_hold = {player: {key: False for key in self.player_key_bind[player]} for player in
+                                self.player_list}  # key that consider holding
 
         Game.ui_font = csv_read(self.data_dir, "ui_font.csv", ("ui",), header_key=True)
         for item in Game.ui_font:  # add ttf file extension for font data reading.
@@ -279,8 +286,6 @@ class Game:
         SubsectionName.containers = self.ui_updater, self.ui_drawer, self.battle_ui_updater, self.battle_ui_drawer
 
         # battle containers
-        PlayerPortrait.containers = self.realtime_ui_updater
-
         CharacterTextBox.containers = self.effect_updater, self.battle_camera
         CharacterIndicator.containers = self.effect_updater, self.battle_camera
         Drop.containers = self.effect_updater, self.battle_camera
@@ -414,6 +419,8 @@ class Game:
         self.keybind_text = option_menu_dict["keybind_text"]
         self.keybind_icon = option_menu_dict["keybind_icon"]
         self.control_switch = option_menu_dict["control_switch"]
+        self.control_player_next = option_menu_dict["control_player_next"]
+        self.control_player_back = option_menu_dict["control_player_back"]
 
         self.option_text_list = tuple(
             [self.resolution_text, self.fullscreen_text, self.fps_text] +
@@ -431,19 +438,19 @@ class Game:
                                            key_name="back_button")
 
         char_selector_images = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                            subfolder=("ui", "charselect_ui"), key_file_name_readable=True)
-        self.player1_char_selector = CharacterSelector((self.screen_width / 4, self.screen_height / 2),
+                                           subfolder=("ui", "charselect_ui"), key_file_name_readable=True)
+        self.player1_char_selector = CharacterSelector((self.screen_width / 8, self.screen_height / 2),
                                                        char_selector_images)
-        self.player2_char_selector = CharacterSelector((self.screen_width / 1.5, self.screen_height / 2),
+        self.player2_char_selector = CharacterSelector((self.screen_width / 2.7, self.screen_height / 2),
                                                        char_selector_images)
-        self.player3_char_selector = CharacterSelector((self.screen_width / 2, self.screen_height / 2),
+        self.player3_char_selector = CharacterSelector((self.screen_width / 1.6, self.screen_height / 2),
                                                        char_selector_images)
-        self.player4_char_selector = CharacterSelector((self.screen_width / 2, self.screen_height / 2),
+        self.player4_char_selector = CharacterSelector((self.screen_width / 1.15, self.screen_height / 2),
                                                        char_selector_images)
         self.player_char_selectors = {1: self.player1_char_selector, 2: self.player2_char_selector,
                                       3: self.player3_char_selector, 4: self.player4_char_selector}
-        self.char_menu_button = (self.player1_char_selector, self.player2_char_selector,
-                                 self.char_back_button, self.start_button)
+        self.char_menu_button = (self.player1_char_selector, self.player2_char_selector, self.player3_char_selector,
+                                 self.player4_char_selector, self.char_back_button, self.start_button)
 
         # User input popup ui
         input_ui_dict = make_input_box(self.data_dir, self.screen_scale, self.screen_rect,
@@ -569,8 +576,10 @@ class Game:
             self.cursor.scroll_up = False
             esc_press = False
 
-            self.player_key_press = {key: dict.fromkeys(self.player_key_press[key], False) for key in self.player_key_press}
-            self.player_key_hold = {key: dict.fromkeys(self.player_key_hold[key], False) for key in self.player_key_hold}
+            self.player_key_press = {key: dict.fromkeys(self.player_key_press[key], False) for key in
+                                     self.player_key_press}
+            self.player_key_hold = {key: dict.fromkeys(self.player_key_hold[key], False) for key in
+                                    self.player_key_hold}
 
             key_press = pygame.key.get_pressed()
 
@@ -661,11 +670,13 @@ class Game:
                 if self.input_ok_button.event_press or key_press[pygame.K_RETURN] or key_press[pygame.K_KP_ENTER]:
                     done = True
                     if "replace key" in self.input_popup[1]:
-                        old_key = self.player_key_bind[1][self.config["USER"]["control player 1"]][self.input_popup[1][1]]
+                        old_key = self.player_key_bind[1][self.config["USER"]["control player 1"]][
+                            self.input_popup[1][1]]
                         self.player_key_bind[1][self.config["USER"]["control player 1"]][
                             self.input_popup[1][1]] = self.player_key_bind[1][self.config["USER"]["control player 1"]][
                             self.input_popup[1][2]]
-                        self.player_key_bind[1][self.config["USER"]["control player 1"]][self.input_popup[1][2]] = old_key
+                        self.player_key_bind[1][self.config["USER"]["control player 1"]][
+                            self.input_popup[1][2]] = old_key
                         edit_config("USER", "keybind player 1", self.player_key_bind[1],
                                     self.config_path, self.config)
                         for key, value in self.keybind_icon.items():

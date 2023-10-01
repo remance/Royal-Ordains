@@ -3,7 +3,7 @@ default_stat = {"Sprite Ver": 1, "Team": 1, "Playable": True, "Skill Allocation"
 
 
 def menu_char(self, esc_press):
-    if self.back_button.event_press or esc_press:  # back to start_set menu
+    if self.char_back_button.event_press or esc_press:  # back to start_set menu
         self.player_char_select = {1: None, 2: None, 3: None, 4: None}
         for selector in self.player_char_selectors.values():
             selector.image = selector.images["Empty"]
@@ -36,7 +36,8 @@ def menu_char(self, esc_press):
                             current_id = 0
                         else:
                             current_id += 1
-                        self.player_char_select[player] = {"ID": tuple(playable_character.keys())[current_id]} | default_stat
+                        self.player_char_select[player] = {"ID": tuple(playable_character.keys())[
+                            current_id]} | default_stat
                         self.player_char_selectors[player].image = \
                             self.player_char_selectors[player].images[self.player_char_select[player]["ID"]]
                     elif key == "Strong":

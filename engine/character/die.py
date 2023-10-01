@@ -17,5 +17,5 @@ def die(self, how):
         self.indicator = None
 
     if how == "flee":
-        clean_group_object((self.body_parts, ))
+        clean_group_object((self.body_parts,))
         clean_object(self)

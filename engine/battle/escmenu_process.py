@@ -141,7 +141,7 @@ def back_to_battle_state(self):
     self.remove_ui_updater(self.battle_menu, self.battle_menu_button, self.esc_option_menu_button,
                            self.esc_slider_menu.values(),
                            self.esc_value_boxes.values(), self.esc_option_text.values(), self.cursor)
-    self.realtime_ui_updater.add(self.player1_battle_cursor)
+    self.realtime_ui_updater.add(self.player_1_battle_cursor)
     self.game_state = "battle"
 
 

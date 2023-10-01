@@ -20,7 +20,7 @@ def enter_battle(self, animation_data_pool):
 
     self.body_parts = {key: value for key, value in self.body_parts.items() if key in exist_part}
     self.body_parts = {key: BodyPart(self, key) if not any(ext in key for ext in ("special", "weapon"))
-                       else BodyPart(self, key, can_hurt=False) for key, value in self.body_parts.items()}
+    else BodyPart(self, key, can_hurt=False) for key, value in self.body_parts.items()}
 
     # Add character to list
     self.battle.all_team_character[self.team].add(self)

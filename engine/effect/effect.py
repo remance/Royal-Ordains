@@ -226,7 +226,8 @@ class DamageEffect(Effect):
                                 stat[4] = randint(-180, -160)
 
                     moveset = self.moveset.copy()
-                    moveset["Property"] = [item for item in moveset["Property"] if item != "spawn"]  # remove spawn property so it not loop spawn
+                    moveset["Property"] = [item for item in moveset["Property"] if
+                                           item != "spawn"]  # remove spawn property so it not loop spawn
                     DamageEffect(self.owner, stat, 0, moveset, from_owner=False,
                                  reach_effect=self.reach_effect)
 

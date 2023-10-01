@@ -389,12 +389,11 @@ class TextBox(UIMenu):
 
 
 class MenuImageButton(UIMenu):
-    def __init__(self, pos, images, layer=1):
+    def __init__(self, pos, image, layer=1):
         self._layer = layer
-        UIMenu.__init__(self)
+        UIMenu.__init__(self, player_interact=True)
         self.pos = pos
-        self.images = images
-        self.image = self.images[0]
+        self.image = image
         self.rect = self.image.get_rect(center=self.pos)
 
 
@@ -620,16 +619,22 @@ class ControllerIcon(UIMenu):
         self.images = images
         self.image = self.images[control_type].copy()
         self.rect = self.image.get_rect(center=self.pos)
+        self.player = 1
+        self.control_type = control_type
 
-    def change_control(self, control_type):
+    def change_control(self, control_type, player):
+        self.player = player
+        self.control_type = control_type
         if "joystick" in control_type:
             self.image = self.images[control_type[:-1]].copy()
-            joystick_num = control_type[-1]
-            text_surface = self.font.render(joystick_num, True, (255, 255, 255))
-            text_rect = text_surface.get_rect(center=(self.image.get_width() / 2, self.image.get_height() / 2))
-            self.image.blit(text_surface, text_rect)
+            number_after = "J" + control_type[-1]
         else:
             self.image = self.images[control_type]
+            number_after = ""
+        text_surface = text_render_with_bg("P" + str(self.player) + number_after, self.font, gf_colour=(150, 100, 0),
+                                           o_colour=(255, 255, 0))
+        text_rect = text_surface.get_rect(center=(self.image.get_width() / 2, self.image.get_height() / 2))
+        self.image.blit(text_surface, text_rect)
 
 
 class KeybindIcon(UIMenu):
@@ -648,7 +653,7 @@ class KeybindIcon(UIMenu):
                 self.draw_keyboard(key)
             else:
                 self.draw_keyboard(pygame.key.name(key))
-        elif control_type == "joystick":
+        else:
             self.draw_joystick(key, keybind_name)
         self.rect = self.image.get_rect(center=self.pos)
 

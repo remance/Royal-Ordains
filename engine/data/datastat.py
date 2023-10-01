@@ -127,7 +127,8 @@ class CharacterData(GameData):
                         row = stat_convert(row, n, i, int_column=int_column, tuple_column=tuple_column)
                     self.character_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
                     self.character_list[row[0]]["Move"] = {}
-                    if os.path.exists(os.path.join(self.data_dir, "character", folder_list[file_index], row[0], "move.csv")):
+                    if os.path.exists(
+                            os.path.join(self.data_dir, "character", folder_list[file_index], row[0], "move.csv")):
                         # Add character move data
                         with open(os.path.join(self.data_dir, "character", folder_list[file_index], row[0], "move.csv"),
                                   encoding="utf-8", mode="r") as edit_file2:
@@ -136,12 +137,13 @@ class CharacterData(GameData):
                             tuple_column = ("Buttons", "Status", "Enemy Status",
                                             "Damage Effect Property")  # value in tuple only
                             tuple_column = [index for index, item in enumerate(header2) if item in tuple_column]
-                            dict_column = ("Property", )  # value in tuple only
+                            dict_column = ("Property",)  # value in tuple only
                             dict_column = [index for index, item in enumerate(header2) if item in dict_column]
                             moveset_dict = {}
                             for row_index2, row2 in enumerate(rd2[1:]):
                                 for n2, i2 in enumerate(row2):
-                                    row2 = stat_convert(row2, n2, i2, tuple_column=tuple_column, dict_column=dict_column)
+                                    row2 = stat_convert(row2, n2, i2, tuple_column=tuple_column,
+                                                        dict_column=dict_column)
                                 # restructure moveset so move that continue from another is in its parent move
                                 move_data = {header2[index + 1]: stuff for index, stuff in enumerate(row2[1:])}
                                 if row2[header2.index("Position")] not in moveset_dict:
@@ -160,8 +162,9 @@ class CharacterData(GameData):
                     if os.path.exists(
                             os.path.join(self.data_dir, "character", folder_list[file_index], row[0], "skill.csv")):
                         # Add character skill data
-                        with open(os.path.join(self.data_dir, "character", folder_list[file_index], row[0], "skill.csv"),
-                                  encoding="utf-8", mode="r") as edit_file2:
+                        with open(
+                                os.path.join(self.data_dir, "character", folder_list[file_index], row[0], "skill.csv"),
+                                encoding="utf-8", mode="r") as edit_file2:
                             rd = tuple(csv.reader(edit_file2, quoting=csv.QUOTE_ALL))
                             header2 = rd[0]
                             tuple_column = ("Buttons", "Damage Effect Property",
@@ -172,7 +175,8 @@ class CharacterData(GameData):
                             moveset_dict = {}
                             for index2, row2 in enumerate(rd[1:]):
                                 for n2, i2 in enumerate(row2):
-                                    row2 = stat_convert(row2, n2, i2, tuple_column=tuple_column, dict_column=dict_column)
+                                    row2 = stat_convert(row2, n2, i2, tuple_column=tuple_column,
+                                                        dict_column=dict_column)
                                 move_data = {header2[index + 1]: stuff for index, stuff in enumerate(row2[1:])}
                                 if row2[header2.index("Position")] not in moveset_dict:
                                     # keep moveset in each position dict for easier access
@@ -182,7 +186,8 @@ class CharacterData(GameData):
                         edit_file2.close()
 
                     self.character_list[row[0]]["Mode"] = {}
-                    if os.path.exists(os.path.join(self.data_dir, "character", folder_list[file_index], row[0], "mode.csv")):
+                    if os.path.exists(
+                            os.path.join(self.data_dir, "character", folder_list[file_index], row[0], "mode.csv")):
                         # Add character mode data
                         with open(os.path.join(self.data_dir, "character", folder_list[file_index], row[0], "mode.csv"),
                                   encoding="utf-8", mode="r") as edit_file2:

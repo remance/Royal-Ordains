@@ -8,9 +8,8 @@ from pygame.sprite import Sprite
 from pygame.transform import smoothscale
 
 from engine.uimenu.uimenu import UIMenu
-from engine.utils.text_making import text_render_with_bg, text_render_with_texture
-
 from engine.utils.text_making import number_to_minus_or_plus
+from engine.utils.text_making import text_render_with_bg
 
 team_colour = {1: Color("black"), 2: Color("red"), 3: Color("blue"), 4: Color("green")}
 
@@ -109,7 +108,7 @@ class BattleCursor(UIBattle):
 class PlayerPortrait(UIBattle):
     def __init__(self, image, health_bar_image, resource_bar_image, guard_bar_image, pos):
         self._layer = 9
-        UIBattle.__init__(self, player_interact=False, has_containers=True)
+        UIBattle.__init__(self, player_interact=False)
         self.image = image
         self.base_image = image.copy()
         self.rect = self.image.get_rect(center=pos)
@@ -118,22 +117,22 @@ class PlayerPortrait(UIBattle):
 
         self.health_bar_image = health_bar_image
         self.base_health_bar_image = health_bar_image.copy()
-        self.health_bar_rect = self.health_bar_image.get_rect(topleft=(350 * self.screen_scale[0],
+        self.health_bar_rect = self.health_bar_image.get_rect(topleft=(290 * self.screen_scale[0],
                                                                        87 * self.screen_scale[1]))
         self.health_text_rect = self.health_bar_image.get_rect(center=(self.health_bar_image.get_width() / 2,
                                                                        self.health_bar_image.get_height() / 2))
 
         self.resource_bar_image = resource_bar_image
         self.base_resource_bar_image = resource_bar_image.copy()
-        self.resource_bar_rect = self.resource_bar_image.get_rect(topleft=(350 * self.screen_scale[0],
-                                                                           125 * self.screen_scale[1]))
+        self.resource_bar_rect = self.resource_bar_image.get_rect(topleft=(290 * self.screen_scale[0],
+                                                                           123 * self.screen_scale[1]))
         self.resource_text_rect = self.resource_bar_image.get_rect(center=(self.health_bar_image.get_width() / 2,
                                                                            self.health_bar_image.get_height() / 2))
 
         self.guard_bar_image = guard_bar_image
         self.base_guard_bar_image = guard_bar_image.copy()
-        self.guard_bar_rect = self.guard_bar_image.get_rect(topleft=(350 * self.screen_scale[0],
-                                                                     163 * self.screen_scale[1]))
+        self.guard_bar_rect = self.guard_bar_image.get_rect(topleft=(290 * self.screen_scale[0],
+                                                                     161 * self.screen_scale[1]))
         self.guard_text_rect = self.guard_bar_image.get_rect(center=(self.health_bar_image.get_width() / 2,
                                                                      self.health_bar_image.get_height() / 2))
 
@@ -150,7 +149,8 @@ class PlayerPortrait(UIBattle):
             bar = Surface((self.bar_size[0] * percent, self.bar_size[1]))
             bar.fill((0, 0, 0))
             self.health_bar_image.blit(bar, (self.bar_size[0] - bar.get_width(), 0))
-            value_text = self.font.render(str(int(self.last_health_value)) + " / " + str(who.max_health), True, (255, 255, 255))
+            value_text = self.font.render(str(int(self.last_health_value)) + " / " + str(who.max_health), True,
+                                          (255, 255, 255))
             self.health_bar_image.blit(value_text, self.health_text_rect)
             self.image.blit(self.health_bar_image, self.health_bar_rect)
 
@@ -161,7 +161,8 @@ class PlayerPortrait(UIBattle):
             bar = Surface((self.bar_size[0] * percent, self.bar_size[1]))
             bar.fill((0, 0, 0))
             self.resource_bar_image.blit(bar, (self.bar_size[0] - bar.get_width(), 0))
-            value_text = self.font.render(str(int(self.last_resource_value)) + " / " + str(who.max_resource), True, (255, 255, 255))
+            value_text = self.font.render(str(int(self.last_resource_value)) + " / " + str(who.max_resource), True,
+                                          (255, 255, 255))
             self.resource_bar_image.blit(value_text, self.resource_text_rect)
             self.image.blit(self.resource_bar_image, self.resource_bar_rect)
 
@@ -172,7 +173,8 @@ class PlayerPortrait(UIBattle):
             bar = Surface((self.bar_size[0] * percent, self.bar_size[1]))
             bar.fill((0, 0, 0))
             self.guard_bar_image.blit(bar, (self.bar_size[0] - bar.get_width(), 0))
-            value_text = self.font.render(str(int(self.last_guard_value)) + " / " + str(who.max_guard), True, (255, 255, 255))
+            value_text = self.font.render(str(int(self.last_guard_value)) + " / " + str(who.max_guard), True,
+                                          (255, 255, 255))
             self.guard_bar_image.blit(value_text, self.guard_text_rect)
             self.image.blit(self.guard_bar_image, self.guard_bar_rect)
 
@@ -224,8 +226,8 @@ class YesNo(UIBattle):
         yes_image_rect = self.yes_image.get_rect(midleft=(0, self.image.get_height() / 2))
         no_image_rect = self.no_image.get_rect(midright=(self.image.get_width(),
                                                          self.image.get_height() / 2))
-        cursor_pos = (self.battle.player1_battle_cursor.pos[0] - self.rect.topleft[0],
-                      self.battle.player1_battle_cursor.pos[1] - self.rect.topleft[1])
+        cursor_pos = (self.battle.player_1_battle_cursor.pos[0] - self.rect.topleft[0],
+                      self.battle.player_1_battle_cursor.pos[1] - self.rect.topleft[1])
         if yes_image_rect.collidepoint(cursor_pos):
             self.image = self.base_image.copy()
             self.no_zoom_animation_timer = 0
@@ -305,7 +307,7 @@ class CharacterIndicator(UIBattle):
     def update(self, dt):
         if self.base_pos != self.character.base_pos:
             self.base_pos = self.character.base_pos.copy()
-            self.pos = (self.character.pos[0], (self.character.pos[1] - self.character.sprite_size * 2.2 ))
+            self.pos = (self.character.pos[0], (self.character.pos[1] - self.character.sprite_size * 2.2))
             self.rect.midbottom = self.pos
 
 
@@ -568,10 +570,12 @@ class DamageNumber(UIBattle):
         self.move = move
 
         if critical:
-            self.image = text_render_with_bg(str(value), Font(self.ui_font["manuscript_font2"], int(76 * self.screen_scale[1])),
+            self.image = text_render_with_bg(str(value),
+                                             Font(self.ui_font["manuscript_font2"], int(76 * self.screen_scale[1])),
                                              gf_colour=team_colour[team])
         else:
-            self.image = text_render_with_bg(str(value), Font(self.ui_font["manuscript_font"], int(46 * self.screen_scale[1])),
+            self.image = text_render_with_bg(str(value),
+                                             Font(self.ui_font["manuscript_font"], int(46 * self.screen_scale[1])),
                                              gf_colour=team_colour[team])
         self.rect = self.image.get_rect(midbottom=pos)
         self.timer = 0.5

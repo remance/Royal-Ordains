@@ -27,13 +27,13 @@ def crop_sprite(sprite_pic, custom_base_point=None):
     # Crop transparent area only of surface
     old_size = sprite_pic.get_size()
     sprite_pic = image.tobytes(sprite_pic,
-                                "RGBA")  # convert image to string data for filtering effect
+                               "RGBA")  # convert image to string data for filtering effect
     sprite_pic = Image.frombytes("RGBA", old_size, sprite_pic)  # use PIL to get image data
     sprite_pic = sprite_pic.crop((low_x0, low_y0, high_x1, high_y1))
     size = sprite_pic.size
     sprite_pic = sprite_pic.tobytes()
     sprite_pic = image.frombytes(sprite_pic, size,
-                                  "RGBA")  # convert image back to a pygame surface
+                                 "RGBA")  # convert image back to a pygame surface
 
     # Find center offset after crop by finding width and height difference of longer side
 
