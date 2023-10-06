@@ -26,7 +26,7 @@ from engine.stageobject.stageobject import StageObject
 from engine.uibattle.uibattle import Profiler, FPSCount, DamageNumber, CharacterTextBox, \
     CharacterIndicator
 from engine.uimenu.uimenu import OptionMenuText, SliderMenu, MenuCursor, BoxUI, BrownMenuButton, \
-    URLIconLink, MenuButton, TextPopup, MapTitle, CharacterSelector
+    URLIconLink, MenuButton, TextPopup, MapTitle, CharacterSelector, CharacterStatAllocator
 from engine.updater.updater import ReversedLayeredUpdates
 from engine.utils.common import edit_config
 from engine.utils.data_loading import load_image, load_images, csv_read, load_base_button
@@ -441,14 +441,20 @@ class Game:
                                            subfolder=("ui", "charselect_ui"), key_file_name_readable=True)
         self.player1_char_selector = CharacterSelector((self.screen_width / 8, self.screen_height / 2),
                                                        char_selector_images)
+        self.player1_char_stat = CharacterStatAllocator(self.player1_char_selector.rect.center)
         self.player2_char_selector = CharacterSelector((self.screen_width / 2.7, self.screen_height / 2),
                                                        char_selector_images)
+        self.player2_char_stat = CharacterStatAllocator(self.player2_char_selector.rect.center)
         self.player3_char_selector = CharacterSelector((self.screen_width / 1.6, self.screen_height / 2),
                                                        char_selector_images)
+        self.player3_char_stat = CharacterStatAllocator(self.player3_char_selector.rect.center)
         self.player4_char_selector = CharacterSelector((self.screen_width / 1.15, self.screen_height / 2),
                                                        char_selector_images)
+        self.player4_char_stat = CharacterStatAllocator(self.player4_char_selector.rect.center)
         self.player_char_selectors = {1: self.player1_char_selector, 2: self.player2_char_selector,
                                       3: self.player3_char_selector, 4: self.player4_char_selector}
+        self.player_char_stats = {1: self.player1_char_stat, 2: self.player2_char_stat,
+                                  3: self.player3_char_stat, 4: self.player4_char_stat}
         self.char_menu_button = (self.player1_char_selector, self.player2_char_selector, self.player3_char_selector,
                                  self.player4_char_selector, self.char_back_button, self.start_button)
 
@@ -604,6 +610,15 @@ class Game:
                             hat_name = "hat" + number_to_minus_or_plus(joystick.get_axis(i)) + str(1)
                             self.assign_key(hat_name)
 
+            key_state = pygame.key.get_pressed()
+
+            for player, key_set in self.player_key_press.items():
+                if self.player_key_control[player] == "keyboard":
+                    for key in key_set:  # check for key holding
+                        if type(self.player_key_bind[player][key]) == int and key_state[
+                            self.player_key_bind[player][key]]:
+                            self.player_key_hold[player][key] = True
+
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONUP:
                     if event.button == 4:  # Mouse scroll down
@@ -705,9 +720,10 @@ class Game:
                                                          self.input_popup[1][2]], None)
 
                         self.player_key_bind_name = {1: {value: key for key, value in self.player_key_bind[1].items()}}
-                        self.player_key_press = {1: {key: False for key in self.player_key_bind[1]}}
-                        self.player_key_hold = {
-                            1: {key: False for key in self.player_key_bind[1]}}  # key that consider holding
+                        self.player_key_press = {key: dict.fromkeys(self.player_key_bind[key], False) for key in
+                                                 self.player_key_bind}
+                        self.player_key_hold = {key: dict.fromkeys(self.player_key_bind[key], False) for key in
+                                                self.player_key_bind}
 
                     elif self.input_popup[1] == "quit":
                         pygame.time.wait(1000)

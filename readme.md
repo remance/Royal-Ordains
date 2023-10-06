@@ -7,10 +7,10 @@
 
 ### This is the Book of Royal Ordains. A manuscript that tells the past courageous deeds of the hero group named Royal Ordains, sanctioned by the King of Masendor, so that their history will never be forgotten.
 
-[![](https://markdown-videos-api.jorgenkh.no/vimeo/868295546)](https://vimeo.com/868295546)
+[![](https://markdown-videos-api.jorgenkh.no/youtube/bNDiOt0XpOI)](https://youtu.be/bNDiOt0XpOI)
 
 
-Side-scrolling medieval fantasy action game in the art style inspired by Medieval art from various period and regions (with a sprinkle of education elements for historical medieval period) made with [Pygame](https://github.com/pygame/pygame).
+Side-scrolling medieval fantasy action game in the art style inspired by Medieval art from various periods and regions (with a sprinkle of education elements for historical medieval period) made with [Pygame](https://github.com/pygame/pygame).
 
 For any suggestions or bugs, feel free to report them in the [**Issues**](https://github.com/remance/Masendor/issues)
 page.

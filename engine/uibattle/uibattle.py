@@ -109,7 +109,7 @@ class PlayerPortrait(UIBattle):
     def __init__(self, image, health_bar_image, resource_bar_image, guard_bar_image, pos):
         self._layer = 9
         UIBattle.__init__(self, player_interact=False)
-        self.image = image
+        self.image = image.copy()
         self.base_image = image.copy()
         self.rect = self.image.get_rect(center=pos)
 

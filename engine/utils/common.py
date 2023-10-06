@@ -16,6 +16,19 @@ def change_group(item, group, change):
         group.remove(item)
 
 
+def stat_allocation_check(stat, point_pool, how):
+    up_cost = int(stat / 10) + 1
+    if how == "up":
+        if up_cost > point_pool:
+            return stat, point_pool
+        return stat + 1, point_pool - up_cost
+    else:
+        if stat > 1:
+            return stat - 1, point_pool + up_cost
+        else:
+            return stat, point_pool
+
+
 def keyboard_mouse_press_check(button_type, button, is_button_just_down, is_button_down, is_button_just_up, ):
     """
     Check for button just press, holding, and release for keyboard or mouse

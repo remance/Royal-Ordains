@@ -538,27 +538,27 @@ class Battle:
                         if type(self.player_key_bind[player][key]) == int and key_state[
                             self.player_key_bind[player][key]]:
                             self.player_key_hold[player][key] = True
-            else:
-                for joystick in self.joysticks.values():  # TODO recheck this
-                    for i in range(joystick.get_numaxes()):
-                        if joystick.get_axis(i) > 0.1 or joystick.get_axis(i) < -0.1:
-                            axis_name = "axis" + number_to_minus_or_plus(joystick.get_axis(i)) + str(i)
-                            if axis_name in self.player_key_bind_name:
-                                self.player_key_hold[self.player_key_bind_name[axis_name]] = True
+                else:
+                    for joystick in self.joysticks.values():  # TODO recheck this
+                        for i in range(joystick.get_numaxes()):
+                            if joystick.get_axis(i) > 0.1 or joystick.get_axis(i) < -0.1:
+                                axis_name = "axis" + number_to_minus_or_plus(joystick.get_axis(i)) + str(i)
+                                if axis_name in self.player_key_bind_name:
+                                    self.player_key_hold[self.player_key_bind_name[axis_name]] = True
 
-                    for i in range(joystick.get_numbuttons()):
-                        if joystick.get_button(i) and i in self.player_key_bind_name:
-                            self.player_key_hold[self.player_key_bind_name[i]] = True
+                        for i in range(joystick.get_numbuttons()):
+                            if joystick.get_button(i) and i in self.player_key_bind_name:
+                                self.player_key_hold[self.player_key_bind_name[i]] = True
 
-                    for i in range(joystick.get_numhats()):
-                        if joystick.get_hat(i)[0] > 0.1 or joystick.get_hat(i)[0] < 0.1:
-                            hat_name = "hat" + number_to_minus_or_plus(joystick.get_hat(i)[0]) + str(0)
-                            if hat_name in self.player_key_bind_name:
-                                self.player_key_press[self.player_key_bind_name[hat_name]] = True
-                        if joystick.get_hat(i)[1] > 0.1 or joystick.get_hat(i)[1] < 0.1:
-                            hat_name = "hat" + number_to_minus_or_plus(joystick.get_hat(i)[1]) + str(1)
-                            if hat_name in self.player_key_bind_name:
-                                self.player_key_press[self.player_key_bind_name[hat_name]] = True
+                        for i in range(joystick.get_numhats()):
+                            if joystick.get_hat(i)[0] > 0.1 or joystick.get_hat(i)[0] < 0.1:
+                                hat_name = "hat" + number_to_minus_or_plus(joystick.get_hat(i)[0]) + str(0)
+                                if hat_name in self.player_key_bind_name:
+                                    self.player_key_press[self.player_key_bind_name[hat_name]] = True
+                            if joystick.get_hat(i)[1] > 0.1 or joystick.get_hat(i)[1] < 0.1:
+                                hat_name = "hat" + number_to_minus_or_plus(joystick.get_hat(i)[1]) + str(1)
+                                if hat_name in self.player_key_bind_name:
+                                    self.player_key_press[self.player_key_bind_name[hat_name]] = True
 
             self.base_cursor_pos = Vector2(
                 (self.player_1_battle_cursor.pos[0] - self.battle_camera_center[0] + self.camera_pos[0]),
@@ -784,8 +784,8 @@ class Battle:
                 self.sound_effect_queue = {}
 
                 if self.ui_timer >= 0.1:
-                    for player in self.player_objects.values():
-                        self.player_1_portrait.value_input(player)
+                    for index, player in enumerate(self.player_objects.values()):
+                        self.player_portraits[index].value_input(player)
 
                     self.ui_drawer.draw(self.screen)  # draw the UI
                     self.ui_timer -= 0.1
