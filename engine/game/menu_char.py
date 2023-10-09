@@ -15,14 +15,14 @@ def menu_char(self, esc_press):
         self.back_mainmenu()
 
     elif self.start_button.event:
+        all_ready = True
         for player, item in self.player_char_select.items():
-            all_ready = True
-            if (self.player_char_selectors[player].mode == "complete" and not item) or \
-                    self.player_char_selectors[player].mode != "empty":
+            if self.player_char_selectors[player].mode not in ("ready", "empty"):
                 all_ready = False
-            if all_ready:
-                self.start_battle(1, 1, 1, players={key: value for key, value in
-                                                    self.player_char_select.items() if value})
+                break
+        if all_ready:
+            self.start_battle(1, 1, 1, players={key: value for key, value in
+                                                self.player_char_select.items() if value})
 
     else:
         for player in self.player_key_press:
@@ -35,53 +35,78 @@ def menu_char(self, esc_press):
                         if selector.mode == "stat":
                             self.player_char_stats[player].current_row -= 1
                             if self.player_char_stats[player].current_row < 0:
-                                self.player_char_stats[player].current_row = 6
+                                self.player_char_stats[player].current_row = self.player_char_stats[player].last_row
                             self.player_char_stats[player].add_stat(self.player_char_stats[player].stat)
                     elif key == "Down":
                         if selector.mode == "stat":
                             self.player_char_stats[player].current_row += 1
-                            if self.player_char_stats[player].current_row > 6:
+                            if self.player_char_stats[player].current_row > self.player_char_stats[player].last_row:
                                 self.player_char_stats[player].current_row = 0
                             self.player_char_stats[player].add_stat(self.player_char_stats[player].stat)
                     elif key == "Left":  # switch to previous in playable_character list
-                        if selector.mode != "stat":
-                            current_id = tuple(playable_character.keys()).index(selector.mode)
-                            if current_id - 1 < 0:
-                                current_id = tuple(playable_character.values())[-1]
+                        if selector.mode != "ready":
+                            if selector.mode != "stat":
+                                current_id = tuple(playable_character.keys()).index(selector.mode)
+                                if current_id - 1 < 0:
+                                    current_id = tuple(playable_character.values())[-1]
+                                else:
+                                    current_id -= 1
+                                selector.change_mode(tuple(playable_character.keys())[current_id])
                             else:
-                                current_id -= 1
-                            selector.change_mode(tuple(playable_character.keys())[current_id])
-                        else:
-                            self.player_char_stats[player].change_stat(
-                                self.player_char_stats[player].stat_row[self.player_char_stats[player].current_row], "down")
+                                if self.player_char_stats[player].current_row <= 6:
+                                    self.player_char_stats[player].change_stat(
+                                        self.player_char_stats[player].stat_row[self.player_char_stats[player].current_row], "down")
+                                else:
+                                    self.player_char_stats[player].change_skill(
+                                        self.player_char_stats[player].all_skill_row[
+                                            self.player_char_stats[player].current_row - 7], "down")
                     elif key == "Right":  # switch to next in playable_character list
-                        if selector.mode != "stat":
-                            current_id = tuple(playable_character.keys()).index(selector.mode)
-                            if current_id + 1 > len(playable_character) - 1:  # reach the end of char list, go back to first
-                                current_id = 0
+                        if selector.mode != "ready":
+                            if selector.mode != "stat":
+                                current_id = tuple(playable_character.keys()).index(selector.mode)
+                                if current_id + 1 > len(playable_character) - 1:  # reach the end of char list, go back to first
+                                    current_id = 0
+                                else:
+                                    current_id += 1
+                                selector.change_mode(tuple(playable_character.keys())[current_id])
                             else:
-                                current_id += 1
-                            selector.change_mode(tuple(playable_character.keys())[current_id])
-                        else:
-                            self.player_char_stats[player].change_stat(
-                                self.player_char_stats[player].stat_row[self.player_char_stats[player].current_row], "up")
+                                if self.player_char_stats[player].current_row <= 6:
+                                    self.player_char_stats[player].change_stat(
+                                        self.player_char_stats[player].stat_row[self.player_char_stats[player].current_row], "up")
+                                else:
+                                    self.player_char_stats[player].change_skill(
+                                        self.player_char_stats[player].all_skill_row[self.player_char_stats[player].current_row - 7], "up")
                     elif key == "Weak":
-                        if selector.mode != "stat":  # go to stat allocation
+                        if selector.mode not in ("stat", "ready"):  # go to stat allocation
                             start_stat = self.character_data.character_list[selector.mode]
+                            skill_list = {}
+                            for skill in self.character_data.character_list[selector.mode]["Skill"].values():
+                                for key, value in skill.items():
+                                    if ".1" in key and "C" in key:
+                                        skill_list[value["Name"]] = 0
                             start_stat = {key: value for key, value in start_stat.items() if
-                                          key in self.player_char_stats[player].stat_row}
-                            start_stat["Remain"] = 100
+                                          key in self.player_char_stats[player].stat_row} | \
+                                         {key: value for key, value in start_stat.items() if
+                                          key in self.player_char_stats[player].common_skill_row} | skill_list
+                            start_stat["Status Remain"] = 100
+                            start_stat["Skill Remain"] = 2
+                            start_stat["ID"] = selector.mode
+
                             selector.change_mode("stat")
                             self.add_ui_updater(self.player_char_stats[player])
                             self.player_char_stats[player].add_stat(start_stat)
 
                         else:
                             self.player_char_select[player] = {"ID": self.player_char_stats[player].stat["ID"]} | \
-                                                              default_start | self.player_char_stats[player].stat
-                            selector.mode = "complete"
+                                                              default_start | self.player_char_stats[player].stat | \
+                                                              {"Skill Allocation": {key: value for key, value in
+                                                                self.player_char_stats[player].stat.items() if key in self.player_char_stats[player].all_skill_row}}
+                            selector.change_mode("ready")
 
                     elif key == "Strong":
-                        if selector.mode != "stat":  # remove player
+                        if selector.mode == "ready":
+                            selector.change_mode("stat")
+                        elif selector.mode != "stat":  # remove player
                             self.player_char_select[player] = None
                             selector.change_mode("empty")
                         else:  # go back to select char

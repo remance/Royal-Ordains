@@ -12,10 +12,14 @@ def camera_process(self):
             self.camera_fix()
 
     elif self.camera_mode == "Follow":
-        mean_check = mean([player.pos[0] for player in self.player_objects.values() if player.alive])
-        pos_change = (mean_check - self.camera_pos[0]) / 10
-        if pos_change != 0:
-            if abs(pos_change) < 10:
-                pos_change = (mean_check - self.camera_pos[0])
-            self.camera_pos[0] += pos_change
-            self.camera_fix()
+        all_alive = [player.pos[0] for player in self.player_objects.values()]
+        if all_alive:
+            mean_check = mean(all_alive)
+            pos_change = (mean_check - self.camera_pos[0]) / 10
+            if pos_change != 0:
+                if abs(pos_change) < 10:
+                    pos_change = (mean_check - self.camera_pos[0])
+                self.camera_pos[0] += pos_change
+                self.camera_fix()
+        else:
+            self.camera_mode = "Free"

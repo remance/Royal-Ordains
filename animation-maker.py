@@ -1292,8 +1292,8 @@ class Model:
                                 self.animation_part_list[edit_frame][part_index][5] += 1
                             elif "down" in edit_type:
                                 self.animation_part_list[edit_frame][part_index][5] -= 1
-                                if self.animation_part_list[edit_frame][part_index][5] == 0:
-                                    self.animation_part_list[edit_frame][part_index][5] = 1
+                                if self.animation_part_list[edit_frame][part_index][5] < 0:
+                                    self.animation_part_list[edit_frame][part_index][5] = 0
 
         for key, value in self.mask_part_list.items():  # reset rect list
             self.mask_part_list[key] = None

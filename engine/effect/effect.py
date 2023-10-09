@@ -202,20 +202,39 @@ class DamageEffect(Effect):
         if self.other_property:
             if "spawn" in self.other_property and "spawn_after" in self.other_property and how == "border":
                 if "spawn_same" in self.other_property:  # spawn same effect
-                    stat = self.stat.copy()
-                    if "spawn_sky" in self.other_property:
-                        stat[3] = -100
-                    if "spawn_target" in self.other_property:
+                    spawn_number = 1
+                    if "spawn_number" in self.other_property:
+                        spawn_number = int(self.other_property["spawn_number"])
+                    for _ in range(spawn_number):
+                        stat = self.stat.copy()
+                        if "spawn_sky" in self.other_property:
+                            stat[3] = -100
                         if self.owner.nearest_enemy:  # find the nearest enemy to target
-                            if self.owner.sprite_direction == "l_side":
-                                stat[2] = uniform(self.owner.nearest_enemy[0].pos[0],
-                                                  self.owner.nearest_enemy[0].pos[0] + (200 * self.screen_scale[0]))
-                            else:
-                                stat[2] = uniform(self.owner.nearest_enemy[0].pos[0] - (200 * self.screen_scale[0]),
-                                                  self.owner.nearest_enemy[0].pos[0])
+                            if "spawn_target" in self.other_property:
+                                if self.owner.sprite_direction == "l_side":
+                                    stat[2] = uniform(self.owner.nearest_enemy[0].pos[0],
+                                                      self.owner.nearest_enemy[0].pos[0] + (200 * self.screen_scale[0]))
+                                else:
+                                    stat[2] = uniform(self.owner.nearest_enemy[0].pos[0] - (200 * self.screen_scale[0]),
+                                                      self.owner.nearest_enemy[0].pos[0])
 
-                            self.pos = (stat[2], stat[3])
-                            stat[4] = self.set_rotate(self.owner.nearest_enemy[0].pos, use_pos=True)
+                                self.pos = (stat[2], stat[3])
+                                stat[4] = self.set_rotate(self.owner.nearest_enemy[0].pos, use_pos=True)
+
+                            elif "spawn_near_target" in self.other_property:
+                                if self.owner.nearest_enemy:  # find the nearest enemy to target
+                                    if self.owner.sprite_direction == "l_side":
+                                        stat[2] = uniform(self.owner.nearest_enemy[0].pos[0],
+                                                          self.owner.nearest_enemy[0].pos[0] + (500 * self.screen_scale[0]))
+                                    else:
+                                        stat[2] = uniform(self.owner.nearest_enemy[0].pos[0] - (500 * self.screen_scale[0]),
+                                                          self.owner.nearest_enemy[0].pos[0])
+
+                                    self.pos = (stat[2], stat[3])
+                                    target_pos = (uniform(self.owner.nearest_enemy[0].pos[0] - 100,
+                                                         self.owner.nearest_enemy[0].pos[0] + 100),
+                                                  self.owner.nearest_enemy[0].pos[1])
+                                    stat[4] = self.set_rotate(target_pos, use_pos=True)
 
                         else:  # random target instead
                             stat[2] = uniform(self.pos[0] - (self.travel_distance * self.screen_scale[0]),
@@ -225,11 +244,11 @@ class DamageEffect(Effect):
                             else:
                                 stat[4] = randint(-180, -160)
 
-                    moveset = self.moveset.copy()
-                    moveset["Property"] = [item for item in moveset["Property"] if
-                                           item != "spawn"]  # remove spawn property so it not loop spawn
-                    DamageEffect(self.owner, stat, 0, moveset, from_owner=False,
-                                 reach_effect=self.reach_effect)
+                        moveset = self.moveset.copy()
+                        moveset["Property"] = [item for item in moveset["Property"] if
+                                               item != "spawn"]  # remove spawn property so it not loop spawn
+                        DamageEffect(self.owner, stat, 0, moveset, from_owner=False,
+                                     reach_effect=self.reach_effect)
 
         self.clean_object()
 

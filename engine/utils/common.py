@@ -29,6 +29,17 @@ def stat_allocation_check(stat, point_pool, how):
             return stat, point_pool
 
 
+def skill_allocation_check(skill, point_pool, how):
+    if how == "up":
+        if point_pool > 0:
+            return skill + 1, point_pool - 1
+        return skill, point_pool
+    else:
+        if skill > 0:
+            return skill - 1, point_pool + 1
+        return skill, point_pool
+
+
 def keyboard_mouse_press_check(button_type, button, is_button_just_down, is_button_down, is_button_just_up, ):
     """
     Check for button just press, holding, and release for keyboard or mouse

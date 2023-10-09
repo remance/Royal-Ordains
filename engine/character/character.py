@@ -285,18 +285,22 @@ class Character(sprite.Sprite):
         self.moveset = stat["Move"].copy()
         self.mode_list = stat["Mode"]
         self.skill = stat["Skill"].copy()
+        self.available_skill = {"Couch": {}, "Stand": {}, "Air": {}}
 
-        if "Skill Allocation" in stat:
-            for skill in tuple(self.skill.keys()):
-                if skill not in stat["Skill Allocation"]:
-                    self.skill.pop(skill)
+        if "Skill Allocation" in stat:  # refind leveled skill allocated since name is only from first level
+            for name, position in self.skill.items():
+                for skill in tuple(position.keys()):
+                    if position[skill]["Name"] in stat["Skill Allocation"] and \
+                            stat["Skill Allocation"][position[skill]["Name"]]:
+                        skill_id = skill[:3] + str(stat["Skill Allocation"][position[skill]["Name"]])
+                        self.available_skill[name][skill_id] = position[skill_id]
 
         for position in ("Couch", "Stand", "Air"):  # combine skill into moveset
             if position in self.skill:
                 if position not in self.moveset:
                     self.moveset[position] = {}
                 button_key_skill_dict = {value["Buttons"]: {"Move": key} | value for key, value in
-                                         self.skill[position].items()}
+                                         self.available_skill[position].items()}
                 self.moveset[position] = button_key_skill_dict | self.moveset[position]
 
         self.max_physical = 1 + (self.strength / 50) + (self.wisdom / 200)
@@ -693,7 +697,7 @@ class PlayableCharacter(Character):
         self.common_skill = {skill: {1: False, 2: False, 3: False, 4: False, 5: False} for skill in common_skill}
 
         for skill in common_skill:
-            if stat[skill]:
+            if stat["Skill Allocation"][skill]:
                 for level in range(int(stat[skill] + 1)):
                     self.common_skill[skill][level] = True
 
@@ -887,7 +891,7 @@ class BodyPart(sprite.Sprite):
         if self.part_name[0:2] == "l_" or self.part_name[0:2] == "r_":
             self.part_name = self.part_name[2:]
         if "special" in self.part:
-            self.part = self.part[:-2]
+            self.part = "_".join(self.part.split("_")[:-1])
         self.original_can_hurt = can_hurt
         self.can_hurt = can_hurt
         self.can_deal_dmg = False

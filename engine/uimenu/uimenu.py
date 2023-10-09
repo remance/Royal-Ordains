@@ -7,7 +7,7 @@ from pygame import Surface, SRCALPHA, Rect, Color, draw, mouse
 from pygame.font import Font
 from pygame.sprite import Sprite
 
-from engine.utils.common import keyboard_mouse_press_check, stat_allocation_check
+from engine.utils.common import keyboard_mouse_press_check, stat_allocation_check, skill_allocation_check
 from engine.utils.data_loading import load_image
 from engine.utils.text_making import text_render_with_bg, make_long_text
 
@@ -629,6 +629,8 @@ class CharacterStatAllocator(UIMenu):
                          "Constitution", "Intelligence", "Wisdom", "Charisma")
         self.common_skill_row = ("Ground Movement", "Air Movement", "Tinkerer", "Arm Mastery", "Wealth",
                                  "Immunity", "Resourceful", "Combat Contest")
+        self.skill_row = []
+        self.all_skill_row = []
         self.stat = {}
 
         self.image = Surface((350 * self.screen_scale[0], 900 * self.screen_scale[1]), SRCALPHA)
@@ -637,6 +639,7 @@ class CharacterStatAllocator(UIMenu):
         self.image.blit(text, text_rect)
 
         self.stat_rect = {}
+        self.skill_rect = {}
         start_stat_row = 120 * self.screen_scale[1]
 
         text = self.small_font.render("Status Point Left: ", True, (0, 0, 0))
@@ -656,6 +659,18 @@ class CharacterStatAllocator(UIMenu):
             self.image.blit(text, text_rect)
             start_stat_row += 36 * self.screen_scale[1]
 
+        text = self.small_font.render("Current Level", True, (0, 0, 0))
+        text_rect = text.get_rect(center=(290 * self.screen_scale[0], 380 * self.screen_scale[1]))
+        self.image.blit(text, text_rect)
+
+        # start_stat_row = 440 * self.screen_scale[1]
+        # for index, stat in enumerate(self.common_skill_row):
+        #     text = self.font.render(stat + ": ", True, (0, 0, 0))
+        #     text_rect = text.get_rect(midleft=(10 * self.screen_scale[0], start_stat_row))
+        #     self.skill_rect[stat] = text_rect  # save stat name rect for stat point later
+        #     self.image.blit(text, text_rect)
+        #     start_stat_row += 36 * self.screen_scale[1]
+
         self.base_image = self.image.copy()
 
         self.rect = self.image.get_rect(center=self.pos)
@@ -663,6 +678,20 @@ class CharacterStatAllocator(UIMenu):
     def add_stat(self, stat_dict):
         self.stat = stat_dict
         self.image = self.base_image.copy()
+        self.skill_row = [key for key in stat_dict if "Remain" not in key and key not in self.common_skill_row and
+                          key not in self.stat_row and key != "ID"]
+        self.all_skill_row = list(self.common_skill_row) + self.skill_row
+        self.last_row = len(self.stat_row) + len(self.common_skill_row) + len(self.skill_row) - 1
+
+        self.skill_rect = {}
+        start_stat_row = 400 * self.screen_scale[1]
+        for index, stat in enumerate(self.all_skill_row):
+            text = self.font.render(stat + ": ", True, (0, 0, 0))
+            text_rect = text.get_rect(midleft=(10 * self.screen_scale[0], start_stat_row))
+            self.skill_rect[stat] = text_rect  # save stat name rect for stat point later
+            self.image.blit(text, text_rect)
+            start_stat_row += 36 * self.screen_scale[1]
+
         for index, stat in enumerate(stat_dict):
             if stat in self.stat_rect:
                 if index == self.current_row:
@@ -672,14 +701,30 @@ class CharacterStatAllocator(UIMenu):
                     text = self.font.render(str(int(stat_dict[stat])) + " (" + str(int(stat_dict[stat] / 10) + 1) + ")",
                                             True, (0, 0, 0))
                 text_rect = text.get_rect(midright=(330 * self.screen_scale[0], self.stat_rect[stat].midleft[1]))
-            else:  # point left
-                text = self.font.render(str(int(stat_dict[stat])), True, (0, 0, 0))
-                text_rect = text.get_rect(midleft=(180 * self.screen_scale[0], self.status_point_left_text_rect.midleft[1]))
+            elif stat in self.skill_rect:
+                if index == self.current_row:
+                    text = self.font.render(str(int(stat_dict[stat])),
+                                            True, (0, 0, 0), (255, 255, 255, 255))
+                else:
+                    text = self.font.render(str(int(stat_dict[stat])),
+                                            True, (0, 0, 0))
+                text_rect = text.get_rect(midright=(330 * self.screen_scale[0], self.skill_rect[stat].midleft[1]))
+            elif "Remain" in stat:  # point left
+                if "Status" in stat:
+                    text = self.font.render(str(int(stat_dict[stat])), True, (0, 0, 0))
+                    text_rect = text.get_rect(midleft=(180 * self.screen_scale[0], self.status_point_left_text_rect.midleft[1]))
+                else:
+                    text = self.font.render(str(int(stat_dict[stat])), True, (0, 0, 0))
+                    text_rect = text.get_rect(
+                        midleft=(180 * self.screen_scale[0], self.skill_point_left_text_rect.midleft[1]))
             self.image.blit(text, text_rect)
 
     def change_stat(self, stat, how):
-        self.stat[stat], self.stat["Remain"] = stat_allocation_check(self.stat[stat],
-                                                                     self.stat["Remain"], how)
+        self.stat[stat], self.stat["Status Remain"] = stat_allocation_check(self.stat[stat], self.stat["Status Remain"], how)
+        self.add_stat(self.stat)
+
+    def change_skill(self, skill, how):
+        self.stat[skill], self.stat["Skill Remain"] = skill_allocation_check(self.stat[skill], self.stat["Skill Remain"], how)
         self.add_stat(self.stat)
 
 

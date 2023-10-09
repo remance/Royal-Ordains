@@ -439,16 +439,16 @@ class Game:
 
         char_selector_images = load_images(self.data_dir, screen_scale=self.screen_scale,
                                            subfolder=("ui", "charselect_ui"), key_file_name_readable=True)
-        self.player1_char_selector = CharacterSelector((self.screen_width / 8, self.screen_height / 2),
+        self.player1_char_selector = CharacterSelector((self.screen_width / 8, self.screen_height / 2.1),
                                                        char_selector_images)
         self.player1_char_stat = CharacterStatAllocator(self.player1_char_selector.rect.center)
-        self.player2_char_selector = CharacterSelector((self.screen_width / 2.7, self.screen_height / 2),
+        self.player2_char_selector = CharacterSelector((self.screen_width / 2.7, self.screen_height / 2.1),
                                                        char_selector_images)
         self.player2_char_stat = CharacterStatAllocator(self.player2_char_selector.rect.center)
-        self.player3_char_selector = CharacterSelector((self.screen_width / 1.6, self.screen_height / 2),
+        self.player3_char_selector = CharacterSelector((self.screen_width / 1.6, self.screen_height / 2.1),
                                                        char_selector_images)
         self.player3_char_stat = CharacterStatAllocator(self.player3_char_selector.rect.center)
-        self.player4_char_selector = CharacterSelector((self.screen_width / 1.15, self.screen_height / 2),
+        self.player4_char_selector = CharacterSelector((self.screen_width / 1.15, self.screen_height / 2.1),
                                                        char_selector_images)
         self.player4_char_stat = CharacterStatAllocator(self.player4_char_selector.rect.center)
         self.player_char_selectors = {1: self.player1_char_selector, 2: self.player2_char_selector,

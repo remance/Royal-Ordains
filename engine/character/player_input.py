@@ -28,7 +28,7 @@ def player_input(self, player_index, dt):
                         self.player_key_hold_timer[key] = 0
                     else:  # increase hold timer
                         self.player_key_hold_timer[key] += dt
-                        if self.player_key_hold_timer[key] > 0.05:  # only count as start holding after specific time
+                        if self.player_key_hold_timer[key] > 0.1:  # only count as start holding after specific time
                             self.command_key_hold.append(key)
                 elif key in self.player_key_hold_timer:  # no longer hold
                     self.player_key_hold_timer.pop(key)
@@ -44,7 +44,7 @@ def player_input(self, player_index, dt):
                         self.command_key_input.pop(index)
                         self.player_key_input_timer.pop(index)
 
-            if (self.command_key_input and 0.3 <= self.player_key_input_timer[-1] <= 0.4) or self.command_key_hold:
+            if (self.command_key_input and 0.2 <= self.player_key_input_timer[-1] <= 0.4) or self.command_key_hold:
                 # delay input a bit so a bit of time pass before taking action
                 if "knockdown" in self.current_action:
                     if self.last_command_key_input == "Weak" or self.last_command_key_input == "Strong":
