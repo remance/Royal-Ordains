@@ -169,7 +169,7 @@ class Character(sprite.Sprite):
     dmg_sound_shake = 200
     original_ground_pos = 1000
 
-    def __init__(self, game_id, stat, player_control=False):
+    def __init__(self, game_id, stat, player_control=False, leader=None):
         """
         Character object represent a character that take part in the battle in stage
         Character has three different stage of stat;
@@ -183,6 +183,7 @@ class Character(sprite.Sprite):
         self.game_id = game_id
         self.melee_target = None  # target for melee attacking
         self.player_control = player_control  # character controlled by player
+        self.leader = leader
         self.taking_damage_angle = None
         self.indicator = None
 
@@ -228,6 +229,8 @@ class Character(sprite.Sprite):
         self.no_clip = False
         self.no_pickup = False
         self.invincible = False
+        self.immune_weather = False
+        self.hit_resource_regen = False
         self.position = "Stand"
         self.combat_state = "Peace"
         self.mode = "Normal"
@@ -246,8 +249,6 @@ class Character(sprite.Sprite):
         self.original_resource_regen = 0  # resource regeneration modifier
         self.status_effect = {}  # current status effect
         self.status_duration = {}  # current status duration
-        self.skill_effect = {}  # activate skill effect
-        self.skill_duration = {}  # current active skill duration
 
         self.freeze_timer = 0
         self.hold_timer = 0  # how long animation holding so far
@@ -274,13 +275,16 @@ class Character(sprite.Sprite):
 
         # Get char stat
         self.name = stat["Name"]
-        self.strength = stat["Strength"]
-        self.dexterity = stat["Dexterity"]
-        self.agility = stat["Agility"]
-        self.constitution = stat["Constitution"]
-        self.intelligence = stat["Intelligence"]
-        self.wisdom = stat["Wisdom"]
-        self.charisma = stat["Charisma"]
+        stat_boost = 0
+        if self.leader:  # character with leader get stat boost from leader charisma
+            stat_boost = int(self.leader.charisma / 10)
+        self.strength = stat["Strength"] + stat_boost
+        self.dexterity = stat["Dexterity"] + stat_boost
+        self.agility = stat["Agility"] + stat_boost
+        self.constitution = stat["Constitution"] + stat_boost
+        self.intelligence = stat["Intelligence"] + stat_boost
+        self.wisdom = stat["Wisdom"] + stat_boost
+        self.charisma = stat["Charisma"] + stat_boost
 
         self.moveset = stat["Move"].copy()
         self.mode_list = stat["Mode"]
@@ -294,6 +298,10 @@ class Character(sprite.Sprite):
                             stat["Skill Allocation"][position[skill]["Name"]]:
                         skill_id = skill[:3] + str(stat["Skill Allocation"][position[skill]["Name"]])
                         self.available_skill[name][skill_id] = position[skill_id]
+        else:  # all skill available
+            for name, position in self.skill.items():
+                for skill in tuple(position.keys()):
+                    self.available_skill[name][skill] = position[skill]
 
         for position in ("Couch", "Stand", "Air"):  # combine skill into moveset
             if position in self.skill:
@@ -313,21 +321,23 @@ class Character(sprite.Sprite):
 
         self.original_critical_chance = 5 + int((self.dexterity / 10) + (self.wisdom / 30))
 
-        self.original_defense = (self.agility / 20) + (self.constitution / 10) + (self.wisdom / 20)
+        self.original_defence = (self.agility / 20) + (self.constitution / 10) + (self.wisdom / 20)
         self.original_guard = 10 * self.constitution
         self.original_super_armour = self.constitution
 
         self.health = stat["Base Health"] + (stat["Base Health"] * (self.constitution / 100))  # health of character
 
         self.max_resource = int(stat["Max Resource"])
+        self.resource1 = self.max_resource * 0.01
         self.resource25 = self.max_resource * 0.25
         self.resource50 = self.max_resource * 0.5
         self.resource75 = self.max_resource * 0.75
 
         self.original_cast_speed = 1 / (1 + ((self.dexterity + self.intelligence) / 200))
 
-        self.original_animation_play_time = self.default_animation_play_time / (1 + (self.agility / 200))
+        self.original_animation_play_time = self.default_animation_play_time / (1 + (self.agility / 200))  # higher value mean longer play time
         self.animation_play_time = self.original_animation_play_time
+        self.final_animation_play_time = self.animation_play_time
         self.original_speed = self.agility / 2
 
         self.original_dodge = 1 + int((self.agility / 10) + (self.wisdom / 30))
@@ -360,7 +370,7 @@ class Character(sprite.Sprite):
         self.items = {}
         # Stat after applying gear
         self.base_power_bonus = 0
-        self.base_defense = self.original_defense
+        self.base_defence = self.original_defence
         self.base_dodge = self.original_dodge - self.weight
         self.base_guard = self.original_guard
         self.base_critical_chance = self.original_critical_chance
@@ -380,7 +390,7 @@ class Character(sprite.Sprite):
         self.hold_power_bonus = 1
         self.power_bonus = self.base_power_bonus
         self.critical_chance = self.base_critical_chance
-        self.defense = (100 - self.base_defense) / 100
+        self.defence = (100 - self.base_defence) / 100
         self.super_armour = self.base_super_armour
         self.dodge = self.base_dodge
         self.element_resistance = self.base_element_resistance.copy()
@@ -566,7 +576,7 @@ class Character(sprite.Sprite):
                         if self.current_moveset:
                             if "helper" in self.current_moveset["Property"]:
                                 for key, value in self.current_moveset["Property"].items():
-                                    if key == "drop":
+                                    if key == "drop_item":
                                         self.battle.helper.interrupt_animation = True
                                         self.battle.helper.command_action = {"name": "special",
                                                                              "drop": value}
@@ -625,7 +635,7 @@ class Character(sprite.Sprite):
                     self.move_speed = 0
                     self.pick_animation()
 
-                    self.animation_play_time = self.original_animation_play_time
+                    self.final_animation_play_time = self.animation_play_time
 
                 if self.broken and (self.retreat_stage_end + self.sprite_size <= self.base_pos[0] or
                                     self.base_pos[0] <= self.retreat_stage_start):
@@ -636,7 +646,6 @@ class Character(sprite.Sprite):
         else:  # die
             if self.alive:  # enter dead state
                 self.attack_cooldown = {}  # remove all cooldown
-                self.skill_effect = {}  # remove all skill effects
                 self.alive = False  # enter dead state
                 self.engage_combat()
                 self.current_action = self.die_command_action
@@ -757,10 +766,12 @@ class PlayableCharacter(Character):
         if self.common_skill["Arm Mastery"][5]:  # can slide attack
             pass
 
-        if self.common_skill["Wealth"][1]:  # can slide attack
-            pass
-        if self.common_skill["Wealth"][2]:  # item may have a chance to be used for free
-            pass
+        self.money_score = False
+        self.money_resource = False
+        if self.common_skill["Wealth"][1]:  # money pickup also increase score
+            self.money_score = True
+        if self.common_skill["Wealth"][2]:  # money pickup also increase resource
+            self.money_resource = True
         if self.common_skill["Wealth"][3]:  # food has double effect
             pass
         if self.common_skill["Wealth"][4]:  # can slide attack
@@ -768,15 +779,17 @@ class PlayableCharacter(Character):
         if self.common_skill["Wealth"][5]:  # can slide attack
             pass
 
-        if self.common_skill["Immunity"][1]:  # can slide attack
+        self.knock_recover = False
+        self.immune_weather = False
+        if self.common_skill["Immunity"][1]:  # can recover from knockdown with weak/strong attack
+            self.knock_recover = True
+        if self.common_skill["Immunity"][2]:  # shorten all debuff duration by half
             pass
-        if self.common_skill["Immunity"][2]:  # item may have a chance to be used for free
+        if self.common_skill["Immunity"][3]:  # increase resurrection count by 1
             pass
-        if self.common_skill["Immunity"][3]:  # food has double effect
-            pass
-        if self.common_skill["Immunity"][4]:  # can slide attack
-            pass
-        if self.common_skill["Immunity"][5]:  # can slide attack
+        if self.common_skill["Immunity"][4]:  # immune to weather effect
+            self.immune_weather = True
+        if self.common_skill["Immunity"][5]:  # unlock immune barrier skill
             pass
 
         self.hit_resource_regen = False
@@ -813,9 +826,8 @@ class PlayableCharacter(Character):
 
 class AICharacter(Character):
     def __init__(self, game_id, stat, leader=None):
-        Character.__init__(self, game_id, stat)
+        Character.__init__(self, game_id, stat, leader=leader)
         self.old_cursor_pos = None
-        self.leader = leader
         self.is_boss = stat["Boss"]
         if self.leader:
             self.indicator = CharacterIndicator(self)

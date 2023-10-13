@@ -1,29 +1,29 @@
 "Move","Name","Buttons","Position","Prepare Animation","Part","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Damage Effect Property","Property"
-"C1.1","Double Piercing","Down,Forward,Strong","Stand",,"sword",300,3,0,65,16,,10,,5,"Physical",,,,,"multiframehit"
-"C1.2","Triple Piercing","Down,Forward,Strong","Stand",,"sword",300,4,0,70,,,,,10,"Physical",,,,,"multiframehit"
-"C1.3","Quadruple Piercing","Down,Forward,Strong","Stand",,"sword",300,5,0,75,,,,,13,"Physical",,,,,"multiframehit"
-"C1.4","Speed Piercing","Down,Forward,Strong","Stand",,"sword",300,7,0,96,,,,,21,"Physical",,,,,"multiframehit"
-"C1.5","Unseen Piercing","Down,Forward,Strong","Stand",,"sword",300,10,0,125,,,,,35,"Physical",,,,,"multiframehit"
-"C2.1","Counter Attack","Guard,Strong","Stand","name:Parry","sword",200,0,0,285,,,,,,"Physical",,,,,
-"C2.2","Counter Cross Slash","Guard,Strong","Stand","name:Parry","sword",200,0,0,300,,,,,,"Physical",,,,,"multiframehit"
-"C2.3",,"Guard,Strong","Stand","name:Parry","sword",200,0,0,550,,,,,,,,,,,
-"C2.4","Revenge Guard","Guard,Strong","Stand","name:Parry","sword",200,0,0,680,,,,,,,,,,,
-"C2.5","Sword of Vengeance","Guard,Strong","Stand","name:Parry","sword",200,0,0,1000,,,,,,,,,,,
-"C3.1","Vital Slash","Down,Down,Strong","Stand",,"sword",300,3,0,87,20,,,14,15,"Physical",,,,,
-"C3.2","Bloodletting","Down,Down,Strong","Stand",,"sword",300,4,,103,,,,,15,"Physical",,,,,
-"C3.3","Slow Killing","Down,Down,Strong","Stand",,"sword",300,4,,125,,,,,23,"Physical",,,,,
-"C3.4","Bloodbath","Down,Down,Strong","Stand",,"sword",300,5,,170,,,,,39,"Physical",,,,,
-"C3.5","Fountain of Blood","Down,Down,Strong","Stand",,"sword",300,5,,284,,,,,48,"Physical",,,,,
+"C1.1","Double Piercing","Down,Forward,Strong","Stand",,"sword",300,3,0,65,35,,,15,5,"Physical",,,,,"multiframehit"
+"C1.2","Triple Piercing","Down,Forward,Strong","Stand",,"sword",300,4,0,70,35,,,15,10,"Physical",,,,,"multiframehit"
+"C1.3","Quadruple Piercing","Down,Forward,Strong","Stand",,"sword",300,5,0,75,35,,,15,13,"Physical",,,,,"multiframehit"
+"C1.4","Speed Piercing","Down,Forward,Strong","Stand",,"sword",300,7,0,96,35,,,15,21,"Physical",,,,,"multiframehit"
+"C1.5","Unseen Piercing","Down,Forward,Strong","Stand",,"sword",300,10,0,125,35,,,15,35,"Physical",,,,,"multiframehit"
+"C2.1","Counter Attack","Guard,Strong","Stand","name:Parry","sword",200,0,0,285,45,,,45,,"Physical",,,,,
+"C2.2","Counter Cross Slash","Guard,Strong","Stand","name:Parry","sword",200,0,0,300,45,,,45,,"Physical",,,,,"multiframehit"
+"C2.3",,"Guard,Strong","Stand","name:Parry","sword",200,0,0,550,45,,,45,,,,,,,
+"C2.4","Revenge Guard","Guard,Strong","Stand","name:Parry","sword",200,0,0,680,45,,,45,,,,,,,
+"C2.5","Sword of Vengeance","Guard,Strong","Stand","name:Parry","sword",200,0,0,1000,45,,,45,,,,,,,
+"C3.1","Vital Slash","Down,Down,Strong","Stand",,"sword",300,3,0,87,52,,,14,15,"Physical",,32,,,
+"C3.2","Bloodletting","Down,Down,Strong","Stand",,"sword",300,4,,103,52,,,14,15,"Physical",,"32,27",,,
+"C3.3","Slow Killing","Down,Down,Strong","Stand",,"sword",300,4,,125,52,,,14,23,"Physical",,"32,27,36",,,
+"C3.4","Bloodbath","Down,Down,Strong","Stand",,"sword",300,5,,170,52,,,14,39,"Physical",,"32,27,36",,,
+"C3.5","Fountain of Blood","Down,Down,Strong","Stand",,"sword",300,5,,284,52,,,14,48,"Physical",,"32,27,36",,,
 "C4.1","Second Wind","Guard,Down,Strong","Stand",,"body",0,5,15,,,,,,,"Physical",,,,,
 "C4.2","Steady Recovery","Guard,Down,Strong","Stand",,"body",0,5,15,,,,,,,"Physical",,,,,
 "C4.3","Cleansing Body","Guard,Down,Strong","Stand",,"body",0,5,15,,,,,,,"Physical",,,,,
 "C4.4","Vitality Burst","Guard,Down,Strong","Stand",,"body",0,5,15,,,,,,,"Physical",,,,,
 "C4.5","Complete Rejuvenation","Guard,Down,Strong","Stand",,"body",0,5,15,,,,,,,"Physical",,,,,
-"C5.1","Eclipse Slash","Guard,Down,Up,Strong","Stand",,"sword",0,7,2,,,,,,,"Physical",,,,,
-"C5.2","Lesser Moon Arc","Guard,Down,Up,Strong","Stand",,"sword",,,,,,,,,,,,,,,
-"C5.3","Greater Moon Arc","Guard,Down,Up,Strong","Stand",,"sword",,,,,,,,,,,,,,,
-"C5.4","Crescent","Guard,Down,Up,Strong","Stand",,"sword",,,,,,,,,,,,,,,
-"C5.5","Beauty of Death","Guard,Down,Up,Strong","Stand",,"sword",,,,,,,,,,,,,,,
+"C5.1","Eclipse Slash","Guard,Down,Up,Strong","Stand",,"sword",0,7,2,,40,,,70,,"Physical",,,,,
+"C5.2","Lesser Moon Arc","Guard,Down,Up,Strong","Stand",,"sword",,,,,40,,,70,,,,,,,
+"C5.3","Greater Moon Arc","Guard,Down,Up,Strong","Stand",,"sword",,,,,40,,,70,,,,,,,
+"C5.4","Crescent","Guard,Down,Up,Strong","Stand",,"sword",,,,,40,,,70,,,,,,,
+"C5.5","Beauty of Death","Guard,Down,Up,Strong","Stand",,"sword",,,,,40,,,70,,,,,,,
 "C6.1","Bash","Down,Forward,Weak","Stand",,"sword",400,10,5,,,,,,,"Physical",,,,,
 "C6.2","Smite","Down,Forward,Weak","Stand",,"sword",,,,,,,,,,,,,,,
 "C6.3","Stagger Strike","Down,Forward,Weak","Stand",,"sword",,,,,,,,,,,,,,,

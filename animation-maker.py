@@ -789,16 +789,8 @@ class Model:
         self.size = 1  # size scale of sprite
         try:
             self.read_animation(tuple((animation_pool_data[animation_race].keys()))[0])
-            self.default_sprite_part = {key: (value[:].copy() if value is not None else value) for key, value in
-                                        self.animation_part_list[0].items()}
-            self.default_body_part = {key: value for key, value in self.bodypart_list[0].items()}
-            self.default_part_name = {key: value for key, value in self.part_name_list[0].items()}
         except IndexError:  # empty animation file
             self.read_animation(None)
-            self.default_sprite_part = {key: None for key in self.mask_part_list}
-            self.default_body_part = {key: value for key, value in self.all_part_list.items()}
-            self.default_part_name = {key: None for key in self.mask_part_list}
-
 
     def make_layer_list(self, sprite_part):
         pose_layer_list = {k: v[5] for k, v in sprite_part.items() if v is not None and v != []}
@@ -891,7 +883,6 @@ class Model:
                    anim_prop_list_box, ui, screen_scale, layer=9, old_list=anim_property_select)
         setup_list(NameList, current_frame_row, frame_prop_list_box.namelist[current_frame], frame_prop_namegroup,
                    frame_prop_list_box, ui, screen_scale, layer=9, old_list=frame_property_select[current_frame])
-
 
     def create_animation_film(self, pose_layer_list, frame, empty=False):
         image = pygame.Surface((default_sprite_size[0] * self.size, default_sprite_size[1] * self.size),
@@ -1018,17 +1009,7 @@ class Model:
                     self.body_part_history = self.body_part_history[:self.current_history + 1]
                 self.add_history()
 
-        if edit_type == "default":  # reset to default
-            self.animation_part_list[edit_frame] = {key: (value[:].copy() if value is not None else value) for
-                                                    key, value in
-                                                    self.default_sprite_part.items()}
-            self.bodypart_list[edit_frame] = {key: value for key, value in self.default_body_part.items()}
-            self.part_name_list[edit_frame] = {key: value for key, value in self.default_part_name.items()}
-            self.part_selected = []
-            race_part_button.change_text("")
-            part_selector.change_name("")
-
-        elif edit_type == "clear":  # clear whole strip
+        if edit_type == "clear":  # clear whole strip
             for part in self.part_name_list[edit_frame]:
                 self.bodypart_list[edit_frame][part] = [0, 0]
                 self.part_name_list[edit_frame][part] = ["", ""]
@@ -1560,9 +1541,9 @@ frame_paste_button = Button("Paste F", image,
                              filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
                             description=("Paste copied frame (CTRL + V)",
                                          "Does not paste frame properties."))
-default_button = Button("Default", image, (play_animation_button.pos[0] + play_animation_button.image.get_width() * 3,
-                                           filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
-                        description=("Reset frame to default", "Reset to the same as the default animation."))
+reload_button = Button("Reload", image, (play_animation_button.pos[0] + play_animation_button.image.get_width() * 3,
+                                         filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
+                       description=("Reload all assets",))
 add_frame_button = Button("Add F", image, (play_animation_button.pos[0] + play_animation_button.image.get_width() * 4,
                                            filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
                           description=(
@@ -2109,8 +2090,8 @@ while True:
                     if clear_button.rect.collidepoint(mouse_pos):
                         model.edit_part(mouse_pos, "clear")
 
-                    elif default_button.rect.collidepoint(mouse_pos):
-                        model.edit_part(mouse_pos, "default")
+                    elif reload_button.rect.collidepoint(mouse_pos):
+                        pass
 
                     elif speed_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("text_input", "change_speed")

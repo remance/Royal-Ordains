@@ -13,6 +13,7 @@ def add_sound_effect_queue(self, sound_name, sound_pos, sound_distance_power, sh
         left_distance = distance
         right_distance = distance
     screen_shake_power = self.cal_shake_value(sound_pos, shake_power)
+    self.screen_shake_value += screen_shake_power
 
     if self.play_effect_volume:
         left_sound_power = sound_distance_power / left_distance
@@ -33,9 +34,7 @@ def add_sound_effect_queue(self, sound_name, sound_pos, sound_distance_power, sh
 
         if right_effect_volume or left_effect_volume:
             if sound_name not in self.sound_effect_queue:
-                self.sound_effect_queue[sound_name] = [final_effect_volume, screen_shake_power]
+                self.sound_effect_queue[sound_name] = final_effect_volume
             else:
-                self.sound_effect_queue[sound_name][0][0] += final_effect_volume[0]
-                self.sound_effect_queue[sound_name][0][1] += final_effect_volume[1]
-
-                self.sound_effect_queue[sound_name][1] += screen_shake_power
+                self.sound_effect_queue[sound_name][0] += final_effect_volume[0]
+                self.sound_effect_queue[sound_name][1] += final_effect_volume[1]

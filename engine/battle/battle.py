@@ -780,7 +780,7 @@ class Battle:
                     self.frontground_stage.update(self.shown_camera_pos[0])  # update frontground stage last
 
                 for key, value in self.sound_effect_queue.items():  # play each sound effect initiate in this loop
-                    self.play_sound_effect(key, value[0], shake=value[1])
+                    self.play_sound_effect(key, value)
                 self.sound_effect_queue = {}
 
                 if self.ui_timer >= 0.1:
@@ -790,7 +790,7 @@ class Battle:
                     self.ui_drawer.draw(self.screen)  # draw the UI
                     self.ui_timer -= 0.1
 
-                if not self.all_team_enemy[1]:  # all enemies dead
+                if not self.all_team_enemy[1]:  # all enemies dead, end stage process
                     if not self.end_delay:
                         if self.decision_select not in self.realtime_ui_updater and self.stage_end_choice:
                             if "Victory" not in self.drama_text.queue:

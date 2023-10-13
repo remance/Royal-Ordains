@@ -47,8 +47,9 @@ def player_input(self, player_index, dt):
             if (self.command_key_input and 0.2 <= self.player_key_input_timer[-1] <= 0.4) or self.command_key_hold:
                 # delay input a bit so a bit of time pass before taking action
                 if "knockdown" in self.current_action:
-                    if self.last_command_key_input == "Weak" or self.last_command_key_input == "Strong":
-                        #  restore from knockdown action
+                    if self.knock_recover and (self.last_command_key_input == "Weak" or
+                                               self.last_command_key_input == "Strong"):
+                        # restore from knockdown action
                         self.interrupt_animation = True
                         self.freeze_timer = 0
                 else:

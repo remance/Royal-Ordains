@@ -82,6 +82,6 @@ def pick_animation(self):
     self.max_show_frame = len(self.current_animation_direction) - 1
 
     self.start_animation_body_part(new_animation=True)
-    self.animation_play_time = self.original_animation_play_time  # get new play speed
+    self.final_animation_play_time = self.animation_play_time  # get new play speed
     if "play_time_mod" in self.current_animation_direction[self.show_frame]:
-        self.animation_play_time *= self.current_animation_direction[self.show_frame]["play_time_mod"]
+        self.final_animation_play_time *= self.current_animation_direction[self.show_frame]["play_time_mod"]

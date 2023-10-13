@@ -18,6 +18,13 @@ def hit_register(self, target, dmg_text_pos):
             attacker_dmg, element_effect = self.cal_dmg(target, critical)
             self.owner.special_damage(self.owner, attacker_dmg)
 
+            if self.owner.hit_resource_regen:  # regen resource when hit
+                self.owner.resource += self.owner.resource1  # regen
+                if self.owner.resource < 0:
+                    self.owner.resource = 0
+                elif self.owner.resource > self.owner.max_resource:  # resource cannot exceed the max resource
+                    self.owner.resource = self.owner.max_resource
+
             if not target.guarding or target.angle == hit_angle:  # guard bypass if hit from behind
                 if self.owner.player_control:
                     self.battle.player_damage[self.owner.player_control] += attacker_dmg

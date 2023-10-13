@@ -1,4 +1,4 @@
-Pillow~=10.0.0
-pygame~=2.5.0
+Pillow~=10.0.1
+pygame~=2.5.2
 pyperclip~=1.8.2
 screeninfo~=0.8.1

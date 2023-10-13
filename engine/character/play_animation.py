@@ -10,7 +10,7 @@ def play_animation(self, dt, hold_check):
 
     if not hold_check:  # not holding current frame
         self.frame_timer += dt
-        if self.frame_timer >= self.animation_play_time:  # start next frame or end animation
+        if self.frame_timer >= self.final_animation_play_time:  # start next frame or end animation
             self.frame_timer = 0
             self.stoppable_frame = False
             if self.show_frame != self.max_show_frame:
@@ -23,14 +23,14 @@ def play_animation(self, dt, hold_check):
             self.start_animation_body_part()
 
             if not done:  # check if new frame has play speed mod
-                self.animation_play_time = self.original_animation_play_time
+                self.final_animation_play_time = self.animation_play_time
                 if "play_time_mod" in self.current_animation_direction[self.show_frame]:
-                    self.animation_play_time *= self.current_animation_direction[self.show_frame]["play_time_mod"]
+                    self.final_animation_play_time *= self.current_animation_direction[self.show_frame]["play_time_mod"]
                 if self.hit_enemy and "stoppable" in self.current_animation_direction[self.show_frame]["property"]:
                     self.hit_enemy = False
                     self.stoppable_frame = True
                     # if attack_connect:  # delay frame speed when hit, so it is easier to connect next move
-                    self.animation_play_time = 0.3
+                    self.final_animation_play_time = 0.3
 
             # self.image = current_animation["sprite"]
             #
