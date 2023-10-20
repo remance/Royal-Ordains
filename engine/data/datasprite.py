@@ -92,7 +92,8 @@ class AnimationData(GameData):
                     self.body_sprite_pool[char_id][folder[-1]] = {}
                     part_subfolder = Path(
                         os.path.join(self.data_dir, "animation", "sprite", "character", char, folder[-1]))
-                    recursive_image_load(self.body_sprite_pool[char_id][folder[-1]], self.screen_scale, part_subfolder)
+                    recursive_image_load(self.body_sprite_pool[char_id][folder[-1]], self.screen_scale, part_subfolder,
+                                         add_flip=True)
             except FileNotFoundError:
                 pass
 
@@ -105,7 +106,8 @@ class AnimationData(GameData):
             self.body_sprite_pool[folder_data_name] = {}
             part_subfolder = Path(
                 os.path.join(self.data_dir, "animation", "sprite", "character", "weapon", folder[-1]))
-            recursive_image_load(self.body_sprite_pool[folder_data_name], self.screen_scale, part_subfolder)
+            recursive_image_load(self.body_sprite_pool[folder_data_name], self.screen_scale, part_subfolder,
+                                 add_flip=True)
 
         self.effect_sprite_pool = {}
         self.effect_animation_pool = {}

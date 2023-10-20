@@ -618,12 +618,14 @@ class CharacterSelector(UIMenu):
 
 
 class CharacterStatAllocator(UIMenu):
-    def __init__(self, pos):
-        UIMenu.__init__(self, player_interact=False)
+    def __init__(self, pos, player):
+        UIMenu.__init__(self)
         self.font = Font(self.ui_font["main_button"], int(24 * self.screen_scale[1]))
         self.small_font = Font(self.ui_font["main_button"], int(18 * self.screen_scale[1]))
         self.current_row = 0
+        self.input_delay = 0
         self.pos = pos
+        self.player = player
 
         self.stat_row = ("Strength", "Dexterity", "Agility",
                          "Constitution", "Intelligence", "Wisdom", "Charisma")
@@ -674,6 +676,39 @@ class CharacterStatAllocator(UIMenu):
         self.base_image = self.image.copy()
 
         self.rect = self.image.get_rect(center=self.pos)
+
+    def update(self):
+        if not self.pause and self.rect.collidepoint(self.cursor.pos):  # check for stat detail popup based on mouse over
+            mouse_pos = (self.cursor.pos[0] - self.rect.topleft[0],
+                         self.cursor.pos[1] - self.rect.topleft[1])
+            for key, value in self.stat_rect.items():
+                if value.collidepoint(mouse_pos):
+                    self.game.add_ui_updater(self.game.text_popup)
+                    self.game.text_popup.popup(self.game.cursor.rect,
+                                               (self.game.localisation.grab_text(("help", key,
+                                                                                 "Name")),
+                                                self.game.localisation.grab_text(("help", key,
+                                                                                  "Description"))),
+                                               shown_id=key,
+                                               width_text_wrapper=1000 * self.game.screen_scale[0])
+                    break
+
+            for key, value in self.skill_rect.items():
+                if value.collidepoint(mouse_pos):
+                    self.game.add_ui_updater(self.game.text_popup)
+                    self.game.text_popup.popup(self.game.cursor.rect,
+                                               (self.game.localisation.grab_text(("help", key + "." + str(int(self.stat[key])),
+                                                                                 "Name")),
+                                                self.game.localisation.grab_text(("help", key + "." + str(int(self.stat[key])),
+                                                                                  "Description"))),
+                                               shown_id=key,
+                                               width_text_wrapper=1000 * self.game.screen_scale[0])
+                    break
+
+        if self.input_delay > 0:
+            self.input_delay -= self.game.dt
+            if self.input_delay < 0:
+                self.input_delay = 0
 
     def add_stat(self, stat_dict):
         self.stat = stat_dict
@@ -726,6 +761,39 @@ class CharacterStatAllocator(UIMenu):
     def change_skill(self, skill, how):
         self.stat[skill], self.stat["Skill Remain"] = skill_allocation_check(self.stat[skill], self.stat["Skill Remain"], how)
         self.add_stat(self.stat)
+
+    def player_input(self, key):
+        if not self.input_delay:
+            if key == "Up":
+                self.current_row -= 1
+                if self.current_row < 0:
+                    self.current_row = self.last_row
+                self.add_stat(self.stat)
+                self.input_delay = 0.15
+            elif key == "Down":
+                self.current_row += 1
+                if self.current_row > self.last_row:
+                    self.current_row = 0
+                self.add_stat(self.stat)
+                self.input_delay = 0.15
+            elif key == "Left":  # switch to previous in playable_character list
+                if self.current_row <= 6:
+                    self.change_stat(
+                        self.stat_row[self.current_row], "down")
+                else:
+                    self.change_skill(
+                        self.all_skill_row[
+                            self.current_row - 7], "down")
+                self.input_delay = 0.15
+            elif key == "Right":  # switch to next in playable_character list
+                if self.current_row <= 6:
+                    self.change_stat(
+                        self.stat_row[self.current_row], "up")
+                else:
+                    self.change_skill(
+                        self.all_skill_row[
+                            self.current_row - 7], "up")
+                self.input_delay = 0.15
 
 
 class ControllerIcon(UIMenu):

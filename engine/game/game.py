@@ -441,16 +441,16 @@ class Game:
                                            subfolder=("ui", "charselect_ui"), key_file_name_readable=True)
         self.player1_char_selector = CharacterSelector((self.screen_width / 8, self.screen_height / 2.1),
                                                        char_selector_images)
-        self.player1_char_stat = CharacterStatAllocator(self.player1_char_selector.rect.center)
+        self.player1_char_stat = CharacterStatAllocator(self.player1_char_selector.rect.center, 1)
         self.player2_char_selector = CharacterSelector((self.screen_width / 2.7, self.screen_height / 2.1),
                                                        char_selector_images)
-        self.player2_char_stat = CharacterStatAllocator(self.player2_char_selector.rect.center)
+        self.player2_char_stat = CharacterStatAllocator(self.player2_char_selector.rect.center, 2)
         self.player3_char_selector = CharacterSelector((self.screen_width / 1.6, self.screen_height / 2.1),
                                                        char_selector_images)
-        self.player3_char_stat = CharacterStatAllocator(self.player3_char_selector.rect.center)
+        self.player3_char_stat = CharacterStatAllocator(self.player3_char_selector.rect.center, 3)
         self.player4_char_selector = CharacterSelector((self.screen_width / 1.15, self.screen_height / 2.1),
                                                        char_selector_images)
-        self.player4_char_stat = CharacterStatAllocator(self.player4_char_selector.rect.center)
+        self.player4_char_stat = CharacterStatAllocator(self.player4_char_selector.rect.center, 4)
         self.player_char_selectors = {1: self.player1_char_selector, 2: self.player2_char_selector,
                                       3: self.player3_char_selector, 4: self.player4_char_selector}
         self.player_char_stats = {1: self.player1_char_stat, 2: self.player2_char_stat,

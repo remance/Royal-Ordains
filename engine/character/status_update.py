@@ -18,9 +18,6 @@ def status_update(self):
     crit_chance_bonus = 0
     animation_speed_bonus = 0
 
-    self.animation_play_time = self.original_animation_play_time
-    self.final_animation_play_time = self.animation_play_time
-
     if "arrive" in self.current_action:  # update arriving target for ai
         if self.nearest_enemy:
             self.x_momentum = self.nearest_enemy[0].base_pos[0] - self.base_pos[0]

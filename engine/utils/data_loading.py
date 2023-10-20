@@ -6,7 +6,7 @@ from pathlib import Path
 from PIL import Image
 from pygame import image
 from pygame.mixer import Sound
-from pygame.transform import smoothscale
+from pygame.transform import smoothscale, flip
 
 accept_image_types = ("png", "jpg", "jpeg", "svg", "gif", "bmp")
 
@@ -85,7 +85,7 @@ def load_images(directory, screen_scale=(1, 1), subfolder=(), key_file_name_read
         return images
 
 
-def recursive_image_load(save_dict, screen_scale, part_folder, key_file_name_readable=True):
+def recursive_image_load(save_dict, screen_scale, part_folder, key_file_name_readable=True, add_flip=False):
     next_level = save_dict
     sub_directories = [os.path.split(os.sep.join(os.path.normpath(x).split(os.sep)[-1:]))[-1] for x
                        in part_folder.iterdir() if x.is_dir()]
@@ -95,11 +95,15 @@ def recursive_image_load(save_dict, screen_scale, part_folder, key_file_name_rea
             next_level[folder_name] = {}
             part_subfolder = Path(os.path.join(part_folder, folder))
             recursive_image_load(next_level[folder_name], screen_scale, part_subfolder,
-                                 key_file_name_readable=key_file_name_readable)
+                                 key_file_name_readable=key_file_name_readable, add_flip=add_flip)
 
     else:
         imgs = load_images(part_folder, screen_scale=screen_scale,
                            key_file_name_readable=key_file_name_readable)
+        if add_flip:
+            for key, value in imgs.items():
+                imgs[key] = {0: value, 1: flip(value, True, False), 2: flip(value, False, True),
+                             3: flip(value, True, True)}
         save_dict |= imgs
 
 

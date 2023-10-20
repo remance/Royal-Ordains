@@ -30,6 +30,7 @@ class Localisation:
         self.read_module_lore("item", "item")
         self.read_module_lore("status", "status")
         self.read_module_lore("event", "event")
+        self.read_module_lore("help", "help")
 
         # Load map description
         self.text["en"]["map"] = {"info": {}}

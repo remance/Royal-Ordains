@@ -7,6 +7,8 @@
 "Hban1","Human Bandit Fighter",260,,16,7,8,14,3,5,6,,5,,,,,,10,1,,"common_melee",
 "Hban2","Human Bandit Archer",145,,6,12,10,10,9,10,5,,,,5,,,,10,1,,"common_range",
 "Hban3","Human Hedge Mage",110,20,5,10,4,14,15,15,8,,,,,,10,,10,1,,"common_range",
+"Hban4","Bandit Lookout Tower",1000,,5,10,1,5,5,5,5,10,-40,,,10,15,50,30,1,,"sentry_range","not_movable"
+"Hban5","Human Bandit Ranger",200,,8,14,13,12,7,12,9,,,,,,,,10,1,,"common_range",
 "Dban1","Dwarf Bandit Crossbowman",190,,10,10,5,16,8,8,1,5,,,,10,,,12,1,,"trap",
 "Dban2","Dwarf Marauder",400,,20,4,6,22,3,4,1,15,10,,,10,,,12,1,,"common_melee",
 "Dban3","Dwarf Thug",600,,21,7,7,25,3,6,3,30,5,,,10,,,12,1,,"common_melee",

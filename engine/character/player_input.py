@@ -105,8 +105,6 @@ def player_input(self, player_index, dt):
                         if self.stoppable_frame:
                             self.interrupt_animation = True
                         self.command_action = self.couch_command_action
-                        # if self.command_key_hold == "Down" and self.position == "Couch":  # hold while already couch
-                        #     self.current_action = self.couch_hold_command_action
 
                     if self.position == "Stand" and "couch" not in self.current_action and \
                             "air" not in self.current_action and "air" not in self.command_action:

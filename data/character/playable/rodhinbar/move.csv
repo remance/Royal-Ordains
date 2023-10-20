@@ -11,7 +11,7 @@
 "Strong","cstrong2","Sword Slash","Couch",,"cstrong1","sword",300,,,45,14,,,20,,"Physical",,,,,,,
 "Weak","sweak1","Elbow Push","Stand",,,"arm",120,,,18,8,,,7,,"Physical",,,,,,,
 "Weak","sweak2","Arrow Hand","Stand",,"sweak1","bow",250,,,26,6,,,20,,"Physical",,,,,,,
-"Strong","sweak1strong","Upper Cut","Stand",,"sweak1","bow",300,,,40,,,60,,,"Physical",,,,,,,
+"Strong","sweak1strong","Upper Smash","Stand",,"sweak1","bow",300,,,40,,,60,,,"Physical",,,,,,,
 "Strong","sweak2strong","Front Kick","Stand",,"sweak2","leg",300,,,48,30,,,50,,"Physical",,,,,,,
 "Strong","sstrong1","Sword Slash","Stand",,,"sword",300,,,35,15,,,10,,"Physical",,,,,,,
 "Strong","sstrong2","Sword Stab","Stand",,"sstrong1","sword",300,,,46,5,,18,,,"Physical",,,,,,,

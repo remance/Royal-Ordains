@@ -939,22 +939,17 @@ class BodyPart(sprite.Sprite):
         if self.data != data:
             self.data = data
             if "weapon" in self.part_name:
-                self.image = self.body_sprite_pool[self.data[0]][self.sprite_ver][self.mode][self.data[1]]
+                self.image = self.body_sprite_pool[self.data[0]][self.sprite_ver][self.mode][self.data[1]][self.data[5]]
             elif "special" in self.part_name:
-                self.image = self.body_sprite_pool[self.data[0]]["special"][self.sprite_ver][self.mode][self.data[1]]
+                self.image = self.body_sprite_pool[self.data[0]]["special"][self.sprite_ver][self.mode][self.data[1]][self.data[5]]
             else:
                 self.image = self.body_sprite_pool[self.data[0]][self.part_name][self.sprite_ver][self.mode][
-                    self.data[1]]
+                    self.data[1]][self.data[5]]
+
             if self.data[7] != 1:  # scale size
                 self.image = pygame.transform.smoothscale(self.image, (self.image.get_width() * self.data[7],
                                                                        self.image.get_height() * self.data[7]))
-            if self.data[5]:  # flip
-                if self.data[5] == 1:
-                    self.image = pygame.transform.flip(self.image, True, False)
-                elif self.data[5] == 2:
-                    self.image = pygame.transform.flip(self.image, False, True)
-                elif self.data[5] == 3:
-                    self.image = pygame.transform.flip(self.image, True, True)
+
             if self.data[4]:  # rotation
                 self.image = pygame.transform.rotate(self.image, self.data[4])
             self.re_rect()

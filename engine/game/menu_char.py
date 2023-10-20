@@ -25,57 +25,37 @@ def menu_char(self, esc_press):
                                                 self.player_char_select.items() if value})
 
     else:
+
+        for key_list in (self.player_key_press, self.player_key_hold):
+            for player in key_list:
+                for key, pressed in key_list[player].items():
+                    if pressed:
+                        selector = self.player_char_selectors[player]
+                        if selector.mode == "stat" and key in ("Up", "Down", "Left", "Right"):
+                            self.player_char_stats[player].player_input(key)
+
         for player in self.player_key_press:
             for key, pressed in self.player_key_press[player].items():
                 if pressed:
                     selector = self.player_char_selectors[player]
                     if selector.mode == "empty":
                         selector.change_mode("Vraesier")
-                    elif key == "Up":
-                        if selector.mode == "stat":
-                            self.player_char_stats[player].current_row -= 1
-                            if self.player_char_stats[player].current_row < 0:
-                                self.player_char_stats[player].current_row = self.player_char_stats[player].last_row
-                            self.player_char_stats[player].add_stat(self.player_char_stats[player].stat)
-                    elif key == "Down":
-                        if selector.mode == "stat":
-                            self.player_char_stats[player].current_row += 1
-                            if self.player_char_stats[player].current_row > self.player_char_stats[player].last_row:
-                                self.player_char_stats[player].current_row = 0
-                            self.player_char_stats[player].add_stat(self.player_char_stats[player].stat)
-                    elif key == "Left":  # switch to previous in playable_character list
+                    elif key == "Left" and selector.mode != "stat":  # switch to previous in playable_character list
                         if selector.mode != "ready":
-                            if selector.mode != "stat":
-                                current_id = tuple(playable_character.keys()).index(selector.mode)
-                                if current_id - 1 < 0:
-                                    current_id = tuple(playable_character.values())[-1]
-                                else:
-                                    current_id -= 1
-                                selector.change_mode(tuple(playable_character.keys())[current_id])
+                            current_id = tuple(playable_character.keys()).index(selector.mode)
+                            if current_id - 1 < 0:
+                                current_id = tuple(playable_character.values())[-1]
                             else:
-                                if self.player_char_stats[player].current_row <= 6:
-                                    self.player_char_stats[player].change_stat(
-                                        self.player_char_stats[player].stat_row[self.player_char_stats[player].current_row], "down")
-                                else:
-                                    self.player_char_stats[player].change_skill(
-                                        self.player_char_stats[player].all_skill_row[
-                                            self.player_char_stats[player].current_row - 7], "down")
-                    elif key == "Right":  # switch to next in playable_character list
+                                current_id -= 1
+                            selector.change_mode(tuple(playable_character.keys())[current_id])
+                    elif key == "Right" and selector.mode != "stat":  # switch to next in playable_character list
                         if selector.mode != "ready":
-                            if selector.mode != "stat":
-                                current_id = tuple(playable_character.keys()).index(selector.mode)
-                                if current_id + 1 > len(playable_character) - 1:  # reach the end of char list, go back to first
-                                    current_id = 0
-                                else:
-                                    current_id += 1
-                                selector.change_mode(tuple(playable_character.keys())[current_id])
+                            current_id = tuple(playable_character.keys()).index(selector.mode)
+                            if current_id + 1 > len(playable_character) - 1:  # reach the end of char list, go back to first
+                                current_id = 0
                             else:
-                                if self.player_char_stats[player].current_row <= 6:
-                                    self.player_char_stats[player].change_stat(
-                                        self.player_char_stats[player].stat_row[self.player_char_stats[player].current_row], "up")
-                                else:
-                                    self.player_char_stats[player].change_skill(
-                                        self.player_char_stats[player].all_skill_row[self.player_char_stats[player].current_row - 7], "up")
+                                current_id += 1
+                            selector.change_mode(tuple(playable_character.keys())[current_id])
                     elif key == "Weak":
                         if selector.mode not in ("stat", "ready"):  # go to stat allocation
                             start_stat = self.character_data.character_list[selector.mode]
