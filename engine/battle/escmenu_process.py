@@ -43,11 +43,11 @@ def escmenu_process(self, esc_press: bool):
                                                  self.filter_tag_list.scroll)
                     self.remove_ui_updater(self.battle_menu, self.battle_menu_button, self.esc_slider_menu.values(),
                                            self.esc_value_boxes.values(),
-                                           self.esc_option_text.values())  # remove menu sprite
+                                           self.esc_option_text.values(), self.esc_text_popup)  # remove menu sprite
 
                 elif button.text == "Option":  # open option menu
                     self.battle_menu.change_mode("option")  # change to option menu mode
-                    self.remove_ui_updater(self.battle_menu_button)  # remove start_set esc menu button
+                    self.remove_ui_updater(self.battle_menu_button, self.esc_text_popup)  # remove start_set esc menu button
                     self.add_ui_updater(self.esc_option_menu_button, self.esc_slider_menu.values(),
                                         self.esc_value_boxes.values(), self.esc_option_text.values())
 
@@ -61,11 +61,11 @@ def escmenu_process(self, esc_press: bool):
             else:
                 button.image = button.images[0]
 
-    elif self.battle_menu.mode == "lorebook":  # esc menu
+    elif self.battle_menu.mode == "lorebook":  # lore book
         command = self.lorebook_process(esc_press)
         if command == "exit":
             self.battle_menu.change_mode("menu")  # go back to start_set esc menu
-            self.add_ui_updater(self.battle_menu, self.battle_menu_button)  # add start_set esc menu buttons back
+            self.add_ui_updater(self.battle_menu, self.battle_menu_button, self.esc_text_popup)  # add start_set esc menu buttons back
 
     elif self.battle_menu.mode == "option":  # option menu
         for key, value in self.esc_slider_menu.items():
@@ -80,7 +80,7 @@ def escmenu_process(self, esc_press: bool):
             self.remove_ui_updater(self.esc_option_menu_button, self.esc_slider_menu.values(),
                                    self.esc_value_boxes.values(),
                                    self.esc_option_text.values())  # remove option menu sprite
-            self.add_ui_updater(self.battle_menu_button)  # add start_set esc menu buttons back
+            self.add_ui_updater(self.battle_menu_button, self.esc_text_popup)  # add start_set esc menu buttons back
 
     return command
 
@@ -88,7 +88,7 @@ def escmenu_process(self, esc_press: bool):
 def back_to_battle_state(self):
     self.remove_ui_updater(self.battle_menu, self.battle_menu_button, self.esc_option_menu_button,
                            self.esc_slider_menu.values(),
-                           self.esc_value_boxes.values(), self.esc_option_text.values(), self.cursor)
+                           self.esc_value_boxes.values(), self.esc_option_text.values(), self.cursor, self.esc_text_popup)
     self.realtime_ui_updater.add(self.player_1_battle_cursor)
     self.game_state = "battle"
 
@@ -102,4 +102,4 @@ def popout_encyclopedia(self, section, subsection):
                                  self.filter_tag_list.scroll)
     self.lorebook.change_subsection(subsection)
     self.remove_ui_updater(self.battle_menu, self.battle_menu_button, self.esc_slider_menu.values(),
-                           self.esc_value_boxes.values(), self.esc_option_text.values())  # remove menu sprite
+                           self.esc_value_boxes.values(), self.esc_option_text.values(), self.esc_text_popup)  # remove menu sprite

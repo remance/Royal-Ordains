@@ -474,6 +474,7 @@ class Game:
 
         # Text popup
         self.text_popup = TextPopup()  # popup box that show text when mouse over something
+        self.esc_text_popup = TextPopup()  # popup box for text that translate background script
 
         # Encyclopedia interface
         Lorebook.history_lore = self.localisation.create_lore_data("history")

@@ -67,24 +67,24 @@ class Localisation:
                         read_folder = Path(os.path.join(self.data_dir, "localisation", language, "map",
                                                         file_chapter, file_mission_name))
 
-                        # sub3_directories = [x for x in read_folder.iterdir() if x.is_dir()]
-                        # for file_stage in sub3_directories:
-                        #     file_stage_name = os.path.split(file_stage)[-1]
-                        #     self.text[language]["map"][chapter_id][file_mission_name][file_stage_name] = {"eventlog": {}}
-                        #     read_folder = Path(os.path.join(self.data_dir, "localisation", language, "map",
-                        #                                     file_chapter, file_mission_name, file_stage_name))
-                        #     sub2_files = [f for f in os.listdir(read_folder) if f.endswith(".csv")]
-                        #     for data_file in sub2_files:  # load event log
-                        #         if "eventlog" in data_file:
-                        #             with open(os.path.join(self.data_dir, "localisation", language, "map",
-                        #                                    file_chapter, file_mission_name, file_stage_name, data_file),
-                        #                       encoding="utf-8", mode="r") as edit_file:  # read source file
-                        #                 self.text[language]["map"][chapter_id][file_mission_name][file_stage_name][
-                        #                     "eventlog"] = {}
-                        #                 lore_csv_read(edit_file,
-                        #                               self.text[language]["map"][chapter_id][file_mission_name][file_stage_name][
-                        #                                   "eventlog"])
-                        #             edit_file.close()
+                        sub3_directories = [x for x in read_folder.iterdir() if x.is_dir()]
+                        for file_stage in sub3_directories:
+                            file_stage_name = os.path.split(file_stage)[-1]
+                            self.text[language]["map"][chapter_id][file_mission_name][file_stage_name] = {"eventlog": {}}
+                            read_folder = Path(os.path.join(self.data_dir, "localisation", language, "map",
+                                                            file_chapter, file_mission_name, file_stage_name))
+                            sub2_files = [f for f in os.listdir(read_folder) if f.endswith(".csv")]
+                            for data_file in sub2_files:  # load event log
+                                if "eventlog" in data_file:
+                                    with open(os.path.join(self.data_dir, "localisation", language, "map",
+                                                           file_chapter, file_mission_name, file_stage_name, data_file),
+                                              encoding="utf-8", mode="r") as edit_file:  # read source file
+                                        self.text[language]["map"][chapter_id][file_mission_name][file_stage_name][
+                                            "eventlog"] = {}
+                                        lore_csv_read(edit_file,
+                                                      self.text[language]["map"][chapter_id][file_mission_name][file_stage_name][
+                                                          "eventlog"])
+                                    edit_file.close()
                 except FileNotFoundError:
                     pass
         except FileNotFoundError:

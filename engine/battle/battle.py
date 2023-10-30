@@ -127,6 +127,7 @@ class Battle:
         self.button_ui = game.button_ui
 
         self.text_popup = game.text_popup
+        self.esc_text_popup = game.esc_text_popup
 
         self.input_box = game.input_box
         self.input_ui = game.input_ui
@@ -530,8 +531,6 @@ class Battle:
 
             self.true_dt = self.clock.get_time() / 1000  # dt before game_speed
 
-            self.realtime_ui_updater.remove(self.text_popup)  # remove button text popup every update
-
             for player, key_set in self.player_key_press.items():
                 if self.player_key_control[player] == "keyboard":
                     for key in key_set:  # check for key holding
@@ -572,7 +571,7 @@ class Battle:
                     if self.game_state != "menu":  # open menu first before add popup
                         self.game_state = "menu"
                         self.add_ui_updater(self.battle_menu,
-                                            self.battle_menu_button)  # add menu and its buttons to drawer
+                                            self.battle_menu_button, self.esc_text_popup)  # add menu and its buttons to drawer
                         self.add_ui_updater(self.cursor)
                     self.input_popup = ("confirm_input", "quit")
                     self.input_ui.change_instruction("Quit Game?")
@@ -661,8 +660,11 @@ class Battle:
             if esc_press:  # open/close menu
                 if self.game_state == "battle":  # in battle
                     self.game_state = "menu"  # open menu
+                    self.esc_text_popup.popup((self.screen_rect.centerx, self.screen_rect.height * 0.9),
+                                              self.game.localisation.grab_text(("map", str(self.chapter), str(self.mission), str(self.stage),
+                                                                                 "eventlog", self.battle_stage.current_frame, "Text")), width_text_wrapper=1000 * self.game.screen_scale[0])
                     self.add_ui_updater(self.battle_menu, self.cursor,
-                                        self.battle_menu_button)  # add menu and its buttons to drawer
+                                        self.battle_menu_button, self.esc_text_popup)  # add menu and its buttons to drawer
                     esc_press = False  # reset esc press, so it not stops esc menu when open
                     self.realtime_ui_updater.remove(self.player_1_battle_cursor)
 
@@ -845,12 +847,13 @@ class Battle:
                                     return False
 
             elif self.game_state == "menu":  # Complete battle pause when open either esc menu or lorebook
-                self.screen.fill((0, 0, 0))  # keep reset screen
+                self.battle_stage.update(self.shown_camera_pos[0])  # update stage first
+                # self.realtime_ui_updater.update()  # update UI
+                self.camera.update(self.shown_camera_pos, self.battle_camera, self.realtime_ui_updater)
+                self.frontground_stage.update(self.shown_camera_pos[0])  # update frontground stage last
                 self.ui_drawer.draw(self.screen)  # draw the UI
 
                 if self.input_popup:  # currently, have input text pop up on screen, stop everything else until done
-                    self.screen.fill((0, 0, 0))  # keep reset screen
-                    self.ui_drawer.draw(self.screen)  # draw the UI
                     if self.input_ok_button.event_press:
                         if self.input_popup[1] == "quit":  # quit game
                             pygame.quit()
@@ -890,7 +893,7 @@ class Battle:
 
         self.remove_ui_updater(self.battle_menu, self.battle_menu_button, self.esc_slider_menu.values(),
                                self.esc_value_boxes.values(), self.esc_option_text.values(),
-                               self.player_portraits)  # remove menu and ui
+                               self.player_portraits, self.esc_text_popup)  # remove menu and ui
 
         self.music_left.stop()
         self.music_right.stop()

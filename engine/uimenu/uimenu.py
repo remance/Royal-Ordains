@@ -1288,8 +1288,8 @@ class TextPopup(UIMenu):
         self.last_shown_id = None
         self.text_input = ""
 
-    def popup(self, cursor_rect, text_input, shown_id=None, width_text_wrapper=0, custom_screen_size=None):
-        """Pop out text box with input text list in multiple line, one item equal to one line"""
+    def popup(self, popup_rect, text_input, shown_id=None, width_text_wrapper=0, custom_screen_size=None):
+        """Pop out text box with input text list in multiple line, one item equal to one paragraph"""
         self.last_shown_id = shown_id
 
         if text_input is not None and (self.text_input != text_input or self.last_shown_id != shown_id):
@@ -1356,26 +1356,29 @@ class TextPopup(UIMenu):
                 self.image.blit(surface, text_rect)  # blit text
                 height += surface.get_height()
 
-        self.rect = self.image.get_rect(bottomleft=cursor_rect.bottomright)
+        if hasattr(popup_rect, "bottomright"):  # popup_rect is rect
+            self.rect = self.image.get_rect(bottomleft=popup_rect.bottomright)
 
-        screen_size = self.screen_size
-        if custom_screen_size:
-            screen_size = custom_screen_size
-        exceed_right = False
-        if cursor_rect.bottomright[0] + self.image.get_width() > screen_size[0]:  # exceed right screen
-            self.rect = self.image.get_rect(topright=cursor_rect.bottomleft)
-            exceed_right = True
-        elif cursor_rect.bottomleft[0] - self.image.get_width() < 0:  # exceed left side screen
-            self.rect = self.image.get_rect(topleft=cursor_rect.bottomright)
+            screen_size = self.screen_size
+            if custom_screen_size:
+                screen_size = custom_screen_size
+            exceed_right = False
+            if popup_rect.bottomright[0] + self.image.get_width() > screen_size[0]:  # exceed right screen
+                self.rect = self.image.get_rect(topright=popup_rect.bottomleft)
+                exceed_right = True
+            elif popup_rect.bottomleft[0] - self.image.get_width() < 0:  # exceed left side screen
+                self.rect = self.image.get_rect(topleft=popup_rect.bottomright)
 
-        if cursor_rect.bottomright[1] + self.image.get_height() > screen_size[1]:  # exceed bottom screen
-            self.rect = self.image.get_rect(bottomleft=cursor_rect.topright)
-            if exceed_right:
-                self.rect = self.image.get_rect(bottomright=cursor_rect.topleft)
-        elif cursor_rect.bottomright[1] - self.image.get_height() < 0:  # exceed top screen
-            self.rect = self.image.get_rect(topleft=cursor_rect.bottomright)
-            if exceed_right:
-                self.rect = self.image.get_rect(topright=cursor_rect.bottomleft)
+            if popup_rect.bottomright[1] + self.image.get_height() > screen_size[1]:  # exceed bottom screen
+                self.rect = self.image.get_rect(bottomleft=popup_rect.topright)
+                if exceed_right:
+                    self.rect = self.image.get_rect(bottomright=popup_rect.topleft)
+            elif popup_rect.bottomright[1] - self.image.get_height() < 0:  # exceed top screen
+                self.rect = self.image.get_rect(topleft=popup_rect.bottomright)
+                if exceed_right:
+                    self.rect = self.image.get_rect(topright=popup_rect.bottomleft)
+        else:  # popup_rect is pos
+            self.rect = self.image.get_rect(midbottom=popup_rect)
 
 
 class BoxUI(UIMenu, Containable, Container):

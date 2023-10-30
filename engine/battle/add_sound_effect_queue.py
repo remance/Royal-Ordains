@@ -1,21 +1,22 @@
 def add_sound_effect_queue(self, sound_name, sound_pos, sound_distance_power, shake_power, volume_mod=1):
     """Stereo sound effect player based on sound pos distance from center camera pos"""
-    distance = sound_pos.distance_to(self.camera_pos)
-    if distance < 1:
-        distance = 1
-    if sound_pos[0] > self.camera_pos[0]:  # sound to the right of center camera
-        left_distance = distance + abs(sound_pos[0] - self.battle.camera_pos[0])
-        right_distance = distance
-    elif sound_pos[0] < self.camera_pos[0]:  # sound to the left of center camera
-        left_distance = distance
-        right_distance = distance + abs(sound_pos[0] - self.battle.camera_pos[0])
-    else:  # sound at the center camera
-        left_distance = distance
-        right_distance = distance
     screen_shake_power = self.cal_shake_value(sound_pos, shake_power)
     self.screen_shake_value += screen_shake_power
 
     if self.play_effect_volume:
+        distance = sound_pos.distance_to(self.camera_pos)
+        if distance < 1:
+            distance = 1
+        if sound_pos[0] > self.camera_pos[0]:  # sound to the right of center camera
+            left_distance = distance + abs(sound_pos[0] - self.battle.camera_pos[0])
+            right_distance = distance
+        elif sound_pos[0] < self.camera_pos[0]:  # sound to the left of center camera
+            left_distance = distance
+            right_distance = distance + abs(sound_pos[0] - self.battle.camera_pos[0])
+        else:  # sound at the center camera
+            left_distance = distance
+            right_distance = distance
+
         left_sound_power = sound_distance_power / left_distance
         if left_sound_power < 0:
             left_sound_power = 0

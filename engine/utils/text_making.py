@@ -35,7 +35,7 @@ def sort_list_dir_with_str(dir_list, str_list):
     return sorted_dir
 
 
-def make_long_text(surface, text, pos, font, color=Color("black")):
+def make_long_text(surface, text, pos, font, color=Color("black"), with_texture=()):
     """
     Blit long text into separate row of text
     :param surface: Input Pygame Surface
@@ -43,6 +43,7 @@ def make_long_text(surface, text, pos, font, color=Color("black")):
     :param pos: Starting position
     :param font: Pygame Font
     :param color: Text colour
+    :param with_texture: list array with value for argument of text_render_with_texture (texture, (gf_colour, o_colour, opx))
     """
     # TODO Add sizing and colouring for highlight and maybe URL system
     if type(text) != list:
@@ -54,7 +55,11 @@ def make_long_text(surface, text, pos, font, color=Color("black")):
         max_width = surface.get_width()
         for line in words:
             for word in line:
-                word_surface = font.render(word, True, color)
+                if not with_texture:
+                    word_surface = font.render(word, True, color)
+                else:
+                    word_surface = text_render_with_texture(text, font, with_texture[0], with_bg=with_texture[1])
+
                 word_width, word_height = word_surface.get_size()
                 if x + word_width >= max_width:
                     x = pos[0]  # reset x
@@ -65,27 +70,34 @@ def make_long_text(surface, text, pos, font, color=Color("black")):
             y += word_height  # start on new row
 
 
-def text_render_with_texture(text, font, texture):
+def text_render_with_texture(text, font, texture, with_bg=None):
     """
     Render text with custom texture
     :param text: Text strings
     :param font: Pygame font
     :param texture: Texture for font
+    :param with_bg: array value for bg argument (gf_colour, o_colour, opx)
     :return: Text surface
     """
-    text_surface = font.render(text, True, (0, 0, 0))
+    if not with_bg:
+        text_surface = font.render(text, True, (0, 0, 0))
+    else:
+        text_surface = text_render_with_bg(text, font, gf_colour=with_bg[0], o_colour=with_bg[1], opx=with_bg[2])
     size = text_surface.get_size()
     data = image.tobytes(text_surface, "RGBA")  # convert image to string data for filtering effect
     text_surface = Image.frombytes("RGBA", size, data)  # use PIL to get image data
 
-    surface = Image.new("RGBA", size, (0, 0, 0, 0))
-    texture_size = texture.size
-    pos = (randint(0, texture_size[0] - size[0]), randint(0, texture_size[1] - size[1]))
-    new_texture = texture.crop((pos[0], pos[1], pos[0] + size[0], pos[1] + size[1]))
-    surface.paste(new_texture, box=(0, 0), mask=text_surface)
-    size = surface.size
-    surface = surface.tobytes()
-    surface = image.frombytes(surface, size, "RGBA")  # convert image back to a pygame surface
+    if texture:
+        surface = Image.new("RGBA", size, (0, 0, 0, 0))
+        texture_size = texture.size
+        pos = (randint(0, texture_size[0] - size[0]), randint(0, texture_size[1] - size[1]))
+        new_texture = texture.crop((pos[0], pos[1], pos[0] + size[0], pos[1] + size[1]))
+        surface.paste(new_texture, box=(0, 0), mask=text_surface)
+        size = surface.size
+        surface = surface.tobytes()
+        surface = image.frombytes(surface, size, "RGBA")  # convert image back to a pygame surface
+    else:  # no assigned texture
+        surface = text_surface
 
     return surface
 

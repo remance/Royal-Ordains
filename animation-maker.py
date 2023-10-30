@@ -1517,7 +1517,7 @@ filter_button = Button("Filter", image, (screen_size[0] - (image.get_width() * 1
 delete_button = Button("Delete", image, (screen_size[0] - (image.get_width() / 2), image.get_height() / 2),
                        description=("Delete animation", "Delete the current animation."))
 
-play_animation_button = SwitchButton(["Play", "Stop"], image,
+play_animation_button = SwitchButton(("Play", "Stop"), image,
                                      (screen_size[0] / 2,
                                       filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
                                      description=("Play/Stop animation",
@@ -1546,8 +1546,7 @@ reload_button = Button("Reload", image, (play_animation_button.pos[0] + play_ani
                        description=("Reload all assets",))
 add_frame_button = Button("Add F", image, (play_animation_button.pos[0] + play_animation_button.image.get_width() * 4,
                                            filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
-                          description=(
-                          "Add empty frame and move the other after frames", "Will remove the last frame."))
+                          description=("Add empty frame and move the other after frames", "Will remove the last frame."))
 
 remove_frame_button = Button("Del F", image, (play_animation_button.pos[0] + play_animation_button.image.get_width() * 5,
                                            filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
@@ -1562,7 +1561,7 @@ all_frame_part_paste_button = Button("Paste PA", image, (play_animation_button.p
 clear_button = Button("Clear", image, (play_animation_button.pos[0] - play_animation_button.image.get_width() * 4,
                                        filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
                       description=("Clear frame", "Clear the current frame."))
-activate_button = SwitchButton(["Enable", "Disable"], image,
+activate_button = SwitchButton(("Enable", "Disable"), image,
                                (play_animation_button.pos[0] - play_animation_button.image.get_width() * 5,
                                 filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
                                description=("Enable or disable the current frame",
@@ -1606,11 +1605,11 @@ p_all_button = Button("P All", image, (screen_size[0] / 1.3,
 all_button = Button("All", image, (p_all_button.rect.topright[0] + image.get_width() / 2,
                                    p_body_helper.rect.midtop[1] - (image.get_height() * 2.5)),
                     description=("Select all parts",))
-grid_button = SwitchButton(["Grid:ON", "Grid:OFF"], image,
+grid_button = SwitchButton(("Grid:ON", "Grid:OFF"), image,
                            (p_all_button.rect.topright[0] + image.get_width() * 1.5,
                             p_body_helper.rect.midtop[1] - (image.get_height() * 2.5)),
                            description=("Show editor grid", "Display or hide animation editor grid."))
-help_button = SwitchButton(["Help:ON", "Help:OFF"], image,
+help_button = SwitchButton(("Help:ON", "Help:OFF"), image,
                            (p_all_button.rect.topright[0] + image.get_width() * 2.5,
                             p_body_helper.rect.midtop[1] - (image.get_height() * 2.5)),
                            description=("Enable or disable help popup.",
@@ -1659,11 +1658,11 @@ image_list = load_base_button(data_dir, screen_scale)
 
 input_ok_button = MenuButton(image_list, pos=(input_ui.rect.midleft[0] + image_list[0].get_width(),
                                                      input_ui.rect.midleft[1] + image_list[0].get_height()),
-                                    key_name="confirm_button", layer=31)
+                             key_name="confirm_button", layer=31)
 input_cancel_button = MenuButton(image_list,
-                                        pos=(input_ui.rect.midright[0] - image_list[0].get_width(),
-                                           input_ui.rect.midright[1] + image_list[0].get_height()),
-                                        key_name="cancel_button", layer=31)
+                                 pos=(input_ui.rect.midright[0] - image_list[0].get_width(),
+                                      input_ui.rect.midright[1] + image_list[0].get_height()),
+                                 key_name="cancel_button", layer=31)
 input_button = (input_ok_button, input_cancel_button)
 input_box = InputBox(input_ui.rect.center, input_ui.image.get_width())  # user text input box
 
@@ -1683,10 +1682,10 @@ colour_input_box = InputBox((colour_ui.rect.center[0], colour_ui.rect.center[1] 
 
 colour_ok_button = MenuButton(image_list, pos=(colour_ui.rect.midleft[0] + image_list[0].get_width(),
                                                       colour_ui.rect.midleft[1] + (image_list[0].get_height() * 2)),
-                                   key_name="confirm_button", layer=31)
+                              key_name="confirm_button", layer=31)
 colour_cancel_button = MenuButton(image_list, pos=(colour_ui.rect.midright[0] - image_list[0].get_width(),
                                                           colour_ui.rect.midright[1] + (image_list[0].get_height() * 2)),
-                                         key_name="cancel_button", layer=31)
+                                  key_name="cancel_button", layer=31)
 colour_ui_popup = (colour_ui, colour_wheel, colour_input_box, colour_ok_button, colour_cancel_button)
 
 box_img = load_image(current_data_dir, screen_scale, "property_box.png", "animation_maker_ui")
