@@ -545,12 +545,30 @@ class Character(sprite.Sprite):
                     self.hold_timer += dt
                     if self.current_moveset:
                         self.hold_power_bonus = 1
-                        if "hold+power" in self.current_moveset["Property"] and self.hold_timer > 1:
+                        if "hold+power" in self.current_moveset["Property"] and self.hold_timer >= 1:
                             # hold beyond 1 second to hit harder
                             self.hold_power_bonus = 2.5
-                        if "hold+timing" in self.current_moveset["Property"] and 2 >= self.hold_timer >= 1:
+                        elif "hold+timing" in self.current_moveset["Property"] and 2 >= self.hold_timer >= 1:
                             # hold release at specific time
                             self.hold_power_bonus = 4
+                        elif "hold+trigger" in self.current_moveset["Property"] and self.hold_timer >= 0.5:
+                            self.hold_timer -= 0.5
+                            self.resource -= self.current_moveset["Resource Cost"]
+                            if self.resource < 0:
+                                self.resource = 0
+                            elif self.resource > self.max_resource:
+                                self.resource = self.max_resource
+
+                            if self.current_moveset[
+                                "Status"]:  # TODO move this? need to make it for effect/other char too
+                                for effect in self.current_moveset["Status"]:
+                                    self.apply_status(effect)
+                                    for ally in self.near_ally:
+                                        if ally[1] <= self.current_moveset["Range"]:
+                                            ally[0].apply_status(effect)
+                                        else:
+                                            break
+
                 elif self.hold_timer > 0:  # no longer holding, reset timer
                     self.hold_power_bonus = 1
                     self.hold_timer = 0
@@ -744,7 +762,8 @@ class PlayableCharacter(Character):
         self.item_free_use_chance = False
         self.double_food_effect = False
         if self.common_skill["Tinkerer"][1]:  # can slide attack
-            self.item
+            pass
+            # self.item
         if self.common_skill["Tinkerer"][2]:  # item may have a chance to be used for free
             self.item_free_use_chance = True
         if self.common_skill["Tinkerer"][3]:  # food has double effect

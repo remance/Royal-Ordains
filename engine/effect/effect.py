@@ -58,7 +58,7 @@ class Effect(sprite.Sprite):
         self.owner = owner
         self.stat = stat
         effect_name = self.stat[0]
-        part_name = self.stat[1]
+        part_name = self.stat[1].split(" ")[0]
         if self.owner and from_owner:
             self.sprite_ver = self.owner.sprite_ver
             self.pos = Vector2(self.owner.pos[0] + (self.stat[2] * self.screen_scale[0]),

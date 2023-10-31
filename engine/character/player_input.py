@@ -83,8 +83,6 @@ def player_input(self, player_index, dt):
                     elif self.last_command_key_input == "Special":
                         if "moveset" not in self.current_action or self.stoppable_frame:
                             self.engage_combat()
-                            if self.stoppable_frame:
-                                self.interrupt_animation = True
                             self.specific_special_check(self)
                             self.moveset_command_key_input = tuple(self.command_key_input)
 

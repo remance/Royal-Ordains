@@ -1,6 +1,6 @@
 from engine.utils.common import stat_allocation_check
 
-playable_character = {"Vraesier": 0, "Rodhinbar": 1}
+playable_character = {"Vraesier": 0, "Rodhinbar": 1, "Duskuksa": 2}
 default_start = {"Sprite Ver": 1, "Team": 1, "Playable": True, "Skill Allocation": {}, "Start Health": 100}
 
 

@@ -85,7 +85,7 @@ for p in range(1, max_person + 1):
 anim_column_header += ["effect_1", "effect_2", "effect_3", "effect_4", "effect_5", "effect_6", "effect_7",
                        "effect_8",
                        "frame_property", "animation_property", "sound_effect"]  # For csv saving and accessing
-frame_property_list = ["hold", "hold_next", "hold_previous", "stoppable", "play_time_mod_", "effect_blur_",
+frame_property_list = ["hold", "stoppable", "play_time_mod_", "effect_blur_",
                        "effect_contrast_", "effect_brightness_",
                        "effect_fade_", "effect_grey", "effect_colour_"]  # starting property list
 

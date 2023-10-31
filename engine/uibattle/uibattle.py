@@ -169,7 +169,7 @@ class PlayerPortrait(UIBattle):
         if self.last_guard_value != who.guard_meter:
             self.last_guard_value = who.guard_meter
             self.guard_bar_image = self.base_guard_bar_image.copy()
-            percent = 1 - (who.guard_meter / who.base_guard)
+            percent = 1 - (who.guard_meter / who.max_guard)
             bar = Surface((self.bar_size[0] * percent, self.bar_size[1]))
             bar.fill((0, 0, 0))
             self.guard_bar_image.blit(bar, (self.bar_size[0] - bar.get_width(), 0))

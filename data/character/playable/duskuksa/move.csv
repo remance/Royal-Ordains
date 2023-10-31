@@ -5,7 +5,7 @@
 "Strong","cstrong2","Hammer Sweep Down","Couch",,"cstrong1",,"hammer",,,,38,30,,,50,,"Physical",,,,,,,
 "Strong","cstrong3","Hammer Axe Sweep Down","Couch",,"cstrong2",,"hammer",,,,40,45,,,50,,"Physical",,,,,,,
 "Strong","cstrong4","Hammer Axe Slash Down","Couch",,"cstrong3",,"axe",,,,50,10,,,90,,"Physical",,,,,,,
-"Special","special","Rune Recharge","Couch",,,,"arm",,,-3,,,,,,,"Physical",,,,,,,"hold,hold_trigger"
+"Special","cspecial","Rune Recharge","Couch",,,,"arm",,,-3,,,,,,,"Physical",,,,,,,"hold,hold+trigger"
 "Weak","sweak1","Hammer Jab","Stand",,,,"hammer",,,,19,25,,,10,,"Physical",,,,,,,
 "Weak","sweak2","Axe Slash Down","Stand",,"sweak1",,"axe",,,,25,15,,,40,,"Physical",,,,,,,
 "Strong","sweak1strong","Hammer Axe Slash Up","Stand",,"sweak1",,"axe",,,,26,,,85,,,"Physical",,,,,,,
@@ -17,4 +17,4 @@
 "Weak","aweak","Axe Slash ","Air",,,,"axe",,,,46,3,,,35,,"Physical",,,,,,,
 "Down,Strong","adstrong","Hammer Axe Crush","Air",,,,"hammer",,,,50,10,,,90,,"Physical",,,,,,,
 "Strong","astrong","Hammer Smash","Air",,,,"hammer",,,,31,15,,,60,,"Physical",,,,,,,
-"Special","special","Rune Recharge","Stand",,,,"arm",,,-3,,,,,,,"Physical",,,,,,,"hold,hold_trigger"
+"Special","sspecial","Rune Recharge","Stand",,,,"arm",,,-3,,,,,,,"Physical",,,,,,,"hold,hold+trigger"

@@ -46,6 +46,12 @@ def pick_animation(self):
                     if self.current_moveset["Status"]:  # TODO move this? need to make it for effect/other char too
                         for effect in self.current_moveset["Status"]:
                             self.apply_status(effect)
+                            for ally in self.near_ally:
+                                if ally[1] <= self.current_moveset["Range"]:
+                                    ally[0].apply_status(effect)
+                                else:
+                                    break
+
                 else:  # no resource to do the move, reset to idle
                     if self.current_moveset["Move"] in self.attack_cooldown:  # add cooldown value to screen
                         DamageNumber(str(round(self.attack_cooldown[self.current_moveset["Move"]], 1)),
@@ -75,6 +81,11 @@ def pick_animation(self):
               self.moveset_command_key_input)
         animation_name = "Default"
         self.current_animation = self.animation_pool["Default"]
+
+        # self.current_moveset = None
+        # self.continue_moveset = None
+        # animation_name = self.equipped_weapon + self.combat_state + self.position + "Idle"
+        # self.current_animation = self.animation_pool[animation_name]
 
     self.current_animation_direction = self.current_animation[self.sprite_direction]
     self.current_animation_data = self.animation_data_pool[animation_name]

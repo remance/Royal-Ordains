@@ -57,16 +57,16 @@
 56,"Jousting Charge",,5,10,10,5,,,,,,,,,,,,
 57,"Sudden Blood Loss",,1,,,,,-50,,,,,,,,,,
 58,"Calculated Blood Loss",,1,,,,,-10,,,,,,,,,,
-59,"Minor Heat Burst","60,61,62,63",30,,-20,15,,-5,,,,-15,,,10,,,
-60,"Moderate Heat Burst","61,62,63",40,,-10,25,,-2,,,,-30,,,20,,,
-61,"Heavy Heat Burst","62,63",50,,-5,35,,,,,,-45,,,30,,,
-62,"Extreme Heat Burst",63,60,,,50,,,,,,-50,,,30,,,
-63,"Supreme Heat Burst",,70,,,60,,,,,,-50,,,35,,,
-64,"Minor Heat Inner","65,66,67,68",60,10,,,,,,,,,,,,-30,,
-65,"Moderate Heat Inner","66,67,68",70,15,,,,,,,,20,,,,-30,,
-66,"Heavy Heat Inner","67,68",80,25,,,,,,,,30,,,,-30,,
-67,"Extreme Heat Inner",68,90,35,,,,,,,,40,,,,-20,,
-68,"Supreme Heat Inner",,100,50,,,,,,,,60,30,,,-20,,
+59,"Minor Heat Burst","60,61,62,63",30,,-20,15,,-5,,,,-15,,,10,,,"Explosion"
+60,"Moderate Heat Burst","61,62,63",40,,-10,25,,-2,,,,-30,,,20,,,"Explosion"
+61,"Heavy Heat Burst","62,63",50,,-5,35,,,,,,-45,,,30,,,"Explosion"
+62,"Extreme Heat Burst",63,60,,,50,,,,,,-50,,,30,,,"Explosion"
+63,"Supreme Heat Burst",,70,,,60,,,,,,-50,,,35,,,"Explosion"
+64,"Minor Heat Inner","65,66,67,68",60,10,,,,,,,,,,,,-30,,"Fireburst"
+65,"Moderate Heat Inner","66,67,68",70,15,,,,,,,,20,,,,-30,,"Fireburst"
+66,"Heavy Heat Inner","67,68",80,25,,,,,,,,30,,,,-30,,"Fireburst"
+67,"Extreme Heat Inner",68,90,35,,,,,,,,40,,,,-20,,"Fireburst"
+68,"Supreme Heat Inner",,100,50,,,,,,,,60,30,,,-20,,"Fireburst"
 69,"Minor Cold Burst","70,71,72,73",30,,25,,,,,,-15,20,,,,,,
 70,"Moderate Cold Burst","71,72,73",40,,35,,,,,,-30,30,,,,,,
 71,"Heavy Cold Burst","72,73",50,,60,,,,,15,-45,40,,,,,,
