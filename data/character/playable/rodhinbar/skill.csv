@@ -1,19 +1,19 @@
 "Move","Name","Buttons","Position","Prepare Animation","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Damage Effect Property","Property"
-"C1.1","Barrage","Down,Forward,Weak","Stand",,2000,0,3,120,,,,,,"Physical",,,,,
-"C1.2","Swift Arrows","Down,Forward,Weak","Stand",,2000,0,4,135,,,,,,"Physical",,,,,
-"C1.3","Rapid Shots","Down,Forward,Weak","Stand",,2000,0,5,168,,,,,,"Physical",,,,,
-"C1.4",,"Down,Forward,Weak","Stand",,2000,0,6,184,,,,,,"Physical",,,,,
-"C1.5","Finest Archery","Down,Forward,Weak","Stand",,3000,0,7,215,,,,,,"Physical",,,,,
-"C2.1","Charged Shot","Down,Forward,Strong","Stand",,4000,0,1,,,,,,,"Physical",,,,,
-"C2.2","Penetrating Shot","Down,Forward,Strong","Stand",,4000,0,1,,,,,,,"Physical",,,,,
-"C2.3","Great Shot","Down,Forward,Strong","Stand",,5000,0,1,,,,,,,"Physical",,,,,
-"C2.4","Power Shot","Down,Forward,Strong","Stand",,5000,0,1,,,,,,,"Physical",,,,,
-"C2.5","Kill Shot","Down,Forward,Strong","Stand",,6000,0,1,,,,,,,"Physical",,,,,
-"C3.1","Arrow Shower","Guard,Down,Down,Strong","Stand",,2000,0,12,30,,,,,,"Physical",,,,,"spawn,spawn_after,spawn_same,spawn_sky,spawn_near_target,spawn_number:3"
-"C3.2","Arrow Swarm","Guard,Down,Down,Strong","Stand",,2000,0,14,41,,,,,,"Physical",,,,,"spawn,spawn_after,spawn_same,spawn_sky,spawn_near_target,spawn_number:2"
-"C3.3","Arrow Storm","Guard,Down,Down,Strong","Stand",,2000,0,16,64,,,,,,"Physical",,,,,"spawn,spawn_after,spawn_same,spawn_sky,spawn_near_target,spawn_number:2"
-"C3.4","Arrow Tempest","Guard,Down,Down,Strong","Stand",,2000,0,18,86,,,,,,"Physical",,,,,"spawn,spawn_after,spawn_same,spawn_sky,spawn_near_target"
-"C3.5","Blot Out the Sun","Guard,Down,Down,Strong","Stand",,2000,0,20,120,,,,,,"Physical",,,,,"spawn,spawn_after,spawn_same,spawn_sky,spawn_near_target"
+"C1.1","Barrage","Down,Forward,Weak","Stand",,2000,0,3,120,100,,,50,,"Physical",,,,,
+"C1.2","Swift Arrows","Down,Forward,Weak","Stand",,2000,0,4,135,100,,,50,,"Physical",,,,,
+"C1.3","Rapid Shots","Down,Forward,Weak","Stand",,2000,0,5,168,100,,,50,,"Physical",,,,,
+"C1.4",,"Down,Forward,Weak","Stand",,2000,0,6,184,135,,,60,,"Physical",,,,,
+"C1.5","Finest Archery","Down,Forward,Weak","Stand",,3000,0,7,215,150,,,100,,"Physical",,,,,
+"C2.1","Charged Shot","Down,Forward,Strong","Stand",,4000,0,1,,400,,50,,,"Physical",,,,,
+"C2.2","Penetrating Shot","Down,Forward,Strong","Stand",,4000,0,1,,400,,50,,,"Physical",,,,,
+"C2.3","Great Shot","Down,Forward,Strong","Stand",,5000,0,1,,450,,120,,,"Physical",,,,,
+"C2.4","Power Shot","Down,Forward,Strong","Stand",,5000,0,1,,500,,150,,,"Physical",,,,,
+"C2.5","Kill Shot","Down,Forward,Strong","Stand",,6000,0,1,,600,,200,,,"Physical",,,,,
+"C3.1","Arrow Shower","Guard,Down,Down,Strong","Stand",,2000,0,12,30,,,,100,,"Physical",,,,,"spawn,spawn_after,spawn_same,spawn_sky,spawn_near_target,spawn_number:3"
+"C3.2","Arrow Swarm","Guard,Down,Down,Strong","Stand",,2000,0,14,41,,,,100,,"Physical",,,,,"spawn,spawn_after,spawn_same,spawn_sky,spawn_near_target,spawn_number:2"
+"C3.3","Arrow Storm","Guard,Down,Down,Strong","Stand",,2000,0,16,64,,,,150,,"Physical",,,,,"spawn,spawn_after,spawn_same,spawn_sky,spawn_near_target,spawn_number:2"
+"C3.4","Arrow Tempest","Guard,Down,Down,Strong","Stand",,2000,0,18,86,,,,200,,"Physical",,,,,"spawn,spawn_after,spawn_same,spawn_sky,spawn_near_target"
+"C3.5","Blot Out the Sun","Guard,Down,Down,Strong","Stand",,2000,0,20,120,,,,250,,"Physical",,,,,"spawn,spawn_after,spawn_same,spawn_sky,spawn_near_target"
 "C4.1","Precision Slash","Guard,Forward,Forward,Strong","Stand",,,,0,,,,,,,"Physical",,,,,
 "C4.2",,"Guard,Forward,Forward,Strong","Stand",,,,0,,,,,,,"Physical",,,,,
 "C4.3",,"Guard,Forward,Forward,Strong","Stand",,,,0,,,,,,,"Physical",,,,,

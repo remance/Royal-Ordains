@@ -21,7 +21,7 @@ def menu_char(self, esc_press):
                 all_ready = False
                 break
         if all_ready:
-            self.start_battle(1, 1, 3, players={key: value for key, value in
+            self.start_battle(1, 1, 1, players={key: value for key, value in
                                                 self.player_char_select.items() if value})
 
     else:

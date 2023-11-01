@@ -605,8 +605,8 @@ class Character(sprite.Sprite):
                     if "next action" in self.current_action and not self.interrupt_animation:
                         # play next action first instead of command if not finish by interruption
                         self.current_action = self.current_action["next action"]
-                    elif ("x_momentum" in self.current_action and self.x_momentum) or \
-                            ("y_momentum" in self.current_action and self.y_momentum):
+                    elif (("x_momentum" in self.current_action and self.x_momentum) or \
+                            ("y_momentum" in self.current_action and self.y_momentum)) and not self.interrupt_animation:
                         # action that require movement to run out first before continue to next action
                         pass
                     elif "arrive" in self.current_action and "Arrive2" in self.skill[self.position]:
@@ -620,7 +620,7 @@ class Character(sprite.Sprite):
                             self.x_momentum = self.walk_speed
                         else:
                             self.x_momentum = -self.walk_speed
-                    elif "halt" in self.current_action:
+                    elif "halt" in self.current_action:  # already halting
                         self.x_momentum = 0
                         self.current_action = self.command_action  # continue next action when animation finish
                         self.command_action = {}
@@ -651,6 +651,7 @@ class Character(sprite.Sprite):
                     self.show_frame = 0
                     self.frame_timer = 0
                     self.move_speed = 0
+
                     self.pick_animation()
 
                     self.final_animation_play_time = self.animation_play_time

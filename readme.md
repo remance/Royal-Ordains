@@ -3,7 +3,7 @@
 </div>
 
 
-# Royal Ordains Chapter 1
+# Royal Ordains Chapter 1  <img src="https://github.com/remance/preview2/blob/main/rabbit.png?raw=true">
 
 ### This is the Book of Royal Ordains. A manuscript that tells the past courageous deeds of the hero group named Royal Ordains, sanctioned by the King of Masendor, so that their history will never be forgotten.
 
