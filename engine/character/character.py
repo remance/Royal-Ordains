@@ -76,6 +76,9 @@ class Character(sprite.Sprite):
     from engine.character.check_element_threshold import check_element_threshold
     check_element_threshold = check_element_threshold
 
+    from engine.character.check_prepare_action import check_prepare_action
+    check_prepare_action = check_prepare_action
+
     from engine.character.die import die
     die = die
 
@@ -108,9 +111,6 @@ class Character(sprite.Sprite):
 
     from engine.character.status_update import status_update
     status_update = status_update
-
-    from engine.character.use_skill import use_skill
-    use_skill = use_skill
 
     walk_command_action = {"name": "Walk", "movable": True, "walk": True}
     run_command_action = {"name": "Run", "movable": True, "run": True}
@@ -612,7 +612,7 @@ class Character(sprite.Sprite):
                     elif "arrive" in self.current_action and "Arrive2" in self.skill[self.position]:
                         # has arrival (Arrive2) skill to use after finish arriving
                         self.moveset_command_key_input = self.skill[self.position]["Arrive2"]["Buttons"]
-                        self.current_action = self.use_skill(
+                        self.current_action = self.check_prepare_action(
                             self.moveset[self.position][self.moveset_command_key_input])
                     elif "run" in self.current_action and not self.command_action:  # stop running, halt
                         self.current_action = self.halt_command_action

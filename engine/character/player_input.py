@@ -58,6 +58,7 @@ def player_input(self, player_index, dt):
                             self.engage_combat()
                             if self.stoppable_frame:
                                 self.interrupt_animation = True
+
                             self.command_action = self.weak_attack_command_action
                             self.moveset_command_key_input = tuple(self.command_key_input)
 

@@ -86,8 +86,8 @@ def status_update(self):
     if self.speed < 1:  # prevent speed to be lower than 1
         self.speed = 1
 
-    self.run_speed = self.speed * 100
-    self.walk_speed = self.speed * 50
+    self.run_speed = 250 + self.speed
+    self.walk_speed = 100 + self.speed
 
     # Cooldown
     for key in tuple(self.attack_cooldown.keys()):  # loop is faster than comprehension here

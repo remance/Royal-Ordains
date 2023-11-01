@@ -146,7 +146,7 @@ class CharacterData(GameData):
                                     row2 = stat_convert(row2, n2, i2, tuple_column=tuple_column,
                                                         dict_column=dict_column)
                                 # restructure moveset so move that continue from another is in its parent move
-                                move_data = {header2[index + 1]: stuff for index, stuff in enumerate(row2[1:])}
+                                move_data = {header2[index]: stuff for index, stuff in enumerate(row2)}
                                 if row2[header2.index("Position")] not in moveset_dict:
                                     # keep moveset in each position dict for easier access
                                     moveset_dict[row2[header2.index("Position")]] = {}

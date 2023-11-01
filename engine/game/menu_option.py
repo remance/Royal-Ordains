@@ -47,9 +47,9 @@ def menu_option(self, esc_press):
         self.remove_ui_updater(*self.option_text_list, *self.option_menu_sliders.values(),
                                *self.value_boxes.values(), self.option_menu_button)
         self.add_ui_updater(*self.keybind_text.values(), *self.keybind_icon.values(), self.control_switch,
-                            self.back_button, self.reload_button, self.control_player_back, self.control_player_next)
+                            self.back_button, self.default_button, self.control_player_back, self.control_player_next)
 
-    elif self.reload_button.event_press:  # revert all setting to original
+    elif self.default_button.event_press:  # revert all setting to original
         for setting in self.config["DEFAULT"]:
             if setting not in ("language", "keybind"):
                 edit_config("USER", setting, self.config["DEFAULT"][setting], self.config_path, self.config)

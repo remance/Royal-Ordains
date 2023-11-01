@@ -5,7 +5,7 @@ def pick_animation(self):
     if self.current_action:  # pick animation with current action
         if "moveset" in self.current_action:
             animation_name = None
-            if self.continue_moveset:  # find next moveset that can continue from previous one first
+            if self.continue_moveset:  # find next moveset that can continue from previous one first if exist
                 for move in self.continue_moveset:
                     if tuple(self.moveset_command_key_input[-len(move):]) == move:
                         animation_name = self.equipped_weapon + self.combat_state + self.position + \
@@ -16,55 +16,58 @@ def pick_animation(self):
                         else:
                             self.continue_moveset = None
                         break
-            if not animation_name:
+
+            if not animation_name:  # start new move
                 self.continue_moveset = None
                 for move in self.moveset[self.position]:
                     if tuple(self.moveset_command_key_input[-len(move):]) == move:
                         animation_name = self.equipped_weapon + "Combat" + self.position + \
                                          self.moveset[self.position][move]["Move"]
                         self.current_moveset = self.moveset[self.position][move]
-                        if "skill" not in self.current_action and "Next Move" in self.moveset[self.position][move]:
-                            # not skill action check for combo
+                        if "Next Move" in self.current_moveset:  # check for next move combo
                             self.continue_moveset = self.current_moveset["Next Move"]
                         break
 
-            if self.current_moveset:
-                if self.resource >= self.current_moveset["Resource Cost"] and \
-                        self.current_moveset["Move"] not in self.attack_cooldown:
+            if self.current_moveset:  # has moveset to perform
+                if "no prepare" not in self.current_action:
+                    self.current_action = self.check_prepare_action(self.current_moveset)  # check for prepare animation first
+                if "next action" not in self.current_action:  # not prepare animation
+                    if self.resource >= self.current_moveset["Resource Cost"] and \
+                            self.current_moveset["Move"] not in self.attack_cooldown:
 
-                    self.current_action = self.current_action | self.current_moveset["Property"]  # add property
+                        self.current_action = self.current_action | self.current_moveset["Property"]  # add property
 
-                    self.resource -= self.current_moveset["Resource Cost"]
-                    if self.current_moveset["Cooldown"]:
-                        self.attack_cooldown[self.current_moveset["Move"]] = self.current_moveset["Cooldown"]
+                        self.resource -= self.current_moveset["Resource Cost"]
+                        if self.current_moveset["Cooldown"]:
+                            self.attack_cooldown[self.current_moveset["Move"]] = self.current_moveset["Cooldown"]
 
-                    if self.resource < 0:
-                        self.resource = 0
-                    elif self.resource > self.max_resource:
-                        self.resource = self.max_resource
+                        if self.resource < 0:
+                            self.resource = 0
+                        elif self.resource > self.max_resource:
+                            self.resource = self.max_resource
 
-                    if self.current_moveset["Status"]:  # TODO move this? need to make it for effect/other char too
-                        for effect in self.current_moveset["Status"]:
-                            self.apply_status(effect)
-                            for ally in self.near_ally:
-                                if ally[1] <= self.current_moveset["Range"]:
-                                    ally[0].apply_status(effect)
-                                else:
-                                    break
+                        if self.current_moveset["Status"]:  # TODO move this? need to make it for effect/other char too
+                            for effect in self.current_moveset["Status"]:
+                                self.apply_status(effect)
+                                for ally in self.near_ally:
+                                    if ally[1] <= self.current_moveset["Range"]:
+                                        ally[0].apply_status(effect)
+                                    else:
+                                        break
 
-                else:  # no resource to do the move, reset to idle
-                    if self.current_moveset["Move"] in self.attack_cooldown:  # add cooldown value to screen
-                        DamageNumber(str(round(self.attack_cooldown[self.current_moveset["Move"]], 1)),
-                                     (self.pos[0], self.pos[1] - (self.sprite_size * 2)), False, self.team, move=False)
-                    self.current_moveset = None
-                    self.continue_moveset = None
-                    animation_name = self.equipped_weapon + self.combat_state + self.position + "Idle"
+                    else:  # no resource to do the move, reset to idle
+                        if self.current_moveset["Move"] in self.attack_cooldown:  # add cooldown value to screen
+                            DamageNumber(str(round(self.attack_cooldown[self.current_moveset["Move"]], 1)),
+                                         (self.pos[0], self.pos[1] - (self.sprite_size * 2)), False, self.team, move=False)
+                        self.current_moveset = None
+                        self.continue_moveset = None
+                        animation_name = self.equipped_weapon + self.combat_state + self.position + "Idle"
+
+                else:
+                    animation_name = self.equipped_weapon + self.combat_state + self.position + self.current_action[
+                        "name"]
 
         else:
-            if "guard" in self.current_action:
-                self.guarding = 0.1
-            else:  # no longer guard
-                self.guarding = 0
             self.current_moveset = None
             self.continue_moveset = None
             animation_name = self.equipped_weapon + self.combat_state + self.position + self.current_action["name"]
@@ -73,6 +76,11 @@ def pick_animation(self):
         self.current_moveset = None
         self.continue_moveset = None
         animation_name = self.equipped_weapon + self.combat_state + self.position + "Idle"
+
+    if "guard" in self.current_action:
+        self.guarding = 0.1
+    else:  # no longer guard
+        self.guarding = 0
 
     if animation_name in self.animation_pool:
         self.current_animation = self.animation_pool[animation_name]
