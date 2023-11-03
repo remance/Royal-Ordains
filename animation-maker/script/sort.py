@@ -52,7 +52,7 @@ for animation_race in sub1_directories:
     if animation_race not in ("readme.md", "template.csv"):
         with open(os.path.join(animation_folder, animation_race), encoding="utf-8",
                   mode="r") as edit_file:
-            rd = csv.reader(edit_file, quoting=csv.QUOTE_ALL)
+            rd = csv.reader(edit_file, quoting=csv.QUOTE_MINIMAL)
             rd = [row for row in rd]
             part_name_header = rd[0]
             animation_pool = {}

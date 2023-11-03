@@ -5,7 +5,7 @@ def start_animation_body_part(self, new_animation=False):
     current_animation_data = self.current_animation_direction[self.show_frame]
     for key, part_data in current_animation_data.items():
         if part_data:
-            if "effect" in key:
+            if "effect_" in key:
                 if part_data[8]:  # damage effect
                     DamageEffect(self, part_data, part_data[6], self.current_moveset)
                 else:

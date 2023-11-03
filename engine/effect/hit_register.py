@@ -20,9 +20,7 @@ def hit_register(self, target, dmg_text_pos):
 
             if self.owner.hit_resource_regen:  # regen resource when hit
                 self.owner.resource += self.owner.resource1  # regen
-                if self.owner.resource < 0:
-                    self.owner.resource = 0
-                elif self.owner.resource > self.owner.max_resource:  # resource cannot exceed the max resource
+                if self.owner.resource > self.owner.max_resource:  # resource cannot exceed the max resource
                     self.owner.resource = self.owner.max_resource
 
             if not target.guarding or target.angle == hit_angle:  # guard bypass if hit from behind
@@ -36,6 +34,11 @@ def hit_register(self, target, dmg_text_pos):
             else:  # guarded hit, reduce meter
                 if target.guarding > 0.5:  # not perfect guard (guard within 0.5 secs before taking hit)
                     target.guard_meter -= attacker_dmg
+                    if target.crash_guard_resource_regen:
+                        target.resource += target.resource1  # regen
+                        if target.resource > target.max_resource:  # resource cannot exceed the max resource
+                            target.resource = target.max_resource
+
                     if target.guard_meter < 0:  # guard depleted, break with heavy damaged animation
                         if self.owner.player_control:
                             Effect(None, ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle),

@@ -35,8 +35,7 @@ controllable = can perform controllable action during action like walk or attack
 next action = action that will be performed after the current one finish
 uninterruptible = action can not be interrupt with interrupt_animation variable
 move loop = action involve repeating movement that can be cancel when movement change like walk to run
-charge = indicate charging action
-less mass = character has mass is divided during animation based on value provide
+low level = indicate low level animation that can get replaced by command action without requiring interrupt_animation
 walk, run, flee = indicate movement type for easy checking, walk and run also use for move_speed
 stand, couch, ai = indicate position change after animation finish
 land (stand) = indicate position change before animation start
@@ -118,7 +117,7 @@ class Character(sprite.Sprite):
     halt_command_action = {"name": "Halt", "uncontrollable": True, "movable": True, "walk": True, "halt": True}
 
     jump_idle_command_action = {"name": "Idle", "movable": True}
-    relax_command_action = {"name": "Relax"}
+    relax_command_action = {"name": "Relax", "low level": True}
 
     couch_command_action = {"name": "Couch", "couch": True}
     couch_stand_command_action = {"name": "Stand", "uncontrollable": True, "stand": True}
@@ -231,6 +230,7 @@ class Character(sprite.Sprite):
         self.invincible = False
         self.immune_weather = False
         self.hit_resource_regen = False
+        self.crash_guard_resource_regen = False
         self.position = "Stand"
         self.combat_state = "Peace"
         self.mode = "Normal"
@@ -329,6 +329,7 @@ class Character(sprite.Sprite):
 
         self.max_resource = int(stat["Max Resource"])
         self.resource1 = self.max_resource * 0.01
+        self.resource2 = self.max_resource * 0.02
         self.resource25 = self.max_resource * 0.25
         self.resource50 = self.max_resource * 0.5
         self.resource75 = self.max_resource * 0.75
@@ -478,11 +479,11 @@ class Character(sprite.Sprite):
                 if 0 < self.guarding < 1:
                     self.guarding += dt
 
-                elif not self.guarding and self.guard_meter < self.base_guard:
+                elif not self.guarding and self.guard_meter < self.max_guard:
                     # replenish guard meter when not guarding, always 5 percent per second
                     self.guard_meter += dt * self.guard_meter5
-                    if self.guard_meter > self.base_guard:
-                        self.guard_meter = self.base_guard
+                    if self.guard_meter > self.max_guard:
+                        self.guard_meter = self.max_guard
 
                 if self.freeze_timer:
                     self.freeze_timer -= dt
@@ -578,7 +579,8 @@ class Character(sprite.Sprite):
                 # Pick new animation, condition to stop animation: get interrupt,
                 # low level animation got replace with more important one, finish playing, skill animation and its effect end
                 if (self.interrupt_animation and "uninterruptible" not in self.current_action) or \
-                        ((not self.current_action and self.command_action) or done):
+                        (((not self.current_action or "low level" in self.current_action) and
+                          self.command_action) or done):
                     # Change position
                     if "couch" in self.current_action:
                         self.position = "Couch"

@@ -1415,10 +1415,29 @@ class Animation:
                 while self.show_frame < max_frame and play_list[self.show_frame] is False:
                     self.show_frame += 1
                 self.first_time = time.time()
-            if self.show_frame > self.end_frame:
-                self.show_frame = self.start_frame
-                while self.show_frame < max_frame and play_list[self.show_frame] is False:
-                    self.show_frame += 1
+                if self.show_frame > self.end_frame:
+                    self.show_frame = self.start_frame
+                    while self.show_frame < max_frame and play_list[self.show_frame] is False:
+                        self.show_frame += 1
+                print('test')
+                if model.frame_list[self.show_frame]["sound_effect"]:  # play sound
+                    sound = pygame.mixer.Sound(
+                        random.choice(sound_effect_pool[model.frame_list[self.show_frame]["sound_effect"][0]]))
+                    sound.set_volume(1)
+                    sound.play()
+                if "sound_effect" in model.frame_list[self.show_frame] and model.frame_list[self.show_frame][
+                    "sound_effect"]:
+                    sound_selector.change_name(str(model.frame_list[self.show_frame]["sound_effect"][0]))
+                    sound_distance_selector.change_name(str(model.frame_list[self.show_frame]["sound_effect"][1]))
+                else:
+                    sound_selector.change_name("None")
+                    sound_distance_selector.change_name("")
+                setup_list(NameList, current_anim_row, anim_prop_list_box.namelist, anim_prop_namegroup,
+                           anim_prop_list_box, ui, screen_scale, layer=9, old_list=anim_property_select)
+                setup_list(NameList, current_frame_row, frame_prop_list_box.namelist[current_frame],
+                           frame_prop_namegroup,
+                           frame_prop_list_box, ui, screen_scale, layer=9,
+                           old_list=frame_property_select[current_frame])
 
         surface.blit(self.frames[int(self.show_frame)], position)
 
@@ -2070,19 +2089,7 @@ while True:
                                     reload_animation(anim, model)
                             property_to_pool_data(naming)
 
-        if play_animation:
-            current_frame = int(anim.show_frame)
-            if model.frame_list[current_frame]["sound_effect"]:  # play sound
-                sound = pygame.mixer.Sound(random.choice(sound_effect_pool[model.frame_list[current_frame]["sound_effect"][0]]))
-                sound.set_volume(1)
-                sound.play()
-            setup_list(NameList, current_anim_row, anim_prop_list_box.namelist, anim_prop_namegroup,
-                       anim_prop_list_box, ui, screen_scale, layer=9, old_list=anim_property_select)
-            setup_list(NameList, current_frame_row, frame_prop_list_box.namelist[current_frame],
-                       frame_prop_namegroup,
-                       frame_prop_list_box, ui, screen_scale, layer=9,
-                       old_list=frame_property_select[current_frame])
-        else:
+        if not play_animation:
             dt = 0
             if popup_click is False:  # button that can't be clicked even when animation playing
                 if mouse_left_up:

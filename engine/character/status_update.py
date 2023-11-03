@@ -47,9 +47,6 @@ def status_update(self):
             self.element_resistance = {element: value + cal_effect[element + " Resistance Bonus"] for
                                        element, value in self.base_element_resistance.items()}
 
-            for effect in cal_effect["Special Effect"]:
-                self.special_effect[tuple(self.special_effect.keys())[effect]][0][1] = True
-
     # Apply effect from weather
     if not self.immune_weather:
         weather = self.battle.current_weather

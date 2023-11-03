@@ -24,7 +24,7 @@ def read_anim_data(art_style_dir, anim_column_header):
     for file in files:
         with open(os.path.join(art_style_dir, file + ".csv"), encoding="utf-8",
                   mode="r") as edit_file:
-            rd = csv.reader(edit_file, quoting=csv.QUOTE_ALL)
+            rd = csv.reader(edit_file, quoting=csv.QUOTE_MINIMAL)
             rd = [row for row in rd]
             part_name_header = rd[0]
             list_column = anim_column_header  # value in list only

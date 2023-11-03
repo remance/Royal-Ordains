@@ -14,6 +14,11 @@ def hit_collide_check(self, effect=False):
         for this_effect in hit_list:
             if this_effect.owner != self.owner and this_effect.owner.team != self.owner.team and this_effect.dmg:
                 dmg_diff = abs(this_effect.dmg - self.dmg) / 2
+                if self.owner.crash_guard_resource_regen:  # crash regen resource, 2% instead of normal 1%
+                    self.owner.resource += self.owner.resource2  # regen
+                    if self.owner.resource > self.owner.max_resource:  # resource cannot exceed the max resource
+                        self.owner.resource = self.owner.max_resource
+
                 if dmg_diff < self.dmg / 2:  # both dmg quite near in power
                     this_effect.dmg = 0
                     self.dmg = 0
@@ -73,7 +78,9 @@ def hit_collide_check(self, effect=False):
                     self.reach_target()
                     return True
 
-            elif enemy_part.can_hurt and enemy not in self.already_hit and "no dmg" not in enemy.current_action:
+            elif enemy_part.can_hurt and enemy not in self.already_hit and \
+                    ("no dmg" not in enemy.current_action or not enemy.player_control):
+                # no dmg property not count for non player char
                 self.owner.hit_enemy = True
                 self.hit_register(enemy, enemy_part.rect.midtop)
                 self.already_hit.append(enemy)

@@ -21,6 +21,10 @@ def play_animation(self, dt, hold_check):
                 elif not self.freeze_timer:  # not has freeze animation timer to run out first
                     done = True
             self.start_animation_body_part()
+            if self.current_animation_direction[self.show_frame]["sound_effect"]:
+                sound = self.current_animation_direction[self.show_frame]["sound_effect"]
+                self.battle.add_sound_effect_queue(self.sound_effect_pool[sound[0]][0],
+                                                   self.pos, sound[1], sound[1])
 
             if not done:  # check if new frame has play speed mod
                 self.final_animation_play_time = self.animation_play_time

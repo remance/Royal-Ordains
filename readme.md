@@ -7,6 +7,8 @@
 
 ### This is the Book of Royal Ordains. A manuscript that tells the past courageous deeds of the hero group named Royal Ordains, sanctioned by the King of Masendor, so that their history will never be forgotten.
 
+<img src="https://github.com/remance/preview2/blob/main/bg1.1.1.3.png?raw=true">
+
 [![](https://markdown-videos-api.jorgenkh.no/youtube/bNDiOt0XpOI)](https://youtu.be/bNDiOt0XpOI)
 
 

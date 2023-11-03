@@ -55,7 +55,7 @@ class AnimationData(GameData):
                             flip_row = row.copy()  # flip sprite data for left direction
                             for part_index, part_data in enumerate(flip_row):
                                 if part_data and type(part_data) is list and "property" not in part_name_header[
-                                    part_index]:
+                                    part_index] and "sound_effect" not in part_name_header[part_index]:
                                     flip_row[part_index] = [-item if index in (2, 4) else item for
                                                             index, item in enumerate(part_data)]
                                     if not flip_row[part_index][5]:
@@ -71,6 +71,8 @@ class AnimationData(GameData):
                                     for item2 in item["property"]:
                                         if "play_time_mod" in item2:
                                             item["play_time_mod"] = float(item2.split("_")[-1])
+                                    if item["sound_effect"]:
+                                        item["sound_effect"].append(item["sound_effect"][1] / 2)
 
                     self.character_animation_data[file_data_name] = animation_pool
                 edit_file.close()
