@@ -7,6 +7,8 @@ import sys
 import pygame
 from pygame.locals import *
 
+from math import sin, cos, radians
+
 from engine.battle.battle import Battle
 from engine.character.character import Character, BodyPart
 from engine.data.datalocalisation import Localisation
@@ -32,6 +34,7 @@ from engine.utils.common import edit_config
 from engine.utils.data_loading import load_image, load_images, csv_read, load_base_button
 from engine.utils.text_making import number_to_minus_or_plus
 from engine.weather.weather import MatterSprite, SpecialWeatherEffect, Weather
+from engine.utils.rotation import rotation_xy
 
 game_name = "Royal Ordains"  # Game name that will appear as game name
 
@@ -65,7 +68,7 @@ class Game:
                                    "axis-2": "R. Stick Left", "axis+2": "R. Stick R.",
                                    "axis-3": "R. Stick U.", "axis+3": "R. Stick D.",
                                    "hat-0": "L. Arrow", "hat+0": "R. Arrow",
-                                   "hat-1": "U. Arrow", "hat+1": "D. Arrow", },
+                                   "hat-1": "D. Arrow", "hat+1": "U. Arrow"},
                           "Other": {0: "1", 1: "2", 2: "3", 3: "4", 4: "L1", 5: "R1", 6: "L2", 7: "R2", 8: "Select",
                                     9: "Start", 10: "L. Stick", 11: "R. Stick", 12: None, 13: None, 14: None, 15: None,
                                     "axis-0": "L. Stick L.", "axis+0": "L. Stick R.",
@@ -73,8 +76,7 @@ class Game:
                                     "axis-2": "R. Stick Left", "axis+2": "R. Stick R.",
                                     "axis-3": "R. Stick U.", "axis+3": "R. Stick D.",
                                     "hat-0": "L. Arrow", "hat+0": "R. Arrow",
-                                    "hat-1": "U. Arrow", "hat+1": "D. Arrow",
-                                    },
+                                    "hat-1": "D. Arrow", "hat+1": "U. Arrow"},
                           "PS": {0: "X", 1: "O", 2: "□", 3: "△", 4: "Share", 5: "PS", 6: "Options", 7: None, 8: None,
                                  9: None, 10: None, 11: "D-Up", 12: "D-Down", 13: "D-Left", 14: "D-R.",
                                  15: "T-Pad", "axis-0": "L. Stick L.", "axis+0": "L. Stick R.",
@@ -82,7 +84,7 @@ class Game:
                                  "axis-2": "R. Stick Left", "axis+2": "R. Stick R.",
                                  "axis-3": "R. Stick U.", "axis+3": "R. Stick D.",
                                  "hat-0": "L. Arrow", "hat+0": "R. Arrow",
-                                 "hat-1": "U. Arrow", "hat+1": "D. Arrow"}}
+                                 "hat-1": "D. Arrow", "hat+1": "U. Arrow"}}
 
     # import from game
     from engine.game.activate_input_popup import activate_input_popup
@@ -93,6 +95,9 @@ class Game:
 
     from engine.game.back_mainmenu import back_mainmenu
     back_mainmenu = back_mainmenu
+
+    from engine.game.change_keybind import change_keybind
+    change_keybind = change_keybind
 
     from engine.game.change_pause_update import change_pause_update
     change_pause_update = change_pause_update
@@ -194,6 +199,12 @@ class Game:
             self.player_key_control = {player: self.config["USER"]["control player " + str(player)] for player in
                                        self.player_list}
 
+        self.corner_screen_width = self.screen_width - 1
+        self.corner_screen_height = self.screen_height - 1
+
+        self.default_player_key_bind_list = {player: ast.literal_eval(self.config["DEFAULT"]["keybind player " + str(player)])
+                                         for player in self.player_list}
+
         Game.language = self.language
 
         # Set the display mode
@@ -218,6 +229,8 @@ class Game:
 
         self.joysticks = {}
         self.joystick_name = {}
+        self.player_joystick = {}  # always check link with joystick_player when change code
+        self.joystick_player = {}
 
         self.player_key_control = {player: self.config["USER"]["control player " + str(player)] for player in
                                    self.player_list}
@@ -263,8 +276,8 @@ class Game:
         self.realtime_ui_updater = pygame.sprite.Group()  # for UI stuff that need to be updated in real time like drama and weather objects, also used as drawer
         self.effect_updater = pygame.sprite.Group()  # updater for effect objects (e.g. range attack sprite)
 
-        self.all_chars = pygame.sprite.Group()  # group to keep all character object for cleaning
-        self.all_effects = pygame.sprite.Group()
+        self.all_chars = pygame.sprite.Group()  # group to keep all character objects for cleaning
+        self.all_damage_effects = pygame.sprite.Group()  # group to keep all damage objects for collision check
 
         self.button_ui = pygame.sprite.Group()  # ui button group in battle
 
@@ -293,7 +306,7 @@ class Game:
         BodyPart.containers = self.effect_updater, self.battle_camera
         Effect.containers = self.effect_updater, self.battle_camera
         StageObject.containers = self.effect_updater, self.battle_camera
-        DamageEffect.containers = self.all_effects, self.effect_updater, self.battle_camera
+        DamageEffect.containers = self.all_damage_effects, self.effect_updater, self.battle_camera
 
         MenuCursor.containers = self.ui_updater, self.ui_drawer
 
@@ -510,6 +523,30 @@ class Game:
                                            self.background_image["hide"])
 
         # Starting script
+        for event in pygame.event.get():
+            if event.type == pygame.JOYDEVICEADDED:  # search for joystick plugin before game start
+                joy = pygame.joystick.Joystick(event.device_index)
+                self.joysticks[joy.get_instance_id()] = joy
+                joy_name = joy.get_name()
+                for name in self.joystick_bind_name:
+                    if name in joy_name:  # find common name
+                        self.joystick_name[joy.get_instance_id()] = name
+                if joy.get_instance_id() not in self.joystick_name:
+                    self.joystick_name[joy.get_instance_id()] = "Other"
+
+                for player in self.player_key_control:  # check for player with joystick control but no assigned yet
+                    if self.player_key_control[player] == "joystick" and player not in self.player_joystick:
+                        # assign new joystick to player with joystick control setting
+                        self.player_joystick[player] = joy.get_instance_id()
+                        self.joystick_player[joy.get_instance_id()] = player
+                        break  # only one player get assigned
+
+        for player in self.player_key_control:
+            # search for joystick player with no joystick to revert control to keyboard
+            if self.player_key_control[player] == "joystick" and player not in self.player_joystick:
+                self.config["USER"]["control player " + str(player)] = "keyboard"
+                self.change_keybind()
+
         self.player_char_select = {1: None, 2: None, 3: None, 4: None}
 
         self.dt = 0
@@ -576,30 +613,52 @@ class Game:
                 if self.url_delay < 0:
                     self.url_delay = 0
 
-            if self.config["USER"]["control player 1"] == "joystick" and self.input_popup[0] == "keybind_input":
-                for joystick in self.joysticks.values():  # TODO change this when has multiplayer
-                    for i in range(joystick.get_numaxes()):
-                        if joystick.get_axis(i):
-                            if i not in (2, 3):  # prevent right axis from being assigned
-                                axis_name = "axis" + number_to_minus_or_plus(joystick.get_axis(i)) + str(i)
-                                self.assign_key(axis_name)
-
-                    for i in range(joystick.get_numhats()):
-                        if joystick.get_hat(i)[0]:
-                            hat_name = "hat" + number_to_minus_or_plus(joystick.get_axis(i)) + str(0)
-                            self.assign_key(hat_name)
-                        elif joystick.get_hat(i)[1]:
-                            hat_name = "hat" + number_to_minus_or_plus(joystick.get_axis(i)) + str(1)
-                            self.assign_key(hat_name)
-
-            key_state = pygame.key.get_pressed()
-
             for player, key_set in self.player_key_press.items():
                 if self.player_key_control[player] == "keyboard":
                     for key in key_set:  # check for key holding
-                        if type(self.player_key_bind[player][key]) == int and key_state[
+                        if type(self.player_key_bind[player][key]) == int and key_press[
                             self.player_key_bind[player][key]]:
                             self.player_key_hold[player][key] = True
+                else:
+                    player_key_bind_name = self.player_key_bind_name[player]
+                    for joystick_id, joystick in self.joysticks.items():
+                        if self.player_joystick[player] == joystick_id:
+                            for i in range(joystick.get_numaxes()):
+                                if joystick.get_axis(i) > 0.1 or joystick.get_axis(i) < -0.1:
+                                    if i in (2, 3) and player == 1:  # right axis only for cursor (player 1 only)
+                                        vec = pygame.math.Vector2(joystick.get_axis(2), joystick.get_axis(3))
+                                        radius, angle = vec.as_polar()
+                                        adjusted_angle = (angle + 90) % 360
+                                        new_pos = pygame.Vector2(self.cursor.pos[0] + (self.dt * 1000 * sin(radians(adjusted_angle))),
+                                                                 self.cursor.pos[1] - (self.dt * 1000 * cos(radians(adjusted_angle))))
+                                        if new_pos[0] < 0:
+                                            new_pos[0] = 0
+                                        elif new_pos[0] > self.corner_screen_width:
+                                            new_pos[0] = self.corner_screen_width
+                                        if new_pos[1] < 0:
+                                            new_pos[1] = 0
+                                        elif new_pos[1] > self.corner_screen_height:
+                                            new_pos[1] = self.corner_screen_height
+                                        pygame.mouse.set_pos(new_pos)
+                                    else:
+                                        axis_name = "axis" + number_to_minus_or_plus(joystick.get_axis(i)) + str(i)
+                                        if axis_name in player_key_bind_name:
+                                            self.player_key_hold[player][player_key_bind_name[axis_name]] = True
+                                            self.player_key_press[player][player_key_bind_name[axis_name]] = True
+
+                            for i in range(joystick.get_numbuttons()):
+                                if joystick.get_button(i) and i in player_key_bind_name:
+                                    self.player_key_hold[player][player_key_bind_name[i]] = True
+
+                            for i in range(joystick.get_numhats()):
+                                if joystick.get_hat(i)[0] > 0.1 or joystick.get_hat(i)[0] < -0.1:
+                                    hat_name = "hat" + number_to_minus_or_plus(joystick.get_hat(i)[0]) + str(0)
+                                    if hat_name in self.player_key_bind_name:
+                                        self.player_key_hold[player][player_key_bind_name[hat_name]] = True
+                                if joystick.get_hat(i)[1] > 0.1 or joystick.get_hat(i)[1] < -0.1:
+                                    hat_name = "hat" + number_to_minus_or_plus(joystick.get_hat(i)[1]) + str(1)
+                                    if hat_name in self.player_key_bind_name:
+                                        self.player_key_hold[player][player_key_bind_name[hat_name]] = True
 
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONUP:
@@ -610,9 +669,18 @@ class Game:
 
                 elif event.type == pygame.JOYBUTTONUP:
                     joystick = event.instance_id
-                    if self.config["USER"]["control player 1"] == "joystick" and self.input_popup[0] == "keybind_input":
-                        # check for button press
-                        self.assign_key(event.button)
+                    if self.input_popup:
+                        if self.config["USER"]["control player " + str(self.control_switch.player)] == "joystick" and \
+                                self.input_popup[0] == "keybind_input" and \
+                                self.player_joystick[self.control_switch.player] == joystick:
+                            # check for button press
+                            self.assign_key(event.button)
+                    else:
+                        if joystick in self.joystick_player:
+                            player = self.joystick_player[joystick]
+                            if self.player_key_control[player] == "joystick" and \
+                                    event.button in self.player_key_bind_name[player]:  # check for key press
+                                self.player_key_press[player][self.player_key_bind_name[player][event.button]] = True
 
                 elif event.type == pygame.KEYDOWN:
                     event_key_press = event.key
@@ -622,7 +690,7 @@ class Game:
                             esc_press = True
 
                         elif self.input_popup[0] == "keybind_input" and \
-                                self.config["USER"]["control player 1"] == "keyboard":
+                                self.config["USER"]["control player " + str(self.control_switch.player)] == "keyboard":
                             self.assign_key(event.key)
 
                         elif self.input_popup[0] == "text_input":
@@ -648,10 +716,47 @@ class Game:
                     if joy.get_instance_id() not in self.joystick_name:
                         self.joystick_name[joy.get_instance_id()] = "Other"
 
+                    for player in self.player_key_control:  # check for player with joystick control but no assigned yet
+                        if self.player_key_control[player] == "joystick" and player not in self.player_joystick:
+                            # assign new joystick to player with joystick control setting
+                            self.player_joystick[player] = joy.get_instance_id()
+                            self.joystick_player[joy.get_instance_id()] = player
+                            break  # only one player get assigned
+
                 elif event.type == pygame.JOYDEVICEREMOVED:
                     # Player unplug joystick
                     del self.joysticks[event.instance_id]
                     del self.joystick_name[event.instance_id]
+                    for key, value in self.player_joystick.copy().items():
+                        if value == event.instance_id:
+                            self.player_joystick.pop(key)
+                            self.joystick_player.pop(value)
+
+                            if self.menu_state == "keybind" and self.control_switch.player == key:
+                                # remove joystick when in keybind menu with joystick setting
+                                self.player_key_bind[key] = self.player_key_bind_list[key]["keyboard"]
+                                self.config["USER"]["control player " + str(key)] = "keyboard"
+                                self.control_switch.change_control("keyboard", key)
+                                self.player_key_control[key] = self.config["USER"][
+                                    "control player " + str(key)]
+                                edit_config("USER", "control player " + str(key),
+                                            self.config["USER"]["control player " + str(key)],
+                                            self.config_path, self.config)
+
+                                for key2, value2 in self.keybind_icon.items():
+                                    value2.change_key(self.config["USER"]["control player " + str(key)],
+                                        self.player_key_bind_list[key][self.config["USER"][
+                                            "control player " + str(key)]][key2], None)
+
+                                self.player_key_bind_name = {player: {value: key for key, value in
+                                                                      self.player_key_bind[player].items()}
+                                                             for player in self.player_list}
+
+                            break
+
+                    self.player_key_bind_name = {
+                        player: {value: key for key, value in self.player_key_bind[player].items()} for
+                        player in self.player_list}
 
                 elif event.type == QUIT:
                     esc_press = True
@@ -665,46 +770,14 @@ class Game:
             if self.input_popup:  # currently, have input text pop up on screen, stop everything else until done
                 if self.input_ok_button.event_press or key_press[pygame.K_RETURN] or key_press[pygame.K_KP_ENTER]:
                     done = True
-                    if "replace key" in self.input_popup[1]:
-                        old_key = self.player_key_bind[1][self.config["USER"]["control player 1"]][
-                            self.input_popup[1][1]]
-                        self.player_key_bind[1][self.config["USER"]["control player 1"]][
-                            self.input_popup[1][1]] = self.player_key_bind[1][self.config["USER"]["control player 1"]][
-                            self.input_popup[1][2]]
-                        self.player_key_bind[1][self.config["USER"]["control player 1"]][
-                            self.input_popup[1][2]] = old_key
-                        edit_config("USER", "keybind player 1", self.player_key_bind[1],
-                                    self.config_path, self.config)
-                        for key, value in self.keybind_icon.items():
-                            if key == self.input_popup[1][1]:
-                                if self.joysticks:
-                                    value.change_key(self.config["USER"]["control player 1"],
-                                                     self.player_key_bind[1][self.config["USER"]["control player 1"]][
-                                                         self.input_popup[1][1]],
-                                                     self.joystick_bind_name[
-                                                         self.joystick_name[tuple(self.joystick_name.keys())[0]]])
-                                else:
-                                    value.change_key(self.config["USER"]["control player 1"],
-                                                     self.player_key_bind[1][self.config["USER"]["control player 1"]][
-                                                         self.input_popup[1][1]], None)
+                    if "replace key" in self.input_popup[1]:  # swap between 2 keys
+                        player = self.control_switch.player
+                        old_key = self.player_key_bind[player][self.input_popup[1][1]]
 
-                            elif key == self.input_popup[1][2]:
-                                if self.joysticks:
-                                    value.change_key(self.config["USER"]["control player 1"],
-                                                     self.player_key_bind[1][self.config["USER"]["control player 1"]][
-                                                         self.input_popup[1][2]],
-                                                     self.joystick_bind_name[
-                                                         self.joystick_name[tuple(self.joystick_name.keys())[0]]])
-                                else:
-                                    value.change_key(self.config["USER"]["control player 1"],
-                                                     self.player_key_bind[1][self.config["USER"]["control player 1"]][
-                                                         self.input_popup[1][2]], None)
-
-                        self.player_key_bind_name = {1: {value: key for key, value in self.player_key_bind[1].items()}}
-                        self.player_key_press = {key: dict.fromkeys(self.player_key_bind[key], False) for key in
-                                                 self.player_key_bind}
-                        self.player_key_hold = {key: dict.fromkeys(self.player_key_bind[key], False) for key in
-                                                self.player_key_bind}
+                        self.player_key_bind[player][self.input_popup[1][1]] = self.player_key_bind[player][self.input_popup[1][2]]
+                        self.player_key_bind[player][self.input_popup[1][2]] = old_key
+                        self.config["USER"]["keybind player " + str(player)] = str(self.player_key_bind_list[player])
+                        self.change_keybind()
 
                     elif self.input_popup[1] == "quit":
                         pygame.time.wait(1000)
@@ -735,6 +808,25 @@ class Game:
                         self.text_delay += self.dt
                         if self.text_delay >= 0.3:
                             self.text_delay = 0
+
+                else:
+                    if self.player_key_control[self.control_switch.player] == "joystick" and \
+                            self.input_popup[0] == "keybind_input":  # check for joystick hat and axis keybind
+                        for joystick_id, joystick in self.joysticks.items():
+                            if self.player_joystick[self.control_switch.player] == joystick_id:
+                                for i in range(joystick.get_numaxes()):
+                                    if joystick.get_axis(i) > 0.1 or joystick.get_axis(i) < -0.1:
+                                        if i not in (2, 3):  # prevent right axis from being assigned
+                                            axis_name = "axis" + number_to_minus_or_plus(joystick.get_axis(i)) + str(i)
+                                            self.assign_key(axis_name)
+
+                                for i in range(joystick.get_numhats()):
+                                    if joystick.get_hat(i)[0] > 0.1 or joystick.get_hat(i)[0] < -0.1:
+                                        hat_name = "hat" + number_to_minus_or_plus(joystick.get_hat(i)[0]) + str(0)
+                                        self.assign_key(hat_name)
+                                    elif joystick.get_hat(i)[1] > 0.1 or joystick.get_hat(i)[1] < -0.1:
+                                        hat_name = "hat" + number_to_minus_or_plus(joystick.get_hat(i)[1]) + str(1)
+                                        self.assign_key(hat_name)
 
             elif not self.input_popup:
                 if self.menu_state == "main_menu":

@@ -314,6 +314,10 @@ def stat_convert(row, n, i, percent_column=(), mod_column=(), list_column=(), tu
                         result_i[new_i2[0]] = True
                     elif new_i2[1] == "false":
                         result_i[new_i2[0]] = False
+                    elif new_i2[1].isdigit():
+                        result_i[new_i2[0]] = int(result_i[new_i2[0]])
+                    elif "." in new_i2[1] and re.search("[a-zA-Z]", new_i2[1]) is None:
+                        result_i[new_i2[0]] = float(result_i[new_i2[0]])
                 else:
                     if "/" not in item:
                         result_i[item] = True

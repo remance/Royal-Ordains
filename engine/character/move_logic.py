@@ -35,7 +35,7 @@ def move_logic(self, dt):
         if self.y_momentum > 0:
             self.y_momentum -= dt * 800
             self.move_speed = 1500 + self.y_momentum
-            if self.y_momentum == 0 and not self.fly:
+            if self.y_momentum <= 0 and not self.fly:
                 self.y_momentum = -10
 
         elif self.position == "Air":  # no more velocity to go up, must go down
@@ -49,10 +49,10 @@ def move_logic(self, dt):
                     self.command_action = self.land_command_action
                     self.can_double_jump = True
                 self.position = "Stand"
-
             elif not self.fly and "fly" not in self.current_action:  # falling down if not flying
-                if "moveset" in self.current_action and \
-                        "default_drop_speed" not in self.current_action:  # delay falling when attack midair
+                if "drop speed" in self.current_action:
+                    self.move_speed = self.fall_gravity * self.current_action["drop speed"]
+                elif "moveset" in self.current_action:  # delay falling when attack midair
                     self.move_speed = 100
                 else:
                     self.move_speed = self.fall_gravity

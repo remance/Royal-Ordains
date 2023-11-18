@@ -3,6 +3,7 @@ import os
 import sys
 import time
 from random import randint
+from math import sin, cos, radians
 
 import pygame
 from pygame import Vector2, display, mouse
@@ -99,7 +100,11 @@ class Battle:
                                  game.player_list}
         self.player_key_hold = {player: {key: False for key in self.player_key_bind[player]} for player in
                                 game.player_list}
+        self.player_joystick = self.game.player_joystick
+        self.joystick_player = self.game.joystick_player
         self.screen_rect = game.screen_rect
+        self.corner_screen_width = game.corner_screen_width
+        self.corner_screen_height = game .corner_screen_height
 
         Battle.battle_camera_size = (self.screen_rect.width, self.screen_rect.height)
         Battle.battle_camera_min = (self.screen_rect.width, 0)
@@ -116,7 +121,7 @@ class Battle:
 
         self.character_updater = game.character_updater
         self.all_chars = game.all_chars
-        self.all_effects = game.all_effects
+        self.all_damage_effects = game.all_damage_effects
         self.effect_updater = game.effect_updater
         self.realtime_ui_updater = game.realtime_ui_updater
 
@@ -505,6 +510,8 @@ class Battle:
                                  self.game.player_list}
         self.player_key_hold = {player: {key: False for key in self.player_key_bind[player]} for player in
                                 self.game.player_list}
+        self.player_joystick = self.game.player_joystick
+        self.joystick_player = self.game.joystick_player
 
         self.screen.fill((0, 0, 0))
         self.realtime_ui_updater.add(self.player_1_battle_cursor)
@@ -517,7 +524,7 @@ class Battle:
         while True:  # self running
             frame += 1
 
-            if frame % 30 == 0 and hasattr(self.game, "profiler"):
+            if frame % 30 == 0 and hasattr(self.game, "profiler"):  # Remove for stable release, along with dev key
                 self.game.profiler.refresh()
                 frame = 0
 
@@ -530,34 +537,64 @@ class Battle:
                                     self.player_key_hold}
 
             self.true_dt = self.clock.get_time() / 1000  # dt before game_speed
-
             for player, key_set in self.player_key_press.items():
                 if self.player_key_control[player] == "keyboard":
                     for key in key_set:  # check for key holding
-                        if type(self.player_key_bind[player][key]) == int and key_state[
-                            self.player_key_bind[player][key]]:
+                        if type(self.player_key_bind[player][key]) == int and key_state[self.player_key_bind[player][key]]:
                             self.player_key_hold[player][key] = True
                 else:
-                    for joystick in self.joysticks.values():  # TODO recheck this
-                        for i in range(joystick.get_numaxes()):
-                            if joystick.get_axis(i) > 0.1 or joystick.get_axis(i) < -0.1:
-                                axis_name = "axis" + number_to_minus_or_plus(joystick.get_axis(i)) + str(i)
-                                if axis_name in self.player_key_bind_name:
-                                    self.player_key_hold[self.player_key_bind_name[axis_name]] = True
+                    player_key_bind_name = self.player_key_bind_name[player]
+                    for joystick_id, joystick in self.joysticks.items():
+                        if self.player_joystick[player] == joystick_id:
+                            for i in range(joystick.get_numbuttons()):
+                                if joystick.get_button(i) and i in player_key_bind_name:
+                                    self.player_key_hold[player][player_key_bind_name[i]] = True
 
-                        for i in range(joystick.get_numbuttons()):
-                            if joystick.get_button(i) and i in self.player_key_bind_name:
-                                self.player_key_hold[self.player_key_bind_name[i]] = True
+                            for i in range(joystick.get_numhats()):
+                                if joystick.get_hat(i)[0] > 0.1 or joystick.get_hat(i)[0] < -0.1:
+                                    hat_name = "hat" + number_to_minus_or_plus(joystick.get_hat(i)[0]) + str(0)
+                                    if hat_name in self.player_key_bind_name:
+                                        self.player_key_hold[player][player_key_bind_name[hat_name]] = True
+                                if joystick.get_hat(i)[1] > 0.1 or joystick.get_hat(i)[1] < -0.1:
+                                    hat_name = "hat" + number_to_minus_or_plus(joystick.get_hat(i)[1]) + str(1)
+                                    if hat_name in self.player_key_bind_name:
+                                        self.player_key_hold[player][player_key_bind_name[hat_name]] = True
 
-                        for i in range(joystick.get_numhats()):
-                            if joystick.get_hat(i)[0] > 0.1 or joystick.get_hat(i)[0] < 0.1:
-                                hat_name = "hat" + number_to_minus_or_plus(joystick.get_hat(i)[0]) + str(0)
-                                if hat_name in self.player_key_bind_name:
-                                    self.player_key_press[self.player_key_bind_name[hat_name]] = True
-                            if joystick.get_hat(i)[1] > 0.1 or joystick.get_hat(i)[1] < 0.1:
-                                hat_name = "hat" + number_to_minus_or_plus(joystick.get_hat(i)[1]) + str(1)
-                                if hat_name in self.player_key_bind_name:
-                                    self.player_key_press[self.player_key_bind_name[hat_name]] = True
+                            for i in range(joystick.get_numaxes()):
+                                if joystick.get_axis(i) > 0.5 or joystick.get_axis(i) < -0.5:
+                                    if i in (2, 3) and player == 1:  # right axis only for cursor (player 1 only)
+                                        vec = pygame.math.Vector2(joystick.get_axis(2), joystick.get_axis(3))
+                                        radius, angle = vec.as_polar()
+                                        adjusted_angle = (angle + 90) % 360
+                                        if self.game_state == "battle":
+                                            new_pos = pygame.Vector2(
+                                                self.player_1_battle_cursor.pos[0] + (
+                                                            self.true_dt * 1000 * sin(radians(adjusted_angle))),
+                                                self.player_1_battle_cursor.pos[1] - (
+                                                            self.true_dt * 1000 * cos(radians(adjusted_angle))))
+                                        else:
+                                            new_pos = pygame.Vector2(
+                                                self.cursor.pos[0] + (self.true_dt * 1000 * sin(radians(adjusted_angle))),
+                                                self.cursor.pos[1] - (self.true_dt * 1000 * cos(radians(adjusted_angle))))
+                                        if new_pos[0] < 0:
+                                            new_pos[0] = 0
+                                        elif new_pos[0] > self.corner_screen_width:
+                                            new_pos[0] = self.corner_screen_width
+                                        if new_pos[1] < 0:
+                                            new_pos[1] = 0
+                                        elif new_pos[1] > self.corner_screen_height:
+                                            new_pos[1] = self.corner_screen_height
+                                        pygame.mouse.set_pos(new_pos)
+                                    else:
+                                        axis_name = "axis" + number_to_minus_or_plus(joystick.get_axis(i)) + str(i)
+                                        if axis_name in player_key_bind_name:
+                                            # axis pressing require different way to check than other buttons
+                                            if (joystick.get_axis(i) > 0.9 or joystick.get_axis(i) < -0.9) and \
+                                                    player_key_bind_name[axis_name] in self.player_objects[player].player_key_hold_timer:
+                                                self.player_key_hold[player][player_key_bind_name[axis_name]] = True
+                                            else:
+                                                self.player_key_hold[player][player_key_bind_name[axis_name]] = True
+                                                self.player_key_press[player][player_key_bind_name[axis_name]] = True
 
             self.base_cursor_pos = Vector2(
                 (self.player_1_battle_cursor.pos[0] - self.battle_camera_center[0] + self.camera_pos[0]),
@@ -579,10 +616,11 @@ class Battle:
 
                 elif event.type == pygame.JOYBUTTONUP:
                     joystick = event.instance_id
-                    for player in self.player_key_control:
+                    if joystick in self.joystick_player:
+                        player = self.joystick_player[joystick]
                         if self.player_key_control[player] == "joystick" and \
                                 event.button in self.player_key_bind_name[player]:  # check for key press
-                            self.player_key_press[self.player_key_bind_name[player][event.button]] = True
+                            self.player_key_press[player][self.player_key_bind_name[player][event.button]] = True
 
                 elif event.type == pygame.KEYDOWN:
                     event_key_press = event.key
@@ -594,16 +632,6 @@ class Battle:
                             self.player_key_press[player][self.player_key_bind_name[player][event_key_press]] = True
 
                     # FOR DEVELOPMENT
-
-                    # elif key_press == pygame.K_l and self.current_selected is not None:
-                    #     for character in self.players.alive_troop_follower:
-                    #         character.base_morale = 0
-                    # elif event_key_press == pygame.K_k:
-                    #     if self.players:
-                    #         for unit in self.players.alive_leader_follower:
-                    #             unit.health -= unit.health
-                    # self.players.health = 0
-
                     if event.key == K_F1:
                         self.drama_text.queue.append("Hello and welcome to showcase video")
                     # elif event.key == K_F2:
@@ -623,19 +651,41 @@ class Battle:
                         if not hasattr(self.game, "profiler"):
                             self.game.setup_profiler()
                         self.game.profiler.switch_show_hide()
-                    # elif event.key == K_F9:
-                    #     for this_unit in self.character_updater:
-                    #         if this_unit.team == 1:
-                    #             this_unit.health = 0
+                    elif event.key == pygame.K_1:
+                        for character in self.player_objects.values():
+                            character.cal_loss(0, (50, -200), {}, character.angle, (0, 0), False)
+                    # elif event_key_press == pygame.K_k:
+                    #     if self.players:
+                    #         for unit in self.players.alive_leader_follower:
+                    #             unit.health -= unit.health
+                    # self.players.health = 0
 
                 elif event.type == pygame.JOYDEVICEADDED:
                     # Player add new joystick by plug in
                     joy = pygame.joystick.Joystick(event.device_index)
                     self.joysticks[joy.get_instance_id()] = joy
+                    joy_name = joy.get_name()
+                    for name in self.joystick_bind_name:
+                        if name in joy_name:  # find common name
+                            self.joystick_name[joy.get_instance_id()] = name
+                    if joy.get_instance_id() not in self.joystick_name:
+                        self.joystick_name[joy.get_instance_id()] = "Other"
+
+                    for player in self.player_key_control:  # check for player with joystick control but no assigned yet
+                        if self.player_key_control[player] == "joystick" and player not in self.player_joystick:
+                            # assign new joystick to player with joystick control setting
+                            self.player_joystick[player] = joy.get_instance_id()
+                            self.joystick_player[joy.get_instance_id()] = player
+                            break  # only one player get assigned
 
                 elif event.type == pygame.JOYDEVICEREMOVED:
                     # Player unplug joystick
                     del self.joysticks[event.instance_id]
+                    del self.joystick_name[event.instance_id]
+                    for key, value in self.player_joystick.copy().items():
+                        if value == event.instance_id:
+                            self.player_joystick.pop(key)
+                            self.joystick_player.pop(value)
 
             if not self.music_left.get_busy():  # change if music finish playing
                 picked_music = randint(0, len(self.music_list) - 1)
@@ -767,7 +817,7 @@ class Battle:
                     # Screen shaking
                     self.shown_camera_pos = self.camera_pos.copy()  # reset camera pos first
                     if self.screen_shake_value:
-                        self.screen_shake_value -= 1
+                        self.screen_shake_value -= (self.dt * 100)
                         self.shake_camera()
                         if self.screen_shake_value < 0:
                             self.screen_shake_value = 0

@@ -70,7 +70,7 @@ def status_update(self):
     self.hp_regen = self.base_hp_regen + hp_regen_bonus
     self.resource_regen = self.base_resource_regen + resource_regen_bonus
 
-    self.animation_play_time = self.original_animation_play_time + animation_speed_bonus
+    self.animation_play_time = self.original_animation_play_time - animation_speed_bonus
 
     self.body_mass = self.base_body_mass
     if "less mass" in self.current_action:  # knockdown reduce mass
@@ -83,8 +83,8 @@ def status_update(self):
     if self.speed < 1:  # prevent speed to be lower than 1
         self.speed = 1
 
-    self.run_speed = 250 + self.speed
-    self.walk_speed = 100 + self.speed
+    self.run_speed = 450 + self.speed
+    self.walk_speed = 200 + self.speed
 
     # Cooldown
     for key in tuple(self.attack_cooldown.keys()):  # loop is faster than comprehension here

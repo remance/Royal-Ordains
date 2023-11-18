@@ -865,7 +865,7 @@ class Model:
         for strip_index, strip in enumerate(filmstrips):
             strip.activate = False
             for stuff in self.animation_part_list[strip_index].values():
-                if stuff is not None:
+                if stuff:
                     strip.activate = True
                     activate_list[strip_index] = True
                     break
@@ -1134,7 +1134,7 @@ class Model:
                     self.frame_list[current_frame]["sound_effect"] = [sound_name,
                                                                       self.frame_list[current_frame]["sound_effect"][1]]
                 else:
-                    self.frame_list[current_frame]["sound_effect"] = [sound_name, 1000]
+                    self.frame_list[current_frame]["sound_effect"] = [sound_name, 1000, 100]
                     sound_distance_selector.change_name("1000")
 
         elif self.part_selected:
@@ -1419,7 +1419,6 @@ class Animation:
                     self.show_frame = self.start_frame
                     while self.show_frame < max_frame and play_list[self.show_frame] is False:
                         self.show_frame += 1
-                print('test')
                 if model.frame_list[self.show_frame]["sound_effect"]:  # play sound
                     sound = pygame.mixer.Sound(
                         random.choice(sound_effect_pool[model.frame_list[self.show_frame]["sound_effect"][0]]))
@@ -2171,7 +2170,7 @@ while True:
 
                         for strip_index, strip in enumerate(filmstrips):  # enable frame that not empty
                             for stuff in model.animation_part_list[strip_index].values():
-                                if stuff is not None:
+                                if stuff:
                                     strip.activate = True
                                     activate_list[strip_index] = True
                                     strip.add_strip(change=False)
@@ -2189,10 +2188,11 @@ while True:
                         model.edit_part(mouse_pos, "clear", specific_frame=len(model.bodypart_list) - 1)
                         model.edit_part(mouse_pos, "change")
                         reload_animation(anim, model)
+                        change_frame_process()
 
                         for strip_index, strip in enumerate(filmstrips):  # enable frame that not empty
                             for stuff in model.animation_part_list[strip_index].values():
-                                if stuff is not None:
+                                if stuff:
                                     strip.activate = True
                                     activate_list[strip_index] = True
                                     strip.add_strip(change=False)
@@ -2658,6 +2658,7 @@ while True:
                     new_distance = int(input_box.text)
                     sound_distance_selector.change_name(input_box.text)
                     model.frame_list[current_frame]["sound_effect"][1] = new_distance
+                    model.frame_list[current_frame]["sound_effect"][2] = new_distance / 100
 
             elif text_input_popup[1] == "new_anim_prop":  # custom animation property
                 if input_box.text not in anim_prop_list_box.namelist:

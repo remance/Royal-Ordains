@@ -17,8 +17,8 @@ def vraesier_update(self, dt):
                 self.mode = "Ready"
 
 
-def rodhinbar_update(self, dt):
-    # Rodhibar changes mode depends on number of arrow left
+def common_update(self, dt):
+    # Changes mode depends on percentage of resource left
     if self.resource <= self.resource50:
         self.mode = "Half"
         if self.resource <= self.resource25:
@@ -65,4 +65,5 @@ def dashisi_update(self, dt):
         self.battle.music_right.set_volume(0.0, right_music_volume)
 
 
-update_dict = {"Vraesier": vraesier_update, "Rodhinbar": rodhinbar_update, "Dashisi": dashisi_update}
+update_dict = {"Vraesier": vraesier_update, "Rodhinbar": common_update, "Iri":common_update,
+               "Dashisi": dashisi_update}

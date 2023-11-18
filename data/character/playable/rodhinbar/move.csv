@@ -1,24 +1,24 @@
-"Buttons","Move","Name","Position","Stat Requirement","Requirement Move","Prepare Animation","Part","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Additional Damage Sprite","Special Effect","Effect Sprite","Damage Effect Property","Property"
-"Forward,Forward,Strong","sffstrong","Air Shot","Stand",,,,"bow",3000,1,1,100,,,,,,"Physical",,,,,,,"hold,hold+power"
-"Forward,Forward,Strong","affstrong","Ground Shot","Air",,,,"bow",3000,1,1,115,,,,,,"Physical",,,,,,,"hold,hold+power"
-"Forward,Strong","cfstrong","Aim Shot","Couch",,,,"bow",3000,1,1,120,160,,,60,,"Physical",,,,,,,"hold,hold+power"
-"Forward,Strong","sfstrong","Aim Shot","Stand",,,,"bow",3000,1,1,110,200,,,40,,"Physical",,,,,,,"hold,hold+power"
-"Forward,Strong","afstrong","Aim Shot","Air",,,,"bow",3000,1,1,100,120,,,120,,"Physical",,,,,,,"hold,hold+power"
-"Down,Strong","adstrong","Down Shot","Air",,,,"bow",3000,1,1,130,,,,280,,"Physical",,,,,,,
-"Weak","cweak1","Back fist","Couch",,,,"arm",150,,,15,24,,,40,,"Physical",,,,,,,
-"Weak","cweak2","Push","Couch",,"cweak1",,"arm",250,,,12,112,,,64,,"Physical",,,,,,,
-"Strong","cstrong1","Sword Sweep","Couch",,,,"sword",250,,,31,40,,,60,,"Physical",,,,,,,
-"Strong","cstrong2","Sword Slash","Couch",,"cstrong1",,"sword",300,,,45,56,,,80,,"Physical",,,,,,,
-"Weak","sweak1","Elbow Push","Stand",,,,"arm",120,,,18,32,,,28,,"Physical",,,,,,,
-"Weak","sweak2","Arrow Hand","Stand",,"sweak1",,"bow",250,,,26,24,,,80,,"Physical",,,,,,,
-"Strong","sweak1strong","Upper Smash","Stand",,"sweak1",,"bow",300,,,40,,,240,,,"Physical",,,,,,,
-"Strong","sweak2strong","Front Kick","Stand",,"sweak2",,"leg",300,,,48,120,,,200,,"Physical",,,,,,,
-"Strong","sstrong1","Sword Slash","Stand",,,,"sword",300,,,35,60,,,40,,"Physical",,,,,,,
-"Strong","sstrong2","Sword Stab","Stand",,"sstrong1",,"sword",300,,,46,20,,72,,,"Physical",,,,,,,
-"Weak","aweak1","Bow Push","Air",,,,"bow",150,,,12,36,,,40,,"Physical",,,,,,,
-"Weak","aweak2","Bow Smash","Air",,"aweak1",,"bow",,,,21,100,,,24,,"Physical",,,,,,,
-"Strong","astrong1","Sword Slash","Air",,,,"sword",,,,28,60,,,48,,"Physical",,,,,,,
-"Strong","astrong2","Sword Slash Down","Air",,"astrong1",,"sword",,,,38,96,,,48,,"Physical",,,,,,,
-"Special","cspecial","Craft Ammo","Couch",,,,"bow",350,,-2,,,,,,,"Physical",,,,,,,
-"Special","sspecial","Call For Ammo","Stand",,,,"bow",350,7,,,,,,,,"Physical",,,,,,,"helper,drop_item:Rodhinbar Arrow"
-"Special","aspecial","Call For Ammo","Air",,,,"bow",350,7,,,,,,,,"Physical",,,,,,,"helper,drop_item:Rodhinbar Arrow"
+"Buttons","Move","Name","Position","Stat Requirement","Requirement Move","Prepare Animation","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Forward,Forward,Strong","sffstrong","Air Shot","Stand",,,,3000,1,1,100,,,,,,"Physical",,,,"hold,hold+power"
+"Forward,Forward,Strong","affstrong","Ground Shot","Air",,,,3000,1,1,115,,,,,,"Physical",,,,"hold,hold+power"
+"Forward,Strong","cfstrong","Aim Shot","Couch",,,,3000,1,1,120,160,,,60,,"Physical",,,,"hold,hold+power"
+"Forward,Strong","sfstrong","Aim Shot","Stand",,,,3000,1,1,110,200,,,40,,"Physical",,,,"hold,hold+power"
+"Forward,Strong","afstrong","Aim Shot","Air",,,,3000,1,1,100,120,,,120,,"Physical",,,,"hold,hold+power"
+"Down,Strong","adstrong","Down Shot","Air",,,,3000,1,1,130,,,,280,,"Physical",,,,
+"Weak","cweak1","Back fist","Couch",,,,150,,,15,24,,,40,,"Physical",,,,
+"Weak","cweak2","Push","Couch",,"cweak1",,250,,,12,112,,,64,,"Physical",,,,
+"Strong","cstrong1","Sword Sweep","Couch",,,,250,,,31,40,,,60,,"Physical",,,,
+"Strong","cstrong2","Sword Slash","Couch",,"cstrong1",,300,,,45,56,,,80,,"Physical",,,,
+"Weak","sweak1","Elbow Push","Stand",,,,120,,,18,32,,,28,,"Physical",,,,
+"Weak","sweak2","Arrow Hand","Stand",,"sweak1",,250,,,26,24,,,80,,"Physical",,,,
+"Strong","sweak1strong","Upper Smash","Stand",,"sweak1",,300,,,40,,,240,,,"Physical",,,,
+"Strong","sweak2strong","Front Kick","Stand",,"sweak2",,300,,,48,120,,,200,,"Physical",,,,
+"Strong","sstrong1","Sword Slash","Stand",,,,300,,,35,60,,,40,,"Physical",,,,
+"Strong","sstrong2","Sword Stab","Stand",,"sstrong1",,300,,,46,20,,72,,,"Physical",,,,
+"Weak","aweak1","Bow Push","Air",,,,150,,,12,36,,,40,,"Physical",,,,
+"Weak","aweak2","Bow Smash","Air",,"aweak1",,,,,21,100,,,24,,"Physical",,,,
+"Strong","astrong1","Sword Slash","Air",,,,,,,28,60,,,48,,"Physical",,,,
+"Strong","astrong2","Sword Slash Down","Air",,"astrong1",,,,,38,96,,,48,,"Physical",,,,
+"Special","cspecial","Craft Ammo","Couch",,,,350,,-2,,,,,,,"Physical",,,,
+"Special","sspecial","Call For Ammo","Stand",,,,350,7,,,,,,,,"Physical",,,,"helper,drop_item:Rodhinbar Arrow"
+"Special","aspecial","Call For Ammo","Air",,,,350,7,,,,,,,,"Physical",,,,"helper,drop_item:Rodhinbar Arrow"

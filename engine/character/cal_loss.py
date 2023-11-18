@@ -7,7 +7,7 @@ def cal_loss(self, final_dmg, impact, element_effect, hit_angle, dmg_text_pos, c
     """
     :param self: Damage receiver Character object
     :param final_dmg: Damage value to health
-    :param impact: Impact value affecting if the target will start damaged or knockdown animation
+    :param impact: Impact list value affecting if the target will start damaged or knockdown animation
     :param element_effect: Dict of element effect inflict to target
     :param hit_angle: Angle of hitting side
     :param dmg_text_pos: Point to generate damage text
@@ -33,14 +33,11 @@ def cal_loss(self, final_dmg, impact, element_effect, hit_angle, dmg_text_pos, c
             self.x_momentum = 0
 
         if impact_check > 100 or "heavy damaged" in self.current_action:  # knockdown
-            self.freeze_timer = min(2, impact_check / 100)
-            if self.freeze_timer < 0.5:
-                self.freeze_timer = 0.5
             self.interrupt_animation = True
             self.command_action = self.knockdown_command_action
             self.battle.add_sound_effect_queue(self.sound_effect_pool["Knock Down"][0], self.pos,
                                                self.knock_down_sound_distance,
-                                               self.knock_down_sound_shake,
+                                               self.knock_down_screen_shake,
                                                volume_mod=self.hit_volume_mod)  # larger size play louder sound
 
         elif impact_check > 50 or "small damaged" in self.current_action:  # heavy damaged
@@ -48,7 +45,7 @@ def cal_loss(self, final_dmg, impact, element_effect, hit_angle, dmg_text_pos, c
             self.command_action = self.heavy_damaged_command_action
             self.battle.add_sound_effect_queue(self.sound_effect_pool["Heavy Damaged"][0], self.pos,
                                                self.heavy_dmg_sound_distance,
-                                               self.heavy_dmg_sound_shake,
+                                               self.heavy_dmg_screen_shake,
                                                volume_mod=self.hit_volume_mod)
 
         elif impact_check > 0:
@@ -56,19 +53,19 @@ def cal_loss(self, final_dmg, impact, element_effect, hit_angle, dmg_text_pos, c
             self.command_action = self.damaged_command_action
             self.battle.add_sound_effect_queue(self.sound_effect_pool["Damaged"][0], self.pos,
                                                self.dmg_sound_distance,
-                                               self.dmg_sound_shake,
+                                               self.dmg_screen_shake,
                                                volume_mod=self.hit_volume_mod)
 
         else:
             self.battle.add_sound_effect_queue(self.sound_effect_pool["Damaged"][0], self.pos,
                                                self.dmg_sound_distance,
-                                               self.dmg_sound_shake,
+                                               self.dmg_screen_shake,
                                                volume_mod=self.hit_volume_mod)
 
     else:  # play damaged sound when hit for immovable enemy
         self.battle.add_sound_effect_queue(self.sound_effect_pool["Damaged"][0], self.pos,
                                            self.dmg_sound_distance,
-                                           self.dmg_sound_shake,
+                                           self.dmg_screen_shake,
                                            volume_mod=self.hit_volume_mod)
     # if self.current_effect != "Hurt":
     #     self.current_effect = "Hurt"

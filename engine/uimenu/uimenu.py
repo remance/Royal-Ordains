@@ -7,7 +7,7 @@ from pygame import Surface, SRCALPHA, Rect, Color, draw, mouse
 from pygame.font import Font
 from pygame.sprite import Sprite
 
-from engine.utils.common import keyboard_mouse_press_check, stat_allocation_check, skill_allocation_check
+from engine.utils.common import keyboard_mouse_press_check, joystick_press_check, stat_allocation_check, skill_allocation_check
 from engine.utils.data_loading import load_image
 from engine.utils.text_making import text_render_with_bg, make_long_text
 
@@ -183,8 +183,16 @@ class MenuCursor(UIMenu):
         self.pos = mouse.get_pos()
         self.rect.topleft = self.pos
         self.mouse_over_something = False
-        self.is_select_just_down, self.is_select_down, self.is_select_just_up = keyboard_mouse_press_check(
-            mouse, 0, self.is_select_just_down, self.is_select_down, self.is_select_just_up)
+        if self.game and 1 in self.game.player_joystick:  # check for joystick button press as well
+            for name, button in self.game.player_key_bind_name[1].items():
+                if button == "Weak":  # weak attack button = confirm
+                    self.is_select_just_down, self.is_select_down, self.is_select_just_up = keyboard_mouse_press_check(
+                        mouse, 0, self.is_select_just_down, self.is_select_down, self.is_select_just_up,
+                        joystick_check=(self.game.joysticks[self.game.player_joystick[1]], name))
+                    break
+        else:
+            self.is_select_just_down, self.is_select_down, self.is_select_just_up = keyboard_mouse_press_check(
+                mouse, 0, self.is_select_just_down, self.is_select_down, self.is_select_just_up)
 
         # Alternative select press button, like mouse right
         self.is_alt_select_just_down, self.is_alt_select_down, self.is_alt_select_just_up = keyboard_mouse_press_check(
@@ -611,10 +619,19 @@ class CharacterSelector(UIMenu):
         self.mode = "empty"
         self.rect = self.image.get_rect(center=self.pos)
         self.current_row = 0
+        self.delay = 0
 
     def change_mode(self, mode):
-        self.image = self.images[mode.capitalize()]
-        self.mode = mode
+        if not self.delay:
+            self.image = self.images[mode.capitalize()]
+            self.mode = mode
+            self.delay = 0.1
+
+    def update(self):
+        if self.delay:
+            self.delay -= self.game.dt
+            if self.delay < 0:
+                self.delay = 0
 
 
 class CharacterStatAllocator(UIMenu):
@@ -685,10 +702,8 @@ class CharacterStatAllocator(UIMenu):
                 if value.collidepoint(mouse_pos):
                     self.game.add_ui_updater(self.game.text_popup)
                     self.game.text_popup.popup(self.game.cursor.rect,
-                                               (self.game.localisation.grab_text(("help", key,
-                                                                                 "Name")),
-                                                self.game.localisation.grab_text(("help", key,
-                                                                                  "Description"))),
+                                               (self.game.localisation.grab_text(("help", key, "Name")),
+                                                self.game.localisation.grab_text(("help", key, "Description"))),
                                                shown_id=key,
                                                width_text_wrapper=1000 * self.game.screen_scale[0])
                     break
@@ -696,11 +711,15 @@ class CharacterStatAllocator(UIMenu):
             for key, value in self.skill_rect.items():
                 if value.collidepoint(mouse_pos):
                     self.game.add_ui_updater(self.game.text_popup)
-                    self.game.text_popup.popup(self.game.cursor.rect,
-                                               (self.game.localisation.grab_text(("help", key + "." + str(int(self.stat[key])),
-                                                                                 "Name")),
-                                                self.game.localisation.grab_text(("help", key + "." + str(int(self.stat[key])),
-                                                                                  "Description"))),
+                    new_key = key + "." + str(int(self.stat[key]))
+                    if self.game.localisation.grab_text(("help", new_key, "Buttons")):
+                        text = (self.game.localisation.grab_text(("help", new_key, "Name")),
+                                self.game.localisation.grab_text(("help", new_key, "Description")),
+                                "Buttons: " + self.game.localisation.grab_text(("help", new_key, "Buttons")))
+                    else:
+                        text = (self.game.localisation.grab_text(("help", new_key, "Name")),
+                                self.game.localisation.grab_text(("help", new_key, "Description")))
+                    self.game.text_popup.popup(self.game.cursor.rect, text,
                                                shown_id=key,
                                                width_text_wrapper=1000 * self.game.screen_scale[0])
                     break
@@ -777,22 +796,16 @@ class CharacterStatAllocator(UIMenu):
                 self.add_stat(self.stat)
                 self.input_delay = 0.15
             elif key == "Left":  # switch to previous in playable_character list
-                if self.current_row <= 6:
-                    self.change_stat(
-                        self.stat_row[self.current_row], "down")
-                else:
-                    self.change_skill(
-                        self.all_skill_row[
-                            self.current_row - 7], "down")
+                if self.current_row <= 6:  # change stat
+                    self.change_stat(self.stat_row[self.current_row], "down")
+                else:  # change skill
+                    self.change_skill(self.all_skill_row[self.current_row - 7], "down")
                 self.input_delay = 0.15
             elif key == "Right":  # switch to next in playable_character list
-                if self.current_row <= 6:
-                    self.change_stat(
-                        self.stat_row[self.current_row], "up")
-                else:
-                    self.change_skill(
-                        self.all_skill_row[
-                            self.current_row - 7], "up")
+                if self.current_row <= 6:  # change stat
+                    self.change_stat(self.stat_row[self.current_row], "up")
+                else:  # change skill
+                    self.change_skill(self.all_skill_row[self.current_row - 7], "up")
                 self.input_delay = 0.15
 
 

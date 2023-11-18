@@ -46,5 +46,11 @@ def common_ai(self):
                     self.new_angle = 90
 
 
+def complex_ai(self):
+    """More complex combat AI will use all position move and skill and combo"""
+    if self.stoppable_frame:
+        self.interrupt_animation = True
+
+
 ai_combat_dict = {"default": training_ai, "common_melee": common_ai, "common_range": common_ai, "sentry": common_ai,
                   "trap": common_ai, "bigta": common_ai, "guard_melee": guard_ai, "pursue_melee": common_ai}

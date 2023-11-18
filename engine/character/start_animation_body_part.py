@@ -1,4 +1,4 @@
-from engine.effect.effect import Effect, DamageEffect
+from engine.effect.effect import Effect, DamageEffect, TrapEffect
 
 
 def start_animation_body_part(self, new_animation=False):
@@ -7,7 +7,12 @@ def start_animation_body_part(self, new_animation=False):
         if part_data:
             if "effect_" in key:
                 if part_data[8]:  # damage effect
-                    DamageEffect(self, part_data, part_data[6], self.current_moveset)
+                    if "trap" in self.effect_list[part_data[0]]["Property"]:
+                        TrapEffect(self, part_data, part_data[6], self.current_moveset,
+                                   reach_effect=self.effect_list[part_data[0]]["After Reach Effect"])
+                    else:
+                        DamageEffect(self, part_data, part_data[6], self.current_moveset,
+                                     reach_effect=self.effect_list[part_data[0]]["After Reach Effect"])
                 else:
                     Effect(self, part_data, part_data[6])
             else:

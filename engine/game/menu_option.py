@@ -24,9 +24,9 @@ def menu_option(self, esc_press):
     elif self.keybind_button.event_press:
         self.menu_state = "keybind"
 
-        if self.joysticks:
+        if 1 in self.player_joystick:
             if self.config["USER"]["control player 1"] == "joystick":  # player has joystick when first enter option
-                self.control_switch.change_control("joystick1")
+                self.control_switch.change_control("joystick" + str(self.player_joystick[1]), 1)
                 self.player_key_control[1] = self.config["USER"]["control player 1"]
                 for key, value in self.keybind_icon.items():
                     value.change_key(self.config["USER"]["control player 1"],

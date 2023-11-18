@@ -14,14 +14,14 @@ def play_animation(self, speed, dt, hold_check=False):
         if self.frame_timer >= speed:
             self.frame_timer = 0
             just_start = True
-            if self.show_frame < len(self.current_animation) - 1:
+            if self.show_frame < len(self.current_animation) - 1:  # continue next frame
                 self.show_frame += 1
-                self.image = self.current_animation[self.show_frame]
+                self.base_image = self.current_animation[self.show_frame]
                 self.adjust_sprite()
-            else:
+            else:  # reach end frame
                 if self.repeat_animation:
                     self.show_frame = 0
-                    self.image = self.current_animation[self.show_frame]
+                    self.base_image = self.current_animation[self.show_frame]
                     self.adjust_sprite()
                 else:
                     done = True

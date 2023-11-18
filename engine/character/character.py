@@ -3,6 +3,7 @@ from random import randint, random, uniform
 
 import pygame
 from pygame import sprite, Vector2
+from pygame.mask import from_surface
 
 from engine.character.ai_combat import ai_combat_dict
 from engine.character.ai_move import ai_move_dict
@@ -22,10 +23,9 @@ rotation_dict = {key: rotation_name[index] for index, key in enumerate(rotation_
 
 infinity = float("inf")
 
-"""Command dict Guide
+"""Command action dict Guide
 Key:
 name = action name that will be used to find animation, name with "Action" will find attack action of weapon for animation name
-main_weapon = animation use one with common main weapon action name regardless of input
 move attack = indicate using move attack animation
 melee attack = indicate animation performing melee attack for spawning damage sprite in frame that can spawn it
 range attack = indicate animation performing range attack for spawning bullet sprite when finish
@@ -46,6 +46,8 @@ require input = animation action require input first and will keep holding first
                 or interrupt
 x_momentum or y_momentum = assign custom momentum value instead
 swap weapon set = finish animation will make character swap weapon set based on provided value
+freeze = assign freeze_timer value when start action
+drop speed = assign value of dropping speed for air animation, higher value mean faster drop
 """
 
 
@@ -151,9 +153,10 @@ class Character(sprite.Sprite):
     damaged_command_action = {"name": "SmallDamaged", "uncontrollable": True, "movable": True, "forced move": True,
                               "small damaged": True}
     standup_command_action = {"name": "Standup", "uncontrollable": True, "no dmg": True}
-    knockdown_command_action = {"name": "Knockdown", "uncontrollable": True, "movable": True, "forced move": True,
-                                "no dmg": True, "knockdown": True, "hold": True,
-                                "next action": standup_command_action, "stand": True}
+    liedown_command_action = {"name": "Liedown", "no dmg": True,
+                              "knockdown": True, "freeze": 1, "next action": standup_command_action}
+    knockdown_command_action = {"name": "Knockdown", "movable": True, "forced move": True,
+                                "knockdown": True, "hold": True, "next action": liedown_command_action, "stand": True}
 
     die_command_action = {"name": "Die", "uninterruptible": True, "uncontrollable": True, "stand": True,
                           "forced move": True, "die": True}
@@ -161,11 +164,11 @@ class Character(sprite.Sprite):
     # static variable
     default_animation_play_time = 0.1
     knock_down_sound_distance = 1500
-    knock_down_sound_shake = 1000
-    heavy_dmg_sound_distance = 1000
-    heavy_dmg_sound_shake = 500
-    dmg_sound_distance = 800
-    dmg_sound_shake = 200
+    knock_down_screen_shake = 15
+    heavy_dmg_sound_distance = 100
+    heavy_dmg_screen_shake = 7
+    dmg_sound_distance = 80
+    dmg_screen_shake = 2
     original_ground_pos = 1000
 
     def __init__(self, game_id, stat, player_control=False, leader=None):
@@ -237,7 +240,6 @@ class Character(sprite.Sprite):
         self.timer = random()
         self.in_combat_timer = 0
         self.default_sprite_size = 1
-        self.resource = 0  # skill resource
 
         self.move_speed = 0  # speed of current movement
 
@@ -286,7 +288,7 @@ class Character(sprite.Sprite):
         self.wisdom = stat["Wisdom"] + stat_boost
         self.charisma = stat["Charisma"] + stat_boost
 
-        self.moveset = stat["Move"].copy()
+        self.moveset = {key: value.copy() for key, value in stat["Move"].items()}
         self.mode_list = stat["Mode"]
         self.skill = stat["Skill"].copy()
         self.available_skill = {"Couch": {}, "Stand": {}, "Air": {}}
@@ -303,9 +305,21 @@ class Character(sprite.Sprite):
                 for skill in tuple(position.keys()):
                     self.available_skill[name][skill] = position[skill]
 
+        stat_list = {"Strength": self.strength, "Dexterity": self.dexterity, "Agility": self.agility,
+                     "Constitution": self.constitution, "Intelligence": self.intelligence, "Wisdom": self.wisdom,
+                     "Charisma": self.charisma}
+
         for position in ("Couch", "Stand", "Air"):  # combine skill into moveset
+            # also check for moveset that require stat
+            if position in self.moveset:
+                for move_name, move in self.moveset[position].copy().items():
+                    if "Stat Requirement" in move:
+                        for stat_name, value in move["Stat Requirement"].items():
+                            if stat_list[stat_name] < float(value):  # remove move that not have required stat
+                                self.moveset[position].pop(move_name)
+
             if position in self.skill:
-                if position not in self.moveset:
+                if position not in self.moveset:  # add position with no move
                     self.moveset[position] = {}
                 button_key_skill_dict = {value["Buttons"]: {"Move": key} | value for key, value in
                                          self.available_skill[position].items()}
@@ -333,6 +347,8 @@ class Character(sprite.Sprite):
         self.resource25 = self.max_resource * 0.25
         self.resource50 = self.max_resource * 0.5
         self.resource75 = self.max_resource * 0.75
+
+        self.resource = self.max_resource * stat["Start Resource"]
 
         self.original_cast_speed = 1 / (1 + ((self.dexterity + self.intelligence) / 200))
 
@@ -459,7 +475,7 @@ class Character(sprite.Sprite):
 
         # Variables related to sound
         self.knock_down_sound_distance = self.knock_down_sound_distance * self.base_body_mass
-        self.knock_down_sound_shake = self.knock_down_sound_shake * self.base_body_mass
+        self.knock_down_screen_shake = self.knock_down_screen_shake * self.base_body_mass
         self.heavy_dmg_sound_distance = self.heavy_dmg_sound_distance * self.base_body_mass
         self.dmg_sound_distance = self.dmg_sound_distance * self.base_body_mass
 
@@ -604,11 +620,12 @@ class Character(sprite.Sprite):
                             Drop(Vector2(self.base_pos), self.current_action["drop"], self.team)
 
                     # Reset action check
-                    if "next action" in self.current_action and not self.interrupt_animation:
+                    if "next action" in self.current_action and not self.interrupt_animation and \
+                            (not self.current_moveset or "noautonext" not in self.current_moveset["Property"]):
                         # play next action first instead of command if not finish by interruption
                         self.current_action = self.current_action["next action"]
-                    elif (("x_momentum" in self.current_action and self.x_momentum) or \
-                            ("y_momentum" in self.current_action and self.y_momentum)) and not self.interrupt_animation:
+                    elif (("x_momentum" in self.current_action and self.x_momentum) or
+                          ("y_momentum" in self.current_action and self.y_momentum)) and not self.interrupt_animation:
                         # action that require movement to run out first before continue to next action
                         pass
                     elif "arrive" in self.current_action and "Arrive2" in self.skill[self.position]:
@@ -630,8 +647,12 @@ class Character(sprite.Sprite):
                         self.current_action = self.command_action  # continue next action when animation finish
                         self.command_action = {}
 
+                    # new action property
+                    if "freeze" in self.current_action:
+                        self.freeze_timer = self.current_action["freeze"]
+
                     if "land" in self.current_action:
-                        # enforce stand position right when start next animation instead of after
+                        # enforce stand position right when start next action instead of after
                         self.position = "Stand"
 
                     if "x_momentum" in self.current_action and type(self.current_action["x_momentum"]) is not str and \
@@ -645,6 +666,7 @@ class Character(sprite.Sprite):
                             not self.y_momentum:
                         self.x_momentum = self.current_action["y_momentum"]
 
+                    # reset animation playing related value
                     self.stoppable_frame = False
                     self.hit_enemy = False
                     self.interrupt_animation = False
@@ -728,7 +750,7 @@ class PlayableCharacter(Character):
 
         for skill in common_skill:
             if stat["Skill Allocation"][skill]:
-                for level in range(int(stat[skill] + 1)):
+                for level in range(int(stat["Skill Allocation"][skill] + 1)):
                     self.common_skill[skill][level] = True
 
         self.slide_attack = False
@@ -803,7 +825,7 @@ class PlayableCharacter(Character):
 
         self.knock_recover = False
         self.immune_weather = False
-        if self.common_skill["Immunity"][1]:  # can recover from knockdown with weak/strong attack
+        if self.common_skill["Immunity"][1]:  # can recover from knockdown with guard action
             self.knock_recover = True
         if self.common_skill["Immunity"][2]:  # shorten all debuff duration by half
             pass
@@ -931,6 +953,9 @@ class BodyPart(sprite.Sprite):
         self.can_deal_dmg = False
         self.aoe = False
         self.dmg = None
+        self.stick_reach = False  # not used for body parts but require for checking
+        self.stick_timer = 0  # not used but require for checking
+        self.penetrate = True  # part always penetrate if doing dmg
         self.friend_status_effect = ()
         self.enemy_status_effect = ()
         self.impact = (0, 0)
@@ -942,6 +967,7 @@ class BodyPart(sprite.Sprite):
         self.data = []
         self.sprite_ver = str(self.owner.sprite_ver)
         self.rect = self.image.get_rect(topleft=(0, 0))
+        self.mask = from_surface(self.image)
 
     def get_part(self, data, new_animation):
         self.dmg = 0
@@ -955,7 +981,7 @@ class BodyPart(sprite.Sprite):
         elif self.owner.current_moveset and "multiframehit" in self.owner.current_moveset["Property"]:
             self.already_hit = []
 
-        if data[8]:
+        if data[8]:  # can do dmg
             self.can_deal_dmg = True
             find_damage(self)
         if self.data != data:
@@ -988,6 +1014,7 @@ class BodyPart(sprite.Sprite):
 
             self.rect = self.image.get_rect(center=((self.owner.pos[0] + (self.data[2] * self.screen_scale[0])),
                                                     (self.owner.pos[1] + (self.data[3] * self.screen_scale[1]))))
+            self.mask = from_surface(self.image)
         else:
             if self in self.battle_camera:
                 for team in self.battle.all_team_enemy_part:
@@ -997,7 +1024,7 @@ class BodyPart(sprite.Sprite):
             # self.rect = self.image.get_rect(topleft=(0, 0))
 
     def update(self, dt):
-        if self.owner.alive:
+        if self.owner.alive and self.data:  # only update if owner alive and part exist (not empty data)
             if self.can_deal_dmg:
                 self.hit_collide_check()
             if not self.owner.no_pickup:
@@ -1006,7 +1033,7 @@ class BodyPart(sprite.Sprite):
 
 def find_damage(self):
     if not self.owner.current_moveset:  # TODO remove later
-        print(self.owner.name, self.owner.current_action, self.owner.show_frame)
+        (self.owner.name, self.owner.current_action, self.owner.show_frame)
     self.dmg = self.owner.current_moveset["Power"] + self.owner.power_bonus * self.owner.hold_power_bonus
     self.element = self.owner.current_moveset["Element"]
     self.impact = ((self.owner.current_moveset["Push Impact"] - self.owner.current_moveset["Pull Impact"]) *
@@ -1014,9 +1041,13 @@ def find_damage(self):
                    (self.owner.current_moveset["Down Impact"] - self.owner.current_moveset["Up Impact"]) *
                    self.owner.attack_impact_effect)
     if self.element == "Physical":
-        self.dmg = uniform(self.dmg * self.owner.min_physical, self.dmg * self.owner.max_physical)
+        max_dmg = self.dmg * self.owner.max_physical
+        self.dmg = uniform(max_dmg * self.owner.min_physical, max_dmg)
     else:
-        self.dmg = uniform(self.dmg * self.owner.min_elemental, self.dmg * self.owner.max_elemental)
+        max_dmg = self.dmg * self.owner.max_elemental
+        self.dmg = uniform(max_dmg * self.owner.min_elemental, max_dmg)
+    if self.dmg < 1:
+        self.dmg = 1
     self.critical_chance = self.owner.critical_chance + self.owner.current_moveset["Critical Chance Bonus"]
     self.friend_status_effect = self.owner.current_moveset["Status"]
     self.enemy_status_effect = self.owner.current_moveset["Enemy Status"]

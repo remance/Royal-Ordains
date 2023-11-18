@@ -77,7 +77,6 @@ class CharacterData(GameData):
         #                 row = stat_convert(row, n, i, percent_column=percent_column, list_column=list_column,
         #                                    tuple_column=tuple_column, int_column=int_column, float_column=float_column)
         #             self.weapon_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
-        #             self.weapon_list[row[0]]["Shake Power"] = int(self.weapon_list[row[0]]["Sound Distance"] / 10)
         #     edit_file.close()
 
         # Armour dict
@@ -135,10 +134,9 @@ class CharacterData(GameData):
                                   encoding="utf-8", mode="r") as edit_file2:
                             rd2 = tuple(csv.reader(edit_file2, quoting=csv.QUOTE_ALL))
                             header2 = rd2[0]
-                            tuple_column = ("Buttons", "Status", "Enemy Status",
-                                            "Damage Effect Property")  # value in tuple only
+                            tuple_column = ("Buttons", "Status", "Enemy Status")  # value in tuple only
                             tuple_column = [index for index, item in enumerate(header2) if item in tuple_column]
-                            dict_column = ("Prepare Animation", "Property",)
+                            dict_column = ("Stat Requirement", "Prepare Animation", "Property",)
                             dict_column = [index for index, item in enumerate(header2) if item in dict_column]
                             moveset_dict = {}
                             for row_index2, row2 in enumerate(rd2[1:]):
@@ -168,8 +166,7 @@ class CharacterData(GameData):
                                 encoding="utf-8", mode="r") as edit_file2:
                             rd = tuple(csv.reader(edit_file2, quoting=csv.QUOTE_ALL))
                             header2 = rd[0]
-                            tuple_column = ("Buttons", "Damage Effect Property",
-                                            "Status", "Enemy Status")  # value in tuple only
+                            tuple_column = ("Buttons", "Status", "Enemy Status")  # value in tuple only
                             dict_column = ("Prepare Animation", "Property",)
                             tuple_column = [index for index, item in enumerate(header2) if item in tuple_column]
                             dict_column = [index for index, item in enumerate(header2) if item in dict_column]
@@ -222,11 +219,13 @@ class CharacterData(GameData):
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
             tuple_column = ("Status Conflict", "Status", "Enemy Status",
-                            "Special Effect", "Property")  # value in tuple only
+                            "Special Effect")  # value in tuple only
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
+            dict_column = ("Property",)
+            dict_column = [index for index, item in enumerate(header) if item in dict_column]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
-                    row = stat_convert(row, n, i, tuple_column=tuple_column)
+                    row = stat_convert(row, n, i, tuple_column=tuple_column, dict_column=dict_column)
                 self.effect_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
         edit_file.close()
 

@@ -67,7 +67,14 @@ def pick_animation(self):
                     animation_name = self.equipped_weapon + self.combat_state + self.position + self.current_action[
                         "name"]
 
-        else:
+            if not animation_name:  # None animation_name from no moveset found, use idle
+                self.current_moveset = None
+                self.continue_moveset = None
+                self.current_action = {}
+                animation_name = self.equipped_weapon + self.combat_state + self.position + "Idle"
+                self.current_animation = self.animation_pool[animation_name]
+
+        else:  # animation that is not related to action moveset
             self.current_moveset = None
             self.continue_moveset = None
             animation_name = self.equipped_weapon + self.combat_state + self.position + self.current_action["name"]

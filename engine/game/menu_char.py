@@ -1,6 +1,4 @@
-from engine.utils.common import stat_allocation_check
-
-playable_character = {"Vraesier": 0, "Rodhinbar": 1, "Duskuksa": 2}
+playable_character = {"Vraesier": 0, "Rodhinbar": 1, "Iri": 2, "Duskuksa": 3}
 default_start = {"Sprite Ver": 1, "Team": 1, "Playable": True, "Skill Allocation": {}, "Start Health": 100}
 
 
@@ -56,13 +54,13 @@ def menu_char(self, esc_press):
                             else:
                                 current_id += 1
                             selector.change_mode(tuple(playable_character.keys())[current_id])
-                    elif key == "Weak":
+                    elif key == "Weak":  # confirm
                         if selector.mode not in ("stat", "ready"):  # go to stat allocation
                             start_stat = self.character_data.character_list[selector.mode]
                             skill_list = {}
                             for skill in self.character_data.character_list[selector.mode]["Skill"].values():
                                 for key, value in skill.items():
-                                    if ".1" in key and "C" in key:
+                                    if ".1" in key and "C" in key:  # starting common skill
                                         skill_list[value["Name"]] = 0
                             start_stat = {key: value for key, value in start_stat.items() if
                                           key in self.player_char_stats[player].stat_row} | \
@@ -76,14 +74,14 @@ def menu_char(self, esc_press):
                             self.add_ui_updater(self.player_char_stats[player])
                             self.player_char_stats[player].add_stat(start_stat)
 
-                        else:
+                        else:  # ready
                             self.player_char_select[player] = {"ID": self.player_char_stats[player].stat["ID"]} | \
                                                               default_start | self.player_char_stats[player].stat | \
                                                               {"Skill Allocation": {key: value for key, value in
                                                                 self.player_char_stats[player].stat.items() if key in self.player_char_stats[player].all_skill_row}}
                             selector.change_mode("ready")
 
-                    elif key == "Strong":
+                    elif key == "Strong":  # cancel, go back to previous state
                         if selector.mode == "ready":
                             selector.change_mode("stat")
                         elif selector.mode != "stat":  # remove player

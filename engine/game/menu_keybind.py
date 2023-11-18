@@ -1,7 +1,5 @@
 import pygame
 
-from engine.utils.common import edit_config
-
 
 def menu_keybind(self, esc_press):
     if self.back_button.event or esc_press:  # back to start_set menu
@@ -13,44 +11,28 @@ def menu_keybind(self, esc_press):
         self.add_ui_updater(self.option_menu_button, self.option_menu_sliders.values(), self.value_boxes.values())
         self.add_ui_updater(self.option_text_list)
 
-    elif self.default_button.event:  # revert all keybind of current player to original
+    elif self.default_button.event:  # revert all keybind of current player to default setting
         self.default_button.event = False
         for setting in self.config["DEFAULT"]:
-            if setting == "keybind":
-                edit_config("USER", setting, self.config["DEFAULT"][setting], self.config_path, self.config)
-        control_type = self.config["USER"]["control player " + str(self.control_switch.player)]
-        for key, value in self.keybind_icon.items():
-            if self.joysticks:
-                value.change_key(control_type,
-                                 self.config["USER"]["keybind player " + str(self.control_switch.player)][control_type][
-                                     key],
-                                 self.joystick_bind_name[self.joystick_name[tuple(self.joystick_name.keys())[0]]])
-            else:
-                value.change_key(control_type,
-                                 self.config["USER"]["keybind player " + str(self.control_switch.player)][control_type][
-                                     key], None)
+            if setting == "keybind player " + str(self.control_switch.player):
+                self.config["USER"][setting] = self.config["DEFAULT"][setting]
+        self.change_keybind()
 
-    elif self.control_player_next.event_press:
-        new_player = self.control_switch.player + 1
-        if new_player == 5:
-            new_player = 1
-        # if self.config["USER"]["control player " + str(new_player)] == "joystick":
-        # self.control_switch.change_control("joystick1")
-        self.control_switch.change_control(self.control_switch.control_type, new_player)
-        for key, value in self.keybind_icon.items():
-            keybind_name = None
-            if self.config["USER"]["control player " + str(new_player)] == "joystick":
-                keybind_name = self.joystick_bind_name[self.joystick_name[tuple(self.joystick_name.keys())[0]]]
-            value.change_key(self.config["USER"]["control player " + str(new_player)],
-                             self.player_key_bind_list[new_player][
-                                 self.config["USER"]["control player " + str(new_player)]][key],
-                             keybind_name)
+    elif self.control_player_next.event_press or self.control_player_back.event_press:  # change player
+        if self.control_player_next.event_press:
+            new_player = self.control_switch.player + 1
+            if new_player > 4:
+                new_player = 1
+        else:
+            new_player = self.control_switch.player - 1
+            if new_player == 0:
+                new_player = 4
 
-    elif self.control_player_back.event_press:
-        new_player = self.control_switch.player - 1
-        if new_player == 0:
-            new_player = 4
-        self.control_switch.change_control(self.control_switch.control_type, new_player)
+        if self.config["USER"]["control player " + str(new_player)] == "joystick":
+            self.control_switch.change_control(self.player_key_control[new_player] + str(self.player_joystick[new_player]), new_player)
+        else:
+            self.control_switch.change_control("keyboard", new_player)
+
         for key, value in self.keybind_icon.items():
             keybind_name = None
             if self.config["USER"]["control player " + str(new_player)] == "joystick":
@@ -61,35 +43,34 @@ def menu_keybind(self, esc_press):
                              keybind_name)
 
     elif self.control_switch.event_press:
-        if self.joysticks:
-            if self.config["USER"]["control player " + str(self.control_switch.player)] == "keyboard":
-                self.config["USER"]["control player " + str(self.control_switch.player)] = "joystick"
-                self.control_switch.change_control("joystick1")
-            else:
-                # if self.config["USER"]["control player 2"] == "joystick"
-                self.config["USER"]["control player " + str(self.control_switch.player)] = "keyboard"
-                self.control_switch.change_control("keyboard")
-            self.player_key_control[self.control_switch.player] = self.config["USER"][
-                "control player " + str(self.control_switch.player)]
-            edit_config("USER", "control player " + str(self.control_switch.player),
-                        self.config["USER"]["control player " + str(self.control_switch.player)],
-                        self.config_path, self.config)
-            for key, value in self.keybind_icon.items():
-                if self.joysticks:
-                    value.change_key(self.config["USER"]["control player " + str(self.control_switch.player)],
-                                     self.player_key_bind[self.control_switch.player][
-                                         self.config["USER"]["control player " + str(self.control_switch.player)]][key],
-                                     self.joystick_bind_name[
-                                         self.joystick_name[tuple(self.joystick_name.keys())[0]]])
-                else:
-                    value.change_key(self.config["USER"]["control player " + str(self.control_switch.player)],
-                                     self.player_key_bind[self.control_switch.player][
-                                         self.config["USER"]["control player " + str(self.control_switch.player)]][key],
-                                     None)
+        if self.config["USER"]["control player " + str(self.control_switch.player)] == "keyboard":
+            if self.joysticks:  # has connected joystick
+                found_joy = None
+                for joy_id in self.joysticks:
+                    if joy_id not in self.player_joystick.values():  # found free joy
+                        found_joy = joy_id
+                        break
+                if found_joy is not None:
+                    self.config["USER"]["control player " + str(self.control_switch.player)] = "joystick"
+                    self.player_joystick[self.control_switch.player] = found_joy
+                    self.joystick_player[found_joy] = self.control_switch.player
+                    self.control_switch.change_control("joystick" + str(found_joy), self.control_switch.player)
+                    self.change_keybind()
+                else:  # no free joy
+                    self.activate_input_popup(("confirm_input", "warning"),
+                                              "No free joysticks", self.inform_ui_popup)
+                    return
+            else:  # no joy
+                self.activate_input_popup(("confirm_input", "warning"),
+                                          "No joysticks", self.inform_ui_popup)
 
-        else:
-            self.activate_input_popup(("confirm_input", "warning"),
-                                      "No joysticks detected", self.inform_ui_popup)
+        else:  # change to keyboard
+            if self.control_switch.player in self.player_joystick:
+                self.joystick_player.pop(self.player_joystick[self.control_switch.player])
+                self.player_joystick.pop(self.control_switch.player)
+                self.config["USER"]["control player " + str(self.control_switch.player)] = "keyboard"
+                self.control_switch.change_control("keyboard", self.control_switch.player)
+                self.change_keybind()
 
     else:  # click on key bind button
         for key, value in self.keybind_icon.items():

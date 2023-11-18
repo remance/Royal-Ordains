@@ -2,6 +2,11 @@ from math import cos, sin, radians
 from random import choice, uniform, randint
 
 from pygame import sprite, mixer, Vector2
+from pygame.sprite import spritecollide, collide_mask
+
+from engine.utils.rotation import rotation_xy
+
+from engine.drop.drop import Drop
 
 
 class Effect(sprite.Sprite):
@@ -40,7 +45,7 @@ class Effect(sprite.Sprite):
     from engine.effect.play_animation import play_animation
     play_animation = play_animation
 
-    def __init__(self, owner, stat, layer, from_owner=True):
+    def __init__(self, owner, part_stat, layer, from_owner=True):
         """Effect sprite that does not affect character in any way"""
 
         if layer:  # use layer based on owner and animation data
@@ -51,47 +56,61 @@ class Effect(sprite.Sprite):
 
         self.show_frame = 0
         self.frame_timer = 0
-        self.timer = 0
         self.repeat_animation = False
         self.stage_end = self.battle.base_stage_end
 
+        self.fall_gravity = self.battle.original_fall_gravity
+
         self.owner = owner
-        self.stat = stat
-        effect_name = self.stat[0]
-        part_name = self.stat[1].split(" ")[0]
+        self.part_stat = part_stat
+        self.effect_name = self.part_stat[0]
+        self.part_name = self.part_stat[1].split(" ")[0]
         if self.owner and from_owner:
             self.sprite_ver = self.owner.sprite_ver
-            self.pos = Vector2(self.owner.pos[0] + (self.stat[2] * self.screen_scale[0]),
-                               self.owner.pos[1] + (self.stat[3] * self.screen_scale[1]))
+            self.pos = Vector2(self.owner.pos[0] + (self.part_stat[2] * self.screen_scale[0]),
+                               self.owner.pos[1] + (self.part_stat[3] * self.screen_scale[1]))
         else:
-            self.pos = Vector2(self.stat[2], self.stat[3])
+            self.pos = Vector2(self.part_stat[2], self.part_stat[3])
             self.sprite_ver = str(self.battle.chapter)
         self.base_pos = Vector2(self.pos[0] / self.screen_scale[0], self.pos[1] / self.screen_scale[1])
 
-        self.angle = self.stat[4]
+        self.angle = self.part_stat[4]
 
         self.sound_effect_name = None
         self.sound_timer = 0
         self.sound_duration = 0
+        self.duration = 0
+        self.max_duration = 0
         self.scale_size = 1
+        self.x_momentum = 0  # only use for reach bouncing off
+        self.y_momentum = 0
 
-        if effect_name in self.effect_list:
-            self.effect_stat = self.effect_list[effect_name]
+        self.stick_reach = False
+        self.stuck_part = None  # part or pos that effect get stick at
+        self.base_stuck_stat = ()
+        self.stick_timer = 0
+
+        if self.effect_name in self.effect_list:
+            self.effect_stat = self.effect_list[self.effect_name]
             self.speed = self.effect_stat["Travel Speed"]
 
-            if effect_name in self.sound_effect_pool:
+            self.stick_reach = self.effect_stat["Reach Effect"]
+            self.duration = self.effect_stat["Duration"]
+            self.max_duration = self.duration
+            if self.max_duration:
+                self.repeat_animation = True
+
+            if self.effect_name in self.sound_effect_pool:
                 self.travel_sound_distance = self.effect_stat["Sound Distance"]
-                self.travel_shake_power = self.effect_stat["Shake Power"]
-                self.sound_effect_name = choice(self.sound_effect_pool[effect_name])
+                self.sound_effect_name = choice(self.sound_effect_pool[self.effect_name])
                 self.sound_duration = mixer.Sound(self.sound_effect_name).get_length()
                 self.sound_timer = 0  # start playing right away when first update
 
-        self.animation_pool = self.effect_animation_pool[effect_name][self.sprite_ver]
-        self.current_animation = self.animation_pool[part_name]
+        self.animation_pool = self.effect_animation_pool[self.effect_name][self.sprite_ver]
+        self.current_animation = self.animation_pool[self.part_name]
 
-        self.image = self.current_animation[self.show_frame]
-        if len(self.current_animation) == 1:  # one frame mean no animation
-            self.current_animation = {}
+        self.base_image = self.current_animation[self.show_frame]
+        self.image = self.base_image
 
         self.adjust_sprite()
 
@@ -105,8 +124,7 @@ class Effect(sprite.Sprite):
                 self.travel_sound_distance > self.battle.camera_pos.distance_to(self.pos):
             # play sound, check for distance here to avoid timer reset when not on screen
             self.battle.add_sound_effect_queue(self.sound_effect_name, self.pos,
-                                               self.travel_sound_distance,
-                                               self.travel_shake_power)
+                                               self.travel_sound_distance, 0)
             self.sound_timer = 0
 
         if done:  # no duration, kill effect when animation end
@@ -115,10 +133,10 @@ class Effect(sprite.Sprite):
 
 
 class DamageEffect(Effect):
-    def __init__(self, owner, stat, layer, moveset, from_owner=True, arc_shot=False, degrade_when_travel=True,
+    def __init__(self, owner, part_stat, layer, moveset, from_owner=True, arc_shot=False, degrade_when_travel=True,
                  degrade_when_hit=True, random_direction=False, random_move=False, reach_effect=None):
         """Effect damage sprite that can affect character in some ways such as arrow, explosion, buff magic"""
-        Effect.__init__(self, owner, stat, layer, from_owner=from_owner)
+        Effect.__init__(self, owner, part_stat, layer, from_owner=from_owner)
         self.impact_effect = None
         self.arc_shot = arc_shot
         self.reach_effect = reach_effect
@@ -128,8 +146,6 @@ class DamageEffect(Effect):
         self.random_direction = random_direction
         self.random_move = random_move
 
-        self.max_duration = 0
-        self.duration = 0
         self.sound_effect_name = None
         self.stamina_dmg_bonus = 0
         self.sprite_direction = ""
@@ -144,8 +160,13 @@ class DamageEffect(Effect):
         self.penetrate = False
         if self.dmg:  # has damage to deal
             self.deal_dmg = True
-            if "penetrate" in self.moveset["Damage Effect Property"]:
+            if "penetrate" in self.moveset["Property"]:
                 self.penetrate = True
+
+        self.effect_collide_check = True
+        if "no effect collision" in self.effect_stat["Property"]:
+            self.battle.all_damage_effects.remove(self)
+            self.effect_collide_check = False
 
         self.friend_status_effect = self.moveset["Status"]
         self.enemy_status_effect = self.moveset["Enemy Status"]
@@ -154,16 +175,9 @@ class DamageEffect(Effect):
         if not layer:  # layer 0 in animation part data mean the effect can move on its own
             self.travel_distance = self.moveset["Range"]
 
-        if "Duration" in self.moveset:
-            self.max_duration = self.duration
-            self.duration = self.moveset["Duration"]
-            self.repeat_animation = True
-        self.distance_progress = 0
-
-        if self.stat[0] in self.sound_effect_pool:
+        if self.effect_name in self.sound_effect_pool:
             self.travel_sound_distance = self.effect_stat["Sound Distance"]
-            self.travel_shake_power = self.effect_stat["Shake Power"]
-            self.sound_effect_name = choice(self.sound_effect_pool[self.stat[0]])
+            self.sound_effect_name = choice(self.sound_effect_pool[self.effect_name])
             self.sound_duration = mixer.Sound(self.sound_effect_name).get_length()
             self.sound_timer = self.sound_duration
             self.travel_sound_distance_check = self.travel_sound_distance * 2
@@ -181,6 +195,8 @@ class DamageEffect(Effect):
             self.dmg = uniform(self.dmg * self.owner.min_physical, self.dmg * self.owner.max_physical)
         else:
             self.dmg = uniform(self.dmg * self.owner.min_elemental, self.dmg * self.owner.max_elemental)
+        if self.dmg < 1:
+            self.dmg = 1
         self.critical_chance = self.owner.critical_chance + moveset["Critical Chance Bonus"]
         self.friend_status_effect = moveset["Status"]
         self.enemy_status_effect = moveset["Enemy Status"]
@@ -189,15 +205,13 @@ class DamageEffect(Effect):
         self.deal_dmg = False
         if self.reach_effect:
             effect_stat = self.effect_list[self.reach_effect]
-            DamageEffect(self.owner, effect_stat, self._layer, (), from_owner=False,
+            new_pos = self.pos
+            if "reach spawn ground" in self.effect_stat["Property"]:  # reach effect spawn with rect bottom on ground
+                height = self.effect_animation_pool[self.reach_effect][self.sprite_ver]["Base"][0].get_height() / 4
+                new_pos = (self.pos[0], self.pos[1] - height)
+            DamageEffect(self.owner, (self.reach_effect, "Base", new_pos[0], new_pos[1], 0),
+                         self._layer, self.moveset, from_owner=False,
                          reach_effect=effect_stat["After Reach Effect"])
-
-        if "End Effect" in self.stat:
-            finish_effect = self.stat["End Effect"]
-            if finish_effect:
-                effect_stat = self.effect_list[finish_effect]
-                DamageEffect(self.owner, effect_stat, self._layer, (), from_owner=False,
-                             reach_effect=effect_stat["After Reach Effect"])
 
         if self.other_property:
             if "spawn" in self.other_property and "spawn_after" in self.other_property and how == "border":
@@ -206,7 +220,7 @@ class DamageEffect(Effect):
                     if "spawn_number" in self.other_property:
                         spawn_number = int(self.other_property["spawn_number"])
                     for _ in range(spawn_number):
-                        stat = self.stat.copy()
+                        stat = self.part_stat.copy()
                         if "spawn_sky" in self.other_property:
                             stat[3] = -100
                         if self.owner.nearest_enemy:  # find the nearest enemy to target
@@ -253,21 +267,98 @@ class DamageEffect(Effect):
         self.clean_object()
 
     def update(self, dt):
-        # for key in tuple(self.already_hit.keys()):
-        #     self.already_hit[key] -= dt
-        #     if self.already_hit[key] <= 0:
-        #         self.already_hit.pop(key)
+        if self.stick_timer:
+            if self.x_momentum or self.y_momentum:  # sprite bounce after reach
+                self.angle += (dt * 1000)
+                if self.angle >= 360:
+                    self.angle = 0
+                new_pos = self.base_pos + Vector2(self.x_momentum, -self.y_momentum)
+                move = new_pos - self.base_pos
+                if move.length():
+                    move.normalize_ip()
+                    self.base_pos += move
+                    self.travel_distance -= move.length()
+                    self.pos = Vector2(self.base_pos[0] * self.screen_scale[0],
+                                       self.base_pos[1] * self.screen_scale[1])
+                    self.adjust_sprite()
 
-        if not self.hit_collide_check(effect=True):
+                if self.x_momentum > 0:
+                    self.x_momentum -= dt * 50
+                    if self.x_momentum < 0.1:
+                        self.x_momentum = 0
+                elif self.x_momentum < 0:
+                    self.x_momentum += dt * 50
+                    if self.x_momentum > 0.1:
+                        self.x_momentum = 0
+
+                if self.y_momentum > 0:
+                    self.y_momentum -= dt * 100
+                    if self.y_momentum <= 0:
+                        self.y_momentum = -200
+
+                if self.base_pos[1] >= self.owner.original_ground_pos:  # reach ground
+                    self.x_momentum = 0
+                    self.y_momentum = 0
+
+            else:  # no longer bouncing, start countdown stick timer or find new pos for stuck part
+                if self.stuck_part:  # find new pos based on stuck part
+                    if self.stuck_part.data:
+                        self.pos = list(self.stuck_part.rect.center)
+                        self.angle = self.base_stuck_stat[1]
+                        scale_diff = 1 + (self.stuck_part.data[7] - self.base_stuck_stat[2][7])
+                        x_diff = self.base_stuck_stat[0][0]
+                        if self.stuck_part.owner.angle != self.base_stuck_stat[3]:  # different animation direction
+                            x_diff = -x_diff
+                            self.angle = (self.angle - 180)
+                        # if self.stuck_part.data[5] != self.base_stuck_stat[2][5] and \
+                        #         (self.stuck_part.data[5] in (1, 3) or self.base_stuck_stat[2][5] in (1, 3)):
+                        #     # part has opposite horizontal flip
+                        #     self.pos[0] -=x_diff * scale_diff
+                        #     self.angle = (self.angle - 180)
+                        # else:
+                        self.pos[0] += x_diff * scale_diff
+
+                        # if self.stuck_part.data[5] != self.base_stuck_stat[2][5] and \
+                        #         (self.stuck_part.data[5] >= 2 or self.base_stuck_stat[2][5] >= 2):
+                        #     # part has opposite vertical flip
+                        #     self.pos[1] -= self.base_stuck_stat[0][1] * scale_diff
+                        #     self.angle = (180 - self.angle)
+                        # else:
+                        self.pos[1] += self.base_stuck_stat[0][1] * scale_diff
+
+                        if self.stuck_part.data[4] != self.base_stuck_stat[2][4]:
+                            if self.stuck_part.owner.angle != self.base_stuck_stat[3]:  # different direction
+                                angle_dif = self.stuck_part.data[4] + self.base_stuck_stat[2][4]
+                                self.angle += self.stuck_part.data[4] + self.base_stuck_stat[2][4]
+                            else:
+                                angle_dif = self.stuck_part.data[4] - self.base_stuck_stat[2][4]
+                                self.angle += self.stuck_part.data[4] - self.base_stuck_stat[2][4]
+                            radians_angle = radians(360 - angle_dif)
+                            if angle_dif < 0:
+                                radians_angle = radians(-angle_dif)
+                            self.pos = rotation_xy(self.stuck_part.rect.center, self.pos, radians_angle)  # find new pos after rotation
+                        self.adjust_sprite()
+                    else:  # stuck part disappear for whatever reason
+                        self.stick_timer = 0  # remove effect
+                self.stick_timer -= dt
+                if self.stick_timer <= 0:
+                    self.reach_target("border")
+                    return
+
+        elif not self.hit_collide_check(check_damage_effect=self.effect_collide_check) or self.penetrate:
             if self.sound_effect_name and self.sound_timer < self.sound_duration:
                 self.sound_timer += dt
 
-            self.timer += dt
-
             if self.duration > 0:  # only clear for sprite with duration
                 self.duration -= dt
+                if self.duration <= 0:
+                    self.reach_target("border")
+                    return
 
-            done, just_start = self.play_animation(0.05, dt, False)
+            done, just_start = self.play_animation(0.2, dt, False)
+
+            if just_start and self.duration:  # reset already hit every animation frame for effect with duration
+                self.already_hit = []
 
             if self.travel_distance:  # damage sprite that can move
                 new_pos = Vector2(self.base_pos[0] - (self.speed * sin(radians(self.angle))),
@@ -286,24 +377,97 @@ class DamageEffect(Effect):
                             self.base_pos[0] <= 0 or self.base_pos[0] > self.stage_end or
                             self.base_pos[1] >= self.owner.original_ground_pos or
                             self.base_pos[1] < -500):  # pass outside of map
-                        self.reach_target("border")
-                        return
+                        if self.stick_reach == "stick" and self.base_pos[1] >= self.owner.original_ground_pos:  # stuck at ground
+                            self.travel_distance = 0
+                            self.stick_timer = 5
+                            self.current_animation = self.animation_pool["Base"]  # change image to base
+                            self.base_image = self.current_animation[self.show_frame]
+                            self.adjust_sprite()
+                            self.battle.all_damage_effects.remove(self)
+                        else:
+                            self.reach_target("border")
+                            return
 
                     if self.degrade_when_travel and self.dmg:  # dmg power drop the longer damage sprite travel
                         if self.dmg > 1:
                             self.dmg -= 0.1
 
-            if self.travel_distance <= 0 or (done and self.max_duration and self.duration <= 0):
-                self.reach_target("border")
-                return
+                if self.travel_distance <= 0 and not self.stick_timer and not self.max_duration:
+                    self.reach_target("border")
+                    return
 
             if self.sound_effect_name and self.sound_timer >= self.sound_duration and \
                     self.travel_sound_distance_check > self.battle.camera_pos.distance_to(self.pos):
                 # play sound, check for distance here to avoid timer reset when not on screen
                 self.battle.add_sound_effect_queue(self.sound_effect_name, self.pos,
-                                                   self.travel_sound_distance,
-                                                   self.travel_shake_power)
+                                                   self.travel_sound_distance, 0)
                 self.sound_timer = 0
+
+
+class TrapEffect(Effect):
+    reach_target = DamageEffect.reach_target
+
+    def __init__(self, owner, stat, layer, moveset, from_owner=True, reach_effect=None):
+        """Trap sprite that can trigger when character come near, the trap sprite itself does no damage"""
+        Effect.__init__(self, owner, stat, layer, from_owner=from_owner)
+        self.activate = False
+        self.impact_effect = None
+        self.reach_effect = reach_effect
+        self.moveset = moveset
+        self.travel_distance = 0
+        if not layer:  # layer 0 in animation part data mean the effect can move on its own
+            self.travel_distance = self.moveset["Range"]
+
+        self.other_property = self.moveset["Property"]
+
+    def update(self, dt):
+        if self.sound_effect_name and self.sound_timer < self.sound_duration:
+            self.sound_timer += dt
+
+        done, just_start = self.play_animation(0.1, dt)
+
+        if self.activate and done:
+            if "drop" in self.effect_stat["Property"]:  # drop item after destroyed, slightly above trap sprite
+                Drop(Vector2((self.base_pos[0], self.base_pos[1] - 50)),
+                     self.effect_stat["Property"]["drop"], self.owner.team)
+            self.reach_target()
+            return
+
+        if self.duration > 0:
+            self.duration -= dt
+            if self.duration <= 0:  # activate when trap duration run out
+                self.activate_trap()
+
+        if self.travel_distance:  # damage sprite that can move
+            new_pos = Vector2(self.base_pos[0] - (self.speed * sin(radians(self.angle))),
+                              self.base_pos[1] - (self.speed * cos(radians(self.angle))))
+            move = new_pos - self.base_pos
+            if move.length():  # sprite move
+                move.normalize_ip()
+                move = move * self.speed * dt
+
+                self.base_pos += move
+                self.travel_distance -= move.length()
+                if self.base_pos[0] <= 0:  # trap cannot be thrown pass map border
+                    self.base_pos[0] = 0
+                elif self.base_pos[0] > self.stage_end:
+                    self.base_pos = self.stage_end
+                if self.base_pos[1] >= self.owner.original_ground_pos:  # reach ground
+                    self.base_pos = self.owner.original_ground_pos
+
+                self.pos = Vector2(self.base_pos[0] * self.screen_scale[0], self.base_pos[1] * self.screen_scale[1])
+                self.rect.center = self.pos
+        else:  # keep checking for collide to activate trap
+            if spritecollide(self, self.owner.enemy_part_list, False, collided=collide_mask):
+                # activate when enemy collide
+                self.activate_trap()
+
+    def activate_trap(self):
+        self.current_animation = self.animation_pool["Activate"]  # change image to base
+        self.base_image = self.current_animation[self.show_frame]
+        self.adjust_sprite()
+        self.activate = True
+        self.repeat_animation = False
 
 
 class StatusEffect(Effect):
@@ -324,8 +488,7 @@ class StatusEffect(Effect):
                 self.travel_sound_distance > self.battle.camera_pos.distance_to(self.pos):
             # play sound, check for distance here to avoid timer reset when not on screen
             self.battle.add_sound_effect_queue(self.sound_effect_name, self.pos,
-                                               self.travel_sound_distance,
-                                               self.travel_shake_power)
+                                               self.travel_sound_distance, 0)
             self.sound_timer = 0
 
         if done:  # no duration, kill effect when animation end

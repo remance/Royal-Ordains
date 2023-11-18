@@ -1,32 +1,28 @@
-"Name","Duration","Travel Speed","Status","Enemy Status","Special Effect","Damage Sprite Effect","After Reach Effect","End Effect","Sound Effect","Shake Power","Sound Distance","Property"
-"Rodhinbar Arrow",0,1200,,,,,,,,,1000,
-"Arrow",0,1000,,,,,,,,,1000,
-"Stone",0,600,,,,,,,,,1000,
-"Toxic Beard",0,700,,,,,,,,,500,
-"Explosion Small",0,,,,,,,"Smoke Minor",,,2100,
-"Explosion Medium",0,,,,,,,"Smoke Moderate",,,3600,
-"Explosion Large",0,,,,,,,"Smoke Thick",,,6000,
-"Explosion Huge",0,,,,,,,"Smoke Dense",,,12000,
-"Fire Minor",10,,,,,,,"Smoke Minor",,,600,
-"Fire Moderate",30,,,,,,,"Smoke Moderate",,,900,
-"Fire Major",100,,,,,,,"Smoke Thick",,,1350,
-"Fire Catastrophic",300,,,,,,,"Smoke Dense",,,2100,
-"Tar",1000,,,,,,,,,,0,
-"Smoke Minor",40,,,,,,,,,,,
-"Smoke Moderate",80,,,,,,,,,,,
-"Smoke Thick",200,,,,,,,,,,,
-"Smoke Dense",600,,,,,,,,,,,
-"Poison Smoke Minor",10,,,,,,,,,,,
-"Poison Smoke Moderate",30,,,,,,,,,,,
-"Poison Smoke Thick",100,,,,,,,,,,,
-"Poison Smoke Dense",300,,,,,,,,,,,
-"Sleeping Smoke Minor",10,,,10,,,,,,,,
-"Sleeping Smoke Moderate",30,,,10,,,,,,,,
-"Sleeping Smoke Thick",100,,,10,,,,,,,,
-"Sleeping Smoke Dense",300,,,10,,,,,,,,
-"Dust Cloud",100,,,,,,,,,,,
-"Gun Smoke Small",0,,,,,,,"Smoke Minor",,,,
-"Gun Smoke Medium",0,,,,,,,"Smoke Moderate",,,,
-"Gun Smoke Large",0,,,,,,,"Smoke Thick",,,,
-"Gun Smoke Huge",0,,,,,,,"Smoke Dense",,,,
-"Hamster",0,,,,,,,"Explosion Large",,,20,
+"Name","Duration","Travel Speed","Status","Enemy Status","Special Effect","Damage Sprite Effect","Reach Effect","After Reach Effect","Sound Effect","Sound Distance","Property"
+"Rodhinbar Arrow",0,1200,,,,,"stick",,,1000,
+"Arrow",0,1000,,,,,"stick",,,1000,
+"Stone",0,600,,,,,"bounce",,,1000,
+"Toxic Beard",0,700,,,,,"stick",,,500,
+"Small Fire",6,,,,,,,,,600,"no effect collision"
+"Small Persist Fire",15,,,24,,,,,,600,"no effect collision"
+"Medium Persist Fire",15,,,24,,,,,,800,"no effect collision"
+"Snare Bite.1",0,,,1,,,,,,,
+"Snare Bite.2",0,,,"1,6",,,,,,,
+"Snare Bite.3",0,,,"1,6,33",,,,,,,
+"Stink Cloud.1",3,,,5,,,,,,,"no effect collision"
+"Stink Cloud.2",3,,,5,,,,,,,"no effect collision"
+"Poison Cloud.1",3,,,,,,,,,,"no effect collision"
+"Poison Cloud.2",3,,,,,,,,,,"no effect collision"
+"Ground Crush.1",0,,,,,,,,,,"no effect collision"
+"Ground Crush.2",3,,,,,,,,,,"no effect collision"
+"Firetrap.1",1,,,,,,,"Small Fire",,,"trap,drop:Trap Remain,reach spawn ground"
+"Firetrap.2",10,,,,,,,"Small Persist Fire",,,"trap,drop:Trap Remain,reach spawn ground"
+"Snaretrap.1",10,,,,,,,"Snare Bite.1",,,"trap,drop:Scrap,reach spawn ground"
+"Snaretrap.2",10,,,,,,,"Snare Bite.2",,,"trap,drop:Scrap,reach spawn ground"
+"Snaretrap.3",10,,,,,,,"Snare Bite.3",,,"trap,drop:Scrap,reach spawn ground"
+"Stinktrap.1",10,,,,,,,"Stink Cloud.1",,,"trap,drop:Scrap,reach spawn ground"
+"Stinktrap.2",10,,,,,,,"Stink Cloud.2",,,"trap,drop:Scrap,reach spawn ground"
+"Poisontrap.1",10,,,,,,,"Poison Cloud.1",,,"trap,drop:Trap Remain,reach spawn ground"
+"Poisontrap.2",10,,,,,,,"Poison Cloud.2",,,"trap,drop:Trap Remain,reach spawn ground"
+"Crushtrap.1",10,,,,,,,"Ground Crush.1",,,"trap,drop:Trap Remain,reach spawn ground"
+"Crushtrap.2",10,,,,,,,"Ground Crush.2",,,"trap,drop:Trap Remain,reach spawn ground"

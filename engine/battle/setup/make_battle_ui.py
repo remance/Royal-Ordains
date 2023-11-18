@@ -17,7 +17,7 @@ def make_battle_ui(battle_ui_image):
                                        battle_ui_image["resource_bar"], battle_ui_image["guard_bar"],
                                        (250 * screen_scale[0], 120 * screen_scale[1]))
 
-    player_2_portrait = PlayerPortrait(battle_ui_image["player1"], battle_ui_image["health_bar"],
+    player_2_portrait = PlayerPortrait(battle_ui_image["player2"], battle_ui_image["health_bar"],
                                        battle_ui_image["resource_bar"], battle_ui_image["guard_bar"],
                                        (650 * screen_scale[0], 120 * screen_scale[1]))
 
