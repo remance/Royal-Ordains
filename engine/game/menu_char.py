@@ -54,7 +54,7 @@ def menu_char(self, esc_press):
                             else:
                                 current_id += 1
                             selector.change_mode(tuple(playable_character.keys())[current_id])
-                    elif key == "Weak":  # confirm
+                    elif key == "Weak" and not selector.delay:  # confirm
                         if selector.mode not in ("stat", "ready"):  # go to stat allocation
                             start_stat = self.character_data.character_list[selector.mode]
                             skill_list = {}

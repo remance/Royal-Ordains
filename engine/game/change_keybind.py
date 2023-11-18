@@ -31,7 +31,7 @@ def change_keybind(self):
                              self.player_key_bind_list[self.control_switch.player][
                                  self.config["USER"]["control player " + str(self.control_switch.player)]][key],
                              self.joystick_bind_name[
-                                 self.joystick_name[tuple(self.joystick_name.keys())[0]]])
+                                 self.joystick_name[self.player_joystick[self.control_switch.player]]])
         else:
             value.change_key(self.config["USER"]["control player " + str(self.control_switch.player)],
                              self.player_key_bind_list[self.control_switch.player][

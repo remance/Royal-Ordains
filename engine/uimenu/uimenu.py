@@ -7,7 +7,7 @@ from pygame import Surface, SRCALPHA, Rect, Color, draw, mouse
 from pygame.font import Font
 from pygame.sprite import Sprite
 
-from engine.utils.common import keyboard_mouse_press_check, joystick_press_check, stat_allocation_check, skill_allocation_check
+from engine.utils.common import keyboard_mouse_press_check, stat_allocation_check, skill_allocation_check
 from engine.utils.data_loading import load_image
 from engine.utils.text_making import text_render_with_bg, make_long_text
 

@@ -9,7 +9,7 @@
 
 <img src="https://github.com/remance/preview2/blob/main/bg1.1.1.3.png?raw=true">
 
-[![](https://markdown-videos-api.jorgenkh.no/youtube/bNDiOt0XpOI)](https://youtu.be/bNDiOt0XpOI)
+[![](https://markdown-videos-api.jorgenkh.no/youtube/KHejwk4pPUg)](https://youtu.be/KHejwk4pPUg)
 
 
 Side-scrolling medieval fantasy action game in the art style inspired by Medieval art from various periods and regions (with a sprinkle of education elements for historical medieval period) made with [Pygame](https://github.com/pygame/pygame).

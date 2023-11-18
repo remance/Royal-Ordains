@@ -77,18 +77,23 @@ class Game:
                                     "axis-3": "R. Stick U.", "axis+3": "R. Stick D.",
                                     "hat-0": "L. Arrow", "hat+0": "R. Arrow",
                                     "hat-1": "D. Arrow", "hat+1": "U. Arrow"},
-                          "PS": {0: "X", 1: "O", 2: "□", 3: "△", 4: "Share", 5: "PS", 6: "Options", 7: None, 8: None,
-                                 9: None, 10: None, 11: "D-Up", 12: "D-Down", 13: "D-Left", 14: "D-R.",
+                          "DualSense Wireless Controller":  # ps5 joystick
+                                {0: "Cross", 1: "Circle", 2: "Square", 3: "Triangle", 4: "Share", 5: "PS", 6: "Options", 7: "L. Stick",
+                                 8: "R. Stick", 9: "L1", 10: "R1", 11: "D-Up", 12: "D-Down", 13: "D-Left", 14: "D-R.",
                                  15: "T-Pad", "axis-0": "L. Stick L.", "axis+0": "L. Stick R.",
                                  "axis-1": "L. Stick U.", "axis+1": "L. Stick D.",
                                  "axis-2": "R. Stick Left", "axis+2": "R. Stick R.",
                                  "axis-3": "R. Stick U.", "axis+3": "R. Stick D.",
+                                 "axis+4": "L2", "axis+5": "R2",
                                  "hat-0": "L. Arrow", "hat+0": "R. Arrow",
                                  "hat-1": "D. Arrow", "hat+1": "U. Arrow"}}
 
     # import from game
     from engine.game.activate_input_popup import activate_input_popup
     activate_input_popup = activate_input_popup
+
+    from engine.game.add_joystick import add_joystick
+    add_joystick = add_joystick
 
     from engine.game.assign_key import assign_key
     assign_key = assign_key
@@ -525,21 +530,7 @@ class Game:
         # Starting script
         for event in pygame.event.get():
             if event.type == pygame.JOYDEVICEADDED:  # search for joystick plugin before game start
-                joy = pygame.joystick.Joystick(event.device_index)
-                self.joysticks[joy.get_instance_id()] = joy
-                joy_name = joy.get_name()
-                for name in self.joystick_bind_name:
-                    if name in joy_name:  # find common name
-                        self.joystick_name[joy.get_instance_id()] = name
-                if joy.get_instance_id() not in self.joystick_name:
-                    self.joystick_name[joy.get_instance_id()] = "Other"
-
-                for player in self.player_key_control:  # check for player with joystick control but no assigned yet
-                    if self.player_key_control[player] == "joystick" and player not in self.player_joystick:
-                        # assign new joystick to player with joystick control setting
-                        self.player_joystick[player] = joy.get_instance_id()
-                        self.joystick_player[joy.get_instance_id()] = player
-                        break  # only one player get assigned
+                self.add_joystick(event)
 
         for player in self.player_key_control:
             # search for joystick player with no joystick to revert control to keyboard
@@ -624,7 +615,7 @@ class Game:
                     for joystick_id, joystick in self.joysticks.items():
                         if self.player_joystick[player] == joystick_id:
                             for i in range(joystick.get_numaxes()):
-                                if joystick.get_axis(i) > 0.1 or joystick.get_axis(i) < -0.1:
+                                if joystick.get_axis(i) > 0.5 or joystick.get_axis(i) < -0.5:
                                     if i in (2, 3) and player == 1:  # right axis only for cursor (player 1 only)
                                         vec = pygame.math.Vector2(joystick.get_axis(2), joystick.get_axis(3))
                                         radius, angle = vec.as_polar()
@@ -707,21 +698,7 @@ class Game:
 
                 elif event.type == pygame.JOYDEVICEADDED:
                     # Player add new joystick by plug in
-                    joy = pygame.joystick.Joystick(event.device_index)
-                    self.joysticks[joy.get_instance_id()] = joy
-                    joy_name = joy.get_name()
-                    for name in self.joystick_bind_name:
-                        if name in joy_name:  # find common name
-                            self.joystick_name[joy.get_instance_id()] = name
-                    if joy.get_instance_id() not in self.joystick_name:
-                        self.joystick_name[joy.get_instance_id()] = "Other"
-
-                    for player in self.player_key_control:  # check for player with joystick control but no assigned yet
-                        if self.player_key_control[player] == "joystick" and player not in self.player_joystick:
-                            # assign new joystick to player with joystick control setting
-                            self.player_joystick[player] = joy.get_instance_id()
-                            self.joystick_player[joy.get_instance_id()] = player
-                            break  # only one player get assigned
+                    self.add_joystick(event)
 
                 elif event.type == pygame.JOYDEVICEREMOVED:
                     # Player unplug joystick
@@ -815,8 +792,13 @@ class Game:
                         for joystick_id, joystick in self.joysticks.items():
                             if self.player_joystick[self.control_switch.player] == joystick_id:
                                 for i in range(joystick.get_numaxes()):
-                                    if joystick.get_axis(i) > 0.1 or joystick.get_axis(i) < -0.1:
-                                        if i not in (2, 3):  # prevent right axis from being assigned
+                                    if i < 4:
+                                        if joystick.get_axis(i) > 0.5 or joystick.get_axis(i) < -0.5:
+                                            if i not in (2, 3):  # prevent right axis from being assigned
+                                                axis_name = "axis" + number_to_minus_or_plus(joystick.get_axis(i)) + str(i)
+                                                self.assign_key(axis_name)
+                                    else:  # axis from other type of joystick (ps5 axis 4 and 5 is L2 and R2) which -1 mean not press
+                                        if joystick.get_axis(i) > 0.5:  # check only positive
                                             axis_name = "axis" + number_to_minus_or_plus(joystick.get_axis(i)) + str(i)
                                             self.assign_key(axis_name)
 

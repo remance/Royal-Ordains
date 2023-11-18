@@ -28,15 +28,15 @@ def menu_keybind(self, esc_press):
             if new_player == 0:
                 new_player = 4
 
-        if self.config["USER"]["control player " + str(new_player)] == "joystick":
+        if self.config["USER"]["control player " + str(new_player)] == "joystick":  # joystick control
             self.control_switch.change_control(self.player_key_control[new_player] + str(self.player_joystick[new_player]), new_player)
-        else:
+        else:  # keyboard control
             self.control_switch.change_control("keyboard", new_player)
 
         for key, value in self.keybind_icon.items():
             keybind_name = None
             if self.config["USER"]["control player " + str(new_player)] == "joystick":
-                keybind_name = self.joystick_bind_name[self.joystick_name[tuple(self.joystick_name.keys())[0]]]
+                keybind_name = self.joystick_bind_name[self.joystick_name[self.player_joystick[new_player]]]
             value.change_key(self.config["USER"]["control player " + str(new_player)],
                              self.player_key_bind_list[new_player][
                                  self.config["USER"]["control player " + str(new_player)]][key],

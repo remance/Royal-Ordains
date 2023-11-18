@@ -32,7 +32,7 @@ def menu_option(self, esc_press):
                     value.change_key(self.config["USER"]["control player 1"],
                                      self.player_key_bind_list[1][self.config["USER"]["control player 1"]][key],
                                      self.joystick_bind_name[
-                                         self.joystick_name[tuple(self.joystick_name.keys())[0]]])
+                                         self.joystick_name[self.player_joystick[1]]])
 
         else:  # no joystick, reset player 1 to keyboard
             self.config["USER"]["control player 1"] = "keyboard"

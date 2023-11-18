@@ -58,6 +58,10 @@ def keyboard_mouse_press_check(button_type, button, is_button_just_down, is_butt
                 button_check = joystick_check[0].get_hat(int(joystick_check[1][-2:]))
             if "axis" in joystick_check[1]:
                 button_check = joystick_check[0].get_axis(int(joystick_check[1][-2:]))
+                if int(joystick_check[1][-2:]) > 0 > button_check:
+                    button_check = 0
+                if int(joystick_check[1][-2:]) < 1 < button_check:
+                    button_check = 0
         else:
             button_check = joystick_check[0].get_button(joystick_check[1])
 
@@ -78,35 +82,6 @@ def keyboard_mouse_press_check(button_type, button, is_button_just_down, is_butt
         elif is_button_just_up:
             is_button_just_up = False
 
-    return is_button_just_down, is_button_down, is_button_just_up
-
-
-def joystick_press_check(joystick, button, is_button_just_down, is_button_down, is_button_just_up, joystick_check=()):
-    """
-    Check for button just press, holding, and release for keyboard or mouse
-    :param joystick: pygame.joystick
-    :param button: button index
-    :param is_button_just_down: button is just press last update
-    :param is_button_down: button is pressing after first update
-    :param is_button_just_up: button is just release last update
-    :param joystick_check: check for joystick press as well
-    :return: new state of is_button_just_down, is_button_down, is_button_just_up
-    """
-    if joystick.get_button(button):  # press button
-        if not is_button_just_down:
-            if not is_button_down:  # fresh press
-                is_button_just_down = True
-        else:  # already press in previous frame, now hold until release
-            is_button_just_down = False
-            is_button_down = True
-    else:  # no longer press
-        is_button_just_down = False
-        if is_button_just_down or is_button_down:
-            is_button_just_up = True
-            is_button_just_down = False
-            is_button_down = False
-        elif is_button_just_up:
-            is_button_just_up = False
     return is_button_just_down, is_button_down, is_button_just_up
 
 
