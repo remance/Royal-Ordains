@@ -392,9 +392,9 @@ class DamageEffect(Effect):
                         if self.dmg > 1:
                             self.dmg -= 0.1
 
-                if self.travel_distance <= 0 and not self.stick_timer and not self.max_duration:
-                    self.reach_target("border")
-                    return
+            if self.travel_distance <= 0 and not self.stick_timer and not self.max_duration:
+                self.reach_target("border")
+                return
 
             if self.sound_effect_name and self.sound_timer >= self.sound_duration and \
                     self.travel_sound_distance_check > self.battle.camera_pos.distance_to(self.pos):

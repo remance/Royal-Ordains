@@ -15,7 +15,7 @@
 "Poison Cloud.2",3,,,,,,,,,,"no effect collision"
 "Ground Crush.1",0,,,,,,,,,,"no effect collision"
 "Ground Crush.2",3,,,,,,,,,,"no effect collision"
-"Firetrap.1",1,,,,,,,"Small Fire",,,"trap,drop:Trap Remain,reach spawn ground"
+"Firetrap.1",10,,,,,,,"Small Fire",,,"trap,drop:Trap Remain,reach spawn ground"
 "Firetrap.2",10,,,,,,,"Small Persist Fire",,,"trap,drop:Trap Remain,reach spawn ground"
 "Snaretrap.1",10,,,,,,,"Snare Bite.1",,,"trap,drop:Scrap,reach spawn ground"
 "Snaretrap.2",10,,,,,,,"Snare Bite.2",,,"trap,drop:Scrap,reach spawn ground"
