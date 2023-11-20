@@ -4,11 +4,11 @@
 "C1.3","Quadruple Piercing","Down,Forward,Strong","Stand",,300,6,0,75,105,,,45,13,"Physical",,,,"multiframehit"
 "C1.4","Speed Piercing","Down,Forward,Strong","Stand",,300,8,0,96,105,,,45,21,"Physical",,,,"multiframehit"
 "C1.5","Unseen Piercing","Down,Forward,Strong","Stand",,300,10,0,125,105,,,45,35,"Physical",,,,"multiframehit"
-"C2.1","Counterattack","Guard,Strong","Stand","name:Parry,parry:true",200,0,0,110,135,,,135,,"Physical",,,,"noautonext"
-"C2.2","Counter Cross Slash","Guard,Strong","Stand","name:Parry,parry:true",200,0,0,135,135,,,135,,"Physical",,,,"noautonext,multiframehit"
-"C2.3","Bloody Parry","Guard,Strong","Stand","name:Parry,parry:true",200,0,0,210,135,,,135,,"Physical",,,,"noautonext,multiframehit"
-"C2.4","Revenge Guard","Guard,Strong","Stand","name:Parry,parry:true",200,0,0,326,135,,,135,,"Physical",,,,"noautonext,multiframehit"
-"C2.5","Sword of Vengeance","Guard,Strong","Stand","name:Parry,parry:true",200,0,0,485,135,,,135,,"Physical",,,,"noautonext,multiframehit"
+"C2.1","Counterattack","Guard,Strong","Stand","name:Parry,parry:true",200,0,0,110,135,,,135,,"Physical",,,,"no auto next"
+"C2.2","Counter Cross Slash","Guard,Strong","Stand","name:Parry,parry:true",200,0,0,135,135,,,135,,"Physical",,,,"no auto next,multiframehit"
+"C2.3","Bloody Parry","Guard,Strong","Stand","name:Parry,parry:true",200,0,0,210,135,,,135,,"Physical",,,,"no auto next,multiframehit"
+"C2.4","Revenge Guard","Guard,Strong","Stand","name:Parry,parry:true",200,0,0,326,135,,,135,,"Physical",,,,"no auto next,multiframehit"
+"C2.5","Sword of Vengeance","Guard,Strong","Stand","name:Parry,parry:true",200,0,0,485,135,,,135,,"Physical",,,,"no auto next,multiframehit"
 "C3.1","Vital Slash","Down,Backward,Strong","Stand",,300,5,0,87,156,,,42,15,"Physical",,32,,
 "C3.2","Bloodletting","Down,Backward,Strong","Stand",,300,6,0,103,156,,,42,15,"Physical",,"32,27",,
 "C3.3","Slow Killing","Down,Backward,Strong","Stand",,300,6,0,125,156,,,42,23,"Physical",,"32,27,36",,

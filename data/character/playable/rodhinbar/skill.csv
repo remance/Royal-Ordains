@@ -4,7 +4,7 @@
 "C1.3","Rapid Shots","Down,Forward,Weak","Stand",,2000,0,5,143,100,,,50,,"Physical",,,,
 "C1.4",,"Down,Forward,Weak","Stand",,2000,0,6,168,135,,,60,,"Physical",,,,
 "C1.5","Finest Archery","Down,Forward,Weak","Stand",,3000,0,7,186,150,,,100,,"Physical",,,,
-"C2.1","Charged Shot","Down,Forward,Strong","Stand",,4000,4,1,215,400,,50,,,"Physical",,,,"penetrate"
+"C2.1","Charged Shot","Down,Forward,Strong","Stand",,4000,4,1,215,400,,50,,,"Physical",,,,
 "C2.2","Penetrating Shot","Down,Forward,Strong","Stand",,4000,4,1,275,400,,50,,,"Physical",,,,"penetrate"
 "C2.3","Great Shot","Down,Forward,Strong","Stand",,5000,4,1,350,450,,120,,,"Physical",,,,"penetrate"
 "C2.4","Power Shot","Down,Forward,Strong","Stand",,5000,4,1,416,500,,150,,,"Physical",,,,"penetrate"

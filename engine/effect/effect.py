@@ -4,9 +4,8 @@ from random import choice, uniform, randint
 from pygame import sprite, mixer, Vector2
 from pygame.sprite import spritecollide, collide_mask
 
-from engine.utils.rotation import rotation_xy
-
 from engine.drop.drop import Drop
+from engine.utils.rotation import rotation_xy
 
 
 class Effect(sprite.Sprite):
@@ -58,6 +57,8 @@ class Effect(sprite.Sprite):
         self.frame_timer = 0
         self.repeat_animation = False
         self.stage_end = self.battle.base_stage_end
+
+        self.object_type = "effect"
 
         self.fall_gravity = self.battle.original_fall_gravity
 
@@ -239,14 +240,16 @@ class DamageEffect(Effect):
                                 if self.owner.nearest_enemy:  # find the nearest enemy to target
                                     if self.owner.sprite_direction == "l_side":
                                         stat[2] = uniform(self.owner.nearest_enemy[0].pos[0],
-                                                          self.owner.nearest_enemy[0].pos[0] + (500 * self.screen_scale[0]))
+                                                          self.owner.nearest_enemy[0].pos[0] + (
+                                                                      500 * self.screen_scale[0]))
                                     else:
-                                        stat[2] = uniform(self.owner.nearest_enemy[0].pos[0] - (500 * self.screen_scale[0]),
-                                                          self.owner.nearest_enemy[0].pos[0])
+                                        stat[2] = uniform(
+                                            self.owner.nearest_enemy[0].pos[0] - (500 * self.screen_scale[0]),
+                                            self.owner.nearest_enemy[0].pos[0])
 
                                     self.pos = (stat[2], stat[3])
                                     target_pos = (uniform(self.owner.nearest_enemy[0].pos[0] - 100,
-                                                         self.owner.nearest_enemy[0].pos[0] + 100),
+                                                          self.owner.nearest_enemy[0].pos[0] + 100),
                                                   self.owner.nearest_enemy[0].pos[1])
                                     stat[4] = self.set_rotate(target_pos, use_pos=True)
 
@@ -336,7 +339,8 @@ class DamageEffect(Effect):
                             radians_angle = radians(360 - angle_dif)
                             if angle_dif < 0:
                                 radians_angle = radians(-angle_dif)
-                            self.pos = rotation_xy(self.stuck_part.rect.center, self.pos, radians_angle)  # find new pos after rotation
+                            self.pos = rotation_xy(self.stuck_part.rect.center, self.pos,
+                                                   radians_angle)  # find new pos after rotation
                         self.adjust_sprite()
                     else:  # stuck part disappear for whatever reason
                         self.stick_timer = 0  # remove effect
@@ -377,7 +381,8 @@ class DamageEffect(Effect):
                             self.base_pos[0] <= 0 or self.base_pos[0] > self.stage_end or
                             self.base_pos[1] >= self.owner.original_ground_pos or
                             self.base_pos[1] < -500):  # pass outside of map
-                        if self.stick_reach == "stick" and self.base_pos[1] >= self.owner.original_ground_pos:  # stuck at ground
+                        if self.stick_reach == "stick" and self.base_pos[
+                            1] >= self.owner.original_ground_pos:  # stuck at ground
                             self.travel_distance = 0
                             self.stick_timer = 5
                             self.current_animation = self.animation_pool["Base"]  # change image to base

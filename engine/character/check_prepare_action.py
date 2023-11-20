@@ -6,9 +6,10 @@ def check_prepare_action(self, value):
         action = self.strong_attack_command_action
     elif "Special" in value["Buttons"]:
         action = self.special_command_action
+    else:  # other type of moveset like slide and tackle with no specific button command assign
+        action = self.current_action
 
     if value["Prepare Animation"]:  # has animation to do first before performing main animation
         return value["Prepare Animation"] | \
-                         {"next action": value["Property"] | action | {"no prepare": True}}
+               {"next action": value["Property"] | action | {"no prepare": True}}
     return action
-

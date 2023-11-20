@@ -1,6 +1,3 @@
-from engine.utils.common import edit_config
-
-
 def assign_key(self, key_assign):
     if key_assign not in self.player_key_bind[self.control_switch.player].values() or \
             self.player_key_bind[self.control_switch.player][self.input_popup[1]] == key_assign:

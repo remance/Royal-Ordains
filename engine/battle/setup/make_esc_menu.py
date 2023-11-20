@@ -1,8 +1,8 @@
+from pygame import Surface, SRCALPHA
+
 from engine.uibattle import uibattle
 from engine.uimenu.uimenu import SliderMenu, ValueBox, OptionMenuText
 from engine.utils.data_loading import load_images
-
-from pygame import Surface, SRCALPHA
 
 
 def make_esc_menu(master_volume, music_volume, voice_volume, effect_volume):

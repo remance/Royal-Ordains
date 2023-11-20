@@ -695,7 +695,8 @@ class CharacterStatAllocator(UIMenu):
         self.rect = self.image.get_rect(center=self.pos)
 
     def update(self):
-        if not self.pause and self.rect.collidepoint(self.cursor.pos):  # check for stat detail popup based on mouse over
+        if not self.pause and self.rect.collidepoint(
+                self.cursor.pos):  # check for stat detail popup based on mouse over
             mouse_pos = (self.cursor.pos[0] - self.rect.topleft[0],
                          self.cursor.pos[1] - self.rect.topleft[1])
             for key, value in self.stat_rect.items():
@@ -766,7 +767,8 @@ class CharacterStatAllocator(UIMenu):
             elif "Remain" in stat:  # point left
                 if "Status" in stat:
                     text = self.font.render(str(int(stat_dict[stat])), True, (0, 0, 0))
-                    text_rect = text.get_rect(midleft=(180 * self.screen_scale[0], self.status_point_left_text_rect.midleft[1]))
+                    text_rect = text.get_rect(
+                        midleft=(180 * self.screen_scale[0], self.status_point_left_text_rect.midleft[1]))
                 else:
                     text = self.font.render(str(int(stat_dict[stat])), True, (0, 0, 0))
                     text_rect = text.get_rect(
@@ -774,11 +776,13 @@ class CharacterStatAllocator(UIMenu):
             self.image.blit(text, text_rect)
 
     def change_stat(self, stat, how):
-        self.stat[stat], self.stat["Status Remain"] = stat_allocation_check(self.stat[stat], self.stat["Status Remain"], how)
+        self.stat[stat], self.stat["Status Remain"] = stat_allocation_check(self.stat[stat], self.stat["Status Remain"],
+                                                                            how)
         self.add_stat(self.stat)
 
     def change_skill(self, skill, how):
-        self.stat[skill], self.stat["Skill Remain"] = skill_allocation_check(self.stat[skill], self.stat["Skill Remain"], how)
+        self.stat[skill], self.stat["Skill Remain"] = skill_allocation_check(self.stat[skill],
+                                                                             self.stat["Skill Remain"], how)
         self.add_stat(self.stat)
 
     def player_input(self, key):

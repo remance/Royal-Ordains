@@ -1,5 +1,5 @@
-from pygame.transform import rotate
 from pygame.mask import from_surface
+from pygame.transform import rotate
 
 
 def adjust_sprite(self):

@@ -49,7 +49,8 @@ def menu_char(self, esc_press):
                     elif key == "Right" and selector.mode != "stat":  # switch to next in playable_character list
                         if selector.mode != "ready":
                             current_id = tuple(playable_character.keys()).index(selector.mode)
-                            if current_id + 1 > len(playable_character) - 1:  # reach the end of char list, go back to first
+                            if current_id + 1 > len(
+                                    playable_character) - 1:  # reach the end of char list, go back to first
                                 current_id = 0
                             else:
                                 current_id += 1
@@ -78,7 +79,10 @@ def menu_char(self, esc_press):
                             self.player_char_select[player] = {"ID": self.player_char_stats[player].stat["ID"]} | \
                                                               default_start | self.player_char_stats[player].stat | \
                                                               {"Skill Allocation": {key: value for key, value in
-                                                                self.player_char_stats[player].stat.items() if key in self.player_char_stats[player].all_skill_row}}
+                                                                                    self.player_char_stats[
+                                                                                        player].stat.items() if
+                                                                                    key in self.player_char_stats[
+                                                                                        player].all_skill_row}}
                             selector.change_mode("ready")
 
                     elif key == "Strong":  # cancel, go back to previous state

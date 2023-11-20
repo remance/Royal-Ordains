@@ -48,39 +48,30 @@ class CharacterData(GameData):
 
         self.status_lore = self.localisation.create_lore_data("status")
 
-        # Weapon dict
-        self.weapon_list = {}
-        # for index, weapon_list in enumerate(("troop_weapon")):
-        #     with open(os.path.join(self.data_dir, "troop",
-        #                            "weapon.csv"), encoding="utf-8", mode="r") as edit_file:
-        #         rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
-        #         header = rd[0]
-        #         int_column = ("Strength Bonus Scale", "Dexterity Bonus Scale", "Physical Damage",
-        #                       "Fire Damage", "Water Damage", "Air Damage", "Earth Damage", "Poison Damage",
-        #                       "Magic Damage",
-        #                       "Armour Penetration", "Defence", "Weight", "Speed", "Ammunition", "Magazine",
-        #                       "Shot Number",
-        #                       "Range", "Travel Speed", "Learning Difficulty", "Mastery Difficulty",
-        #                       "Learning Difficulty",
-        #                       "Cost", "ImageID", "Speed", "Hand")  # value int only
-        #         float_column = ("Cooldown",)
-        #         list_column = ("Skill", "Trait", "Property")  # value in list only
-        #         tuple_column = ("Damage Sprite Effect",)  # value in tuple only
-        #         percent_column = ("Damage Balance",)
-        #         int_column = [index for index, item in enumerate(header) if item in int_column]
-        #         list_column = [index for index, item in enumerate(header) if item in list_column]
-        #         tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
-        #         percent_column = [index for index, item in enumerate(header) if item in percent_column]
-        #         float_column = [index for index, item in enumerate(header) if item in float_column]
-        #         for row_index, row in enumerate(rd[1:]):
-        #             for n, i in enumerate(row):
-        #                 row = stat_convert(row, n, i, percent_column=percent_column, list_column=list_column,
-        #                                    tuple_column=tuple_column, int_column=int_column, float_column=float_column)
-        #             self.weapon_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
-        #     edit_file.close()
+        self.common_moveset_skill = {}
+        with open(os.path.join(self.data_dir, "character", "playable", "skill.csv"),
+                  encoding="utf-8", mode="r") as edit_file:
+            rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
+            header = rd[0]
+            tuple_column = ("Buttons", "Status", "Enemy Status")  # value in tuple only
+            dict_column = ("Prepare Animation", "Property",)
+            tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
+            dict_column = [index for index, item in enumerate(header) if item in dict_column]
+            moveset_dict = {}
+            for index, row in enumerate(rd[1:]):
+                for n, i in enumerate(row):
+                    row = stat_convert(row, n, i, tuple_column=tuple_column,
+                                       dict_column=dict_column)
+                move_data = {header[index]: stuff for index, stuff in enumerate(row)}
+                if row[header.index("Position")] not in moveset_dict:
+                    # keep moveset in each position dict for easier access
+                    moveset_dict[row[header.index("Position")]] = {}
+                moveset_dict[row[header.index("Position")]][row[0]] = move_data
+            self.common_moveset_skill = moveset_dict
+        edit_file.close()
 
-        # Armour dict
-        self.armour_list = {}
+        # Equipment dict
+        self.equipment_list = {}
         # with open(os.path.join(self.data_dir, "troop", "troop_armour.csv"),
         #           encoding="utf-8", mode="r") as edit_file:
         #     rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))

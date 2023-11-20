@@ -24,11 +24,11 @@
 "C5.3","Air Burst Trap","Guard,Upward,Strong","Stand",,700,0,30,,,,,,,"Physical",,,,"penetrate"
 "C5.4","Downfall Trap","Guard,Upward,Strong","Stand",,700,0,35,,,,,,,"Physical",,,,"penetrate"
 "C5.5",,"Guard,Upward,Strong","Stand",,700,0,40,,,,,,,"Physical",,,,"penetrate"
-"C6.1","Focused Engineering","Guard,Backward,Forward,Strong","Couch",,0,45,,,,,,,,"Physical",13,,,
-"C6.2","Unbound Expertise","Guard,Backward,Forward,Strong","Couch",,0,45,,,,,,,,"Physical","13,14",,,
-"C6.3","Multitask Exertion","Guard,Backward,Forward,Strong","Couch",,0,45,,,,,,,,"Physical","13,14",,,
-"C6.4","Ingenious Moment","Guard,Backward,Forward,Strong","Couch",,0,45,,,,,,,,"Physical","13,14",,,
-"C6.5","Trapper Mastermind","Guard,Backward,Forward,Strong","Couch",,0,45,,,,,,,,"Physical","13,14",,,
+"C6.1","Focused Engineering","Guard,Backward,Forward,Strong","Couch",,0,45,,,,,,,,"Physical",50,,,
+"C6.2","Unbound Expertise","Guard,Backward,Forward,Strong","Couch",,0,45,,,,,,,,"Physical","50,51",,,
+"C6.3","Multitask Exertion","Guard,Backward,Forward,Strong","Couch",,0,45,,,,,,,,"Physical","50,51",,,
+"C6.4","Ingenious Moment","Guard,Backward,Forward,Strong","Couch",,0,45,,,,,,,,"Physical","50,51",,,
+"C6.5","Trapper Mastermind","Guard,Backward,Forward,Strong","Couch",,0,45,,,,,,,,"Physical","50,51",,,
 "A1.1","Gravity Pull Trap",,"Couch",,,,,,,,,,,,,,,
 "A1.2",,,"Couch",,,,,,,,,,,,,,,
 "A1.3",,,"Couch",,,,,,,,,,,,,,,

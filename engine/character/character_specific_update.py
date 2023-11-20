@@ -3,7 +3,7 @@ from pygame import Vector2
 
 def vraesier_update(self, dt):
     if self.mode == "Demon":
-        self.resource -= dt * 3
+        self.resource -= dt * 5
         if self.resource <= 0:
             self.resource = 0
             if "uninterruptible" not in self.command_action:  # revert to normal
@@ -15,6 +15,23 @@ def vraesier_update(self, dt):
             self.mode = "Bloody"
             if self.resource >= self.max_resource:
                 self.mode = "Ready"
+
+    if self.resource < self.max_resource:
+        for enemy in self.near_enemy:
+            if enemy[1] < 500:
+                # nearby bleeding status enemy increase resource
+                if 31 in enemy[0].status_effect:  # minor bleeding
+                    self.resource += dt
+                elif 32 in enemy[0].status_effect:  # bleeding
+                    self.resource += dt * 2
+                elif 33 in enemy[0].status_effect:  # major bleeding
+                    self.resource += dt * 3
+
+                if self.resource > self.max_resource:  # resource max, no need for continuing loop
+                    self.resource = self.max_resource
+                    break
+            else:
+                break
 
 
 def common_update(self, dt):
@@ -65,5 +82,5 @@ def dashisi_update(self, dt):
         self.battle.music_right.set_volume(0.0, right_music_volume)
 
 
-update_dict = {"Vraesier": vraesier_update, "Rodhinbar": common_update, "Iri":common_update,
+update_dict = {"Vraesier": vraesier_update, "Rodhinbar": common_update, "Iri": common_update,
                "Dashisi": dashisi_update}

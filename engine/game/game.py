@@ -3,11 +3,10 @@ import configparser
 import glob
 import os.path
 import sys
+from math import sin, cos, radians
 
 import pygame
 from pygame.locals import *
-
-from math import sin, cos, radians
 
 from engine.battle.battle import Battle
 from engine.character.character import Character, BodyPart
@@ -34,7 +33,6 @@ from engine.utils.common import edit_config
 from engine.utils.data_loading import load_image, load_images, csv_read, load_base_button
 from engine.utils.text_making import number_to_minus_or_plus
 from engine.weather.weather import MatterSprite, SpecialWeatherEffect, Weather
-from engine.utils.rotation import rotation_xy
 
 game_name = "Royal Ordains"  # Game name that will appear as game name
 
@@ -78,15 +76,16 @@ class Game:
                                     "hat-0": "L. Arrow", "hat+0": "R. Arrow",
                                     "hat-1": "D. Arrow", "hat+1": "U. Arrow"},
                           "DualSense Wireless Controller":  # ps5 joystick
-                                {0: "Cross", 1: "Circle", 2: "Square", 3: "Triangle", 4: "Share", 5: "PS", 6: "Options", 7: "L. Stick",
-                                 8: "R. Stick", 9: "L1", 10: "R1", 11: "D-Up", 12: "D-Down", 13: "D-Left", 14: "D-R.",
-                                 15: "T-Pad", "axis-0": "L. Stick L.", "axis+0": "L. Stick R.",
-                                 "axis-1": "L. Stick U.", "axis+1": "L. Stick D.",
-                                 "axis-2": "R. Stick Left", "axis+2": "R. Stick R.",
-                                 "axis-3": "R. Stick U.", "axis+3": "R. Stick D.",
-                                 "axis+4": "L2", "axis+5": "R2",
-                                 "hat-0": "L. Arrow", "hat+0": "R. Arrow",
-                                 "hat-1": "D. Arrow", "hat+1": "U. Arrow"}}
+                              {0: "Cross", 1: "Circle", 2: "Square", 3: "Triangle", 4: "Share", 5: "PS", 6: "Options",
+                               7: "L. Stick",
+                               8: "R. Stick", 9: "L1", 10: "R1", 11: "D-Up", 12: "D-Down", 13: "D-Left", 14: "D-R.",
+                               15: "T-Pad", "axis-0": "L. Stick L.", "axis+0": "L. Stick R.",
+                               "axis-1": "L. Stick U.", "axis+1": "L. Stick D.",
+                               "axis-2": "R. Stick Left", "axis+2": "R. Stick R.",
+                               "axis-3": "R. Stick U.", "axis+3": "R. Stick D.",
+                               "axis+4": "L2", "axis+5": "R2",
+                               "hat-0": "L. Arrow", "hat+0": "R. Arrow",
+                               "hat-1": "D. Arrow", "hat+1": "U. Arrow"}}
 
     # import from game
     from engine.game.activate_input_popup import activate_input_popup
@@ -207,8 +206,9 @@ class Game:
         self.corner_screen_width = self.screen_width - 1
         self.corner_screen_height = self.screen_height - 1
 
-        self.default_player_key_bind_list = {player: ast.literal_eval(self.config["DEFAULT"]["keybind player " + str(player)])
-                                         for player in self.player_list}
+        self.default_player_key_bind_list = {
+            player: ast.literal_eval(self.config["DEFAULT"]["keybind player " + str(player)])
+            for player in self.player_list}
 
         Game.language = self.language
 
@@ -620,8 +620,9 @@ class Game:
                                         vec = pygame.math.Vector2(joystick.get_axis(2), joystick.get_axis(3))
                                         radius, angle = vec.as_polar()
                                         adjusted_angle = (angle + 90) % 360
-                                        new_pos = pygame.Vector2(self.cursor.pos[0] + (self.dt * 1000 * sin(radians(adjusted_angle))),
-                                                                 self.cursor.pos[1] - (self.dt * 1000 * cos(radians(adjusted_angle))))
+                                        new_pos = pygame.Vector2(
+                                            self.cursor.pos[0] + (self.dt * 1000 * sin(radians(adjusted_angle))),
+                                            self.cursor.pos[1] - (self.dt * 1000 * cos(radians(adjusted_angle))))
                                         if new_pos[0] < 0:
                                             new_pos[0] = 0
                                         elif new_pos[0] > self.corner_screen_width:
@@ -722,8 +723,8 @@ class Game:
 
                                 for key2, value2 in self.keybind_icon.items():
                                     value2.change_key(self.config["USER"]["control player " + str(key)],
-                                        self.player_key_bind_list[key][self.config["USER"][
-                                            "control player " + str(key)]][key2], None)
+                                                      self.player_key_bind_list[key][self.config["USER"][
+                                                          "control player " + str(key)]][key2], None)
 
                                 self.player_key_bind_name = {player: {value: key for key, value in
                                                                       self.player_key_bind[player].items()}
@@ -751,7 +752,8 @@ class Game:
                         player = self.control_switch.player
                         old_key = self.player_key_bind[player][self.input_popup[1][1]]
 
-                        self.player_key_bind[player][self.input_popup[1][1]] = self.player_key_bind[player][self.input_popup[1][2]]
+                        self.player_key_bind[player][self.input_popup[1][1]] = self.player_key_bind[player][
+                            self.input_popup[1][2]]
                         self.player_key_bind[player][self.input_popup[1][2]] = old_key
                         self.config["USER"]["keybind player " + str(player)] = str(self.player_key_bind_list[player])
                         self.change_keybind()
@@ -795,7 +797,8 @@ class Game:
                                     if i < 4:
                                         if joystick.get_axis(i) > 0.5 or joystick.get_axis(i) < -0.5:
                                             if i not in (2, 3):  # prevent right axis from being assigned
-                                                axis_name = "axis" + number_to_minus_or_plus(joystick.get_axis(i)) + str(i)
+                                                axis_name = "axis" + number_to_minus_or_plus(
+                                                    joystick.get_axis(i)) + str(i)
                                                 self.assign_key(axis_name)
                                     else:  # axis from other type of joystick (ps5 axis 4 and 5 is L2 and R2) which -1 mean not press
                                         if joystick.get_axis(i) > 0.5:  # check only positive

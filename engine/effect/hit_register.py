@@ -15,6 +15,8 @@ def hit_register(self, target, body_part):
             # play next action after parry
             target.interrupt_animation = True
             target.command_action = target.current_action["next action"]
+            if target.crash_haste:
+                target.apply_status(45)  # get haste buff
             if self.owner.player_control:
                 Effect(None, ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle), 0)
             else:
@@ -58,7 +60,7 @@ def hit_register(self, target, body_part):
 
                 else:  # guarded hit, reduce meter
                     if target.guarding > 0.5:  # not perfect guard (guard within 0.5 secs before taking hit)
-                        target.guard_meter -= attacker_dmg
+                        target.guard_meter -= attacker_dmg * target.guard_cost_modifier
                         if target.crash_guard_resource_regen:
                             target.resource += target.resource1  # regen
                             if target.resource > target.max_resource:  # resource cannot exceed the max resource
@@ -66,9 +68,11 @@ def hit_register(self, target, body_part):
 
                         if target.guard_meter < 0:  # guard depleted, break with heavy damaged animation
                             if self.owner.player_control:
-                                Effect(None, ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle), 0)
+                                Effect(None,
+                                       ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle), 0)
                             else:
-                                Effect(None, ("Crash Enemy", "Crash", self.rect.centerx, self.rect.centery, -self.angle), 0)
+                                Effect(None,
+                                       ("Crash Enemy", "Crash", self.rect.centerx, self.rect.centery, -self.angle), 0)
                             target.guard_meter = 0
                             target.interrupt_animation = True
                             target.command_action = target.heavy_damaged_command_action
@@ -78,9 +82,11 @@ def hit_register(self, target, body_part):
                             #                                      volume_mod=target.hit_volume_mod)
                         else:
                             if self.owner.player_control:  # player hit enemy guard
-                                Effect(None, ("Crash Enemy", "Crash", self.rect.centerx, self.rect.centery, -self.angle), 0)
+                                Effect(None,
+                                       ("Crash Enemy", "Crash", self.rect.centerx, self.rect.centery, -self.angle), 0)
                             else:  # enemy hit player guard
-                                Effect(None, ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle),
+                                Effect(None,
+                                       ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle),
                                        0)
                             target.show_frame -= 3
                             if self.stick_reach and not self.penetrate:
@@ -97,7 +103,8 @@ def hit_register(self, target, body_part):
             else:
                 DamageNumber("MISS", dmg_text_pos, False, target.team)
 
-                if target.current_moveset and "parry" in target.current_moveset["Property"]:  # target parrying even with dodge
+                if target.current_moveset and "parry" in target.current_moveset[
+                    "Property"]:  # target parrying even with dodge
                     # play next action after parry
                     target.interrupt_animation = True
                     target.command_action = target.current_action["next action"]

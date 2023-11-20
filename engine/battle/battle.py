@@ -2,31 +2,19 @@ import glob
 import os
 import sys
 import time
-from random import randint
 from math import sin, cos, radians
+from random import randint
 
 import pygame
 from pygame import Vector2, display, mouse
 from pygame.locals import *
 
-from engine.battle.add_sound_effect_queue import add_sound_effect_queue
-from engine.battle.cal_shake_value import cal_shake_value
-from engine.battle.camera_fix import camera_fix
-from engine.battle.camera_process import camera_process
-from engine.battle.escmenu_process import escmenu_process
-from engine.battle.play_sound_effect import play_sound_effect
 from engine.battle.setup.make_battle_ui import make_battle_ui
 from engine.battle.setup.make_esc_menu import make_esc_menu
-from engine.battle.setup_battle_character import setup_battle_character
-from engine.battle.shake_camera import shake_camera
-from engine.battle.spawn_weather_matter import spawn_weather_matter
 from engine.camera.camera import Camera
 from engine.character.character import Character
 from engine.drama.drama import TextDrama
 from engine.effect.effect import Effect
-from engine.game.activate_input_popup import activate_input_popup
-from engine.game.change_pause_update import change_pause_update
-from engine.lorebook.lorebook import lorebook_process
 from engine.stage.stage import Stage
 from engine.stageobject.stageobject import StageObject
 from engine.uibattle.uibattle import FPSCount, BattleCursor, YesNo
@@ -50,17 +38,40 @@ def set_done_load():
 
 
 class Battle:
+    from engine.game.activate_input_popup import activate_input_popup
     activate_input_popup = activate_input_popup
+
+    from engine.battle.add_sound_effect_queue import add_sound_effect_queue
     add_sound_effect_queue = add_sound_effect_queue
+
+    from engine.battle.cal_shake_value import cal_shake_value
     cal_shake_value = cal_shake_value
-    camera_fix = camera_fix
+
+    from engine.battle.camera_process import camera_process
     camera_process = camera_process
+
+    from engine.game.change_pause_update import change_pause_update
     change_pause_update = change_pause_update
+
+    from engine.battle.fix_camera import fix_camera
+    fix_camera = fix_camera
+
+    from engine.battle.play_sound_effect import play_sound_effect
     play_sound_effect = play_sound_effect
+
+    from engine.battle.setup_battle_character import setup_battle_character
     setup_battle_character = setup_battle_character
+
+    from engine.battle.shake_camera import shake_camera
     shake_camera = shake_camera
+
+    from engine.battle.spawn_weather_matter import spawn_weather_matter
     spawn_weather_matter = spawn_weather_matter
+
+    from engine.battle.escmenu_process import escmenu_process
     escmenu_process = escmenu_process
+
+    from engine.lorebook.lorebook import lorebook_process
     lorebook_process = lorebook_process
 
     battle = None
@@ -104,7 +115,7 @@ class Battle:
         self.joystick_player = self.game.joystick_player
         self.screen_rect = game.screen_rect
         self.corner_screen_width = game.corner_screen_width
-        self.corner_screen_height = game .corner_screen_height
+        self.corner_screen_height = game.corner_screen_height
 
         Battle.battle_camera_size = (self.screen_rect.width, self.screen_rect.height)
         Battle.battle_camera_min = (self.screen_rect.width, 0)
@@ -479,7 +490,7 @@ class Battle:
         #                                                portrait.get_height() * 0.95))
         self.first_player = tuple(self.player_objects.keys())[0]
         self.camera_pos = Vector2(500, self.battle_camera_center[1])
-        self.camera_fix()
+        self.fix_camera()
 
         self.shown_camera_pos = self.camera_pos
 
@@ -540,7 +551,8 @@ class Battle:
             for player, key_set in self.player_key_press.items():
                 if self.player_key_control[player] == "keyboard":
                     for key in key_set:  # check for key holding
-                        if type(self.player_key_bind[player][key]) == int and key_state[self.player_key_bind[player][key]]:
+                        if type(self.player_key_bind[player][key]) == int and key_state[
+                            self.player_key_bind[player][key]]:
                             self.player_key_hold[player][key] = True
                 else:
                     player_key_bind_name = self.player_key_bind_name[player]
@@ -569,13 +581,15 @@ class Battle:
                                         if self.game_state == "battle":
                                             new_pos = pygame.Vector2(
                                                 self.player_1_battle_cursor.pos[0] + (
-                                                            self.true_dt * 1000 * sin(radians(adjusted_angle))),
+                                                        self.true_dt * 1000 * sin(radians(adjusted_angle))),
                                                 self.player_1_battle_cursor.pos[1] - (
-                                                            self.true_dt * 1000 * cos(radians(adjusted_angle))))
+                                                        self.true_dt * 1000 * cos(radians(adjusted_angle))))
                                         else:
                                             new_pos = pygame.Vector2(
-                                                self.cursor.pos[0] + (self.true_dt * 1000 * sin(radians(adjusted_angle))),
-                                                self.cursor.pos[1] - (self.true_dt * 1000 * cos(radians(adjusted_angle))))
+                                                self.cursor.pos[0] + (
+                                                            self.true_dt * 1000 * sin(radians(adjusted_angle))),
+                                                self.cursor.pos[1] - (
+                                                            self.true_dt * 1000 * cos(radians(adjusted_angle))))
                                         if new_pos[0] < 0:
                                             new_pos[0] = 0
                                         elif new_pos[0] > self.corner_screen_width:
@@ -590,7 +604,8 @@ class Battle:
                                         if axis_name in player_key_bind_name:
                                             # axis pressing require different way to check than other buttons
                                             if (joystick.get_axis(i) > 0.9 or joystick.get_axis(i) < -0.9) and \
-                                                    player_key_bind_name[axis_name] in self.player_objects[player].player_key_hold_timer:
+                                                    player_key_bind_name[axis_name] in self.player_objects[
+                                                player].player_key_hold_timer:
                                                 self.player_key_hold[player][player_key_bind_name[axis_name]] = True
                                             else:
                                                 self.player_key_hold[player][player_key_bind_name[axis_name]] = True
@@ -608,7 +623,8 @@ class Battle:
                     if self.game_state != "menu":  # open menu first before add popup
                         self.game_state = "menu"
                         self.add_ui_updater(self.battle_menu,
-                                            self.battle_menu_button, self.esc_text_popup)  # add menu and its buttons to drawer
+                                            self.battle_menu_button,
+                                            self.esc_text_popup)  # add menu and its buttons to drawer
                         self.add_ui_updater(self.cursor)
                     self.input_popup = ("confirm_input", "quit")
                     self.input_ui.change_instruction("Quit Game?")
@@ -711,10 +727,13 @@ class Battle:
                 if self.game_state == "battle":  # in battle
                     self.game_state = "menu"  # open menu
                     self.esc_text_popup.popup((self.screen_rect.centerx, self.screen_rect.height * 0.9),
-                                              self.game.localisation.grab_text(("map", str(self.chapter), str(self.mission), str(self.stage),
-                                                                                 "eventlog", self.battle_stage.current_frame, "Text")), width_text_wrapper=1000 * self.game.screen_scale[0])
+                                              self.game.localisation.grab_text(
+                                                  ("map", str(self.chapter), str(self.mission), str(self.stage),
+                                                   "eventlog", self.battle_stage.current_frame, "Text")),
+                                              width_text_wrapper=1000 * self.game.screen_scale[0])
                     self.add_ui_updater(self.battle_menu, self.cursor,
-                                        self.battle_menu_button, self.esc_text_popup)  # add menu and its buttons to drawer
+                                        self.battle_menu_button,
+                                        self.esc_text_popup)  # add menu and its buttons to drawer
                     esc_press = False  # reset esc press, so it not stops esc menu when open
                     self.realtime_ui_updater.remove(self.player_1_battle_cursor)
 

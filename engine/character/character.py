@@ -126,6 +126,10 @@ class Character(sprite.Sprite):
 
     weak_attack_command_action = {"name": "Weak Attack", "moveset": True, "weak": True}
     strong_attack_command_action = {"name": "Strong Attack", "moveset": True, "strong": True}
+    weak_attack_run_command_action = {"name": "Weak Attack", "moveset": True, "movable": True, "weak": True,
+                                      "run": True, "remove momentum when done": True}
+    strong_attack_run_command_action = {"name": "Strong Attack", "moveset": True, "movable": True, "strong": True,
+                                        "run": True, "remove momentum when done": True}
     weak_attack_hold_command_action = {"name": "Weak Attack", "hold": True, "moveset": True, "weak": True}
     strong_attack_hold_command_action = {"name": "Strong Attack", "hold": True, "moveset": True, "strong": True}
     special_command_action = {"name": "Special", "moveset": True, "special": True}
@@ -136,7 +140,7 @@ class Character(sprite.Sprite):
 
     guard_command_action = {"name": "Guard", "guard": True}
     guard_hold_command_action = {"name": "Guard", "guard": True, "hold": True}
-    guard_move_command_action = {"name": "Guard", "guard": True, "movable": True, "walk": True}
+    guard_move_command_action = {"name": "GuardWalk", "guard": True, "movable": True, "walk": True}
 
     air_idle_command_action = {"name": "Idle", "movable": True}
     land_command_action = {"name": "Land", "uncontrollable": True, "land": True}
@@ -234,6 +238,9 @@ class Character(sprite.Sprite):
         self.immune_weather = False
         self.hit_resource_regen = False
         self.crash_guard_resource_regen = False
+        self.crash_haste = False
+        self.slide_attack = False
+        self.tackle_attack = False
         self.position = "Stand"
         self.combat_state = "Peace"
         self.mode = "Normal"
@@ -350,9 +357,13 @@ class Character(sprite.Sprite):
 
         self.resource = self.max_resource * stat["Start Resource"]
 
+        self.original_resource_cost_modifier = 1
+        self.original_guard_cost_modifier = 1
+
         self.original_cast_speed = 1 / (1 + ((self.dexterity + self.intelligence) / 200))
 
-        self.original_animation_play_time = self.default_animation_play_time / (1 + (self.agility / 200))  # higher value mean longer play time
+        self.original_animation_play_time = self.default_animation_play_time / (
+                    1 + (self.agility / 200))  # higher value mean longer play time
         self.animation_play_time = self.original_animation_play_time
         self.final_animation_play_time = self.animation_play_time
         self.original_speed = self.agility / 2
@@ -377,6 +388,8 @@ class Character(sprite.Sprite):
         self.base_body_mass = stat["Size"]
         self.body_mass = self.base_body_mass
 
+        self.arrive_condition = stat["Arrive Condition"]
+
         self.ground_pos = self.original_ground_pos
         self.jump_power = 200 - self.weight
         self.y_momentum = 0
@@ -385,6 +398,7 @@ class Character(sprite.Sprite):
         self.fall_gravity = self.battle.original_fall_gravity
 
         self.items = {}
+
         # Stat after applying gear
         self.base_power_bonus = 0
         self.base_defence = self.original_defence
@@ -397,6 +411,9 @@ class Character(sprite.Sprite):
 
         self.base_speed = (self.original_speed * (
                 (100 - self.weight) / 100))  # finalise base speed with weight and grade bonus
+
+        self.base_guard_cost_modifier = self.original_guard_cost_modifier
+        self.base_resource_cost_modifier = self.original_resource_cost_modifier
 
         self.base_hp_regen = self.original_hp_regen
         self.base_resource_regen = self.original_resource_regen
@@ -419,8 +436,8 @@ class Character(sprite.Sprite):
         self.guard_meter20 = self.guard_meter * 0.2
         self.guard_meter5 = self.guard_meter * 0.05
 
-        # self.max_melee_range = self.melee_range[0]
-        # self.max_shoot_range = self.shoot_range[0]
+        self.guard_cost_modifier = self.base_guard_cost_modifier
+        self.resource_cost_modifier = self.base_resource_cost_modifier
 
         self.max_health = int(self.health)
         self.health *= stat["Start Health"] / 100
@@ -428,6 +445,7 @@ class Character(sprite.Sprite):
         self.run_speed = 1
         self.walk_speed = 1
 
+        # Variable related to sprite
         self.angle = 0
         self.new_angle = self.angle
         self.radians_angle = radians(360 - self.angle)  # radians for apply angle to position
@@ -441,8 +459,10 @@ class Character(sprite.Sprite):
         if "Only Sprite Version" in stat and stat["Only Sprite Version"]:  # data suggest only one sprite version exist
             self.sprite_ver = str(stat["Only Sprite Version"])
 
-        self.arrive_condition = stat["Arrive Condition"]
+        self.retreat_stage_end = self.battle.base_stage_end + self.sprite_size
+        self.retreat_stage_start = -self.sprite_size
 
+        # find and set method specific to character
         self.specific_special_check = empty_method
         if self.sprite_id in special_dict:
             self.specific_special_check = special_dict[self.sprite_id]
@@ -455,9 +475,6 @@ class Character(sprite.Sprite):
         self.special_damage = empty_method
         if self.sprite_id in damage_dict:
             self.special_damage = damage_dict[self.sprite_id]
-
-        self.retreat_stage_end = self.battle.base_stage_end + self.sprite_size
-        self.retreat_stage_start = -self.sprite_size
 
         self.body_parts = {}
 
@@ -621,11 +638,12 @@ class Character(sprite.Sprite):
 
                     # Reset action check
                     if "next action" in self.current_action and not self.interrupt_animation and \
-                            (not self.current_moveset or "noautonext" not in self.current_moveset["Property"]):
+                            (not self.current_moveset or "no auto next" not in self.current_moveset["Property"]):
                         # play next action first instead of command if not finish by interruption
                         self.current_action = self.current_action["next action"]
-                    elif (("x_momentum" in self.current_action and self.x_momentum) or
-                          ("y_momentum" in self.current_action and self.y_momentum)) and not self.interrupt_animation:
+                    elif ("remove momentum when done" not in self.current_action and
+                          (("x_momentum" in self.current_action and self.x_momentum) or
+                           ("y_momentum" in self.current_action and self.y_momentum))) and not self.interrupt_animation:
                         # action that require movement to run out first before continue to next action
                         pass
                     elif "arrive" in self.current_action and "Arrive2" in self.skill[self.position]:
@@ -758,9 +776,11 @@ class PlayableCharacter(Character):
         self.dodge_move = False
         if self.common_skill["Ground Movement"][1]:  # can slide attack
             self.slide_attack = True
+            self.moveset["Stand"] |= {key: value for key, value in self.character_data.common_moveset_skill["Stand"].items() if key == "Slide"}
         if self.common_skill["Ground Movement"][2]:  # can tackle attack
             self.tackle_attack = True
-        if self.common_skill["Ground Movement"][3]:  # can slide attack
+            self.moveset["Stand"] |= {key: value for key, value in self.character_data.common_moveset_skill["Stand"].items() if key == "Tackle"}
+        if self.common_skill["Ground Movement"][3]:  #
             pass
         if self.common_skill["Ground Movement"][4]:  # weight no longer affect movement speed
             self.base_speed = self.original_speed
@@ -839,29 +859,35 @@ class PlayableCharacter(Character):
         self.hit_resource_regen = False
         self.crash_guard_resource_regen = False
         if self.common_skill["Resourceful"][1]:  # add resource regen
-            self.base_resource_regen += self.max_resource * 0.05
+            self.base_resource_regen += self.max_resource * 0.01
         if self.common_skill["Resourceful"][2]:  # resource regen when hit enemy
             self.hit_resource_regen = True
         if self.common_skill["Resourceful"][3]:  # resource regen when crash and guard
             self.crash_guard_resource_regen = True
-        if self.common_skill["Resourceful"][4]:  # can slide attack
-            pass
-        if self.common_skill["Resourceful"][5]:  # can slide attack
+        if self.common_skill["Resourceful"][4]:  # double max resource, and improve auto regen
+            self.max_resource *= self.max_resource
+            self.resource1 = self.max_resource * 0.01
+            self.resource2 = self.max_resource * 0.02
+            self.resource25 = self.max_resource * 0.25
+            self.resource50 = self.max_resource * 0.5
+            self.resource75 = self.max_resource * 0.75
+            self.base_resource_regen += self.max_resource * 0.03
+        if self.common_skill["Resourceful"][5]:
             pass
 
-        self.can_crash_boss = False
-        self.walk_guard = False
+        self.guard_move = False
+        self.crash_haste = False
         if self.common_skill["Combat Contest"][1]:  # increase max guard
             self.guard_meter = int(self.base_guard * 1.5)
             self.max_guard = int(self.guard_meter)
             self.guard_meter20 = self.guard_meter * 0.2
             self.guard_meter5 = self.guard_meter * 0.05
         if self.common_skill["Combat Contest"][2]:  # can walk while guarding
-            self.walk_guard = True
-        if self.common_skill["Combat Contest"][3]:  # can crash boss attack
-            self.can_crash_boss = True
-        if self.common_skill["Combat Contest"][4]:  # can slide attack
-            self.item_free_use_chance = True
+            self.guard_move = True
+        if self.common_skill["Combat Contest"][3]:  # guard cost half by default
+            self.base_guard_cost_modifier -= 0.5
+        if self.common_skill["Combat Contest"][4]:  # crash now give haste status
+            self.crash_haste = True
         if self.common_skill["Combat Contest"][5]:  # can slide attack
             pass
 
@@ -953,6 +979,7 @@ class BodyPart(sprite.Sprite):
         self.can_deal_dmg = False
         self.aoe = False
         self.dmg = None
+        self.object_type = "body"
         self.stick_reach = False  # not used for body parts but require for checking
         self.stick_timer = 0  # not used but require for checking
         self.penetrate = True  # part always penetrate if doing dmg
@@ -978,7 +1005,7 @@ class BodyPart(sprite.Sprite):
         self.enemy_status_effect = ()
         if new_animation:
             self.already_hit = []
-        elif self.owner.current_moveset and "multiframehit" in self.owner.current_moveset["Property"]:
+        elif self.owner.current_moveset and "multiple hit" in self.owner.current_moveset["Property"]:
             self.already_hit = []
 
         if data[8]:  # can do dmg
@@ -989,7 +1016,8 @@ class BodyPart(sprite.Sprite):
             if "weapon" in self.part_name:
                 self.image = self.body_sprite_pool[self.data[0]][self.sprite_ver][self.mode][self.data[1]][self.data[5]]
             elif "special" in self.part_name:
-                self.image = self.body_sprite_pool[self.data[0]]["special"][self.sprite_ver][self.mode][self.data[1]][self.data[5]]
+                self.image = self.body_sprite_pool[self.data[0]]["special"][self.sprite_ver][self.mode][self.data[1]][
+                    self.data[5]]
             else:
                 self.image = self.body_sprite_pool[self.data[0]][self.part_name][self.sprite_ver][self.mode][
                     self.data[1]][self.data[5]]

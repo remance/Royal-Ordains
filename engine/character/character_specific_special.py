@@ -15,4 +15,5 @@ def vraesier_special(self):
         self.command_action = self.special_command_action
 
 
-special_dict = {"Vraesier": vraesier_special, "Rodhinbar": common_special, "Duskuksa": common_special, "Iri": common_special}
+special_dict = {"Vraesier": vraesier_special, "Rodhinbar": common_special, "Duskuksa": common_special,
+                "Iri": common_special}

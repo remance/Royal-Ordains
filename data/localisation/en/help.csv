@@ -46,13 +46,13 @@
 "Resourceful.1","Resourceful",,"With enough practice, the hero can now passively multi-task between other activities and increase their resource at once."
 "Resourceful.2","Resourceful",,"With bloodlust, the hero now gains some resources every time they hit the enemy. An essential skill for those who want to keep unleashing skills with great speed."
 "Resourceful.3","Resourceful",,"With patience, the hero now gains some resources every time they block an attack from the enemy. A perfect upgrade for those who prefer defensive combat and devastating counterattack."
-"Resourceful.4","Resourceful",,
+"Resourceful.4","Resourceful",,"Advanced training in resource management allows the hero to have double the maximum resources possible and automatically regenerate resources even faster. Carnages of an unfathomable scale await."
 "Resourceful.5","Resourceful","(Stand) Guard+Down+Up+Down+Special",
 "Combat Contest.0","Combat Contest",,"Let the hero be more skilled in combat, both offensive and defensive."
 "Combat Contest.1","Combat Contest",,"A good defensive stance is important in surviving a combat. Thorough training lets the hero guard against incoming blows more effectively."
 "Combat Contest.2","Combat Contest",,"Being mobile while guarding may look easy from an outsider's perspective, but it require a great deal of focus and rhythm balance. The hero is now capable of moving around while guarding."
-"Combat Contest.3","Combat Contest",,
-"Combat Contest.4","Combat Contest",,
+"Combat Contest.3","Combat Contest",,"Knowing how to guard makes the incoming blow less punishing than usual. Increasing guard cost reduction by 50%."
+"Combat Contest.4","Combat Contest",,"Predator in all combats. Any crash from this hero attack will trigger a haste buff effect, increasing their speed for a short while."
 "Combat Contest.5","Combat Contest",,
 "Double Piercing.0","Double Piercing","(Stand) Down+Forward+Strong","Unleash a set of quick stabbing. Cost no resources and has a short cooldown."
 "Double Piercing.1","Double Piercing","(Stand) Down+Forward+Strong","A set of quick double stabs with a higher minor chance of a critical hit. A feat performed only by skilled swordsmen."
@@ -62,13 +62,13 @@
 "Double Piercing.5","Unseen Piercing","(Stand) Down+Forward+Strong","Into the realm of invisibility, it is impossible to illustrate each stab of this relentless attacks. The hero becomes seemingly immune to all damage during this move. "
 "Counterattack.0","Counterattack","(Stand) Guard+Strong","Attempt to parry incoming enemy attack and perform counterattack(s). Cost no resources and has no cooldown."
 "Counterattack.1","Counterattack","(Stand) Guard+Strong","A skilful parry and counterattack against incompetent attack from enemies by comparison. Quite a risky move with a high reward."
-"Counterattack.2","Counter Cross Slash","(Stand) Guard+Strong",
+"Counterattack.2","Counter Cross Slash","(Stand) Guard+Strong","An attack of twice counterattack slashing after a successful parry. Deal a significant amount of damage."
 "Counterattack.3","Bloody Parry","(Stand) Guard+Strong","A brutal counterattack against those foolish enough to attack. The close distance also lets the hero draw a significant amount of blood from the victims. Almost vampiric in nature."
 "Counterattack.4","Revenge Guard","(Stand) Guard+Strong",
 "Counterattack.5","Sword of Vengeance","(Stand) Guard+Strong",
 "Vital Slash.0","Vital Slash","(Stand) Down+Backward+Strong","A well-placed slash to a vital body part is enough to draw a pool of blood on the ground. Inflict bleeding and have a higher moderate critical hit chance."
-"Vital Slash.1","Vital Slash","(Stand) Down+Backward+Strong",
-"Vital Slash.2","Bloodletting","(Stand) Down+Backward+Strong",
+"Vital Slash.1","Vital Slash","(Stand) Down+Backward+Strong","A single slash to draw in death. Such blood sprouting will bolter the demonic power within."
+"Vital Slash.2","Bloodletting","(Stand) Down+Backward+Strong","There is no such thing as bad or good for the blood that will supplement the demon within. Losing an enormous amount of blood will also, no doubt, make the victim sluggish to move."
 "Vital Slash.3","Slow Killing","(Stand) Down+Backward+Strong",
 "Vital Slash.4","Bloodbath","(Stand) Down+Backward+Strong",
 "Vital Slash.5","Fountain of Blood","(Stand) Down+Backward+Strong",
@@ -84,7 +84,7 @@
 "Eclipse Slash.3","Greater Moon Arc","(Stand) Guard+Down+Up+Strong",
 "Eclipse Slash.4","Crescent","(Stand) Guard+Down+Up+Strong",
 "Eclipse Slash.5","Beauty of Death","(Stand) Guard+Down+Up+Strong",
-"Bash.0","Bash","(Stand) Down+Forward+Weak",
+"Bash.0","Bash","(Stand) Down+Forward+Weak","A quick pummel blow that stuns and disorients enemies. Has low damage but is great for inflicting debuffs on strong foes. Cost no resources and has a small cooldown."
 "Bash.1","Bash","(Stand) Down+Forward+Weak",
 "Bash.2","Smite","(Stand) Down+Forward+Weak",
 "Bash.3","Stagger Strike","(Stand) Down+Forward+Weak",
@@ -157,31 +157,31 @@
 "Barrage.4",,"(Stand) Down+Forward+Weak",
 "Barrage.5","Finest Archery","(Stand) Down+Forward+Weak",
 "Charged Shot.0","Charged Shot","(Stand) Down+Forward+Strong","Draw and let loose a powerful arrow capable of penetrating enemies with ease. Use 1 arrow per shot with a small cooldown."
-"Charged Shot.1","Charged Shot","(Stand) Down+Forward+Strong",
-"Charged Shot.2","Penetrating Shot","(Stand) Down+Forward+Strong",
+"Charged Shot.1","Charged Shot","(Stand) Down+Forward+Strong","One well-aimed arrow to kill one enemy."
+"Charged Shot.2","Penetrating Shot","(Stand) Down+Forward+Strong","One arrow for multiple targets."
 "Charged Shot.3","Great Shot","(Stand) Down+Forward+Strong",
 "Charged Shot.4","Power Shot","(Stand) Down+Forward+Strong",
 "Charged Shot.5","Kill Shot","(Stand) Down+Forward+Strong",
 "Arrow Shower.0","Arrow Shower","(Stand) Guard+Down+Down+Strong","Aim to the sky and unleash a huge number of arrows. The arrows will shortly after rain down on the nearest enemy. Cost a huge number of arrows but has no cooldown."
-"Arrow Shower.1","Arrow Shower","(Stand) Guard+Down+Down+Strong",
+"Arrow Shower.1","Arrow Shower","(Stand) Guard+Down+Down+Strong","Rain death, lay waste."
 "Arrow Shower.2","Arrow Swarm","(Stand) Guard+Down+Down+Strong",
 "Arrow Shower.3","Arrow Storm","(Stand) Guard+Down+Down+Strong",
 "Arrow Shower.4","Arrow Tempest","(Stand) Guard+Down+Down+Strong",
 "Arrow Shower.5","Blot Out the Sun","(Stand) Guard+Down+Down+Strong",
 "Precision Slash.0","Precision Slash","(Stand) Guard+Forward+Forward+Strong","Slice the enemy with precision. This attack can not be dodged by normal means. Cost no resource and have a low cooldown."
-"Precision Slash.1","Precision Slash","(Stand) Guard+Forward+Forward+Strong",
+"Precision Slash.1","Precision Slash","(Stand) Guard+Forward+Forward+Strong","One slash, one hit ensured."
 "Precision Slash.2",,"(Stand) Guard+Forward+Forward+Strong",
 "Precision Slash.3",,"(Stand) Guard+Forward+Forward+Strong",
 "Precision Slash.4","Undeniable Attack","(Stand) Guard+Forward+Forward+Strong",
 "Precision Slash.5","Fateful Assault","(Stand) Guard+Forward+Forward+Strong",
 "Retreating Shot.0","Retreating Shot","(Stand) Guard+Down+Up+Strong","Jump back and shoot at the enemy in the front. Great for dealing damage while dodging enemy attacks at once. Cost 1 arrow but has a moderate cooldown."
-"Retreating Shot.1","Retreating Shot","(Stand) Guard+Down+Up+Strong",
+"Retreating Shot.1","Retreating Shot","(Stand) Guard+Down+Up+Strong","A quick jump back to ensure safety and maximum offence."
 "Retreating Shot.2","Tactical Withdrawal","(Stand) Guard+Down+Up+Strong",
 "Retreating Shot.3","Luring Escape","(Stand) Guard+Down+Up+Strong",
 "Retreating Shot.4","Ambush Setup","(Stand) Guard+Down+Up+Strong",
 "Retreating Shot.5",,"(Stand) Guard+Down+Up+Strong",
 "Rapid Draw.0","Rapid Draw","(Stand) Down+Forward+Weak","Enter into a focused state, allowing quick movement to attack with ferocity. Cost no resource but has high cooldown."
-"Rapid Draw.1","Combat Acceleration","(Stand) Down+Forward+Weak",
+"Rapid Draw.1","Combat Acceleration","(Stand) Down+Forward+Weak","Speed is everything."
 "Rapid Draw.2",,"(Stand) Down+Forward+Weak",
 "Rapid Draw.3","Planning Annihilation","(Stand) Down+Forward+Weak",
 "Rapid Draw.4","Overcome the Limit","(Stand) Down+Forward+Weak",
@@ -283,26 +283,26 @@
 "Chill Burst Inner.4","Dark Moon","(Stand) Guard+Backward+Down+Special",
 "Chill Burst Inner.5","Avatar of Pizhezk","(Stand) Guard+Backward+Down+Special",
 "Fire Trap.0","Fire Trap","(Couch) Forward+Strong","Set up a fire trap at the current position. The trap will activate when an enemy comes near it and unleashes a patch of flame. Cost high resources but will return a trap remain drop after activation."
-"Fire Trap.1","Fire Trap","(Couch) Forward+Strong",
-"Fire Trap.2","Burning Oil Trap","(Couch) Forward+Strong",
-"Fire Trap.3","Napalm Trap","(Couch) Forward+Strong",
-"Fire Trap.4","Black Flame Trap","(Couch) Forward+Strong",
+"Fire Trap.1","Fire Trap","(Couch) Forward+Strong","A small fire trap that leaves a small patch of fire on the ground. Dealing damage to whoever comes into contact with it and inflicting burn status."
+"Fire Trap.2","Burning Oil Trap","(Couch) Forward+Strong","A devious blend of oil formula leaves a persisting fire for a longer period and burns the victims much longer. A significant improvement over the original firebomb."
+"Fire Trap.3","Napalm Trap","(Couch) Forward+Strong","A new mechanism has been implanted to make the oil spread much further than ever before, leaving a larger patch of fire after the trap activation."
+"Fire Trap.4","Black Flame Trap","(Couch) Forward+Strong","A red flame, while can inflict fear on many due to its danger, is still a common sight that many know its nature by heart. With a combination of chemistry wonders, a dark colour flame can be artificially produced. Such sight, no doubt, almost makes it like the grand devil has appeared. Inciting panic in all that come into contact with it."
 "Fire Trap.5",,"(Couch) Forward+Strong",
 "Stink Trap.0","Stink Trap","(Stand) Down+Forward+Weak","Throw out a trap bag containing stink powder. The trap will activate and unleash a cloud of stink smell when an enemy comes near it after it reaches the ground. Deal no damage on its own but inflict strong debuffs. Cost small resources but will return a scrap drop after activation."
-"Stink Trap.1","Stink Trap","(Stand) Down+Forward+Weak",
-"Stink Trap.2","Tear Trap","(Stand) Down+Forward+Weak",
+"Stink Trap.1","Stink Trap","(Stand) Down+Forward+Weak","Almost no one can fully focus while a stinking smell passes through their nose. This bag of stinking smell will unleash an abomination once the banding comes loose from any impact."
+"Stink Trap.2","Tear Trap","(Stand) Down+Forward+Weak","Some smell is simply so bad they can induce tear in those affected by it. Making them unable to fight effectively and struggling to perform even a simple task. "
 "Stink Trap.3",,"(Stand) Down+Forward+Weak",
 "Stink Trap.4","Brain Stun Trap","(Stand) Down+Forward+Weak",
 "Stink Trap.5",,"(Stand) Down+Forward+Weak",
 "Snare Trap.0","Snare Trap","(Couch) Guard+Backward+Weak","Set up a snare trap at the current position. The trap will activate when an enemy comes near it and damage the enemy while also pinning them in place. Cost small resources but will return a scrap drop after activation."
-"Snare Trap.1","Snare Trap","(Couch) Guard+Backward+Weak",
-"Snare Trap.2","Paralysis Trap","(Couch) Guard+Backward+Weak",
+"Snare Trap.1","Snare Trap","(Couch) Guard+Backward+Weak","A snare trap that will snap at the unfortunate victim, rendering them unable to move for a short time."
+"Snare Trap.2","Paralysis Trap","(Couch) Guard+Backward+Weak","A snare trap coated with paralysing toxin leaves the victim pinned down and unable to fight effectively."
 "Snare Trap.3","Razor Trap","(Couch) Guard+Backward+Weak",
 "Snare Trap.4","Lifesnare Trap","(Couch) Guard+Backward+Weak",
 "Snare Trap.5",,"(Couch) Guard+Backward+Weak",
 "Poison Trap.0","Poison Trap","(Couch) Guard+Forward+Weak","Set up a poison trap at the current position. The trap will activate when an enemy comes near it and unleashes a poison smoke. Cost moderate resources but will return a trap remain drop after activation."
-"Poison Trap.1","Poison Trap","(Couch) Guard+Forward+Weak",
-"Poison Trap.2","Numb Trap","(Couch) Guard+Forward+Weak",
+"Poison Trap.1","Poison Trap","(Couch) Guard+Forward+Weak","A trap with a bottle containing a better-unnamed and left unknown toxin mixture that, once comes into contact with air, will evaporate and poison any who inhales it from within."
+"Poison Trap.2","Numb Trap","(Couch) Guard+Forward+Weak","With a drop of a certain compound, this new formula of evaporative poison trap also induces fatigue to the victim, making them slower to act."
 "Poison Trap.3","Deadly Poison Trap","(Couch) Guard+Forward+Weak",
 "Poison Trap.4","Certain Death Trap","(Couch) Guard+Forward+Weak",
 "Poison Trap.5","Necromist Trap","(Couch) Guard+Forward+Weak",
@@ -313,8 +313,8 @@
 "Crushing Trap.4","Downfall Trap","(Stand) Guard+Upward+Strong",
 "Crushing Trap.5",,"(Stand) Guard+Upward+Strong",
 "Focused Engineering.0","Focused Engineering","(Couch) Guard+Backward+Forward+Strong","Focus all attention into engineering mode. Reduce resource cost during the effect duration and potentially improve other stats. Cost no resources but has a high cooldown time."
-"Focused Engineering.1","Focused Engineering","(Couch) Guard+Backward+Forward+Strong",
-"Focused Engineering.2","Unbound Expertise","(Couch) Guard+Backward+Forward+Strong",
+"Focused Engineering.1","Focused Engineering","(Couch) Guard+Backward+Forward+Strong","Handling traps is a delicate activity. One wrong movement can set off the trap and waste it uses. A focused mind can reduce such avoidable mistakes and wastes."
+"Focused Engineering.2","Unbound Expertise","(Couch) Guard+Backward+Forward+Strong","A good engineer can modify their handiworks to suit any situation, including making their movement and skill much more effective in dealing with the enemy."
 "Focused Engineering.3","Multitask Exertion","(Couch) Guard+Backward+Forward+Strong",
 "Focused Engineering.4","Ingenious Moment","(Couch) Guard+Backward+Forward+Strong",
 "Focused Engineering.5","Trapper Mastermind","(Couch) Guard+Backward+Forward+Strong",
@@ -372,7 +372,7 @@
 "Iri.4b",,,
 "Iri.5a",,,
 "Iri.5b","Master Creator",,
-"Iri.6","Iri Kada Whe",,
+"Iri.6","Family of Akat Whe",,
 "Elmaliern.1","Desperate Widow",,
 "Elmaliern.2","Aspiring Necromancer",,
 "Elmaliern.3a",,,

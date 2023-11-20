@@ -2,14 +2,13 @@ import cProfile
 import datetime
 from math import cos, sin, radians
 
-import pygame
 from pygame import Vector2, Surface, SRCALPHA, Color, Rect, draw, mouse
 from pygame.font import Font
 from pygame.sprite import Sprite
 from pygame.transform import smoothscale
 
 from engine.uimenu.uimenu import UIMenu
-from engine.utils.text_making import number_to_minus_or_plus, text_render_with_bg, make_long_text
+from engine.utils.text_making import number_to_minus_or_plus, text_render_with_bg
 
 team_colour = {1: Color("black"), 2: Color("red"), 3: Color("blue"), 4: Color("green")}
 

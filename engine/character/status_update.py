@@ -16,7 +16,10 @@ def status_update(self):
     hp_regen_bonus = 0
     resource_regen_bonus = 0
     crit_chance_bonus = 0
-    animation_speed_bonus = 0
+    animation_speed_modifier = 1
+
+    self.resource_cost_modifier = self.base_resource_cost_modifier
+    self.guard_cost_modifier = self.base_guard_cost_modifier
 
     if "arrive" in self.current_action:  # update arriving target for ai
         if self.nearest_enemy:
@@ -43,9 +46,12 @@ def status_update(self):
             speed_bonus += cal_effect["Speed Bonus"]
             hp_regen_bonus += cal_effect["HP Regeneration Bonus"]
             resource_regen_bonus += cal_effect["Resource Regeneration Bonus"]
-            animation_speed_bonus += cal_effect["Animation Speed Bonus"]
+            animation_speed_modifier -= cal_effect["Animation Speed Modifier"]
             self.element_resistance = {element: value + cal_effect[element + " Resistance Bonus"] for
                                        element, value in self.base_element_resistance.items()}
+
+    if 50 in self.status_effect:  # half resource cost
+        self.resource_cost_modifier -= 0.5
 
     # Apply effect from weather
     if not self.immune_weather:
@@ -56,7 +62,8 @@ def status_update(self):
             speed_bonus += weather.speed_buff
             hp_regen_bonus += weather.hp_regen_buff
             for element in weather.element:  # Weather can cause elemental effect such as wet
-                self.element_status_check[element[0]] += (element[1] * (100 - self.element_resistance[element[0]]) / 100)
+                self.element_status_check[element[0]] += (
+                            element[1] * (100 - self.element_resistance[element[0]]) / 100)
 
     self.check_element_effect()  # elemental effect
 
@@ -64,13 +71,16 @@ def status_update(self):
     self.power_bonus = self.base_power_bonus + attack_bonus
     self.defence = (100 - (self.base_defence + defence_bonus)) / 100
     self.speed = self.base_speed + speed_bonus
+    self.dodge = int(self.base_dodge + (speed_bonus / 10))
     self.critical_chance = self.base_critical_chance + crit_chance_bonus
     self.super_armour = self.base_super_armour
 
     self.hp_regen = self.base_hp_regen + hp_regen_bonus
     self.resource_regen = self.base_resource_regen + resource_regen_bonus
 
-    self.animation_play_time = self.original_animation_play_time - animation_speed_bonus
+    if animation_speed_modifier < 0.1:
+        animation_speed_modifier = 0.1
+    self.animation_play_time = self.original_animation_play_time * animation_speed_modifier
 
     self.body_mass = self.base_body_mass
     if "less mass" in self.current_action:  # knockdown reduce mass
@@ -80,11 +90,18 @@ def status_update(self):
         self.defence = 0
     if self.dodge < 0:
         self.dodge = 0
-    if self.speed < 1:  # prevent speed to be lower than 1
-        self.speed = 1
+    if self.guard_cost_modifier < 0:
+        self.guard_cost_modifier = 0
+    if self.resource_cost_modifier < 0:
+        self.resource_cost_modifier = 0
 
     self.run_speed = 450 + self.speed
     self.walk_speed = 200 + self.speed
+
+    if self.run_speed < 0:
+        self.run_speed = 0
+    if self.walk_speed < 0:
+        self.walk_speed = 0
 
     # Cooldown
     for key in tuple(self.attack_cooldown.keys()):  # loop is faster than comprehension here

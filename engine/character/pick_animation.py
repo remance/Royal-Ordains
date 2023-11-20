@@ -8,9 +8,9 @@ def pick_animation(self):
             if self.continue_moveset:  # find next moveset that can continue from previous one first if exist
                 for move in self.continue_moveset:
                     if tuple(self.moveset_command_key_input[-len(move):]) == move:
-                        animation_name = self.equipped_weapon + self.combat_state + self.position + \
-                                         self.continue_moveset[move]["Move"]
                         self.current_moveset = self.continue_moveset[move]
+                        animation_name = self.equipped_weapon + "Combat" + self.position + \
+                                         self.current_moveset["Move"]
                         if "Next Move" in self.continue_moveset[move]:
                             self.continue_moveset = self.continue_moveset[move]["Next Move"]
                         else:
@@ -19,25 +19,38 @@ def pick_animation(self):
 
             if not animation_name:  # start new move
                 self.continue_moveset = None
-                for move in self.moveset[self.position]:
-                    if tuple(self.moveset_command_key_input[-len(move):]) == move:
-                        animation_name = self.equipped_weapon + "Combat" + self.position + \
-                                         self.moveset[self.position][move]["Move"]
-                        self.current_moveset = self.moveset[self.position][move]
-                        if "Next Move" in self.current_moveset:  # check for next move combo
-                            self.continue_moveset = self.current_moveset["Next Move"]
-                        break
+                if "run" in self.current_action and ((self.slide_attack and "weak" in self.current_action) or
+                                                     (self.tackle_attack and "strong" in self.current_action)):  # run moveset
+                    move_name = "Slide"
+                    if self.moveset_command_key_input[-1] == "Strong":
+                        move_name = "Tackle"
+                    self.current_moveset = self.moveset[self.position][move_name]
+                    animation_name = self.equipped_weapon + "Combat" + self.position + \
+                                     move_name
+                else:
+                    for move in self.moveset[self.position]:
+                        if tuple(self.moveset_command_key_input[-len(move):]) == move:
+                            self.current_moveset = self.moveset[self.position][move]
+                            animation_name = self.equipped_weapon + "Combat" + self.position + \
+                                             self.current_moveset["Move"]
+                            if "Next Move" in self.current_moveset:  # check for next move combo
+                                self.continue_moveset = self.current_moveset["Next Move"]
+                            break
 
             if self.current_moveset:  # has moveset to perform
                 if "no prepare" not in self.current_action:
-                    self.current_action = self.check_prepare_action(self.current_moveset)  # check for prepare animation first
+                    self.current_action = self.check_prepare_action(
+                        self.current_moveset)  # check for prepare animation first
                 if "next action" not in self.current_action:  # not prepare animation
-                    if self.resource >= self.current_moveset["Resource Cost"] and \
-                            self.current_moveset["Move"] not in self.attack_cooldown:
+                    resource_cost = self.current_moveset["Resource Cost"]
+                    if self.current_moveset["Resource Cost"] > 0:
+                        # only apply cost modifier for move that reduce resource
+                        resource_cost = self.current_moveset["Resource Cost"] * self.resource_cost_modifier
+                    if self.resource >= resource_cost and self.current_moveset["Move"] not in self.attack_cooldown:
 
                         self.current_action = self.current_action | self.current_moveset["Property"]  # add property
 
-                        self.resource -= self.current_moveset["Resource Cost"]
+                        self.resource -= resource_cost
                         if self.current_moveset["Cooldown"]:
                             self.attack_cooldown[self.current_moveset["Move"]] = self.current_moveset["Cooldown"]
 
@@ -46,11 +59,11 @@ def pick_animation(self):
                         elif self.resource > self.max_resource:
                             self.resource = self.max_resource
 
-                        if self.current_moveset["Status"]:  # TODO move this? need to make it for effect/other char too
+                        if self.current_moveset["Status"]:
                             for effect in self.current_moveset["Status"]:
                                 self.apply_status(effect)
                                 for ally in self.near_ally:
-                                    if ally[1] <= self.current_moveset["Range"]:
+                                    if ally[1] <= self.current_moveset["Range"]:  # apply status based on range
                                         ally[0].apply_status(effect)
                                     else:
                                         break
@@ -58,7 +71,8 @@ def pick_animation(self):
                     else:  # no resource to do the move, reset to idle
                         if self.current_moveset["Move"] in self.attack_cooldown:  # add cooldown value to screen
                             DamageNumber(str(round(self.attack_cooldown[self.current_moveset["Move"]], 1)),
-                                         (self.pos[0], self.pos[1] - (self.sprite_size * 2)), False, self.team, move=False)
+                                         (self.pos[0], self.pos[1] - (self.sprite_size * 2)), False, self.team,
+                                         move=False)
                         self.current_moveset = None
                         self.continue_moveset = None
                         animation_name = self.equipped_weapon + self.combat_state + self.position + "Idle"

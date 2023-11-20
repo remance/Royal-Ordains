@@ -60,6 +60,8 @@ def player_input(self, player_index, dt):
                                 self.interrupt_animation = True
 
                             self.command_action = self.weak_attack_command_action
+                            if "run" in self.current_action and self.slide_attack:
+                                self.command_action = self.weak_attack_run_command_action
                             self.moveset_command_key_input = tuple(self.command_key_input)
 
                     elif self.last_command_key_input == "Strong":
@@ -68,15 +70,30 @@ def player_input(self, player_index, dt):
                             if self.stoppable_frame:
                                 self.interrupt_animation = True
                             self.command_action = self.strong_attack_command_action
+                            if "run" in self.current_action and self.tackle_attack:
+                                self.command_action = self.strong_attack_run_command_action
                             self.moveset_command_key_input = tuple(self.command_key_input)
 
                     elif self.last_command_key_input == "Guard" or "Guard" in self.command_key_hold:
+                        self.engage_combat()
                         if "guard" in self.current_action and "Guard" in self.command_key_hold:
-                            self.current_action = self.guard_hold_command_action
-                        elif not (
-                                self.current_action or self.stoppable_frame) and self.guard_meter >= self.guard_meter20:
+                            if self.position not in ("Air", "Couch") and \
+                                    self.guard_move and (self.command_key_hold and
+                                                         self.command_key_hold[-1] == "Left" or
+                                                         self.command_key_hold[-1] == "Right"):
+                                # move while guarding, only in standing position
+                                if self.command_key_hold[-1] == "Left":
+                                    self.x_momentum = -self.walk_speed / 10
+                                else:
+                                    self.x_momentum = self.walk_speed / 10
+                                self.current_action = self.guard_move_command_action
+                                self.command_action = self.guard_move_command_action
+                            elif "movable" not in self.current_action:
+                                self.current_action = self.guard_hold_command_action
+
+                        elif (not self.current_action or self.stoppable_frame) and \
+                                self.guard_meter >= self.guard_meter20:
                             # can only start guarding when meter higher than 20%
-                            self.engage_combat()
                             if self.stoppable_frame:
                                 self.interrupt_animation = True
                             self.command_action = self.guard_command_action
@@ -108,7 +125,7 @@ def player_input(self, player_index, dt):
                     if self.position == "Stand" and "couch" not in self.current_action and \
                             "air" not in self.current_action and "air" not in self.command_action:
                         # character movement, couch can not move or jump
-                        if self.last_command_key_input == "Up":
+                        if self.last_command_key_input == "Up":  # jump
                             self.engage_combat()
                             self.interrupt_animation = True
                             self.command_action = self.jump_command_action
@@ -156,7 +173,8 @@ def player_input(self, player_index, dt):
                                     self.player_key_input_timer = []
 
                         if self.x_momentum:
-                            if "air" not in self.current_action and self.position != "Air":
+                            if "air" not in self.current_action and "guard" not in self.current_action and \
+                                    self.position != "Air":
                                 # movement with air does not use specific command action
                                 if not self.command_action:
                                     self.command_action = self.walk_command_action
