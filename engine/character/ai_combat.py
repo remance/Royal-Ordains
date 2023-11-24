@@ -15,7 +15,7 @@ def guard_ai(self):
                 self.interrupt_animation = True
                 self.command_action = {}  # consider go to idle first then check for move
                 for move, value in self.moveset[self.position].items():
-                    if value["Range"] >= self.nearest_enemy[1] and value["Move"] not in self.attack_cooldown:
+                    if value["AI Range"] >= self.nearest_enemy[1] and value["Move"] not in self.attack_cooldown:
                         self.engage_combat()
                         self.command_action = self.check_prepare_action(value)
                         self.moveset_command_key_input = move
@@ -35,7 +35,7 @@ def common_ai(self):
         if self.nearest_enemy[1] <= self.max_attack_range:
             if self.position in self.moveset:
                 for move, value in self.moveset[self.position].items():
-                    if value["Range"] >= self.nearest_enemy[1] and value["Move"] not in self.attack_cooldown:
+                    if value["AI Range"] >= self.nearest_enemy[1] and value["Move"] not in self.attack_cooldown:
                         self.engage_combat()
                         self.command_action = self.check_prepare_action(value)
                         self.moveset_command_key_input = move

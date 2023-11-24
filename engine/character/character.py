@@ -318,7 +318,7 @@ class Character(sprite.Sprite):
 
         for position in ("Couch", "Stand", "Air"):  # combine skill into moveset
             # also check for moveset that require stat
-            if position in self.moveset:
+            if position in self.moveset:  # check stat requirement for moveset first
                 for move_name, move in self.moveset[position].copy().items():
                     if "Stat Requirement" in move:
                         for stat_name, value in move["Stat Requirement"].items():
@@ -328,8 +328,17 @@ class Character(sprite.Sprite):
             if position in self.skill:
                 if position not in self.moveset:  # add position with no move
                     self.moveset[position] = {}
+
                 button_key_skill_dict = {value["Buttons"]: {"Move": key} | value for key, value in
                                          self.available_skill[position].items()}
+
+                # if not row2[header2.index("Requirement Move")]:  # TODO finish this when add naye
+                #     # parent move, must also always at row above any child move in csv file
+                #     moveset_dict[row2[header2.index("Position")]][row2[0]] = move_data
+                # else:
+                #     recursive_moveset_dict(moveset_dict[row2[header2.index("Position")]], row2[0],
+                #                            move_data, row2[header2.index("Requirement Move")])
+
                 self.moveset[position] = button_key_skill_dict | self.moveset[position]
 
         self.max_physical = 1 + (self.strength / 50) + (self.wisdom / 200)

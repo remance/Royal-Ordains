@@ -1433,10 +1433,10 @@ class Animation:
                     sound_distance_selector.change_name("")
                 setup_list(NameList, current_anim_row, anim_prop_list_box.namelist, anim_prop_namegroup,
                            anim_prop_list_box, ui, screen_scale, layer=9, old_list=anim_property_select)
-                setup_list(NameList, current_frame_row, frame_prop_list_box.namelist[current_frame],
+                setup_list(NameList, current_frame_row, frame_prop_list_box.namelist[self.show_frame],
                            frame_prop_namegroup,
                            frame_prop_list_box, ui, screen_scale, layer=9,
-                           old_list=frame_property_select[current_frame])
+                           old_list=frame_property_select[self.show_frame])
 
         surface.blit(self.frames[int(self.show_frame)], position)
 
@@ -2683,8 +2683,9 @@ while True:
                 property_to_pool_data("frame")
 
             elif "_prop_num" in text_input_popup[1] and (
-                    input_box.text.isdigit() or ("." in input_box.text and input_box.text[-1] != ".") and re.search("[a-zA-Z]",
-                                                                                    input_box.text) is None):  # add property that need value
+                    input_box.text.isdigit() or (input_box.text.count(".") == 1 and
+                                                 input_box.text[0] != "." and input_box.text[-1] != ".") and
+                    re.search("[a-zA-Z]", input_box.text) is None):  # add property that need value
                 namegroup = anim_prop_namegroup  # click on animation property list
                 list_box = anim_prop_list_box
                 namelist = list_box.namelist

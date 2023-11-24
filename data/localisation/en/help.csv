@@ -73,9 +73,9 @@
 "Vital Slash.4","Bloodbath","(Stand) Down+Backward+Strong",
 "Vital Slash.5","Fountain of Blood","(Stand) Down+Backward+Strong",
 "Second Wind.0","Second Wind","(Stand) Guard+Down+Strong","Relief of exhaustion and pain, even temporarily, can shift the tide of battle. Recover some health with a moderate resource cost and cooldown."
-"Second Wind.1","Second Wind","(Stand) Guard+Down+Strong",
-"Second Wind.2","Steady Recovery","(Stand) Guard+Down+Strong","Bolster regenerative ability to last in combat much longer. In addition to one-time healing, increase minor health regeneration for 10 seconds."
-"Second Wind.3","Cleansing Body","(Stand) Guard+Down+Strong",
+"Second Wind.1","Second Wind","(Stand) Guard+Down+Strong","Restored of strength to oppose the iniquities and injustices of this world. Or perhaps, at the very least, to preserve the soul of the unfortunate."
+"Second Wind.2","Steady Recovery","(Stand) Guard+Down+Strong","Bolster regenerative ability to last in combat much longer. Suffering minor injuries in high numbers can take a toll, as much as a few fatal ones. Being able to heal wounds over time is a much-needed boon to all righteous warriors."
+"Second Wind.3","Cleansing Body","(Stand) Guard+Down+Strong","Can it truly be said that the body is the dwelling of the celestials? One belief is that once the impurities pervade the body, the celestials leave. And thus, the body is left to decay. To be cleansed is to be one step closer to heaven."
 "Second Wind.4","Vitality Burst","(Stand) Guard+Down+Strong",
 "Second Wind.5","Complete Rejuvenation","(Stand) Guard+Down+Strong",
 "Eclipse Slash.0","Eclipse Slash","(Stand) Guard+Down+Up+Strong","A powerful frontal arc slash, very strong damage and high knockdown impact. The skill has a moderate cooldown but costs no resources."
@@ -85,7 +85,7 @@
 "Eclipse Slash.4","Crescent","(Stand) Guard+Down+Up+Strong",
 "Eclipse Slash.5","Beauty of Death","(Stand) Guard+Down+Up+Strong",
 "Bash.0","Bash","(Stand) Down+Forward+Weak","A quick pummel blow that stuns and disorients enemies. Has low damage but is great for inflicting debuffs on strong foes. Cost no resources and has a small cooldown."
-"Bash.1","Bash","(Stand) Down+Forward+Weak",
+"Bash.1","Bash","(Stand) Down+Forward+Weak","Some enemies can be too demanding to extinguish in one stroke of a sword. A disoriented enemy is less able to deflect or dodge a blow, even from a less powerful enemy."
 "Bash.2","Smite","(Stand) Down+Forward+Weak",
 "Bash.3","Stagger Strike","(Stand) Down+Forward+Weak",
 "Bash.4","Mercy Blade","(Stand) Down+Forward+Weak",
@@ -385,11 +385,11 @@
 "Pasgelo.1","Hedge Mage",,
 "Pasgelo.2","Academy Wizard",,
 "Pasgelo.3a",,,
-"Pasgelo.3b",,,
+"Pasgelo.3b","Sorcery Master",,
 "Pasgelo.4a",,,
-"Pasgelo.4b",,,
+"Pasgelo.4b","Grand Wizard",,
 "Pasgelo.5a",,,
-"Pasgelo.5b",,,
+"Pasgelo.5b","Lord of Magic",,
 "Pasgelo.6","Pasgelo",,
 "Yuawies.1","Dryad",,
 "Yuawies.2","Glutton Dryad",,
@@ -409,14 +409,14 @@
 "Duskuksa.5a",,,
 "Duskuksa.5b","Rune Patriarch",,
 "Duskuksa.6","Duskuksa",,
-"Nayedien.1","Exile Warrior",,
-"Nayedien.2","Arcane Warrior",,
-"Nayedien.3a",,,
-"Nayedien.3b",,,
-"Nayedien.4a",,,
-"Nayedien.4b",,,
-"Nayedien.5a",,,
-"Nayedien.5b","Ascended",,
+"Nayedien.1","King’s Aide",,
+"Nayedien.2","Close Companion",,
+"Nayedien.3a","Trusted Abettor",,
+"Nayedien.3b","Apostate",,
+"Nayedien.4a","Partner In Desire",,
+"Nayedien.4b","Knower of Understanding",,
+"Nayedien.5a","Pact Eternal",,
+"Nayedien.5b","Celestial Transcendence",,
 "Nayedien.6","Nayedien",,
 "Soheh.1","Mercenary",,
 "Soheh.2",,,

@@ -1,6 +1,0 @@
-"Move","Name","Buttons","Position","Prepare Animation","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Additional Damage Sprite","Special Effect","Effect Sprite","Damage Effect Property","Property"
-"D1","Summon Items","Guard,Down,Forward,Up,Special","Stand",,,90,,,,,,,,,,,,,,,
-"D2","Summon Weapons","Guard,Up,Forward,Down,Special","Stand",,,60,,,,,,,,,,,,,,,
-"D3","Lord of Money","Guard,Up,Down,Backward,Special","Air",,,30,,500,150,,,200,,,,,,,,,
-"D4","Immune Barrier","Guard,Up,Down,Forward,Special","Couch",,,20,,,,,,,,,,,,,,,
-"D5","Control Fate","Guard,Down,Up,Down,Special","Stand",,,30,,,,,,,,,,,,,,,

@@ -1,0 +1,4 @@
+"ID","Name","Power Bonus","Impact Bonus","Defence","Charge","Weight","Skill","Cooldown","Ammunition","Magazine","Shot Number","Range","Cost","Damage Sprite","Travel Speed","Damage Sprite Effect","After Reach Effect","After Attack Effect","Sound Effect","Sound Distance","Bullet Sound Distance","Common Action","Attack Action","Replace Sprite","Properties","Tag"
+1,"Unarmed",80,11,0,0,0,,1,0,0,0,8,0,"Crush Small (team)",0,,,,,3,,"1hand","Punch",,,"Melee"
+2,"Sword",65,8,5,5,5,,2,0,0,0,15,,"Slash Medium (team)",0,,,,"Swing Flat",7,,"1hand","Slash",,,"Melee"
+3,"Greatsword",50,13,3,12,10,24,4,0,0,0,22,,"Slash Big (team)",0,,,,"Swing Flat Large",11,,"2hand","Slash",,"hold,power","Melee"
