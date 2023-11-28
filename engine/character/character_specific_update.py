@@ -83,4 +83,4 @@ def dashisi_update(self, dt):
 
 
 update_dict = {"Vraesier": vraesier_update, "Rodhinbar": common_update, "Iri": common_update,
-               "Dashisi": dashisi_update}
+               "Dashisi": dashisi_update, "Nayedien": common_update}

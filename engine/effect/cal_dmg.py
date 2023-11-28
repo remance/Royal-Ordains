@@ -22,7 +22,7 @@ def cal_dmg(self, target, critical):
 
 
 def cal_dmg_element(self, target, critical):
-    damage = int((self.dmg - (self.dmg * target.element_resistance[self.element])) * target.defence)
+    damage = int((self.dmg - (self.dmg * (target.element_resistance[self.element] / 100))) * target.defence)
     if critical:
         damage *= 2
     element_effect = {self.element: damage / 10}

@@ -77,7 +77,7 @@ class AnimationData(GameData):
                     self.character_animation_data[file_data_name] = animation_pool
                 edit_file.close()
 
-        self.body_sprite_pool = {}
+        self.body_sprite_pool = {}  # TODO maybe add part zoom check in animation so no need to do scale in real time
         part_folder = Path(os.path.join(self.data_dir, "animation", "sprite", "character"))
         char_list = [os.path.split(x)[-1] for x in part_folder.iterdir()]
         for char in char_list:

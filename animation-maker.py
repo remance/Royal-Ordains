@@ -34,7 +34,7 @@ anim_to_pool = pool.anim_to_pool
 anim_save_pool = pool.anim_save_pool
 anim_del_pool = pool.anim_del_pool
 
-screen_size = (1100, 900)
+screen_size = (1300, 900)
 screen_scale = (1, 1)
 
 pygame.init()
@@ -72,7 +72,7 @@ for item in Game.ui_font:  # add ttf file extension for font data reading.
     Game.ui_font[item] = os.path.join(Game.font_dir, Game.ui_font[item]["Font"] + ".ttf")
 
 max_person = 4
-max_frame = 22
+max_frame = 26
 p_list = tuple(["p" + str(p) for p in range(1, max_person + 1)])
 part_column_header = ["head", "neck", "body", "r_arm_up", "r_arm_low", "r_hand", "l_arm_up",
                       "l_arm_low", "l_hand", "r_leg_up", "r_leg_low", "r_foot", "l_leg_up", "l_leg_low", "l_foot",
@@ -1132,9 +1132,10 @@ class Model:
             else:
                 if self.frame_list[current_frame]["sound_effect"]:
                     self.frame_list[current_frame]["sound_effect"] = [sound_name,
-                                                                      self.frame_list[current_frame]["sound_effect"][1]]
+                                                                      self.frame_list[current_frame]["sound_effect"][1],
+                                                                      self.frame_list[current_frame]["sound_effect"][2]]
                 else:
-                    self.frame_list[current_frame]["sound_effect"] = [sound_name, 1000, 100]
+                    self.frame_list[current_frame]["sound_effect"] = [sound_name, 1000, 10]
                     sound_distance_selector.change_name("1000")
 
         elif self.part_selected:
@@ -1492,7 +1493,8 @@ filmstrips.add(*filmstrip_list)
 images = load_images(current_data_dir, screen_scale=screen_scale, subfolder=("animation_maker_ui", "helper_parts"))
 body_helper_size = (650 * screen_scale[0], 270 * screen_scale[1])
 effect_helper_size = (450 * screen_scale[0], 270 * screen_scale[1])
-effect_helper = BodyHelper(effect_helper_size, (screen_size[0] / 1.25, screen_size[1] - (body_helper_size[1] / 2)),
+effect_helper = BodyHelper(effect_helper_size, (screen_size[0] - (body_helper_size[0] / 3),
+                                                screen_size[1] - (body_helper_size[1] / 2)),
                            "p1_effect", [images["16_smallbox_helper"]])
 del images["16_smallbox_helper"]
 p_body_helper = BodyHelper(body_helper_size, (body_helper_size[0] / 2,
@@ -1728,7 +1730,7 @@ anim_prop_list_box.scroll.change_image(new_row=0, row_size=len(anim_prop_list_bo
 frame_prop_list_box.scroll.change_image(new_row=0, row_size=len(frame_prop_list_box.namelist[current_frame]))
 ui.add(anim_prop_list_box, frame_prop_list_box, anim_prop_list_box.scroll, frame_prop_list_box.scroll)
 
-animation_selector = NameBox((400, image.get_height()), (screen_size[0] / 2, 0))
+animation_selector = NameBox((600, image.get_height()), (screen_size[0] / 2, 0))
 part_selector = NameBox((200, image.get_height()), (reset_button.image.get_width() * 2.5,
                                                     reset_button.rect.midtop[1]))
 
@@ -2443,7 +2445,7 @@ while True:
                         if animation_name in animation_list:
                             current_popup_row = animation_list.index(animation_name)
                         popup_list_open(popup_list_box, popup_namegroup, ui, "animation_select",
-                                        (animation_selector.rect.bottomleft[0] - 100,
+                                        (animation_selector.rect.bottomleft[0],
                                          animation_selector.rect.bottomleft[1]),
                                         animation_list, "top", screen_scale,
                                         current_row=current_popup_row)

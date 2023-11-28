@@ -4,38 +4,8 @@ from engine.uibattle.uibattle import DamageNumber
 def pick_animation(self):
     if self.current_action:  # pick animation with current action
         if "moveset" in self.current_action:
-            animation_name = None
-            if self.continue_moveset:  # find next moveset that can continue from previous one first if exist
-                for move in self.continue_moveset:
-                    if tuple(self.moveset_command_key_input[-len(move):]) == move:
-                        self.current_moveset = self.continue_moveset[move]
-                        animation_name = self.equipped_weapon + "Combat" + self.position + \
-                                         self.current_moveset["Move"]
-                        if "Next Move" in self.continue_moveset[move]:
-                            self.continue_moveset = self.continue_moveset[move]["Next Move"]
-                        else:
-                            self.continue_moveset = None
-                        break
-
-            if not animation_name:  # start new move
-                self.continue_moveset = None
-                if "run" in self.current_action and ((self.slide_attack and "weak" in self.current_action) or
-                                                     (self.tackle_attack and "strong" in self.current_action)):  # run moveset
-                    move_name = "Slide"
-                    if self.moveset_command_key_input[-1] == "Strong":
-                        move_name = "Tackle"
-                    self.current_moveset = self.moveset[self.position][move_name]
-                    animation_name = self.equipped_weapon + "Combat" + self.position + \
-                                     move_name
-                else:
-                    for move in self.moveset[self.position]:
-                        if tuple(self.moveset_command_key_input[-len(move):]) == move:
-                            self.current_moveset = self.moveset[self.position][move]
-                            animation_name = self.equipped_weapon + "Combat" + self.position + \
-                                             self.current_moveset["Move"]
-                            if "Next Move" in self.current_moveset:  # check for next move combo
-                                self.continue_moveset = self.current_moveset["Next Move"]
-                            break
+            animation_name = self.equipped_weapon + "Combat" + self.position + \
+                             self.current_moveset["Move"]
 
             if self.current_moveset:  # has moveset to perform
                 if "no prepare" not in self.current_action:
@@ -46,18 +16,22 @@ def pick_animation(self):
                     if self.current_moveset["Resource Cost"] > 0:
                         # only apply cost modifier for move that reduce resource
                         resource_cost = self.current_moveset["Resource Cost"] * self.resource_cost_modifier
-                    if self.resource >= resource_cost and self.current_moveset["Move"] not in self.attack_cooldown:
-
+                    if (self.resource >= resource_cost or (self.health_as_resource and
+                                                           self.health > resource_cost)) and \
+                            self.current_moveset["Move"] not in self.attack_cooldown:
                         self.current_action = self.current_action | self.current_moveset["Property"]  # add property
 
-                        self.resource -= resource_cost
+                        if self.resource >= resource_cost:
+                            self.resource -= resource_cost
+                            if self.resource < 0:
+                                self.resource = 0
+                            elif self.resource > self.max_resource:
+                                self.resource = self.max_resource
+                        else:  # use health, no need require check since condition above should do it already
+                            self.health -= resource_cost
+
                         if self.current_moveset["Cooldown"]:
                             self.attack_cooldown[self.current_moveset["Move"]] = self.current_moveset["Cooldown"]
-
-                        if self.resource < 0:
-                            self.resource = 0
-                        elif self.resource > self.max_resource:
-                            self.resource = self.max_resource
 
                         if self.current_moveset["Status"]:
                             for effect in self.current_moveset["Status"]:

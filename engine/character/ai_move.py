@@ -91,7 +91,7 @@ def common_boss_ai(self, dt):
 def pursue_range_ai(self, dt):
     if not self.current_action and not self.command_action:
         if self.nearest_enemy:
-            if self.nearest_enemy[1] > self.max_attack_range:
+            if self.nearest_enemy[1] > self.ai_max_attack_range:
                 # run to enemy within attack range
                 angle = self.set_rotate(self.nearest_enemy[0].base_pos)
                 if angle > 0:
@@ -117,7 +117,7 @@ def pursue_melee_ai(self, dt):
 def sentry_ai(self, dt):
     if not self.current_action and not self.command_action:
         if self.nearest_enemy:
-            if self.nearest_enemy[1] > self.max_attack_range and self.base_pos.distance_to(
+            if self.nearest_enemy[1] > self.ai_max_attack_range and self.base_pos.distance_to(
                     self.assign_pos) > follow_distance:
                 # no enemy nearby, run to assigned pos
                 angle = self.set_rotate(self.assign_pos)

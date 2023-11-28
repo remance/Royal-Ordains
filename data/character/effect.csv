@@ -1,6 +1,7 @@
 "Name","Duration","Travel Speed","Status","Enemy Status","Special Effect","Damage Sprite Effect","Reach Effect","After Reach Effect","Sound Effect","Sound Distance","Property"
 "Rodhinbar Arrow",0,1200,,,,,"stick",,,1000,
 "Arrow",0,1000,,,,,"stick",,,1000,
+"Nayedien Spear",0,2500,,,,,"stick",,,2000,
 "Stone",0,600,,,,,"bounce",,,1000,
 "Toxic Beard",0,700,,,,,"stick",,,500,
 "Small Fire",6,,,,,,,,,600,"no effect collision"

@@ -1,4 +1,4 @@
-playable_character = {"Vraesier": 0, "Rodhinbar": 1, "Iri": 2, "Duskuksa": 3}
+playable_character = {"Vraesier": 0, "Rodhinbar": 1, "Iri": 2, "Duskuksa": 3, "Nayedien": 4}
 default_start = {"Sprite Ver": 1, "Team": 1, "Playable": True, "Skill Allocation": {}, "Start Health": 100}
 
 
@@ -23,7 +23,6 @@ def menu_char(self, esc_press):
                                                 self.player_char_select.items() if value})
 
     else:
-
         for key_list in (self.player_key_press, self.player_key_hold):
             for player in key_list:
                 for key, pressed in key_list[player].items():
@@ -38,25 +37,35 @@ def menu_char(self, esc_press):
                     selector = self.player_char_selectors[player]
                     if selector.mode == "empty":
                         selector.change_mode("Vraesier")
-                    elif key == "Left" and selector.mode != "stat":  # switch to previous in playable_character list
-                        if selector.mode != "ready":
-                            current_id = tuple(playable_character.keys()).index(selector.mode)
-                            if current_id - 1 < 0:
-                                current_id = tuple(playable_character.values())[-1]
-                            else:
-                                current_id -= 1
-                            selector.change_mode(tuple(playable_character.keys())[current_id])
-                    elif key == "Right" and selector.mode != "stat":  # switch to next in playable_character list
-                        if selector.mode != "ready":
-                            current_id = tuple(playable_character.keys()).index(selector.mode)
-                            if current_id + 1 > len(
-                                    playable_character) - 1:  # reach the end of char list, go back to first
-                                current_id = 0
-                            else:
-                                current_id += 1
-                            selector.change_mode(tuple(playable_character.keys())[current_id])
+                    elif key == "Left" and selector.mode not in ("stat", "ready"):  # switch to previous in playable_character list
+                        if "1" in selector.mode:  # currently in description mode, go to normal
+                            selector.change_mode(selector.mode[:-1])
+                        current_id = tuple(playable_character.keys()).index(selector.mode)
+                        if current_id - 1 < 0:
+                            current_id = tuple(playable_character.values())[-1]
+                        else:
+                            current_id -= 1
+                        selector.change_mode(tuple(playable_character.keys())[current_id])
+                    elif key == "Right" and selector.mode not in ("stat", "ready"):  # switch to next in playable_character list
+                        if "1" in selector.mode:  # currently in description mode, go to normal
+                            selector.change_mode(selector.mode[:-1])
+                        current_id = tuple(playable_character.keys()).index(selector.mode)
+                        if current_id + 1 > len(
+                                playable_character) - 1:  # reach the end of char list, go back to first
+                            current_id = 0
+                        else:
+                            current_id += 1
+                        selector.change_mode(tuple(playable_character.keys())[current_id])
+                    elif key == "Down" and selector.mode not in ("stat", "ready"):  # switch to character description
+                        if "1" in selector.mode:  # currently in description mode, go to normal
+                            selector.change_mode(selector.mode[:-1])
+                        else:
+                            selector.change_mode(selector.mode + "1")
+
                     elif key == "Weak" and not selector.delay:  # confirm
                         if selector.mode not in ("stat", "ready"):  # go to stat allocation
+                            if "1" in selector.mode:  # currently in description mode, go to normal
+                                selector.mode = selector.mode[:-1]
                             start_stat = self.character_data.character_list[selector.mode]
                             skill_list = {}
                             for skill in self.character_data.character_list[selector.mode]["Skill"].values():

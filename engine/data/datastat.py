@@ -125,11 +125,12 @@ class CharacterData(GameData):
                                   encoding="utf-8", mode="r") as edit_file2:
                             rd2 = tuple(csv.reader(edit_file2, quoting=csv.QUOTE_ALL))
                             header2 = rd2[0]
-                            tuple_column = ("Buttons", "Status", "Enemy Status")  # value in tuple only
+                            tuple_column = ("Buttons", "Requirement Move", "Status", "Enemy Status")  # value in tuple only
                             tuple_column = [index for index, item in enumerate(header2) if item in tuple_column]
                             dict_column = ("Stat Requirement", "Prepare Animation", "Property",)
                             dict_column = [index for index, item in enumerate(header2) if item in dict_column]
                             moveset_dict = {}
+                            remain_next_move_loop = []
                             for row_index2, row2 in enumerate(rd2[1:]):
                                 for n2, i2 in enumerate(row2):
                                     row2 = stat_convert(row2, n2, i2, tuple_column=tuple_column,
@@ -143,8 +144,24 @@ class CharacterData(GameData):
                                     # parent move, must also always at row above any child move in csv file
                                     moveset_dict[row2[header2.index("Position")]][row2[0]] = move_data
                                 else:
-                                    recursive_moveset_dict(moveset_dict[row2[header2.index("Position")]], row2[0],
-                                                           move_data, row2[header2.index("Requirement Move")])
+                                    found = None
+                                    for parent_move in row2[header2.index("Requirement Move")]:
+                                        check = [False]
+                                        final_recursive_dict(moveset_dict[row2[header2.index("Position")]],
+                                                               row2[0], move_data, parent_move, check)
+                                        if False in check:
+                                            if found:
+                                                remain_next_move_loop.append((moveset_dict[row2[header2.index("Position")]],
+                                                                              row2[0], found, parent_move))
+                                            else:
+                                                remain_next_move_loop.append((moveset_dict[row2[header2.index("Position")]],
+                                                                              row2[0], move_data, parent_move))
+                                        else:
+                                            found = check[0]
+                                            # print(row[0], row2[1], parent_move)
+                            for item in remain_next_move_loop:  # one last try to find parent
+                                check = [False]
+                                final_recursive_dict(item[0], item[1], item[2], item[3], check)
                             self.character_list[row[0]]["Move"] = moveset_dict
                             edit_file2.close()
 
@@ -221,13 +238,23 @@ class CharacterData(GameData):
         edit_file.close()
 
 
-def recursive_moveset_dict(data, move_key, move, require_index):
-    f = recursive_moveset_dict
-    for k, v in data.items():
-        if v["Move"] == require_index:  # found parent move
+def final_recursive_dict(parent_move_data, move_key, move_data, parent_move_name, check):
+    try:
+        recursive_moveset_dict(parent_move_data, move_key, move_data, parent_move_name, check)
+        return
+    except (ValueError, RecursionError):
+        return
+
+
+def recursive_moveset_dict(parent_move_data, move_key, move_data, parent_move_name, check):
+    for k, v in parent_move_data.items():  # TODO fix two or more parent not work
+        if v["Move"] == parent_move_name:  # found parent move
             if "Next Move" not in v:
                 v["Next Move"] = {}
-            v["Next Move"][move_key] = move
+            # if move_data not in v["Next Move"][move_key]:
+            v["Next Move"][move_key] = move_data
+            check[0] = move_data
+            raise ValueError("Found, end recursive")
         else:  # not yet search deeper
             if "Next Move" in v:
-                f(v["Next Move"], move_key, move, require_index)
+                recursive_moveset_dict(v["Next Move"], move_key, move_data, parent_move_name, check)

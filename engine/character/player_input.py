@@ -55,24 +55,21 @@ def player_input(self, player_index, dt):
                 else:
                     if self.last_command_key_input == "Weak":
                         if "moveset" not in self.current_action or self.stoppable_frame:
-                            self.engage_combat()
-                            if self.stoppable_frame:
-                                self.interrupt_animation = True
-
-                            self.command_action = self.weak_attack_command_action
-                            if "run" in self.current_action and self.slide_attack:
-                                self.command_action = self.weak_attack_run_command_action
                             self.moveset_command_key_input = tuple(self.command_key_input)
+                            if self.check_move_existence():
+                                self.engage_combat()
+                                self.command_action = self.weak_attack_command_action
+                                if "run" in self.current_action and self.slide_attack:
+                                    self.command_action = self.weak_attack_run_command_action
 
                     elif self.last_command_key_input == "Strong":
                         if "moveset" not in self.current_action or self.stoppable_frame:
-                            self.engage_combat()
-                            if self.stoppable_frame:
-                                self.interrupt_animation = True
-                            self.command_action = self.strong_attack_command_action
-                            if "run" in self.current_action and self.tackle_attack:
-                                self.command_action = self.strong_attack_run_command_action
                             self.moveset_command_key_input = tuple(self.command_key_input)
+                            if self.check_move_existence():
+                                self.engage_combat()
+                                self.command_action = self.strong_attack_command_action
+                                if "run" in self.current_action and self.tackle_attack:
+                                    self.command_action = self.strong_attack_run_command_action
 
                     elif self.last_command_key_input == "Guard" or "Guard" in self.command_key_hold:
                         self.engage_combat()
@@ -100,19 +97,18 @@ def player_input(self, player_index, dt):
 
                     elif self.last_command_key_input == "Special":
                         if "moveset" not in self.current_action or self.stoppable_frame:
-                            self.engage_combat()
-                            self.specific_special_check(self)
                             self.moveset_command_key_input = tuple(self.command_key_input)
+                            self.specific_special_check(self)
 
                     elif "moveset" in self.current_action:  # check for holding attack
                         if self.command_key_hold:
-                            if self.command_key_hold[-1] == "Weak" and "weak" in self.current_action:
+                            if "Weak" in self.command_key_hold and "weak" in self.current_action:
                                 self.current_action = self.weak_attack_hold_command_action
 
-                            elif self.command_key_hold[-1] == "Strong" and "strong" in self.current_action:
+                            elif "Strong" in self.command_key_hold and "strong" in self.current_action:
                                 self.current_action = self.strong_attack_hold_command_action
 
-                            elif self.command_key_hold[-1] == "Special" and "special" in self.current_action:
+                            elif "Special" in self.command_key_hold and "special" in self.current_action:
                                 self.current_action = self.special_hold_command_action
 
                     elif self.last_command_key_input == "Down" and "couch" not in self.current_action and \

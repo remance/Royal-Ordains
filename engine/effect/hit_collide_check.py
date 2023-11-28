@@ -69,7 +69,7 @@ def dmg_crash_check(self, crashed_part, body_part=False):
             if self.object_type == "body":
                 crashed_part.already_hit.append(self.owner)
         Effect(None, ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle), 0)
-        if not self.penetrate:  # end effect if not penetrate
+        if self.object_type == "effect":  # end effect
             if self.stick_reach:  # bounce off
                 self.stick_timer = 5
             else:
@@ -85,7 +85,7 @@ def dmg_crash_check(self, crashed_part, body_part=False):
         if not body_part:
             if self.object_type == "body":
                 crashed_part.already_hit.append(self.owner)
-            if not crashed_part.penetrate:  # end effect if not penetrate
+            if crashed_part.object_type == "effect":  # end effect if not penetrate
                 if crashed_part.stick_reach:  # bounce off
                     crashed_part.stick_timer = 5
                 else:
@@ -95,7 +95,7 @@ def dmg_crash_check(self, crashed_part, body_part=False):
         if crashed_part.object_type == "body":  # only add to already hit if crashed object is body part
             self.already_hit.append(crashed_part.owner)
         Effect(None, ("Crash Enemy", "Crash", self.rect.centerx, self.rect.centery, -self.angle), 0)
-        if not self.penetrate:  # end effect if not penetrate
+        if self.object_type == "effect":  # end effect if not penetrate
             if self.stick_reach:  # bounce off
                 self.stick_timer = 5
             else:

@@ -9,6 +9,7 @@ from engine.character.ai_combat import ai_combat_dict
 from engine.character.ai_move import ai_move_dict
 from engine.character.ai_retreat import ai_retreat_dict
 from engine.character.character_specific_damage import damage_dict
+from engine.character.character_specific_initiate import initiate_dict
 from engine.character.character_specific_special import special_dict
 from engine.character.character_specific_status_update import status_update_dict
 from engine.character.character_specific_update import update_dict
@@ -76,6 +77,9 @@ class Character(sprite.Sprite):
 
     from engine.character.check_element_threshold import check_element_threshold
     check_element_threshold = check_element_threshold
+
+    from engine.character.check_move_existence import check_move_existence
+    check_move_existence = check_move_existence
 
     from engine.character.check_prepare_action import check_prepare_action
     check_prepare_action = check_prepare_action
@@ -241,9 +245,13 @@ class Character(sprite.Sprite):
         self.crash_haste = False
         self.slide_attack = False
         self.tackle_attack = False
+        self.health_as_resource = False
+        self.moveset_reset_when_relax_only = False
+        self.combo_with_no_hit = False
         self.position = "Stand"
         self.combat_state = "Peace"
         self.mode = "Normal"
+        self.special_state = 0
         self.timer = random()
         self.in_combat_timer = 0
         self.default_sprite_size = 1
@@ -332,7 +340,7 @@ class Character(sprite.Sprite):
                 button_key_skill_dict = {value["Buttons"]: {"Move": key} | value for key, value in
                                          self.available_skill[position].items()}
 
-                # if not row2[header2.index("Requirement Move")]:  # TODO finish this when add naye
+                # if not row2[header2.index("Requirement Move")]:  # TODO finish this when add naye, also check why stat require not work
                 #     # parent move, must also always at row above any child move in csv file
                 #     moveset_dict[row2[header2.index("Position")]][row2[0]] = move_data
                 # else:
@@ -357,7 +365,7 @@ class Character(sprite.Sprite):
 
         self.health = stat["Base Health"] + (stat["Base Health"] * (self.constitution / 100))  # health of character
 
-        self.max_resource = int(stat["Max Resource"])
+        self.max_resource = int(stat["Max Resource"] + (stat["Max Resource"] * self.intelligence / 100))
         self.resource1 = self.max_resource * 0.01
         self.resource2 = self.max_resource * 0.02
         self.resource25 = self.max_resource * 0.25
@@ -372,7 +380,7 @@ class Character(sprite.Sprite):
         self.original_cast_speed = 1 / (1 + ((self.dexterity + self.intelligence) / 200))
 
         self.original_animation_play_time = self.default_animation_play_time / (
-                    1 + (self.agility / 200))  # higher value mean longer play time
+                    1 + (self.agility / 100))  # higher value mean longer play time
         self.animation_play_time = self.original_animation_play_time
         self.final_animation_play_time = self.animation_play_time
         self.original_speed = self.agility / 2
@@ -472,6 +480,8 @@ class Character(sprite.Sprite):
         self.retreat_stage_start = -self.sprite_size
 
         # find and set method specific to character
+        if self.sprite_id in initiate_dict:
+            initiate_dict[self.sprite_id](self)
         self.specific_special_check = empty_method
         if self.sprite_id in special_dict:
             self.specific_special_check = special_dict[self.sprite_id]
@@ -578,6 +588,7 @@ class Character(sprite.Sprite):
                 # Animation and sprite system
                 if self.show_frame >= len(self.current_animation_direction):  # TODO remove when fixed
                     print(self.name, self.show_frame, self.current_animation, self.current_action)
+                    raise Exception()
 
                 if "hold" in self.current_animation_direction[self.show_frame]["property"] and \
                         "hold" in self.current_action and \
@@ -602,8 +613,7 @@ class Character(sprite.Sprite):
                             elif self.resource > self.max_resource:
                                 self.resource = self.max_resource
 
-                            if self.current_moveset[
-                                "Status"]:  # TODO move this? need to make it for effect/other char too
+                            if self.current_moveset["Status"]:
                                 for effect in self.current_moveset["Status"]:
                                     self.apply_status(effect)
                                     for ally in self.near_ally:
@@ -873,14 +883,14 @@ class PlayableCharacter(Character):
             self.hit_resource_regen = True
         if self.common_skill["Resourceful"][3]:  # resource regen when crash and guard
             self.crash_guard_resource_regen = True
-        if self.common_skill["Resourceful"][4]:  # double max resource, and improve auto regen
-            self.max_resource *= self.max_resource
+        if self.common_skill["Resourceful"][4]:  # double max resource, and auto regen
+            self.max_resource += self.max_resource
             self.resource1 = self.max_resource * 0.01
             self.resource2 = self.max_resource * 0.02
             self.resource25 = self.max_resource * 0.25
             self.resource50 = self.max_resource * 0.5
             self.resource75 = self.max_resource * 0.75
-            self.base_resource_regen += self.max_resource * 0.03
+            self.base_resource_regen += self.max_resource * 0.02
         if self.common_skill["Resourceful"][5]:
             pass
 
@@ -927,16 +937,16 @@ class AICharacter(Character):
 
         for item in stat["Property"]:  # set attribute from property
             self.__setattr__(item, True)
-        self.max_attack_range = 0
-        self.resurrect_count = 0
+        self.ai_max_attack_range = 0
         self.ai_timer = 0  # for whatever timer require for AI action
         self.ai_movement_timer = 0  # timer to move for AI
         self.end_ai_movment_timer = randint(2, 6)
-
         for position in self.moveset.values():
             for move in position.values():
-                if self.max_attack_range < move["Range"]:
-                    self.max_attack_range = move["Range"]
+                if self.ai_max_attack_range < move["AI Range"]:
+                    self.ai_max_attack_range = move["AI Range"]
+
+        self.resurrect_count = 0
 
         self.enter_battle(self.battle.character_animation_data)
 

@@ -284,7 +284,7 @@ class InputBox(UIMenu):
         self.font = Font(self.ui_font["main_button"], int(30 * self.screen_scale[1]))
         self.pos = pos
         self.image = Surface((width - 10, int(34 * self.screen_scale[1])))
-        self.max_text = int((self.image.get_width() / int(30 * self.screen_scale[1])) * 2.2)
+        self.max_text = int((self.image.get_width() / int(30 * self.screen_scale[1])) * 2)
         self.image.fill((255, 255, 255))
 
         self.base_image = self.image.copy()
@@ -349,7 +349,7 @@ class InputBox(UIMenu):
                 if self.current_pos < 0:
                     self.current_pos = 0
             elif key_press[pygame.K_LCTRL] or key_press[
-                pygame.K_RCTRL]:  # use keypress for ctrl as it has no effect on its own
+                pygame.K_RCTRL]:  # use keypress for ctrl as is has no effect on its own
                 if event_key == pygame.K_c:
                     pyperclip.copy(self.text)
                 elif event_key == pygame.K_v:
@@ -366,9 +366,12 @@ class InputBox(UIMenu):
             # Re-render the text
             show_text = self.text[:self.current_pos] + "|" + self.text[self.current_pos:]
             if self.current_pos > self.max_text:
-                show_text = show_text[abs(self.current_pos - self.max_text):]
+                if self.current_pos + self.max_text > len(show_text):
+                    show_text = show_text[len(show_text) - self.max_text:]
+                else:
+                    show_text = show_text[self.current_pos:]
             text_surface = self.font.render(show_text, True, (0, 0, 0))
-            text_rect = text_surface.get_rect(center=(self.image.get_width() / 2, self.image.get_height() / 2))
+            text_rect = text_surface.get_rect(midleft=(0, self.image.get_height() / 2))
             self.image.blit(text_surface, text_rect)
 
 
@@ -551,7 +554,7 @@ class BrownMenuButton(UIMenu, Containable):  # NOTE: the button is not brown any
         return (normal_button, hover_button)
 
     def get_relative_size_inside_container(self):
-        return (.5, .1)  # TODO: base this on a variable
+        return (.5, .1)
 
     def __init__(self, pos, key_name="", width=200, parent=None):
         UIMenu.__init__(self)
@@ -1416,7 +1419,7 @@ class BoxUI(UIMenu, Containable, Container):
         # self.image.fill("#bbbbaabb")
 
     def get_relative_size_inside_container(self):
-        return (0.3, 0.5)  # TODO: base this on variable
+        return (0.3, 0.5)
 
     def get_relative_position_inside_container(self):
         return {
