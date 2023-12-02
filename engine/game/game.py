@@ -160,7 +160,6 @@ class Game:
         try:
             config.read_file(open(self.config_path))  # read config file
         except FileNotFoundError:  # Create config file if not found with the default
-            print('hmm')
             config = self.create_config()
 
         try:
@@ -354,12 +353,10 @@ class Game:
         self.character_animation_data = self.animation_data.character_animation_data  # animation data pool
         self.body_sprite_pool = self.animation_data.body_sprite_pool  # body sprite pool
         self.stage_object_animation_pool = self.animation_data.stage_object_animation_pool
-        self.effect_sprite_pool = self.animation_data.effect_sprite_pool  # effect sprite pool
         self.effect_animation_pool = self.animation_data.effect_animation_pool  # effect sprite animation pool
 
         BodyPart.body_sprite_pool = self.body_sprite_pool
-        Drop.effect_sprite_pool = self.effect_sprite_pool
-        Effect.effect_sprite_pool = self.effect_sprite_pool
+        Drop.effect_animation_pool = self.effect_animation_pool
         Effect.effect_animation_pool = self.effect_animation_pool
         StageObject.stage_object_animation_pool = self.stage_object_animation_pool
 

@@ -85,7 +85,8 @@ def load_images(directory, screen_scale=(1, 1), subfolder=(), key_file_name_read
         return images
 
 
-def recursive_image_load(save_dict, screen_scale, part_folder, key_file_name_readable=True, add_flip=False):
+def recursive_image_load(save_dict, screen_scale, part_folder, key_file_name_readable=True, add_flip=False,
+                         part_scaling=None):
     next_level = save_dict
     sub_directories = [os.path.split(os.sep.join(os.path.normpath(x).split(os.sep)[-1:]))[-1] for x
                        in part_folder.iterdir() if x.is_dir()]
@@ -95,15 +96,42 @@ def recursive_image_load(save_dict, screen_scale, part_folder, key_file_name_rea
             next_level[folder_name] = {}
             part_subfolder = Path(os.path.join(part_folder, folder))
             recursive_image_load(next_level[folder_name], screen_scale, part_subfolder,
-                                 key_file_name_readable=key_file_name_readable, add_flip=add_flip)
+                                 key_file_name_readable=key_file_name_readable, add_flip=add_flip,
+                                 part_scaling=part_scaling)
 
     else:
         imgs = load_images(part_folder, screen_scale=screen_scale,
                            key_file_name_readable=key_file_name_readable)
         if add_flip:
             for key, value in imgs.items():
-                imgs[key] = {0: value, 1: flip(value, True, False), 2: flip(value, False, True),
-                             3: flip(value, True, True)}
+                if part_scaling:
+                    imgs[key] = {1.0: {0: value, 1: flip(value, True, False), 2: flip(value, False, True),
+                                       3: flip(value, True, True)}}
+                    part_type = os.path.normpath(part_folder).split(os.sep)[-4]
+                    part_name = os.path.normpath(part_folder).split(os.sep)[-3]
+                    if part_type != "weapon":
+                        part_type = part_type.capitalize()
+                    else:
+                        part_name = filename_convert_readable(part_name)
+
+                    if part_type in part_scaling:
+                        if part_name in part_scaling[part_type]:
+                            if key in part_scaling[part_type][part_name]:
+                                scale_list = part_scaling[part_type][part_name][key]
+                                for scale in scale_list:
+                                    imgs[key][scale] = \
+                                        {0: smoothscale(imgs[key][1][0], (imgs[key][1][0].get_width() * scale,
+                                                                          imgs[key][1][0].get_height() * scale)),
+                                         1: smoothscale(imgs[key][1][1], (imgs[key][1][1].get_width() * scale,
+                                                                          imgs[key][1][1].get_height() * scale)),
+                                         2: smoothscale(imgs[key][1][2], (imgs[key][1][2].get_width() * scale,
+                                                                          imgs[key][1][2].get_height() * scale)),
+                                         3: smoothscale(imgs[key][1][3], (imgs[key][1][3].get_width() * scale,
+                                                                          imgs[key][1][3].get_height() * scale))}
+                else:
+                    imgs[key] = {0: value, 1: flip(value, True, False), 2: flip(value, False, True),
+                                 3: flip(value, True, True)}
+
         save_dict |= imgs
 
 

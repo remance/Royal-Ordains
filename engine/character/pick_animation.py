@@ -50,6 +50,8 @@ def pick_animation(self):
                         self.current_moveset = None
                         self.continue_moveset = None
                         animation_name = self.equipped_weapon + self.combat_state + self.position + "Idle"
+                        if self.special_combat_state:
+                            self.special_combat_state = 0
 
                 else:
                     animation_name = self.equipped_weapon + self.combat_state + self.position + self.current_action[
@@ -71,6 +73,9 @@ def pick_animation(self):
         self.current_moveset = None
         self.continue_moveset = None
         animation_name = self.equipped_weapon + self.combat_state + self.position + "Idle"
+        if self.special_combat_state and self.combat_state == "Combat":
+            # use special idle if char has special state
+            animation_name += str(self.special_combat_state)
 
     if "guard" in self.current_action:
         self.guarding = 0.1

@@ -262,8 +262,10 @@ Animation maker for the troop Vector-based animation in game. The tool is made w
 - Battle music "Medieval: Battle" by RandomMind (https://www.chosic.com/free-music/all/?keyword=RandomMind&artist)
 - Battle music 2 "War Drums Sound Effect - Realistic Performance - Royalty Free" by Free Audio Zone (https://www.youtube.com/watch?v=d2omr4EpjVc)
 - Mechanism sound "Mechanism" by Globofonia (https://freesound.org/people/Globofonia/)
-- Boom Sound "Breaking the sound barrier" by Pixabay (https://pixabay.com/users/pixabay-1/) 
-- Bell Sound "Bell Sound Ring" by Mike Koenig (https://soundbible.com/26-Bell-Sound-Ring.html#)
+- Boom sound "Breaking the sound barrier" by Pixabay (https://pixabay.com/users/pixabay-1/) 
+- Bell sound "Bell Sound Ring" by Mike Koenig (https://soundbible.com/26-Bell-Sound-Ring.html#)
+- Wind sound "Wind Blow" by UNIVERSFIELD (https://pixabay.com/users/universfield-28281460/) 
+- Earth spike sound "Punch a rock" and "Woosh Drum hit" by LordSonny (https://pixabay.com/users/lordsonny-38439655/)
 
 [//]: # (## Translation)
 

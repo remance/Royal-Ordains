@@ -104,12 +104,12 @@ effect_colour_: Colourise entire frame based on the input value
 """
 
 
-def reload_animation(animation, char):
+def reload_animation(animation, char, specific_frame=None):
     """Reload animation frames"""
     frames = [pygame.transform.smoothscale(this_image, showroom.size) for this_image in char.animation_list if
               this_image is not None]
     for frame_index in range(max_frame):
-        if activate_list[frame_index]:
+        if (not specific_frame and activate_list[frame_index]) or (specific_frame and frame_index == specific_frame):
             for prop in frame_property_select[frame_index] + anim_property_select:
                 if "effect" in prop:
                     size = frames[frame_index].get_size()
@@ -993,8 +993,6 @@ class Model:
 
     def edit_part(self, edit_mouse_pos, edit_type, specific_frame=None):
         edit_frame = current_frame
-        if specific_frame is not None:
-            edit_frame = specific_frame
         key_list = list(self.mask_part_list.keys())
 
         if edit_type not in ("undo", "redo", "change", "new"):
@@ -1282,32 +1280,32 @@ class Model:
 
         # recreate frame image
         for frame_num, _ in enumerate(self.animation_list):
-            pose_layer_list = self.make_layer_list(self.animation_part_list[frame_num])
-            surface = self.create_animation_film(pose_layer_list, frame_num)
-            self.animation_list[frame_num] = surface
-        for frame, _ in enumerate(self.frame_list):
-            old_sound_effect = []
-            if "sound_effect" in self.frame_list[frame]:
-                old_sound_effect = self.frame_list[frame]["sound_effect"]
-            self.frame_list[frame] = {}
-            name_list = self.part_name_list[frame]
-            for key in self.mask_part_list:
-                try:
-                    sprite_part = self.animation_part_list[frame]
-                    if sprite_part[key] is not None:
-                        self.frame_list[frame][key] = name_list[key] + [sprite_part[key][2][0], sprite_part[key][2][1],
-                                                                             sprite_part[key][3], sprite_part[key][4],
-                                                                             sprite_part[key][5], sprite_part[key][6],
-                                                                        sprite_part[key][7]]
-                    else:
-                        self.frame_list[frame][key] = []
-                except (TypeError, IndexError):  # None type error from empty frame
-                    self.frame_list[frame][key] = []
-            self.frame_list[frame]["frame_property"] = frame_property_select[frame].copy()
-            self.frame_list[frame]["animation_property"] = anim_property_select.copy()
-            self.frame_list[frame]["sound_effect"] = old_sound_effect
+            if not specific_frame or (frame_num == specific_frame):
+                pose_layer_list = self.make_layer_list(self.animation_part_list[frame_num])
+                surface = self.create_animation_film(pose_layer_list, frame_num)
+                self.animation_list[frame_num] = surface
+                old_sound_effect = []
+                if "sound_effect" in self.frame_list[frame_num]:
+                    old_sound_effect = self.frame_list[frame_num]["sound_effect"]
+                self.frame_list[frame_num] = {}
+                name_list = self.part_name_list[frame_num]
+                for key in self.mask_part_list:
+                    try:
+                        sprite_part = self.animation_part_list[frame_num]
+                        if sprite_part[key] is not None:
+                            self.frame_list[frame_num][key] = name_list[key] + [sprite_part[key][2][0], sprite_part[key][2][1],
+                                                                                 sprite_part[key][3], sprite_part[key][4],
+                                                                                 sprite_part[key][5], sprite_part[key][6],
+                                                                            sprite_part[key][7]]
+                        else:
+                            self.frame_list[frame_num][key] = []
+                    except (TypeError, IndexError):  # None type error from empty frame
+                        self.frame_list[frame_num][key] = []
+                self.frame_list[frame_num]["frame_property"] = frame_property_select[frame_num].copy()
+                self.frame_list[frame_num]["animation_property"] = anim_property_select.copy()
+                self.frame_list[frame_num]["sound_effect"] = old_sound_effect
         anim_to_pool(animation_name, current_pool[animation_race], self, activate_list)
-        reload_animation(anim, self)
+        reload_animation(anim, self, specific_frame=specific_frame)
 
         if edit_type == "new":
             for index, frame in enumerate(self.frame_list):  # reset all frame to empty frame like the first one
@@ -1649,9 +1647,9 @@ p_selector = NameBox((250, image.get_height()), (reset_button.image.get_width() 
                                                  p_body_helper.rect.midtop[1] - (image.get_height() * 5.5)),
                      description=("Select person to display in edit helper",
                                   "Parts from different person can still be selected in editor preview."))
-sprite_ver_selector = NameBox((250, image.get_height()), (reset_button.image.get_width() * 1.8,
-                                                          p_body_helper.rect.midtop[1] - (image.get_height() * 4.5)),
-                              description=("Select preview sprite version", "Only for preview and not saved in animation file."))
+# sprite_ver_selector = NameBox((250, image.get_height()), (reset_button.image.get_width() * 1.8,
+#                                                           p_body_helper.rect.midtop[1] - (image.get_height() * 4.5)),
+#                               description=("Select preview sprite version", "Only for preview and not saved in animation file."))
 sprite_mode_selector = NameBox((250, image.get_height()), (reset_button.image.get_width() * 1.8,
                                                           p_body_helper.rect.midtop[1] - (image.get_height() * 3.5)),
                               description=("Select preview sprite mode", "Only for preview and not saved in animation file."))
@@ -1754,7 +1752,7 @@ else:
     model.animation_list = [None] * max_frame
     model.edit_part(None, "new")
 p_selector.change_name("p1")
-sprite_ver_selector.change_name(model.sprite_version[1])
+# sprite_ver_selector.change_name(model.sprite_version[1])
 sprite_mode_selector.change_name("Normal")
 model.add_history()
 animation_filter = [""]
@@ -1965,13 +1963,13 @@ while True:
                                 p_body_helper.change_p_type(name.name, player_change=True)
                                 effect_helper.change_p_type(name.name + "_effect", player_change=True)
                                 p_selector.change_name(name.name)
-                                sprite_ver_selector.change_name(model.sprite_version[int(name.name[-1])])
+                                # sprite_ver_selector.change_name(model.sprite_version[int(name.name[-1])])
                             elif "sound" in popup_list_box.action:
                                 model.edit_part(mouse_pos, "sound_select:" + name.name)
                                 sound_selector.change_name(name.name)
                             elif "_ver_select" in popup_list_box.action:
                                 model.edit_part(mouse_pos, popup_list_box.action[0:3] + "_ver_select" + name.name)
-                                sprite_ver_selector.change_name(name.name)
+                                # sprite_ver_selector.change_name(name.name)
                             elif "_mode_select" in popup_list_box.action:
                                 model.edit_part(mouse_pos, popup_list_box.action[0:3] + "_mode_select" + name.name)
                                 sprite_mode_selector.change_name(name.name)
@@ -2067,7 +2065,10 @@ while True:
                             if name.selected:  # unselect
                                 name.select()
                                 select_list.remove(name.name)
-                                reload_animation(anim, model)
+                                specific_frame = None
+                                if naming == "frame":
+                                    specific_frame = current_frame
+                                reload_animation(anim, model, specific_frame=specific_frame)
                             else:
                                 if name.name == "Custom":
                                     text_input_popup = ("text_input", "new_anim_prop")
@@ -2087,7 +2088,10 @@ while True:
                                     select_list.append(name.name)
                                     setup_list(NameList, current_frame_row, namelist, namegroup,
                                                list_box, ui, screen_scale, layer=9, old_list=select_list)
-                                    reload_animation(anim, model)
+                                    specific_frame = None
+                                    if naming == "frame":
+                                        specific_frame = current_frame
+                                    reload_animation(anim, model, specific_frame=specific_frame)
                             property_to_pool_data(naming)
 
         if not play_animation:
@@ -2187,7 +2191,6 @@ while True:
                             frame_property_select[change_frame] = frame_property_select[change_frame + 1].copy()
                             model.read_animation(animation_name, old=True)
                             change_frame += 1
-                        model.edit_part(mouse_pos, "clear", specific_frame=len(model.bodypart_list) - 1)
                         model.edit_part(mouse_pos, "change")
                         reload_animation(anim, model)
                         change_frame_process()
@@ -2372,12 +2375,12 @@ while True:
                     elif p_selector.rect.collidepoint(mouse_pos):
                         popup_list_open(popup_list_box, popup_namegroup, ui, "person_select",
                                         p_selector.rect.topleft, p_list, "bottom", screen_scale)
-                    elif sprite_ver_selector.rect.collidepoint(mouse_pos):
-                        part_list = []
-                        for item in range(1, 11):
-                            part_list.append(item)
-                        popup_list_open(popup_list_box, popup_namegroup, ui, p_body_helper.ui_type + "_ver_select",
-                                        sprite_ver_selector.rect.topleft, part_list, "bottom", screen_scale)
+                    # elif sprite_ver_selector.rect.collidepoint(mouse_pos):
+                    #     part_list = []
+                    #     for item in range(1, 11):
+                    #         part_list.append(item)
+                    #     popup_list_open(popup_list_box, popup_namegroup, ui, p_body_helper.ui_type + "_ver_select",
+                    #                     sprite_ver_selector.rect.topleft, part_list, "bottom", screen_scale)
                     elif sprite_mode_selector.rect.collidepoint(mouse_pos):
                         part_list = ["Normal"]
                         popup_list_open(popup_list_box, popup_namegroup, ui, p_body_helper.ui_type + "_mode_select",
@@ -2706,7 +2709,10 @@ while True:
                         select_list.append(name[0:name.rfind("_") + 1] + input_box.text)
                         setup_list(NameList, current_frame_row, namelist, namegroup,
                                    list_box, ui, screen_scale, layer=9, old_list=select_list)
-                        reload_animation(anim, model)
+                        specific_frame = None
+                        if naming == "frame":
+                            specific_frame = current_frame
+                        reload_animation(anim, model, specific_frame=specific_frame)
                         property_to_pool_data(naming)
                         break
 
@@ -2736,7 +2742,10 @@ while True:
                         select_list.append(name[0:name.rfind("_") + 1] + colour)
                         setup_list(NameList, current_frame_row, name_list, namegroup, list_box, ui, screen_scale,
                                    layer=9, old_list=select_list)
-                        reload_animation(anim, model)
+                        specific_frame = None
+                        if naming == "frame":
+                            specific_frame = current_frame
+                        reload_animation(anim, model, specific_frame=specific_frame)
                         property_to_pool_data(naming)
                         break
 

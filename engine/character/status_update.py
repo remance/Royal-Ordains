@@ -61,11 +61,6 @@ def status_update(self):
             defence_bonus += weather.def_buff
             speed_bonus += weather.speed_buff
             hp_regen_bonus += weather.hp_regen_buff
-            for element in weather.element:  # Weather can cause elemental effect such as wet
-                self.element_status_check[element[0]] += (
-                            element[1] * (100 - self.element_resistance[element[0]]) / 100)
-
-    self.check_element_effect()  # elemental effect
 
     # Apply modifier to stat
     self.power_bonus = self.base_power_bonus + attack_bonus

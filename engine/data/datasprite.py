@@ -2,6 +2,8 @@ import csv
 import os
 from pathlib import Path
 
+from pygame.transform import flip, smoothscale
+
 from engine.data.datastat import GameData
 from engine.utils.data_loading import load_images, stat_convert, recursive_image_load, filename_convert_readable as fcv
 
@@ -15,6 +17,7 @@ class AnimationData(GameData):
         """
         GameData.__init__(self)
 
+        part_size_scaling = {}
         self.character_animation_data = {}
         part_folder = Path(os.path.join(self.data_dir, "animation"))
         for file in os.listdir(part_folder):
@@ -45,6 +48,30 @@ class AnimationData(GameData):
                             for n, i in enumerate(row):
                                 row = stat_convert(row, n, i, list_column=list_column)
                             row = row[1:]
+                            for part_index, part in enumerate(row):
+                                if len(part) > 4 and part[7] != 1:  # check if animation has size scaling
+                                    part_name = part_name_header[part_index]
+                                    if "weapon" in part_name:  # for same dict structure
+                                        part_name = part[0]
+                                        part_type = "weapon"
+                                    elif "effect" in part_name:
+                                        part_name = part[0]
+                                        part_type = "effect"
+                                    else:
+                                        if "special" in part_name:
+                                            part_name = part_name.split("_")[1]
+                                        else:
+                                            part_name = part_name[5:]
+                                        part_type = part[0]
+
+                                    if part_type not in part_size_scaling:
+                                        part_size_scaling[part_type] = {}
+                                    if part_name not in part_size_scaling[part_type]:
+                                        part_size_scaling[part_type][part_name] = {}
+                                    if part[1] not in part_size_scaling[part_type][part_name]:
+                                        part_size_scaling[part_type][part_name][part[1]] = []
+                                    if part[7] not in part_size_scaling[part_type][part_name][part[1]]:
+                                        part_size_scaling[part_type][part_name][part[1]].append(part[7])
                             if key in animation_pool:
                                 animation_pool[key]["r_side"].append(
                                     {part_name_header[item_index]: item for item_index, item in enumerate(row)})
@@ -77,7 +104,7 @@ class AnimationData(GameData):
                     self.character_animation_data[file_data_name] = animation_pool
                 edit_file.close()
 
-        self.body_sprite_pool = {}  # TODO maybe add part zoom check in animation so no need to do scale in real time
+        self.body_sprite_pool = {}
         part_folder = Path(os.path.join(self.data_dir, "animation", "sprite", "character"))
         char_list = [os.path.split(x)[-1] for x in part_folder.iterdir()]
         for char in char_list:
@@ -95,7 +122,7 @@ class AnimationData(GameData):
                     part_subfolder = Path(
                         os.path.join(self.data_dir, "animation", "sprite", "character", char, folder[-1]))
                     recursive_image_load(self.body_sprite_pool[char_id][folder[-1]], self.screen_scale, part_subfolder,
-                                         add_flip=True)
+                                         add_flip=True, part_scaling=part_size_scaling)
             except FileNotFoundError:
                 pass
 
@@ -109,9 +136,8 @@ class AnimationData(GameData):
             part_subfolder = Path(
                 os.path.join(self.data_dir, "animation", "sprite", "character", "weapon", folder[-1]))
             recursive_image_load(self.body_sprite_pool[folder_data_name], self.screen_scale, part_subfolder,
-                                 add_flip=True)
+                                 add_flip=True, part_scaling=part_size_scaling)
 
-        self.effect_sprite_pool = {}
         self.effect_animation_pool = {}
         part_folder = Path(os.path.join(self.data_dir, "animation", "sprite", "effect"))
         subdirectories = [os.path.split(
@@ -119,7 +145,6 @@ class AnimationData(GameData):
             in part_folder.iterdir() if x.is_dir()]
         for folder in subdirectories:
             folder_data_name = fcv(folder[-1])
-            self.effect_sprite_pool[folder_data_name] = {}
             self.effect_animation_pool[folder_data_name] = {}
             part_folder2 = Path(os.path.join(self.data_dir, "animation", "sprite", "effect", folder[-1]))
             sub_directories2 = [os.path.split(os.sep.join(os.path.normpath(x).split(os.sep)[-1:]))[-1] for x
@@ -129,8 +154,6 @@ class AnimationData(GameData):
                     folder_data_name2 = fcv(folder2)
                     images = load_images(part_folder, screen_scale=self.screen_scale,
                                          subfolder=(folder[-1], folder2), key_file_name_readable=True)
-                    self.effect_sprite_pool[folder_data_name][folder_data_name2] = images
-
                     self.effect_animation_pool[folder_data_name][folder_data_name2] = {}
                     true_name_list = []
                     for key, value in images.items():
@@ -141,15 +164,35 @@ class AnimationData(GameData):
                         true_name_list.append(true_name)
 
                     for true_name in set(true_name_list):  # create effect animation list
+                        final_name = true_name
                         if "#" in true_name:  # has animation to play
-                            animation_list = [value for key, value in images.items() if true_name[:-1] ==
+                            final_name = true_name[:-1]
+                            animation_list = [value for key, value in images.items() if final_name ==
                                               " ".join([string for string in key.split(" ")[:-1]])]
-                            self.effect_animation_pool[folder_data_name][folder_data_name2][true_name[:-1]] = tuple(
-                                animation_list)
+                            animation_list = {1.0: [{0: value, 1: flip(value, True, False),
+                                                     2: flip(value, False, True),
+                                                     3: flip(value, True, True)} for value in animation_list]}
                         else:
-                            animation_list = [value for key, value in images.items() if true_name == key]
-                            self.effect_animation_pool[folder_data_name][folder_data_name2][true_name] = tuple(
-                                animation_list)
+                            animation_list = {1.0: [{0: value, 1: flip(value, True, False),
+                                                     2: flip(value, False, True),
+                                                     3: flip(value, True, True)} for key, value in images.items() if true_name == key]}
+
+                        if "effect" in part_size_scaling:
+                            if fcv(folder[-1]) in part_size_scaling["effect"]:
+                                if final_name in part_size_scaling["effect"][fcv(folder[-1])]:
+                                    scale_list = part_size_scaling["effect"][fcv(folder[-1])][final_name]
+                                    for scale in scale_list:
+                                        animation_list[scale] = \
+                                            [{0: smoothscale(value[0], (value[0].get_width() * scale,
+                                                                        value[0].get_height() * scale)),
+                                              1: smoothscale(value[1], (value[1].get_width() * scale,
+                                                                        value[1].get_height() * scale)),
+                                              2: smoothscale(value[2], (value[2].get_width() * scale,
+                                                                        value[2].get_height() * scale)),
+                                              3: smoothscale(value[3], (value[3].get_width() * scale,
+                                                                        value[3].get_height() * scale))} for value in
+                                             animation_list[1]]
+                        self.effect_animation_pool[folder_data_name][folder_data_name2][final_name] = animation_list
 
         self.stage_object_sprite_pool = {}
         self.stage_object_animation_pool = {}

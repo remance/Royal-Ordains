@@ -42,8 +42,8 @@ def hit_collide_check(self, check_damage_effect=True):
         else:
             self.x_momentum = -100
         self.y_momentum = 100
-        self.current_animation = self.animation_pool["Base"]  # change image to base
-        self.base_image = self.current_animation[self.show_frame]
+        self.current_animation = self.animation_pool["Base"][self.scale]  # change image to base
+        self.base_image = self.current_animation[self.show_frame][self.flip]
         self.adjust_sprite()
         self.battle.all_damage_effects.remove(self)
 
@@ -68,7 +68,7 @@ def dmg_crash_check(self, crashed_part, body_part=False):
                 self.already_hit.append(crashed_part.owner)
             if self.object_type == "body":
                 crashed_part.already_hit.append(self.owner)
-        Effect(None, ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle), 0)
+        Effect(None, ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)
         if self.object_type == "effect":  # end effect
             if self.stick_reach:  # bounce off
                 self.stick_timer = 5
@@ -78,9 +78,9 @@ def dmg_crash_check(self, crashed_part, body_part=False):
     elif dmg_diff < self.dmg / 4:  # collided effect damage is much lower than this object
         crashed_part.can_deal_dmg = False
         if self.owner.player_control:
-            Effect(None, ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle), 0)
+            Effect(None, ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)
         else:
-            Effect(None, ("Crash Enemy", "Crash", self.rect.centerx, self.rect.centery, -self.angle), 0)
+            Effect(None, ("Crash Enemy", "Crash", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)
 
         if not body_part:
             if self.object_type == "body":
@@ -94,7 +94,7 @@ def dmg_crash_check(self, crashed_part, body_part=False):
         self.can_deal_dmg = False
         if crashed_part.object_type == "body":  # only add to already hit if crashed object is body part
             self.already_hit.append(crashed_part.owner)
-        Effect(None, ("Crash Enemy", "Crash", self.rect.centerx, self.rect.centery, -self.angle), 0)
+        Effect(None, ("Crash Enemy", "Crash", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)
         if self.object_type == "effect":  # end effect if not penetrate
             if self.stick_reach:  # bounce off
                 self.stick_timer = 5

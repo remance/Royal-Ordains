@@ -1,7 +1,9 @@
 from math import radians
 from random import randint, random, uniform
 
+import types
 import pygame
+import copy
 from pygame import sprite, Vector2
 from pygame.mask import from_surface
 
@@ -9,10 +11,12 @@ from engine.character.ai_combat import ai_combat_dict
 from engine.character.ai_move import ai_move_dict
 from engine.character.ai_retreat import ai_retreat_dict
 from engine.character.character_specific_damage import damage_dict
+from engine.character.character_specific_start_animation import animation_start_dict
 from engine.character.character_specific_initiate import initiate_dict
 from engine.character.character_specific_special import special_dict
 from engine.character.character_specific_status_update import status_update_dict
 from engine.character.character_specific_update import update_dict
+from engine.data.datastat import final_recursive_dict
 from engine.drop.drop import Drop
 from engine.uibattle.uibattle import CharacterIndicator
 from engine.utils.common import empty_method
@@ -72,12 +76,6 @@ class Character(sprite.Sprite):
     from engine.character.cal_loss import cal_loss
     cal_loss = cal_loss
 
-    from engine.character.check_element_effect import check_element_effect
-    check_element_effect = check_element_effect
-
-    from engine.character.check_element_threshold import check_element_threshold
-    check_element_threshold = check_element_threshold
-
     from engine.character.check_move_existence import check_move_existence
     check_move_existence = check_move_existence
 
@@ -108,6 +106,9 @@ class Character(sprite.Sprite):
     from engine.character.player_input import player_input
     player_input = player_input
 
+    from engine.character.remove_moveset_not_match_stat_requirement import remove_moveset_not_match_stat_requirement
+    remove_moveset_not_match_stat_requirement = remove_moveset_not_match_stat_requirement
+
     from engine.character.rotate_logic import rotate_logic
     rotate_logic = rotate_logic
 
@@ -124,6 +125,7 @@ class Character(sprite.Sprite):
 
     jump_idle_command_action = {"name": "Idle", "movable": True}
     relax_command_action = {"name": "Relax", "low level": True}
+    special_relax_command = ()
 
     couch_command_action = {"name": "Couch", "couch": True}
     couch_stand_command_action = {"name": "Stand", "uncontrollable": True, "stand": True}
@@ -251,7 +253,7 @@ class Character(sprite.Sprite):
         self.position = "Stand"
         self.combat_state = "Peace"
         self.mode = "Normal"
-        self.special_state = 0
+        self.special_combat_state = 0
         self.timer = random()
         self.in_combat_timer = 0
         self.default_sprite_size = 1
@@ -282,7 +284,6 @@ class Character(sprite.Sprite):
         # Default element stat
         element_dict = {key.split(" ")[0]: 0 for key in stat if
                         " Resistance" in key}  # get resistance
-        self.element_status_check = element_dict.copy()  # element threshold count
         self.original_element_resistance = element_dict.copy()
 
         # initiate equipment stat
@@ -303,7 +304,7 @@ class Character(sprite.Sprite):
         self.wisdom = stat["Wisdom"] + stat_boost
         self.charisma = stat["Charisma"] + stat_boost
 
-        self.moveset = {key: value.copy() for key, value in stat["Move"].items()}
+        self.moveset = copy.deepcopy(stat["Move"])
         self.mode_list = stat["Mode"]
         self.skill = stat["Skill"].copy()
         self.available_skill = {"Couch": {}, "Stand": {}, "Air": {}}
@@ -320,32 +321,21 @@ class Character(sprite.Sprite):
                 for skill in tuple(position.keys()):
                     self.available_skill[name][skill] = position[skill]
 
-        stat_list = {"Strength": self.strength, "Dexterity": self.dexterity, "Agility": self.agility,
-                     "Constitution": self.constitution, "Intelligence": self.intelligence, "Wisdom": self.wisdom,
-                     "Charisma": self.charisma}
+        self.remove_moveset_not_match_stat_requirement()
 
         for position in ("Couch", "Stand", "Air"):  # combine skill into moveset
-            # also check for moveset that require stat
-            if position in self.moveset:  # check stat requirement for moveset first
-                for move_name, move in self.moveset[position].copy().items():
-                    if "Stat Requirement" in move:
-                        for stat_name, value in move["Stat Requirement"].items():
-                            if stat_list[stat_name] < float(value):  # remove move that not have required stat
-                                self.moveset[position].pop(move_name)
-
             if position in self.skill:
                 if position not in self.moveset:  # add position with no move
                     self.moveset[position] = {}
 
                 button_key_skill_dict = {value["Buttons"]: {"Move": key} | value for key, value in
-                                         self.available_skill[position].items()}
-
-                # if not row2[header2.index("Requirement Move")]:  # TODO finish this when add naye, also check why stat require not work
-                #     # parent move, must also always at row above any child move in csv file
-                #     moveset_dict[row2[header2.index("Position")]][row2[0]] = move_data
-                # else:
-                #     recursive_moveset_dict(moveset_dict[row2[header2.index("Position")]], row2[0],
-                #                            move_data, row2[header2.index("Requirement Move")])
+                                         self.available_skill[position].items() if
+                                         "Requirement Move" not in value or not value["Requirement Move"]}
+                for key, value in self.available_skill[position].items():  # check for skill with requirement move
+                    if "Requirement Move" in value and value["Requirement Move"]:  # add to parent moveset
+                        skill_data_dict = {"Move": key} | {key2: value2 for key2, value2 in value.items()}
+                        final_recursive_dict(self.moveset[position], value["Buttons"], skill_data_dict,
+                                             value["Requirement Move"], [False], [])
 
                 self.moveset[position] = button_key_skill_dict | self.moveset[position]
 
@@ -364,15 +354,7 @@ class Character(sprite.Sprite):
         self.original_super_armour = self.constitution
 
         self.health = stat["Base Health"] + (stat["Base Health"] * (self.constitution / 100))  # health of character
-
         self.max_resource = int(stat["Max Resource"] + (stat["Max Resource"] * self.intelligence / 100))
-        self.resource1 = self.max_resource * 0.01
-        self.resource2 = self.max_resource * 0.02
-        self.resource25 = self.max_resource * 0.25
-        self.resource50 = self.max_resource * 0.5
-        self.resource75 = self.max_resource * 0.75
-
-        self.resource = self.max_resource * stat["Start Resource"]
 
         self.original_resource_cost_modifier = 1
         self.original_guard_cost_modifier = 1
@@ -458,6 +440,13 @@ class Character(sprite.Sprite):
 
         self.max_health = int(self.health)
         self.health *= stat["Start Health"] / 100
+        self.resource1 = self.max_resource * 0.01
+        self.resource2 = self.max_resource * 0.02
+        self.resource10 = self.max_resource * 0.10
+        self.resource25 = self.max_resource * 0.25
+        self.resource50 = self.max_resource * 0.5
+        self.resource75 = self.max_resource * 0.75
+        self.resource = self.max_resource * stat["Start Resource"]
 
         self.run_speed = 1
         self.walk_speed = 1
@@ -482,18 +471,21 @@ class Character(sprite.Sprite):
         # find and set method specific to character
         if self.sprite_id in initiate_dict:
             initiate_dict[self.sprite_id](self)
+        self.specific_animation_done = empty_method
+        if self.sprite_id in animation_start_dict:
+            self.specific_animation_done = types.MethodType(animation_start_dict[self.sprite_id], self)
         self.specific_special_check = empty_method
         if self.sprite_id in special_dict:
-            self.specific_special_check = special_dict[self.sprite_id]
+            self.specific_special_check = types.MethodType(special_dict[self.sprite_id], self)
         self.specific_update = empty_method
         if self.sprite_id in update_dict:
-            self.specific_update = update_dict[self.sprite_id]
+            self.specific_update = types.MethodType(update_dict[self.sprite_id], self)
         self.specific_status_update = empty_method
         if self.sprite_id in status_update_dict:
-            self.specific_status_update = status_update_dict[self.sprite_id]
+            self.specific_status_update = types.MethodType(status_update_dict[self.sprite_id], self)
         self.special_damage = empty_method
         if self.sprite_id in damage_dict:
-            self.special_damage = damage_dict[self.sprite_id]
+            self.special_damage = types.MethodType(damage_dict[self.sprite_id], self)
 
         self.body_parts = {}
 
@@ -551,6 +543,9 @@ class Character(sprite.Sprite):
                                 self.in_combat_timer = 0
                                 self.combat_state = "Peace"
                                 self.command_action = self.relax_command_action
+                                if self.special_combat_state:  # special relax state
+                                    self.command_action = self.special_relax_command[self.special_combat_state]
+                                    self.special_combat_state = 0
                             else:
                                 self.in_combat_timer = 2
 
@@ -569,7 +564,7 @@ class Character(sprite.Sprite):
 
                     if not self.invincible:
                         self.status_update()
-                    self.specific_status_update(self)
+                    self.specific_status_update()
                     self.timer -= 0.1
 
                 self.taking_damage_angle = None
@@ -583,12 +578,12 @@ class Character(sprite.Sprite):
                     self.position = "Air"
 
                 self.health_resource_logic(dt)
-                self.specific_update(self, dt)
+                self.specific_update(dt)
 
                 # Animation and sprite system
-                if self.show_frame >= len(self.current_animation_direction):  # TODO remove when fixed
-                    print(self.name, self.show_frame, self.current_animation, self.current_action)
-                    raise Exception()
+                # if self.show_frame >= len(self.current_animation_direction):  # TODO remove when really fixed
+                #     print(self.name, self.show_frame, self.current_animation, self.current_action)
+                #     raise Exception()
 
                 if "hold" in self.current_animation_direction[self.show_frame]["property"] and \
                         "hold" in self.current_action and \
@@ -683,6 +678,8 @@ class Character(sprite.Sprite):
                     else:
                         self.current_action = self.command_action  # continue next action when animation finish
                         self.command_action = {}
+
+                    self.specific_animation_done(done)
 
                     # new action property
                     if "freeze" in self.current_action:
@@ -887,6 +884,7 @@ class PlayableCharacter(Character):
             self.max_resource += self.max_resource
             self.resource1 = self.max_resource * 0.01
             self.resource2 = self.max_resource * 0.02
+            self.resource10 = self.max_resource * 0.10
             self.resource25 = self.max_resource * 0.25
             self.resource50 = self.max_resource * 0.5
             self.resource75 = self.max_resource * 0.75
@@ -1033,17 +1031,14 @@ class BodyPart(sprite.Sprite):
         if self.data != data:
             self.data = data
             if "weapon" in self.part_name:
-                self.image = self.body_sprite_pool[self.data[0]][self.sprite_ver][self.mode][self.data[1]][self.data[5]]
+                self.image = self.body_sprite_pool[self.data[0]][self.sprite_ver][self.mode][self.data[1]][
+                    self.data[7]][self.data[5]]
             elif "special" in self.part_name:
                 self.image = self.body_sprite_pool[self.data[0]]["special"][self.sprite_ver][self.mode][self.data[1]][
-                    self.data[5]]
+                    self.data[7]][self.data[5]]
             else:
                 self.image = self.body_sprite_pool[self.data[0]][self.part_name][self.sprite_ver][self.mode][
-                    self.data[1]][self.data[5]]
-
-            if self.data[7] != 1:  # scale size
-                self.image = pygame.transform.smoothscale(self.image, (self.image.get_width() * self.data[7],
-                                                                       self.image.get_height() * self.data[7]))
+                    self.data[1]][self.data[7]][self.data[5]]
 
             if self.data[4]:  # rotation
                 self.image = pygame.transform.rotate(self.image, self.data[4])
@@ -1079,8 +1074,8 @@ class BodyPart(sprite.Sprite):
 
 
 def find_damage(self):
-    if not self.owner.current_moveset:  # TODO remove later
-        (self.owner.name, self.owner.current_action, self.owner.show_frame)
+    # if not self.owner.current_moveset:  # TODO remove later
+    #     (self.owner.name, self.owner.current_action, self.owner.show_frame)
     self.dmg = self.owner.current_moveset["Power"] + self.owner.power_bonus * self.owner.hold_power_bonus
     self.element = self.owner.current_moveset["Element"]
     self.impact = ((self.owner.current_moveset["Push Impact"] - self.owner.current_moveset["Pull Impact"]) *

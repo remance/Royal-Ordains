@@ -33,8 +33,11 @@ def play_animation(self, dt, hold_check):
                     """only comboable after hit enemy, with exception for char with combo_with_no_hit"""
                     self.hit_enemy = False
                     self.stoppable_frame = True
+                    # delay frame speed when hit, so it is easier to connect next move
                     if not self.combo_with_no_hit:  # combo_with_no_hit make it so no delay animation
-                        self.final_animation_play_time = 0.3  # delay frame speed when hit, so it is easier to connect next move
+                        self.final_animation_play_time = 0.3
+                    elif self.final_animation_play_time < 0.1:
+                        self.final_animation_play_time = 0.1
                 elif "play_time_mod" in self.current_animation_direction[self.show_frame]:
                     self.final_animation_play_time *= self.current_animation_direction[self.show_frame]["play_time_mod"]
 

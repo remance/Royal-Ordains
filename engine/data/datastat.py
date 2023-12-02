@@ -146,10 +146,12 @@ class CharacterData(GameData):
                                 else:
                                     found = None
                                     for parent_move in row2[header2.index("Requirement Move")]:
-                                        check = [False]
+                                        done_check = [False]
+                                        already_check = []
                                         final_recursive_dict(moveset_dict[row2[header2.index("Position")]],
-                                                               row2[0], move_data, parent_move, check)
-                                        if False in check:
+                                                             row2[0], move_data, parent_move, done_check,
+                                                             already_check)
+                                        if False in done_check:
                                             if found:
                                                 remain_next_move_loop.append((moveset_dict[row2[header2.index("Position")]],
                                                                               row2[0], found, parent_move))
@@ -157,11 +159,11 @@ class CharacterData(GameData):
                                                 remain_next_move_loop.append((moveset_dict[row2[header2.index("Position")]],
                                                                               row2[0], move_data, parent_move))
                                         else:
-                                            found = check[0]
-                                            # print(row[0], row2[1], parent_move)
+                                            found = done_check[0]
                             for item in remain_next_move_loop:  # one last try to find parent
-                                check = [False]
-                                final_recursive_dict(item[0], item[1], item[2], item[3], check)
+                                done_check = ["test"]
+                                already_check = []
+                                final_recursive_dict(item[0], item[1], item[2], item[3], done_check, already_check)
                             self.character_list[row[0]]["Move"] = moveset_dict
                             edit_file2.close()
 
@@ -238,23 +240,24 @@ class CharacterData(GameData):
         edit_file.close()
 
 
-def final_recursive_dict(parent_move_data, move_key, move_data, parent_move_name, check):
+def final_recursive_dict(parent_move_data, move_key, move_data, parent_move_name, done_check, already_check):
     try:
-        recursive_moveset_dict(parent_move_data, move_key, move_data, parent_move_name, check)
+        recursive_moveset_dict(parent_move_data, move_key, move_data, parent_move_name, done_check, already_check)
         return
-    except (ValueError, RecursionError):
+    except ValueError:
         return
 
 
-def recursive_moveset_dict(parent_move_data, move_key, move_data, parent_move_name, check):
-    for k, v in parent_move_data.items():  # TODO fix two or more parent not work
+def recursive_moveset_dict(parent_move_data, move_key, move_data, parent_move_name, done_check, already_check):
+    for k, v in parent_move_data.items():
         if v["Move"] == parent_move_name:  # found parent move
             if "Next Move" not in v:
                 v["Next Move"] = {}
             # if move_data not in v["Next Move"][move_key]:
             v["Next Move"][move_key] = move_data
-            check[0] = move_data
+            done_check[0] = move_data
             raise ValueError("Found, end recursive")
         else:  # not yet search deeper
-            if "Next Move" in v:
-                recursive_moveset_dict(v["Next Move"], move_key, move_data, parent_move_name, check)
+            if "Next Move" in v and v["Move"] not in already_check:
+                already_check.append(v["Move"])  # add move to already check to prevent unending loop
+                recursive_moveset_dict(v["Next Move"], move_key, move_data, parent_move_name, done_check, already_check)

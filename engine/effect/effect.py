@@ -17,7 +17,6 @@ class Effect(sprite.Sprite):
     from engine.utils.rotation import set_rotate
     set_rotate = set_rotate
 
-    effect_sprite_pool = None
     effect_animation_pool = None
     effect_list = None
     sound_effect_pool = {}
@@ -76,13 +75,14 @@ class Effect(sprite.Sprite):
         self.base_pos = Vector2(self.pos[0] / self.screen_scale[0], self.pos[1] / self.screen_scale[1])
 
         self.angle = self.part_stat[4]
+        self.scale = self.part_stat[7]
+        self.flip = self.part_stat[5]
 
         self.sound_effect_name = None
         self.sound_timer = 0
         self.sound_duration = 0
         self.duration = 0
         self.max_duration = 0
-        self.scale_size = 1
         self.x_momentum = 0  # only use for reach bouncing off
         self.y_momentum = 0
 
@@ -108,9 +108,9 @@ class Effect(sprite.Sprite):
                 self.sound_timer = 0  # start playing right away when first update
 
         self.animation_pool = self.effect_animation_pool[self.effect_name][self.sprite_ver]
-        self.current_animation = self.animation_pool[self.part_name]
+        self.current_animation = self.animation_pool[self.part_name][self.scale]
 
-        self.base_image = self.current_animation[self.show_frame]
+        self.base_image = self.current_animation[self.show_frame][self.flip]
         self.image = self.base_image
 
         self.adjust_sprite()
@@ -173,7 +173,10 @@ class DamageEffect(Effect):
         self.enemy_status_effect = self.moveset["Enemy Status"]
 
         self.travel_distance = 0
-        if not layer:  # layer 0 in animation part data mean the effect can move on its own
+        self.travel = False
+        if not layer and self.moveset["Range"]:
+            # layer 0 in animation part data mean the effect can move on its own
+            self.travel = True
             self.travel_distance = self.moveset["Range"]
 
         if self.effect_name in self.sound_effect_pool:
@@ -266,7 +269,6 @@ class DamageEffect(Effect):
                                                item != "spawn"]  # remove spawn property so it not loop spawn
                         DamageEffect(self.owner, stat, 0, moveset, from_owner=False,
                                      reach_effect=self.reach_effect)
-
         self.clean_object()
 
     def update(self, dt):
@@ -349,7 +351,7 @@ class DamageEffect(Effect):
                     self.reach_target("border")
                     return
 
-        elif not self.hit_collide_check(check_damage_effect=self.effect_collide_check) or self.penetrate:
+        elif not self.hit_collide_check(check_damage_effect=self.effect_collide_check):
             if self.sound_effect_name and self.sound_timer < self.sound_duration:
                 self.sound_timer += dt
 
@@ -385,7 +387,7 @@ class DamageEffect(Effect):
                             1] >= self.owner.original_ground_pos:  # stuck at ground
                             self.travel_distance = 0
                             self.stick_timer = 5
-                            self.current_animation = self.animation_pool["Base"]  # change image to base
+                            self.current_animation = self.animation_pool["Base"][self.scale]  # change image to base
                             self.base_image = self.current_animation[self.show_frame]
                             self.adjust_sprite()
                             self.battle.all_damage_effects.remove(self)
@@ -397,7 +399,7 @@ class DamageEffect(Effect):
                         if self.dmg > 1:
                             self.dmg -= 0.1
 
-            if self.travel_distance <= 0 and not self.stick_timer and not self.max_duration:
+            if ((self.travel and self.travel_distance <= 0) or done) and not self.stick_timer and not self.max_duration:
                 self.reach_target("border")
                 return
 

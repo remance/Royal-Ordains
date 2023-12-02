@@ -184,7 +184,6 @@ class Battle:
 
         self.character_animation_data = self.game.character_animation_data
         self.body_sprite_pool = self.game.body_sprite_pool
-        self.effect_sprite_pool = self.game.effect_sprite_pool
         self.effect_animation_pool = self.game.effect_animation_pool
         self.language = self.game.language
         self.localisation = self.game.localisation

@@ -2,7 +2,7 @@ from pygame import sprite, Vector2
 
 
 class StageObject(sprite.Sprite):
-    from engine.effect.play_animation import play_animation
+    from engine.stageobject.play_animation import play_animation
     play_animation = play_animation
 
     from engine.effect.adjust_sprite import adjust_sprite

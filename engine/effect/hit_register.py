@@ -18,9 +18,9 @@ def hit_register(self, target, body_part):
             if target.crash_haste:
                 target.apply_status(45)  # get haste buff
             if self.owner.player_control:
-                Effect(None, ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle), 0)
+                Effect(None, ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)
             else:
-                Effect(None, ("Crash Enemy", "Crash", self.rect.centerx, self.rect.centery, -self.angle), 0)
+                Effect(None, ("Crash Enemy", "Crash", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)
             if self.stick_reach and not self.penetrate:
                 self.stick_timer = 5
         else:
@@ -30,7 +30,7 @@ def hit_register(self, target, body_part):
                 if self.critical_chance >= randint(0, 100):
                     critical = True
                 attacker_dmg, element_effect = self.cal_dmg(target, critical)
-                self.owner.special_damage(self.owner, attacker_dmg)
+                self.owner.special_damage(attacker_dmg)
 
                 if self.owner.hit_resource_regen:  # regen resource when hit
                     self.owner.resource += self.owner.resource1  # regen
@@ -46,8 +46,8 @@ def hit_register(self, target, body_part):
                             self.stuck_part = body_part
                             self.stick_timer = 3
                             self.travel_distance = 0
-                            self.current_animation = self.animation_pool["Base"]  # change image to base
-                            self.base_image = self.current_animation[self.show_frame]
+                            self.current_animation = self.animation_pool["Base"][self.scale]  # change image to base
+                            self.base_image = self.current_animation[self.show_frame][self.flip]
                             self.adjust_sprite()
                             self.battle.all_damage_effects.remove(self)
                             self.base_stuck_stat = (self.pos - self.stuck_part.rect.center, self.angle,
@@ -69,10 +69,10 @@ def hit_register(self, target, body_part):
                         if target.guard_meter < 0:  # guard depleted, break with heavy damaged animation
                             if self.owner.player_control:
                                 Effect(None,
-                                       ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle), 0)
+                                       ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)
                             else:
                                 Effect(None,
-                                       ("Crash Enemy", "Crash", self.rect.centerx, self.rect.centery, -self.angle), 0)
+                                       ("Crash Enemy", "Crash", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)
                             target.guard_meter = 0
                             target.interrupt_animation = True
                             target.command_action = target.heavy_damaged_command_action
@@ -83,16 +83,16 @@ def hit_register(self, target, body_part):
                         else:
                             if self.owner.player_control:  # player hit enemy guard
                                 Effect(None,
-                                       ("Crash Enemy", "Crash", self.rect.centerx, self.rect.centery, -self.angle), 0)
+                                       ("Crash Enemy", "Crash", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)
                             else:  # enemy hit player guard
                                 Effect(None,
-                                       ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle),
+                                       ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1),
                                        0)
                             target.show_frame -= 3
                             if self.stick_reach and not self.penetrate:
                                 self.stick_timer = 5
                     else:  # perfect guard, not reduce meter
-                        Effect(None, ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle), 0)
+                        Effect(None, ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)
                         if self.stick_reach and not self.penetrate:
                             self.stick_timer = 5
                 # if self.stat["Enemy Status"]:
@@ -109,6 +109,6 @@ def hit_register(self, target, body_part):
                     target.interrupt_animation = True
                     target.command_action = target.current_action["next action"]
                     if self.owner.player_control:
-                        Effect(None, ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle), 0)
+                        Effect(None, ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)
                     else:
-                        Effect(None, ("Crash Enemy", "Crash", self.rect.centerx, self.rect.centery, -self.angle), 0)
+                        Effect(None, ("Crash Enemy", "Crash", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)

@@ -98,7 +98,7 @@ def player_input(self, player_index, dt):
                     elif self.last_command_key_input == "Special":
                         if "moveset" not in self.current_action or self.stoppable_frame:
                             self.moveset_command_key_input = tuple(self.command_key_input)
-                            self.specific_special_check(self)
+                            self.specific_special_check()
 
                     elif "moveset" in self.current_action:  # check for holding attack
                         if self.command_key_hold:

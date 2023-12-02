@@ -1,7 +1,19 @@
 from pygame import Vector2
 
 
-def vraesier_update(self, dt):
+def common_update(self, *args):
+    # Changes mode depends on percentage of resource left
+    if self.resource <= self.resource50:
+        self.mode = "Half"
+        if self.resource <= self.resource25:
+            self.mode = "Near"
+            if self.resource == 0:
+                self.mode = "Empty"
+    else:
+        self.mode = "Normal"
+
+
+def vraesier_update(self, dt, *args):
     if self.mode == "Demon":
         self.resource -= dt * 5
         if self.resource <= 0:
@@ -34,19 +46,21 @@ def vraesier_update(self, dt):
                 break
 
 
-def common_update(self, dt):
+def nayedien_update(self, *args):
     # Changes mode depends on percentage of resource left
-    if self.resource <= self.resource50:
+    if self.special_combat_state == 7:  # overload mode:
+        self.mode = "Overload"
+    elif self.resource <= self.resource50:
         self.mode = "Half"
         if self.resource <= self.resource25:
             self.mode = "Near"
-            if self.resource == 0:
+            if self.resource <= self.resource10:
                 self.mode = "Empty"
     else:
         self.mode = "Normal"
 
 
-def dashisi_update(self, dt):
+def dashisi_update(self, *args):
     """Stereo music player based on dashisi pos distance from center camera pos,
     similar function as in battle.add_sound_effect_queue"""
     if self.pos != self.last_pos:
@@ -83,4 +97,4 @@ def dashisi_update(self, dt):
 
 
 update_dict = {"Vraesier": vraesier_update, "Rodhinbar": common_update, "Iri": common_update,
-               "Dashisi": dashisi_update, "Nayedien": common_update}
+               "Dashisi": dashisi_update, "Nayedien": nayedien_update}

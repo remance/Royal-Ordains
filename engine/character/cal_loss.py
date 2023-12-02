@@ -81,6 +81,3 @@ def cal_loss(self, final_dmg, impact, element_effect, hit_angle, dmg_text_pos, c
 
     self.health -= final_dmg
     # self.resource -= self.stamina_dmg_bonus
-
-    for key, value in element_effect.items():
-        self.element_status_check[key] += round(final_dmg * value * (100 - self.element_resistance[key] / 100))
