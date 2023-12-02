@@ -56,20 +56,22 @@ def player_input(self, player_index, dt):
                     if self.last_command_key_input == "Weak":
                         if "moveset" not in self.current_action or self.stoppable_frame:
                             self.moveset_command_key_input = tuple(self.command_key_input)
-                            if self.check_move_existence():
+                            if "run" in self.current_action and self.slide_attack:
+                                self.command_action = self.weak_attack_run_command_action
+                                self.current_moveset = self.moveset[self.position]["Slide"]
+                            elif self.check_move_existence():
                                 self.engage_combat()
                                 self.command_action = self.weak_attack_command_action
-                                if "run" in self.current_action and self.slide_attack:
-                                    self.command_action = self.weak_attack_run_command_action
 
                     elif self.last_command_key_input == "Strong":
                         if "moveset" not in self.current_action or self.stoppable_frame:
                             self.moveset_command_key_input = tuple(self.command_key_input)
-                            if self.check_move_existence():
+                            if "run" in self.current_action and self.tackle_attack:
+                                self.command_action = self.strong_attack_run_command_action
+                                self.current_moveset = self.moveset[self.position]["Tackle"]
+                            elif self.check_move_existence():
                                 self.engage_combat()
                                 self.command_action = self.strong_attack_command_action
-                                if "run" in self.current_action and self.tackle_attack:
-                                    self.command_action = self.strong_attack_run_command_action
 
                     elif self.last_command_key_input == "Guard" or "Guard" in self.command_key_hold:
                         self.engage_combat()

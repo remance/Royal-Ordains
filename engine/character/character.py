@@ -189,7 +189,7 @@ class Character(sprite.Sprite):
         second: troop base stat (e.g., base_attack), this is their stat after calculating equipment
         third: stat with all effect (e.g., attack), this is their stat after calculating weather, and status effect
 
-        Character can be a player or enemy
+        Character can be a player, friendly AI, or enemy
         """
         sprite.Sprite.__init__(self, self.containers)
         self.game_id = game_id
@@ -629,16 +629,6 @@ class Character(sprite.Sprite):
                         (((not self.current_action or "low level" in self.current_action) and
                           self.command_action) or done):
                     # Change position
-                    if "couch" in self.current_action:
-                        self.position = "Couch"
-                    elif "air" in self.current_action:
-                        self.position = "Air"
-                        self.y_momentum = self.jump_power
-                        if self.x_momentum:  # increase y momentum a bit when has x momentum so jump not too short
-                            self.y_momentum *= 1.3
-                    elif "stand" in self.current_action:
-                        self.position = "Stand"
-
                     if done:
                         if self.current_moveset:
                             if "helper" in self.current_moveset["Property"]:
@@ -684,6 +674,16 @@ class Character(sprite.Sprite):
                     # new action property
                     if "freeze" in self.current_action:
                         self.freeze_timer = self.current_action["freeze"]
+
+                    if "couch" in self.current_action:
+                        self.position = "Couch"
+                    elif "air" in self.current_action:
+                        self.position = "Air"
+                        self.y_momentum = self.jump_power
+                        if self.x_momentum:  # increase y momentum a bit when has x momentum so jump not too short
+                            self.y_momentum *= 1.3
+                    elif "stand" in self.current_action:
+                        self.position = "Stand"
 
                     if "land" in self.current_action:
                         # enforce stand position right when start next action instead of after

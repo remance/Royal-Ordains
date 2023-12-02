@@ -13,20 +13,13 @@ def check_move_existence(self):
                     return True
 
     # not continue move or not found with new input
-    if "run" in self.current_action and ((self.slide_attack and "weak" in self.current_action) or
-                                         (self.tackle_attack and "strong" in self.current_action)):  # run moveset
-        move_name = "Slide"
-        if self.moveset_command_key_input[-1] == "Strong":
-            move_name = "Tackle"
-        self.current_moveset = self.moveset[self.position][move_name]
-    else:
-        if self.position in self.moveset:
-            for move in self.moveset[self.position]:
-                if tuple(self.moveset_command_key_input[-len(move):]) == move:
-                    self.current_moveset = self.moveset[self.position][move]
-                    if "Next Move" in self.current_moveset:  # check for next move combo
-                        self.continue_moveset = self.current_moveset["Next Move"]
-                    return True
+    if self.position in self.moveset:
+        for move in self.moveset[self.position]:
+            if tuple(self.moveset_command_key_input[-len(move):]) == move:
+                self.current_moveset = self.moveset[self.position][move]
+                if "Next Move" in self.current_moveset:  # check for next move combo
+                    self.continue_moveset = self.current_moveset["Next Move"]
+                return True
     return False
 
 
@@ -44,35 +37,28 @@ def nayedien_check_move_existence(self):
                     return True
 
     # not continue move or not found with new input
-    if "run" in self.current_action and ((self.slide_attack and "weak" in self.current_action) or
-                                         (self.tackle_attack and "strong" in self.current_action)):  # run moveset
-        move_name = "Slide"
-        if self.moveset_command_key_input[-1] == "Strong":
-            move_name = "Tackle"
-        self.current_moveset = self.moveset[self.position][move_name]
-    else:
-        if self.position in self.moveset:
-            if self.special_combat_state and self.moveset_command_key_input[-1] in ("Weak", "Strong"):
-                next_move = self.moveset[self.position][("Weak", )]
-                for run in range(self.special_combat_state - 1):
-                    next_move = next_move["Next Move"][("Weak", )]
-                if self.moveset_command_key_input[-1] == "Strong" and ("Strong", ) in next_move["Next Move"]:
-                    # first strong attack can skip weak parent move
-                    self.current_moveset = next_move["Next Move"][("Strong", )]
+    if self.position in self.moveset:
+        if self.special_combat_state and self.moveset_command_key_input[-1] in ("Weak", "Strong"):
+            next_move = self.moveset[self.position][("Weak", )]
+            for run in range(self.special_combat_state - 1):
+                next_move = next_move["Next Move"][("Weak", )]
+            if self.moveset_command_key_input[-1] == "Strong" and ("Strong", ) in next_move["Next Move"]:
+                # first strong attack can skip weak parent move
+                self.current_moveset = next_move["Next Move"][("Strong", )]
+                if "Next Move" in self.current_moveset:  # check for next move combo
+                    self.continue_moveset = self.current_moveset["Next Move"]
+                return True
+            elif self.moveset_command_key_input[-1] == "Weak" and ("Weak", ) in next_move["Next Move"]:
+                # continue from weak of current state instead of new one
+                self.current_moveset = next_move["Next Move"][("Weak", )]
+                if "Next Move" in self.current_moveset:  # check for next move combo
+                    self.continue_moveset = self.current_moveset["Next Move"]
+                return True
+        else:
+            for move in self.moveset[self.position]:
+                if tuple(self.moveset_command_key_input[-len(move):]) == move:
+                    self.current_moveset = self.moveset[self.position][move]
                     if "Next Move" in self.current_moveset:  # check for next move combo
                         self.continue_moveset = self.current_moveset["Next Move"]
                     return True
-                elif self.moveset_command_key_input[-1] == "Weak" and ("Weak", ) in next_move["Next Move"]:
-                    # continue from weak of current state instead of new one
-                    self.current_moveset = next_move["Next Move"][("Weak", )]
-                    if "Next Move" in self.current_moveset:  # check for next move combo
-                        self.continue_moveset = self.current_moveset["Next Move"]
-                    return True
-            else:
-                for move in self.moveset[self.position]:
-                    if tuple(self.moveset_command_key_input[-len(move):]) == move:
-                        self.current_moveset = self.moveset[self.position][move]
-                        if "Next Move" in self.current_moveset:  # check for next move combo
-                            self.continue_moveset = self.current_moveset["Next Move"]
-                        return True
     return False
