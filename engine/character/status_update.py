@@ -90,8 +90,8 @@ def status_update(self):
     if self.resource_cost_modifier < 0:
         self.resource_cost_modifier = 0
 
-    self.run_speed = 450 + self.speed
-    self.walk_speed = 200 + self.speed
+    self.run_speed = 600 + self.speed
+    self.walk_speed = 350 + self.speed
 
     if self.run_speed < 0:
         self.run_speed = 0

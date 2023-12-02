@@ -657,7 +657,7 @@ class Character(sprite.Sprite):
                             self.moveset[self.position][self.moveset_command_key_input])
                     elif "run" in self.current_action and not self.command_action:  # stop running, halt
                         self.current_action = self.halt_command_action
-                        if self.angle != 90:
+                        if self.sprite_direction == "r_side":
                             self.x_momentum = self.walk_speed
                         else:
                             self.x_momentum = -self.walk_speed
