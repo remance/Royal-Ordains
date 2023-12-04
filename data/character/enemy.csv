@@ -16,7 +16,7 @@
 "Eban2","Elf Rogue Scout",120,,,4,18,20,15,10,10,8,,10,,10,,,,,8,1,,"common_range",
 "Eban3","Elf Taint Druid",170,20,,4,20,14,13,20,20,13,,,,,,20,,,8,1,,"sentry_range",
 "Adaqua","Adaqua",6200,,,17,25,25,31,18,32,48,,,,15,,,40,,10,1,"TRUE","adaqua","not_movable"
-"Rban1","Bunny Bandit",80,,,5,4,10,6,2,4,21,,,-5,5,,,,"Carrot:100,Health Potion:5",3,1,,"common_melee",
+"Rban1","Bunny Bandit",80,,,5,4,10,6,2,4,21,,,-5,5,,,,"Carrot:25,Health Potion:5",3,1,,"common_melee",
 "Rban2","Rabbit Raider",60,,,3,12,12,4,4,4,21,,,-5,5,,,,"Carrot:25,Health Potion:5",3,1,,"common_range",
 "Rban3","Hare Hooligan",50,,,4,10,15,5,3,4,21,,,-5,5,,,,"Carrot:25,Health Potion:5",3,1,,"common_range",
 "Rban4","Fur Shell Companion",300,,,10,15,6,25,7,8,28,,,-5,5,,,,"Carrot:25,Health Potion:8",6,1,,"pursue_melee",
