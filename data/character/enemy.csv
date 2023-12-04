@@ -19,7 +19,7 @@
 "Rban1","Bunny Bandit",80,,,5,4,10,6,2,4,21,,,-5,5,,,,"Carrot:25,Health Potion:5",3,1,,"common_melee",
 "Rban2","Rabbit Raider",60,,,3,12,12,4,4,4,21,,,-5,5,,,,"Carrot:25,Health Potion:5",3,1,,"common_range",
 "Rban3","Hare Hooligan",50,,,4,10,15,5,3,4,21,,,-5,5,,,,"Carrot:25,Health Potion:5",3,1,,"common_range",
-"Rban4","Fur Shell Companion",300,,,10,15,6,25,7,8,28,,,-5,5,,,,"Carrot:25,Health Potion:8",6,1,,"pursue_melee",
+"Rban4","Fur Shell Companion",300,,,10,15,6,25,7,8,28,,,-5,5,,,,"Carrot:25,Health Potion:8",10,1,,"pursue_melee",
 "Rban5","Rabbit Hole",30,,,7,20,3,5,3,3,15,10,30,,50,50,,,"Carrot:35,Health Potion:8",2,1,,"trap","not_movable"
 "Rban6","Woolly Ward",140,,,14,10,4,11,4,2,20,5,,,,,,,"Carrot:10,Health Potion:6",9,1,,"guard_melee",
 "Rban7","Warren Warrior",60,,,12,25,3,15,8,8,14,15,15,,,35,15,15,"Carrot:50,Health Potion:3",3,1,,"trap","not_movable"

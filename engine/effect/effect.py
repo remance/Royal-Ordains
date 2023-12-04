@@ -389,7 +389,7 @@ class DamageEffect(Effect):
                             self.travel_distance = 0
                             self.stick_timer = 5
                             self.current_animation = self.animation_pool["Base"][self.scale]  # change image to base
-                            self.base_image = self.current_animation[self.show_frame]
+                            self.base_image = self.current_animation[self.show_frame][self.flip]
                             self.adjust_sprite()
                             self.battle.all_damage_effects.remove(self)
                         else:
