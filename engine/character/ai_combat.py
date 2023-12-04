@@ -40,7 +40,6 @@ def common_ai(self):
                         self.moveset_command_key_input = move
                         self.check_move_existence()
                         self.command_action = self.check_prepare_action(value)
-                        print(self.command_action)
                         break
                 if self.nearest_enemy[0].base_pos[0] >= self.base_pos[0]:
                     self.new_angle = -90

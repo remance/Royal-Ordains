@@ -1,35 +1,35 @@
-"ID","Name","Base Health","Max Resource","Start Resource","Strength","Dexterity","Agility","Constitution","Intelligence","Wisdom","Charisma","Physical Resistance","Fire Resistance","Water Resistance","Air Resistance","Earth Resistance","Magic Resistance","Poison Resistance","Size","Only Sprite Version","Boss","AI Behaviour","Property"
-"Dashisi","Dashisi",100000,,,30,80,15,70,63,87,94,100,100,100,100,100,100,100,2,,,"helper","fly,invincible,no_pickup,no_clip"
-"Mannequin","Mannequin",10000000000,,,0,0,0,100,0,0,0,10,10,10,10,10,10,10,10,1,,"training","not_movable"
-"Craven1","Male Citizen 1",100,,,1,1,10,1,2,3,3,,,,,,,,10,1,,"flee","invincible,broken"
-"Craven2","Male Citizen 2",100,,,1,1,10,1,1,2,6,,,,,,,,10,1,,"flee","invincible,broken"
-"Craven3","Female Citizen 1",100,,,1,1,10,1,3,2,5,,,,,,,,10,1,,"flee","invincible,broken"
-"Hban1","Human Bandit Fighter",260,,,16,7,8,14,3,5,6,,5,,,,,,10,1,,"common_melee",
-"Hban2","Human Bandit Archer",145,,,6,12,10,10,9,10,5,,,,5,,,,10,1,,"common_range",
-"Hban3","Human Hedge Mage",110,20,,5,10,4,14,15,15,8,,,,,,10,,10,1,,"common_range",
-"Hban4","Bandit Lookout Tower",1000,,,5,10,1,5,5,5,5,10,-40,,,10,15,50,30,1,,"sentry_range","not_movable"
-"Hban5","Human Bandit Ranger",200,,,8,14,13,12,7,12,9,,,,,,,,10,1,,"common_range",
-"Dban1","Dwarf Bandit Crossbowman",190,,,10,10,5,16,8,8,1,5,,,,10,,,12,1,,"trap",
-"Dban2","Dwarf Marauder",400,,,20,4,6,22,3,4,1,15,10,,,10,,,12,1,,"common_melee",
-"Dban3","Dwarf Thug",600,,,21,7,7,25,3,6,3,30,5,,,10,,,12,1,,"common_melee",
-"Eban1","Elf Bandit Fighter",310,,,10,15,10,18,7,7,5,,,,,,,,8,1,,"common_melee",
-"Eban2","Elf Rogue Scout",120,,,4,18,20,15,10,10,8,,10,,10,,,,8,1,,"common_range",
-"Eban3","Elf Taint Druid",170,20,,4,20,14,13,20,20,13,,,,,,20,,8,1,,"sentry_range",
-"Adaqua","Adaqua",6200,,,17,25,25,31,18,32,48,,,,15,,,40,10,1,"TRUE","adaqua","not_movable"
-"Rban1","Bunny Bandit",80,,,5,4,10,6,2,4,21,,,-5,5,,,,3,1,,"common_melee",
-"Rban2","Rabbit Raider",60,,,3,12,12,4,4,4,21,,,-5,5,,,,3,1,,"common_range",
-"Rban3","Hare Hooligan",50,,,4,10,15,5,3,4,21,,,-5,5,,,,3,1,,"common_range",
-"Rban4","Fur Shell Companion",300,,,10,15,6,25,7,8,28,,,-5,5,,,,6,1,,"pursue_melee",
-"Rban5","Rabbit Hole",30,,,7,20,3,5,3,3,15,10,30,,50,50,,,,1,,"trap","not_movable"
-"Rban6","Woolly Ward",140,,,14,10,4,11,4,2,20,5,,,,,,,,1,,"guard_melee",
-"Rban7","Warren Warrior",60,,,12,25,3,15,8,8,14,15,15,,,35,15,15,,1,,"trap","not_movable"
-"Rban8","Warren Watcher",50,,,2,15,15,7,4,5,10,,,,,,,,,1,,"trap","not_movable"
-"Animal1","Snail Defender",200,,,8,3,2,30,1,1,1,20,,30,,15,,10,2,1,,"guard_melee",
-"Animal2","Toxic Mollusk",150,,,5,5,2,45,1,1,1,15,,30,,15,,20,2,1,,"common_melee",
-"Animal3","Wolf Guardian",130,,,10,20,25,7,2,3,10,,,,5,,,,5,1,,"pursue_melee",
-"Animal4","Bird Lookout",50,,,3,35,30,2,1,2,15,,,,10,,,,2,1,,"fly_range","fly"
-"Animal5","Boar Charger",250,,,25,10,20,20,1,2,5,10,15,10,5,10,,,8,1,,"pursue_melee",
-"Animal6","Fox Trickster",100,,,2,24,15,6,25,40,34,,,,,,10,,5,1,,"common_range",
-"Animal7","Eagle",80,,,5,50,35,5,3,3,25,,,,10,,,,,1,,"fly_melee","fly"
-"Animal8","Turtle Frogs Tower",700,,,13,5,1,50,7,9,5,25,20,20,,25,,30,10,1,,"common_range",
-"Bigta","Bigta and Sertors",3400,,,10,13,16,25,10,15,30,,-5,-5,5,,,,8,1,"TRUE","bigta","not_movable"
+"ID","Name","Base Health","Max Resource","Start Resource","Strength","Dexterity","Agility","Constitution","Intelligence","Wisdom","Charisma","Physical Resistance","Fire Resistance","Water Resistance","Air Resistance","Earth Resistance","Magic Resistance","Poison Resistance","Drops","Size","Only Sprite Version","Boss","AI Behaviour","Property"
+"Dashisi","Dashisi",100000,,,30,80,15,70,63,87,94,100,100,100,100,100,100,100,,2,,,"helper","fly,invincible,no_pickup,no_clip"
+"Mannequin","Mannequin",10000000000,,,0,0,0,100,0,0,0,10,10,10,10,10,10,10,,10,1,,"training","not_movable"
+"Craven1","Male Citizen 1",100,,,1,1,10,1,2,3,3,,,,,,,,,10,1,,"flee","invincible,broken"
+"Craven2","Male Citizen 2",100,,,1,1,10,1,1,2,6,,,,,,,,,10,1,,"flee","invincible,broken"
+"Craven3","Female Citizen 1",100,,,1,1,10,1,3,2,5,,,,,,,,,10,1,,"flee","invincible,broken"
+"Hban1","Human Bandit Fighter",260,,,16,7,8,14,3,5,6,,5,,,,,,"Health Potion:15",10,1,,"common_melee",
+"Hban2","Human Bandit Archer",145,,,6,12,10,10,9,10,5,,,,5,,,,"Health Potion:3",10,1,,"common_range",
+"Hban3","Human Hedge Mage",110,20,,5,10,4,14,15,15,8,,,,,,10,,"Resourceful Potion:10",10,1,,"common_range",
+"Hban4","Bandit Lookout Tower",1000,,,5,10,1,5,5,5,5,10,-40,,,10,15,50,,30,1,,"sentry_range","not_movable"
+"Hban5","Human Bandit Ranger",200,,,8,14,13,12,7,12,9,,,,,,,,,10,1,,"common_range",
+"Dban1","Dwarf Bandit Crossbowman",190,,,10,10,5,16,8,8,1,5,,,,10,,,"Meat:7",12,1,,"trap",
+"Dban2","Dwarf Marauder",400,,,20,4,6,22,3,4,1,15,10,,,10,,,"Meat:7",12,1,,"common_melee",
+"Dban3","Dwarf Thug",600,,,21,7,7,25,3,6,3,30,5,,,10,,,"Meat:15",12,1,,"common_melee",
+"Eban1","Elf Bandit Fighter",310,,,10,15,10,18,7,7,5,,,,,,,,,8,1,,"common_melee",
+"Eban2","Elf Rogue Scout",120,,,4,18,20,15,10,10,8,,10,,10,,,,,8,1,,"common_range",
+"Eban3","Elf Taint Druid",170,20,,4,20,14,13,20,20,13,,,,,,20,,,8,1,,"sentry_range",
+"Adaqua","Adaqua",6200,,,17,25,25,31,18,32,48,,,,15,,,40,,10,1,"TRUE","adaqua","not_movable"
+"Rban1","Bunny Bandit",80,,,5,4,10,6,2,4,21,,,-5,5,,,,"Carrot:100,Health Potion:5",3,1,,"common_melee",
+"Rban2","Rabbit Raider",60,,,3,12,12,4,4,4,21,,,-5,5,,,,"Carrot:25,Health Potion:5",3,1,,"common_range",
+"Rban3","Hare Hooligan",50,,,4,10,15,5,3,4,21,,,-5,5,,,,"Carrot:25,Health Potion:5",3,1,,"common_range",
+"Rban4","Fur Shell Companion",300,,,10,15,6,25,7,8,28,,,-5,5,,,,"Carrot:25,Health Potion:8",6,1,,"pursue_melee",
+"Rban5","Rabbit Hole",30,,,7,20,3,5,3,3,15,10,30,,50,50,,,"Carrot:35,Health Potion:8",2,1,,"trap","not_movable"
+"Rban6","Woolly Ward",140,,,14,10,4,11,4,2,20,5,,,,,,,"Carrot:10,Health Potion:6",9,1,,"guard_melee",
+"Rban7","Warren Warrior",60,,,12,25,3,15,8,8,14,15,15,,,35,15,15,"Carrot:50,Health Potion:3",3,1,,"trap","not_movable"
+"Rban8","Warren Watcher",50,,,2,15,15,7,4,5,10,,,,,,,,"Carrot:45,Health Potion:2",3,1,,"trap","not_movable"
+"Animal1","Snail Defender",200,,,8,3,2,30,1,1,1,20,,30,,15,,10,"Herb:35,Health Potion:10,Resourceful Potion:10",2,1,,"guard_melee",
+"Animal2","Toxic Mollusk",150,,,5,5,2,45,1,1,1,15,,30,,15,,20,"Herb:40,Health Potion:15,Resourceful Potion:20",2,1,,"common_melee",
+"Animal3","Wolf Guardian",130,,,10,20,25,7,2,3,10,,,,5,,,,"Meat:35,Speed Potion:5",5,1,,"pursue_melee",
+"Animal4","Bird Lookout",50,,,3,35,30,2,1,2,15,,,,10,,,,,2,1,,"fly_range","fly"
+"Animal5","Boar Charger",250,,,25,10,20,20,1,2,5,10,15,10,5,10,,,,8,1,,"pursue_melee",
+"Animal6","Fox Trickster",100,,,2,24,15,6,25,40,34,,,,,,10,,"Berry:15",5,1,,"common_range",
+"Animal7","Eagle",80,,,5,50,35,5,3,3,25,,,,10,,,,"Speed Potion:5",,1,,"fly_melee","fly"
+"Animal8","Turtle Frogs Tower",700,,,13,5,1,50,7,9,5,25,20,20,,25,,30,,10,1,,"common_range",
+"Bigta","Bigta and Sertors",3400,,,10,13,16,25,10,15,30,,-5,-5,5,,,,,8,1,"TRUE","bigta","not_movable"

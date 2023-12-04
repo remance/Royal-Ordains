@@ -103,7 +103,7 @@ class CharacterData(GameData):
 
         self.character_list = {}
         folder_list = ("playable", "enemy")
-        for file_index, char_list in enumerate(["playable.csv", "enemy.csv"]):
+        for file_index, char_list in enumerate(("playable.csv", "enemy.csv")):
             with open(os.path.join(self.data_dir, "character", char_list),
                       encoding="utf-8", mode="r") as edit_file:
                 rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
@@ -113,8 +113,11 @@ class CharacterData(GameData):
                     int_column = [index for index, item in enumerate(header) if item in int_column]
                     tuple_column = ("Property",)  # value in tuple only
                     tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
+                    dict_column = ("Drops",)
+                    dict_column = [index for index, item in enumerate(header) if item in dict_column]
                     for n, i in enumerate(row):
-                        row = stat_convert(row, n, i, int_column=int_column, tuple_column=tuple_column)
+                        row = stat_convert(row, n, i, int_column=int_column, tuple_column=tuple_column,
+                                           dict_column=dict_column)
                     self.character_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
                     self.character_list[row[0]]["Move"] = {}
 

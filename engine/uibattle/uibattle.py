@@ -286,6 +286,7 @@ class CharacterIndicator(UIBattle):
         UIBattle.__init__(self, has_containers=True)
         self.font = Font(self.ui_font["main_button"], 42)
         self.character = character
+        self.height_adjust = self.character.sprite_size * 2.2
         if character.player_control:
             text = "P" + str(character.game_id)
 
@@ -306,7 +307,7 @@ class CharacterIndicator(UIBattle):
     def update(self, dt):
         if self.base_pos != self.character.base_pos:
             self.base_pos = self.character.base_pos.copy()
-            self.pos = (self.character.pos[0], (self.character.pos[1] - self.character.sprite_size * 2.2))
+            self.pos = (self.character.pos[0], (self.character.pos[1] - self.height_adjust))
             self.rect.midbottom = self.pos
 
 

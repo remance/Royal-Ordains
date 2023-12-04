@@ -178,6 +178,7 @@ class DamageEffect(Effect):
             # layer 0 in animation part data mean the effect can move on its own
             self.travel = True
             self.travel_distance = self.moveset["Range"]
+            print(self.travel_distance)
 
         if self.effect_name in self.sound_effect_pool:
             self.travel_sound_distance = self.effect_stat["Sound Distance"]
@@ -399,7 +400,8 @@ class DamageEffect(Effect):
                         if self.dmg > 1:
                             self.dmg -= 0.1
 
-            if ((self.travel and self.travel_distance <= 0) or done) and not self.stick_timer and not self.max_duration:
+            if ((self.travel and self.travel_distance <= 0) or (not self.travel and done)) \
+                    and not self.stick_timer and not self.max_duration:
                 self.reach_target("border")
                 return
 

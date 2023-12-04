@@ -21,7 +21,7 @@ class Drop(sprite.Sprite):
         self._layer = 9999999999999999996
         sprite.Sprite.__init__(self, self.containers)
         self.screen_scale = self.battle.screen_scale
-        self.fall_gravity = self.battle.original_fall_gravity
+        self.fall_gravity = self.battle.original_fall_gravity / 2  # fall a bit slower
         self.show_frame = 0
         self.frame_timer = 0
         self.repeat_animation = True
@@ -34,14 +34,15 @@ class Drop(sprite.Sprite):
 
         self.battle.all_team_drop[self.team].add(self)
 
-        self.current_animation = self.effect_animation_pool[game_id][self.battle.chapter_sprite_ver]["Item"]
+        self.current_animation = self.effect_animation_pool[game_id][self.battle.chapter_sprite_ver]["Item"][1.0]
 
-        self.base_image = self.current_animation[self.show_frame]
+        self.base_image = self.current_animation[self.show_frame][0]
         self.image = self.base_image
 
         self.angle = 0
         self.scale = 1.0
         self.flip = 0
+        self.duration = 10
         self.pos = (self.base_pos[0] * self.screen_scale[0],
                     self.base_pos[1] * self.screen_scale[1])
 
@@ -55,6 +56,10 @@ class Drop(sprite.Sprite):
             self.pos = (self.base_pos[0] * self.screen_scale[0],
                         self.base_pos[1] * self.screen_scale[1])
             self.adjust_sprite()
+        else:  # only start counting duration when reach ground
+            self.duration -= dt
+            if self.duration < 0:
+                self.picked()
 
     def picked(self):
         self.battle.all_team_drop[self.team].remove(self)

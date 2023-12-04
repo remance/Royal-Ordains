@@ -289,7 +289,6 @@ class Character(sprite.Sprite):
         # initiate equipment stat
         self.equipped_weapon = "Preset"
         self.weight = 0
-        self.weapon_weight = {0: 0, 1: 0}
 
         # Get char stat
         self.name = stat["Name"]
@@ -308,6 +307,9 @@ class Character(sprite.Sprite):
         self.mode_list = stat["Mode"]
         self.skill = stat["Skill"].copy()
         self.available_skill = {"Couch": {}, "Stand": {}, "Air": {}}
+        self.drops = {}
+        if "Drops" in stat:
+            self.drops = stat["Drops"]
 
         if "Skill Allocation" in stat:  # refind leveled skill allocated since name is only from first level
             for name, position in self.skill.items():
@@ -365,7 +367,7 @@ class Character(sprite.Sprite):
                     1 + (self.agility / 100))  # higher value mean longer play time
         self.animation_play_time = self.original_animation_play_time
         self.final_animation_play_time = self.animation_play_time
-        self.original_speed = self.agility / 2
+        self.original_speed = self.agility * 2
 
         self.original_dodge = 1 + int((self.agility / 10) + (self.wisdom / 30))
 
@@ -742,8 +744,6 @@ class Character(sprite.Sprite):
                         self.health = self.max_health
                     else:  # permanent death
                         self.die("dead")
-            else:
-                self.play_animation(dt, False)
 
     def ai_update(self, dt):
         pass
