@@ -13,7 +13,7 @@
 "C3.2","Paralysis Trap","Guard,Backward,Weak","Couch",,500,,0,15,,,,,,,"Physical",,,,"penetrate"
 "C3.3","Razor Trap","Guard,Backward,Weak","Couch",,500,,0,22,,,,,,,"Physical",,,,"penetrate"
 "C3.4","Lifesnare Trap","Guard,Backward,Weak","Couch",,500,,0,26,,,,,,,"Physical",,,,"penetrate"
-"C3.5",,"Guard,Backward,Weak","Couch",,500,,0,28,,,,,,,"Physical",,,,"penetrate"
+"C3.5","Death Zone Trap","Guard,Backward,Weak","Couch",,500,,0,28,,,,,,,"Physical",,,,"penetrate"
 "C4.1","Poison Trap","Guard,Forward,Weak","Couch",,500,,0,16,1,,,,,,"Poison",,,,"penetrate"
 "C4.2","Numb Trap","Guard,Forward,Weak","Couch",,500,,0,17,,,,,,,"Poison",,,,"penetrate"
 "C4.3","Deadly Poison Trap","Guard,Forward,Weak","Couch",,500,,0,20,,,,,,,"Poison",,,,"penetrate"

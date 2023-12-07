@@ -161,7 +161,8 @@ class AnimationData(GameData):
                             true_name = " ".join([string for string in key.split(" ")[:-1]]) + "#"
                         else:
                             true_name = key
-                        true_name_list.append(true_name)
+                        if true_name not in true_name_list:
+                            true_name_list.append(true_name)
 
                     for true_name in set(true_name_list):  # create effect animation list
                         final_name = true_name

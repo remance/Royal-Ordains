@@ -64,7 +64,10 @@ class Effect(sprite.Sprite):
         self.owner = owner
         self.part_stat = part_stat
         self.effect_name = self.part_stat[0]
-        self.part_name = self.part_stat[1].split(" ")[0]
+        self.part_name = self.part_stat[1]
+        if self.part_name.split(" ")[-1].isdigit():
+            self.part_name = " ".join(self.part_name.split(" ")[:-1])
+
         if self.owner and from_owner:
             self.sprite_ver = self.owner.sprite_ver
             self.pos = Vector2(self.owner.pos[0] + (self.part_stat[2] * self.screen_scale[0]),
@@ -386,8 +389,8 @@ class DamageEffect(Effect):
                             self.base_pos[0] <= 0 or self.base_pos[0] > self.stage_end or
                             self.base_pos[1] >= self.owner.original_ground_pos or
                             self.base_pos[1] < -500):  # pass outside of map
-                        if self.stick_reach == "stick" and self.base_pos[
-                            1] >= self.owner.original_ground_pos:  # stuck at ground
+                        if self.stick_reach == "stick" and self.base_pos[1] >= self.owner.original_ground_pos:
+                            # stuck at ground
                             self.travel_distance = 0
                             self.stick_timer = 5
                             self.current_animation = self.animation_pool["Base"][self.scale]  # change image to base
