@@ -20,7 +20,6 @@ from engine.data.datastat import final_recursive_dict
 from engine.drop.drop import Drop
 from engine.uibattle.uibattle import CharacterIndicator
 from engine.utils.common import empty_method
-from engine.utils.rotation import set_rotate
 
 rotation_list = (90, -90)
 rotation_name = ("l_side", "r_side")
@@ -65,6 +64,10 @@ class Character(sprite.Sprite):
 
     image = pygame.Surface((0, 0))  # start with empty surface
 
+    from engine.utils.common import clean_object
+    clean_object = clean_object
+
+    from engine.utils.rotation import set_rotate
     set_rotate = set_rotate
 
     from engine.character.add_gear_stat import add_gear_stat
@@ -208,6 +211,7 @@ class Character(sprite.Sprite):
         self.stoppable_frame = False
         self.hit_enemy = False
         self.is_boss = False
+        self.is_summon = False
         self.frame_timer = 0
         self.effect_timer = 0
         self.effect_frame = 0
@@ -425,7 +429,7 @@ class Character(sprite.Sprite):
         self.hold_power_bonus = 1
         self.power_bonus = self.base_power_bonus
         self.critical_chance = self.base_critical_chance
-        self.defence = (100 - self.base_defence) / 100
+        self.defence = (100 - self.base_defence) / 100  # convert to percentage
         self.super_armour = self.base_super_armour
         self.dodge = self.base_dodge
         self.element_resistance = self.base_element_resistance.copy()
@@ -743,7 +747,10 @@ class Character(sprite.Sprite):
                         self.command_action = self.standup_command_action
                         self.health = self.max_health
                     else:  # permanent death
-                        self.die("dead")
+                        if self.is_summon:  # summon character does not leave corpse
+                            self.die("flee")
+                        else:
+                            self.die("dead")
 
     def ai_update(self, dt):
         pass
@@ -916,6 +923,9 @@ class AICharacter(Character):
         Character.__init__(self, game_id, stat, leader=leader)
         self.old_cursor_pos = None
         self.is_boss = stat["Boss"]
+        self.is_summon = stat["Summon"]
+        if self.is_summon:
+            self.health_as_resource = True  # each time summon use resource it uses health instead
         if self.leader:
             self.indicator = CharacterIndicator(self)
         self.ai_move = ai_move_dict["default"]
@@ -1000,6 +1010,9 @@ class BodyPart(sprite.Sprite):
         self.stick_reach = False  # not used for body parts but require for checking
         self.stick_timer = 0  # not used but require for checking
         self.penetrate = True  # part always penetrate if doing dmg
+        self.no_dodge = False
+        self.no_defence = False
+        self.no_guard = False
         self.friend_status_effect = ()
         self.enemy_status_effect = ()
         self.impact = (0, 0)
@@ -1093,3 +1106,13 @@ def find_damage(self):
     self.critical_chance = self.owner.critical_chance + self.owner.current_moveset["Critical Chance Bonus"]
     self.friend_status_effect = self.owner.current_moveset["Status"]
     self.enemy_status_effect = self.owner.current_moveset["Enemy Status"]
+
+    self.no_dodge = False
+    self.no_defence = False
+    self.no_guard = False
+    if "no dodge" in self.owner.current_moveset["Property"]:
+        self.no_dodge = True
+    if "no defence" in self.owner.current_moveset["Property"]:
+        self.no_defence = True
+    if "no guard" in self.owner.current_moveset["Property"]:
+        self.no_guard = True

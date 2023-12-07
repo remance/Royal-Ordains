@@ -24,8 +24,7 @@ def hit_register(self, target, body_part):
             if self.stick_reach and not self.penetrate:
                 self.stick_timer = 5
         else:
-            chance = randint(0, 100)
-            if chance > target.dodge:  # not miss, now cal def and dmg
+            if self.no_dodge or randint(0, 100) > target.dodge:  # not miss, now cal def and dmg
                 critical = False
                 if self.critical_chance >= randint(0, 100):
                     critical = True
@@ -37,7 +36,7 @@ def hit_register(self, target, body_part):
                     if self.owner.resource > self.owner.max_resource:  # resource cannot exceed the max resource
                         self.owner.resource = self.owner.max_resource
 
-                if not target.guarding or target.angle == hit_angle:  # guard bypass if hit from behind
+                if not target.guarding or target.angle == hit_angle or self.no_guard:  # guard bypass if hit from behind
                     if self.owner.player_control:  # count dmg from player for data record
                         self.battle.player_damage[self.owner.player_control] += attacker_dmg
                     target.cal_loss(attacker_dmg, self.impact, element_effect, hit_angle, dmg_text_pos, critical)

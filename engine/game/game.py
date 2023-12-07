@@ -24,7 +24,7 @@ from engine.game.setup.make_option_menu import make_option_menu
 from engine.lorebook.lorebook import Lorebook, SubsectionName, lorebook_process
 from engine.menubackground.menubackground import MenuActor, MenuRotate, StaticImage
 from engine.stageobject.stageobject import StageObject
-from engine.uibattle.uibattle import Profiler, FPSCount, DamageNumber, CharacterTextBox, \
+from engine.uibattle.uibattle import Profiler, FPSCount, DamageNumber, CharacterSpeechBox, \
     CharacterIndicator
 from engine.uimenu.uimenu import OptionMenuText, SliderMenu, MenuCursor, BoxUI, BrownMenuButton, \
     URLIconLink, MenuButton, TextPopup, MapTitle, CharacterSelector, CharacterStatAllocator
@@ -303,7 +303,7 @@ class Game:
         SubsectionName.containers = self.ui_updater, self.ui_drawer, self.battle_ui_updater, self.battle_ui_drawer
 
         # battle containers
-        CharacterTextBox.containers = self.effect_updater, self.battle_camera
+        CharacterSpeechBox.containers = self.effect_updater, self.battle_camera
         CharacterIndicator.containers = self.effect_updater, self.battle_camera
         Drop.containers = self.effect_updater, self.battle_camera
         DamageNumber.containers = self.effect_updater, self.battle_camera

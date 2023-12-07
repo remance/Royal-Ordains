@@ -31,5 +31,15 @@ def die(self, how):
     else:
         if self.drops:  # only drop items if dead
             for drop, chance in self.drops.items():
-                if chance >= randint(0, 100):  # TODO change team later when add pvp mode or something
-                    Drop(Vector2(self.base_pos[0], self.base_pos[1] - (self.sprite_size * 2)), drop, 1)
+                drop_name = drop
+                if "+" in drop_name:  # + indicate number of possible drop
+                    drop_num = int(drop_name.split("+")[1])
+                    drop_name = drop_name.split("+")[0]
+                    for _ in range(drop_num):
+                        if chance >= randint(0, 100):
+                            Drop(Vector2(self.base_pos[0], self.base_pos[1] - (self.sprite_size * 2)), drop_name, 1,
+                                 momentum=(randint(-200, 200), (randint(50, 150))))
+                else:
+                    if chance >= randint(0, 100):  # TODO change team later when add pvp mode or something
+                        Drop(Vector2(self.base_pos[0], self.base_pos[1] - (self.sprite_size * 2)), drop, 1,
+                             momentum=(randint(-200, 200), (randint(50, 150))))

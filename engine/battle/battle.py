@@ -17,7 +17,7 @@ from engine.drama.drama import TextDrama
 from engine.effect.effect import Effect
 from engine.stage.stage import Stage
 from engine.stageobject.stageobject import StageObject
-from engine.uibattle.uibattle import FPSCount, BattleCursor, YesNo
+from engine.uibattle.uibattle import FPSCount, BattleCursor, YesNo, CharacterSpeechBox
 from engine.utils.common import clean_group_object
 from engine.utils.data_loading import load_image, load_images
 from engine.utils.text_making import number_to_minus_or_plus
@@ -229,6 +229,7 @@ class Battle:
             self.realtime_ui_updater.add(self.fps_count)
 
         battle_ui_images = load_images(self.data_dir, screen_scale=self.screen_scale, subfolder=("ui", "battle_ui"))
+        CharacterSpeechBox.images = battle_ui_images
 
         battle_ui_dict = make_battle_ui(battle_ui_images)
 
@@ -408,11 +409,11 @@ class Battle:
         self.base_stage_end = 0  # for object pos
         self.base_stage_start = 0  # for camera pos
         self.stage_start = self.battle_camera_center[0]
-        self.stage_end = - self.battle_camera_center[0]
+        self.stage_end = -self.battle_camera_center[0]
         self.base_stage_end_list = {}
         self.stage_end_list = {}
         for key, value in self.battle_stage.data.items():
-            self.base_stage_end += 1920  # 1 scene size always 1920
+            self.base_stage_end += 1920  # 1 scene width size always 1920
             self.stage_end += self.battle_stage.images[value].get_width()
             self.base_stage_end_list[key] = self.base_stage_end
             self.stage_end_list[key] = self.stage_end
@@ -649,8 +650,8 @@ class Battle:
                     # FOR DEVELOPMENT
                     if event.key == K_F1:
                         self.drama_text.queue.append("Hello and welcome to showcase video")
-                    # elif event.key == K_F2:
-                    #     self.drama_text.queue.append("New user interface for menu and battle")
+                    elif event.key == K_F2:
+                        CharacterSpeechBox(self.player_objects[1], "test speech well done")
                     # elif event.key == K_F3:
                     #     self.drama_text.queue.append("New Medieval art style as shown in previous videos")
                     # elif event.key == K_F4:

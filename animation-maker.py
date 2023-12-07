@@ -3,6 +3,7 @@ import random
 import re
 import sys
 import time
+import csv
 from pathlib import Path
 
 import pygame
@@ -175,6 +176,9 @@ def change_animation_race(new_race):
     global animation_race
 
     animation_race = new_race
+    for p in range(1, max_person + 1):
+        model.sprite_mode |= {p: "Normal"}
+    sprite_mode_selector.change_name("Normal")
     change_animation(list(current_pool[animation_race].keys())[0])
 
 
@@ -260,6 +264,37 @@ for char in char_list:
             print(b)
 
 char_list = [race for race in body_sprite_pool if race != ""]  # get only char with existed folder and parts
+
+default_mode = {}
+with open(os.path.join(data_dir, "animation", "template.csv"),
+          encoding="utf-8", mode="r") as edit_file:
+    rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
+    for index, stuff in enumerate(rd[0]):
+        if "special" in stuff:  # remove number after special
+            rd[0][index] = "_".join(rd[0][index].split("_")[:-1])
+    default_mode["Normal"] = {stuff: "Normal" for
+                              index, stuff in enumerate(rd[0]) if stuff[0] == "p"}
+character_mode_list = {}
+for char in char_list:
+    character_mode_list[char] = {}
+    char_type = None
+    if os.path.exists(
+            os.path.join(data_dir, "character", "playable", char, "mode.csv")):
+        char_type = "playable"
+    elif os.path.exists(
+            os.path.join(data_dir, "character", "enemy", char, "mode.csv")):
+        char_type = "enemy"
+    if char_type:
+        with open(os.path.join(data_dir, "character", char_type, char, "mode.csv"),
+                  encoding="utf-8", mode="r") as edit_file2:
+            rd2 = tuple(csv.reader(edit_file2, quoting=csv.QUOTE_ALL))
+            header2 = rd2[0]
+            for row_index2, row2 in enumerate(rd2[1:]):
+                character_mode_list[char][row2[0]] = {header2[index + 1]: stuff for
+                                                      index, stuff in enumerate(row2[1:])}
+    else:  # no specific mode list, has only normal mode
+        character_mode_list[char]["Normal"] = default_mode["Normal"]
+
 
 weapon_sprite_pool = {}
 part_folder = Path(os.path.join(animation_dir, "sprite", "character", "weapon"))
@@ -844,15 +879,8 @@ class Model:
 
                 for part in part_name_header:
                     if part in pose and pose[part]:
-                        if any(ext in part for ext in ("effect", "special")):
-                            sprite_part[part] = [self.sprite_image[part],
-                                                 (self.sprite_image[part].get_width() / 2,
-                                                  self.sprite_image[part].get_height() / 2),
-                                                 link_list[part], pose[part][4], pose[part][5], pose[part][6],
-                                                 pose[part][7], pose[part][8]]
-                        else:
-                            sprite_part[part] = [self.sprite_image[part], "center", link_list[part], pose[part][4],
-                                                 pose[part][5], pose[part][6], pose[part][7], pose[part][8]]
+                        sprite_part[part] = [self.sprite_image[part], "center", link_list[part], pose[part][4],
+                                             pose[part][5], pose[part][6], pose[part][7], pose[part][8]]
                         part_name[part] = [pose[part][0], pose[part][1]]
                 pose_layer_list = self.make_layer_list(sprite_part)
                 self.animation_part_list[index] = sprite_part
@@ -906,7 +934,7 @@ class Model:
             try:
                 head_race = bodypart_list[key + "_head"][0]
                 self.head_race[key] = head_race
-                head_sprite = body_sprite_pool[head_race]["head"][self.sprite_version[int(key[-1])]][self.sprite_mode[int(key[-1])]][bodypart_list[key + "_head"][1]].copy()
+                head_sprite = body_sprite_pool[head_race]["head"][self.sprite_version[int(key[-1])]][character_mode_list[animation_race][self.sprite_mode[int(key[-1])]][key + "_head"]][bodypart_list[key + "_head"][1]].copy()
                 head_sprite_surface = pygame.Surface(head_sprite.get_size(), pygame.SRCALPHA)
                 head_rect = head_sprite.get_rect(midtop=(head_sprite_surface.get_width() / 2, 0))
                 head_sprite_surface.blit(head_sprite, head_rect)
@@ -934,24 +962,27 @@ class Model:
             if bodypart_list[stuff]:
                 if any(ext in stuff for ext in except_list) is False:
                     try:
+                        p = stuff[1]
                         if "weapon" in stuff:
                             self.sprite_image[stuff] = weapon_sprite_pool[bodypart_list[stuff][0]][
-                                self.sprite_version[int(stuff[1])]][self.sprite_mode[int(stuff[1])]][bodypart_list[stuff][1]].copy()
+                                self.sprite_version[int(stuff[1])]][character_mode_list[animation_race][self.sprite_mode[int(p)]][stuff]][bodypart_list[stuff][1]].copy()
                         elif "effect_" in stuff:
                             self.sprite_image[stuff] = effect_sprite_pool[bodypart_list[stuff][0]][
                                 self.sprite_version[1]][bodypart_list[stuff][1]].copy()
                         else:
                             new_part_name = stuff
+                            mode_part_check = stuff
                             if any(ext in stuff for ext in p_list):
                                 part_name = stuff[3:]  # remove p*number*_ to get part name
                                 new_part_name = part_name
                             if "special" in stuff:
                                 part_name = "special"
                                 new_part_name = part_name
+                                mode_part_check = "_".join(mode_part_check.split("_")[0:-1])  # remove _number at the end of special
                             if "r_" in part_name[0:2] or "l_" in part_name[0:2]:
                                 new_part_name = part_name[2:]  # remove part side
                             self.sprite_image[stuff] = body_sprite_pool[bodypart_list[stuff][0]][new_part_name][
-                                self.sprite_version[int(stuff[1])]][self.sprite_mode[int(stuff[1])]][bodypart_list[stuff][1]].copy()
+                                self.sprite_version[int(stuff[1])]][character_mode_list[animation_race][self.sprite_mode[int(p)]][mode_part_check]][bodypart_list[stuff][1]].copy()
                     except (KeyError, UnboundLocalError):  # no part name known for current char, skip getting image
                         pass
         # if skin != "white":
@@ -1072,7 +1103,7 @@ class Model:
 
         elif "_mode_select" in edit_type:
             if any(ext in edit_type for ext in p_list):
-                self.sprite_mode[int(edit_type[1])] = edit_type[-1]
+                self.sprite_mode[int(edit_type[1])] = edit_type.split("_")[-1]
                 change_animation(animation_name)
 
         elif "eye" in edit_type:
@@ -1593,7 +1624,7 @@ redo_button = Button("Redo", image, (play_animation_button.pos[0] - play_animati
                                      filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
                      description=("Redo edit (CTRL + Y)", "Redo to last undo edit."))
 
-reset_button = Button("Reset", image, (screen_size[0] / 1.3, p_body_helper.rect.midtop[1] - (image.get_height() / 2)),
+reset_button = Button("Reset", image, (screen_size[0] / 1.35, p_body_helper.rect.midtop[1] - (image.get_height() / 2)),
                       description=("Reset part edit", "Reset angle and flip."))
 
 flip_hori_button = Button("Flip H", image, (reset_button.pos[0] + reset_button.image.get_width(),
@@ -1605,7 +1636,7 @@ flip_vert_button = Button("Flip V", image, (reset_button.pos[0] + (reset_button.
 damage_button = Button("Do DMG", image, (reset_button.pos[0] + (reset_button.image.get_width() * 3),
                                             p_body_helper.rect.midtop[1] - (image.get_height() / 2)),
                           description=("Part do damage", "Add indication that the selected parts deal damage in this frame."))
-part_copy_button = Button("Copy P", image, (screen_size[0] / 1.3,
+part_copy_button = Button("Copy P", image, (screen_size[0] / 1.35,
                                             p_body_helper.rect.midtop[1] - (image.get_height() * 1.5)),
                           description=("Copy parts (ALT + C)", "Copy the selected part only from this frame."))
 part_paste_button = Button("Paste P", image, (part_copy_button.rect.topright[0] + image.get_width() / 2,
@@ -1617,7 +1648,7 @@ part_stat_copy_button = Button("Copy PS", image, (part_copy_button.rect.topright
 part_stat_paste_button = Button("Paste PS", image, (part_copy_button.rect.topright[0] + image.get_width() * 2.5,
                                               p_body_helper.rect.midtop[1] - (image.get_height() * 1.5)),
                                 description=("Paste parts' stat", "Pasted the copied stats on same type of parts."))
-p_all_button = Button("P All", image, (screen_size[0] / 1.3,
+p_all_button = Button("P All", image, (screen_size[0] / 1.35,
                                        p_body_helper.rect.midtop[1] - (image.get_height() * 2.5)),
                       description=("Select all current person parts",))
 all_button = Button("All", image, (p_all_button.rect.topright[0] + image.get_width() / 2,
@@ -1638,6 +1669,9 @@ help_button = SwitchButton(("Help:ON", "Help:OFF"), image,
                                         "Control with selected parts: ", "W,A,S,D = Move", "Mouse Right = Place",
                                         "Hold mouse wheel or Q,E = Rotate", "DEL = Clear part",
                                         "Page Up/Down = Change layer"))
+showroom_colour_button = Button("Box RGB", image, (help_button.rect.topright[0] + image.get_width() / 2,
+                                                   p_body_helper.rect.midtop[1] - (image.get_height() * 2.5)),
+                                description=("Change showroom background colour",))
 race_part_button = Button("", image, (reset_button.image.get_width() / 1.8,
                                       p_body_helper.rect.midtop[1] - (image.get_height() / 2)),
                           description=("Select part type",
@@ -1963,6 +1997,7 @@ while True:
                                 p_body_helper.change_p_type(name.name, player_change=True)
                                 effect_helper.change_p_type(name.name + "_effect", player_change=True)
                                 p_selector.change_name(name.name)
+                                sprite_mode_selector.change_name(model.sprite_mode[int(name.name[-1])])
                                 # sprite_ver_selector.change_name(model.sprite_version[int(name.name[-1])])
                             elif "sound" in popup_list_box.action:
                                 model.edit_part(mouse_pos, "sound_select:" + name.name)
@@ -1971,7 +2006,7 @@ while True:
                                 model.edit_part(mouse_pos, popup_list_box.action[0:3] + "_ver_select" + name.name)
                                 # sprite_ver_selector.change_name(name.name)
                             elif "_mode_select" in popup_list_box.action:
-                                model.edit_part(mouse_pos, popup_list_box.action[0:3] + "_mode_select" + name.name)
+                                model.edit_part(mouse_pos, popup_list_box.action[0:3] + "_mode_select_" + name.name)
                                 sprite_mode_selector.change_name(name.name)
                             elif popup_list_box.action == "animation_race_select":
                                 if name.name == "New Race":
@@ -2029,6 +2064,10 @@ while True:
                         help_button.change_option(1)
                     else:
                         help_button.change_option(0)
+
+                elif showroom_colour_button.rect.collidepoint(mouse_pos):
+                    text_input_popup = ("text_input", "showroom_colour_")
+                    ui.add(colour_ui_popup)
 
                 elif anim_prop_list_box.scroll.rect.collidepoint(mouse_pos):  # scrolling on list
                     new_row = anim_prop_list_box.scroll.player_input(mouse_pos)
@@ -2351,7 +2390,8 @@ while True:
                             try:
                                 if "special" in current_part:
                                     part_list = list(
-                                        body_sprite_pool[race_part_button.text]["special"][model.sprite_version[int(p_selector.text[1])]][model.sprite_mode[int(p_selector.text[1])]].keys())
+                                        body_sprite_pool[race_part_button.text]["special"][model.sprite_version[
+                                            int(p_selector.text[1])]][character_mode_list[animation_race][model.sprite_mode[int(p_selector.text[1])]][current_part[:-2]]].keys())
                                 elif "effect" in current_part:
                                     part_list = list(
                                         effect_sprite_pool[race_part_button.text][model.sprite_version[1]].keys())
@@ -2360,13 +2400,13 @@ while True:
                                     if selected_part[0:2] == "r_" or selected_part[0:2] == "l_":
                                         selected_part = selected_part[2:]
                                     part_list = list(
-                                        body_sprite_pool[race_part_button.text][selected_part][model.sprite_version[int(p_selector.text[1])]][model.sprite_mode[int(p_selector.text[1])]].keys())
+                                        body_sprite_pool[race_part_button.text][selected_part][model.sprite_version[int(p_selector.text[1])]][character_mode_list[animation_race][model.sprite_mode[int(p_selector.text[1])]][current_part]].keys())
 
                             except KeyError:  # look at weapon next
                                 try:
                                     selected_part = race_part_button.text
                                     part_list = list(
-                                        weapon_sprite_pool[selected_part][model.sprite_version[int(p_selector.text[1])]][model.sprite_mode[int(p_selector.text[1])]].keys())
+                                        weapon_sprite_pool[selected_part][model.sprite_version[int(p_selector.text[1])]][character_mode_list[animation_race][model.sprite_mode[int(p_selector.text[1])]][current_part]].keys())
                                 except KeyError:  # part not exist
                                     part_list = []
                             popup_list_open(popup_list_box, popup_namegroup, ui, "part_select",
@@ -2382,7 +2422,7 @@ while True:
                     #     popup_list_open(popup_list_box, popup_namegroup, ui, p_body_helper.ui_type + "_ver_select",
                     #                     sprite_ver_selector.rect.topleft, part_list, "bottom", screen_scale)
                     elif sprite_mode_selector.rect.collidepoint(mouse_pos):
-                        part_list = ["Normal"]
+                        part_list = character_mode_list[animation_race]
                         popup_list_open(popup_list_box, popup_namegroup, ui, p_body_helper.ui_type + "_mode_select",
                                         sprite_mode_selector.rect.topleft, part_list, "bottom", screen_scale)
                     elif sound_selector.rect.collidepoint(mouse_pos):
@@ -2715,6 +2755,13 @@ while True:
                         reload_animation(anim, model, specific_frame=specific_frame)
                         property_to_pool_data(naming)
                         break
+
+            elif "showroom_colour_" in text_input_popup[1] and re.search("[a-zA-Z]", colour_input_box.text) is None and \
+                    colour_input_box.text.count(",") >= 2:
+                colour = colour_input_box.text.replace(" ", "")
+                colour = colour.split(",")
+                colour = [int(item) for item in colour]
+                showroom.colour = colour
 
             elif "_prop_colour" in text_input_popup[1] and re.search("[a-zA-Z]", colour_input_box.text) is None and \
                     colour_input_box.text.count(",") >= 2:  # add colour related property

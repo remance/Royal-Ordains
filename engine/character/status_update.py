@@ -98,6 +98,11 @@ def status_update(self):
     if self.walk_speed < 0:
         self.walk_speed = 0
 
+    if self.is_summon:  # summon reduce hp based on time
+        self.health -= self.timer
+        if self.health < 0:
+            self.health = 0
+
     # Cooldown
     for key in tuple(self.attack_cooldown.keys()):  # loop is faster than comprehension here
         self.attack_cooldown[key] -= self.timer

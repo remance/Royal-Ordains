@@ -101,11 +101,14 @@ class Effect(sprite.Sprite):
             if self.max_duration:
                 self.repeat_animation = True
 
-            if self.effect_name in self.sound_effect_pool:
-                self.travel_sound_distance = self.effect_stat["Sound Distance"]
-                self.sound_effect_name = choice(self.sound_effect_pool[self.effect_name])
-                self.sound_duration = mixer.Sound(self.sound_effect_name).get_length()
-                self.sound_timer = 0  # start playing right away when first update
+            # if self.effect_name in self.sound_effect_pool:
+            #     self.travel_sound_distance = self.effect_stat["Sound Distance"]
+            #     self.sound_effect_name = choice(self.sound_effect_pool[self.effect_name])
+            #     self.sound_duration = mixer.Sound(self.sound_effect_name).get_length()
+            #     self.sound_timer = self.sound_duration
+            #     self.travel_sound_distance_check = self.travel_sound_distance * 2
+            #     if self.sound_duration > 2:
+            #         self.sound_timer = self.sound_duration / 0.5
 
         self.animation_pool = self.effect_animation_pool[self.effect_name][self.sprite_ver]
         self.current_animation = self.animation_pool[self.part_name][self.scale]
@@ -159,10 +162,19 @@ class DamageEffect(Effect):
         self.find_damage(self.moveset)
         self.deal_dmg = False
         self.penetrate = False
+        self.no_dodge = False
+        self.no_defence = False
+        self.no_guard = False
         if self.dmg:  # has damage to deal
             self.deal_dmg = True
             if "penetrate" in self.moveset["Property"]:
                 self.penetrate = True
+            if "no dodge" in self.moveset["Property"]:
+                self.no_dodge = True
+            if "no defence" in self.moveset["Property"]:
+                self.no_defence = True
+            if "no guard" in self.moveset["Property"]:
+                self.no_guard = True
 
         self.effect_collide_check = True
         if "no effect collision" in self.effect_stat["Property"]:
@@ -178,16 +190,6 @@ class DamageEffect(Effect):
             # layer 0 in animation part data mean the effect can move on its own
             self.travel = True
             self.travel_distance = self.moveset["Range"]
-            print(self.travel_distance)
-
-        if self.effect_name in self.sound_effect_pool:
-            self.travel_sound_distance = self.effect_stat["Sound Distance"]
-            self.sound_effect_name = choice(self.sound_effect_pool[self.effect_name])
-            self.sound_duration = mixer.Sound(self.sound_effect_name).get_length()
-            self.sound_timer = self.sound_duration
-            self.travel_sound_distance_check = self.travel_sound_distance * 2
-            if self.sound_duration > 2:
-                self.sound_timer = self.sound_duration / 0.5
 
     def find_damage(self, moveset):
         self.dmg = moveset["Power"] + self.owner.power_bonus * self.owner.hold_power_bonus

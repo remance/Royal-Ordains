@@ -2,6 +2,7 @@ import cProfile
 import datetime
 from math import cos, sin, radians
 
+import pygame.transform
 from pygame import Vector2, Surface, SRCALPHA, Color, Rect, draw, mouse
 from pygame.font import Font
 from pygame.sprite import Sprite
@@ -536,21 +537,77 @@ class Timer(UIBattle):
                 self.image.blit(self.timer_surface, self.timer_rect)
 
 
-class CharacterTextBox(UIBattle):
-    def __init__(self, text, pos):
-        self._layer = 9999999999999999998
-        UIBattle.__init__(self, player_interact=False)
+class CharacterSpeechBox(UIBattle):
+    images = {}
 
-        self.image = text_render_with_bg(text + "!!",
-                                         Font(self.ui_font["manuscript_font"], int(42 * self.screen_scale[1])),
-                                         gf_colour=Color("black"))
-        self.rect = self.image.get_rect(midbottom=pos)
-        self.timer = 0.5
+    def __init__(self, character, text):
+        self._layer = 9999999999999999998
+        UIBattle.__init__(self, player_interact=False, has_containers=True)
+        self.body = self.images["speech_body"]
+        self.left_corner = self.images["speech_start"]
+        self.right_corner = self.images["speech_end"]
+
+        self.left_corner_rect = self.left_corner.get_rect(topleft=(0, 0))  # The starting point
+
+        self.character = character
+        self.head_part = self.character.body_parts["p1_head"]  # assuming character always has p1 head
+        self.base_pos = self.character.base_pos.copy()
+        self.finish_unfolding = False
+        self.current_length = self.left_corner.get_width()  # current unfolded length start at 20
+        self.text_surface = Font(self.ui_font["manuscript_font"],
+                                 int(28 * self.screen_scale[1])).render(text, True, (0, 0, 0))
+        self.base_image = Surface((self.text_surface.get_width() + int(self.left_corner.get_width() * 4),
+                                   self.left_corner.get_height()), SRCALPHA)
+        self.base_image.blit(self.left_corner, self.left_corner_rect)  # start animation with the left corner
+        self.max_length = self.base_image.get_width()  # max length of the body, not counting the end corner
+        self.rect = self.base_image.get_rect(midleft=self.head_part.rect.center)
+        self.timer = 3
+        if len(text) > 20:
+            self.timer += int(len(text) / 10)
 
     def update(self, dt):
-        self.timer -= dt
-        if self.timer <= 0:
-            self.kill()
+        """Play unfold animation and blit drama text at the end"""
+        if self.current_length < self.max_length:  # keep unfolding if not yet reach max length
+            body_rect = self.body.get_rect(topleft=(self.current_length, 0))  # body of the drama popup
+            self.base_image.blit(self.body, body_rect)
+            self.image = self.base_image.copy()
+            self.current_length += self.body.get_width()
+        elif not self.finish_unfolding:
+            # right corner end
+            right_corner_rect = self.right_corner.get_rect(topright=(self.base_image.get_width(), 0))
+            self.base_image.blit(self.right_corner, right_corner_rect)
+            self.image = self.base_image.copy()
+            self.finish_unfolding = True
+
+        else:  # finish animation, count down timer
+            print(self.timer)
+            self.timer -= dt
+            if self.timer <= 0:
+                self.kill()
+
+        if self.character.sprite_direction == "l_side":  # left direction facing
+            if self.head_part.rect.midleft[0] - (self.battle.shown_camera_pos[0] - self.battle.camera.camera_w_center) < self.base_image.get_width():
+                # text will exceed screen, go other way
+                self.image = self.base_image.copy()
+                self.rect.bottomleft = self.head_part.rect.midright
+            else:
+                self.image = pygame.transform.flip(self.base_image, 1, 0)
+                self.rect.bottomright = self.head_part.rect.midleft
+
+        else:  # right direction facing
+            if self.battle.stage_end - self.head_part.rect.midright[0] < self.base_image.get_width():
+                # text will exceed screen, go other way
+                self.image = pygame.transform.flip(self.base_image, 1, 0)
+                self.rect.bottomright = self.head_part.rect.midleft
+            else:
+                self.image = self.base_image.copy()
+                self.rect.bottomleft = self.head_part.rect.midright
+
+        if self.current_length >= self.max_length:
+            # blit text when finish unfold
+            text_rect = self.text_surface.get_rect(center=(int(self.image.get_width() / 2),
+                                                           int(self.body.get_height() / 2)))
+            self.image.blit(self.text_surface, text_rect)
 
 
 class TimeUI(UIBattle):

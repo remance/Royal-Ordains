@@ -14,7 +14,7 @@ class Drop(sprite.Sprite):
     from engine.effect.play_animation import play_animation
     play_animation = play_animation
 
-    def __init__(self, base_pos, game_id, team):
+    def __init__(self, base_pos, game_id, team, momentum=()):
         """
         Drop item object represent an item drop in the battle in stage
         """
@@ -24,6 +24,11 @@ class Drop(sprite.Sprite):
         self.fall_gravity = self.battle.original_fall_gravity / 2  # fall a bit slower
         self.show_frame = 0
         self.frame_timer = 0
+        self.x_momentum = 0
+        self.y_momentum = 0
+        if momentum:
+            self.x_momentum = momentum[0]
+            self.y_momentum = momentum[1]
         self.repeat_animation = True
 
         self.stat = self.drop_item_list[game_id]
@@ -51,10 +56,42 @@ class Drop(sprite.Sprite):
     def update(self, dt):
         done, just_start = self.play_animation(0.1, dt)
 
-        if self.base_pos[1] < self.ground_pos:  # fall down to ground
+        if self.x_momentum or self.y_momentum:  # sprite bounce after reach
+            self.angle += (dt * 1000)
+            if self.angle >= 360:
+                self.angle = 0
+            new_pos = self.base_pos + Vector2(self.x_momentum, -self.y_momentum)
+            move = new_pos - self.base_pos
+            if move.length():
+                move.normalize_ip()
+                self.base_pos += move
+                self.pos = Vector2(self.base_pos[0] * self.screen_scale[0],
+                                   self.base_pos[1] * self.screen_scale[1])
+                self.adjust_sprite()
+
+            if self.x_momentum > 0:
+                self.x_momentum -= dt * 50
+                if self.x_momentum < 0.1:
+                    self.x_momentum = 0
+            elif self.x_momentum < 0:
+                self.x_momentum += dt * 50
+                if self.x_momentum > 0.1:
+                    self.x_momentum = 0
+
+            if self.y_momentum > 0:
+                self.y_momentum -= dt * 100
+                if self.y_momentum <= 0:
+                    self.y_momentum = -200
+
+            if self.base_pos[1] >= self.ground_pos:  # reach ground
+                self.x_momentum = 0
+                self.y_momentum = 0
+
+        elif self.base_pos[1] < self.ground_pos:  # fall down to ground
             self.base_pos[1] += self.fall_gravity * dt
             self.pos = (self.base_pos[0] * self.screen_scale[0],
                         self.base_pos[1] * self.screen_scale[1])
+
             self.adjust_sprite()
         else:  # only start counting duration when reach ground
             self.duration -= dt

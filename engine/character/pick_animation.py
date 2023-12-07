@@ -17,7 +17,7 @@ def pick_animation(self):
                         # only apply cost modifier for move that reduce resource
                         resource_cost = self.current_moveset["Resource Cost"] * self.resource_cost_modifier
                     if (self.resource >= resource_cost or (self.health_as_resource and
-                                                           self.health > resource_cost)) and \
+                                                           (self.health > resource_cost or self.is_summon))) and \
                             self.current_moveset["Move"] not in self.attack_cooldown:
                         self.current_action = self.current_action | self.current_moveset["Property"]  # add property
 
