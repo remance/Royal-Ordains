@@ -138,41 +138,55 @@ def player_input(self, player_index, dt):
 
                         elif self.last_command_key_input == "Left" or \
                                 (self.command_key_hold and self.command_key_hold[-1] == "Left"):
-                            self.x_momentum = -self.walk_speed / 10
                             if len(self.command_key_input) > 1:
                                 if self.player_command_key_input[-1] == "Left" and \
                                         self.player_command_key_input[-2] == "Left":
                                     # double press move to run
-                                    run_input = True
-                                    self.x_momentum = -self.run_speed / 10
+                                    if "moveset" in self.current_action and self.dash_move:  # dash during attack
+                                        self.interrupt_animation = True
+                                        self.command_action = self.dash_command_action
+                                        self.x_momentum = -self.run_speed / 2
+                                    elif "dash" not in self.current_action:
+                                        run_input = True
+                                        self.x_momentum = -self.run_speed / 10
                                 elif self.player_command_key_input[-1] == "Right" and "run" in self.current_action:
+                                    # halt
                                     self.interrupt_animation = True
                                     self.command_action = self.halt_command_action
                                     self.x_momentum = -self.walk_speed
                                     self.player_command_key_input = []
                                     self.command_key_input = []
                                     self.player_key_input_timer = []
+                            else:
+                                self.x_momentum = -self.walk_speed / 10
 
                         elif self.last_command_key_input == "Right" or \
                                 (self.command_key_hold and self.command_key_hold[-1] == "Right"):
-                            self.x_momentum = self.walk_speed / 10
                             if len(self.command_key_input) > 1:
                                 if self.player_command_key_input[-1] == "Right" and \
                                         self.player_command_key_input[-2] == "Right":
                                     # double press move to run
-                                    run_input = True
-                                    self.x_momentum = self.run_speed / 10
+                                    if "moveset" in self.current_action and self.dash_move:  # dash during attack
+                                        self.interrupt_animation = True
+                                        self.command_action = self.dash_command_action
+                                        self.x_momentum = self.run_speed  / 2
+                                    elif "dash" not in self.current_action:
+                                        run_input = True
+                                        self.x_momentum = self.run_speed / 10
                                 elif self.player_command_key_input[-1] == "Left" and "run" in self.current_action:
+                                    # halt
                                     self.interrupt_animation = True
                                     self.command_action = self.halt_command_action
                                     self.x_momentum = self.walk_speed
                                     self.player_command_key_input = []
                                     self.command_key_input = []
                                     self.player_key_input_timer = []
+                            else:
+                                self.x_momentum = self.walk_speed / 10
 
                         if self.x_momentum:
                             if "air" not in self.current_action and "guard" not in self.current_action and \
-                                    self.position != "Air":
+                                    self.position != "Air" and "dash" not in self.current_action:
                                 # movement with air does not use specific command action
                                 if not self.command_action:
                                     self.command_action = self.walk_command_action

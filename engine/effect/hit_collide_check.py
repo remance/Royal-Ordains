@@ -23,7 +23,7 @@ def hit_collide_check(self, check_damage_effect=True):
         for enemy_part in hit_list:
             enemy = enemy_part.owner
             if enemy_part.dmg and check_damage_effect:  # collide attack parts
-                if dmg_crash_check(self, enemy_part, body_part=True):
+                if dmg_crash_check(self, enemy_part):
                     return True
 
             elif enemy_part.can_hurt and enemy not in self.already_hit and \
@@ -48,7 +48,7 @@ def hit_collide_check(self, check_damage_effect=True):
         self.battle.all_damage_effects.remove(self)
 
 
-def dmg_crash_check(self, crashed_part, body_part=False):
+def dmg_crash_check(self, crashed_part):
     from engine.effect.effect import Effect
 
     if self.owner.crash_guard_resource_regen:  # crash regen resource, 2% instead of normal 1%
@@ -63,11 +63,14 @@ def dmg_crash_check(self, crashed_part, body_part=False):
     if dmg_diff < self.dmg / 2:  # both dmg quite near in power
         self.can_deal_dmg = False
         crashed_part.can_deal_dmg = False
-        if body_part:
-            if crashed_part.object_type == "body":  # only add to already hit if crashed object is body part
-                self.already_hit.append(crashed_part.owner)
-            if self.object_type == "body":
-                crashed_part.already_hit.append(self.owner)
+        if crashed_part.object_type == "body":
+            self.already_hit.append(crashed_part.owner)
+            self.owner.interrupt_animation = True
+            self.owner.command_action = self.owner.heavy_damaged_command_action
+        if self.object_type == "body":
+            crashed_part.already_hit.append(self.owner)
+            crashed_part.owner.interrupt_animation = True
+            crashed_part.owner.command_action = crashed_part.owner.heavy_damaged_command_action
         Effect(None, ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)
         if self.object_type == "effect":  # end effect
             if self.stick_reach:  # bounce off
@@ -75,27 +78,29 @@ def dmg_crash_check(self, crashed_part, body_part=False):
             else:
                 self.reach_target()
                 return True
-    elif dmg_diff < self.dmg / 4:  # collided effect damage is much lower than this object
+    elif dmg_diff < self.dmg / 4:  # collided effect damage is much lower than this object, enemy lose
         crashed_part.can_deal_dmg = False
         if self.owner.player_control:
             Effect(None, ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)
         else:
             Effect(None, ("Crash Enemy", "Crash", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)
-
-        if not body_part:
-            if self.object_type == "body":
-                crashed_part.already_hit.append(self.owner)
-            if crashed_part.object_type == "effect":  # end effect if not penetrate
-                if crashed_part.stick_reach:  # bounce off
-                    crashed_part.stick_timer = 5
-                else:
-                    crashed_part.reach_target()
+        if crashed_part.object_type == "body":  # collided with enemy body part
+            crashed_part.already_hit.append(self.owner)
+            crashed_part.owner.interrupt_animation = True
+            crashed_part.owner.command_action = crashed_part.owner.heavy_damaged_command_action
+        elif crashed_part.object_type == "effect":  # end enemy effect if not penetrate
+            if crashed_part.stick_reach:  # bounce off
+                crashed_part.stick_timer = 5
+            else:
+                crashed_part.reach_target()
     else:  # this object dmg is much lower, enemy win
         self.can_deal_dmg = False
-        if crashed_part.object_type == "body":  # only add to already hit if crashed object is body part
-            self.already_hit.append(crashed_part.owner)
         Effect(None, ("Crash Enemy", "Crash", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)
-        if self.object_type == "effect":  # end effect if not penetrate
+        if self.object_type == "body":  # body part object collide with enemy
+            self.already_hit.append(crashed_part.owner)
+            self.owner.interrupt_animation = True
+            self.owner.command_action = self.owner.heavy_damaged_command_action
+        elif self.object_type == "effect":  # end effect if not penetrate
             if self.stick_reach:  # bounce off
                 self.stick_timer = 5
             else:

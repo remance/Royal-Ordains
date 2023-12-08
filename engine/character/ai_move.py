@@ -75,7 +75,7 @@ def common_boss_ai(self, dt):
         # walk randomly when not attack
         if not self.leader:
             self.ai_movement_timer = 0.1
-            self.x_momentum = self.walk_speed * choice((-1, 1))
+            self.x_momentum = randint(1, 50) * self.walk_speed / 20 * choice((-1, 1))
             self.command_action = self.walk_command_action | {"x_momentum": self.x_momentum}
         else:
             leader_distance = self.base_pos.distance_to(self.leader.base_pos)

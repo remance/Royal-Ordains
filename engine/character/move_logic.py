@@ -14,7 +14,7 @@ def move_logic(self, dt):
         elif "fly" in self.current_action:
             self.move_speed = self.run_speed
         else:
-            self.move_speed = 100 + abs(self.x_momentum)
+            self.move_speed = 1000 + abs(self.x_momentum * 2)
 
         if self.x_momentum:
             if self.x_momentum > 0:
@@ -66,13 +66,6 @@ def move_logic(self, dt):
 
         if self.x_momentum or self.y_momentum:
             new_pos = self.base_pos + Vector2(self.x_momentum, -self.y_momentum)
-            if not self.broken:  # cannot go pass map unless in retreat state
-                if self.battle.base_camera_begin > new_pos[0]:
-                    new_pos[0] = self.battle.base_camera_begin
-                    self.x_momentum = 0
-                elif new_pos[0] > self.battle.base_camera_end:
-                    new_pos[0] = self.battle.base_camera_end
-                    self.x_momentum = 0
             move = new_pos - self.base_pos
             if move.length():
                 move.normalize_ip()
@@ -83,6 +76,22 @@ def move_logic(self, dt):
                         self.new_angle = -90
                     elif self.x_momentum < 0:
                         self.new_angle = 90
+
+                if self.player_control:  # individual player cannot go pass camera
+                    if self.battle.base_camera_begin > self.base_pos[0]:
+                        self.base_pos[0] = self.battle.base_camera_begin
+                        self.x_momentum = 0
+                    elif self.base_pos[0] > self.battle.base_camera_end:
+                        self.base_pos[0] = self.battle.base_camera_end
+                        self.x_momentum = 0
+                elif not self.broken:  # AI character cannot go pass stage border unless broken
+                    if self.battle.base_stage_start > self.base_pos[0]:
+                        self.base_pos[0] = self.battle.base_stage_start
+                        self.x_momentum = 0
+                    elif self.base_pos[0] > self.battle.base_stage_end:
+                        self.base_pos[0] = self.battle.base_stage_end
+                        self.x_momentum = 0
+
                 self.pos = Vector2((self.base_pos[0] * self.screen_scale[0],
                                     self.base_pos[1] * self.screen_scale[1]))
 

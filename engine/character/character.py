@@ -125,6 +125,8 @@ class Character(sprite.Sprite):
     run_command_action = {"name": "Run", "movable": True, "run": True}
     flee_command_action = {"name": "FleeMove", "movable": True, "flee": True}
     halt_command_action = {"name": "Halt", "uncontrollable": True, "movable": True, "walk": True, "halt": True}
+    dash_command_action = {"name": "Dash", "movable": True, "forced move": True, "no dmg": True,
+                           "hold": True, "dash": True}
 
     jump_idle_command_action = {"name": "Idle", "movable": True}
     relax_command_action = {"name": "Relax", "low level": True}
@@ -161,8 +163,7 @@ class Character(sprite.Sprite):
     arrive_fly_command_action = {"name": "Arrive", "movable": True, "arrive": True, "fly": True, "x_momentum": True}
 
     heavy_damaged_command_action = {"name": "HeavyDamaged", "uncontrollable": True, "movable": True,
-                                    "forced move": True,
-                                    "heavy damaged": True}
+                                    "forced move": True, "heavy damaged": True}
     damaged_command_action = {"name": "SmallDamaged", "uncontrollable": True, "movable": True, "forced move": True,
                               "small damaged": True}
     standup_command_action = {"name": "Standup", "uncontrollable": True, "no dmg": True}
@@ -297,15 +298,17 @@ class Character(sprite.Sprite):
         # Get char stat
         self.name = stat["Name"]
         stat_boost = 0
+        leader_charisma = 0
         if self.leader:  # character with leader get stat boost from leader charisma
-            stat_boost = int(self.leader.charisma / 10)
-        self.strength = stat["Strength"] + stat_boost
-        self.dexterity = stat["Dexterity"] + stat_boost
-        self.agility = stat["Agility"] + stat_boost
-        self.constitution = stat["Constitution"] + stat_boost
-        self.intelligence = stat["Intelligence"] + stat_boost
-        self.wisdom = stat["Wisdom"] + stat_boost
-        self.charisma = stat["Charisma"] + stat_boost
+            leader_charisma = self.leader.charisma
+            stat_boost = int(leader_charisma / 10)
+        self.strength = stat["Strength"] + (stat["Strength"] * (leader_charisma / 200)) + stat_boost
+        self.dexterity = stat["Dexterity"] + (stat["Dexterity"] * (leader_charisma / 200)) + stat_boost
+        self.agility = stat["Agility"] + (stat["Agility"] * (leader_charisma / 200)) + stat_boost
+        self.constitution = stat["Constitution"] + (stat["Constitution"] * (leader_charisma / 200)) + stat_boost
+        self.intelligence = stat["Intelligence"] + (stat["Intelligence"] * (leader_charisma / 200)) + stat_boost
+        self.wisdom = stat["Wisdom"] + (stat["Wisdom"] * (leader_charisma / 200)) + stat_boost
+        self.charisma = stat["Charisma"] + (stat["Charisma"] * (leader_charisma / 200)) + stat_boost
 
         self.moveset = copy.deepcopy(stat["Move"])
         self.mode_list = stat["Mode"]
@@ -436,8 +439,8 @@ class Character(sprite.Sprite):
         self.speed = self.base_speed
         self.hp_regen = self.base_hp_regen
         self.resource_regen = self.base_resource_regen
-        self.guard_meter = self.base_guard
-        self.max_guard = int(self.guard_meter)
+        self.guard_meter = int(self.base_guard)
+        self.max_guard = self.guard_meter
         self.guard_meter20 = self.guard_meter * 0.2
         self.guard_meter5 = self.guard_meter * 0.05
 
@@ -796,6 +799,7 @@ class PlayableCharacter(Character):
 
         self.slide_attack = False
         self.tackle_attack = False
+        self.dash_move = False
         self.dodge_move = False
         if self.common_skill["Ground Movement"][1]:  # can slide attack
             self.slide_attack = True
@@ -803,8 +807,8 @@ class PlayableCharacter(Character):
         if self.common_skill["Ground Movement"][2]:  # can tackle attack
             self.tackle_attack = True
             self.moveset["Stand"] |= {key: value for key, value in self.character_data.common_moveset_skill["Stand"].items() if key == "Tackle"}
-        if self.common_skill["Ground Movement"][3]:  #
-            pass
+        if self.common_skill["Ground Movement"][3]:  #  can dash after attack
+            self.dash_move = True
         if self.common_skill["Ground Movement"][4]:  # weight no longer affect movement speed
             self.base_speed = self.original_speed
         if self.common_skill["Ground Movement"][5]:  # can perform dodge move while moving
@@ -903,7 +907,7 @@ class PlayableCharacter(Character):
         self.crash_haste = False
         if self.common_skill["Combat Contest"][1]:  # increase max guard
             self.guard_meter = int(self.base_guard * 1.5)
-            self.max_guard = int(self.guard_meter)
+            self.max_guard = self.guard_meter
             self.guard_meter20 = self.guard_meter * 0.2
             self.guard_meter5 = self.guard_meter * 0.05
         if self.common_skill["Combat Contest"][2]:  # can walk while guarding
