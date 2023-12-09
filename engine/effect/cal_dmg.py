@@ -14,7 +14,7 @@ def cal_dmg(self, target, critical):
     # impact = self.knock_power
     damage, element_effect = cal_dmg_element(self, target, critical)
 
-    # Damage cannot be negative (it would heal instead), same for morale dmg
+    # Damage cannot be negative (it would heal instead) or 0, damage can only be 0 if original already 0
     if damage < 0:
         damage = 0
 

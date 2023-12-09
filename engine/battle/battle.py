@@ -365,8 +365,8 @@ class Battle:
         yield set_done_load()
 
         yield set_start_load(self, "stage setup")
-        self.current_weather.__init__(self.time_ui, 0, randint(0, 359), 0,
-                                      self.weather_data)  # start weather with random
+        self.current_weather.__init__(self.time_ui, 0, 0, 0,
+                                      self.weather_data)  # start weather with random  # TODO change to stage data
 
         stage_data = self.game.preset_map_data[chapter][mission][stage]
         stage_object_data = stage_data["data"]

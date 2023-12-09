@@ -76,7 +76,7 @@ class Effect(sprite.Sprite):
             self.pos = Vector2(self.part_stat[2], self.part_stat[3])
             self.sprite_ver = str(self.battle.chapter)
         self.base_pos = Vector2(self.pos[0] / self.screen_scale[0], self.pos[1] / self.screen_scale[1])
-
+        print(self.part_stat)
         self.angle = self.part_stat[4]
         self.scale = self.part_stat[7]
         self.flip = self.part_stat[5]
@@ -170,14 +170,14 @@ class DamageEffect(Effect):
         self.no_guard = False
         if self.dmg:  # has damage to deal
             self.deal_dmg = True
-            if "penetrate" in self.moveset["Property"]:
-                self.penetrate = True
-            if "no dodge" in self.moveset["Property"]:
-                self.no_dodge = True
-            if "no defence" in self.moveset["Property"]:
-                self.no_defence = True
-            if "no guard" in self.moveset["Property"]:
-                self.no_guard = True
+        if "penetrate" in self.moveset["Property"]:
+            self.penetrate = True
+        if "no dodge" in self.moveset["Property"]:
+            self.no_dodge = True
+        if "no defence" in self.moveset["Property"]:
+            self.no_defence = True
+        if "no guard" in self.moveset["Property"]:
+            self.no_guard = True
 
         self.effect_collide_check = True
         if "no effect collision" in self.effect_stat["Property"]:
@@ -205,8 +205,8 @@ class DamageEffect(Effect):
             self.dmg = uniform(self.dmg * self.owner.min_physical, self.dmg * self.owner.max_physical)
         else:
             self.dmg = uniform(self.dmg * self.owner.min_elemental, self.dmg * self.owner.max_elemental)
-        if self.dmg < 1:
-            self.dmg = 1
+        if self.dmg < 0:
+            self.dmg = 0
         self.critical_chance = self.owner.critical_chance + moveset["Critical Chance Bonus"]
         self.friend_status_effect = moveset["Status"]
         self.enemy_status_effect = moveset["Enemy Status"]
@@ -217,9 +217,9 @@ class DamageEffect(Effect):
             effect_stat = self.effect_list[self.reach_effect]
             new_pos = self.pos
             if "reach spawn ground" in self.effect_stat["Property"]:  # reach effect spawn with rect bottom on ground
-                height = self.effect_animation_pool[self.reach_effect][self.sprite_ver]["Base"][0].get_height() / 4
+                height = self.effect_animation_pool[self.reach_effect][self.sprite_ver]["Base"][self.scale][0][self.flip].get_height() / 4
                 new_pos = (self.pos[0], self.pos[1] - height)
-            DamageEffect(self.owner, (self.reach_effect, "Base", new_pos[0], new_pos[1], 0),
+            DamageEffect(self.owner, (self.reach_effect, "Base", new_pos[0], new_pos[1], 0, 0, 0, 1),
                          self._layer, self.moveset, from_owner=False,
                          reach_effect=effect_stat["After Reach Effect"])
 
@@ -428,9 +428,9 @@ class TrapEffect(Effect):
         self.impact_effect = None
         self.reach_effect = reach_effect
         self.moveset = moveset
-        self.travel_distance = 0
-        if not layer:  # layer 0 in animation part data mean the effect can move on its own
-            self.travel_distance = self.moveset["Range"]
+        # self.travel_distance = 0
+        # if not layer:  # layer 0 in animation part data mean the effect can move on its own
+        #     self.travel_distance = self.moveset["Range"]
 
         self.other_property = self.moveset["Property"]
 
@@ -452,33 +452,34 @@ class TrapEffect(Effect):
             if self.duration <= 0:  # activate when trap duration run out
                 self.activate_trap()
 
-        if self.travel_distance:  # damage sprite that can move
-            new_pos = Vector2(self.base_pos[0] - (self.speed * sin(radians(self.angle))),
-                              self.base_pos[1] - (self.speed * cos(radians(self.angle))))
-            move = new_pos - self.base_pos
-            if move.length():  # sprite move
-                move.normalize_ip()
-                move = move * self.speed * dt
-
-                self.base_pos += move
-                self.travel_distance -= move.length()
-                if self.base_pos[0] <= 0:  # trap cannot be thrown pass map border
-                    self.base_pos[0] = 0
-                elif self.base_pos[0] > self.stage_end:
-                    self.base_pos = self.stage_end
-                if self.base_pos[1] >= self.owner.original_ground_pos:  # reach ground
-                    self.base_pos = self.owner.original_ground_pos
-
-                self.pos = Vector2(self.base_pos[0] * self.screen_scale[0], self.base_pos[1] * self.screen_scale[1])
-                self.rect.center = self.pos
-        else:  # keep checking for collide to activate trap
-            if spritecollide(self, self.owner.enemy_part_list, False, collided=collide_mask):
-                # activate when enemy collide
-                self.activate_trap()
+        # if self.travel_distance:  # damage sprite that can move
+        #     print(self.travel_distance)
+        #     new_pos = Vector2(self.base_pos[0] - (self.speed * sin(radians(self.angle))),
+        #                       self.base_pos[1] - (self.speed * cos(radians(self.angle))))
+        #     move = new_pos - self.base_pos
+        #     if move.length():  # sprite move
+        #         move.normalize_ip()
+        #         move = move * self.speed * dt
+        #
+        #         self.base_pos += move
+        #         self.travel_distance -= move.length()
+        #         if self.base_pos[0] <= 0:  # trap cannot be thrown pass map border
+        #             self.base_pos[0] = 0
+        #         elif self.base_pos[0] > self.stage_end:
+        #             self.base_pos[0] = self.stage_end
+        #         if self.base_pos[1] >= self.owner.original_ground_pos:  # reach ground
+        #             self.base_pos[1] = self.owner.original_ground_pos
+        #
+        #         self.pos = Vector2(self.base_pos[0] * self.screen_scale[0], self.base_pos[1] * self.screen_scale[1])
+        #         self.rect.center = self.pos
+        # else:  # keep checking for collide to activate trap
+        if spritecollide(self, self.owner.enemy_part_list, False, collided=collide_mask):
+            # activate when enemy collide
+            self.activate_trap()
 
     def activate_trap(self):
-        self.current_animation = self.animation_pool["Activate"]  # change image to base
-        self.base_image = self.current_animation[self.show_frame]
+        self.current_animation = self.animation_pool["Activate"][self.scale]  # change image to base
+        self.base_image = self.current_animation[self.show_frame][self.flip]
         self.adjust_sprite()
         self.activate = True
         self.repeat_animation = False

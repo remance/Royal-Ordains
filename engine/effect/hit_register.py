@@ -39,9 +39,10 @@ def hit_register(self, target, body_part):
                         self.owner.resource = self.owner.max_resource
 
                 if not target.guarding or target.angle == hit_angle or self.no_guard:  # guard bypass if hit from behind
-                    if self.owner.player_control:  # count dmg from player for data record
-                        self.battle.player_damage[self.owner.player_control] += attacker_dmg
-                    target.cal_loss(attacker_dmg, self.impact, element_effect, hit_angle, dmg_text_pos, critical)
+                    if self.dmg:  # effect has damage to deal (some may simply be for apply status)
+                        if self.owner.player_control:  # count dmg from player for data record
+                            self.battle.player_damage[self.owner.player_control] += attacker_dmg
+                        target.cal_loss(attacker_dmg, self.impact, element_effect, hit_angle, dmg_text_pos, critical)
                     if not self.penetrate:
                         if self.stick_reach == "stick":  # stuck at body part
                             self.stuck_part = body_part
