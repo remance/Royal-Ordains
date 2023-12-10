@@ -125,7 +125,7 @@ class Character(sprite.Sprite):
     run_command_action = {"name": "Run", "movable": True, "run": True}
     flee_command_action = {"name": "FleeMove", "movable": True, "flee": True}
     halt_command_action = {"name": "Halt", "uncontrollable": True, "movable": True, "walk": True, "halt": True}
-    dash_command_action = {"name": "Dash", "movable": True, "forced move": True, "no dmg": True,
+    dash_command_action = {"name": "Dash", "uncontrollable": True, "movable": True, "forced move": True, "no dmg": True,
                            "hold": True, "dash": True}
 
     jump_idle_command_action = {"name": "Idle", "movable": True}
@@ -242,6 +242,7 @@ class Character(sprite.Sprite):
         self.broken = False
         self.not_movable = False
         self.invisible = False
+        self.stop_fall_duration = 0
         self.fly = False
         self.no_clip = False
         self.no_pickup = False
@@ -315,7 +316,7 @@ class Character(sprite.Sprite):
         self.skill = stat["Skill"].copy()
         self.available_skill = {"Couch": {}, "Stand": {}, "Air": {}}
         self.drops = {}
-        if "Drops" in stat:
+        if "Drops" in stat:  # check item drops when die
             self.drops = stat["Drops"]
 
         if "Skill Allocation" in stat:  # refind leveled skill allocated since name is only from first level
@@ -386,15 +387,15 @@ class Character(sprite.Sprite):
         if self.body_size < 1:
             self.body_size = 1
 
-        self.sprite_size = self.body_size * 100
+        self.sprite_size = self.body_size * 100  # use for pseudo sprite size of character for positioning of effect
 
-        if self.player_control:
+        if self.player_control:  # player character get priority in sprite showing
             self._layer = int(game_id * self.body_size * 100000000)
         else:
             self._layer = int(game_id * self.body_size * 100000)
 
         self.base_body_mass = stat["Size"]
-        self.body_mass = self.base_body_mass
+        self.body_mass = self.base_body_mass  # use for impact resistance when hit
 
         self.arrive_condition = stat["Arrive Condition"]
 
@@ -407,7 +408,7 @@ class Character(sprite.Sprite):
 
         self.items = {}
 
-        # Stat after applying gear
+        # Stat after applying equipment
         self.base_power_bonus = 0
         self.base_defence = self.original_defence
         self.base_dodge = self.original_dodge - self.weight
@@ -542,6 +543,11 @@ class Character(sprite.Sprite):
                     self.freeze_timer -= dt
                     if self.freeze_timer < 0:
                         self.freeze_timer = 0
+
+                if self.stop_fall_duration:
+                    self.stop_fall_duration -= dt
+                    if self.stop_fall_duration < 0:
+                        self.stop_fall_duration = 0
 
                 if self.timer > 0.1:  # Update status and skill
                     if self.combat_state == "Combat" and self.position not in ("Air", "Couch"):
@@ -740,9 +746,10 @@ class Character(sprite.Sprite):
                 self.pick_animation()
 
             if "die" in self.current_action:
-                if self.show_frame < self.max_show_frame:  # play die animation
+                if self.show_frame < self.max_show_frame or self.base_pos[1] < self.ground_pos:  # play die animation
+                    self.move_logic(dt)
                     self.play_animation(dt, False)
-                else:  # finish die animation
+                else:  # finish die animation and reach ground
                     if self.resurrect_count:  # resurrect back
                         # self.resurrect_count -= 1
                         self.interrupt_animation = True
@@ -799,7 +806,7 @@ class PlayableCharacter(Character):
 
         self.slide_attack = False
         self.tackle_attack = False
-        self.dash_move = False
+        self.dash_move = True
         self.dodge_move = False
         if self.common_skill["Ground Movement"][1]:  # can slide attack
             self.slide_attack = True
@@ -1008,12 +1015,8 @@ class BodyPart(sprite.Sprite):
         self.original_can_hurt = can_hurt
         self.can_hurt = can_hurt
         self.can_deal_dmg = False
-        self.aoe = False
         self.dmg = None
         self.object_type = "body"
-        self.stick_reach = False  # not used for body parts but require for checking
-        self.stick_timer = 0  # not used but require for checking
-        self.penetrate = True  # part always penetrate if doing dmg
         self.no_dodge = False
         self.no_defence = False
         self.no_guard = False
@@ -1021,7 +1024,7 @@ class BodyPart(sprite.Sprite):
         self.enemy_status_effect = ()
         self.impact = (0, 0)
         self.element = None
-        self.critical_chance = None
+        self.critical_chance = 0
         self.mode = "Normal"
         self.already_hit = []
         self.image = self.empty_surface
@@ -1029,6 +1032,13 @@ class BodyPart(sprite.Sprite):
         self.sprite_ver = str(self.owner.sprite_ver)
         self.rect = self.image.get_rect(topleft=(0, 0))
         self.mask = from_surface(self.image)
+
+        # Variables not really used or changed but required for same functions as Effect
+        self.aoe = False
+        self.duration = 0
+        self.stick_reach = False  # not used for body parts but require for checking
+        self.stick_timer = 0  # not used but require for checking
+        self.penetrate = True  # part always penetrate if doing dmg
 
     def get_part(self, data, new_animation):
         self.dmg = 0
@@ -1039,7 +1049,8 @@ class BodyPart(sprite.Sprite):
         self.enemy_status_effect = ()
         if new_animation:
             self.already_hit = []
-        elif self.owner.current_moveset and "multiple hit" in self.owner.current_moveset["Property"]:
+        elif self.owner.current_moveset and "multiple hits" in self.owner.current_moveset["Property"]:
+            # multiple hits moveset reset already hit every frame instead of just when finish animation
             self.already_hit = []
 
         if data[8]:  # can do dmg

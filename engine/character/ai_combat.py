@@ -1,3 +1,14 @@
+def find_move_to_attack(self):
+    for move, value in self.moveset[self.position].items():
+        if value["AI Range"] >= self.nearest_enemy[1] and value["Move"] not in self.attack_cooldown:
+            # blind (7) cause random attack
+            self.engage_combat()
+            self.moveset_command_key_input = move
+            self.check_move_existence()
+            self.command_action = self.check_prepare_action(value)
+            break
+
+
 def training_ai(self):
     pass
 
@@ -13,13 +24,7 @@ def guard_ai(self):
                 self.engage_combat()
                 self.command_action = self.guard_hold_command_action
             else:  # attack when cannot guard
-                for move, value in self.moveset[self.position].items():
-                    if value["AI Range"] >= self.nearest_enemy[1] and value["Move"] not in self.attack_cooldown:
-                        self.engage_combat()
-                        self.moveset_command_key_input = move
-                        self.check_move_existence()
-                        self.command_action = self.check_prepare_action(value)
-                        break
+                find_move_to_attack(self)
 
             if self.nearest_enemy[0].base_pos[0] >= self.base_pos[0]:
                 self.new_angle = -90
@@ -31,13 +36,7 @@ def guard_ai(self):
         self.ai_timer = 0
         self.interrupt_animation = True
         self.command_action = {}  # consider go to idle first then check for move
-        for move, value in self.moveset[self.position].items():
-            if value["AI Range"] >= self.nearest_enemy[1] and value["Move"] not in self.attack_cooldown:
-                self.engage_combat()
-                self.moveset_command_key_input = move
-                self.check_move_existence()
-                self.command_action = self.check_prepare_action(value)
-                break
+        find_move_to_attack(self)
 
     elif not self.guarding and self.ai_timer:
         self.ai_timer = 0
@@ -48,17 +47,13 @@ def common_ai(self):
     if not self.current_action and not self.command_action and self.nearest_enemy:
         if self.nearest_enemy[1] <= self.ai_max_attack_range:
             if self.position in self.moveset:
-                for move, value in self.moveset[self.position].items():
-                    if value["AI Range"] >= self.nearest_enemy[1] and value["Move"] not in self.attack_cooldown:
-                        self.engage_combat()
-                        self.moveset_command_key_input = move
-                        self.check_move_existence()
-                        self.command_action = self.check_prepare_action(value)
-                        break
-                if self.nearest_enemy[0].base_pos[0] >= self.base_pos[0]:
-                    self.new_angle = -90
-                else:
-                    self.new_angle = 90
+                find_move_to_attack(self)
+                if 7 not in self.status_effect:
+                    # blind cause ai to attack in already facing direction and not specifically at enemy
+                    if self.nearest_enemy[0].base_pos[0] >= self.base_pos[0]:
+                        self.new_angle = -90
+                    else:
+                        self.new_angle = 90
 
 
 def complex_ai(self):

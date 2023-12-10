@@ -76,7 +76,6 @@ class Effect(sprite.Sprite):
             self.pos = Vector2(self.part_stat[2], self.part_stat[3])
             self.sprite_ver = str(self.battle.chapter)
         self.base_pos = Vector2(self.pos[0] / self.screen_scale[0], self.pos[1] / self.screen_scale[1])
-        print(self.part_stat)
         self.angle = self.part_stat[4]
         self.scale = self.part_stat[7]
         self.flip = self.part_stat[5]

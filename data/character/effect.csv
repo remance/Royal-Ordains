@@ -21,6 +21,7 @@
 "Snare Bite.3",,,,"1,6,33",,,,,,,
 "Stink Cloud.1",3,,,5,,,,,,,"no effect collision"
 "Stink Cloud.2",3,,,"5,13",,,,,,,"no effect collision"
+"Stink Cloud.3",3,,,"5,7",,,,,,,
 "Poison Cloud.1",3,,,18,,,,,,,"no effect collision"
 "Poison Cloud.2",3,,,"18,27",,,,,,,"no effect collision"
 "Firetrap.1",10,,,,,,,"Small Fire",,,"trap,drop:Trap Remain,reach spawn ground"
@@ -28,9 +29,7 @@
 "Snaretrap.1",10,,,,,,,"Snare Bite.1",,,"trap,drop:Scrap,reach spawn ground"
 "Snaretrap.2",10,,,,,,,"Snare Bite.2",,,"trap,drop:Scrap,reach spawn ground"
 "Snaretrap.3",10,,,,,,,"Snare Bite.3",,,"trap,drop:Scrap,reach spawn ground"
-"Stinktrap.1",10,500,,,,,,"Stink Cloud.1",,,"trap,drop:Scrap,reach spawn ground"
-"Stinktrap.2",10,500,,,,,,"Stink Cloud.2",,,"trap,drop:Scrap,reach spawn ground"
+"Stinktrap.1",10,,,,,,,"Stink Cloud.1",,,"trap,drop:Scrap,reach spawn ground"
+"Stinktrap.2",10,,,,,,,"Stink Cloud.2",,,"trap,drop:Scrap,reach spawn ground"
 "Poisontrap.1",10,,,,,,,"Poison Cloud.1",,,"trap,drop:Trap Remain,reach spawn ground"
 "Poisontrap.2",10,,,,,,,"Poison Cloud.2",,,"trap,drop:Trap Remain,reach spawn ground"
-"Crushtrap.1",10,500,,,,,,"Ground Crush.1",,,"trap,drop:Trap Remain,reach spawn ground"
-"Crushtrap.2",10,500,,,,,,"Ground Crush.2",,,"trap,drop:Trap Remain,reach spawn ground"

@@ -30,8 +30,9 @@ def hit_register(self, target, body_part):
                     critical = True
                 attacker_dmg, element_effect = self.cal_dmg(target, critical)
                 self.owner.special_damage(attacker_dmg)
-                if self.object_type == "body":
-                    self.owner.final_animation_play_time += 0.1  # increase animation stopping time per hit
+
+                if not self.duration:  # only damage not from object with duration make target stop falling for a bit
+                    target.stop_fall_duration = 0.1
 
                 if self.owner.hit_resource_regen:  # regen resource when hit
                     self.owner.resource += self.owner.resource1  # regen

@@ -4,11 +4,11 @@
 "C1.3","Divine Wind","Special","Stand","sweak1strongspecial",,800,1000,5,200,413,,,,,35,"Air",,,,"penetrate"
 "C1.4",,"Special","Stand","sweak1strongspecial",,800,1000,5,150,668,,,,,45,"Air",,27,,"penetrate"
 "C1.5",,"Special","Stand","sweak1strongspecial",,800,1000,5,100,842,,,,,60,"Air",,27,,"penetrate"
-"C2.1","Flail Flame Tornado","Special","Stand","sweak2strongspecial",,300,,5,350,30,120,,,,,"Fire",,39,,"multiple hit,penetrate"
-"C2.2","Ember Storm","Special","Stand","sweak2strongspecial",,300,,5,300,42,120,,,,,"Fire",,39,,"multiple hit,penetrate"
-"C2.3","Wrath Punishment","Special","Stand","sweak2strongspecial",,300,,5,250,60,120,,,,,"Fire",,39,,"multiple hit,penetrate"
-"C2.4",,"Special","Stand","sweak2strongspecial",,300,,5,200,89,120,,,,,"Fire",,39,,"multiple hit,penetrate"
-"C2.5",,"Special","Stand","sweak2strongspecial",,300,,5,150,115,120,,,,,"Fire",,39,,"multiple hit,penetrate"
+"C2.1","Flail Flame Tornado","Special","Stand","sweak2strongspecial",,300,,5,350,30,120,,,,,"Fire",,39,,"multiple hits,penetrate"
+"C2.2","Ember Storm","Special","Stand","sweak2strongspecial",,300,,5,300,42,120,,,,,"Fire",,39,,"multiple hits,penetrate"
+"C2.3","Wrath Punishment","Special","Stand","sweak2strongspecial",,300,,5,250,60,120,,,,,"Fire",,39,,"multiple hits,penetrate"
+"C2.4",,"Special","Stand","sweak2strongspecial",,300,,5,200,89,120,,,,,"Fire",,39,,"multiple hits,penetrate"
+"C2.5",,"Special","Stand","sweak2strongspecial",,300,,5,150,115,120,,,,,"Fire",,39,,"multiple hits,penetrate"
 "C3.1","Sword Glacier","Special","Stand","sweak3strongspecial",,,,5,400,,,,,,,"Water",,21,,
 "C3.2",,"Special","Stand","sweak3strongspecial",,,,5,350,,,,,,,"Water",,21,,
 "C3.3","Frostbound","Special","Stand","sweak3strongspecial",,,,5,300,,,,,,,"Water",,21,,

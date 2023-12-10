@@ -90,6 +90,14 @@ def player_input(self, player_index, dt):
                             elif "movable" not in self.current_action:
                                 self.current_action = self.guard_hold_command_action
 
+                        elif "run" in self.current_action and self.dash_move:
+                            self.interrupt_animation = True
+                            self.command_action = self.dash_command_action
+                            if self.sprite_direction == "r_side":
+                                self.x_momentum = self.run_speed
+                            else:
+                                self.x_momentum = -self.run_speed
+
                         elif (not self.current_action or self.stoppable_frame) and \
                                 self.guard_meter >= self.guard_meter20:
                             # can only start guarding when meter higher than 20%
@@ -120,8 +128,8 @@ def player_input(self, player_index, dt):
                             self.interrupt_animation = True
                         self.command_action = self.couch_command_action
 
-                    if self.position == "Stand" and "couch" not in self.current_action and \
-                            "air" not in self.current_action and "air" not in self.command_action:
+                    if self.position == "Stand" and "air" not in self.command_action and \
+                            "dash" not in self.command_action:
                         # character movement, couch can not move or jump
                         if self.last_command_key_input == "Up":  # jump
                             self.engage_combat()
