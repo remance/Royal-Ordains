@@ -28,7 +28,7 @@ def player_input(self, player_index, dt):
                         self.player_key_hold_timer[key] = 0
                     else:  # increase hold timer
                         self.player_key_hold_timer[key] += dt
-                        if self.player_key_hold_timer[key] > 0.05:  # only count as start holding after specific time
+                        if self.player_key_hold_timer[key] > 0.01:  # only count as start holding after specific time
                             self.command_key_hold.append(key)
                 elif key in self.player_key_hold_timer:  # no longer hold
                     self.player_key_hold_timer.pop(key)

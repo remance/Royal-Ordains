@@ -5,7 +5,7 @@ def find_move_to_attack(self):
             self.engage_combat()
             self.moveset_command_key_input = move
             self.check_move_existence()
-            self.command_action = self.check_prepare_action(value)
+            self.command_action = self.attack_command_actions[move[-1]]
             break
 
 

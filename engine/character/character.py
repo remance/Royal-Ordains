@@ -145,6 +145,8 @@ class Character(sprite.Sprite):
     strong_attack_hold_command_action = {"name": "Strong Attack", "hold": True, "moveset": True, "strong": True}
     special_command_action = {"name": "Special", "moveset": True, "special": True}
     special_hold_command_action = {"name": "Special", "hold": True, "moveset": True, "special": True}
+    attack_command_actions = {"Weak": weak_attack_command_action, "Strong": strong_attack_command_action,
+                              "Special": special_command_action}
     skill_command_action = {"name": "Skill", "moveset": True, "skill": True}
     activate_command_action = {"name": "Activate"}
     deactivate_command_action = {"name": "Deactivate"}
@@ -668,8 +670,8 @@ class Character(sprite.Sprite):
                     elif "arrive" in self.current_action and "Arrive2" in self.skill[self.position]:
                         # has arrival (Arrive2) skill to use after finish arriving
                         self.moveset_command_key_input = self.skill[self.position]["Arrive2"]["Buttons"]
-                        self.current_action = self.check_prepare_action(
-                            self.moveset[self.position][self.moveset_command_key_input])
+                        self.check_move_existence()
+                        self.current_action = self.attack_command_actions["Special"]
                     elif "run" in self.current_action and not self.command_action:  # stop running, halt
                         self.current_action = self.halt_command_action
                         if self.sprite_direction == "r_side":
@@ -724,7 +726,6 @@ class Character(sprite.Sprite):
                     self.show_frame = 0
                     self.frame_timer = 0
                     self.move_speed = 0
-
                     self.pick_animation()
 
                     self.final_animation_play_time = self.animation_play_time
