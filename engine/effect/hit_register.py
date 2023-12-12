@@ -32,7 +32,7 @@ def hit_register(self, target, body_part):
                 self.owner.special_damage(attacker_dmg)
 
                 if not self.duration:  # only damage not from object with duration make target stop falling for a bit
-                    target.stop_fall_duration = 0.1
+                    target.stop_fall_duration = 0.3
 
                 if self.owner.hit_resource_regen:  # regen resource when hit
                     self.owner.resource += self.owner.resource1  # regen

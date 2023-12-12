@@ -1,5 +1,6 @@
 "Name","Duration","Travel Speed","Status","Enemy Status","Special Effect","Damage Sprite Effect","Reach Effect","After Reach Effect","Sound Effect","Sound Distance","Property"
 "Movement",,,,,,,,,,,
+"Blood Pull",,,,,,,,,,,
 "Rodhinbar Arrow",,1200,,,,,"stick",,,1000,
 "Arrow",,1000,,,,,"stick",,,1000,
 "Bolt",,1000,,,,,"stick",,,1000,

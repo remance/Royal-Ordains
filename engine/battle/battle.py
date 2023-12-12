@@ -56,6 +56,9 @@ class Battle:
     from engine.battle.fix_camera import fix_camera
     fix_camera = fix_camera
 
+    from engine.battle.increase_player_score import increase_player_score
+    increase_player_score = increase_player_score
+
     from engine.battle.play_sound_effect import play_sound_effect
     play_sound_effect = play_sound_effect
 
@@ -165,6 +168,7 @@ class Battle:
 
         self.lorebook_stuff = game.lorebook_stuff
 
+        self.battle_music_pool = game.battle_music_pool
         self.sound_effect_pool = game.sound_effect_pool
         self.sound_effect_queue = {}
 
@@ -199,17 +203,16 @@ class Battle:
                                     3: pygame.sprite.Group(), 4: pygame.sprite.Group()}
         self.all_team_drop = {1: pygame.sprite.Group(), 2: pygame.sprite.Group(),
                               3: pygame.sprite.Group(), 4: pygame.sprite.Group()}
+        self.player_gold = 0
+        self.mission_score = 0
+        self.last_resurrect_mission_score = 10000
+        self.reserve_resurrect_mission_score = 0
 
         self.players = {}  # player
         self.player_team_followers = {}
         self.player_objects = {}
         self.players_control_input = {1: None, 2: None, 3: None, 4: None}
         self.later_enemy = {}
-
-        self.empty_portrait = pygame.Surface((150 * self.screen_scale[0], 150 * self.screen_scale[1]), pygame.SRCALPHA)
-        pygame.draw.circle(self.empty_portrait, (20, 20, 20),
-                           (self.empty_portrait.get_width() / 2, self.empty_portrait.get_height() / 2),
-                           self.empty_portrait.get_width() / 2)
 
         self.best_depth = pygame.display.mode_ok(self.screen_rect.size, self.game.window_style,
                                                  32)  # Set the display mode
@@ -319,50 +322,43 @@ class Battle:
 
         self.players = players
 
+        self.mission_score = 0
+        self.last_resurrect_mission_score = 10000  # start at 10000 to get next resurrect reserve
+        self.reserve_resurrect_mission_score = 0
+
         # Random music played from list
-        yield set_start_load(self, "music")
-        if pygame.mixer:
-            self.SONG_END = pygame.USEREVENT + 1
-            self.music_list = glob.glob(os.path.join(self.data_dir, "sound", "music", "battle", "*.ogg"))
-            picked_music = randint(0, len(self.music_list) - 1)
+        music = self.battle_music_pool[randint(0, len(self.battle_music_pool) - 1)]
+        self.music_left.play(music, fade_ms=100)
+        self.music_left.set_volume(self.play_music_volume, 0)
+        self.music_right.play(music, fade_ms=100)
+        self.music_right.set_volume(0, self.play_music_volume)
 
-            music = pygame.mixer.Sound(self.music_list[picked_music])
+        # try:
+        #     self.music_event = csv_read(self.main_dir, "music_event.csv",
+        #                                 ("data", "module", self.module_folder, "map", play_map_type,
+        #                                  self.map_selected), output_type="list")
+        #     self.music_event = self.music_event[1:]
+        #     if self.music_event:
+        #         utility.convert_str_time(self.music_event)
+        #         self.music_schedule = list(dict.fromkeys([item[1] for item in self.music_event]))
+        #         new_list = []
+        #         for time in self.music_schedule:
+        #             new_event_list = []
+        #             for event in self.music_event:
+        #                 if time == event[1]:
+        #                     new_event_list.append(event[0])
+        #             new_list.append(new_event_list)
+        #         self.music_event = new_list
+        #     else:
+        #         self.music_schedule = [self.weather_playing]
+        #         self.music_event = []
+        # except:  # any reading error will play random custom music instead
+        #     self.music_schedule = [self.weather_playing]
+        #     self.music_event = []
 
-            self.music_left.play(music, fade_ms=100)
-            self.music_left.set_volume(self.play_music_volume, 0)
-            self.music_right.play(music, fade_ms=100)
-            self.music_right.set_volume(0, self.play_music_volume)
-
-            # try:
-            #     self.music_event = csv_read(self.main_dir, "music_event.csv",
-            #                                 ("data", "module", self.module_folder, "map", play_map_type,
-            #                                  self.map_selected), output_type="list")
-            #     self.music_event = self.music_event[1:]
-            #     if self.music_event:
-            #         utility.convert_str_time(self.music_event)
-            #         self.music_schedule = list(dict.fromkeys([item[1] for item in self.music_event]))
-            #         new_list = []
-            #         for time in self.music_schedule:
-            #             new_event_list = []
-            #             for event in self.music_event:
-            #                 if time == event[1]:
-            #                     new_event_list.append(event[0])
-            #             new_list.append(new_event_list)
-            #         self.music_event = new_list
-            #     else:
-            #         self.music_schedule = [self.weather_playing]
-            #         self.music_event = []
-            # except:  # any reading error will play random custom music instead
-            #     self.music_schedule = [self.weather_playing]
-            #     self.music_event = []
-        yield set_done_load()
-
-        yield set_start_load(self, "map events")
         # map_event_text = self.localisation.grab_text(("map", str(chapter), str(mission), str(stage), "eventlog"))
         # map_event = self.game.preset_map_data[chapter][mission][stage]["eventlog"]
-
         self.time_number.start_setup()
-        yield set_done_load()
 
         yield set_start_load(self, "stage setup")
         self.current_weather.__init__(self.time_ui, 0, 0, 0,
@@ -433,7 +429,7 @@ class Battle:
         for this_group in self.all_team_enemy_part.values():
             this_group.empty()
 
-        self.helper = None
+        self.helper = None  # helper character that can be moved via cursor
 
         self.spawn_delay_timer = {}
 
@@ -704,9 +700,7 @@ class Battle:
                             self.joystick_player.pop(value)
 
             if not self.music_left.get_busy():  # change if music finish playing
-                picked_music = randint(0, len(self.music_list) - 1)
-                music = pygame.mixer.Sound(self.music_list[picked_music])
-
+                music = self.battle_music_pool[randint(0, len(self.battle_music_pool) - 1)]
                 self.music_left.play(music, fade_ms=100)
                 self.music_left.set_volume(self.play_music_volume, 0)
                 self.music_right.play(music, fade_ms=100)

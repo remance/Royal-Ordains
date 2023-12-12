@@ -1,6 +1,6 @@
 "Move","Name","Buttons","Position","Requirement Move","Prepare Animation","AI Range","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
 "C1.1","Spear True Wind","Special","Stand","sweak1strongspecial",,800,1000,5,300,150,200,,,,15,"Air",,,,"penetrate"
-"C1.2",,"Special","Stand","sweak1strongspecial",,800,1000,5,250,241,,,,,25,"Air",,,,"penetrate"
+"C1.2","Piercing Wind","Special","Stand","sweak1strongspecial",,800,1000,5,250,241,,,,,25,"Air",,,,"penetrate"
 "C1.3","Divine Wind","Special","Stand","sweak1strongspecial",,800,1000,5,200,413,,,,,35,"Air",,,,"penetrate"
 "C1.4",,"Special","Stand","sweak1strongspecial",,800,1000,5,150,668,,,,,45,"Air",,27,,"penetrate"
 "C1.5",,"Special","Stand","sweak1strongspecial",,800,1000,5,100,842,,,,,60,"Air",,27,,"penetrate"
@@ -14,16 +14,16 @@
 "C3.3","Frostbound","Special","Stand","sweak3strongspecial",,,,5,300,,,,,,,"Water",,21,,
 "C3.4",,"Special","Stand","sweak3strongspecial",,,,5,250,,,,,,,"Water",,21,,
 "C3.5",,"Special","Stand","sweak3strongspecial",,,,5,200,,,,,,,"Water",,21,,
-"C4.1","Hammer Light Radiance","Special","Stand","sweak4strongspecial",,,,5,450,,,,,,,"Physical",,7,,
-"C4.2",,"Special","Stand","sweak4strongspecial",,,,5,400,,,,,,,"Physical",,7,,
-"C4.3",,"Special","Stand","sweak4strongspecial",,,,5,350,,,,,,,"Physical",,7,,
-"C4.4",,"Special","Stand","sweak4strongspecial",,,,5,300,,,,,,,"Physical",,7,,
-"C4.5","The First Light","Special","Stand","sweak4strongspecial",,,,5,250,,,,,,,"Physical",,7,,
-"C5.1","Mace Darkness Engulf","Special","Stand","sweak5strongspecial",,,,5,450,,,,,,,"Physical",,12,,
-"C5.2",,"Special","Stand","sweak5strongspecial",,,,5,400,,,,,,,"Physical",,12,,
-"C5.3",,"Special","Stand","sweak5strongspecial",,,,5,350,,,,,,,"Physical",,12,,
-"C5.4",,"Special","Stand","sweak5strongspecial",,,,5,300,,,,,,,"Physical",,12,,
-"C5.5","The Last Darkness","Special","Stand","sweak5strongspecial",,,,5,250,,,,,,,"Physical",,12,,
+"C4.1","Hammer Light Radiance","Special","Stand","sweak4strongspecial",,,,5,450,,,,,,,"Magic",,7,,
+"C4.2",,"Special","Stand","sweak4strongspecial",,,,5,400,,,,,,,"Magic",,7,,
+"C4.3",,"Special","Stand","sweak4strongspecial",,,,5,350,,,,,,,"Magic",,7,,
+"C4.4",,"Special","Stand","sweak4strongspecial",,,,5,300,,,,,,,"Magic",,7,,
+"C4.5","The First Light","Special","Stand","sweak4strongspecial",,,,5,250,,,,,,,"Magic",,7,,
+"C5.1","Mace Darkness Engulf","Special","Stand","sweak5strongspecial",,,,5,450,,,,,,,"Magic",,12,,
+"C5.2",,"Special","Stand","sweak5strongspecial",,,,5,400,,,,,,,"Magic",,12,,
+"C5.3",,"Special","Stand","sweak5strongspecial",,,,5,350,,,,,,,"Magic",,12,,
+"C5.4",,"Special","Stand","sweak5strongspecial",,,,5,300,,,,,,,"Magic",,12,,
+"C5.5","The Last Darkness","Special","Stand","sweak5strongspecial",,,,5,250,,,,,,,"Magic",,12,,
 "C6.1","Axe Earth Shatter","Special","Stand","sweak6strongspecial",,,,5,600,,,,,,,"Earth",,4,,
 "C6.2",,"Special","Stand","sweak6strongspecial",,,,5,550,,,,,,,"Earth",,4,,
 "C6.3",,"Special","Stand","sweak6strongspecial",,,,5,500,,,,,,,"Earth",,4,,

@@ -29,6 +29,9 @@ def die(self, how):
         clean_group_object((self.body_parts,))
         clean_object(self)
     else:
+        if self.team != 1:
+            self.battle.increase_player_score(self.score)
+            # self.battle.player_kill
         if self.drops:  # only drop items if dead
             for drop, chance in self.drops.items():
                 drop_name = drop

@@ -371,6 +371,10 @@ class Game:
             pygame.mixer.music.set_volume(self.play_music_volume)
             self.SONG_END = pygame.USEREVENT + 1
             self.music_list = glob.glob(self.data_dir + "/sound/music/menu.ogg")
+
+            self.battle_music_pool = glob.glob(os.path.join(self.data_dir, "sound", "music", "battle", "*.ogg"))
+            self.battle_music_pool = [pygame.mixer.Sound(item) for item in self.battle_music_pool]
+
             pygame.mixer.music.load(self.music_list[0])
             pygame.mixer.music.play(-1)
 

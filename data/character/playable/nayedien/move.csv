@@ -39,7 +39,7 @@
 "Strong","sweak1strongspecialstrongstrong","Down Wind","Stand",,"sweak1strongspecialstrong",,,,,64,73,,100,,,,"Air",,,,
 "Strong","sweak2strongspecialstrongstrong","Infernal Beholden","Stand",,"sweak2strongspecialstrong",,,,,88,100,100,,,100,,"Fire",,43,,
 "Strong","sweak3strongspecialstrongstrong","Ice Spear","Stand",,"sweak3strongspecialstrong",,,,,138,275,185,,,,,"Water",,,,"penetrate"
-"Strong","sweak4strongspecialstrongstrong","Light On","Stand",,"sweak4strongspecialstrong",,,,,250,350,150,,100,,,"Physical",,47,,"penetrate"
+"Strong","sweak4strongspecialstrongstrong","Light On","Stand",,"sweak4strongspecialstrong",,,,,250,350,150,,100,,,"Magic",,47,,"penetrate"
 "Strong","sweak5strongspecialstrongstrong","Light Out","Stand",,"sweak5strongspecialstrong",,,,,250,350,50,,,550,,"Physical",,5,,
 "Strong","sweak6strongspecialstrongstrong","Earth Spike","Stand",,"sweak6strongspecialstrong",,,,,410,850,400,,400,,,"Earth",,,,"penetrate"
 "Special","cspecial","Meditation","Couch",,,,,0,,-25,,,,,,,"Physical",,,,"hold,hold+trigger"

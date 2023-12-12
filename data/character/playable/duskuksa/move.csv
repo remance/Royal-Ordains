@@ -4,12 +4,12 @@
 "Strong","cstrong1","Axe Sweep Down","Couch",,,,250,,,,45,80,,,140,,"Physical",,,,
 "Strong","cstrong2","Hammer Sweep Down","Couch",,"cstrong1",,200,,,,38,120,,,200,,"Physical",,,,
 "Strong","cstrong3","Hammer Axe Sweep Down","Couch",,"cstrong2",,250,,,,40,180,,,200,,"Physical",,,,
-"Weak","cstrong1weak","Pushing Palm","Couch","Strength:34","cstrong1",,200,,,,16,276,,,124,,"Physical",,,,
+"Weak","cstrong1weak","Pushing Palm","Couch","Strength:34","cstrong1",,100,,,,16,276,,,124,,"Physical",,,,
 "Weak","cstrong2weak","Headbutt","Couch","Strength:41","cstrong2",,150,,,,33,90,,,30,,"Physical",,17,,
-"Weak","cstrong3weak","Hammer Axe Spin","Couch","Strength:48","cstrong3",,,,,,,,,,,,"Physical",,,,
-"Forward,Special","cfspecial","Hot Hammer","Couch","Wisdom:50",,,350,,,8,,,,,,,"Fire",,,,
-"Special","cfspecialspecial","Cold Axe","Couch","Wisdom:70",,,,,,15,,,,,,,"Cold",,,,
-"Special","cspecial","Rune Recharge","Couch",,,,,,,-3,,,,,,,"Physical",,,,"hold,hold+trigger"
+"Weak","cstrong3weak","Hammer Axe Spin","Couch","Strength:48","cstrong3",,250,,,,,,,,,,"Physical",,,,
+"Forward,Special","cfspecial","Hot Hammer","Couch","Wisdom:50",,,250,,,8,,,,,,,"Fire",,,,
+"Special","cfspecial2","Cold Axe","Couch","Wisdom:70","cfspecial",,300,,,15,,,,,,,"Cold",,,,
+"Special","cspecial","Rune Recharge","Couch",,,,250,,,-3,,,,,,,"Physical",,,,"hold,hold+trigger"
 "Weak","sweak1","Hammer Jab","Stand",,,,200,,,,19,100,,,40,,"Physical",,,,
 "Weak","sweak2","Axe Slash Down","Stand",,"sweak1",,250,,,,25,60,,,160,,"Physical",,,,
 "Weak","sweak3","Hammer Rise","Stand","Constitution:33","sweak2",,,,,,,,,,,,"Physical",,,,

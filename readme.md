@@ -14,7 +14,7 @@
 
 Side-scrolling medieval fantasy action game in the art style inspired by Medieval art from various periods and regions (with a sprinkle of education elements for historical medieval period) made with [Pygame](https://github.com/pygame/pygame).
 
-For any suggestions or bugs, feel free to report them in the [**Issues**](https://github.com/remance/Masendor/issues)
+For any suggestions or bugs, feel free to report them in the [**Issues**](https://github.com/remance/Royal-Ordains/issues)
 page.
 
 Discord channel: [![github](https://github.com/remance/preview/blob/main/discord_logo.png?raw=true)][1]
@@ -32,7 +32,7 @@ If you would like to help the project, feel free to join discord for a chat, ope
 Some non-specific suggestions and examples of helps, including but not limited to:
 
 - **Programming**: New features, improve current ones, code optimisation/improvement
-- **Asset Creation**: UI, troop, leader, effect art, sound effect, music
+- **Asset Creation**: UI, character, effect art, sound effect, music
 - **Historical stuffs**: Medieval art reference, writing, sources, correction, improvements
 - **Quality Assurance**: Code documentation, game balancing, bugs fix, feedbacks
 
@@ -53,8 +53,8 @@ Note: All the new and current untested development are done on "dev" branch. The
 # How to run/compile
 
 If you want to download the release version to test the game, go
-to [Release](https://github.com/remance/Masendor/releases) tags and [**
-download**](https://github.com/remance/Masendor/releases/download/0.6.2.3/Dream.Decision.zip) the zip file. <br>
+to [Release](https://github.com/remance/Royal-Ordains/releases) tags and [**
+download**](https://github.com/remance/Royal-Ordains/releases/download/0.1/royal-ordains.rar) the zip file. <br>
 
 ## Run
 
@@ -115,17 +115,12 @@ Also, the game is currently optimised based on the pygame 2.5.1 module and pytho
 
 <a href="https://youtu.be/video_id" title="video text"><img src="https://github.com/remance/preview2/blob/main/rabbit-rider.gif?raw=true" width="150" height="150"></a>  <a href="https://youtu.be/video_id" title="video text"><img src="https://github.com/remance/preview2/blob/main/bigta.gif?raw=true" width="150" height="150"></a>  
 
-Currently, the game is in prototype stage and consists of 2 playable characters and first mission for chapter 1.
+Currently, the current game version consists of 5 playable characters and first mission for chapter 1.
 
 ---------------
 
-# Future Plan
+[//]: # (# Future Plan)
 
-- Add and improve effect
-- Add player character skill
-- Add Main menu UI animation
-- Add mission complete decision function
-- Improve animation (especially player characters)
 
 [//]: # (---------------)
 
@@ -207,7 +202,7 @@ Currently, the game is in prototype stage and consists of 2 playable characters 
 
 ### Animation maker
 
-Animation maker for the troop Vector-based animation in game. The tool is made with pygame and the code is compatible enough for other purposes with some modification.
+Animation maker for the Vector-based character animation in game. The tool is made with pygame and the code is compatible enough for other purposes with some modification.
 
 ![alt text](https://github.com/remance/preview2/blob/main/animation-maker.png?raw=true)
 
@@ -264,7 +259,7 @@ Animation maker for the troop Vector-based animation in game. The tool is made w
 - Mechanism sound "Mechanism" by Globofonia (https://freesound.org/people/Globofonia/)
 - Boom sound "Breaking the sound barrier" by Pixabay (https://pixabay.com/users/pixabay-1/) 
 - Bell sound "Bell Sound Ring" by Mike Koenig (https://soundbible.com/26-Bell-Sound-Ring.html#)
-- Wind sound "Wind Blow" by UNIVERSFIELD (https://pixabay.com/users/universfield-28281460/) 
+- Wind sound "Wind Blow", Blood pull "Breeze Of Blood" by UNIVERSFIELD (https://pixabay.com/users/universfield-28281460/) 
 - Earth spike sound "Punch a rock" and "Woosh Drum hit" by LordSonny (https://pixabay.com/users/lordsonny-38439655/)
 
 [//]: # (## Translation)

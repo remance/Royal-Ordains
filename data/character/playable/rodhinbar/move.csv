@@ -1,25 +1,25 @@
 "Buttons","Move","Name","Position","Stat Requirement","Requirement Move","Prepare Animation","AI Range","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"Forward,Forward,Strong","sffstrong","Air Shot","Stand",,,,2000,3000,,1,100,,,,,,"Physical",,,,"hold,hold+power"
-"Forward,Forward,Strong","affstrong","Ground Shot","Air",,,,500,3000,,1,115,,,,,,"Physical",,,,"hold,hold+power"
+"Forward,Forward,Strong","sffstrong","Air Shot","Stand",,,,2000,3000,,1,100,,,,150,,"Physical",,,,"hold,hold+power"
+"Forward,Forward,Strong","affstrong","Ground Shot","Air",,,,500,3000,,1,115,,,,150,,"Physical",,,,"hold,hold+power"
 "Forward,Strong","cfstrong","Aim Shot","Couch",,,,2000,3000,,1,120,160,,,60,,"Physical",,,,"hold,hold+power"
 "Forward,Strong","sfstrong","Aim Shot","Stand",,,,2000,3000,,1,110,200,,,40,,"Physical",,,,"hold,hold+power"
 "Forward,Strong","afstrong","Aim Shot","Air",,,,2000,3000,,1,100,120,,,120,,"Physical",,,,"hold,hold+power"
 "Down,Strong","adstrong","Down Shot","Air",,,,2000,3000,,1,130,,,,280,,"Physical",,,,
-"Down,Forward,Strong","addstrong","Air Tri-Shots","Air","Dexterity:60",,,1500,2000,,3,150,30,,,200,,"Physical",,,,
+"Down,Forward,Strong","adfstrong","Air Tri-Shots","Air","Dexterity:60",,,1500,2000,,3,150,30,,,200,,"Physical",,,,
 "Weak","cweak1","Back fist","Couch",,,,150,,,,15,24,,,40,,"Physical",,,,
 "Weak","cweak2","Push","Couch",,"cweak1",,250,,,,12,112,,,64,,"Physical",,,,
 "Strong","cstrong1","Sword Sweep","Couch",,,,250,,,,31,40,,,60,,"Physical",,,,
-"Strong","cstrong2","Sword Slash","Couch",,"cstrong1",,300,,,,45,56,,,80,,"Physical",,,,
-"Strong","cstrong3","Sword Slash Out","Couch","Strength:47","cstrong2",,300,,,,61,75,,,70,,"Physical",,,,
+"Strong","cstrong2","Sword Slash In","Couch",,"cstrong1",,300,,,,45,56,,,80,,"Physical",,,,
+"Strong","cstrong3","Sword Slash","Couch","Strength:47","cstrong2",,300,,,,61,75,,,70,,"Physical",,,,
 "Backward,Strong","cbstrong","Sky Shot","Couch","Dexterity:26",,,1900,2500,,1,95,,,,75,,"Physical",,,,"spawn,spawn_after,spawn_same,spawn_sky,spawn_near_target"
 "Weak","sweak1","Elbow Push","Stand",,,,120,,,,18,32,,,28,,"Physical",,,,
 "Weak","sweak2","Arrow Hand","Stand",,"sweak1",,250,,,,26,24,,,80,,"Physical",,,,
-"Special","sweak2special","Quick Shot","Stand","Dexterity:34","sweak2",,500,600,,1,82,80,,,35,,"Physical",,,,
-"Special","sweak2special2","Triple Quick Shots","Stand","Dexterity:50","sweak2special",,500,600,,3,82,80,,,35,,"Physical",,,,
+"Special","sweak2special1","Quick Shot","Stand","Dexterity:34","sweak2",,500,600,,1,82,80,,,35,,"Physical",,,,
+"Special","sweak2special2","Triple Quick Shots","Stand","Dexterity:50","sweak2special1",,500,600,,3,82,80,,,35,,"Physical",,,,
 "Strong","sweak1strong","Upper Smash","Stand",,"sweak1",,300,,,,40,,,240,,,"Physical",,,,
-"Strong","sweak1strong2","Bow Smash","Stand","Strength:52","sweak1strong",,,,,,,,,,,,,,,,
+"Strong","sweak1strong2","Bow Smash","Stand","Strength:52","sweak1strong",,300,,,,60,,,,200,,"Physical",,,,
 "Strong","sweak2strong","Front Kick","Stand",,"sweak2",,300,,,,48,120,,,200,,"Physical",,,,
-"Strong","sweak2strong2","Fast Step Slash","Stand","Strength:66","sweak2strong",,300,,,,,,,,,,"Physical",,,,
+"Strong","sweak2strong2","Fast Step Slash","Stand","Strength:66","sweak2strong",,300,,,,79,80,,,,10,"Physical",,,,
 "Strong","sstrong1","Sword Slash","Stand",,,,300,,,,35,60,,,40,,"Physical",,,,
 "Strong","sstrong2","Sword Stab","Stand",,"sstrong1",,300,,,,46,20,,72,,,"Physical",,,,
 "Strong","sstrong3","Sword Slash Out","Stand","Strength:41","sstrong2",,300,,,,68,55,,,80,,"Physical",,,,
@@ -28,6 +28,6 @@
 "Strong","astrong1","Sword Slash","Air",,,,200,,,,28,60,,,48,,"Physical",,,,
 "Strong","astrong2","Sword Slash Down","Air",,"astrong1",,200,,,,38,96,,,48,,"Physical",,,,
 "Special","cspecial","Craft Ammo","Couch",,,,350,,,-2,,,,,,,"Physical",,,,
-"Special","cspecial2","Fast Craft Ammo","Couch","Wisdom:50","cspecial",,,,,-6,,,,,,,,,,,
+"Special","cspecial2","Fast Craft Ammo","Couch","Wisdom:50","cspecial",,350,,,-6,,,,,,,,,,,
 "Special","sspecial","Call For Ammo","Stand",,,,350,,7,,,,,,,,"Physical",,,,"helper,drop_item:Rodhinbar Arrow"
 "Special","aspecial","Call For Ammo","Air",,,,350,,7,,,,,,,,"Physical",,,,"helper,drop_item:Rodhinbar Arrow"

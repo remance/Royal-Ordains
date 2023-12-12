@@ -14,4 +14,14 @@ def drop_collide_check(self):
                 self.owner.resource += item.stat["Resource"]
                 if self.owner.resource > self.owner.max_resource:
                     self.owner.resource = self.owner.max_resource
+            if item.stat["Gold"]:
+                self.battle.player_gold += item.stat["Gold"]
+                if self.owner.money_score:
+                    self.battle.increase_player_score(item.stat["Gold"])
+                if self.owner.money_resource:
+                    self.owner.resource += item.stat["Gold"] / 100
+                    if self.owner.resource > self.owner.max_resource:
+                        self.owner.resource = self.owner.max_resource
+            if item.stat["Revive"]:
+                self.owner.resurrect_count += item.stat["Revive"]
             item.picked()

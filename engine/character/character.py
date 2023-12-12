@@ -156,7 +156,7 @@ class Character(sprite.Sprite):
     guard_move_command_action = {"name": "GuardWalk", "guard": True, "movable": True, "walk": True}
 
     air_idle_command_action = {"name": "Idle", "movable": True}
-    land_command_action = {"name": "Land", "uncontrollable": True, "land": True}
+    land_command_action = {"name": "Land", "uncontrollable": True, "stand": True}
 
     jump_command_action = {"name": "Jump", "air": True}
     runjump_command_action = {"name": "RunJump", "air": True}
@@ -176,6 +176,8 @@ class Character(sprite.Sprite):
 
     die_command_action = {"name": "Die", "uninterruptible": True, "uncontrollable": True, "stand": True,
                           "forced move": True, "die": True}
+
+    default_item_drop_rate = {"Mystery Box": 1, "Speed Potion": 3, "Stone Potion": 3, "Reviving Seed": 1}
 
     # static variable
     default_animation_play_time = 0.1
@@ -258,6 +260,8 @@ class Character(sprite.Sprite):
         self.health_as_resource = False
         self.moveset_reset_when_relax_only = False
         self.combo_with_no_hit = False
+        self.money_score = False
+        self.money_resource = False
         self.position = "Stand"
         self.combat_state = "Peace"
         self.mode = "Normal"
@@ -320,6 +324,10 @@ class Character(sprite.Sprite):
         self.drops = {}
         if "Drops" in stat:  # check item drops when die
             self.drops = stat["Drops"]
+
+        self.score = 0  # enemy score for player when killed
+        if "Score" in stat:
+            self.score = stat["Score"]
 
         if "Skill Allocation" in stat:  # refind leveled skill allocated since name is only from first level
             for name, position in self.skill.items():
@@ -688,10 +696,17 @@ class Character(sprite.Sprite):
 
                     self.specific_animation_done(done)
 
-                    # new action property
-                    if "freeze" in self.current_action:
-                        self.freeze_timer = self.current_action["freeze"]
+                    # reset animation playing related value
+                    self.stoppable_frame = False
+                    self.hit_enemy = False
+                    self.interrupt_animation = False
+                    self.release_timer = 0  # reset any release timer
 
+                    self.show_frame = 0
+                    self.frame_timer = 0
+                    self.move_speed = 0
+
+                    # check for new position before picking new animation
                     if "couch" in self.current_action:
                         self.position = "Couch"
                     elif "air" in self.current_action:
@@ -702,9 +717,13 @@ class Character(sprite.Sprite):
                     elif "stand" in self.current_action:
                         self.position = "Stand"
 
-                    if "land" in self.current_action:
-                        # enforce stand position right when start next action instead of after
-                        self.position = "Stand"
+                    self.pick_animation()
+
+                    self.final_animation_play_time = self.animation_play_time
+
+                    # new action property
+                    if "freeze" in self.current_action:
+                        self.freeze_timer = self.current_action["freeze"]
 
                     if "x_momentum" in self.current_action and type(self.current_action["x_momentum"]) is not str and \
                             not self.x_momentum:
@@ -713,22 +732,8 @@ class Character(sprite.Sprite):
                                 self.x_momentum = self.current_action["x_momentum"]
                             else:
                                 self.x_momentum = -self.current_action["x_momentum"]
-                    if "y_momentum" in self.current_action and type(self.current_action["y_momentum"]) is not str and \
-                            not self.y_momentum:
-                        self.x_momentum = self.current_action["y_momentum"]
-
-                    # reset animation playing related value
-                    self.stoppable_frame = False
-                    self.hit_enemy = False
-                    self.interrupt_animation = False
-                    self.release_timer = 0  # reset any release timer
-
-                    self.show_frame = 0
-                    self.frame_timer = 0
-                    self.move_speed = 0
-                    self.pick_animation()
-
-                    self.final_animation_play_time = self.animation_play_time
+                    if "y_momentum" in self.current_action and type(self.current_action["y_momentum"]) is not str:
+                        self.y_momentum = self.current_action["y_momentum"]
 
                 if self.broken and (self.retreat_stage_end + self.sprite_size <= self.base_pos[0] or
                                     self.base_pos[0] <= self.retreat_stage_start):
@@ -807,7 +812,7 @@ class PlayableCharacter(Character):
 
         self.slide_attack = False
         self.tackle_attack = False
-        self.dash_move = True
+        self.dash_move = False
         self.dodge_move = False
         if self.common_skill["Ground Movement"][1]:  # can slide attack
             self.slide_attack = True
@@ -867,7 +872,7 @@ class PlayableCharacter(Character):
 
         self.money_score = False
         self.money_resource = False
-        if self.common_skill["Wealth"][1]:  # money pickup also increase score
+        if self.common_skill["Wealth"][1]:  # money pickup also increase mission score
             self.money_score = True
         if self.common_skill["Wealth"][2]:  # money pickup also increase resource
             self.money_resource = True
