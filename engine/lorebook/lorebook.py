@@ -19,7 +19,6 @@ class Lorebook(UIMenu):
     enemy_lore = {}
     item_lore = {}
     status_lore = {}
-    event_lore = {}
 
     portrait_data = {}
 
@@ -28,7 +27,6 @@ class Lorebook(UIMenu):
     enemy_section = 2
     equipment_section = 3
     status_section = 4
-    event_section = 5
 
     def __init__(self, game, image, text_size=24):
         self._layer = 23
@@ -66,15 +64,13 @@ class Lorebook(UIMenu):
                           stuff["Tag"] != ""},
                          {stuff["Tag"]: True for stuff in self.item_lore.values() if stuff["Tag"] != ""},
                          {stuff["Tag"]: True for stuff in self.status_lore.values() if type(stuff) != int
-                          and stuff["Tag"] != ""},
-                         {stuff["Tag"]: True for stuff in self.event_lore.values() if
-                          stuff["Tag"] != ""}]
+                          and stuff["Tag"] != ""}]
         for index, tag_list in enumerate(self.tag_list):
             tag_list["No Tag"] = True
             self.tag_list[index] = {"No Tag": self.tag_list[index].pop("No Tag"), **self.tag_list[index]}
 
         self.section_list = (self.history_lore, self.character_lore, self.enemy_lore, self.item_lore,
-                             self.status_lore, self.event_lore)
+                             self.status_lore)
 
     def change_page(self, page):
         """Change page of the current subsection, either next or previous page"""

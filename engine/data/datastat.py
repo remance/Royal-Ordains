@@ -128,7 +128,8 @@ class CharacterData(GameData):
                                   encoding="utf-8", mode="r") as edit_file2:
                             rd2 = tuple(csv.reader(edit_file2, quoting=csv.QUOTE_ALL))
                             header2 = rd2[0]
-                            tuple_column = ("Buttons", "Requirement Move", "Status", "Enemy Status")  # value in tuple only
+                            tuple_column = (
+                            "Buttons", "Requirement Move", "Status", "Enemy Status")  # value in tuple only
                             tuple_column = [index for index, item in enumerate(header2) if item in tuple_column]
                             dict_column = ("Stat Requirement", "Prepare Animation", "Property",)
                             dict_column = [index for index, item in enumerate(header2) if item in dict_column]
@@ -156,11 +157,13 @@ class CharacterData(GameData):
                                                              already_check)
                                         if False in done_check:
                                             if found:
-                                                remain_next_move_loop.append((moveset_dict[row2[header2.index("Position")]],
-                                                                              row2[0], found, parent_move))
+                                                remain_next_move_loop.append(
+                                                    (moveset_dict[row2[header2.index("Position")]],
+                                                     row2[0], found, parent_move))
                                             else:
-                                                remain_next_move_loop.append((moveset_dict[row2[header2.index("Position")]],
-                                                                              row2[0], move_data, parent_move))
+                                                remain_next_move_loop.append(
+                                                    (moveset_dict[row2[header2.index("Position")]],
+                                                     row2[0], move_data, parent_move))
                                         else:
                                             found = done_check[0]
                             for item in remain_next_move_loop:  # one last try to find parent

@@ -10,7 +10,8 @@ def start_animation_body_part(self, new_animation=False):
                         # summon AI character, using effect with damage does not create Effect
                         start_pos = (self.base_pos[0] + (part_data[2]),
                                      self.base_pos[1] + (part_data[3]))
-                        summon = AICharacter(-1, self.character_data.character_list[self.current_moveset["Property"]["summon"]] |
+                        summon = AICharacter(-1, self.character_data.character_list[
+                            self.current_moveset["Property"]["summon"]] |
                                              {"ID": self.current_moveset["Property"]["summon"],
                                               "Sprite Ver": self.sprite_ver,
                                               "Team": self.team, "Start Health": 100, "POS": start_pos,

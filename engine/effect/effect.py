@@ -1,7 +1,7 @@
 from math import cos, sin, radians
-from random import choice, uniform, randint
+from random import uniform, randint
 
-from pygame import sprite, mixer, Vector2
+from pygame import sprite, Vector2
 from pygame.sprite import spritecollide, collide_mask
 
 from engine.drop.drop import Drop
@@ -216,7 +216,8 @@ class DamageEffect(Effect):
             effect_stat = self.effect_list[self.reach_effect]
             new_pos = self.pos
             if "reach spawn ground" in self.effect_stat["Property"]:  # reach effect spawn with rect bottom on ground
-                height = self.effect_animation_pool[self.reach_effect][self.sprite_ver]["Base"][self.scale][0][self.flip].get_height() / 4
+                height = self.effect_animation_pool[self.reach_effect][self.sprite_ver]["Base"][self.scale][0][
+                             self.flip].get_height() / 4
                 new_pos = (self.pos[0], self.pos[1] - height)
             DamageEffect(self.owner, (self.reach_effect, "Base", new_pos[0], new_pos[1], 0, 0, 0, 1),
                          self._layer, self.moveset, from_owner=False,
@@ -249,7 +250,7 @@ class DamageEffect(Effect):
                                     if self.owner.sprite_direction == "l_side":
                                         stat[2] = uniform(self.owner.nearest_enemy[0].pos[0],
                                                           self.owner.nearest_enemy[0].pos[0] + (
-                                                                      500 * self.screen_scale[0]))
+                                                                  500 * self.screen_scale[0]))
                                     else:
                                         stat[2] = uniform(
                                             self.owner.nearest_enemy[0].pos[0] - (500 * self.screen_scale[0]),

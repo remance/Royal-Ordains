@@ -1,4 +1,3 @@
-import glob
 import os
 import sys
 import time
@@ -18,7 +17,7 @@ from engine.effect.effect import Effect
 from engine.stage.stage import Stage
 from engine.stageobject.stageobject import StageObject
 from engine.uibattle.uibattle import FPSCount, BattleCursor, YesNo, CharacterSpeechBox
-from engine.utils.common import clean_group_object
+from engine.utils.common import clean_object, clean_group_object
 from engine.utils.data_loading import load_image, load_images
 from engine.utils.text_making import number_to_minus_or_plus
 from engine.weather.weather import Weather
@@ -92,6 +91,23 @@ class Battle:
     def __init__(self, game):
         self.game = game
         Battle.battle = self
+
+        # TODO LIST for full chapter 1
+        # finish city stage
+        # add cutscene event
+        # add skill/moveset unlockable for enemy (charisma)
+        # add enemy trap with delay and cycle
+        # add stage weather data system, use object_data
+        # add one more playable
+        # add online/lan multiplayer?
+        # add shop (price affect by charisma) and equipment system
+        # add consumable system
+        # add quest system?
+        # add ranking record system
+        # add save/profile system
+        # finish main menu
+        # add follower setup system
+        #
 
         self.clock = pygame.time.Clock()  # Game clock to keep track of realtime pass
 
@@ -203,6 +219,8 @@ class Battle:
                                     3: pygame.sprite.Group(), 4: pygame.sprite.Group()}
         self.all_team_drop = {1: pygame.sprite.Group(), 2: pygame.sprite.Group(),
                               3: pygame.sprite.Group(), 4: pygame.sprite.Group()}
+        self.player_damage = {1: 0, 2: 0, 3: 0, 4: 0}
+        self.total_score = 0
         self.player_gold = 0
         self.mission_score = 0
         self.last_resurrect_mission_score = 10000
@@ -212,7 +230,11 @@ class Battle:
         self.player_team_followers = {}
         self.player_objects = {}
         self.players_control_input = {1: None, 2: None, 3: None, 4: None}
+        self.existing_playable_characters = []
         self.later_enemy = {}
+
+        self.helper = None  # helper character that can be moved via cursor
+        self.score_board = None
 
         self.best_depth = pygame.display.mode_ok(self.screen_rect.size, self.game.window_style,
                                                  32)  # Set the display mode
@@ -321,10 +343,7 @@ class Battle:
         self.stage = stage
 
         self.players = players
-
-        self.mission_score = 0
-        self.last_resurrect_mission_score = 10000  # start at 10000 to get next resurrect reserve
-        self.reserve_resurrect_mission_score = 0
+        self.existing_playable_characters = [value["ID"] for value in self.players.values()]
 
         # Random music played from list
         music = self.battle_music_pool[randint(0, len(self.battle_music_pool) - 1)]
@@ -429,7 +448,8 @@ class Battle:
         for this_group in self.all_team_enemy_part.values():
             this_group.empty()
 
-        self.helper = None  # helper character that can be moved via cursor
+        self.helper = None
+        self.score_board = None
 
         self.spawn_delay_timer = {}
 
@@ -500,8 +520,11 @@ class Battle:
         self.weather_spawn_timer = 0
         self.show_cursor_timer = 0
         self.player_1_battle_cursor.shown = True
-        self.player_score = 0
         self.player_damage = {1: 0, 2: 0, 3: 0, 4: 0}
+        self.total_score = 0
+        self.mission_score = 0
+        self.last_resurrect_mission_score = 10000  # start at 10000 to get next resurrect reserve
+        self.reserve_resurrect_mission_score = 0
 
         self.base_cursor_pos = [0, 0]  # mouse pos on the map based on camera position
         self.command_cursor_pos = [0, 0]  # with zoom and screen scale for character command
@@ -583,9 +606,9 @@ class Battle:
                                         else:
                                             new_pos = pygame.Vector2(
                                                 self.cursor.pos[0] + (
-                                                            self.true_dt * 1000 * sin(radians(adjusted_angle))),
+                                                        self.true_dt * 1000 * sin(radians(adjusted_angle))),
                                                 self.cursor.pos[1] - (
-                                                            self.true_dt * 1000 * cos(radians(adjusted_angle))))
+                                                        self.true_dt * 1000 * cos(radians(adjusted_angle))))
                                         if new_pos[0] < 0:
                                             new_pos[0] = 0
                                         elif new_pos[0] > self.corner_screen_width:
@@ -647,7 +670,7 @@ class Battle:
                     if event.key == K_F1:
                         self.drama_text.queue.append("Hello and welcome to showcase video")
                     elif event.key == K_F2:
-                        CharacterSpeechBox(self.player_objects[1], "test speech well done")
+                        CharacterSpeechBox(self.player_objects[1], "Hello and welcome to showcase video.")
                     # elif event.key == K_F3:
                     #     self.drama_text.queue.append("New Medieval art style as shown in previous videos")
                     # elif event.key == K_F4:
@@ -964,7 +987,10 @@ class Battle:
         # remove all reference from battle object
         self.players = {}
         self.player_objects = {}
+
+        clean_object(self.score_board)
         self.helper = None
+        self.score_board = None
 
         clean_group_object((self.all_chars, self.effect_updater, self.weather_matters))
 

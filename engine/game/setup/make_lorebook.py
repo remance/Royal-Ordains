@@ -35,9 +35,6 @@ def make_lorebook(self):
                     4: MenuImageButton((encyclopedia.rect.topleft[0] + (button_images["history"].get_width() * 4.9),
                                         encyclopedia.rect.topleft[1] - (button_images["status"].get_height() / 2)),
                                        button_images["status"], layer=13),
-                    5: MenuImageButton((encyclopedia.rect.topleft[0] + (button_images["history"].get_width() * 6),
-                                        encyclopedia.rect.topleft[1] - (button_images["event"].get_height() / 2)),
-                                       button_images["event"], layer=13),
                     "close": MenuImageButton(
                         (encyclopedia.rect.topright[0] - (button_images["history"].get_width() / 2),
                          encyclopedia.rect.topleft[1] - (button_images["close"].get_height() / 2)),

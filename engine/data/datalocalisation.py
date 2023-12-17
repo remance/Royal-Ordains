@@ -26,7 +26,6 @@ class Localisation:
         self.read_module_lore("history", "history")
         self.read_module_lore("character", "character")
         self.read_module_lore("enemy", "enemy")
-        self.read_module_lore("weapon", "weapon")
         self.read_module_lore("item", "item")
         self.read_module_lore("status", "status")
         self.read_module_lore("event", "event")

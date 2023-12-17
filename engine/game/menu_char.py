@@ -37,7 +37,8 @@ def menu_char(self, esc_press):
                     selector = self.player_char_selectors[player]
                     if selector.mode == "empty":
                         selector.change_mode("Vraesier")
-                    elif key == "Left" and selector.mode not in ("stat", "ready"):  # switch to previous in playable_character list
+                    elif key == "Left" and selector.mode not in (
+                    "stat", "ready"):  # switch to previous in playable_character list
                         if "1" in selector.mode:  # currently in description mode, go to normal
                             selector.change_mode(selector.mode[:-1])
                         current_id = tuple(playable_character.keys()).index(selector.mode)
@@ -46,7 +47,8 @@ def menu_char(self, esc_press):
                         else:
                             current_id -= 1
                         selector.change_mode(tuple(playable_character.keys())[current_id])
-                    elif key == "Right" and selector.mode not in ("stat", "ready"):  # switch to next in playable_character list
+                    elif key == "Right" and selector.mode not in (
+                    "stat", "ready"):  # switch to next in playable_character list
                         if "1" in selector.mode:  # currently in description mode, go to normal
                             selector.change_mode(selector.mode[:-1])
                         current_id = tuple(playable_character.keys()).index(selector.mode)

@@ -10,7 +10,6 @@ def remove_moveset_not_match_stat_requirement(self):
 
 
 def recursive_remove(stat_list, moveset_data, already_check):
-
     for move_name, move in moveset_data.copy().items():
         if move["Move"] not in already_check:
             already_check.append(move["Move"])
@@ -21,4 +20,3 @@ def recursive_remove(stat_list, moveset_data, already_check):
                         break
                 if "Next Move" in move and move["Next Move"]:  # check children moves
                     recursive_remove(stat_list, move["Next Move"], already_check)
-

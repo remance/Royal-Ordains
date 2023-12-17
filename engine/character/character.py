@@ -1,9 +1,9 @@
+import copy
+import types
 from math import radians
 from random import randint, random, uniform
 
-import types
 import pygame
-import copy
 from pygame import sprite, Vector2
 from pygame.mask import from_surface
 
@@ -11,9 +11,9 @@ from engine.character.ai_combat import ai_combat_dict
 from engine.character.ai_move import ai_move_dict
 from engine.character.ai_retreat import ai_retreat_dict
 from engine.character.character_specific_damage import damage_dict
-from engine.character.character_specific_start_animation import animation_start_dict
 from engine.character.character_specific_initiate import initiate_dict
 from engine.character.character_specific_special import special_dict
+from engine.character.character_specific_start_animation import animation_start_dict
 from engine.character.character_specific_status_update import status_update_dict
 from engine.character.character_specific_update import update_dict
 from engine.data.datastat import final_recursive_dict
@@ -124,7 +124,7 @@ class Character(sprite.Sprite):
     walk_command_action = {"name": "Walk", "movable": True, "walk": True}
     run_command_action = {"name": "Run", "movable": True, "run": True}
     flee_command_action = {"name": "FleeMove", "movable": True, "flee": True}
-    halt_command_action = {"name": "Halt", "uncontrollable": True, "movable": True, "walk": True, "halt": True}
+    halt_command_action = {"name": "Halt", "movable": True, "walk": True, "halt": True}
     dash_command_action = {"name": "Dash", "uncontrollable": True, "movable": True, "forced move": True, "no dmg": True,
                            "hold": True, "dash": True}
 
@@ -177,8 +177,21 @@ class Character(sprite.Sprite):
     die_command_action = {"name": "Die", "uninterruptible": True, "uncontrollable": True, "stand": True,
                           "forced move": True, "die": True}
 
-    default_item_drop_rate = {"Mystery Box": 1, "Speed Potion": 3, "Stone Potion": 3, "Reviving Seed": 1}
+    default_item_drop_table = {"Mystery Box": 0.5, "Speed Potion": 10, "Stone Potion": 10, "Reviving Seed": 1,
+                               "Health Potion": 3, "Resource Potion": 2, "Bronze Coin": 30, "Silver Coin": 15,
+                               "Gold Coin": 7, "Small Chest": 2, "Jewellery": 6, "Medium Chest": 0.7, "Diamond": 0.3,
+                               "Lute": 3, "Harp": 3, "Jar": 3, "Whetstone": 2, "Goblet": 3, "Beer Mug": 4, "Teapot": 3,
+                               "Yarn": 4, "Horseshoe": 3, "Board Game": 2, "Saint Figurine": 1, "Ball": 2,
+                               "Trumpet": 3, "Golden Goblet": 1, "Ruby": 0.8, "Ring": 1,
+                               "Sapphire": 0.8, "Topaz": 0.8, "Emerald": 0.8, "Amethyst": 0.8, "Opal": 0.8,
+                               "Rare Coin": 1, "Beer": 7, "Wine": 6}  # , "Kid Doll": 0.5,
+                               # "Rabbit Doll": 0.45, "Dog Doll": 0.3, "Cat Doll": 0.3, "Bear Doll": 0.2,
+                               # "Gryphon Doll": 0.1, "Unicorn Doll": 0.08, "Slime Doll": 0.06, "Dragon Doll": 0.05,
+                               # "Princess Doll": 0.03
 
+    # drop that get added when playable character exist
+    special_character_drop_table = {"Rodhinbar": {"Rodhinbar Arrow": 5},
+                                    "Iri": {"Scrap": 15, "Trap Remain": 5}}
     # static variable
     default_animation_play_time = 0.1
     knock_down_sound_distance = 1500
@@ -322,8 +335,23 @@ class Character(sprite.Sprite):
         self.skill = stat["Skill"].copy()
         self.available_skill = {"Couch": {}, "Stand": {}, "Air": {}}
         self.drops = {}
-        if "Drops" in stat:  # check item drops when die
+        if "Drops" in stat and stat["Drops"]:  # add item drops when die, only add for character with drops data
             self.drops = stat["Drops"]
+
+            for key, value in self.default_item_drop_table.items():  # add drop from common drop table
+                if value > uniform(0, 100):  # random chance to be added  # TODO add gold drops for boss when sprite done
+                    if key in self.drops:  # add chance to already exiting item
+                        self.drops[key] += value
+                    else:
+                        self.drops[key] = value
+
+            for key, value in self.special_character_drop_table.items():
+                if key in self.battle.existing_playable_characters:
+                    for key2, value2 in value.items():  # add drop item if playable character in battle
+                        if key2 in self.drops:  # add chance to already exiting item
+                            self.drops[key2] += value2
+                        else:
+                            self.drops[key2] = value2
 
         self.score = 0  # enemy score for player when killed
         if "Score" in stat:
@@ -382,7 +410,7 @@ class Character(sprite.Sprite):
         self.original_cast_speed = 1 / (1 + ((self.dexterity + self.intelligence) / 200))
 
         self.original_animation_play_time = self.default_animation_play_time / (
-                    1 + (self.agility / 100))  # higher value mean longer play time
+                1 + (self.agility / 100))  # higher value mean longer play time
         self.animation_play_time = self.original_animation_play_time
         self.final_animation_play_time = self.animation_play_time
         self.original_speed = self.agility * 2
@@ -816,11 +844,13 @@ class PlayableCharacter(Character):
         self.dodge_move = False
         if self.common_skill["Ground Movement"][1]:  # can slide attack
             self.slide_attack = True
-            self.moveset["Stand"] |= {key: value for key, value in self.character_data.common_moveset_skill["Stand"].items() if key == "Slide"}
+            self.moveset["Stand"] |= {key: value for key, value in
+                                      self.character_data.common_moveset_skill["Stand"].items() if key == "Slide"}
         if self.common_skill["Ground Movement"][2]:  # can tackle attack
             self.tackle_attack = True
-            self.moveset["Stand"] |= {key: value for key, value in self.character_data.common_moveset_skill["Stand"].items() if key == "Tackle"}
-        if self.common_skill["Ground Movement"][3]:  #  can dash after attack
+            self.moveset["Stand"] |= {key: value for key, value in
+                                      self.character_data.common_moveset_skill["Stand"].items() if key == "Tackle"}
+        if self.common_skill["Ground Movement"][3]:  # can dash after attack
             self.dash_move = True
         if self.common_skill["Ground Movement"][4]:  # weight no longer affect movement speed
             self.base_speed = self.original_speed
@@ -837,8 +867,8 @@ class PlayableCharacter(Character):
             self.double_jump = True
         if self.common_skill["Air Movement"][2]:
             pass
-        if self.common_skill["Air Movement"][3]:  # reduce effect of weight to jump by half
-            self.jump_power = 200 - (self.weight / 2)
+        if self.common_skill["Air Movement"][3]:  # weight no longer affect jump power
+            self.jump_power = 200
         if self.common_skill["Air Movement"][4]:  # increase impact resistant while in air position
             self.double_air_impact_resistance = True
         if self.common_skill["Air Movement"][1]:  # can hover in air
@@ -878,9 +908,9 @@ class PlayableCharacter(Character):
             self.money_resource = True
         if self.common_skill["Wealth"][3]:  # food has double effect
             pass
-        if self.common_skill["Wealth"][4]:  # can slide attack
+        if self.common_skill["Wealth"][4]:  #
             pass
-        if self.common_skill["Wealth"][5]:  # can slide attack
+        if self.common_skill["Wealth"][5]:  #
             pass
 
         self.knock_recover = False
@@ -1012,6 +1042,7 @@ class BodyPart(sprite.Sprite):
         self.angle = self.owner.angle
         self._layer = 10
         sprite.Sprite.__init__(self, self.containers)
+        self.base_image_update_contains = []  # object that need updating when base_image get updated
         self.part = part
         self.part_name = self.part[3:]
         if self.part_name[0:2] == "l_" or self.part_name[0:2] == "r_":
@@ -1033,6 +1064,7 @@ class BodyPart(sprite.Sprite):
         self.critical_chance = 0
         self.mode = "Normal"
         self.already_hit = []
+        self.base_image = self.empty_surface
         self.image = self.empty_surface
         self.data = []
         self.sprite_ver = str(self.owner.sprite_ver)
@@ -1065,17 +1097,22 @@ class BodyPart(sprite.Sprite):
         if self.data != data:
             self.data = data
             if "weapon" in self.part_name:
-                self.image = self.body_sprite_pool[self.data[0]][self.sprite_ver][self.mode][self.data[1]][
+                self.base_image = self.body_sprite_pool[self.data[0]][self.sprite_ver][self.mode][self.data[1]][
                     self.data[7]][self.data[5]]
             elif "special" in self.part_name:
-                self.image = self.body_sprite_pool[self.data[0]]["special"][self.sprite_ver][self.mode][self.data[1]][
+                self.base_image = \
+                self.body_sprite_pool[self.data[0]]["special"][self.sprite_ver][self.mode][self.data[1]][
                     self.data[7]][self.data[5]]
             else:
-                self.image = self.body_sprite_pool[self.data[0]][self.part_name][self.sprite_ver][self.mode][
+                self.base_image = self.body_sprite_pool[self.data[0]][self.part_name][self.sprite_ver][self.mode][
                     self.data[1]][self.data[7]][self.data[5]]
 
+            if self.base_image_update_contains:  # update any object after getting base image
+                for item in self.base_image_update_contains:
+                    item.update()
+
             if self.data[4]:  # rotation
-                self.image = pygame.transform.rotate(self.image, self.data[4])
+                self.image = pygame.transform.rotate(self.base_image, self.data[4])
             self.re_rect()
             if self._layer != self.owner_layer + 100 - data[6]:
                 self.battle_camera.change_layer(self, self.owner_layer + 100 - data[6])

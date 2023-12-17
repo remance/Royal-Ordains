@@ -28,7 +28,7 @@ def player_input(self, player_index, dt):
                         self.player_key_hold_timer[key] = 0
                     else:  # increase hold timer
                         self.player_key_hold_timer[key] += dt
-                        if self.player_key_hold_timer[key] > 0.01:  # only count as start holding after specific time
+                        if self.player_key_hold_timer[key] > 0.05:  # only count as start holding after specific time
                             self.command_key_hold.append(key)
                 elif key in self.player_key_hold_timer:  # no longer hold
                     self.player_key_hold_timer.pop(key)
@@ -54,7 +54,8 @@ def player_input(self, player_index, dt):
                         self.x_momentum = 0
                 else:
                     if self.last_command_key_input == "Weak":
-                        if "moveset" not in self.current_action or self.stoppable_frame:
+                        if "moveset" not in self.current_action or \
+                                ("moveset" not in self.command_action and self.stoppable_frame):
                             self.moveset_command_key_input = tuple(self.command_key_input)
                             if "run" in self.current_action and self.slide_attack:
                                 self.command_action = self.weak_attack_run_command_action
@@ -64,7 +65,8 @@ def player_input(self, player_index, dt):
                                 self.command_action = self.weak_attack_command_action
 
                     elif self.last_command_key_input == "Strong":
-                        if "moveset" not in self.current_action or self.stoppable_frame:
+                        if "moveset" not in self.current_action or \
+                                ("moveset" not in self.command_action and self.stoppable_frame):
                             self.moveset_command_key_input = tuple(self.command_key_input)
                             if "run" in self.current_action and self.tackle_attack:
                                 self.command_action = self.strong_attack_run_command_action
@@ -106,7 +108,8 @@ def player_input(self, player_index, dt):
                             self.command_action = self.guard_command_action
 
                     elif self.last_command_key_input == "Special":
-                        if "moveset" not in self.current_action or self.stoppable_frame:
+                        if "moveset" not in self.current_action or \
+                                ("moveset" not in self.command_action and self.stoppable_frame):
                             self.moveset_command_key_input = tuple(self.command_key_input)
                             self.specific_special_check()
 
@@ -177,7 +180,7 @@ def player_input(self, player_index, dt):
                                     if "moveset" in self.current_action and self.dash_move:  # dash during attack
                                         self.interrupt_animation = True
                                         self.command_action = self.dash_command_action
-                                        self.x_momentum = self.run_speed  / 2
+                                        self.x_momentum = self.run_speed / 2
                                     elif "dash" not in self.current_action:
                                         run_input = True
                                         self.x_momentum = self.run_speed / 10

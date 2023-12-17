@@ -2515,7 +2515,7 @@ while True:
                                 (mouse_pos[0] - helper_click.rect.topleft[0]),
                                 (mouse_pos[1] - helper_click.rect.topleft[1]))
                             this_part = helper_click.select_part(new_mouse_pos, shift_press, ctrl_press)
-                            if shift_press is False and ctrl_press is False:  # remove selected part in other helpers
+                            if not shift_press and not ctrl_press:  # remove selected part in other helpers
                                 model.part_selected = []  # clear old list first
                                 for index, helper in enumerate(helper_list):
                                     if helper != helper_click:

@@ -2,6 +2,8 @@ from random import randint
 
 from engine.character.character import Character, AICharacter, PlayableCharacter
 
+from engine.uibattle.uibattle import ScoreBoard
+
 
 def setup_battle_character(self, player_list, stage_char_list, add_helper=True):
     if player_list:
@@ -29,3 +31,6 @@ def setup_battle_character(self, player_list, stage_char_list, add_helper=True):
                                   {"ID": "Dashisi", "POS": (1000, 140 * self.screen_scale[1]),
                                    "Team": 1, "Sprite Ver": self.chapter,
                                    "Arrive Condition": (), "Start Health": 100})  # add pixie helper character
+        # Score board in animation must always be p1_special_10 part
+        self.score_board = ScoreBoard(self.helper.body_parts["p1_special_10"])
+        self.helper.body_parts["p1_special_10"].base_image_update_contains.append(self.score_board)

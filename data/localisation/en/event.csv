@@ -1,16 +1,124 @@
-"ID","Name","Description","Tag"
-1,"Rain",,"Weather"
-2,"Snow",,"Weather"
-3,"Foggy",,"Weather"
-4,"Clear Sky",,"Weather"
-5,"Cloudy",,"Weather"
-6,"Thunder Storm",,"Weather"
-7,"Hail",,"Weather"
-8,"Windy",,"Weather"
-9,"Wet Fog",,"Weather"
-10,"Void",,"Weather"
-11,"Mana Mist",,"Weather"
-12,"Acid Rain",,"Weather"
-13,"Sandstorm",,"Weather"
-14,"Blood Rain",,"Weather"
-15,"Thundersnow",,"Weather"
+"ID","Text"
+"event1/1_1_city_throne_talk1.1","We welcome you, brave heroes."
+"event1/1_1_city_throne_talk1.2","We are grateful for accepting our invitation."
+"event1/1_1_city_throne_talk1.3","Our kingdom is in crisis, our soldiers exhausted."
+"event1/1_1_city_throne_talk1.4","With your help, our land will persist and prosper."
+"event1/1_1_city_throne_talk1.5","We sanction you as Royal Ordains."
+"event1/1_1_city_throne_talk1.6","You are our esteemed guests from the moment forth."
+"event1/1_1_city_throne_talk1.7","And your valour will be heralded by all for aeon."
+"event1/1_1_city_throne_talk1.8","Your journey will be precarious and for that"
+"event1/1_1_city_throne_talk1.8","We prepare for you with supplies and funding."
+"event1/1_1_city_throne_talk1.9","The Commander will handle your journeys and quests."
+"event1/1_1_city_throne_talk1.10","May you find success and bring peace to all."
+"King/Vraesier/1_1_city_throne_talk1.1","Greetings, we did not expect you to come."
+"King/Vraesier/1_1_city_throne_talk1.2","I hope you remember what you promise."
+"King/Vraesier/1_1_city_throne_talk1.3","Yes. We will keep our end of the bargain."
+"King/Vraesier/1_1_city_throne_talk1.4","You siblings' goal will be our spy network’s priority."
+"King/Orsanoas/1_1_city_throne_talk1.1","Well met, mighty warrior."
+"King/Orsanoas/1_1_city_throne_talk1.2","We hope that joining us will help you reach your dream."
+"King/Orsanoas/1_1_city_throne_talk1.3","I sure hope so, your majesty."
+"King/Orsanoas/1_1_city_throne_talk1.4","Very good. We expect great things from you."
+"King/Minara/1_1_city_throne_talk1.1",
+"King/Minara/1_1_city_throne_talk1.2",
+"King/Minara/1_1_city_throne_talk1.3",
+"King/Minara/1_1_city_throne_talk1.4",
+"King/Rodhinbar/1_1_city_throne_talk1.1","Arhkunihar Tarhandi, your journey here honour us all."
+"King/Rodhinbar/1_1_city_throne_talk1.2","Tarharadun, your Grace. It is my honour."
+"King/Rodhinbar/1_1_city_throne_talk1.3","Although our lands are afar, we will honour our alliance."
+"King/Rodhinbar/1_1_city_throne_talk1.4","No foes will reach you as long as our kingdom stands."
+"King/Rodhinbar/1_1_city_throne_talk1.5","Thank you, your Grace. I will also help in what I can."
+"King/Rodhinbar/1_1_city_throne_talk1.6","As are we. We also hope you will enjoy your stay here."
+"King/Nayedien/1_1_city_throne_talk1.1","Ah, my Aide, I have a request of you."
+"King/Nayedien/1_1_city_throne_talk1.2","You are to go along with their quest and assist them."
+"King/Nayedien/1_1_city_throne_talk1.3","See that they become true heroes worthy of our hope."
+"King/Nayedien/1_1_city_throne_talk1.4","My king, I beg your pardon. I am in a conflicted mind."
+"King/Nayedien/1_1_city_throne_talk1.5","Is my participant in this necessary?"
+"King/Nayedien/1_1_city_throne_talk1.6","My Aide, your strength is proven to me."
+"King/Nayedien/1_1_city_throne_talk1.7","But I deem that this will be a great opportunity for you."
+"King/Nayedien/1_1_city_throne_talk1.8","I ask of you again, be their guide in difficult times."
+"King/Nayedien/1_1_city_throne_talk1.9","Yes, my King. As you wish. I will do my utmost."
+"King/Iri/1_1_city_throne_talk1.1","Hello again, friend. I see you are doing better than ever."
+"King/Iri/1_1_city_throne_talk1.2","I know that you two are old friends but please."
+"King/Iri/1_1_city_throne_talk1.3","Speak formally in a public space."
+"King/Iri/1_1_city_throne_talk1.4","Seem that you still travel around. Anything new?"
+"King/Iri/1_1_city_throne_talk1.5","Well, nothing as vital as this crisis. Let's catch up later."
+"King/Iri/1_1_city_throne_talk1.6","Let's indeed. We appreciate your arrival and help."
+"King/Any/1_1_city_throne_talk1.1","Now, take some rest and be ready for the journey."
+"King/Omshle/1_1_city_throne_talk1.1",
+"King/Omshle/1_1_city_throne_talk1.2",
+"King/Omshle/1_1_city_throne_talk1.3",
+"King/Omshle/1_1_city_throne_talk1.4",
+"King/Omshle/1_1_city_throne_talk1.5",
+"King/Omshle/1_1_city_throne_talk1.6",
+"King/Omshle/1_1_city_throne_talk1.7",
+"King/Laguasangte/1_1_city_throne_talk1.1","So you come."
+"King/Laguasangte/1_1_city_throne_talk1.2","I am."
+"King/Laguasangte/1_1_city_throne_talk1.3","Then that means..."
+"King/Laguasangte/1_1_city_throne_talk1.4","Yes."
+"King/Laguasangte/1_1_city_throne_talk1.5","Our condolence. What is your intent now?"
+"King/Laguasangte/1_1_city_throne_talk1.6","To done our pledge."
+"King/Laguasangte/1_1_city_throne_talk1.7","Then may you rise above grief and beyond mortality. "
+"King/Elmaliern/1_1_city_throne_talk1.1",
+"King/Elmaliern/1_1_city_throne_talk1.2",
+"King/Elmaliern/1_1_city_throne_talk1.3",
+"King/Elmaliern/1_1_city_throne_talk1.4",
+"King/Bauqah/1_1_city_throne_talk1.1",
+"King/Bauqah/1_1_city_throne_talk1.2",
+"King/Bauqah/1_1_city_throne_talk1.3",
+"King/Bauqah/1_1_city_throne_talk1.4",
+"King/Bauqah/1_1_city_throne_talk1.5",
+"King/Yuawies/1_1_city_throne_talk1.1","Your Majesty, I am elated you invite insignificant me."
+"King/Yuawies/1_1_city_throne_talk1.2","Your offering is just too tempting to resist."
+"King/Yuawies/1_1_city_throne_talk1.3","Say, do you think we can hold one now?"
+"King/Yuawies/1_1_city_throne_talk1.4","Not yet. We will hold one after your first victory."
+"King/Yuawies/1_1_city_throne_talk1.5","Aww, well. A good workout makes everything better."
+"King/Yuawies/1_1_city_throne_talk1.6","That will do. Your rewards will be prepared in due time."
+"King/Duskuksa/1_1_city_throne_talk1.1","Kadazutn, master dwarf. Your presence is uplifting."
+"King/Duskuksa/1_1_city_throne_talk1.2","Our respect for your rune art is boundless."
+"King/Duskuksa/1_1_city_throne_talk1.3","Oh, no, I am no master yet, your Grace. But thank you."
+"King/Duskuksa/1_1_city_throne_talk1.4","Still, your wording in the letter piqued my curiosity."
+"King/Duskuksa/1_1_city_throne_talk1.5","Is it truly? Of what are you able to provide?"
+"King/Duskuksa/1_1_city_throne_talk1.6","Be assured that all the words in the letter are true."
+"King/Duskuksa/1_1_city_throne_talk1.7","HO, HO. Then I see that I must do my VERY BEST. "
+"King/Duskuksa/1_1_city_throne_talk1.8","Well said."
+"King/Any/1_1_city_throne_talk2.1","When you are ready. Talk to the Supreme Commander."
+,
+,
+,
+,
+,
+"Nayedien/Vraesier/1_1_city_throne_talk1.1",
+"Nayedien/Vraesier/1_1_city_throne_talk1.2",
+"Nayedien/Vraesier/1_1_city_throne_talk1.3",
+"Nayedien/Vraesier/1_1_city_throne_talk1.4",
+,
+,
+"Nayedien/Orsanoas/1_1_city_throne_talk1.1",
+"Nayedien/Minara/1_1_city_throne_talk1.1",
+"Nayedien/Rodhinbar/1_1_city_throne_talk1.1",
+"Nayedien/Iri/1_1_city_throne_talk1.1",
+"Nayedien/Omshle/1_1_city_throne_talk1.1",
+"Nayedien/Elmaliern/1_1_city_throne_talk1.1",
+"Nayedien/Bauqah/1_1_city_throne_talk1.1",
+"Nayedien/Yuawies/1_1_city_throne_talk1.1",
+"Nayedien/Duskuksa/1_1_city_throne_talk1.1",
+"Nayedien/Laguasangte/1_1_city_throne_talk1.1",
+,
+"King/Any/1_1_city_throne_talk1.1","Hero, it is a pleasure to meet you."
+"King/Any/1_1_city_throne_talk1.2","I implore you to take no offence in what I will state."
+"King/Any/1_1_city_throne_talk1.3","To be direct, you surely have talents waiting to grow"
+"King/Any/1_1_city_throne_talk1.4","But you still need more experience and grow stronger."
+"King/Any/1_1_city_throne_talk1.5","For that, although many crises await to be solved"
+"King/Any/1_1_city_throne_talk1.6","We will assign you the quests proper to your strengths."
+"King/Any/1_1_city_throne_talk1.7","So, talk to me again when you are ready to start."
+"Vurus/Any/1_1_city_throne_talk2.1","Are you ready to start your journey?"
+"Vurus/Any/1_1_city_throne_talk2.yes1","Very good. Your first destination is Panac Forest."
+"Vurus/Any/1_1_city_throne_talk2.yes2","The incursions in the northern region stem from there."
+"Vurus/Any/1_1_city_throne_talk2.yes3","You will start from the outer forest against Rabbitmen."
+"Vurus/Any/1_1_city_throne_talk2.yes4","They are weak, but their number grows alarmingly fast."
+"Vurus/Any/1_1_city_throne_talk2.yes5","Deal with the leader and disrupt the expansion."
+"Vurus/Any/1_1_city_throne_talk2.yes6","We left you the choice of subjugation or elimination."
+"Vurus/Any/1_1_city_throne_talk2.yes7","Subjugation, you may convert them as followers."
+"Vurus/Any/1_1_city_throne_talk2.yes8","Elimination, you can take what they hold."
+"Vurus/Any/1_1_city_throne_talk2.yes9","Your escorts will leave at dawn. For now, rest well."
+"Vurus/Any/1_1_city_throne_talk2.no1","Take your time to prepare and inform me when ready."

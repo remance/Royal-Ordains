@@ -176,7 +176,8 @@ class AnimationData(GameData):
                         else:
                             animation_list = {1.0: [{0: value, 1: flip(value, True, False),
                                                      2: flip(value, False, True),
-                                                     3: flip(value, True, True)} for key, value in images.items() if true_name == key]}
+                                                     3: flip(value, True, True)} for key, value in images.items() if
+                                                    true_name == key]}
 
                         if "effect" in part_size_scaling:
                             if fcv(folder[-1]) in part_size_scaling["effect"]:

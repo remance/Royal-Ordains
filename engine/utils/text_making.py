@@ -166,11 +166,16 @@ def convert_str_time(event):
         event[index] = tuple(event[index])
 
 
-def minimise_number_text(text):
+def minimise_number_text(text: str):
     num_text = int(text)
-    if num_text >= 1000000:
+    if num_text >= 1000000000000000:
+        return str(round(num_text / 1000000000000000, 1)) + "Q"
+    elif num_text >= 1000000000000:
+        return str(round(num_text / 1000000000000, 1)) + "T"
+    elif num_text >= 1000000000:
+        return str(round(num_text / 1000000000, 1)) + "B"
+    elif num_text >= 1000000:
         return str(round(num_text / 1000000, 1)) + "M"
     elif num_text >= 1000:
         return str(round(num_text / 1000, 1)) + "K"
-    else:
-        return str(num_text)
+    return str(num_text)

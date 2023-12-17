@@ -1,6 +1,8 @@
 "ID","Name","Base Health","Max Resource","Start Resource","Strength","Dexterity","Agility","Constitution","Intelligence","Wisdom","Charisma","Physical Resistance","Fire Resistance","Water Resistance","Air Resistance","Earth Resistance","Magic Resistance","Poison Resistance","Drops","Score","Size","Only Sprite Version","Summon","Boss","AI Behaviour","Property"
 "Dashisi","Dashisi",100000,,,30,80,15,70,63,87,94,100,100,100,100,100,100,100,,,2,,,,"helper","fly,invincible,no_pickup,no_clip"
 "Mannequin","Mannequin",10000000000,,,0,0,0,100,0,0,0,10,10,10,10,10,10,10,,,10,1,,,"training","not_movable"
+"King","King",1000,,,20,20,20,30,40,40,30,,,,,,,,,,10,,,,"idle","invincible"
+"Vurus","Vurus",50000,,,32,51,46,37,97,98,82,,,,,,,,,,10,,,,"full_melee",
 "Craven1","Male Citizen 1",100,,,1,1,10,1,2,3,3,,,,,,,,,,10,1,,,"flee","invincible,broken"
 "Craven2","Male Citizen 2",100,,,1,1,10,1,1,2,6,,,,,,,,,,10,1,,,"flee","invincible,broken"
 "Craven3","Female Citizen 1",100,,,1,1,10,1,3,2,5,,,,,,,,,,10,1,,,"flee","invincible,broken"
@@ -32,7 +34,7 @@
 "Animal6","Fox Trickster",100,,,2,24,15,6,25,40,34,,,,,,10,,"Meat:15,Berry:15,Health Potion:15",,5,1,,,"common_range",
 "Animal7","Eagle",80,,,5,50,35,5,3,3,25,,,,10,,,,"Speed Potion:5",,,1,,,"fly_melee","fly"
 "Animal8","Turtle Frogs Tower",700,,,13,5,1,50,7,9,5,25,20,20,,25,,30,"Stone Potion:10",,10,1,,,"common_range",
-"Bigta","Bigta and Sertors",3400,,,10,13,16,25,10,15,30,,-5,-5,5,,,,,10000,8,1,,"TRUE","bigta","not_movable"
+"Bigta","Bigta and Sertors",3400,,,10,13,16,25,10,15,30,,-5,-5,5,,,,"Bronze Coin+10:15,Silver Coin+10:10,Gold Coin+5:5,Medium Chest+5:5,Carrot+20:50",10000,8,1,,"TRUE","bigta","not_movable"
 "Summon1","Automated Scorpion",100,,,20,20,5,1,1,1,1,,-35,,,,,,"Scrap:100",,10,,"TRUE",,"trap","not_movable"
 "Summon2","Automated Reinforced Scorpion",300,,,20,20,5,1,1,1,1,10,-10,,,,,,"Scrap:100",,10,,"TRUE",,"trap","not_movable"
 "Summon3","Automated Small Ballista",300,,,20,20,5,1,1,1,1,10,-10,,,,,,"Scrap:100",,10,,"TRUE",,"trap","not_movable"

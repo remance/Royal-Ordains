@@ -9,7 +9,7 @@ from pygame.sprite import Sprite
 from pygame.transform import smoothscale
 
 from engine.uimenu.uimenu import UIMenu
-from engine.utils.text_making import number_to_minus_or_plus, text_render_with_bg
+from engine.utils.text_making import number_to_minus_or_plus, text_render_with_bg, minimise_number_text
 
 team_colour = {1: Color("black"), 2: Color("red"), 3: Color("blue"), 4: Color("green")}
 
@@ -537,6 +537,33 @@ class Timer(UIBattle):
                 self.image.blit(self.timer_surface, self.timer_rect)
 
 
+class ScoreBoard(UIBattle):
+    def __init__(self, body_part):
+        UIBattle.__init__(self, player_interact=False)
+        self.body_part = body_part
+        self.font = Font(self.ui_font["main_button"], int(20 * self.screen_scale[1]))
+
+    def update(self):
+        """Add score and gold to scoreboard image"""
+        score_text = self.font.render(minimise_number_text(self.battle.mission_score) + "/" +
+                                      str(self.battle.reserve_resurrect_mission_score), True, (0, 0, 0))
+        gold_text = self.font.render(minimise_number_text(self.battle.player_gold), True, (0, 0, 0))
+
+        if self.body_part.owner.sprite_direction == "l_side":
+            score_rect = score_text.get_rect(center=(self.body_part.base_image.get_width() / 3,
+                                                     self.body_part.base_image.get_height() / 2.5))
+            gold_rect = gold_text.get_rect(center=(self.body_part.base_image.get_width() / 3,
+                                                   self.body_part.base_image.get_height() / 1.3))
+        else:
+            score_rect = score_text.get_rect(center=(self.body_part.base_image.get_width() / 1.5,
+                                                     self.body_part.base_image.get_height() / 2.5))
+            gold_rect = gold_text.get_rect(center=(self.body_part.base_image.get_width() / 1.5,
+                                                   self.body_part.base_image.get_height() / 1.3))
+        self.body_part.base_image = self.body_part.base_image.copy()
+        self.body_part.base_image.blit(score_text, score_rect)
+        self.body_part.base_image.blit(gold_text, gold_rect)
+
+
 class CharacterSpeechBox(UIBattle):
     images = {}
 
@@ -586,7 +613,8 @@ class CharacterSpeechBox(UIBattle):
                 self.kill()
 
         if self.character.sprite_direction == "l_side":  # left direction facing
-            if self.head_part.rect.midleft[0] - (self.battle.shown_camera_pos[0] - self.battle.camera.camera_w_center) < self.base_image.get_width():
+            if self.head_part.rect.midleft[0] - (
+                    self.battle.shown_camera_pos[0] - self.battle.camera.camera_w_center) < self.base_image.get_width():
                 # text will exceed screen, go other way
                 self.image = self.base_image.copy()
                 self.rect.bottomleft = self.head_part.rect.midright
@@ -649,8 +677,7 @@ class WheelUI(UIBattle):
     wheel_icons = {}
 
     def __init__(self, image, selected_image, pos, text_size=20):
-        """Wheel choice ui with text or image inside the choice.
-        Works similar to Fallout companion wheel and similar system"""
+        """Wheel choice ui to select item"""
         self._layer = 11
         UIBattle.__init__(self)
         self.font = Font(self.ui_font["main_button"], text_size)

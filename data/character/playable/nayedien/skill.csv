@@ -1,50 +1,50 @@
 "Move","Name","Buttons","Position","Requirement Move","Prepare Animation","AI Range","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"C1.1","Spear True Wind","Special","Stand","sweak1strongspecial",,800,1000,5,300,150,200,,,,15,"Air",,,,"penetrate"
-"C1.2","Piercing Wind","Special","Stand","sweak1strongspecial",,800,1000,5,250,241,,,,,25,"Air",,,,"penetrate"
-"C1.3","Divine Wind","Special","Stand","sweak1strongspecial",,800,1000,5,200,413,,,,,35,"Air",,,,"penetrate"
-"C1.4",,"Special","Stand","sweak1strongspecial",,800,1000,5,150,668,,,,,45,"Air",,27,,"penetrate"
-"C1.5",,"Special","Stand","sweak1strongspecial",,800,1000,5,100,842,,,,,60,"Air",,27,,"penetrate"
+"C1.1","Spear True Wind","Special","Stand","sweak1strongspecial",,800,1000,5,300,150,200,,,,15,"Air",,27,,"penetrate"
+"C1.2","Mighty Wind","Special","Stand","sweak1strongspecial",,800,1000,5,250,241,,,,,25,"Air",,27,,"penetrate"
+"C1.3","Unstoppable Wind","Special","Stand","sweak1strongspecial",,800,1000,5,200,413,,,,,35,"Air",,27,,"penetrate"
+"C1.4","Divine Wind","Special","Stand","sweak1strongspecial",,800,1000,5,150,668,,,,,45,"Air",,27,,"penetrate"
+"C1.5","Darkness Under The Wind","Special","Stand","sweak1strongspecial",,800,1000,5,100,842,,,,,60,"Air",,27,,"penetrate"
 "C2.1","Flail Flame Tornado","Special","Stand","sweak2strongspecial",,300,,5,350,30,120,,,,,"Fire",,39,,"multiple hits,penetrate"
 "C2.2","Ember Storm","Special","Stand","sweak2strongspecial",,300,,5,300,42,120,,,,,"Fire",,39,,"multiple hits,penetrate"
-"C2.3","Wrath Punishment","Special","Stand","sweak2strongspecial",,300,,5,250,60,120,,,,,"Fire",,39,,"multiple hits,penetrate"
-"C2.4",,"Special","Stand","sweak2strongspecial",,300,,5,200,89,120,,,,,"Fire",,39,,"multiple hits,penetrate"
-"C2.5",,"Special","Stand","sweak2strongspecial",,300,,5,150,115,120,,,,,"Fire",,39,,"multiple hits,penetrate"
-"C3.1","Sword Glacier","Special","Stand","sweak3strongspecial",,,,5,400,,,,,,,"Water",,21,,
-"C3.2",,"Special","Stand","sweak3strongspecial",,,,5,350,,,,,,,"Water",,21,,
-"C3.3","Frostbound","Special","Stand","sweak3strongspecial",,,,5,300,,,,,,,"Water",,21,,
-"C3.4",,"Special","Stand","sweak3strongspecial",,,,5,250,,,,,,,"Water",,21,,
-"C3.5",,"Special","Stand","sweak3strongspecial",,,,5,200,,,,,,,"Water",,21,,
+"C2.3","Blazing Gyre","Special","Stand","sweak2strongspecial",,300,,5,250,60,120,,,,,"Fire",,39,,"multiple hits,penetrate"
+"C2.4","Wrath Punishment","Special","Stand","sweak2strongspecial",,300,,5,200,89,120,,,,,"Fire",,39,,"multiple hits,penetrate"
+"C2.5","Birth of All Element","Special","Stand","sweak2strongspecial",,300,,5,150,115,120,,,,,"Fire",,39,,"multiple hits,penetrate"
+"C3.1","Sword Glacier","Special","Stand","sweak3strongspecial",,400,,5,400,,,,,,,"Water",,21,,
+"C3.2","Frostbound","Special","Stand","sweak3strongspecial",,400,,5,350,,,,,,,"Water",,21,,
+"C3.3","Frozen Moment","Special","Stand","sweak3strongspecial",,400,,5,300,,,,,,,"Water",,21,,
+"C3.4","Claw of Time","Special","Stand","sweak3strongspecial",,400,,5,250,,,,,,,"Water",,21,,
+"C3.5","Gaze Behind Infinity","Special","Stand","sweak3strongspecial",,400,,5,200,,,,,,,"Water",,21,,
 "C4.1","Hammer Light Radiance","Special","Stand","sweak4strongspecial",,,,5,450,,,,,,,"Magic",,7,,
-"C4.2",,"Special","Stand","sweak4strongspecial",,,,5,400,,,,,,,"Magic",,7,,
-"C4.3",,"Special","Stand","sweak4strongspecial",,,,5,350,,,,,,,"Magic",,7,,
-"C4.4",,"Special","Stand","sweak4strongspecial",,,,5,300,,,,,,,"Magic",,7,,
-"C4.5","The First Light","Special","Stand","sweak4strongspecial",,,,5,250,,,,,,,"Magic",,7,,
+"C4.2","Mellow Dawn","Special","Stand","sweak4strongspecial",,,,5,400,,,,,,,"Magic",,7,,
+"C4.3","Shining Sin","Special","Stand","sweak4strongspecial",,,,5,350,,,,,,,"Magic",,7,,
+"C4.4","Brilliant Light","Special","Stand","sweak4strongspecial",,,,5,300,,,,,,,"Magic",,7,,
+"C4.5","The First Day","Special","Stand","sweak4strongspecial",,,,5,250,,,,,,,"Magic",,7,,
 "C5.1","Mace Darkness Engulf","Special","Stand","sweak5strongspecial",,,,5,450,,,,,,,"Magic",,12,,
-"C5.2",,"Special","Stand","sweak5strongspecial",,,,5,400,,,,,,,"Magic",,12,,
-"C5.3",,"Special","Stand","sweak5strongspecial",,,,5,350,,,,,,,"Magic",,12,,
-"C5.4",,"Special","Stand","sweak5strongspecial",,,,5,300,,,,,,,"Magic",,12,,
-"C5.5","The Last Darkness","Special","Stand","sweak5strongspecial",,,,5,250,,,,,,,"Magic",,12,,
+"C5.2","Unlit Expanse","Special","Stand","sweak5strongspecial",,,,5,400,,,,,,,"Magic",,12,,
+"C5.3","Hollow Sight","Special","Stand","sweak5strongspecial",,,,5,350,,,,,,,"Magic",,12,,
+"C5.4","Fading World","Special","Stand","sweak5strongspecial",,,,5,300,,,,,,,"Magic",,12,,
+"C5.5","The Last Night","Special","Stand","sweak5strongspecial",,,,5,250,,,,,,,"Magic",,12,,
 "C6.1","Axe Earth Shatter","Special","Stand","sweak6strongspecial",,,,5,600,,,,,,,"Earth",,4,,
-"C6.2",,"Special","Stand","sweak6strongspecial",,,,5,550,,,,,,,"Earth",,4,,
-"C6.3",,"Special","Stand","sweak6strongspecial",,,,5,500,,,,,,,"Earth",,4,,
-"C6.4",,"Special","Stand","sweak6strongspecial",,,,5,450,,,,,,,"Earth",,4,,
-"C6.5",,"Special","Stand","sweak6strongspecial",,,,5,400,,,,,,,"Earth",,4,,
-"A1.1",,,,,,,,,,,,,,,,,,,,
+"C6.2","Foundation Fracture","Special","Stand","sweak6strongspecial",,,,5,550,,,,,,,"Earth",,4,,
+"C6.3","Lord of Land","Special","Stand","sweak6strongspecial",,,,5,500,,,,,,,"Earth",,4,,
+"C6.4","Lost World","Special","Stand","sweak6strongspecial",,,,5,450,,,,,,,"Earth",,4,,
+"C6.5","Futile End","Special","Stand","sweak6strongspecial",,,,5,400,,,,,,,"Earth",,4,,
+"A1.1","Temporal Invincibility","Special",,,,,,,,,,,,,,,,,,
 "A1.2",,,,,,,,,,,,,,,,,,,,
 "A1.3",,,,,,,,,,,,,,,,,,,,
 "A1.4",,,,,,,,,,,,,,,,,,,,
 "A1.5",,,,,,,,,,,,,,,,,,,,
-"A2.1",,,,,,,,,,,,,,,,,,,,
+"A2.1","Unparalleled Beauty","Special",,,,,,,,,,,,,,,,,,
 "A2.2",,,,,,,,,,,,,,,,,,,,
 "A2.3",,,,,,,,,,,,,,,,,,,,
 "A2.4",,,,,,,,,,,,,,,,,,,,
 "A2.5",,,,,,,,,,,,,,,,,,,,
-"A3.1",,,,,,,,,,,,,,,,,,,,
+"A3.1","Eternal Self","Special",,,,,,,,,,,,,,,,,,
 "A3.2",,,,,,,,,,,,,,,,,,,,
 "A3.3",,,,,,,,,,,,,,,,,,,,
 "A3.4",,,,,,,,,,,,,,,,,,,,
 "A3.5",,,,,,,,,,,,,,,,,,,,
-"A4.1",,,,,,,,,,,,,,,,,,,,
+"A4.1","Unbound Incarnation","Special",,,,,,,,,,,,,,,,,,
 "A4.2",,,,,,,,,,,,,,,,,,,,
 "A4.3",,,,,,,,,,,,,,,,,,,,
 "A4.4",,,,,,,,,,,,,,,,,,,,
@@ -54,22 +54,22 @@
 "A5.3",,,,,,,,,,,,,,,,,,,,
 "A5.4",,,,,,,,,,,,,,,,,,,,
 "A5.5",,,,,,,,,,,,,,,,,,,,
-"B1.1",,,,,,,,,,,,,,,,,,,,
+"B1.1","Ascended Mind","Special",,,,,,,,,,,,,,,,,,
 "B1.2",,,,,,,,,,,,,,,,,,,,
 "B1.3",,,,,,,,,,,,,,,,,,,,
 "B1.4",,,,,,,,,,,,,,,,,,,,
 "B1.5",,,,,,,,,,,,,,,,,,,,
-"B2.1",,,,,,,,,,,,,,,,,,,,
+"B2.1","Absolute Parry","Special",,,,,,,,,,,,,,,,,,
 "B2.2",,,,,,,,,,,,,,,,,,,,
 "B2.3",,,,,,,,,,,,,,,,,,,,
 "B2.4",,,,,,,,,,,,,,,,,,,,
 "B2.5",,,,,,,,,,,,,,,,,,,,
-"B3.1",,,,,,,,,,,,,,,,,,,,
+"B3.1","Beacon of Hope","Special",,,,,,,,,,,,,,,,,,
 "B3.2",,,,,,,,,,,,,,,,,,,,
 "B3.3",,,,,,,,,,,,,,,,,,,,
 "B3.4",,,,,,,,,,,,,,,,,,,,
 "B3.5",,,,,,,,,,,,,,,,,,,,
-"B4.1",,,,,,,,,,,,,,,,,,,,
+"B4.1","Existence Beyond Matter","Special",,,,,,,,,,,,,,,,,,
 "B4.2",,,,,,,,,,,,,,,,,,,,
 "B4.3",,,,,,,,,,,,,,,,,,,,
 "B4.4",,,,,,,,,,,,,,,,,,,,

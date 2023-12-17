@@ -1,4 +1,8 @@
 from pygame.sprite import spritecollide
+from random import choice, randint
+
+from engine.character.character import Character
+from engine.drop.drop import Drop
 
 
 def drop_collide_check(self):
@@ -24,4 +28,16 @@ def drop_collide_check(self):
                         self.owner.resource = self.owner.max_resource
             if item.stat["Revive"]:
                 self.owner.resurrect_count += item.stat["Revive"]
+            if item.stat["Property"]:
+                for item2 in item.stat["Property"]:
+                    if "random" in item2:
+                        # create random item from default drop table when picked, all item have same chance
+                        if "+" in item2:
+                            Drop(item.base_pos, choice(Character.default_item_drop_table.keys()), self.onwer.team,
+                                 momentum=(randint(-200, 200), (randint(150, 350))))
+                        else:
+                            for item3 in range(int(item2[-1])):
+                                Drop(item.base_pos, choice(Character.default_item_drop_table.keys()), self.onwer.team,
+                                     momentum=(randint(-200, 200), (randint(150, 350))))
+
             item.picked()
