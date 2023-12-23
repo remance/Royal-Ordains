@@ -26,6 +26,7 @@ class Drop(sprite.Sprite):
         self.frame_timer = 0
         self.x_momentum = 0
         self.y_momentum = 0
+        self.pickable_timer = 1
         if momentum:
             self.x_momentum = momentum[0]
             self.y_momentum = momentum[1]
@@ -56,6 +57,11 @@ class Drop(sprite.Sprite):
     def update(self, dt):
         done, just_start = self.play_animation(0.1, dt)
 
+        if self.pickable_timer:
+            self.pickable_timer -= dt
+            if self.pickable_timer < 0:
+                self.pickable_timer = 0
+
         if self.x_momentum or self.y_momentum:  # sprite bounce after reach
             self.angle += (dt * 1000)
             if self.angle >= 360:
@@ -65,6 +71,13 @@ class Drop(sprite.Sprite):
             if move.length():
                 move.normalize_ip()
                 self.base_pos += move
+                if self.battle.base_stage_start > self.base_pos[0]:
+                    self.base_pos[0] = self.battle.base_stage_start
+                    self.x_momentum = 0
+                elif self.base_pos[0] > self.battle.base_stage_end:
+                    self.base_pos[0] = self.battle.base_stage_end
+                    self.x_momentum = 0
+
                 self.pos = Vector2(self.base_pos[0] * self.screen_scale[0],
                                    self.base_pos[1] * self.screen_scale[1])
                 self.adjust_sprite()

@@ -22,7 +22,7 @@ def cal_loss(self, final_dmg, impact, element_effect, hit_angle, dmg_text_pos, c
     impact_check = (abs(impact[0]) + abs(impact[1]) - (self.body_mass + super_armour))
 
     self.engage_combat()
-    if not self.not_movable:  # object can be moved
+    if not self.no_forced_move:  # object can be forced moved
         if impact_check > 10:
             if hit_angle == 90:
                 self.x_momentum = -impact[0]

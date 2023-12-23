@@ -8,6 +8,22 @@ def empty_method(*args):
     pass
 
 
+def cutscene_update(self, *args, **kwargs):
+    """call cutscene update method of every member sprite
+
+    Group.update(*args, **kwargs): return None
+
+    Calls the update method of every member sprite. All arguments that
+    were passed to this method are passed to the Sprite cutscene_update function.
+
+    """
+    for sprite in self.sprites():
+        if hasattr(sprite, "cutscene_update"):
+            sprite.cutscene_update(*args, **kwargs)
+        else:
+            sprite.update(*args, **kwargs)
+
+
 def change_group(item, group, change):
     """Change group of the item, use for multiple change in loop"""
     if change == "add":

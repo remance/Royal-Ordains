@@ -7,6 +7,8 @@ import pygame
 from pygame import sprite, Vector2
 from pygame.mask import from_surface
 
+from engine.uibattle.uibattle import CharacterSpeechBox
+
 from engine.character.ai_combat import ai_combat_dict
 from engine.character.ai_move import ai_move_dict
 from engine.character.ai_retreat import ai_retreat_dict
@@ -103,8 +105,14 @@ class Character(sprite.Sprite):
     from engine.character.pick_animation import pick_animation
     pick_animation = pick_animation
 
+    from engine.character.pick_cutscene_animation import pick_cutscene_animation
+    pick_cutscene_animation = pick_cutscene_animation
+
     from engine.character.play_animation import play_animation
     play_animation = play_animation
+
+    from engine.character.play_cutscene_animation import play_cutscene_animation
+    play_cutscene = play_cutscene_animation
 
     from engine.character.player_input import player_input
     player_input = player_input
@@ -177,6 +185,12 @@ class Character(sprite.Sprite):
     die_command_action = {"name": "Die", "uninterruptible": True, "uncontrollable": True, "stand": True,
                           "forced move": True, "die": True}
 
+    submit_action = {"name": "Submit", "repeat": True, "die": True, "submit": True}
+    execute_action = {"name": "Execute", "hold": True, "execute": True, "die": True}
+    taunt_action = {"name": "Taunt", "movable": True, "taunt": True}
+    cheer_action = {"name": "Cheer", "cheer": True}
+    cheer_fast_action = {"name": "CheerFast", "cheer": True}
+
     default_item_drop_table = {"Mystery Box": 0.5, "Speed Potion": 10, "Stone Potion": 10, "Reviving Seed": 1,
                                "Health Potion": 3, "Resource Potion": 2, "Bronze Coin": 30, "Silver Coin": 15,
                                "Gold Coin": 7, "Small Chest": 2, "Jewellery": 6, "Medium Chest": 0.7, "Diamond": 0.3,
@@ -202,7 +216,7 @@ class Character(sprite.Sprite):
     dmg_screen_shake = 2
     original_ground_pos = 1000
 
-    def __init__(self, game_id, stat, player_control=False, leader=None):
+    def __init__(self, game_id, layer_id, stat, player_control=False, leader=None, health_scaling=1):
         """
         Character object represent a character that take part in the battle in stage
         Character has three different stage of stat;
@@ -214,11 +228,13 @@ class Character(sprite.Sprite):
         """
         sprite.Sprite.__init__(self, self.containers)
         self.game_id = game_id
+        self.layer_id = layer_id
         self.melee_target = None  # target for melee attacking
         self.player_control = player_control  # character controlled by player
         self.leader = leader
         self.taking_damage_angle = None
         self.indicator = None
+        self.cutscene_event = None
 
         self.animation_pool = {}  # list of animation sprite this character can play with its action
         self.status_animation_pool = {}
@@ -242,6 +258,7 @@ class Character(sprite.Sprite):
         self.command_action = {}  # next action to be performed
         self.command_key_input = []
         self.moveset_command_key_input = ()
+        self.reach_camera_event = {}
         self.command_key_hold = None
         self.last_command_key_input = None
 
@@ -257,7 +274,7 @@ class Character(sprite.Sprite):
 
         self.alive = True
         self.broken = False
-        self.not_movable = False
+        self.no_forced_move = False
         self.invisible = False
         self.stop_fall_duration = 0
         self.fly = False
@@ -301,10 +318,12 @@ class Character(sprite.Sprite):
         self.screen_scale = self.battle.screen_scale
 
         self.command_pos = Vector2(0, 0)
-        self.base_pos = Vector2(stat["POS"])  # true position of character in battle
+        self.base_pos = Vector2(stat["POS"][0] + (1920 * (stat["Scene"] - 1)),
+                                stat["POS"][1])  # true position of character in battle
         self.last_pos = None  # may be used by AI or specific character update check for position change
         self.pos = Vector2((self.base_pos[0] * self.screen_scale[0],
                             self.base_pos[1] * self.screen_scale[1]))
+        self.cutscene_target_pos = None
 
         # Default element stat
         element_dict = {key.split(" ")[0]: 0 for key in stat if
@@ -339,7 +358,7 @@ class Character(sprite.Sprite):
             self.drops = stat["Drops"]
 
             for key, value in self.default_item_drop_table.items():  # add drop from common drop table
-                if value > uniform(0, 100):  # random chance to be added  # TODO add gold drops for boss when sprite done
+                if value > uniform(0, 100):  # random chance to be added
                     if key in self.drops:  # add chance to already exiting item
                         self.drops[key] += value
                     else:
@@ -401,7 +420,7 @@ class Character(sprite.Sprite):
         self.original_guard = 10 * self.constitution
         self.original_super_armour = self.constitution
 
-        self.health = stat["Base Health"] + (stat["Base Health"] * (self.constitution / 100))  # health of character
+        self.max_health = int((stat["Base Health"] + (stat["Base Health"] * (self.constitution / 100))) * health_scaling)  # health of character
         self.max_resource = int(stat["Max Resource"] + (stat["Max Resource"] * self.intelligence / 100))
 
         self.original_resource_cost_modifier = 1
@@ -425,12 +444,7 @@ class Character(sprite.Sprite):
         if self.body_size < 1:
             self.body_size = 1
 
-        self.sprite_size = self.body_size * 100  # use for pseudo sprite size of character for positioning of effect
-
-        if self.player_control:  # player character get priority in sprite showing
-            self._layer = int(game_id * self.body_size * 100000000)
-        else:
-            self._layer = int(game_id * self.body_size * 100000)
+        self.sprite_size = self.body_size * 100 * self.screen_scale[1]  # use for pseudo sprite size of character for positioning of effect
 
         self.base_body_mass = stat["Size"]
         self.body_mass = self.base_body_mass  # use for impact resistance when hit
@@ -486,8 +500,7 @@ class Character(sprite.Sprite):
         self.guard_cost_modifier = self.base_guard_cost_modifier
         self.resource_cost_modifier = self.base_resource_cost_modifier
 
-        self.max_health = int(self.health)
-        self.health *= stat["Start Health"] / 100
+        self.health = self.max_health * stat["Start Health"] / 100
         self.resource1 = self.max_resource * 0.01
         self.resource2 = self.max_resource * 0.02
         self.resource10 = self.max_resource * 0.10
@@ -500,7 +513,9 @@ class Character(sprite.Sprite):
         self.walk_speed = 1
 
         # Variable related to sprite
-        self.angle = 0
+        self.angle = -90
+        if "Angle" in stat:
+            self.angle = stat["Angle"]
         self.new_angle = self.angle
         self.radians_angle = radians(360 - self.angle)  # radians for apply angle to position
         self.run_direction = 0  # direction check to prevent character able to run in opposite direction right away
@@ -558,6 +573,7 @@ class Character(sprite.Sprite):
         self.hit_volume_mod = self.base_body_mass / 10
 
     def update(self, dt):
+        """Character update, run when cutscene not playing"""
         if self.health:  # only run these when not dead
             if dt:  # only run these when game not pause
                 hold_check = False
@@ -633,10 +649,10 @@ class Character(sprite.Sprite):
                 self.health_resource_logic(dt)
                 self.specific_update(dt)
 
-                # Animation and sprite system
-                # if self.show_frame >= len(self.current_animation_direction):  # TODO remove when really fixed
-                #     print(self.name, self.show_frame, self.current_animation, self.current_action)
-                #     raise Exception()
+                # Animation and sprite systema
+                if self.show_frame >= len(self.current_animation_direction):  # TODO remove when really fixed
+                    print(self.name, self.show_frame, self.current_animation, self.current_action)
+                    raise Exception()
 
                 if "hold" in self.current_animation_direction[self.show_frame]["property"] and \
                         "hold" in self.current_action and \
@@ -644,8 +660,8 @@ class Character(sprite.Sprite):
                          ("forced move" in self.current_action and (self.x_momentum or self.y_momentum)) or
                          (self.current_moveset and "hold" in self.current_moveset["Property"])):
                     hold_check = True
-                    self.hold_timer += dt
                     if self.current_moveset:
+                        self.hold_timer += dt
                         self.hold_power_bonus = 1
                         if "hold+power" in self.current_moveset["Property"] and self.hold_timer >= 1:
                             # hold beyond 1 second to hit harder
@@ -747,8 +763,6 @@ class Character(sprite.Sprite):
 
                     self.pick_animation()
 
-                    self.final_animation_play_time = self.animation_play_time
-
                     # new action property
                     if "freeze" in self.current_action:
                         self.freeze_timer = self.current_action["freeze"]
@@ -762,6 +776,23 @@ class Character(sprite.Sprite):
                                 self.x_momentum = -self.current_action["x_momentum"]
                     if "y_momentum" in self.current_action and type(self.current_action["y_momentum"]) is not str:
                         self.y_momentum = self.current_action["y_momentum"]
+
+                if self.reach_camera_event and self.battle.base_camera_begin < self.base_pos[0] < self.battle.base_camera_end:
+                    # play event related to character reach inside camera
+                    for key, value in self.reach_camera_event.items():
+                        for item in value:
+                            if item["Type"] == "speak":  # speak something
+                                CharacterSpeechBox(self, self.battle.localisation.grab_text(("event",
+                                                                                             item["Text ID"],
+                                                                                             "Text")))
+                            elif item["Type"] == "animation":  # play specific animation
+                                self.command_action = item["Property"]
+                            break  # play one child event at a time
+                        if "repeat" not in item["Property"]:  # always have item in event data
+                            value.remove(item)
+                        break  # play one event at a time
+                    if not value:  # last event no longer have child event left, remove from dict
+                        self.reach_camera_event.pop(key)
 
                 if self.broken and (self.retreat_stage_end + self.sprite_size <= self.base_pos[0] or
                                     self.base_pos[0] <= self.retreat_stage_start):
@@ -780,7 +811,8 @@ class Character(sprite.Sprite):
                 self.pick_animation()
 
             if "die" in self.current_action:
-                if self.show_frame < self.max_show_frame or self.base_pos[1] < self.ground_pos:  # play die animation
+                if self.show_frame < self.max_show_frame or self.base_pos[1] < self.ground_pos or \
+                        "repeat" in self.current_action:  # play die animation
                     self.move_logic(dt)
                     self.play_animation(dt, False)
                 else:  # finish die animation and reach ground
@@ -796,13 +828,73 @@ class Character(sprite.Sprite):
                         else:
                             self.die("dead")
 
+    def cutscene_update(self, dt):
+        """Update for cutscene"""
+        if self.cutscene_event:
+            if self.cutscene_target_pos and self.cutscene_target_pos != self.base_pos:
+                speed = 350
+                if "speed" in self.cutscene_event["Property"]:
+                    speed = self.cutscene_event["Property"]["speed"]
+                # move to target pos based on data if any
+                move = self.cutscene_target_pos - self.base_pos
+                require_move_length = move.length()  # convert length
+                move.normalize_ip()
+                move *= speed * dt
+
+                if move.length() <= require_move_length:  # move normally according to move speed
+                    self.base_pos += move
+                else:  # move length pass the base_target destination
+                    self.base_pos = Vector2(self.cutscene_target_pos)  # just change base position to base target
+
+                self.pos = Vector2((self.base_pos[0] * self.screen_scale[0],
+                                    self.base_pos[1] * self.screen_scale[1]))
+
+                for part in self.body_parts.values():
+                    part.re_rect()
+
+        hold_check = False
+        if ("hold" in self.current_animation_direction[self.show_frame]["property"] and "hold" in self.current_action) or \
+                not self.max_show_frame:
+            hold_check = True
+        done = self.play_cutscene_animation(dt, hold_check)
+        if done or (self.cutscene_target_pos and self.cutscene_target_pos == self.base_pos):
+            if done:
+                self.show_frame = 0
+                self.frame_timer = 0
+                self.start_animation_body_part()
+                if self.cutscene_event and "die" in self.cutscene_event["Property"]:
+                    self.battle.cutscene_playing.remove(self.cutscene_event)
+                    self.cutscene_target_pos = None
+                    self.current_action = {}
+                    self.cutscene_event = None
+                    self.show_frame = self.max_show_frame
+                    self.max_show_frame = 0  # reset max_show_frame to 0 to prevent restarting animation
+                    self.start_animation_body_part()  # revert previous show_frame 0 animation start
+                    return
+            if self.cutscene_target_pos and self.cutscene_target_pos == self.base_pos:
+                # animation consider finish when reach target as well, pick idle animation
+                self.show_frame = 0
+                self.frame_timer = 0
+                self.current_action = {}
+                self.pick_cutscene_animation({})
+            if self.cutscene_event and "repeat" not in self.cutscene_event["Property"] and \
+                    "player_interact" not in self.cutscene_event["Property"] and \
+                    (not self.cutscene_target_pos or self.cutscene_target_pos == self.base_pos):
+                # finish animation, consider event done unless event require player interaction first or in repeat
+                self.cutscene_target_pos = None
+                self.current_action = {}
+                self.command_action = {}
+                self.battle.cutscene_playing.remove(self.cutscene_event)
+                self.cutscene_event = None
+                self.pick_cutscene_animation({})
+
     def ai_update(self, dt):
         pass
 
 
 class PlayableCharacter(Character):
-    def __init__(self, game_id, stat, player_control):
-        Character.__init__(self, game_id, stat, player_control=player_control)
+    def __init__(self, game_id, layer_id, stat):
+        Character.__init__(self, game_id, layer_id, stat, player_control=True)
         self.indicator = CharacterIndicator(self)
         self.player_command_key_input = []
         self.player_key_input_timer = []
@@ -966,29 +1058,35 @@ class PlayableCharacter(Character):
 
 
 class AICharacter(Character):
-    def __init__(self, game_id, stat, leader=None):
-        Character.__init__(self, game_id, stat, leader=leader)
+    def __init__(self, game_id, layer_id, stat, leader=None, specific_behaviour=None, health_scaling=1):
+        Character.__init__(self, game_id, layer_id, stat, leader=leader, health_scaling=health_scaling)
         self.old_cursor_pos = None
         self.is_boss = stat["Boss"]
         self.is_summon = stat["Summon"]
+        self.ai_lock = False  # lock AI from activity when start battle, and it positions outside of scene lock
+        if self.base_pos[0] > self.battle.base_stage_end:
+            self.ai_lock = True
         if self.is_summon:
             self.health_as_resource = True  # each time summon use resource it uses health instead
         if self.leader:
             self.indicator = CharacterIndicator(self)
-        self.ai_move = ai_move_dict["default"]
         if "Ground Y POS" in stat and stat["Ground Y POS"]:  # replace ground pos based on data in stage
             self.ground_pos = stat["Ground Y POS"]
+        ai_behaviour = stat["AI Behaviour"]
+        if specific_behaviour:
+            ai_behaviour = specific_behaviour
 
-        if stat["AI Behaviour"] in ai_move_dict:
-            self.ai_move = ai_move_dict[stat["AI Behaviour"]]
+        self.ai_move = ai_move_dict["default"]
+        if ai_behaviour in ai_move_dict:
+            self.ai_move = ai_move_dict[ai_behaviour]
 
         self.ai_combat = ai_combat_dict["default"]
-        if stat["AI Behaviour"] in ai_combat_dict:
-            self.ai_combat = ai_combat_dict[stat["AI Behaviour"]]
+        if ai_behaviour in ai_combat_dict:
+            self.ai_combat = ai_combat_dict[ai_behaviour]
 
         self.ai_retreat = ai_retreat_dict["default"]
-        if stat["AI Behaviour"] in ai_retreat_dict:
-            self.ai_retreat = ai_retreat_dict[stat["AI Behaviour"]]
+        if ai_behaviour in ai_retreat_dict:
+            self.ai_retreat = ai_retreat_dict[ai_behaviour]
 
         for item in stat["Property"]:  # set attribute from property
             self.__setattr__(item, True)
@@ -996,10 +1094,24 @@ class AICharacter(Character):
         self.ai_timer = 0  # for whatever timer require for AI action
         self.ai_movement_timer = 0  # timer to move for AI
         self.end_ai_movment_timer = randint(2, 6)
+        if self.is_boss:
+            self.end_ai_movment_timer = 5
         for position in self.moveset.values():
             for move in position.values():
                 if self.ai_max_attack_range < move["AI Range"]:
                     self.ai_max_attack_range = move["AI Range"]
+
+        if "Stage Property" in stat:
+            if "target" in stat["Stage Property"]:
+                if type(stat["Stage Property"]["target"]) is int:  # target is AI
+                    target = stat["Stage Property"]["target"]
+                else:  # target is player
+                    target = stat["Stage Property"]["target"][-1]
+
+                for this_char in self.battle.all_chars:
+                    if target == this_char.game_id:  # find target char object
+                        self.target = this_char
+                        break
 
         self.resurrect_count = 0
 
@@ -1011,8 +1123,11 @@ class AICharacter(Character):
         if self.ai_movement_timer:
             self.ai_movement_timer += dt
         if not self.broken:
-            self.ai_combat(self)
-            self.ai_move(self, dt)
+            if not self.ai_lock:
+                self.ai_combat(self)
+                self.ai_move(self, dt)
+            elif self.base_pos[0] <= self.battle.base_stage_end:  # in active scene now
+                self.ai_lock = False
         else:
             self.ai_retreat(self)
 
@@ -1038,8 +1153,9 @@ class BodyPart(sprite.Sprite):
         self.battle_camera = self.battle.battle_camera
         self.owner = owner
         self.team = self.owner.team
-        self.owner_layer = self.owner.layer
+        self.owner_layer = 0
         self.angle = self.owner.angle
+        self.invincible = self.owner.invincible
         self._layer = 10
         sprite.Sprite.__init__(self, self.containers)
         self.base_image_update_contains = []  # object that need updating when base_image get updated
@@ -1066,7 +1182,7 @@ class BodyPart(sprite.Sprite):
         self.already_hit = []
         self.base_image = self.empty_surface
         self.image = self.empty_surface
-        self.data = []
+        self.data = []  # index 1=part name, 2and3=pos xy, 4=angle, 5=flip, 6=layer , 7=scale, 8=deal damage or not
         self.sprite_ver = str(self.owner.sprite_ver)
         self.rect = self.image.get_rect(topleft=(0, 0))
         self.mask = from_surface(self.image)
@@ -1091,7 +1207,7 @@ class BodyPart(sprite.Sprite):
             # multiple hits moveset reset already hit every frame instead of just when finish animation
             self.already_hit = []
 
-        if data[8]:  # can do dmg
+        if data[8] and not self.battle.cutscene_playing:  # can do dmg, no check while in cutscene mode
             self.can_deal_dmg = True
             find_damage(self)
         if self.data != data:
@@ -1111,8 +1227,10 @@ class BodyPart(sprite.Sprite):
                 for item in self.base_image_update_contains:
                     item.update()
 
+            self.image = self.base_image
             if self.data[4]:  # rotation
                 self.image = pygame.transform.rotate(self.base_image, self.data[4])
+
             self.re_rect()
             if self._layer != self.owner_layer + 100 - data[6]:
                 self.battle_camera.change_layer(self, self.owner_layer + 100 - data[6])
@@ -1120,9 +1238,10 @@ class BodyPart(sprite.Sprite):
     def re_rect(self):
         if self.data:
             if self not in self.battle_camera:  # was remove because no data previously
-                for team in self.battle.all_team_enemy_part:
-                    if team != self.team:  # add back part to enemy part list of other team
-                        self.battle.all_team_enemy_part[team].add(self)
+                if not self.invincible:
+                    for team in self.battle.all_team_enemy_part:
+                        if team != self.team:  # add back part to enemy part list of other team
+                            self.battle.all_team_enemy_part[team].add(self)
                 self.battle_camera.add(self)
 
             self.rect = self.image.get_rect(center=((self.owner.pos[0] + (self.data[2] * self.screen_scale[0])),

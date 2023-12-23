@@ -15,8 +15,10 @@ class Camera:
         for surface in surfaces:  # Blit sprite to camara image
             surface_x, surface_y = surface.rect.left, surface.rect.top
             surface_w, surface_h = surface.rect.size
-            if surface_x + surface_w - camera_x > 0 and surface_y + surface_h - camera_y > 0:  # only blit if image in camera
+            if surface_x + surface_w - camera_x > 0 and surface_y + surface_h - camera_y > 0:
+                # only blit if image in camera at all
                 self.image.blit(surface.image, (surface_x - camera_x, surface_y - camera_y))
 
         for surface in out_surfaces:  # surface that get blit with pos on screen instead of in battle
             self.image.blit(surface.image, surface.rect)
+

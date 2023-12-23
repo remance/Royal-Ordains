@@ -1,5 +1,5 @@
 import os
-from pathlib import Path
+import csv
 
 from engine.utils.data_loading import csv_read, lore_csv_read
 
@@ -32,7 +32,7 @@ class Localisation:
         self.read_module_lore("help", "help")
 
         # Load map description
-        self.text["en"]["map"] = {"info": {}}
+        self.text["en"]["map"] = {}
 
         self.load_map_lore("en")
         if self.language != "en":
@@ -40,54 +40,32 @@ class Localisation:
 
     def load_map_lore(self, language):
         try:
-            with open(os.path.join(self.data_dir, "localisation", language, "map", "info.csv"),
-                      encoding="utf-8", mode="r") as edit_file:  # read campaign info file
-                lore_csv_read(edit_file, self.text[language]["map"]["info"])
+            with open(os.path.join(self.data_dir, "localisation", language, "stage.csv"),
+                      encoding="utf-8", mode="r") as edit_file:  # read map info file
+                rd = csv.reader(edit_file, quoting=csv.QUOTE_ALL)
+                rd = [row for row in rd]
+                for index, row in enumerate(rd[1:]):
+                    row = [int(item) if item.isdigit() else item for item in row]
+                    if row[0]:  # chapter, no need for else since must have chapter
+                        if row[0] not in self.text[language]["map"]:
+                            self.text[language]["map"][row[0]] = {}
+                        if row[1]:  # mission
+                            if row[1] not in self.text[language]["map"][row[0]]:
+                                self.text[language]["map"][row[0]][row[1]] = {}
+                            if row[2]:  # stage
+                                if row[2] not in self.text[language]["map"][row[0]][row[1]]:
+                                    self.text[language]["map"][row[0]][row[1]][row[2]] = {}
+                                if row[3]:  # scene
+                                    if row[3] not in self.text[language]["map"][row[0]][row[1]][row[2]]:
+                                        # last at scene
+                                        self.text[language]["map"][row[0]][row[1]][row[2]][row[3]] = {"Text": row[4]}
+                                else:
+                                    self.text[language]["map"][row[0]][row[1]][row[2]]["Text"] = row[4]
+                            else:
+                                self.text[language]["map"][row[0]][row[1]]["Text"] = row[4]
+                        else:
+                            self.text[language]["map"][row[0]]["Text"] = row[4]
             edit_file.close()
-
-            read_folder = Path(os.path.join(self.data_dir, "localisation", language, "map"))
-            sub1_directories = [x for x in read_folder.iterdir() if x.is_dir()]  # load preset map campaign
-            for file_chapter in sub1_directories:
-                chapter_id = os.path.split(file_chapter)[-1]
-                try:
-                    with open(os.path.join(self.data_dir, "localisation", language, "map",
-                                           file_chapter, "info.csv"),
-                              encoding="utf-8", mode="r") as edit_file:  # read campaign info file
-                        self.text[language]["map"][chapter_id] = {"info": {}}
-                        lore_csv_read(edit_file, self.text[language]["map"][chapter_id]["info"])
-                    edit_file.close()
-
-                    read_folder = Path(os.path.join(self.data_dir, "localisation", language, "map",
-                                                    file_chapter))
-                    sub2_directories = [x for x in read_folder.iterdir() if x.is_dir()]
-                    for file_mission in sub2_directories:
-                        file_mission_name = os.path.split(file_mission)[-1]
-                        self.text[language]["map"][chapter_id][file_mission_name] = {}
-                        read_folder = Path(os.path.join(self.data_dir, "localisation", language, "map",
-                                                        file_chapter, file_mission_name))
-
-                        sub3_directories = [x for x in read_folder.iterdir() if x.is_dir()]
-                        for file_stage in sub3_directories:
-                            file_stage_name = os.path.split(file_stage)[-1]
-                            self.text[language]["map"][chapter_id][file_mission_name][file_stage_name] = {
-                                "eventlog": {}}
-                            read_folder = Path(os.path.join(self.data_dir, "localisation", language, "map",
-                                                            file_chapter, file_mission_name, file_stage_name))
-                            sub2_files = [f for f in os.listdir(read_folder) if f.endswith(".csv")]
-                            for data_file in sub2_files:  # load event log
-                                if "eventlog" in data_file:
-                                    with open(os.path.join(self.data_dir, "localisation", language, "map",
-                                                           file_chapter, file_mission_name, file_stage_name, data_file),
-                                              encoding="utf-8", mode="r") as edit_file:  # read source file
-                                        self.text[language]["map"][chapter_id][file_mission_name][file_stage_name][
-                                            "eventlog"] = {}
-                                        lore_csv_read(edit_file,
-                                                      self.text[language]["map"][chapter_id][file_mission_name][
-                                                          file_stage_name][
-                                                          "eventlog"])
-                                    edit_file.close()
-                except FileNotFoundError:
-                    pass
         except FileNotFoundError:
             pass
 

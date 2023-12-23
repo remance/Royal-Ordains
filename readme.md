@@ -21,6 +21,9 @@ Discord channel: [![github](https://github.com/remance/preview/blob/main/discord
 
 For game update showcase video: [![github](https://github.com/remance/preview/blob/main/youtube_logo3.png?raw=true)][2]
 
+<a href="https://youtu.be/video_id" title="video text"><img src="https://github.com/remance/preview2/blob/main/rabbit-rider.gif?raw=true" width="150" height="150"></a>  <a href="https://youtu.be/video_id" title="video text"><img src="https://github.com/remance/preview2/blob/main/bigta.gif?raw=true" width="150" height="150"></a>  <a href="https://youtu.be/video_id" title="video text"><img src="https://github.com/remance/preview2/blob/main/bow.gif?raw=true" width="150" height="150"></a> <a href="https://youtu.be/video_id" title="video text"><img src="https://github.com/remance/preview2/blob/main/peace.gif?raw=true" width="150" height="150"></a>   
+
+
 ---------------
 
 # Contribution to development
@@ -33,7 +36,7 @@ Some non-specific suggestions and examples of helps, including but not limited t
 
 - **Programming**: New features, improve current ones, code optimisation/improvement
 - **Asset Creation**: UI, character, effect art, sound effect, music
-- **Historical stuffs**: Medieval art reference, writing, sources, correction, improvements
+- **Historical stuffs and Ideas**: Medieval art reference, writing, improvements, and other ideas
 - **Quality Assurance**: Code documentation, game balancing, bugs fix, feedbacks
 
 Note: All the new and current untested development are done on "dev" branch. The main branch is for a somewhat stable version of the game.
@@ -112,8 +115,6 @@ Also, the game is currently optimised based on the pygame 2.5.1 module and pytho
 ---------------
 
 # Latest Update
-
-<a href="https://youtu.be/video_id" title="video text"><img src="https://github.com/remance/preview2/blob/main/rabbit-rider.gif?raw=true" width="150" height="150"></a>  <a href="https://youtu.be/video_id" title="video text"><img src="https://github.com/remance/preview2/blob/main/bigta.gif?raw=true" width="150" height="150"></a>  
 
 Currently, the current game version consists of 5 playable characters and first mission for chapter 1.
 
@@ -257,10 +258,11 @@ Animation maker for the Vector-based character animation in game. The tool is ma
 - Battle music "Medieval: Battle" by RandomMind (https://www.chosic.com/free-music/all/?keyword=RandomMind&artist)
 - Battle music 2 "War Drums Sound Effect - Realistic Performance - Royalty Free" by Free Audio Zone (https://www.youtube.com/watch?v=d2omr4EpjVc)
 - Mechanism sound "Mechanism" by Globofonia (https://freesound.org/people/Globofonia/)
-- Boom sound "Breaking the sound barrier" by Pixabay (https://pixabay.com/users/pixabay-1/) 
+- Boom, clapping, whistling sound  by Pixabay (https://pixabay.com/users/pixabay-1/) 
 - Bell sound "Bell Sound Ring" by Mike Koenig (https://soundbible.com/26-Bell-Sound-Ring.html#)
 - Wind sound "Wind Blow", Blood pull "Breeze Of Blood" by UNIVERSFIELD (https://pixabay.com/users/universfield-28281460/) 
 - Earth spike sound "Punch a rock" and "Woosh Drum hit" by LordSonny (https://pixabay.com/users/lordsonny-38439655/)
+- Whistling sound "Joy Whistle" by Vampireayanos-narry (https://pixabay.com/users/vampireayanos-narry-33446737/)
 
 [//]: # (## Translation)
 

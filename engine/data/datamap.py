@@ -85,56 +85,94 @@ class BattleMapData(GameData):
 
         preset_map_list = []
         self.preset_map_folder = []  # folder for reading later
-        self.battle_campaign = {}
         self.preset_map_data = {}
 
-        for file_campaign in sub1_directories:
-            read_folder = Path(os.path.join(self.data_dir, "map", "preset", file_campaign))
-            campaign_file_name = os.sep.join(os.path.normpath(file_campaign).split(os.sep)[-1:])
+        for file_chapter in sub1_directories:
+            read_folder = Path(os.path.join(self.data_dir, "map", "preset", file_chapter))
+            chapter_file_name = os.sep.join(os.path.normpath(file_chapter).split(os.sep)[-1:])
             sub2_directories = [x for x in read_folder.iterdir() if x.is_dir()]
 
-            self.preset_map_data[int(campaign_file_name)] = {}
+            self.preset_map_data[int(chapter_file_name)] = {}
             for file_map in sub2_directories:
                 map_file_name = os.sep.join(os.path.normpath(file_map).split(os.sep)[-1:])
                 self.preset_map_folder.append(map_file_name)
-                map_name = self.localisation.grab_text(key=("preset_map", campaign_file_name,
-                                                            "info", map_file_name, "Name"))
+                map_name = self.localisation.grab_text(key=("map", int(chapter_file_name), int(map_file_name), "Text"))
                 preset_map_list.append(map_name)
-                self.battle_campaign[int(map_file_name)] = campaign_file_name
-                self.preset_map_data[int(campaign_file_name)][int(map_file_name)] = {}
+                self.preset_map_data[int(chapter_file_name)][int(map_file_name)] = {}
 
-                read_folder = Path(os.path.join(self.data_dir, "map", "preset", file_campaign, file_map))
+                read_folder = Path(os.path.join(self.data_dir, "map", "preset", file_chapter, file_map))
                 sub3_directories = [x for x in read_folder.iterdir() if x.is_dir()]
-                for file_source in sub3_directories:
-                    source_file_name = os.sep.join(os.path.normpath(file_source).split(os.sep)[-1:])
-                    self.preset_map_data[int(campaign_file_name)][int(map_file_name)][int(source_file_name)] = \
-                        {"data": csv_read(file_source, "object_pos.csv", header_key=True),
-                         "character": self.load_map_unit_data(campaign_file_name, map_file_name, source_file_name),
-                         "stage_event": csv_read(file_source, "event.csv", header_key=True)}
+                for file_stage in sub3_directories:
+                    stage_file_name = os.sep.join(os.path.normpath(file_stage).split(os.sep)[-1:])
+                    if stage_file_name != "0":  # city stage use different reading
+                        self.preset_map_data[int(chapter_file_name)][int(map_file_name)][int(stage_file_name)] = \
+                            {"data": csv_read(file_stage, "object_pos.csv", header_key=True),
+                             "character": self.load_map_unit_data(chapter_file_name, map_file_name, stage_file_name),
+                             "event": self.load_map_event_data(chapter_file_name, map_file_name, stage_file_name)}
+                    # else:  # city stage, read each scene
+                    #     read_folder = Path(os.path.join(self.data_dir, "map", "preset", file_chapter, file_map, "0"))
+                    #     sub4_directories = [x for x in read_folder.iterdir() if x.is_dir()]
+                    #     for file_scene in sub3_directories:
+                    #         scene_file_name = os.sep.join(os.path.normpath(file_stage).split(os.sep)[-1:])
+                    #         self.preset_map_data[int(chapter_file_name)][int(map_file_name)][int(stage_file_name)][
+                    #             scene_file_name] = \
+                    #             {"data": csv_read(file_stage, "object_pos.csv", header_key=True),
+                    #              "character": self.load_map_unit_data(chapter_file_name, map_file_name,
+                    #                                                   stage_file_name),
+                    #              "event": self.load_map_event_data(chapter_file_name, map_file_name, stage_file_name)}
 
-    def load_map_unit_data(self, campaign_id, map_id, map_source):
+    def load_map_event_data(self, campaign_id, map_id, stage_id):
+        with open(os.path.join(self.data_dir, "map", "preset", campaign_id, map_id, stage_id,
+                               "event.csv"), encoding="utf-8", mode="r") as unit_file:
+            rd = list(csv.reader(unit_file, quoting=csv.QUOTE_ALL))
+            header = rd[0]
+            tuple_column = ("Trigger",)
+            tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
+            dict_column = ("Property",)
+            dict_column = [index for index, item in enumerate(header) if item in dict_column]
+            for data_index, data in enumerate(rd[1:]):  # skip header
+                for n, i in enumerate(data):
+                    data = stat_convert(data, n, i, tuple_column=tuple_column, dict_column=dict_column)
+                rd[data_index + 1] = {header[index]: stuff for index, stuff in enumerate(data)}
+            event_data = rd[1:]
+            # keep event data in trigger structure for easier check
+            if event_data:
+                final_event_data = {}
+                for item in event_data:
+                    if item["ID"]:  # item with no parent ID mean it is child of previous found parent
+                        next_level = final_event_data
+                        for trigger in item["Trigger"]:
+                            if trigger not in next_level:
+                                next_level[trigger] = {}
+                            next_level = next_level[trigger]
+                        parent_id = item["ID"]
+                        if parent_id not in next_level:
+                            next_level[parent_id] = []
+                    next_level[parent_id].append(item)
+                unit_file.close()
+                return final_event_data
+            unit_file.close()
+            return event_data
+
+    def load_map_unit_data(self, campaign_id, map_id, stage_id):
         try:
-            with open(os.path.join(self.data_dir, "map", "preset", campaign_id, map_id, map_source,
+            with open(os.path.join(self.data_dir, "map", "preset", campaign_id, map_id, stage_id,
                                    "character_pos.csv"), encoding="utf-8", mode="r") as unit_file:
                 rd = list(csv.reader(unit_file, quoting=csv.QUOTE_ALL))
                 header = rd[0]
                 int_column = ("Team",)  # value int only
                 list_column = ("POS", "Arrive Condition")  # value in list only
                 float_column = ("Angle", "Start Health", "Start Stamina")  # value in float
+                dict_column = ("Stage Property", )
                 int_column = [index for index, item in enumerate(header) if item in int_column]
                 list_column = [index for index, item in enumerate(header) if item in list_column]
                 float_column = [index for index, item in enumerate(header) if item in float_column]
+                dict_column = [index for index, item in enumerate(header) if item in dict_column]
 
                 for data_index, data in enumerate(rd[1:]):  # skip header
                     for n, i in enumerate(data):
                         data = stat_convert(data, n, i, list_column=list_column, int_column=int_column,
-                                            float_column=float_column)
-                        for item in data:
-                            if type(item) is dict:  # change troop number string to list
-                                for key, value in item.items():
-                                    if type(value) is str:
-                                        item[key] = [int(value2) for value2 in value.split("/")]
-
+                                            float_column=float_column, dict_column=dict_column)
                     rd[data_index + 1] = {header[index]: stuff for index, stuff in enumerate(data)}
                 char_data = rd[1:]
             unit_file.close()

@@ -1,4 +1,5 @@
 "Buttons","Move","Name","Position","Stat Requirement","Requirement Move","Prepare Animation","AI Range","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Strong","astrong","Burst Push","Air",,,,200,,,25,70,100,,,,,"Physical",,,,"penetrate"
 "Weak","sweak1","Low Sweep Kick","Stand",,,,80,,,10,2,,,,100,,"Physical",,,,
 "Weak","sweak2","Revert Middle Kick","Stand",,"sweak1",,110,,,,3,50,,150,,,"Physical",,,,
 "Weak","sweak3","Moon Rise Kick","Stand",,"sweak2",,130,,,,4,200,,50,,,"Physical",,,,

@@ -13,6 +13,24 @@ def training_ai(self):
     pass
 
 
+def cheer_ai(self):
+    """No attack but check for target action for appropriate cheering"""
+    if "moveset" in self.target.current_action or "submit" in self.target.current_action or \
+            "taunt" in self.target.current_action:
+        # Cheer when target attack or spared in decision
+        if "cheer" not in self.current_action:
+            self.interrupt_animation = True
+        if "special" in self.target.current_action:  # cheer harder for special move
+            self.command_action = self.cheer_fast_action
+        else:
+            self.command_action = self.cheer_action
+    elif "die" in self.target.current_action or "execute" in self.target.current_action:
+        # Play execute animation when target is executed in decision
+        if "execute" not in self.current_action:
+            self.interrupt_animation = True
+        self.command_action = self.execute_action
+
+
 def guard_ai(self):
     """Common combat AI will use only stand position with guard priority and not use combo"""
     if (not self.current_action or "guard" in self.current_action) and not self.command_action and self.nearest_enemy:
@@ -63,4 +81,5 @@ def complex_ai(self):
 
 
 ai_combat_dict = {"default": training_ai, "common_melee": common_ai, "common_range": common_ai, "sentry": common_ai,
-                  "trap": common_ai, "bigta": common_ai, "guard_melee": guard_ai, "pursue_melee": common_ai}
+                  "trap": common_ai, "bigta": common_ai, "guard_melee": guard_ai, "pursue_melee": common_ai,
+                  "boss_cheer": cheer_ai}

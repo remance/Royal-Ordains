@@ -263,7 +263,14 @@ for char in char_list:
         except FileNotFoundError as b:
             print(b)
 
-char_list = [race for race in body_sprite_pool if race != ""]  # get only char with existed folder and parts
+char_list = []  # get char with existing stat
+
+for file_index, char_file in enumerate(("playable.csv", "enemy.csv")):
+    with open(os.path.join(data_dir, "character", char_file),
+              encoding="utf-8", mode="r") as edit_file:
+        rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
+        for row_index, row in enumerate(rd[1:]):
+            char_list.append(row[0])
 
 default_mode = {}
 with open(os.path.join(data_dir, "animation", "template.csv"),

@@ -10,7 +10,20 @@ def stationary_ai(self, dt):
     pass
 
 
+def cinematic_ai(self, dt):
+    pass
+
+
+def observer_ai(self, dt):
+    """Keep facing target"""
+    if self.target.base_pos[0] >= self.base_pos[0]:
+        self.new_angle = -90
+    else:
+        self.new_angle = 90
+
+
 def helper_ai(self, dt):
+    """Movement AI for fairy helper, follow around cursor"""
     if self.battle.player_1_battle_cursor.pos != self.old_cursor_pos and \
             self.battle.decision_select not in self.battle.realtime_ui_updater:
         self.old_cursor_pos = Vector2(self.battle.player_1_battle_cursor.pos)
@@ -51,37 +64,16 @@ def common_ai(self, dt):
         self.ai_movement_timer = 0
     if not self.current_action and not self.command_action and not self.ai_movement_timer:
         # if not self.nearest_enemy or self.nearest_enemy[1] > self.max_attack_range:
-        # walk randomly when not attack
-        if not self.leader:
+        # walk randomly when not attack or inside stage lock
+        if not self.leader:  # random movement
             self.ai_movement_timer = 0.1
             self.x_momentum = randint(1, 50) * self.walk_speed / 20 * choice((-1, 1))
             self.command_action = self.walk_command_action | {"x_momentum": self.x_momentum}
-        else:
+        else:  # check for leader pos for follow
             leader_distance = self.base_pos.distance_to(self.leader.base_pos)
             if leader_distance < 400:  # not too far from leader, walk randomly
                 self.ai_movement_timer = 0.1
                 self.x_momentum = randint(1, 50) * self.walk_speed / 20 * choice((-1, 1))
-                self.command_action = self.walk_command_action | {"x_momentum": self.x_momentum}
-            else:  # catch up with leader
-                self.x_momentum = ((self.leader.base_pos[0] - self.base_pos[0]) / 10) + randint(-30, 30)
-                self.command_action = self.walk_command_action | {"x_momentum": self.x_momentum}
-
-
-def common_boss_ai(self, dt):
-    if self.ai_movement_timer > 3:
-        self.ai_movement_timer = 0
-    if not self.current_action and not self.command_action and not self.ai_movement_timer:
-        # if not self.nearest_enemy or self.nearest_enemy[1] > self.max_attack_range:
-        # walk randomly when not attack
-        if not self.leader:
-            self.ai_movement_timer = 0.1
-            self.x_momentum = randint(1, 50) * self.walk_speed / 20 * choice((-1, 1))
-            self.command_action = self.walk_command_action | {"x_momentum": self.x_momentum}
-        else:
-            leader_distance = self.base_pos.distance_to(self.leader.base_pos)
-            if leader_distance < 400:  # not too far from leader, walk randomly
-                self.ai_movement_timer = 0.1
-                self.x_momentum = self.walk_speed * choice((-1, 1))
                 self.command_action = self.walk_command_action | {"x_momentum": self.x_momentum}
             else:  # catch up with leader
                 self.x_momentum = ((self.leader.base_pos[0] - self.base_pos[0]) / 10) + randint(-30, 30)
@@ -130,4 +122,4 @@ def sentry_ai(self, dt):
 
 ai_move_dict = {"default": stationary_ai, "helper": helper_ai, "common_melee": common_ai, "common_range": common_ai,
                 "pursue_melee": common_ai, "pursue_range": pursue_range_ai, "sentry": sentry_ai,
-                "trap": stationary_ai, "bigta": common_boss_ai, "guard_melee": common_ai}
+                "trap": stationary_ai, "bigta": common_ai, "guard_melee": common_ai, "boss_cheer": observer_ai}

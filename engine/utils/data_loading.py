@@ -342,6 +342,15 @@ def stat_convert(row, n, i, percent_column=(), mod_column=(), list_column=(), tu
                         result_i[new_i2[0]] = True
                     elif new_i2[1] == "false":
                         result_i[new_i2[0]] = False
+                    elif "(" in new_i2[1]:
+                        new_i2[1] = new_i2[1].replace("(", "").replace(")", "")
+                        if "." in new_i2[1]:
+                            result_i[new_i2[0]] = tuple(
+                                [float(item2) if re.search("[a-zA-Z]", item2) is None else str(item2) for item2 in
+                                 new_i2[1].split(";")])
+                        else:
+                            result_i[new_i2[0]] = tuple(
+                                [int(item2) if item2.lstrip("-").isdigit() else item2 for item2 in new_i2[1].split(";")])
                     elif new_i2[1].isdigit():
                         result_i[new_i2[0]] = int(result_i[new_i2[0]])
                     elif "." in new_i2[1] and re.search("[a-zA-Z]", new_i2[1]) is None:

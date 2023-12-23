@@ -63,14 +63,16 @@ def dmg_crash_check(self, crashed_part):
     if dmg_diff < self.dmg / 2:  # both dmg quite near in power
         self.can_deal_dmg = False
         crashed_part.can_deal_dmg = False
-        if crashed_part.object_type == "body":
-            self.already_hit.append(crashed_part.owner)
-            self.owner.interrupt_animation = True
-            self.owner.command_action = self.owner.heavy_damaged_command_action
-        if self.object_type == "body":
-            crashed_part.already_hit.append(self.owner)
+        crashed_part.already_hit.append(self.owner)
+        self.already_hit.append(crashed_part.owner)
+        if crashed_part.object_type == "body":  # play damaged animation if crash part is not effect
             crashed_part.owner.interrupt_animation = True
-            crashed_part.owner.command_action = crashed_part.owner.heavy_damaged_command_action
+            if not self.owner.no_forced_move:
+                crashed_part.owner.command_action = crashed_part.owner.heavy_damaged_command_action
+        if self.object_type == "body":
+            self.owner.interrupt_animation = True
+            if not crashed_part.owner.no_forced_move:
+                self.owner.command_action = self.owner.heavy_damaged_command_action
         Effect(None, ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)
         if self.object_type == "effect":  # end effect
             if self.stick_reach:  # bounce off
@@ -84,10 +86,11 @@ def dmg_crash_check(self, crashed_part):
             Effect(None, ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)
         else:
             Effect(None, ("Crash Enemy", "Crash", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)
+        crashed_part.already_hit.append(self.owner)
         if crashed_part.object_type == "body":  # collided with enemy body part
-            crashed_part.already_hit.append(self.owner)
             crashed_part.owner.interrupt_animation = True
-            crashed_part.owner.command_action = crashed_part.owner.heavy_damaged_command_action
+            if not crashed_part.owner.no_forced_move:
+                crashed_part.owner.command_action = crashed_part.owner.heavy_damaged_command_action
         elif crashed_part.object_type == "effect":  # end enemy effect if not penetrate
             if crashed_part.stick_reach:  # bounce off
                 crashed_part.stick_timer = 5
@@ -96,10 +99,11 @@ def dmg_crash_check(self, crashed_part):
     else:  # this object dmg is much lower, enemy win
         self.can_deal_dmg = False
         Effect(None, ("Crash Enemy", "Crash", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)
+        self.already_hit.append(crashed_part.owner)
         if self.object_type == "body":  # body part object collide with enemy
-            self.already_hit.append(crashed_part.owner)
             self.owner.interrupt_animation = True
-            self.owner.command_action = self.owner.heavy_damaged_command_action
+            if not self.owner.no_forced_move:
+                self.owner.command_action = self.owner.heavy_damaged_command_action
         elif self.object_type == "effect":  # end effect if not penetrate
             if self.stick_reach:  # bounce off
                 self.stick_timer = 5

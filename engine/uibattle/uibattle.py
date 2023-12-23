@@ -11,7 +11,8 @@ from pygame.transform import smoothscale
 from engine.uimenu.uimenu import UIMenu
 from engine.utils.text_making import number_to_minus_or_plus, text_render_with_bg, minimise_number_text
 
-team_colour = {1: Color("black"), 2: Color("red"), 3: Color("blue"), 4: Color("green")}
+team_colour = {1: Color("black"), 2: Color("red"), 3: Color("blue"), 4: Color("darkgoldenrod1"),
+               "health": Color("seagreen4"), "resource": Color("slateblue1"), "revive": Color("purple")}
 
 
 class UIBattle(UIMenu):
@@ -287,9 +288,9 @@ class CharacterIndicator(UIBattle):
         UIBattle.__init__(self, has_containers=True)
         self.font = Font(self.ui_font["main_button"], 42)
         self.character = character
-        self.height_adjust = self.character.sprite_size * 2.2
+        self.height_adjust = self.character.sprite_size * 3.5
         if character.player_control:
-            text = "P" + str(character.game_id)
+            text = character.game_id
 
             self.image = text_render_with_bg(text,
                                              Font(self.ui_font["manuscript_font"], int(42 * self.screen_scale[1])),
@@ -567,7 +568,8 @@ class ScoreBoard(UIBattle):
 class CharacterSpeechBox(UIBattle):
     images = {}
 
-    def __init__(self, character, text):
+    def __init__(self, character, text, specific_timer=None, player_input_indicator=False, cutscene_event=None):
+        """Speech box that appear from character head"""
         self._layer = 9999999999999999998
         UIBattle.__init__(self, player_interact=False, has_containers=True)
         self.body = self.images["speech_body"]
@@ -577,20 +579,25 @@ class CharacterSpeechBox(UIBattle):
         self.left_corner_rect = self.left_corner.get_rect(topleft=(0, 0))  # The starting point
 
         self.character = character
+        self.player_input_indicator = player_input_indicator
+        self.cutscene_event = cutscene_event
         self.head_part = self.character.body_parts["p1_head"]  # assuming character always has p1 head
         self.base_pos = self.character.base_pos.copy()
         self.finish_unfolding = False
         self.current_length = self.left_corner.get_width()  # current unfolded length start at 20
         self.text_surface = Font(self.ui_font["manuscript_font"],
                                  int(28 * self.screen_scale[1])).render(text, True, (0, 0, 0))
-        self.base_image = Surface((self.text_surface.get_width() + int(self.left_corner.get_width() * 4),
+        self.base_image = Surface((self.text_surface.get_width() + int(self.left_corner.get_width() * 1.5),
                                    self.left_corner.get_height()), SRCALPHA)
         self.base_image.blit(self.left_corner, self.left_corner_rect)  # start animation with the left corner
         self.max_length = self.base_image.get_width()  # max length of the body, not counting the end corner
         self.rect = self.base_image.get_rect(midleft=self.head_part.rect.center)
-        self.timer = 3
-        if len(text) > 20:
-            self.timer += int(len(text) / 10)
+        if specific_timer:
+            self.timer = specific_timer
+        else:
+            self.timer = 3
+            if len(text) > 20:
+                self.timer += int(len(text) / 20)
 
     def update(self, dt):
         """Play unfold animation and blit drama text at the end"""
@@ -603,14 +610,20 @@ class CharacterSpeechBox(UIBattle):
             # right corner end
             right_corner_rect = self.right_corner.get_rect(topright=(self.base_image.get_width(), 0))
             self.base_image.blit(self.right_corner, right_corner_rect)
+            if self.player_input_indicator:  # add player weak button indicate for closing speech in cutscene
+                rect = self.images["button_weak"].get_rect(topright=(self.base_image.get_width(),
+                                                                     self.right_corner.get_height()))
+                self.base_image.blit(self.images["button_weak"], rect)
             self.image = self.base_image.copy()
             self.finish_unfolding = True
 
         else:  # finish animation, count down timer
-            print(self.timer)
             self.timer -= dt
             if self.timer <= 0:
                 self.kill()
+        if self.character.alive is False:  # kill speech if character die
+            self.kill()
+            return
 
         if self.character.sprite_direction == "l_side":  # left direction facing
             if self.head_part.rect.midleft[0] - (
@@ -630,6 +643,9 @@ class CharacterSpeechBox(UIBattle):
             else:
                 self.image = self.base_image.copy()
                 self.rect.bottomleft = self.head_part.rect.midright
+
+        if self.rect.midtop[1] < 0:  # exceed top scene
+            self.rect.midtop = Vector2(self.rect.midtop[0], 0)
 
         if self.current_length >= self.max_length:
             # blit text when finish unfold

@@ -8,7 +8,6 @@ from engine.utils.common import clean_group_object, clean_object
 
 def die(self, how):
     """Character left battle, either dead or flee"""
-
     # remove from updater
     self.battle.all_team_character[self.team].remove(self)
     for team in self.battle.all_team_enemy_part:
@@ -16,8 +15,8 @@ def die(self, how):
             for part in self.body_parts.values():
                 self.battle.all_team_enemy_part[team].remove(part)
             self.battle.all_team_enemy[team].remove(self)
-    if self.game_id in self.battle.player_objects:
-        self.battle.player_objects.pop(self.game_id)
+    if self.player_control and int(self.game_id[-1]) in self.battle.player_objects:
+        self.battle.player_objects.pop(int(self.game_id[-1]))
 
     self.current_action = {}
 

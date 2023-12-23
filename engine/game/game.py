@@ -3,6 +3,7 @@ import configparser
 import glob
 import os.path
 import sys
+import types
 from math import sin, cos, radians
 
 import pygame
@@ -29,7 +30,7 @@ from engine.uibattle.uibattle import Profiler, FPSCount, DamageNumber, Character
 from engine.uimenu.uimenu import OptionMenuText, SliderMenu, MenuCursor, BoxUI, BrownMenuButton, \
     URLIconLink, MenuButton, TextPopup, MapTitle, CharacterSelector, CharacterStatAllocator
 from engine.updater.updater import ReversedLayeredUpdates
-from engine.utils.common import edit_config
+from engine.utils.common import edit_config, empty_method, cutscene_update
 from engine.utils.data_loading import load_image, load_images, csv_read, load_base_button
 from engine.utils.text_making import number_to_minus_or_plus
 from engine.weather.weather import MatterSprite, SpecialWeatherEffect, Weather
@@ -277,14 +278,17 @@ class Game:
         self.battle_cursor_drawer = pygame.sprite.LayeredUpdates()
 
         self.character_updater = pygame.sprite.Group()  # updater for character objects
+        self.character_updater.cutscene_update = types.MethodType(cutscene_update,  self.character_updater)
         self.realtime_ui_updater = pygame.sprite.Group()  # for UI stuff that need to be updated in real time like drama and weather objects, also used as drawer
         self.effect_updater = pygame.sprite.Group()  # updater for effect objects (e.g. range attack sprite)
+        self.effect_updater.cutscene_update = types.MethodType(cutscene_update,  self.effect_updater)
 
         self.all_chars = pygame.sprite.Group()  # group to keep all character objects for cleaning
         self.all_damage_effects = pygame.sprite.Group()  # group to keep all damage objects for collision check
 
         self.button_ui = pygame.sprite.Group()  # ui button group in battle
 
+        self.speech_boxes = pygame.sprite.Group()
         self.ui_boxes = pygame.sprite.Group()
 
         self.slider_menu = pygame.sprite.Group()  # volume slider in esc option menu
@@ -303,7 +307,7 @@ class Game:
         SubsectionName.containers = self.ui_updater, self.ui_drawer, self.battle_ui_updater, self.battle_ui_drawer
 
         # battle containers
-        CharacterSpeechBox.containers = self.effect_updater, self.battle_camera
+        CharacterSpeechBox.containers = self.effect_updater, self.battle_camera, self.speech_boxes
         CharacterIndicator.containers = self.effect_updater, self.battle_camera
         Drop.containers = self.effect_updater, self.battle_camera
         DamageNumber.containers = self.effect_updater, self.battle_camera
@@ -338,7 +342,6 @@ class Game:
         Weather.weather_icons = self.battle_map_data.weather_icon
 
         self.preset_map_folder = self.battle_map_data.preset_map_folder
-        self.battle_campaign = self.battle_map_data.battle_campaign  # for reference to preset campaign
         self.preset_map_data = self.battle_map_data.preset_map_data
 
         Character.character_data = self.character_data

@@ -45,6 +45,7 @@ class Effect(sprite.Sprite):
 
     def __init__(self, owner, part_stat, layer, from_owner=True):
         """Effect sprite that does not affect character in any way"""
+        # TODO add end effect animation before removal
 
         if layer:  # use layer based on owner and animation data
             self._layer = layer
@@ -121,7 +122,7 @@ class Effect(sprite.Sprite):
         self.adjust_sprite()
 
     def update(self, dt):
-        done, just_start = self.play_animation(0.1, dt)
+        done, just_start = self.play_animation(0.05, dt)
 
         if self.sound_effect_name and self.sound_timer < self.sound_duration:
             self.sound_timer += dt
@@ -136,6 +137,10 @@ class Effect(sprite.Sprite):
         if done:  # no duration, kill effect when animation end
             self.clean_object()
             return
+
+    def cutscene_update(self, dt):
+        """All type of effect update the same during cutscene"""
+        self.update(dt)
 
 
 class DamageEffect(Effect):
@@ -318,9 +323,10 @@ class DamageEffect(Effect):
                         self.angle = self.base_stuck_stat[1]
                         scale_diff = 1 + (self.stuck_part.data[7] - self.base_stuck_stat[2][7])
                         x_diff = self.base_stuck_stat[0][0]
-                        if self.stuck_part.owner.angle != self.base_stuck_stat[3]:  # different animation direction
+                        if self.stuck_part.owner.angle != self.base_stuck_stat[3]:
+                            # different animation direction
                             x_diff = -x_diff
-                            self.angle = (self.angle - 180)
+                            self.angle = -self.angle
                         # if self.stuck_part.data[5] != self.base_stuck_stat[2][5] and \
                         #         (self.stuck_part.data[5] in (1, 3) or self.base_stuck_stat[2][5] in (1, 3)):
                         #     # part has opposite horizontal flip
@@ -337,7 +343,7 @@ class DamageEffect(Effect):
                         # else:
                         self.pos[1] += self.base_stuck_stat[0][1] * scale_diff
 
-                        if self.stuck_part.data[4] != self.base_stuck_stat[2][4]:
+                        if self.stuck_part.data[4] != self.base_stuck_stat[2][4]:  # stuck part data change
                             if self.stuck_part.owner.angle != self.base_stuck_stat[3]:  # different direction
                                 angle_dif = self.stuck_part.data[4] + self.base_stuck_stat[2][4]
                                 self.angle += self.stuck_part.data[4] + self.base_stuck_stat[2][4]
@@ -367,7 +373,7 @@ class DamageEffect(Effect):
                     self.reach_target("border")
                     return
 
-            done, just_start = self.play_animation(0.2, dt, False)
+            done, just_start = self.play_animation(0.05, dt, False)
 
             if just_start and self.duration:  # reset already hit every animation frame for effect with duration
                 self.already_hit = []
@@ -438,7 +444,7 @@ class TrapEffect(Effect):
         if self.sound_effect_name and self.sound_timer < self.sound_duration:
             self.sound_timer += dt
 
-        done, just_start = self.play_animation(0.1, dt)
+        done, just_start = self.play_animation(0.05, dt)
 
         if self.activate and done:
             if "drop" in self.effect_stat["Property"]:  # drop item after destroyed, slightly above trap sprite
@@ -492,7 +498,7 @@ class StatusEffect(Effect):
         self.rect.midbottom = self.owner.pos
 
     def update(self, dt):
-        done, just_start = self.play_animation(0.1, dt)
+        done, just_start = self.play_animation(0.05, dt)
         self.pos = self.owner.pos
         self.rect.midbottom = self.owner.pos
 

@@ -61,9 +61,12 @@ class AnimationData(GameData):
                                         if "special" in part_name:
                                             part_name = part_name.split("_")[1]
                                         else:
-                                            part_name = part_name[5:]
+                                            for p in range(1, 5):
+                                                if "p" + str(p) in part_name:
+                                                    part_name = part_name[3:]
+                                                if part_name[:2] == "l_" or part_name[:2] == "r_":
+                                                    part_name = part_name[2:]
                                         part_type = part[0]
-
                                     if part_type not in part_size_scaling:
                                         part_size_scaling[part_type] = {}
                                     if part_name not in part_size_scaling[part_type]:

@@ -71,14 +71,11 @@ def hit_register(self, target, body_part):
 
                         if target.guard_meter < 0:  # guard depleted, break with heavy damaged animation
                             if self.owner.player_control:
-                                Effect(None,
-                                       (
-                                       "Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle, 1, 0,
-                                       1), 0)
+                                Effect(None, ( "Crash Player", "Crash", self.rect.centerx, self.rect.centery,
+                                               -self.angle, 1, 0, 1), 0)
                             else:
-                                Effect(None,
-                                       ("Crash Enemy", "Crash", self.rect.centerx, self.rect.centery, -self.angle, 1, 0,
-                                        1), 0)
+                                Effect(None, ("Crash Enemy", "Crash", self.rect.centerx, self.rect.centery,
+                                              -self.angle, 1, 0, 1), 0)
                             target.guard_meter = 0
                             target.interrupt_animation = True
                             target.command_action = target.heavy_damaged_command_action
@@ -88,15 +85,11 @@ def hit_register(self, target, body_part):
                             #                                      volume_mod=target.hit_volume_mod)
                         else:
                             if self.owner.player_control:  # player hit enemy guard
-                                Effect(None,
-                                       ("Crash Enemy", "Crash", self.rect.centerx, self.rect.centery, -self.angle, 1, 0,
-                                        1), 0)
+                                Effect(None, ("Crash Enemy", "Crash", self.rect.centerx, self.rect.centery,
+                                              -self.angle, 1, 0, 1), 0)
                             else:  # enemy hit player guard
-                                Effect(None,
-                                       (
-                                       "Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle, 1, 0,
-                                       1),
-                                       0)
+                                Effect(None, ("Crash Player", "Crash", self.rect.centerx, self.rect.centery,
+                                              -self.angle, 1, 0, 1), 0)
                             target.show_frame -= 3
                             if self.stick_reach and not self.penetrate:
                                 self.stick_timer = 5
