@@ -17,7 +17,7 @@ from engine.drama.drama import TextDrama
 from engine.effect.effect import Effect
 from engine.stage.stage import Stage
 from engine.stageobject.stageobject import StageObject
-from engine.uibattle.uibattle import FPSCount, BattleCursor, YesNo, CharacterSpeechBox
+from engine.uibattle.uibattle import FPSCount, BattleCursor, YesNo, CharacterSpeechBox, CharacterInteractPrompt
 from engine.utils.common import clean_object, clean_group_object
 from engine.utils.data_loading import load_image, load_images
 from engine.utils.text_making import number_to_minus_or_plus
@@ -26,6 +26,8 @@ from engine.weather.weather import Weather
 script_dir = os.path.split(os.path.abspath(__file__))[0] + "/"
 
 infinity = float("inf")
+
+decision_route = {"yes": "a", "no": "b"}
 
 
 def set_start_load(self, what):  # For output asset loading time in terminal
@@ -197,21 +199,20 @@ class Battle:
         self.right_corner = self.screen_rect.width - (5 * self.screen_scale[0])
         self.bottom_corner = self.screen_rect.height - (5 * self.screen_scale[1])
 
-        # data specific to module
         self.character_data = self.game.character_data
-
         self.battle_map_data = self.game.battle_map_data
         self.weather_data = self.battle_map_data.weather_data
         self.weather_matter_images = self.battle_map_data.weather_matter_images
         self.weather_list = self.battle_map_data.weather_list
         self.stage_reward = self.battle_map_data.stage_reward
         self.reward_list = self.battle_map_data.reward_list
-
         self.character_animation_data = self.game.character_animation_data
         self.body_sprite_pool = self.game.body_sprite_pool
         self.effect_animation_pool = self.game.effect_animation_pool
         self.language = self.game.language
         self.localisation = self.game.localisation
+        self.save_data = game.save_data
+        self.save_profile = {}
 
         self.game_speed = 1
         self.day_time = "Day"
@@ -260,6 +261,8 @@ class Battle:
 
         battle_ui_images = load_images(self.data_dir, screen_scale=self.screen_scale, subfolder=("ui", "battle_ui"))
         CharacterSpeechBox.images = battle_ui_images
+
+        self.speech_prompt = CharacterInteractPrompt(battle_ui_images["button_weak"])
 
         battle_ui_dict = make_battle_ui(battle_ui_images)
 
@@ -330,6 +333,7 @@ class Battle:
         self.stage_end = 0
         self.execute_cutscene = None
         self.reach_scene_cutscene_list = {}  # cutscene that play when camera reach scene
+        self.player_interact_event_list = {}
         self.base_stage_end_list = {}
         self.stage_end_list = {}
         self.end_delay = 0  # delay until stage end and continue to next one
@@ -342,17 +346,19 @@ class Battle:
         self.next_lock = None
         self.cutscene_playing = None
 
-    def prepare_new_stage(self, chapter, mission, stage, players):
+    def prepare_new_stage(self, save_profile, chapter, mission, stage, players, scene):
 
-        for message in self.inner_prepare_new_stage(chapter, mission, stage, players):
+        for message in self.inner_prepare_new_stage(save_profile, chapter, mission, stage, players, scene):
             print(message, end="")
 
-    def inner_prepare_new_stage(self, chapter, mission, stage, players):
+    def inner_prepare_new_stage(self, save_profile, chapter, mission, stage, players, scene):
         """Setup stuff when start new stage"""
         self.chapter = chapter
         self.chapter_sprite_ver = str(chapter)
         self.mission = mission
         self.stage = stage
+
+        self.save_profile = save_profile
 
         self.players = players
         self.existing_playable_characters = [value["ID"] for value in self.players.values()]
@@ -391,11 +397,14 @@ class Battle:
         # map_event = self.game.preset_map_data[chapter][mission][stage]["eventlog"]
         self.time_number.start_setup()
 
+        print("Start loading", self.chapter, self.mission, self.stage, scene)
         yield set_start_load(self, "stage setup")
         self.current_weather.__init__(self.time_ui, 0, 0, 0,
                                       self.weather_data)  # start weather with random  # TODO change to stage data
 
         stage_data = self.game.preset_map_data[chapter][mission][stage]
+        if scene:  # city stage with only 1 scene
+            stage_data = stage_data[scene]
         stage_object_data = stage_data["data"]
         stage_event_data = copy.deepcopy(stage_data["event"])
         loaded_item = []
@@ -413,15 +422,20 @@ class Battle:
         self.decision_select.selected = None
         self.end_delay = 0
         self.reach_scene_cutscene_list = {}
+        self.player_interact_event_list = {}
         self.base_stage_end_list = {}
         self.stage_end_list = {}
+        self.speech_prompt.clear()
 
         first_lock = None
         for value in stage_object_data.values():
             if value["Object"] not in loaded_item:  # load image
                 if "stage" in value["Type"]:
+                    stage_folder = ("map", "stage")
+                    if self.stage == 0:  # city stage
+                        stage_folder = ("map", "city")
                     image = load_image(self.data_dir, self.screen_scale, value["Object"] + ".png",
-                                       ("map", "stage"))  # no scaling yet
+                                       stage_folder)  # no scaling yet
                     if "front" in value["Type"]:
                         self.frontground_stage.images[value["Object"]] = image
                     else:
@@ -497,7 +511,10 @@ class Battle:
                     new_value[0].append(item)
             self.later_enemy[stage] = new_value
 
-        self.setup_battle_character(self.players, start_enemy)
+        add_helper = True
+        if self.stage == 0:  # city stage not add helper
+            add_helper = False
+        self.setup_battle_character(self.players, start_enemy, add_helper=add_helper)
 
         for player in self.player_objects:
             self.realtime_ui_updater.add(self.player_portraits[player - 1])
@@ -509,6 +526,22 @@ class Battle:
                         if this_char.game_id == key:
                             if "in_camera" in trigger:  # reach camera event
                                 this_char.reach_camera_event = value2
+                            break
+            elif "interact" in trigger:
+                for key, value2 in value.items():
+                    for key3, value3 in value2.items():
+                        if value3[0]["Type"] == "char":  # check only parent event type data
+                            # must always have char id as second item in trigger
+                            for char in self.all_chars:
+                                if char.game_id == trigger[1]:
+                                    if (key, char) not in self.player_interact_event_list:
+                                        self.player_interact_event_list[(key, char)] = []
+                                    self.player_interact_event_list[(key, char)].append(value3)
+                                    break
+                        elif value3[0]["Type"] == "pos":  # interact with specific pos
+                            if (key, trigger[1]) not in self.player_interact_event_list:
+                                self.player_interact_event_list[(key, trigger[1])] = []
+                            self.player_interact_event_list[(key, trigger[1])].append(value3)
                             break
             elif "camera" in trigger:  # trigger depend on camera reaching something
                 if "reach_scene" in trigger:
@@ -878,6 +911,19 @@ class Battle:
                             for parent_event in self.reach_scene_cutscene_list[self.battle_stage.reach_scene]:
                                 # play one parent at a time
                                 self.cutscene_playing = parent_event
+
+                    if self.player_interact_event_list:
+                        for item in self.player_interact_event_list:
+                            target_pos = item[1]
+                            if type(item[1]) is not tuple:
+                                target_pos = item[1].base_pos
+                            if 100 < self.first_player.base_pos.distance_to(target_pos) < 300:
+                                # use player with the lowest number as interactor
+                                self.speech_prompt.add_to_screen(self.first_player, target_pos)
+                                if self.player_key_press[self.first_player]["Weak"]:  # player interact, start event
+                                    self.cutscene_playing = self.player_interact_event_list[item]
+                                break
+
                 else:  # currently in cutscene mode
                     for child_event in self.cutscene_playing.copy():
                         # play child events until found one that need waiting
@@ -1063,6 +1109,7 @@ class Battle:
 
                         if self.decision_select.selected:
                             self.end_delay = 0.1
+                            # self.save_data decision_route[self.decision_select.selected]
                             if self.decision_select.selected == "yes":
                                 self.player_team_followers = self.stage_reward["yes"][self.chapter][self.mission][
                                     self.stage]

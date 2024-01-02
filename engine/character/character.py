@@ -134,7 +134,7 @@ class Character(sprite.Sprite):
     flee_command_action = {"name": "FleeMove", "movable": True, "flee": True}
     halt_command_action = {"name": "Halt", "movable": True, "walk": True, "halt": True}
     dash_command_action = {"name": "Dash", "uncontrollable": True, "movable": True, "forced move": True, "no dmg": True,
-                           "hold": True, "dash": True}
+                           "hold": True, "dash": True, "not_reset_special_state": True}
 
     jump_idle_command_action = {"name": "Idle", "movable": True}
     relax_command_action = {"name": "Relax", "low level": True}
@@ -377,16 +377,16 @@ class Character(sprite.Sprite):
             self.score = stat["Score"]
 
         if "Skill Allocation" in stat:  # refind leveled skill allocated since name is only from first level
-            for name, position in self.skill.items():
+            for position_name, position in self.skill.items():
                 for skill in tuple(position.keys()):
                     if position[skill]["Name"] in stat["Skill Allocation"] and \
                             stat["Skill Allocation"][position[skill]["Name"]]:
                         skill_id = skill[:3] + str(stat["Skill Allocation"][position[skill]["Name"]])
-                        self.available_skill[name][skill_id] = position[skill_id]
+                        self.available_skill[position_name][skill_id] = position[skill_id]
         else:  # all skill available
-            for name, position in self.skill.items():
+            for position_name, position in self.skill.items():
                 for skill in tuple(position.keys()):
-                    self.available_skill[name][skill] = position[skill]
+                    self.available_skill[position_name][skill] = position[skill]
 
         self.remove_moveset_not_match_stat_requirement()
 
@@ -1118,18 +1118,42 @@ class AICharacter(Character):
         self.enter_battle(self.battle.character_animation_data)
 
     def ai_update(self, dt):
+        self.ai_timer = 0  # for whatever timer require for AI action
+        self.ai_movement_timer = 0  # timer to move for AI
         if self.ai_timer:
             self.ai_timer += dt
         if self.ai_movement_timer:
             self.ai_movement_timer += dt
-        if not self.broken:
-            if not self.ai_lock:
-                self.ai_combat(self)
-                self.ai_move(self, dt)
-            elif self.base_pos[0] <= self.battle.base_stage_end:  # in active scene now
-                self.ai_lock = False
-        else:
-            self.ai_retreat(self)
+        self.ai_combat(self)
+        self.ai_move(self, dt)
+
+
+class CityAICharacter(Character):
+    def __init__(self, game_id, layer_id, stat, leader=None, specific_behaviour=None):
+        Character.__init__(self, game_id, layer_id, stat, leader=leader)
+        ai_behaviour = "idle_city_npc"
+        if specific_behaviour:
+            ai_behaviour = specific_behaviour
+
+        self.ai_move = ai_move_dict["default"]
+        if ai_behaviour in ai_move_dict:
+            self.ai_move = ai_move_dict[ai_behaviour]
+
+        self.ai_combat = ai_combat_dict["default"]
+        if ai_behaviour in ai_combat_dict:
+            self.ai_combat = ai_combat_dict[ai_behaviour]
+
+        self.ai_timer = 0  # for whatever timer require for AI action
+        self.ai_movement_timer = 0  # timer to move for AI
+        self.end_ai_movment_timer = randint(2, 6)
+
+    def ai_update(self, dt):
+        if self.ai_timer:
+            self.ai_timer += dt
+        if self.ai_movement_timer:
+            self.ai_movement_timer += dt
+        self.ai_combat(self)
+        self.ai_move(self, dt)
 
 
 class BodyPart(sprite.Sprite):

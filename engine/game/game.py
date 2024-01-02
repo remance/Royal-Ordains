@@ -26,16 +26,16 @@ from engine.lorebook.lorebook import Lorebook, SubsectionName, lorebook_process
 from engine.menubackground.menubackground import MenuActor, MenuRotate, StaticImage
 from engine.stageobject.stageobject import StageObject
 from engine.uibattle.uibattle import Profiler, FPSCount, DamageNumber, CharacterSpeechBox, \
-    CharacterIndicator
+    CharacterIndicator, CharacterInteractPrompt
 from engine.uimenu.uimenu import OptionMenuText, SliderMenu, MenuCursor, BoxUI, BrownMenuButton, \
     URLIconLink, MenuButton, TextPopup, MapTitle, CharacterSelector, CharacterStatAllocator
 from engine.updater.updater import ReversedLayeredUpdates
-from engine.utils.common import edit_config, empty_method, cutscene_update
+from engine.utils.common import edit_config, empty_method, cutscene_update, load_save_file, make_save_file
 from engine.utils.data_loading import load_image, load_images, csv_read, load_base_button
 from engine.utils.text_making import number_to_minus_or_plus
 from engine.weather.weather import MatterSprite, SpecialWeatherEffect, Weather
 
-game_name = "Royal Ordains"  # Game name that will appear as game name
+game_name = "Royal Ordains"  # Game name that will appear as game name at the windows bar
 
 
 class Game:
@@ -229,6 +229,8 @@ class Game:
 
         self.clock = pygame.time.Clock()  # set get clock
 
+        self.save_data = {}
+
         self.loading = load_image(self.data_dir, self.screen_scale, "loading.png", ("ui", "mainmenu_ui"))
         self.loading = pygame.transform.scale(self.loading, self.screen_rect.size)
 
@@ -308,6 +310,7 @@ class Game:
 
         # battle containers
         CharacterSpeechBox.containers = self.effect_updater, self.battle_camera, self.speech_boxes
+        CharacterInteractPrompt.containers = self.realtime_ui_updater
         CharacterIndicator.containers = self.effect_updater, self.battle_camera
         Drop.containers = self.effect_updater, self.battle_camera
         DamageNumber.containers = self.effect_updater, self.battle_camera

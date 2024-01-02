@@ -133,7 +133,7 @@ def player_input(self, player_index, dt):
 
                     if self.position == "Stand" and "air" not in self.command_action and \
                             "dash" not in self.command_action:
-                        # character movement, couch can not move or jump
+                        # character movement during stand position
                         if self.last_command_key_input == "Up":  # jump
                             self.engage_combat()
                             self.interrupt_animation = True
@@ -149,7 +149,7 @@ def player_input(self, player_index, dt):
 
                         elif self.last_command_key_input == "Left" or \
                                 (self.command_key_hold and self.command_key_hold[-1] == "Left"):
-                            if len(self.command_key_input) > 1:
+                            if len(self.command_key_input) > 1:  # check for run input with double press
                                 if self.player_command_key_input[-1] == "Left" and \
                                         self.player_command_key_input[-2] == "Left":
                                     # double press move to run
@@ -169,11 +169,13 @@ def player_input(self, player_index, dt):
                                     self.command_key_input = []
                                     self.player_key_input_timer = []
                             else:
-                                self.x_momentum = -self.walk_speed / 10
+                                self.new_angle = 90
+                                if not self.current_action or "movable" in self.current_action:
+                                    self.x_momentum = -self.walk_speed / 10
 
                         elif self.last_command_key_input == "Right" or \
                                 (self.command_key_hold and self.command_key_hold[-1] == "Right"):
-                            if len(self.command_key_input) > 1:
+                            if len(self.command_key_input) > 1:  # check for run input with double press
                                 if self.player_command_key_input[-1] == "Right" and \
                                         self.player_command_key_input[-2] == "Right":
                                     # double press move to run
@@ -193,7 +195,9 @@ def player_input(self, player_index, dt):
                                     self.command_key_input = []
                                     self.player_key_input_timer = []
                             else:
-                                self.x_momentum = self.walk_speed / 10
+                                self.new_angle = -90
+                                if not self.current_action or "movable" in self.current_action:
+                                    self.x_momentum = self.walk_speed / 10
 
                         if self.x_momentum:
                             if "air" not in self.current_action and "guard" not in self.current_action and \

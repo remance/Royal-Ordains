@@ -3,14 +3,15 @@ import gc
 from pygame.mixer import music
 
 
-def start_battle(self, chapter, mission, stage, players=None):
+def start_battle(self, save_data, chapter, mission, stage, players=None, scene=None):
     # self.error_log.write("\n Map: " + str(self.map_selected) + "\n")
     self.loading_screen("start")
 
     music.unload()
     music.set_endevent(self.SONG_END)
-    self.battle.prepare_new_stage(chapter, mission, stage, players)
+    self.battle.prepare_new_stage(save_data, chapter, mission, stage, players, scene=scene)
     next_stage = self.battle.run_game()
+    # Finish battle, check for next one
     music.unload()
     music.set_endevent(self.SONG_END)
     music.load(self.music_list[0])
@@ -19,9 +20,9 @@ def start_battle(self, chapter, mission, stage, players=None):
 
     if next_stage:
         if stage + 1 in self.preset_map_data[chapter][mission]:  # has next stage
-            self.start_battle(chapter, mission, stage + 1, players=players)
-        else:  # start next mission
-            self.start_battle(chapter, mission + 1, 1, players=players)
+            self.start_battle(save_data, chapter, mission, stage + 1, players=players)
+        else:  # proceed next mission, go to city throne map
+            self.start_battle(save_data, chapter, mission + 1, 0, players=players, scene="throne")
 
     # for when memory leak checking
     # logging.warning(mem_top())

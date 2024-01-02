@@ -565,6 +565,37 @@ class ScoreBoard(UIBattle):
         self.body_part.base_image.blit(gold_text, gold_rect)
 
 
+class CharacterInteractPrompt(UIBattle):
+
+    def __init__(self, image):
+        """Weak button prompt that indicate player can talk to target"""
+        self._layer = 9999999999999999998
+        UIBattle.__init__(self, player_interact=False, has_containers=True)
+        self.character = None
+        self.target = None
+        self.image = image
+        self.rect = self.image.get_rect(center=(0, 0))
+
+    def add_to_screen(self, character, target):
+        self.character = character
+        self.target = target
+        self.rect = self.image.get_rect(midbottom=self.target)
+        if self not in self.battle.battle_camera:
+            self.battle.battle_camera.add(self)
+
+    def update(self, *args):
+        if self.target and 100 > (self.character.base_pos.distance_to(self.target) or
+                                  self.character.base_pos.distance_to(self.target) > 300):
+            # check if player move too far from current target prompt
+            self.clear()
+
+    def clear(self):
+        self.character = None
+        self.target = None
+        if self in self.battle.battle_camera:
+            self.battle.battle_camera.remove(self)
+
+
 class CharacterSpeechBox(UIBattle):
     images = {}
 
@@ -612,7 +643,7 @@ class CharacterSpeechBox(UIBattle):
             self.base_image.blit(self.right_corner, right_corner_rect)
             if self.player_input_indicator:  # add player weak button indicate for closing speech in cutscene
                 rect = self.images["button_weak"].get_rect(topright=(self.base_image.get_width(),
-                                                                     self.right_corner.get_height()))
+                                                                     self.right_corner.get_height() * 0.8))
                 self.base_image.blit(self.images["button_weak"], rect)
             self.image = self.base_image.copy()
             self.finish_unfolding = True

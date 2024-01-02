@@ -21,7 +21,10 @@ Discord channel: [![github](https://github.com/remance/preview/blob/main/discord
 
 For game update showcase video: [![github](https://github.com/remance/preview/blob/main/youtube_logo3.png?raw=true)][2]
 
-<a href="https://youtu.be/video_id" title="video text"><img src="https://github.com/remance/preview2/blob/main/rabbit-rider.gif?raw=true" width="150" height="150"></a>  <a href="https://youtu.be/video_id" title="video text"><img src="https://github.com/remance/preview2/blob/main/bigta.gif?raw=true" width="150" height="150"></a>  <a href="https://youtu.be/video_id" title="video text"><img src="https://github.com/remance/preview2/blob/main/bow.gif?raw=true" width="150" height="150"></a> <a href="https://youtu.be/video_id" title="video text"><img src="https://github.com/remance/preview2/blob/main/peace.gif?raw=true" width="150" height="150"></a>   
+<img src="https://github.com/remance/preview2/blob/main/rabbit-rider.gif?raw=true" width="200" height="200"></a> 
+<img src="https://github.com/remance/preview2/blob/main/bigta.gif?raw=true" width="200" height="200"></a>  
+<img src="https://github.com/remance/preview2/blob/main/bow.gif?raw=true" width="200" height="200"></a>
+<img src="https://github.com/remance/preview2/blob/main/peace.gif?raw=true" width="200" height="200"></a>   
 
 
 ---------------

@@ -1,6 +1,6 @@
 from random import randint
 
-from engine.character.character import Character, AICharacter, PlayableCharacter
+from engine.character.character import Character, AICharacter, PlayableCharacter, CityAICharacter
 
 from engine.uibattle.uibattle import ScoreBoard
 
@@ -22,9 +22,14 @@ def setup_battle_character(self, player_list, stage_char_list, add_helper=True):
         health_scaling = player_team[data["Team"]]
         if not health_scaling:  # 0 player is considered x1 same as 1 player
             health_scaling = 1
-        AICharacter(data["Object ID"], data["Object ID"],
-                    data | self.character_data.character_list[data["ID"]] |
-                    {"Sprite Ver": self.chapter}, health_scaling=health_scaling)
+        if "city_npc" in data["Stage Property"]:  # city AI, has different combat update
+            CityAICharacter(data["Object ID"], data["Object ID"],
+                            data | self.character_data.character_list[data["ID"]] |
+                            {"Sprite Ver": self.chapter})
+        else:
+            AICharacter(data["Object ID"], data["Object ID"],
+                        data | self.character_data.character_list[data["ID"]] |
+                        {"Sprite Ver": self.chapter}, health_scaling=health_scaling)
 
     last_id = stage_char_list[-1]["Object ID"] + 1  # id continue from last stage chars
     if self.player_team_followers:  # player AI follower

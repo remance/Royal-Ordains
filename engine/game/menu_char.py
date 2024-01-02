@@ -18,9 +18,11 @@ def menu_char(self, esc_press):
             if self.player_char_selectors[player].mode not in ("ready", "empty"):
                 all_ready = False
                 break
-        if all_ready:  # TODO change to city stage throne scene later
-            self.start_battle(1, 1, 1, players={key: value for key, value in
-                                                self.player_char_select.items() if value})
+        if all_ready:
+            # self.start_battle({}, 1, 1, 1, players={key: value for key, value in
+            #                                         self.player_char_select.items() if value})
+            self.start_battle({}, 1, 1, 0, players={key: value for key, value in
+                                                    self.player_char_select.items() if value}, scene="throne")
 
     else:
         for key_list in (self.player_key_press, self.player_key_hold):

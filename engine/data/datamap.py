@@ -104,25 +104,27 @@ class BattleMapData(GameData):
                 sub3_directories = [x for x in read_folder.iterdir() if x.is_dir()]
                 for file_stage in sub3_directories:
                     stage_file_name = os.sep.join(os.path.normpath(file_stage).split(os.sep)[-1:])
+                    self.preset_map_data[int(chapter_file_name)][int(map_file_name)][int(stage_file_name)] = {}
                     if stage_file_name != "0":  # city stage use different reading
                         self.preset_map_data[int(chapter_file_name)][int(map_file_name)][int(stage_file_name)] = \
                             {"data": csv_read(file_stage, "object_pos.csv", header_key=True),
                              "character": self.load_map_unit_data(chapter_file_name, map_file_name, stage_file_name),
                              "event": self.load_map_event_data(chapter_file_name, map_file_name, stage_file_name)}
-                    # else:  # city stage, read each scene
-                    #     read_folder = Path(os.path.join(self.data_dir, "map", "preset", file_chapter, file_map, "0"))
-                    #     sub4_directories = [x for x in read_folder.iterdir() if x.is_dir()]
-                    #     for file_scene in sub3_directories:
-                    #         scene_file_name = os.sep.join(os.path.normpath(file_stage).split(os.sep)[-1:])
-                    #         self.preset_map_data[int(chapter_file_name)][int(map_file_name)][int(stage_file_name)][
-                    #             scene_file_name] = \
-                    #             {"data": csv_read(file_stage, "object_pos.csv", header_key=True),
-                    #              "character": self.load_map_unit_data(chapter_file_name, map_file_name,
-                    #                                                   stage_file_name),
-                    #              "event": self.load_map_event_data(chapter_file_name, map_file_name, stage_file_name)}
+                    else:  # city stage, read each scene
+                        read_folder = Path(os.path.join(self.data_dir, "map", "preset", file_chapter, file_map, "0"))
+                        sub4_directories = [x for x in read_folder.iterdir() if x.is_dir()]
+                        for file_scene in sub4_directories:
+                            scene_file_name = os.sep.join(os.path.normpath(file_scene).split(os.sep)[-1:])
+                            self.preset_map_data[int(chapter_file_name)][int(map_file_name)][int(stage_file_name)][
+                                scene_file_name] = \
+                                {"data": csv_read(file_scene, "object_pos.csv", header_key=True),
+                                 "character": self.load_map_unit_data(chapter_file_name, map_file_name,
+                                                                      stage_file_name, scene_id=scene_file_name),
+                                 "event": self.load_map_event_data(chapter_file_name, map_file_name, stage_file_name,
+                                                                   scene_id=scene_file_name)}
 
-    def load_map_event_data(self, campaign_id, map_id, stage_id):
-        with open(os.path.join(self.data_dir, "map", "preset", campaign_id, map_id, stage_id,
+    def load_map_event_data(self, campaign_id, map_id, stage_id, scene_id=""):
+        with open(os.path.join(self.data_dir, "map", "preset", campaign_id, map_id, stage_id, scene_id,
                                "event.csv"), encoding="utf-8", mode="r") as unit_file:
             rd = list(csv.reader(unit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
@@ -154,9 +156,9 @@ class BattleMapData(GameData):
             unit_file.close()
             return event_data
 
-    def load_map_unit_data(self, campaign_id, map_id, stage_id):
+    def load_map_unit_data(self, campaign_id, map_id, stage_id, scene_id=""):
         try:
-            with open(os.path.join(self.data_dir, "map", "preset", campaign_id, map_id, stage_id,
+            with open(os.path.join(self.data_dir, "map", "preset", campaign_id, map_id, stage_id, scene_id,
                                    "character_pos.csv"), encoding="utf-8", mode="r") as unit_file:
                 rd = list(csv.reader(unit_file, quoting=csv.QUOTE_ALL))
                 header = rd[0]
