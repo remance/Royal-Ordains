@@ -3,13 +3,14 @@ from functools import lru_cache
 
 import pygame
 import pyperclip
+import datetime
 from pygame import Surface, SRCALPHA, Rect, Color, draw, mouse
 from pygame.font import Font
 from pygame.sprite import Sprite
 
 from engine.utils.common import keyboard_mouse_press_check, stat_allocation_check, skill_allocation_check
 from engine.utils.data_loading import load_image
-from engine.utils.text_making import text_render_with_bg, make_long_text
+from engine.utils.text_making import text_render_with_bg, make_long_text, minimise_number_text
 
 
 @lru_cache(maxsize=2 ** 8)
@@ -613,6 +614,96 @@ class OptionMenuText(UIMenu):
         self.rect = self.image.get_rect(center=(self.pos[0] - (self.image.get_width() / 2), self.pos[1]))
 
 
+class CharacterProfileBox(UIMenu):
+    image = None
+
+    def __init__(self, pos):
+        UIMenu.__init__(self, player_interact=False)
+        self.font = Font(self.ui_font["main_button"], int(28 * self.screen_scale[1]))
+        self.small_font = Font(self.ui_font["main_button"], int(24 * self.screen_scale[1]))
+        self.selected_box = Surface(self.image.get_size(), SRCALPHA)
+        self.selected_box.fill((200, 200, 200))
+        self.taken_box = Surface(self.image.get_size(), SRCALPHA)
+        self.taken_box.fill((100, 100, 100))
+        self.pos = pos
+        self.base_image = self.image.copy()
+        self.rect = self.image.get_rect(topleft=self.pos)
+
+    def change_profile(self, slot_number, data, selected):
+        if selected is True:
+            self.image = self.selected_box.copy()
+            self.image.blit(self.base_image, self.base_image.get_rect(topleft=(0, 0)))
+        elif selected == 1:
+            self.image = self.taken_box.copy()
+            self.image.blit(self.base_image, self.base_image.get_rect(topleft=(0, 0)))
+        else:
+            self.image = self.base_image.copy()
+
+        # add slot number
+        text = self.font.render("(" + slot_number + ")", True, (0, 0, 0))
+        text_rect = text.get_rect(bottomright=(self.image.get_width(), self.image.get_height()))
+        self.image.blit(text, text_rect)
+
+        if data:
+            char_id = data["character"]["ID"] + str(data["character"]["Sprite Ver"])
+            # add portrait
+            portrait = self.game.character_data.character_portraits[char_id]
+            portrait_rect = portrait.get_rect(topleft=(0, 0))
+            self.image.blit(portrait, portrait_rect)
+
+            # add name
+            text = self.font.render(self.game.localisation.grab_text(("help", char_id, "Name")), True, (0, 0, 0))
+            text_rect = text.get_rect(topleft=(120 * self.screen_scale[0], 5 * self.screen_scale[1]))
+            self.image.blit(text, text_rect)
+
+            # add play stat
+            text = self.small_font.render("Chapter:" + str(data["chapter"]) + "." + str(data["mission"]), True, (0, 0, 0))
+            text_rect = text.get_rect(topleft=(120 * self.screen_scale[0], 40 * self.screen_scale[1]))
+            self.image.blit(text, text_rect)
+
+            playtime = datetime.timedelta(seconds=data["playtime"])
+            playtime = str(playtime).split(".")[0]
+            text = self.small_font.render("Time: " + playtime, True, (0, 0, 0))
+            text_rect = text.get_rect(topleft=(120 * self.screen_scale[0], 70 * self.screen_scale[1]))
+            self.image.blit(text, text_rect)
+
+            text = self.small_font.render("Save: " + data["last save"], True, (0, 0, 0))
+            text_rect = text.get_rect(topleft=(15 * self.screen_scale[0], 100 * self.screen_scale[1]))
+            self.image.blit(text, text_rect)
+
+            text = self.small_font.render("Total Kill(Boss): " +
+                                          minimise_number_text(str(int(data["total kill"]))) + "(" +
+                                          minimise_number_text(str(int(data["boss kill"]))) + ")", True, (0, 0, 0))
+            text_rect = text.get_rect(topleft=(15 * self.screen_scale[0], 125 * self.screen_scale[1]))
+            self.image.blit(text, text_rect)
+
+            text = self.small_font.render("Gold/Score: " + minimise_number_text(str(int(data["total gold"]))) + "/" +
+                                          minimise_number_text(str(int(data["total score"]))), True, (0, 0, 0))
+            text_rect = text.get_rect(topleft=(15 * self.screen_scale[0], 150 * self.screen_scale[1]))
+            self.image.blit(text, text_rect)
+
+            # add char stat
+            text = self.small_font.render("Stat: " + str(int(data["character"]["Strength"])) + "/" +
+                                          str(int(data["character"]["Dexterity"])) + "/" +
+                                          str(int(data["character"]["Agility"])) + "/" +
+                                          str(int(data["character"]["Constitution"])) + "/" +
+                                          str(int(data["character"]["Intelligence"])) + "/" +
+                                          str(int(data["character"]["Wisdom"])) + "/" +
+                                          str(int(data["character"]["Charisma"])), True, (0, 0, 0))
+            text_rect = text.get_rect(topleft=(15 * self.screen_scale[0], 175 * self.screen_scale[1]))
+            self.image.blit(text, text_rect)
+
+            # for key, value in data.items():
+            #     text = self.small_font.render(key, True, (0, 0, 0))
+            #     text_rect = text.get_rect(center=(120 * self.screen_scale[0], row))
+            #     self.image.blit(text, text_rect)
+            #     row += 20 * self.screen_scale[1]
+        else:  # empty profile data
+            text = self.font.render("Empty", True, (0, 0, 0))
+            text_rect = text.get_rect(center=(200 * self.screen_scale[0], 80 * self.screen_scale[1]))
+            self.image.blit(text, text_rect)
+
+
 class CharacterSelector(UIMenu):
     def __init__(self, pos, images):
         UIMenu.__init__(self, player_interact=False)
@@ -624,11 +715,12 @@ class CharacterSelector(UIMenu):
         self.current_row = 0
         self.delay = 0
 
-    def change_mode(self, mode):
+    def change_mode(self, mode, delay=True):
         if not self.delay:
             self.image = self.images[mode.capitalize()]
             self.mode = mode
-            self.delay = 0.1
+            if delay:
+                self.delay = 0.1
 
     def update(self):
         if self.delay:
@@ -736,10 +828,14 @@ class CharacterStatAllocator(UIMenu):
     def add_stat(self, stat_dict):
         self.stat = stat_dict
         self.image = self.base_image.copy()
-        self.skill_row = [key for key in stat_dict if "Remain" not in key and key not in self.common_skill_row and
-                          key not in self.stat_row and key != "ID"]
-        self.all_skill_row = list(self.common_skill_row) + self.skill_row
-        self.last_row = len(self.stat_row) + len(self.common_skill_row) + len(self.skill_row) - 1
+
+        self.all_skill_row = [item for item in self.common_skill_row]
+        for skill in self.game.character_data.character_list[stat_dict["ID"]]["Skill"].values():
+            for key, value in skill.items():
+                if ".1" in key and "C" in key:  # starting skill
+                    self.all_skill_row.append(value["Name"])
+
+        self.last_row = len(self.stat_row) + len(self.all_skill_row) - 1
 
         self.skill_rect = {}
         start_stat_row = 400 * self.screen_scale[1]
@@ -750,23 +846,28 @@ class CharacterStatAllocator(UIMenu):
             self.image.blit(text, text_rect)
             start_stat_row += 36 * self.screen_scale[1]
 
-        for index, stat in enumerate(stat_dict):
+        row = 0
+        for stat in stat_dict:
             if stat in self.stat_rect:
-                if index == self.current_row:
+                if row == self.current_row:
                     text = self.font.render(str(int(stat_dict[stat])) + " (" + str(int(stat_dict[stat] / 10) + 1) + ")",
                                             True, (0, 0, 0), (255, 255, 255, 255))
                 else:
                     text = self.font.render(str(int(stat_dict[stat])) + " (" + str(int(stat_dict[stat] / 10) + 1) + ")",
                                             True, (0, 0, 0))
                 text_rect = text.get_rect(midright=(330 * self.screen_scale[0], self.stat_rect[stat].midleft[1]))
+                self.image.blit(text, text_rect)
+                row += 1
             elif stat in self.skill_rect:
-                if index == self.current_row:
+                if row == self.current_row:
                     text = self.font.render(str(int(stat_dict[stat])),
                                             True, (0, 0, 0), (255, 255, 255, 255))
                 else:
                     text = self.font.render(str(int(stat_dict[stat])),
                                             True, (0, 0, 0))
                 text_rect = text.get_rect(midright=(330 * self.screen_scale[0], self.skill_rect[stat].midleft[1]))
+                self.image.blit(text, text_rect)
+                row += 1
             elif "Remain" in stat:  # point left
                 if "Status" in stat:
                     text = self.font.render(str(int(stat_dict[stat])), True, (0, 0, 0))
@@ -776,7 +877,8 @@ class CharacterStatAllocator(UIMenu):
                     text = self.font.render(str(int(stat_dict[stat])), True, (0, 0, 0))
                     text_rect = text.get_rect(
                         midleft=(180 * self.screen_scale[0], self.skill_point_left_text_rect.midleft[1]))
-            self.image.blit(text, text_rect)
+                self.image.blit(text, text_rect)
+                row += 1
 
     def change_stat(self, stat, how):
         self.stat[stat], self.stat["Status Remain"] = stat_allocation_check(self.stat[stat], self.stat["Status Remain"],
@@ -941,14 +1043,15 @@ class MapTitle(UIMenu):
 
 
 class NameTextBox(UIMenu):
-    def __init__(self, box_size, pos, name, text_size=26, layer=15, box_colour=(255, 255, 255), center_text=False):
+    def __init__(self, box_size, pos, name, text_size=26, layer=15, box_colour=(255, 255, 255),
+                 corner_colour=(0, 0, 0), center_text=False):
         self._layer = layer
         UIMenu.__init__(self)
         self.font = Font(self.ui_font["main_button"], int(text_size * self.screen_scale[1]))
         self.name = str(name)
 
         self.image = Surface(box_size)
-        self.image.fill((0, 0, 0))  # black corner
+        self.image.fill(corner_colour)  # black corner
 
         # White body square
         white_body = Surface((self.image.get_width() - 2, self.image.get_height() - 2))

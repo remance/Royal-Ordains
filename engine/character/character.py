@@ -114,8 +114,11 @@ class Character(sprite.Sprite):
     from engine.character.play_cutscene_animation import play_cutscene_animation
     play_cutscene = play_cutscene_animation
 
-    from engine.character.player_input import player_input
-    player_input = player_input
+    from engine.character.player_input_battle_mode import player_input_battle_mode
+    player_input_battle_mode = player_input_battle_mode
+
+    from engine.character.player_input_city_mode import player_input_city_mode
+    player_input_city_mode = player_input_city_mode
 
     from engine.character.remove_moveset_not_match_stat_requirement import remove_moveset_not_match_stat_requirement
     remove_moveset_not_match_stat_requirement = remove_moveset_not_match_stat_requirement
@@ -295,6 +298,9 @@ class Character(sprite.Sprite):
         self.position = "Stand"
         self.combat_state = "Peace"
         self.mode = "Normal"
+        if self.battle.city_mode:
+            self.combat_state = "City"
+            self.mode = "City"
         self.special_combat_state = 0
         self.timer = random()
         self.in_combat_timer = 0
@@ -712,7 +718,7 @@ class Character(sprite.Sprite):
                     # Reset action check
                     if "next action" in self.current_action and not self.interrupt_animation and \
                             (not self.current_moveset or "no auto next" not in self.current_moveset["Property"]):
-                        # play next action first instead of command if not finish by interruption
+                        # play next action from current first instead of command if not finish by interruption
                         self.current_action = self.current_action["next action"]
                     elif ("remove momentum when done" not in self.current_action and
                           (("x_momentum" in self.current_action and self.x_momentum) or
@@ -895,6 +901,10 @@ class Character(sprite.Sprite):
 class PlayableCharacter(Character):
     def __init__(self, game_id, layer_id, stat):
         Character.__init__(self, game_id, layer_id, stat, player_control=True)
+        self.player_input = self.player_input_battle_mode
+        if self.battle.city_mode:
+            self.player_input = self.player_input_city_mode
+
         self.indicator = CharacterIndicator(self)
         self.player_command_key_input = []
         self.player_key_input_timer = []
@@ -1131,6 +1141,10 @@ class AICharacter(Character):
 class CityAICharacter(Character):
     def __init__(self, game_id, layer_id, stat, leader=None, specific_behaviour=None):
         Character.__init__(self, game_id, layer_id, stat, leader=leader)
+
+        if "Ground Y POS" in stat and stat["Ground Y POS"]:  # replace ground pos based on data in stage
+            self.ground_pos = stat["Ground Y POS"]
+
         ai_behaviour = "idle_city_npc"
         if specific_behaviour:
             ai_behaviour = specific_behaviour
@@ -1146,6 +1160,8 @@ class CityAICharacter(Character):
         self.ai_timer = 0  # for whatever timer require for AI action
         self.ai_movement_timer = 0  # timer to move for AI
         self.end_ai_movment_timer = randint(2, 6)
+
+        self.enter_battle(self.battle.character_animation_data)
 
     def ai_update(self, dt):
         if self.ai_timer:
@@ -1244,6 +1260,7 @@ class BodyPart(sprite.Sprite):
                 self.body_sprite_pool[self.data[0]]["special"][self.sprite_ver][self.mode][self.data[1]][
                     self.data[7]][self.data[5]]
             else:
+                print(self.owner.name, self.part_name)
                 self.base_image = self.body_sprite_pool[self.data[0]][self.part_name][self.sprite_ver][self.mode][
                     self.data[1]][self.data[7]][self.data[5]]
 

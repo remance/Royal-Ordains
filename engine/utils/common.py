@@ -1,4 +1,3 @@
-import pickle
 from collections.abc import Iterable
 
 import pygame
@@ -23,16 +22,6 @@ def cutscene_update(self, *args, **kwargs):
             sprite.cutscene_update(*args, **kwargs)
         else:
             sprite.update(*args, **kwargs)
-
-
-def make_save_file(profile_num, profile_data):
-    with open(str(profile_num) + ".dat", "wb") as f:
-        pickle.dump(profile_data, f, protocol=2)
-
-
-def load_save_file(profile_num):
-    with open(str(profile_num) + ".dat", "rb") as f:
-        return pickle.load(f)
 
 
 def change_group(item, group, change):

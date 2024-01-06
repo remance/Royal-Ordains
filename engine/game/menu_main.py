@@ -9,7 +9,7 @@ def menu_main(self, esc_press):
         self.play_map_type = "preset"
 
         self.remove_ui_updater(self.mainmenu_button)
-        self.add_ui_updater(self.char_menu_button)
+        self.add_ui_updater(self.char_menu_buttons)
 
     elif self.lore_button.event:  # open lorebook
         self.menu_state = "lorebook"

@@ -1,81 +1,81 @@
-"Move","Name","Buttons","Position","Prepare Animation","AI Range","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"C1.1","Fire Trap","Forward,Strong","Couch",,700,,0,31,5,,,,,,"Fire",,,,"penetrate"
-"C1.2","Burning Oil Trap","Forward,Strong","Couch",,700,,0,31,6,,,,,,"Fire",,,,"penetrate"
-"C1.3","Napalm Trap","Forward,Strong","Couch",,700,,0,35,,,,,,,"Fire",,,,"penetrate"
-"C1.4","Black Flame Trap","Forward,Strong","Couch",,700,,0,39,,,,,,,"Fire",,,,"penetrate"
-"C1.5","Inferno Trap","Forward,Strong","Couch",,700,,0,45,,,,,,,"Fire",,,,"penetrate"
-"C2.1","Stink Trap","Down,Forward,Weak","Stand",,700,100,0,17,,,,,,,"Physical",,,,"penetrate"
-"C2.2","Tear Trap","Down,Forward,Weak","Stand",,700,100,0,19,,,,,,,"Physical",,,,"penetrate"
-"C2.3","Blind Trap","Down,Forward,Weak","Stand",,700,100,0,20,,,,,,,"Physical",,,,"penetrate"
-"C2.4","Stun Trap","Down,Forward,Weak","Stand",,700,100,0,25,,,,,,,"Physical",,,,"penetrate"
-"C2.5","Brain Drain Trap","Down,Forward,Weak","Stand",,700,100,0,30,,,,,,,"Physical",,,,"penetrate"
-"C3.1","Snare Trap","Guard,Backward,Weak","Couch",,500,,0,12,38,,,,50,,"Physical",,,,"penetrate"
-"C3.2","Paralysis Trap","Guard,Backward,Weak","Couch",,500,,0,15,,,,,,,"Physical",,,,"penetrate"
-"C3.3","Razor Trap","Guard,Backward,Weak","Couch",,500,,0,22,,,,,,,"Physical",,,,"penetrate"
-"C3.4","Lifesnare Trap","Guard,Backward,Weak","Couch",,500,,0,26,,,,,,,"Physical",,,,"penetrate"
-"C3.5","Death Zone Trap","Guard,Backward,Weak","Couch",,500,,0,28,,,,,,,"Physical",,,,"penetrate"
-"C4.1","Poison Trap","Guard,Forward,Weak","Couch",,500,,0,16,1,,,,,,"Poison",,,,"penetrate"
-"C4.2","Numb Trap","Guard,Forward,Weak","Couch",,500,,0,17,2,,,,,,"Poison",,,,"penetrate"
-"C4.3","Deadly Poison Trap","Guard,Forward,Weak","Couch",,500,,0,20,5,,,,,,"Poison",,,,"penetrate"
-"C4.4","Certain Death Trap","Guard,Forward,Weak","Couch",,500,,0,26,10,,,,,,"Poison",,,,"penetrate"
-"C4.5","Necromist Trap","Guard,Forward,Weak","Couch",,500,,0,35,16,,,,,,"Poison",,,,"penetrate"
-"C5.1","Bolt Thrower Deploy","Guard,Forward,Strong","Stand",,700,,0,48,,,,,,,"Physical",,,,"summon:Summon1"
-"C5.2","Scorpion Deploy","Guard,Forward,Strong","Stand",,700,,0,59,,,,,,,"Physical",,,,"summon:Summon2"
-"C5.3","Reinforced Scorpion Deploy","Guard,Forward,Strong","Stand",,700,,0,75,,,,,,,"Physical",,,,"summon:Summon3"
-"C5.4","Ballista Deploy","Guard,Forward,Strong","Stand",,700,,0,91,,,,,,,"Physical",,,,"summon:Summon4"
-"C5.5","Power Ballista Deploy","Guard,Forward,Strong","Stand",,700,,0,110,,,,,,,"Physical",,,,"summon:Summon5"
-"C6.1","Focused Engineering","Guard,Backward,Forward,Strong","Couch",,500,,45,,,,,,,,"Physical","50,95",,,
-"C6.2","Unbound Expertise","Guard,Backward,Forward,Strong","Couch",,500,,45,,,,,,,,"Physical","50,51,95",,,
-"C6.3","Multitask Exertion","Guard,Backward,Forward,Strong","Couch",,500,,45,,,,,,,,"Physical","50,51,95",,,
-"C6.4","Ingenious Moment","Guard,Backward,Forward,Strong","Couch",,500,,45,,,,,,,,"Physical","50,51,95",,,
-"C6.5","Trapper Mastermind","Guard,Backward,Forward,Strong","Couch",,500,,45,,,,,,,,"Physical","50,51,95",,,
-"A1.1","Gravity Pull Trap",,"Couch",,,,,,,,,,,,,,,,
-"A1.2",,,"Couch",,,,,,,,,,,,,,,,
-"A1.3",,,"Couch",,,,,,,,,,,,,,,,
-"A1.4","Earthbound Trap",,"Couch",,,,,,,,,,,,,,,,
-"A1.5",,,"Couch",,,,,,,,,,,,,,,,
-"A2.1","Darkclaw Trap",,"Air",,,,,,,,,,,,,,,,
-"A2.2",,,"Air",,,,,,,,,,,,,,,,
-"A2.3",,,"Air",,,,,,,,,,,,,,,,
-"A2.4",,,"Air",,,,,,,,,,,,,,,,
-"A2.5",,,"Air",,,,,,,,,,,,,,,,
-"A3.1","Ice Trap",,"Stand",,,,,,,,,,,,,,,,
-"A3.2","Freezing Trap",,"Stand",,,,,,,,,,,,,,,,
-"A3.3",,,"Stand",,,,,,,,,,,,,,,,
-"A3.4",,,"Stand",,,,,,,,,,,,,,,,
-"A3.5",,,"Stand",,,,,,,,,,,,,,,,
-"A4.1","Crushing Trap",,"Couch",,,,,,,,,,,,,,,,
-"A4.2","Quaking Trap",,"Couch",,,,,,,,,,,,,,,,
-"A4.3","Supersonic Trap",,"Couch",,,,,,,,,,,,,,,,
-"A4.4","Air Burst Trap",,"Couch",,,,,,,,,,,,,,,,
-"A4.5","Downfall Trap",,"Couch",,,,,,,,,,,,,,,,
-"A5.1","Illusion Decoy Trap",,"Stand",,,,,,,,,,,,,,,,
-"A5.2",,,"Stand",,,,,,,,,,,,,,,,
-"A5.3","Hypnotic Trap",,"Stand",,,,,,,,,,,,,,,,
-"A5.4","Domination Trap",,"Stand",,,,,,,,,,,,,,,,
-"A5.5","Eternal Control Trap",,"Stand",,,,,,,,,,,,,,,,
-"B1.1","Arrow Storm Trap",,"Stand",,,,,,,,,,,,,,,,
-"B1.2","Exploding Storm Trap",,"Stand",,,,,,,,,,,,,,,,
-"B1.3",,,"Stand",,,,,,,,,,,,,,,,
-"B1.4",,,"Stand",,,,,,,,,,,,,,,,
-"B1.5",,,"Stand",,,,,,,,,,,,,,,,
-"B2.1","Acid Trap",,"Stand",,,,,,,,,,,,,,,,
-"B2.2",,,"Stand",,,,,,,,,,,,,,,,
-"B2.3",,,"Stand",,,,,,,,,,,,,,,,
-"B2.4",,,"Stand",,,,,,,,,,,,,,,,
-"B2.5",,,"Stand",,,,,,,,,,,,,,,,
-"B3.1","Flash bang Trap",,"Couch",,,,,,,,,,,,,,,,
-"B3.2",,,"Couch",,,,,,,,,,,,,,,,
-"B3.3",,,"Couch",,,,,,,,,,,,,,,,
-"B3.4",,,"Couch",,,,,,,,,,,,,,,,
-"B3.5",,,"Couch",,,,,,,,,,,,,,,,
-"B4.1","Homing Shock Trap",,"Couch",,,,,,,,,,,,,,,,
-"B4.2",,,"Couch",,,,,,,,,,,,,,,,
-"B4.3",,,"Couch",,,,,,,,,,,,,,,,
-"B4.4",,,"Couch",,,,,,,,,,,,,,,,
-"B4.5",,,"Couch",,,,,,,,,,,,,,,,
-"B5.1","Victory Doll",,"Stand",,,,,,,,,,,,,,,,
-"B5.2","Celebration Doll",,"Stand",,,,,,,,,,,,,,,,
-"B5.3","Parade Dolls",,"Stand",,,,,,,,,,,,,,,,
-"B5.4","Noble Dolls",,"Stand",,,,,,,,,,,,,,,,
-"B5.5","Royal Dolls",,"Stand",,,,,,,,,,,,,,,,
+"Move","Name","Buttons","Position","Prepare Animation","After Animation","AI Range","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"C1.1","Fire Trap","Forward,Strong","Couch",,,700,,0,31,5,,,,,,"Fire",,,,"penetrate"
+"C1.2","Burning Oil Trap","Forward,Strong","Couch",,,700,,0,31,6,,,,,,"Fire",,,,"penetrate"
+"C1.3","Napalm Trap","Forward,Strong","Couch",,,700,,0,35,,,,,,,"Fire",,,,"penetrate"
+"C1.4","Black Flame Trap","Forward,Strong","Couch",,,700,,0,39,,,,,,,"Fire",,,,"penetrate"
+"C1.5","Inferno Trap","Forward,Strong","Couch",,,700,,0,45,,,,,,,"Fire",,,,"penetrate"
+"C2.1","Stink Trap","Down,Forward,Weak","Stand",,,700,100,0,17,,,,,,,"Physical",,,,"penetrate"
+"C2.2","Tear Trap","Down,Forward,Weak","Stand",,,700,100,0,19,,,,,,,"Physical",,,,"penetrate"
+"C2.3","Blind Trap","Down,Forward,Weak","Stand",,,700,100,0,20,,,,,,,"Physical",,,,"penetrate"
+"C2.4","Stun Trap","Down,Forward,Weak","Stand",,,700,100,0,25,,,,,,,"Physical",,,,"penetrate"
+"C2.5","Brain Drain Trap","Down,Forward,Weak","Stand",,,700,100,0,30,,,,,,,"Physical",,,,"penetrate"
+"C3.1","Snare Trap","Guard,Backward,Weak","Couch",,,500,,0,12,38,,,,50,,"Physical",,,,"penetrate"
+"C3.2","Paralysis Trap","Guard,Backward,Weak","Couch",,,500,,0,15,,,,,,,"Physical",,,,"penetrate"
+"C3.3","Razor Trap","Guard,Backward,Weak","Couch",,,500,,0,22,,,,,,,"Physical",,,,"penetrate"
+"C3.4","Lifesnare Trap","Guard,Backward,Weak","Couch",,,500,,0,26,,,,,,,"Physical",,,,"penetrate"
+"C3.5","Death Zone Trap","Guard,Backward,Weak","Couch",,,500,,0,28,,,,,,,"Physical",,,,"penetrate"
+"C4.1","Poison Trap","Guard,Forward,Weak","Couch",,,500,,0,16,1,,,,,,"Poison",,,,"penetrate"
+"C4.2","Numb Trap","Guard,Forward,Weak","Couch",,,500,,0,17,2,,,,,,"Poison",,,,"penetrate"
+"C4.3","Deadly Poison Trap","Guard,Forward,Weak","Couch",,,500,,0,20,5,,,,,,"Poison",,,,"penetrate"
+"C4.4","Certain Death Trap","Guard,Forward,Weak","Couch",,,500,,0,26,10,,,,,,"Poison",,,,"penetrate"
+"C4.5","Necromist Trap","Guard,Forward,Weak","Couch",,,500,,0,35,16,,,,,,"Poison",,,,"penetrate"
+"C5.1","Bolt Thrower Deploy","Guard,Forward,Strong","Stand",,,700,,0,48,,,,,,,"Physical",,,,"summon:Summon1"
+"C5.2","Scorpion Deploy","Guard,Forward,Strong","Stand",,,700,,0,59,,,,,,,"Physical",,,,"summon:Summon2"
+"C5.3","Reinforced Scorpion Deploy","Guard,Forward,Strong","Stand",,,700,,0,75,,,,,,,"Physical",,,,"summon:Summon3"
+"C5.4","Ballista Deploy","Guard,Forward,Strong","Stand",,,700,,0,91,,,,,,,"Physical",,,,"summon:Summon4"
+"C5.5","Power Ballista Deploy","Guard,Forward,Strong","Stand",,,700,,0,110,,,,,,,"Physical",,,,"summon:Summon5"
+"C6.1","Focused Engineering","Guard,Backward,Forward,Strong","Couch",,,500,,45,,,,,,,,"Physical","50,95",,,
+"C6.2","Unbound Expertise","Guard,Backward,Forward,Strong","Couch",,,500,,45,,,,,,,,"Physical","50,51,95",,,
+"C6.3","Multitask Exertion","Guard,Backward,Forward,Strong","Couch",,,500,,45,,,,,,,,"Physical","50,51,95",,,
+"C6.4","Ingenious Moment","Guard,Backward,Forward,Strong","Couch",,,500,,45,,,,,,,,"Physical","50,51,95",,,
+"C6.5","Trapper Mastermind","Guard,Backward,Forward,Strong","Couch",,,500,,45,,,,,,,,"Physical","50,51,95",,,
+"A1.1","Gravity Pull Trap",,"Couch",,,,,,,,,,,,,,,,,
+"A1.2",,,"Couch",,,,,,,,,,,,,,,,,
+"A1.3",,,"Couch",,,,,,,,,,,,,,,,,
+"A1.4","Earthbound Trap",,"Couch",,,,,,,,,,,,,,,,,
+"A1.5",,,"Couch",,,,,,,,,,,,,,,,,
+"A2.1","Darkclaw Trap",,"Air",,,,,,,,,,,,,,,,,
+"A2.2",,,"Air",,,,,,,,,,,,,,,,,
+"A2.3",,,"Air",,,,,,,,,,,,,,,,,
+"A2.4",,,"Air",,,,,,,,,,,,,,,,,
+"A2.5",,,"Air",,,,,,,,,,,,,,,,,
+"A3.1","Ice Trap",,"Stand",,,,,,,,,,,,,,,,,
+"A3.2","Freezing Trap",,"Stand",,,,,,,,,,,,,,,,,
+"A3.3",,,"Stand",,,,,,,,,,,,,,,,,
+"A3.4",,,"Stand",,,,,,,,,,,,,,,,,
+"A3.5",,,"Stand",,,,,,,,,,,,,,,,,
+"A4.1","Crushing Trap",,"Couch",,,,,,,,,,,,,,,,,
+"A4.2","Quaking Trap",,"Couch",,,,,,,,,,,,,,,,,
+"A4.3","Supersonic Trap",,"Couch",,,,,,,,,,,,,,,,,
+"A4.4","Air Burst Trap",,"Couch",,,,,,,,,,,,,,,,,
+"A4.5","Downfall Trap",,"Couch",,,,,,,,,,,,,,,,,
+"A5.1","Illusion Decoy Trap",,"Stand",,,,,,,,,,,,,,,,,
+"A5.2",,,"Stand",,,,,,,,,,,,,,,,,
+"A5.3","Hypnotic Trap",,"Stand",,,,,,,,,,,,,,,,,
+"A5.4","Domination Trap",,"Stand",,,,,,,,,,,,,,,,,
+"A5.5","Eternal Control Trap",,"Stand",,,,,,,,,,,,,,,,,
+"B1.1","Arrow Storm Trap",,"Stand",,,,,,,,,,,,,,,,,
+"B1.2","Exploding Storm Trap",,"Stand",,,,,,,,,,,,,,,,,
+"B1.3",,,"Stand",,,,,,,,,,,,,,,,,
+"B1.4",,,"Stand",,,,,,,,,,,,,,,,,
+"B1.5",,,"Stand",,,,,,,,,,,,,,,,,
+"B2.1","Acid Trap",,"Stand",,,,,,,,,,,,,,,,,
+"B2.2",,,"Stand",,,,,,,,,,,,,,,,,
+"B2.3",,,"Stand",,,,,,,,,,,,,,,,,
+"B2.4",,,"Stand",,,,,,,,,,,,,,,,,
+"B2.5",,,"Stand",,,,,,,,,,,,,,,,,
+"B3.1","Flash bang Trap",,"Couch",,,,,,,,,,,,,,,,,
+"B3.2",,,"Couch",,,,,,,,,,,,,,,,,
+"B3.3",,,"Couch",,,,,,,,,,,,,,,,,
+"B3.4",,,"Couch",,,,,,,,,,,,,,,,,
+"B3.5",,,"Couch",,,,,,,,,,,,,,,,,
+"B4.1","Homing Shock Trap",,"Couch",,,,,,,,,,,,,,,,,
+"B4.2",,,"Couch",,,,,,,,,,,,,,,,,
+"B4.3",,,"Couch",,,,,,,,,,,,,,,,,
+"B4.4",,,"Couch",,,,,,,,,,,,,,,,,
+"B4.5",,,"Couch",,,,,,,,,,,,,,,,,
+"B5.1","Victory Doll",,"Stand",,,,,,,,,,,,,,,,,
+"B5.2","Celebration Doll",,"Stand",,,,,,,,,,,,,,,,,
+"B5.3","Parade Dolls",,"Stand",,,,,,,,,,,,,,,,,
+"B5.4","Noble Dolls",,"Stand",,,,,,,,,,,,,,,,,
+"B5.5","Royal Dolls",,"Stand",,,,,,,,,,,,,,,,,

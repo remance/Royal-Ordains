@@ -34,6 +34,7 @@
 "keybind_move_down","Move Down"
 "keybind_menu","Menu/Cancel"
 "keybind_order_menu","Order Menu"
+"keybind_inventory_menu","Inventory Menu"
 "default","default"
 "mini","mini"
 "custom_map","Custom Map"

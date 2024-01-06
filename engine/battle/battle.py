@@ -102,18 +102,18 @@ class Battle:
 
         # TODO LIST for full chapter 1
         # finish city stage
-        # add cutscene event
         # add skill/moveset unlockable for enemy (charisma)
         # add enemy trap with delay and cycle
         # add stage weather data system, use object_data
-        # add one more playable
+        # add one more playable char
         # add online/lan multiplayer?
         # add shop (price affect by charisma), inventory, consumable system and equipment system
         # add quest system?
         # add ranking record system
         # add save/profile system
         # finish main menu
-        # add follower setup system
+        # add follower setup and command system
+        # add city character variant sprite
 
         self.clock = pygame.time.Clock()  # Game clock to keep track of realtime pass
 
@@ -212,11 +212,9 @@ class Battle:
         self.language = self.game.language
         self.localisation = self.game.localisation
         self.save_data = game.save_data
-        self.save_profile = {}
+        self.main_story_profile = {}
 
         self.game_speed = 1
-        self.day_time = "Day"
-        self.old_day_time = self.day_time
         self.all_team_character = {1: pygame.sprite.Group(), 2: pygame.sprite.Group(),
                                    3: pygame.sprite.Group(), 4: pygame.sprite.Group()}
         self.all_team_enemy = {1: pygame.sprite.Group(), 2: pygame.sprite.Group(),
@@ -226,6 +224,7 @@ class Battle:
         self.all_team_drop = {1: pygame.sprite.Group(), 2: pygame.sprite.Group(),
                               3: pygame.sprite.Group(), 4: pygame.sprite.Group()}
         self.player_damage = {1: 0, 2: 0, 3: 0, 4: 0}
+        self.play_time = 0
         self.total_score = 0
         self.player_gold = 0
         self.mission_score = 0
@@ -238,6 +237,7 @@ class Battle:
         self.players_control_input = {1: None, 2: None, 3: None, 4: None}
         self.existing_playable_characters = []
         self.later_enemy = {}
+        self.city_mode = False
 
         self.helper = None  # helper character that can be moved via cursor
         self.score_board = None
@@ -268,16 +268,13 @@ class Battle:
 
         self.decision_select = YesNo(battle_ui_images)
 
-        self.time_ui = battle_ui_dict["time_ui"]
-        self.time_number = battle_ui_dict["time_number"]
-        self.realtime_ui_updater.add((self.time_ui, self.time_number))
         self.player_1_portrait = battle_ui_dict["player_1_portrait"]
         self.player_2_portrait = battle_ui_dict["player_2_portrait"]
         self.player_3_portrait = battle_ui_dict["player_3_portrait"]
         self.player_4_portrait = battle_ui_dict["player_4_portrait"]
         self.player_portraits = (self.player_1_portrait, self.player_2_portrait,
                                  self.player_3_portrait, self.player_4_portrait)
-        self.current_weather = Weather(self.time_ui, 4, 0, 0, None)
+        self.current_weather = Weather(4, 0, 0, None)
 
         TextDrama.images = load_images(self.data_dir, screen_scale=self.screen_scale,
                                        subfolder=("ui", "popup_ui", "drama_text"))
@@ -346,19 +343,17 @@ class Battle:
         self.next_lock = None
         self.cutscene_playing = None
 
-    def prepare_new_stage(self, save_profile, chapter, mission, stage, players, scene):
+    def prepare_new_stage(self, chapter, mission, stage, players, scene):
 
-        for message in self.inner_prepare_new_stage(save_profile, chapter, mission, stage, players, scene):
+        for message in self.inner_prepare_new_stage(chapter, mission, stage, players, scene):
             print(message, end="")
 
-    def inner_prepare_new_stage(self, save_profile, chapter, mission, stage, players, scene):
+    def inner_prepare_new_stage(self, chapter, mission, stage, players, scene):
         """Setup stuff when start new stage"""
         self.chapter = chapter
         self.chapter_sprite_ver = str(chapter)
         self.mission = mission
         self.stage = stage
-
-        self.save_profile = save_profile
 
         self.players = players
         self.existing_playable_characters = [value["ID"] for value in self.players.values()]
@@ -395,16 +390,17 @@ class Battle:
 
         # map_event_text = self.localisation.grab_text(("map", str(chapter), str(mission), str(stage), "eventlog"))
         # map_event = self.game.preset_map_data[chapter][mission][stage]["eventlog"]
-        self.time_number.start_setup()
 
         print("Start loading", self.chapter, self.mission, self.stage, scene)
         yield set_start_load(self, "stage setup")
-        self.current_weather.__init__(self.time_ui, 0, 0, 0,
+        self.current_weather.__init__(0, 0, 0,
                                       self.weather_data)  # start weather with random  # TODO change to stage data
 
         stage_data = self.game.preset_map_data[chapter][mission][stage]
+        self.city_mode = False
         if scene:  # city stage with only 1 scene
             stage_data = stage_data[scene]
+            self.city_mode = True
         stage_object_data = stage_data["data"]
         stage_event_data = copy.deepcopy(stage_data["event"])
         loaded_item = []
@@ -594,6 +590,7 @@ class Battle:
         self.show_cursor_timer = 0
         self.player_1_battle_cursor.shown = True
         self.player_damage = {1: 0, 2: 0, 3: 0, 4: 0}
+        self.play_time = 0
         self.total_score = 0
         self.mission_score = 0
         self.last_resurrect_mission_score = 10000  # start at 10000 to get next resurrect reserve
@@ -640,6 +637,8 @@ class Battle:
                                     self.player_key_hold}
 
             self.true_dt = self.clock.get_time() / 1000  # dt before game_speed
+            self.play_time += self.true_dt
+
             for player, key_set in self.player_key_press.items():
                 if self.player_key_control[player] == "keyboard":
                     for key in key_set:  # check for key holding
@@ -1072,7 +1071,6 @@ class Battle:
                         self.screen_shake_value = 0
 
                 # Battle related updater
-                self.time_number.timer_update(self.dt)  # update battle time
                 self.battle_stage.update(self.shown_camera_pos)  # update stage first
                 if not self.cutscene_playing:
                     self.character_updater.update(self.dt)
@@ -1095,7 +1093,7 @@ class Battle:
                     self.ui_drawer.draw(self.screen)  # draw the UI
                     self.ui_timer -= 0.1
 
-                if not self.all_team_enemy[1]:  # all enemies dead, end stage process
+                if not self.city_mode and not self.all_team_enemy[1]:  # all enemies dead, end stage process
                     if not self.end_delay and not self.cutscene_playing:
                         # not ending stage yet, due to decision waiting or playing cutscene
                         if self.decision_select not in self.realtime_ui_updater and self.stage_end_choice:
@@ -1206,7 +1204,8 @@ class Battle:
         self.players = {}
         self.player_objects = {}
 
-        clean_object(self.score_board)
+        if self.score_board:
+            clean_object(self.score_board)
         self.helper = None
         self.score_board = None
 

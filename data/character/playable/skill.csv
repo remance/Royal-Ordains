@@ -1,8 +1,8 @@
-"Move","Name","Buttons","Position","Prepare Animation","AI Range","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"D1","Summon Items","Guard,Down,Forward,Up,Special","Stand",,2000,,90,,,,,,,,,,,,
-"D2","Summon Weapons","Guard,Up,Forward,Down,Special","Stand",,2000,,60,,,,,,,,,,,,
-"D3","Lord of Money","Guard,Up,Down,Backward,Special","Air",,2000,,30,,500,150,,,200,,,,,,
-"D4","Immune Barrier","Guard,Up,Down,Forward,Special","Couch",,2000,,20,,,,,,,,,,,,
-"D5","Control Fate","Guard,Down,Up,Down,Special","Stand",,2000,,30,,,,,,,,,,,,
-"Slide","Slide","Slide","Stand",,200,,,,50,100,,,200,,"Physical",,,,"x_momentum"
-"Tackle","Tackle","Tackle","Stand",,200,,,,50,200,,100,,,"Physical",,,,"x_momentum"
+"Move","Name","Buttons","Position","Prepare Animation","After Animation","AI Range","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"D1","Summon Items","Guard,Down,Forward,Up,Special","Stand",,,2000,,90,,,,,,,,,,,,
+"D2","Summon Weapons","Guard,Up,Forward,Down,Special","Stand",,,2000,,60,,,,,,,,,,,,
+"D3","Lord of Money","Guard,Up,Down,Backward,Special","Air",,,2000,,30,,500,150,,,200,,,,,,
+"D4","Immune Barrier","Guard,Up,Down,Forward,Special","Couch",,,2000,,20,,,,,,,,,,,,
+"D5","Control Fate","Guard,Down,Up,Down,Special","Stand",,,2000,,30,,,,,,,,,,,,
+"Slide","Slide","Slide","Stand",,,200,,,,50,100,,,200,,"Physical",,,,"x_momentum"
+"Tackle","Tackle","Tackle","Stand",,,200,,,,50,200,,100,,,"Physical",,,,"x_momentum"

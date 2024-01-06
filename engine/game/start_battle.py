@@ -1,16 +1,17 @@
 import gc
+import os
 
 from pygame.mixer import music
 
 
-def start_battle(self, save_data, chapter, mission, stage, players=None, scene=None):
+def start_battle(self, chapter, mission, stage, players=None, scene=None):
     # self.error_log.write("\n Map: " + str(self.map_selected) + "\n")
     self.loading_screen("start")
 
     music.unload()
     music.set_endevent(self.SONG_END)
-    self.battle.prepare_new_stage(save_data, chapter, mission, stage, players, scene=scene)
-    next_stage = self.battle.run_game()
+    self.battle.prepare_new_stage(chapter, mission, stage, players, scene=scene)
+    complete_stage = self.battle.run_game()  # run next stage
     # Finish battle, check for next one
     music.unload()
     music.set_endevent(self.SONG_END)
@@ -18,12 +19,46 @@ def start_battle(self, save_data, chapter, mission, stage, players=None, scene=N
     music.play(-1)
     gc.collect()  # collect no longer used object in previous battle from memory
 
-    if next_stage:
-        if stage + 1 in self.preset_map_data[chapter][mission]:  # has next stage
-            self.start_battle(save_data, chapter, mission, stage + 1, players=players)
-        else:  # proceed next mission, go to city throne map
-            self.start_battle(save_data, chapter, mission + 1, 0, players=players, scene="throne")
+    if complete_stage:
+        if stage + 1 not in self.preset_map_data[chapter][mission]:
+            # finish mission, update save data of the game first
+            if self.save_data.save_profile["game"]["chapter"] < chapter:
+                self.save_data.save_profile["game"]["chapter"] = chapter
+                self.save_data.save_profile["game"]["mission"] = mission
+            elif self.save_data.save_profile["game"]["mission"] < mission:
+                self.save_data.save_profile["game"]["mission"] = mission
+            self.save_data.make_save_file(os.path.join(self.main_dir, "save", "game.dat"),
+                                          self.save_data.save_profile["game"])
+            if self.main_story_profile["chapter"] < chapter:
+                self.main_story_profile["chapter"] = chapter
+                self.save_data.save_profile["game"]["mission"] = mission
+            elif self.save_data.save_profile["game"]["mission"] < mission:
+                self.save_data.save_profile["game"]["mission"] = mission
 
+            for player, slot in self.profile_index.items():  # check for update for all active players to level up
+                if self.player_char_selectors[player].mode != "empty":
+                    # check for update for all active players to level up
+                    if self.save_data.save_profile["character"][slot]["chapter"] == chapter and \
+                            self.save_data.save_profile["character"][slot]["mission"] == mission:
+                        self.save_data.save_profile["character"][slot]["mission"] = mission + 1
+                        # add stat and skill point
+                        self.save_data.save_profile["character"][slot]["Status Remain"] += \
+                        self.battle_map_data.stage_level_up[chapter][mission]["Status"]
+                        self.save_data.save_profile["character"][slot]["Skill Remain"] += \
+                        self.battle_map_data.stage_level_up[chapter][mission]["Skill"]
+
+        for player, slot in self.profile_index.items():  # save data for all active player even when just finish stage
+            if self.player_char_selectors[player].mode != "empty":
+                self.save_data.make_save_file(os.path.join(self.main_dir, "save", ".dat"), self.main_story_profile)
+
+        if stage + 1 in self.preset_map_data[chapter][mission]:  # has next stage
+            self.start_battle(chapter, mission, stage + 1, players=players)
+        elif mission + 1 in self.preset_map_data[chapter]:  # proceed next mission, go to city throne map
+            self.start_battle(chapter, mission + 1, 0, players=players, scene="throne")
+        elif chapter + 1 in self.preset_map_data[chapter]:  # complete all chapter stage, go to next chapter
+            self.start_battle(chapter + 1, 1, 0, players=players, scene="throne")
+        else:
+            self.start_battle(chapter, mission, 0, players=players, scene="throne")
     # for when memory leak checking
     # logging.warning(mem_top())
     # print(len(vars(self)))

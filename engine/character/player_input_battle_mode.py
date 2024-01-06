@@ -3,7 +3,7 @@ rotation_name = ("Left", "Right")
 rotation_dict = {key: rotation_list[index] for index, key in enumerate(rotation_name)}
 
 
-def player_input(self, player_index, dt):
+def player_input_battle_mode(self, player_index, dt):
     if self.alive:
         # for key in self.battle.command_key_hold:
         run_input = False

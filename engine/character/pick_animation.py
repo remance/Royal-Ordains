@@ -11,7 +11,7 @@ def pick_animation(self):
                 if "no prepare" not in self.current_action:
                     self.current_action = self.check_prepare_action(
                         self.current_moveset)  # check for prepare animation first
-                if "next action" not in self.current_action:  # not prepare animation
+                if "next action" not in self.current_action:  # not prepare animation  # TODO find way to work for after animation
                     resource_cost = self.current_moveset["Resource Cost"]
                     if self.current_moveset["Resource Cost"] > 0:
                         # only apply cost modifier for move that reduce resource
@@ -73,6 +73,8 @@ def pick_animation(self):
         self.current_moveset = None
         self.continue_moveset = None
         animation_name = self.equipped_weapon + self.combat_state + self.position + "Idle"
+        if not self.fly and self.position == "Air" and not self.y_momentum:  # air fall animation
+            animation_name = self.equipped_weapon + "CombatAirFall"
         if self.special_combat_state and self.combat_state == "Combat":
             # use special idle if char has special state
             animation_name += str(self.special_combat_state)

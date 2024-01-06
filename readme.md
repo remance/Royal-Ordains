@@ -117,9 +117,45 @@ Also, the game is currently optimised based on the pygame 2.5.1 module and pytho
 
 ---------------
 
-# Latest Update
+# Current Progress
 
-Currently, the current game version consists of 5 playable characters and first mission for chapter 1.
+The current game version consists of 5 playable characters and first mission for chapter 1.
+
+### Warrior type
+
+<img src="https://github.com/remance/preview2/blob/main/vraesier1.png?raw=true" width="100" height="100"></a> Vagrant Marauder
+
+### Archer type
+
+<img src="https://github.com/remance/preview2/blob/main/rodhinbar1.png?raw=true" width="100" height="100"></a> Headman
+
+### Support type
+
+<img src="https://github.com/remance/preview2/blob/main/duskuksa1.png?raw=true" width="100" height="100"></a> Rune Sage Journeyman
+
+### Skill type
+
+<img src="https://github.com/remance/preview2/blob/main/iri1.png?raw=true" width="100" height="100"></a> Traveller
+
+### Special type
+
+<img src="https://github.com/remance/preview2/blob/main/nayedien1.png?raw=true" width="100" height="100"></a> King’s Aide
+
+# Future Playable Characters
+
+Warrior / Warrior type
+
+Exiled Scout / Archer type
+
+Sweeper / Skill type
+
+Desperate Widow / Mage type
+
+Hedge Shaman / Mage type
+
+Dryad / Support type
+
+Alchemist / Special type
 
 ---------------
 
