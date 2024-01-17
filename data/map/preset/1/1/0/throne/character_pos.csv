@@ -1,6 +1,9 @@
-"Object ID","ID","POS","Ground Y POS","Angle","Start Health","Team","Arrive Condition"
-1,"King","350,800",800,90,100,1,
-2,"Nayedien","600,700",700,90,100,1,
-3,"Vurus","500,900",900,90,100,1,
-4,,,900,-90,100,1,
-5,,,,,,,
+"Object ID","ID","Scene","POS","Ground Y POS","Angle","Start Health","Team","Arrive Condition","Stage Property"
+"p1",,1,"1200,1000",1000,90,100,1,,
+"p2",,1,"1400,1000",1000,90,100,1,,
+"p3",,1,"1600,1000",1000,90,100,1,,
+"p4",,1,"1800,1000",1000,90,100,1,,
+1,"Nayedien",1,"100,1000",700,-90,100,1,,"city_npc,no_player_pick"
+2,"King",1,"290,950",800,-90,100,1,,"city_npc"
+3,"Vurus",1,"550,1000",1000,-90,100,1,,"city_npc"
+4,"Hermanos",1,"1600,1000",1000,90,100,1,,"city_npc"

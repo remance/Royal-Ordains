@@ -301,18 +301,13 @@ def stat_convert(row, n, i, percent_column=(), mod_column=(), list_column=(), tu
 
     elif n in tuple_column:
         if "," in i:
-            if "." in i:
-                row[n] = tuple(
-                    [float(item) if re.search("[a-zA-Z]", item) is None else str(item) for item in i.split(",")])
-            else:
-                row[n] = tuple([int(item) if item.lstrip("-").isdigit() else item for item in i.split(",")])
-        elif i.lstrip("-").isdigit():
-            if "." in i:
-                row[n] = tuple([float(i)])
-            else:
-                row[n] = tuple([int(i)])
+            if "(" in i:  # tuple item
+                i = i.replace("(", "").replace(")", "")
+                row[n] = tuple([item_conversion(item2) for item2 in i.split(";")])
+
+            row[n] = tuple([item_conversion(item) for item in i.split(",")])
         else:
-            row[n] = tuple([i])
+            row[n] = tuple([item_conversion(i)])
             if i == "":
                 row[n] = ()
 
@@ -338,23 +333,11 @@ def stat_convert(row, n, i, percent_column=(), mod_column=(), list_column=(), tu
                 if ":" in item:
                     new_i2 = item.split(":")
                     result_i[new_i2[0]] = new_i2[1]
-                    if new_i2[1] == "true":
-                        result_i[new_i2[0]] = True
-                    elif new_i2[1] == "false":
-                        result_i[new_i2[0]] = False
-                    elif "(" in new_i2[1]:
+                    if "(" in new_i2[1]:
                         new_i2[1] = new_i2[1].replace("(", "").replace(")", "")
-                        if "." in new_i2[1]:
-                            result_i[new_i2[0]] = tuple(
-                                [float(item2) if re.search("[a-zA-Z]", item2) is None else str(item2) for item2 in
-                                 new_i2[1].split(";")])
-                        else:
-                            result_i[new_i2[0]] = tuple(
-                                [int(item2) if item2.lstrip("-").isdigit() else item2 for item2 in new_i2[1].split(";")])
-                    elif new_i2[1].isdigit():
-                        result_i[new_i2[0]] = int(result_i[new_i2[0]])
-                    elif "." in new_i2[1] and re.search("[a-zA-Z]", new_i2[1]) is None:
-                        result_i[new_i2[0]] = float(result_i[new_i2[0]])
+                        result_i[new_i2[0]] = tuple([item_conversion(item2) for item2 in new_i2[1].split(";")])
+                    else:
+                        result_i[new_i2[0]] = item_conversion(result_i[new_i2[0]])
                 else:
                     if "/" not in item:
                         result_i[item] = True
@@ -373,12 +356,21 @@ def stat_convert(row, n, i, percent_column=(), mod_column=(), list_column=(), tu
         row[n] = str(i)
 
     else:
-        if i == "":
-            row[n] = 0
-        elif i.lower() == "true":
-            row[n] = True
-        elif i.lower() == "false":
-            row[n] = False
-        elif (i.lstrip("-").isdigit() or "." in i and re.search("[a-zA-Z]", i) is None) or i == "inf":
-            row[n] = float(i)
+        row[n] = item_conversion(i)
+
     return row
+
+
+def item_conversion(i):
+    if i == "":
+        return 0
+    elif i.lower() == "true":
+        return True
+    elif i.lower() == "false":
+        return False
+    elif i.isdigit() or i.lstrip("-").isdigit():
+        return int(i)
+    elif ("." in i and re.search("[a-zA-Z]", i) is None) or i == "inf":
+        return float(i)
+    else:
+        return i

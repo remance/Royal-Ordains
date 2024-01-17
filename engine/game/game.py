@@ -13,6 +13,7 @@ from engine.battle.battle import Battle
 from engine.character.character import Character, BodyPart
 from engine.data.datalocalisation import Localisation
 from engine.data.datamap import BattleMapData
+from engine.data.datasave import SaveData
 from engine.data.datasprite import AnimationData
 from engine.data.datastat import CharacterData
 from engine.drop.drop import Drop
@@ -28,14 +29,15 @@ from engine.stageobject.stageobject import StageObject
 from engine.uibattle.uibattle import Profiler, FPSCount, DamageNumber, CharacterSpeechBox, \
     CharacterIndicator
 from engine.uimenu.uimenu import OptionMenuText, SliderMenu, MenuCursor, BoxUI, BrownMenuButton, \
-    URLIconLink, MenuButton, TextPopup, MapTitle, CharacterSelector, CharacterStatAllocator
+    URLIconLink, MenuButton, TextPopup, MapTitle, CharacterSelector, CharacterStatAllocator, CharacterProfileBox, \
+    NameTextBox
 from engine.updater.updater import ReversedLayeredUpdates
 from engine.utils.common import edit_config, empty_method, cutscene_update
 from engine.utils.data_loading import load_image, load_images, csv_read, load_base_button
 from engine.utils.text_making import number_to_minus_or_plus
 from engine.weather.weather import MatterSprite, SpecialWeatherEffect, Weather
 
-game_name = "Royal Ordains"  # Game name that will appear as game name
+game_name = "Royal Ordains"  # Game name that will appear as game name at the windows bar
 
 
 class Game:
@@ -59,7 +61,7 @@ class Game:
     screen_scale = (1, 1)
     screen_size = ()
 
-    game_version = "0.1.4"
+    game_version = "0.1.9"
     joystick_bind_name = {"XBox": {0: "A", 1: "B", 2: "X", 3: "Y", 4: "-", 5: "Home", 6: "+", 7: "Start", 8: None,
                                    9: None, 10: None, 11: "D-Up", 12: "D-Down", 13: "D-Left", 14: "D-Right",
                                    15: "Capture", "axis-0": "L. Stick Left", "axis+0": "L. Stick R.",
@@ -131,6 +133,9 @@ class Game:
     from engine.game.start_battle import start_battle
     start_battle = start_battle
 
+    from engine.game.update_profile_slots import update_profile_slots
+    update_profile_slots = update_profile_slots
+
     lorebook_process = lorebook_process
 
     resolution_list = ("3200 x 1800", "2560 x 1440", "1920 x 1080", "1600 x 900", "1360 x 768",
@@ -151,10 +156,6 @@ class Game:
 
         self.error_log = error_log
         self.error_log.write("Game Version: " + self.game_version)
-
-        save_folder_path = os.path.join(self.main_dir, "save")
-        if not os.path.isdir(save_folder_path):
-            os.mkdir(save_folder_path)
 
         # Read config file
         config = configparser.ConfigParser()  # initiate config reader
@@ -229,6 +230,8 @@ class Game:
 
         self.clock = pygame.time.Clock()  # set get clock
 
+        self.save_data = SaveData()
+
         self.loading = load_image(self.data_dir, self.screen_scale, "loading.png", ("ui", "mainmenu_ui"))
         self.loading = pygame.transform.scale(self.loading, self.screen_rect.size)
 
@@ -293,7 +296,6 @@ class Game:
 
         self.slider_menu = pygame.sprite.Group()  # volume slider in esc option menu
 
-        self.unit_icon = pygame.sprite.Group()  # Character icon object group in selector ui
         self.weather_matters = pygame.sprite.Group()  # sprite of weather effect group such as rain sprite
         self.weather_effect = pygame.sprite.Group()  # sprite of special weather effect group such as fog that cover whole screen
 
@@ -477,8 +479,22 @@ class Game:
                                       3: self.player3_char_selector, 4: self.player4_char_selector}
         self.player_char_stats = {1: self.player1_char_stat, 2: self.player2_char_stat,
                                   3: self.player3_char_stat, 4: self.player4_char_stat}
-        self.char_menu_button = (self.player1_char_selector, self.player2_char_selector, self.player3_char_selector,
-                                 self.player4_char_selector, self.char_back_button, self.start_button)
+        self.char_menu_buttons = (self.player1_char_selector, self.player2_char_selector, self.player3_char_selector,
+                                  self.player4_char_selector, self.char_back_button, self.start_button)
+        CharacterProfileBox.image = char_selector_images["Charsheet"]
+        self.char_profile_boxes = {key + 1: {key2 + 1: CharacterProfileBox((self.player_char_selectors[key + 1].rect.topleft[0],
+                                                                            self.player_char_selectors[key + 1].rect.topleft[1] +
+                                                                            (key2 * (210 * self.screen_scale[1])))) for
+                                             key2 in range(4)} for key in range(4)}
+        self.char_profile_page_text = {key + 1: NameTextBox((self.player1_char_selector.image.get_width() / 1.5,
+                                                             42 * self.screen_scale[1]),
+                                                            (self.player_char_selectors[key + 1].rect.center[0],
+                                                             self.player_char_selectors[key + 1].rect.midbottom[1] -
+                                                             42 * self.screen_scale[1]),
+                                                            "1/2", text_size=36 * self.screen_scale[1],
+                                                            center_text=True) for key in range(4)}
+        self.profile_page = {1: 0, 2: 0, 3: 0, 4: 0}
+        self.profile_index = {1: 1, 2: 1, 3: 1, 4: 1}
 
         # User input popup ui
         input_ui_dict = make_input_box(self.data_dir, self.screen_scale, self.screen_rect,
@@ -760,6 +776,12 @@ class Game:
                         self.player_key_bind[player][self.input_popup[1][2]] = old_key
                         self.config["USER"]["keybind player " + str(player)] = str(self.player_key_bind_list[player])
                         self.change_keybind()
+
+                    elif self.input_popup[1] == "delete profile":
+                        self.save_data.save_profile["character"].pop(self.input_popup[2])
+                        self.save_data.remove_save_file(os.path.join(self.main_dir, "save", str(self.input_popup[2]) + ".dat"))
+                        for player2 in self.profile_page:
+                            self.update_profile_slots(player2)
 
                     elif self.input_popup[1] == "quit":
                         pygame.time.wait(1000)

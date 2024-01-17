@@ -28,7 +28,7 @@ def hit_register(self, target, body_part):
                 critical = False
                 if self.critical_chance >= randint(0, 100):
                     critical = True
-                attacker_dmg, element_effect = self.cal_dmg(target, critical)
+                attacker_dmg = self.cal_dmg(target, critical)
                 self.owner.special_damage(attacker_dmg)
 
                 if not self.duration:  # only damage not from object with duration make target stop falling for a bit
@@ -43,7 +43,8 @@ def hit_register(self, target, body_part):
                     if self.dmg:  # effect has damage to deal (some may simply be for apply status)
                         if self.owner.player_control:  # count dmg from player for data record
                             self.battle.player_damage[self.owner.player_control] += attacker_dmg
-                        target.cal_loss(attacker_dmg, self.impact, element_effect, hit_angle, dmg_text_pos, critical)
+                        target.cal_loss(self.owner, attacker_dmg, self.impact, hit_angle, dmg_text_pos, critical)
+
                     if not self.penetrate:
                         if self.stick_reach == "stick":  # stuck at body part
                             self.stuck_part = body_part
@@ -78,7 +79,7 @@ def hit_register(self, target, body_part):
                                               -self.angle, 1, 0, 1), 0)
                             target.guard_meter = 0
                             target.interrupt_animation = True
-                            target.command_action = target.heavy_damaged_command_action
+                            target.command_action = target.guard_break_command_action
                             # target.battle.add_sound_effect_queue(target.sound_effect_pool["Guard Break"][0],
                             #                                      target.base_pos, target.heavy_dmg_sound_distance,
                             #                                      target.heavy_dmg_sound_shake,

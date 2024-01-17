@@ -111,7 +111,10 @@ def make_option_menu(button_image_list, config, keybind):
                     "Menu/Cancel": OptionMenuText((screen_rect.width / 2, screen_rect.height / 2.5),
                                                   localisation.grab_text(key=("ui", "keybind_menu",)), font_size),
                     "Order Menu": OptionMenuText((screen_rect.width / 2, screen_rect.height / 2),
-                                                 localisation.grab_text(key=("ui", "keybind_order_menu",)), font_size)}
+                                                 localisation.grab_text(key=("ui", "keybind_order_menu",)), font_size),
+                    "Inventory Menu": OptionMenuText((screen_rect.width / 2, screen_rect.height / 1.7),
+                                                     localisation.grab_text(key=("ui", "keybind_inventory_menu",)), font_size)
+                    }
 
     control_type = "keyboard"  # make default keyboard for now, get changed later when player enter keybind menu
 
@@ -146,7 +149,9 @@ def make_option_menu(button_image_list, config, keybind):
                     "Menu/Cancel": KeybindIcon((screen_rect.width / 1.7, screen_rect.height / 2.5), font_size,
                                                control_type, keybind["Menu/Cancel"]),
                     "Order Menu": KeybindIcon((screen_rect.width / 1.7, screen_rect.height / 2), font_size,
-                                              control_type, keybind["Order Menu"])}
+                                              control_type, keybind["Order Menu"]),
+                    "Inventory Menu": KeybindIcon((screen_rect.width / 1.7, screen_rect.height / 1.7), font_size,
+                                                  control_type, keybind["Inventory Menu"])}
 
     return {"back_button": back_button, "keybind_button": keybind_button,
             "default_button": default_button, "resolution_drop": resolution_drop,

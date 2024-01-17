@@ -43,6 +43,8 @@ class Effect(sprite.Sprite):
     from engine.effect.play_animation import play_animation
     play_animation = play_animation
 
+    default_animation_speed = 0.5
+
     def __init__(self, owner, part_stat, layer, from_owner=True):
         """Effect sprite that does not affect character in any way"""
         # TODO add end effect animation before removal
@@ -116,13 +118,17 @@ class Effect(sprite.Sprite):
         self.animation_pool = self.effect_animation_pool[self.effect_name][self.sprite_ver]
         self.current_animation = self.animation_pool[self.part_name][self.scale]
 
+        self.animation_speed = self.default_animation_speed
+        if len(self.current_animation) == 1:  # effect with no animation play a bit longer
+            self.animation_speed = 0.2
+
         self.base_image = self.current_animation[self.show_frame][self.flip]
         self.image = self.base_image
 
         self.adjust_sprite()
 
     def update(self, dt):
-        done, just_start = self.play_animation(0.05, dt)
+        done, just_start = self.play_animation(self.animation_speed, dt)
 
         if self.sound_effect_name and self.sound_timer < self.sound_duration:
             self.sound_timer += dt
@@ -373,7 +379,7 @@ class DamageEffect(Effect):
                     self.reach_target("border")
                     return
 
-            done, just_start = self.play_animation(0.05, dt, False)
+            done, just_start = self.play_animation(self.animation_speed, dt, False)
 
             if just_start and self.duration:  # reset already hit every animation frame for effect with duration
                 self.already_hit = []
@@ -444,7 +450,7 @@ class TrapEffect(Effect):
         if self.sound_effect_name and self.sound_timer < self.sound_duration:
             self.sound_timer += dt
 
-        done, just_start = self.play_animation(0.05, dt)
+        done, just_start = self.play_animation(self.animation_speed, dt)
 
         if self.activate and done:
             if "drop" in self.effect_stat["Property"]:  # drop item after destroyed, slightly above trap sprite
@@ -498,7 +504,7 @@ class StatusEffect(Effect):
         self.rect.midbottom = self.owner.pos
 
     def update(self, dt):
-        done, just_start = self.play_animation(0.05, dt)
+        done, just_start = self.play_animation(self.animation_speed, dt)
         self.pos = self.owner.pos
         self.rect.midbottom = self.owner.pos
 

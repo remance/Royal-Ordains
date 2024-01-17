@@ -111,7 +111,6 @@ class PlayerPortrait(UIBattle):
         self._layer = 9
         UIBattle.__init__(self, player_interact=False)
         self.image = image.copy()
-        self.base_image = image.copy()
         self.rect = self.image.get_rect(center=pos)
 
         self.font = Font(self.ui_font["main_button"], int(20 * self.screen_scale[1]))
@@ -274,7 +273,7 @@ class YesNo(UIBattle):
             self.yes_zoom_animation_timer = 0
             self.image = self.base_image2.copy()
 
-        if self.battle.player_key_press[self.battle.first_player]["Weak"]:
+        if self.battle.player_key_press[self.battle.main_player]["Weak"]:
             if yes_image_rect.collidepoint(cursor_pos):
                 self.selected = "yes"
             elif no_image_rect.collidepoint(cursor_pos):
@@ -505,39 +504,6 @@ class UnitIcon(UIBattle, Sprite):
                 self.image = self.right_selected_image
 
 
-class Timer(UIBattle):
-    def __init__(self, pos):
-        self._layer = 11
-        UIBattle.__init__(self, player_interact=False)
-        self.font = Font(self.ui_font["manuscript_font"], int(50 * self.screen_scale[1]))
-        self.pos = pos
-        self.image = Surface((100, 30), SRCALPHA)
-        self.base_image = self.image.copy()
-        self.rect = self.image.get_rect(midtop=pos)
-        self.timer = 0
-
-    def start_setup(self):
-        self.timer = 0
-        self.old_timer = self.timer
-        self.image = self.base_image.copy()
-        self.time_number = 0  # datetime.timedelta(seconds=self.timer)
-        self.timer_surface = self.font.render(str(self.timer), True, (0, 0, 0))
-        self.timer_rect = self.timer_surface.get_rect(midtop=(self.timer_surface.get_width() / 2, 0))
-        self.image.blit(self.timer_surface, self.timer_rect)
-
-    def timer_update(self, dt):
-        """Update in-self timer number"""
-        if dt:
-            self.timer += dt
-            if self.timer - self.old_timer > 1:
-                self.old_timer = self.timer
-                self.image = self.base_image.copy()
-                self.time_number = datetime.timedelta(seconds=self.timer)
-                time_num = str(self.time_number).split(".")[0]
-                self.timer_surface = self.font.render(time_num, True, (0, 0, 0))
-                self.image.blit(self.timer_surface, self.timer_rect)
-
-
 class ScoreBoard(UIBattle):
     def __init__(self, body_part):
         UIBattle.__init__(self, player_interact=False)
@@ -548,7 +514,7 @@ class ScoreBoard(UIBattle):
         """Add score and gold to scoreboard image"""
         score_text = self.font.render(minimise_number_text(self.battle.mission_score) + "/" +
                                       str(self.battle.reserve_resurrect_mission_score), True, (0, 0, 0))
-        gold_text = self.font.render(minimise_number_text(self.battle.player_gold), True, (0, 0, 0))
+        gold_text = self.font.render(minimise_number_text(self.battle.mission_gold), True, (0, 0, 0))
 
         if self.body_part.owner.sprite_direction == "l_side":
             score_rect = score_text.get_rect(center=(self.body_part.base_image.get_width() / 3,
@@ -563,6 +529,44 @@ class ScoreBoard(UIBattle):
         self.body_part.base_image = self.body_part.base_image.copy()
         self.body_part.base_image.blit(score_text, score_rect)
         self.body_part.base_image.blit(gold_text, gold_rect)
+
+
+class CharacterInteractPrompt(UIBattle):
+    def __init__(self, image):
+        """Weak button prompt that indicate player can talk to target"""
+        self._layer = 9999999999999999999998
+        UIBattle.__init__(self, player_interact=False)
+        self.character = None
+        self.target = None
+        font = Font(self.ui_font["manuscript_font"], int(40 * self.screen_scale[1]))
+        text_surface = text_render_with_bg("Talk", font)
+        self.image = Surface((150 * self.screen_scale[0], 50 * self.screen_scale[1]), SRCALPHA)
+        text_rect = text_surface.get_rect(midright=self.image.get_rect().midright)
+        self.image.blit(text_surface, text_rect)
+        self.image.blit(image, image.get_rect(midleft=self.image.get_rect().midleft))
+
+        self.rect = self.image.get_rect(center=(0, 0))
+
+    def add_to_screen(self, character, target):
+        self.character = character
+        self.target = target
+        self.rect = self.image.get_rect(midbottom=(self.target[0] * self.screen_scale[0],
+                                                   self.target[1] * self.screen_scale[1]))
+        if self not in self.battle.battle_camera:
+            self.battle.battle_camera.add(self)
+            self.battle.effect_updater.add(self)
+
+    def update(self, *args):
+        if self.target and not 100 < abs(self.character.base_pos[0] - self.target[0]) < 250:
+            # check if player move too far from current target prompt
+            self.clear()
+
+    def clear(self):
+        self.character = None
+        self.target = None
+        if self in self.battle.battle_camera:
+            self.battle.battle_camera.remove(self)
+            self.battle.effect_updater.remove(self)
 
 
 class CharacterSpeechBox(UIBattle):
@@ -586,7 +590,7 @@ class CharacterSpeechBox(UIBattle):
         self.finish_unfolding = False
         self.current_length = self.left_corner.get_width()  # current unfolded length start at 20
         self.text_surface = Font(self.ui_font["manuscript_font"],
-                                 int(28 * self.screen_scale[1])).render(text, True, (0, 0, 0))
+                                 int(30 * self.screen_scale[1])).render(text, True, (0, 0, 0))
         self.base_image = Surface((self.text_surface.get_width() + int(self.left_corner.get_width() * 1.5),
                                    self.left_corner.get_height()), SRCALPHA)
         self.base_image.blit(self.left_corner, self.left_corner_rect)  # start animation with the left corner
@@ -612,7 +616,7 @@ class CharacterSpeechBox(UIBattle):
             self.base_image.blit(self.right_corner, right_corner_rect)
             if self.player_input_indicator:  # add player weak button indicate for closing speech in cutscene
                 rect = self.images["button_weak"].get_rect(topright=(self.base_image.get_width(),
-                                                                     self.right_corner.get_height()))
+                                                                     self.right_corner.get_height() * 0.8))
                 self.base_image.blit(self.images["button_weak"], rect)
             self.image = self.base_image.copy()
             self.finish_unfolding = True
@@ -621,6 +625,8 @@ class CharacterSpeechBox(UIBattle):
             self.timer -= dt
             if self.timer <= 0:
                 self.kill()
+                return
+
         if self.character.alive is False:  # kill speech if character die
             self.kill()
             return
@@ -636,7 +642,8 @@ class CharacterSpeechBox(UIBattle):
                 self.rect.bottomright = self.head_part.rect.midleft
 
         else:  # right direction facing
-            if self.battle.stage_end - self.head_part.rect.midright[0] < self.base_image.get_width():
+            if (self.battle.shown_camera_pos[0] + self.battle.camera.camera_w_center) - \
+                    self.head_part.rect.midright[0] < self.base_image.get_width():
                 # text will exceed screen, go other way
                 self.image = pygame.transform.flip(self.base_image, 1, 0)
                 self.rect.bottomright = self.head_part.rect.midleft
@@ -652,16 +659,6 @@ class CharacterSpeechBox(UIBattle):
             text_rect = self.text_surface.get_rect(center=(int(self.image.get_width() / 2),
                                                            int(self.body.get_height() / 2)))
             self.image.blit(self.text_surface, text_rect)
-
-
-class TimeUI(UIBattle):
-    def __init__(self, pos):
-        self._layer = 10
-        UIBattle.__init__(self, player_interact=False)
-        self.pos = pos
-        self.image = Surface((300 * self.screen_scale[0], 100 * self.screen_scale[1]), SRCALPHA)
-        self.base_image = self.image.copy()
-        self.rect = self.image.get_rect(topright=self.pos)
 
 
 class DamageNumber(UIBattle):

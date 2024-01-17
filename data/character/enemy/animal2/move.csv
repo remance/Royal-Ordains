@@ -1,2 +1,2 @@
-"Buttons","Move","Name","Position","Requirement Move","Prepare Animation","AI Range","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"Weak","sweak1","Toxic Beard","Stand",,,500,600,8,,70,24,,,12,5,"Poison",,,,
+"Buttons","Move","Name","Position","Requirement Move","Prepare Animation","After Animation","AI Range","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Weak","sweak1","Toxic Beard","Stand",,,,500,600,8,,70,24,,,12,5,"Poison",,,,

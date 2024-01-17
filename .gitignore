@@ -12,6 +12,7 @@
 *.zip
 *.xcf
 *.pyc
+*.dat
 
 # Logs and databases #
 ######################
@@ -34,6 +35,7 @@ __pycache__/
 .idea/
 /build
 /dist
+/save
 /test.py
 /error_report.txt
 /configuration.ini

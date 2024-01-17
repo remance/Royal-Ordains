@@ -4,7 +4,8 @@ infinity = float("inf")
 def health_resource_logic(self, dt):
     """Health and resource calculation"""
     if self.health != infinity:
-        self.health += self.hp_regen * dt  # use the same as positive regen (negative regen number * dt will reduce hp)
+        if self.health < self.max_health and self.hp_regen:
+            self.health += self.hp_regen * dt  # use the same as positive regen (negative regen number * dt will reduce hp)
 
         if self.health < 0:
             self.health = 0  # can't have negative hp

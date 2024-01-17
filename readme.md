@@ -21,7 +21,10 @@ Discord channel: [![github](https://github.com/remance/preview/blob/main/discord
 
 For game update showcase video: [![github](https://github.com/remance/preview/blob/main/youtube_logo3.png?raw=true)][2]
 
-<a href="https://youtu.be/video_id" title="video text"><img src="https://github.com/remance/preview2/blob/main/rabbit-rider.gif?raw=true" width="150" height="150"></a>  <a href="https://youtu.be/video_id" title="video text"><img src="https://github.com/remance/preview2/blob/main/bigta.gif?raw=true" width="150" height="150"></a>  <a href="https://youtu.be/video_id" title="video text"><img src="https://github.com/remance/preview2/blob/main/bow.gif?raw=true" width="150" height="150"></a> <a href="https://youtu.be/video_id" title="video text"><img src="https://github.com/remance/preview2/blob/main/peace.gif?raw=true" width="150" height="150"></a>   
+<img src="https://github.com/remance/preview2/blob/main/rabbit-rider.gif?raw=true" width="200" height="200"></a> 
+<img src="https://github.com/remance/preview2/blob/main/bigta.gif?raw=true" width="200" height="200"></a>  
+<img src="https://github.com/remance/preview2/blob/main/bow.gif?raw=true" width="200" height="200"></a>
+<img src="https://github.com/remance/preview2/blob/main/peace.gif?raw=true" width="200" height="200"></a>   
 
 
 ---------------
@@ -114,9 +117,45 @@ Also, the game is currently optimised based on the pygame 2.5.1 module and pytho
 
 ---------------
 
-# Latest Update
+# Current Progress
 
-Currently, the current game version consists of 5 playable characters and first mission for chapter 1.
+The current game version consists of 5 playable characters and first mission for chapter 1.
+
+### Warrior type
+
+<img src="https://github.com/remance/preview2/blob/main/vraesier1.png?raw=true" width="100" height="100"></a> Vagrant Marauder
+
+### Archer type
+
+<img src="https://github.com/remance/preview2/blob/main/rodhinbar1.png?raw=true" width="100" height="100"></a> Headman
+
+### Support type
+
+<img src="https://github.com/remance/preview2/blob/main/duskuksa1.png?raw=true" width="100" height="100"></a> Rune Sage Journeyman
+
+### Skill type
+
+<img src="https://github.com/remance/preview2/blob/main/iri1.png?raw=true" width="100" height="100"></a> Traveller
+
+### Special type
+
+<img src="https://github.com/remance/preview2/blob/main/nayedien1.png?raw=true" width="100" height="100"></a> King’s Aide
+
+# Future Playable Characters
+
+Warrior / Warrior type
+
+Exiled Scout / Archer type
+
+Sweeper / Skill type
+
+Desperate Widow / Mage type
+
+Hedge Shaman / Mage type
+
+Dryad / Support type
+
+Alchemist / Special type
 
 ---------------
 
@@ -258,7 +297,7 @@ Animation maker for the Vector-based character animation in game. The tool is ma
 - Battle music "Medieval: Battle" by RandomMind (https://www.chosic.com/free-music/all/?keyword=RandomMind&artist)
 - Battle music 2 "War Drums Sound Effect - Realistic Performance - Royalty Free" by Free Audio Zone (https://www.youtube.com/watch?v=d2omr4EpjVc)
 - Mechanism sound "Mechanism" by Globofonia (https://freesound.org/people/Globofonia/)
-- Boom, clapping, whistling sound  by Pixabay (https://pixabay.com/users/pixabay-1/) 
+- Boom, clapping, whistling, sword sheath sound by Pixabay (https://pixabay.com/users/pixabay-1/) 
 - Bell sound "Bell Sound Ring" by Mike Koenig (https://soundbible.com/26-Bell-Sound-Ring.html#)
 - Wind sound "Wind Blow", Blood pull "Breeze Of Blood" by UNIVERSFIELD (https://pixabay.com/users/universfield-28281460/) 
 - Earth spike sound "Punch a rock" and "Woosh Drum hit" by LordSonny (https://pixabay.com/users/lordsonny-38439655/)

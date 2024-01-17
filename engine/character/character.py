@@ -114,8 +114,11 @@ class Character(sprite.Sprite):
     from engine.character.play_cutscene_animation import play_cutscene_animation
     play_cutscene = play_cutscene_animation
 
-    from engine.character.player_input import player_input
-    player_input = player_input
+    from engine.character.player_input_battle_mode import player_input_battle_mode
+    player_input_battle_mode = player_input_battle_mode
+
+    from engine.character.player_input_city_mode import player_input_city_mode
+    player_input_city_mode = player_input_city_mode
 
     from engine.character.remove_moveset_not_match_stat_requirement import remove_moveset_not_match_stat_requirement
     remove_moveset_not_match_stat_requirement = remove_moveset_not_match_stat_requirement
@@ -134,7 +137,7 @@ class Character(sprite.Sprite):
     flee_command_action = {"name": "FleeMove", "movable": True, "flee": True}
     halt_command_action = {"name": "Halt", "movable": True, "walk": True, "halt": True}
     dash_command_action = {"name": "Dash", "uncontrollable": True, "movable": True, "forced move": True, "no dmg": True,
-                           "hold": True, "dash": True}
+                           "hold": True, "dash": True, "not_reset_special_state": True}
 
     jump_idle_command_action = {"name": "Idle", "movable": True}
     relax_command_action = {"name": "Relax", "low level": True}
@@ -162,6 +165,7 @@ class Character(sprite.Sprite):
     guard_command_action = {"name": "Guard", "guard": True}
     guard_hold_command_action = {"name": "Guard", "guard": True, "hold": True}
     guard_move_command_action = {"name": "GuardWalk", "guard": True, "movable": True, "walk": True}
+    guard_break_command_action = {"name": "GuardBreak", "uncontrollable": True}
 
     air_idle_command_action = {"name": "Idle", "movable": True}
     land_command_action = {"name": "Land", "uncontrollable": True, "stand": True}
@@ -295,6 +299,9 @@ class Character(sprite.Sprite):
         self.position = "Stand"
         self.combat_state = "Peace"
         self.mode = "Normal"
+        if self.battle.city_mode:
+            self.combat_state = "City"
+            self.mode = "City"
         self.special_combat_state = 0
         self.timer = random()
         self.in_combat_timer = 0
@@ -340,7 +347,7 @@ class Character(sprite.Sprite):
         leader_charisma = 0
         if self.leader:  # character with leader get stat boost from leader charisma
             leader_charisma = self.leader.charisma
-            stat_boost = int(leader_charisma / 10)
+            stat_boost = int(leader_charisma / 5)
         self.strength = stat["Strength"] + (stat["Strength"] * (leader_charisma / 200)) + stat_boost
         self.dexterity = stat["Dexterity"] + (stat["Dexterity"] * (leader_charisma / 200)) + stat_boost
         self.agility = stat["Agility"] + (stat["Agility"] * (leader_charisma / 200)) + stat_boost
@@ -377,16 +384,16 @@ class Character(sprite.Sprite):
             self.score = stat["Score"]
 
         if "Skill Allocation" in stat:  # refind leveled skill allocated since name is only from first level
-            for name, position in self.skill.items():
+            for position_name, position in self.skill.items():
                 for skill in tuple(position.keys()):
                     if position[skill]["Name"] in stat["Skill Allocation"] and \
                             stat["Skill Allocation"][position[skill]["Name"]]:
                         skill_id = skill[:3] + str(stat["Skill Allocation"][position[skill]["Name"]])
-                        self.available_skill[name][skill_id] = position[skill_id]
+                        self.available_skill[position_name][skill_id] = position[skill_id]
         else:  # all skill available
-            for name, position in self.skill.items():
+            for position_name, position in self.skill.items():
                 for skill in tuple(position.keys()):
-                    self.available_skill[name][skill] = position[skill]
+                    self.available_skill[position_name][skill] = position[skill]
 
         self.remove_moveset_not_match_stat_requirement()
 
@@ -511,6 +518,7 @@ class Character(sprite.Sprite):
 
         self.run_speed = 1
         self.walk_speed = 1
+        self.city_walk_speed = 500  # movement speed in city, not affected by anything
 
         # Variable related to sprite
         self.angle = -90
@@ -579,11 +587,6 @@ class Character(sprite.Sprite):
                 hold_check = False
                 self.timer += dt
 
-                if self.health < self.max_health and self.hp_regen:
-                    self.health += self.hp_regen * dt
-                    if self.health > self.max_health:
-                        self.health = self.max_health
-
                 if 0 < self.guarding < 1:
                     self.guarding += dt
 
@@ -603,53 +606,51 @@ class Character(sprite.Sprite):
                     if self.stop_fall_duration < 0:
                         self.stop_fall_duration = 0
 
-                if self.timer > 0.1:  # Update status and skill
-                    if self.combat_state == "Combat" and self.position not in ("Air", "Couch"):
-                        self.in_combat_timer -= self.timer
-                        if self.in_combat_timer <= 0:
-                            if not self.current_action and not self.command_action:
-                                # Idle in combat state go to peace state instead
-                                self.in_combat_timer = 0
-                                self.combat_state = "Peace"
-                                self.command_action = self.relax_command_action
-                                if self.special_combat_state:  # special relax state
-                                    self.command_action = self.special_relax_command[self.special_combat_state]
-                                    self.special_combat_state = 0
-                            else:
-                                self.in_combat_timer = 2
-
-                    self.nearest_enemy = None
-                    self.nearest_ally = None
-                    self.near_enemy = sorted({key: key.base_pos.distance_to(self.base_pos) for key in
-                                              self.enemy_list}.items(),
-                                             key=lambda item: item[1])  # sort the closest enemy
-                    self.near_ally = sorted(
-                        {key: key.base_pos.distance_to(self.base_pos) for key in self.ally_list}.items(),
-                        key=lambda item: item[1])  # sort the closest friend
-                    if self.near_enemy:
-                        self.nearest_enemy = self.near_enemy[0]
-                    if self.near_ally:
-                        self.nearest_ally = self.near_ally[0]
-
-                    if not self.invincible:
-                        self.status_update()
-                    self.specific_status_update()
-                    self.timer -= 0.1
-
                 self.taking_damage_angle = None
                 self.ai_update(dt)
+
                 if self.angle != self.new_angle:  # Rotate Function
                     self.rotate_logic()
-
                 self.move_logic(dt)  # Move function
 
-                if self.base_pos[1] < self.ground_pos:
-                    self.position = "Air"
+                if self.combat_state != "City":
+                    if self.timer > 0.1:  # Update status and skill
+                        if self.combat_state == "Combat" and self.position not in ("Air", "Couch"):
+                            self.in_combat_timer -= self.timer
+                            if self.in_combat_timer <= 0:
+                                if not self.current_action and not self.command_action:
+                                    # Idle in combat state go to peace state instead
+                                    self.in_combat_timer = 0
+                                    self.combat_state = "Peace"
+                                    self.command_action = self.relax_command_action
+                                    if self.special_combat_state:  # special relax state
+                                        self.command_action = self.special_relax_command[self.special_combat_state]
+                                        self.special_combat_state = 0
+                                else:
+                                    self.in_combat_timer = 2
 
-                self.health_resource_logic(dt)
-                self.specific_update(dt)
+                        self.nearest_enemy = None
+                        self.nearest_ally = None
+                        self.near_enemy = sorted({key: key.base_pos.distance_to(self.base_pos) for key in
+                                                  self.enemy_list}.items(),
+                                                 key=lambda item: item[1])  # sort the closest enemy
+                        self.near_ally = sorted(
+                            {key: key.base_pos.distance_to(self.base_pos) for key in self.ally_list}.items(),
+                            key=lambda item: item[1])  # sort the closest friend
+                        if self.near_enemy:
+                            self.nearest_enemy = self.near_enemy[0]
+                        if self.near_ally:
+                            self.nearest_ally = self.near_ally[0]
 
-                # Animation and sprite systema
+                        if not self.invincible:
+                            self.status_update()
+                        self.specific_status_update()
+                        self.timer -= 0.1
+
+                    self.health_resource_logic(dt)
+                    self.specific_update(dt)
+
+                # Animation and sprite system
                 if self.show_frame >= len(self.current_animation_direction):  # TODO remove when really fixed
                     print(self.name, self.show_frame, self.current_animation, self.current_action)
                     raise Exception()
@@ -663,13 +664,13 @@ class Character(sprite.Sprite):
                     if self.current_moveset:
                         self.hold_timer += dt
                         self.hold_power_bonus = 1
-                        if "hold+power" in self.current_moveset["Property"] and self.hold_timer >= 1:
+                        if self.current_moveset["Property"]["hold"] == "power" and self.hold_timer >= 1:
                             # hold beyond 1 second to hit harder
                             self.hold_power_bonus = 2.5
-                        elif "hold+timing" in self.current_moveset["Property"] and 2 >= self.hold_timer >= 1:
+                        elif self.current_moveset["Property"]["hold"] == "timing" and 2 >= self.hold_timer >= 1:
                             # hold release at specific time
                             self.hold_power_bonus = 4
-                        elif "hold+trigger" in self.current_moveset["Property"] and self.hold_timer >= 0.5:
+                        elif self.current_moveset["Property"]["hold"] == "trigger" and self.hold_timer >= 0.5:
                             self.hold_timer -= 0.5
                             self.resource -= self.current_moveset["Resource Cost"]
                             if self.resource < 0:
@@ -712,7 +713,7 @@ class Character(sprite.Sprite):
                     # Reset action check
                     if "next action" in self.current_action and not self.interrupt_animation and \
                             (not self.current_moveset or "no auto next" not in self.current_moveset["Property"]):
-                        # play next action first instead of command if not finish by interruption
+                        # play next action from current first instead of command if not finish by interruption
                         self.current_action = self.current_action["next action"]
                     elif ("remove momentum when done" not in self.current_action and
                           (("x_momentum" in self.current_action and self.x_momentum) or
@@ -862,7 +863,7 @@ class Character(sprite.Sprite):
                 self.show_frame = 0
                 self.frame_timer = 0
                 self.start_animation_body_part()
-                if self.cutscene_event and "die" in self.cutscene_event["Property"]:
+                if self.cutscene_event and "die" in self.cutscene_event["Property"]:  # die animation
                     self.battle.cutscene_playing.remove(self.cutscene_event)
                     self.cutscene_target_pos = None
                     self.current_action = {}
@@ -871,8 +872,9 @@ class Character(sprite.Sprite):
                     self.max_show_frame = 0  # reset max_show_frame to 0 to prevent restarting animation
                     self.start_animation_body_part()  # revert previous show_frame 0 animation start
                     return
-            if self.cutscene_target_pos and self.cutscene_target_pos == self.base_pos:
-                # animation consider finish when reach target as well, pick idle animation
+            if (self.cutscene_target_pos and self.cutscene_target_pos == self.base_pos) or \
+                    (not self.cutscene_event or "repeat" not in self.cutscene_event["Property"]):
+                # animation consider finish when reach target or finish animation with no repeat, pick idle animation
                 self.show_frame = 0
                 self.frame_timer = 0
                 self.current_action = {}
@@ -895,6 +897,10 @@ class Character(sprite.Sprite):
 class PlayableCharacter(Character):
     def __init__(self, game_id, layer_id, stat):
         Character.__init__(self, game_id, layer_id, stat, player_control=True)
+        self.player_input = self.player_input_battle_mode
+        if self.battle.city_mode:
+            self.player_input = self.player_input_city_mode
+
         self.indicator = CharacterIndicator(self)
         self.player_command_key_input = []
         self.player_key_input_timer = []
@@ -1072,21 +1078,22 @@ class AICharacter(Character):
             self.indicator = CharacterIndicator(self)
         if "Ground Y POS" in stat and stat["Ground Y POS"]:  # replace ground pos based on data in stage
             self.ground_pos = stat["Ground Y POS"]
+
         ai_behaviour = stat["AI Behaviour"]
         if specific_behaviour:
             ai_behaviour = specific_behaviour
 
-        self.ai_move = ai_move_dict["default"]
+        self.ai_move = types.MethodType(ai_move_dict["default"], self)
         if ai_behaviour in ai_move_dict:
-            self.ai_move = ai_move_dict[ai_behaviour]
+            self.ai_move = types.MethodType(ai_move_dict[ai_behaviour], self)
 
-        self.ai_combat = ai_combat_dict["default"]
+        self.ai_combat = types.MethodType(ai_combat_dict["default"], self)
         if ai_behaviour in ai_combat_dict:
-            self.ai_combat = ai_combat_dict[ai_behaviour]
+            self.ai_combat = types.MethodType(ai_combat_dict[ai_behaviour], self)
 
-        self.ai_retreat = ai_retreat_dict["default"]
+        self.ai_retreat = types.MethodType(ai_retreat_dict["default"], self)
         if ai_behaviour in ai_retreat_dict:
-            self.ai_retreat = ai_retreat_dict[ai_behaviour]
+            self.ai_retreat = types.MethodType(ai_retreat_dict[ai_behaviour], self)
 
         for item in stat["Property"]:  # set attribute from property
             self.__setattr__(item, True)
@@ -1102,18 +1109,60 @@ class AICharacter(Character):
                     self.ai_max_attack_range = move["AI Range"]
 
         if "Stage Property" in stat:
-            if "target" in stat["Stage Property"]:
-                if type(stat["Stage Property"]["target"]) is int:  # target is AI
-                    target = stat["Stage Property"]["target"]
-                else:  # target is player
-                    target = stat["Stage Property"]["target"][-1]
+            for stuff in stat["Stage Property"]:
+                if stuff == "target":
+                    if type(stat["Stage Property"]["target"]) is int:  # target is AI
+                        target = stat["Stage Property"]["target"]
+                    else:  # target is player
+                        target = stat["Stage Property"]["target"][-1]
 
-                for this_char in self.battle.all_chars:
-                    if target == this_char.game_id:  # find target char object
-                        self.target = this_char
-                        break
+                    for this_char in self.battle.all_chars:
+                        if target == this_char.game_id:  # find target char object
+                            self.target = this_char
+                            break
+                else:
+                    self.__setattr__(stuff, True)
 
         self.resurrect_count = 0
+
+        self.enter_battle(self.battle.character_animation_data)
+
+    def ai_update(self, dt):
+        self.ai_timer = 0  # for whatever timer require for AI action
+        self.ai_movement_timer = 0  # timer to move for AI
+        if self.ai_timer:
+            self.ai_timer += dt
+        if self.ai_movement_timer:
+            self.ai_movement_timer += dt
+        if not self.broken:
+            self.ai_combat()
+            self.ai_move(dt)
+        else:
+            self.ai_retreat()
+
+
+class CityAICharacter(Character):
+    def __init__(self, game_id, layer_id, stat, leader=None, specific_behaviour=None):
+        Character.__init__(self, game_id, layer_id, stat, leader=leader)
+
+        if "Ground Y POS" in stat and stat["Ground Y POS"]:  # replace ground pos based on data in stage
+            self.ground_pos = stat["Ground Y POS"]
+
+        ai_behaviour = "idle_city_npc"
+        if specific_behaviour:
+            ai_behaviour = specific_behaviour
+
+        self.ai_move = ai_move_dict["default"]
+        if ai_behaviour in ai_move_dict:
+            self.ai_move = ai_move_dict[ai_behaviour]
+
+        self.ai_combat = ai_combat_dict["default"]
+        if ai_behaviour in ai_combat_dict:
+            self.ai_combat = ai_combat_dict[ai_behaviour]
+
+        self.ai_timer = 0  # for whatever timer require for AI action
+        self.ai_movement_timer = 0  # timer to move for AI
+        self.end_ai_movment_timer = randint(2, 6)
 
         self.enter_battle(self.battle.character_animation_data)
 
@@ -1122,15 +1171,15 @@ class AICharacter(Character):
             self.ai_timer += dt
         if self.ai_movement_timer:
             self.ai_movement_timer += dt
-        if not self.broken:
-            if not self.ai_lock:
-                self.ai_combat(self)
-                self.ai_move(self, dt)
-            elif self.base_pos[0] <= self.battle.base_stage_end:  # in active scene now
-                self.ai_lock = False
-        else:
-            self.ai_retreat(self)
+        self.ai_combat(self)
+        self.ai_move(self, dt)
 
+#
+# class CutsceneCharacter:
+#     def __init__(self, game_id, layer_id):
+#
+#
+#     def update(self, dt):
 
 class BodyPart(sprite.Sprite):
     battle = None

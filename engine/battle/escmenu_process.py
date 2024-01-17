@@ -52,9 +52,13 @@ def escmenu_process(self, esc_press: bool):
                     self.add_ui_updater(self.esc_option_menu_button, self.esc_slider_menu.values(),
                                         self.esc_value_boxes.values(), self.esc_option_text.values())
 
-                elif button.text == "End Battle":  # back to start_set menu
+                elif button.text == "End Battle":  # back to city
                     self.exit_battle()
                     command = "end_battle"
+
+                elif button.text == "Main Menu":  # back to start_set menu
+                    self.exit_battle()
+                    command = "main_menu"
 
                 elif button.text == "Desktop":  # quit self
                     self.activate_input_popup(("confirm_input", "quit"), "Quit Game?", self.confirm_ui_popup)

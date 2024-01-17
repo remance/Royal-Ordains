@@ -24,6 +24,10 @@ def die(self, how):
         self.indicator.kill()
         self.indicator = None
 
+    for speech in self.battle.speech_boxes:
+        if speech.character == self:  # kill speech
+            speech.kill()
+
     if how == "flee":
         clean_group_object((self.body_parts,))
         clean_object(self)

@@ -1,8 +1,8 @@
-def no_retreat_ai(self):
+def no_retreat_ai(self, *args):
     pass
 
 
-def common_ai(self):
+def common_ai(self, *args):
     if not self.current_action and not self.command_action:
         if self.battle.base_stage_end - self.base_pos[0] < self.battle.base_stage_end / 2:  # near start of stage
             self.x_momentum = self.battle.base_stage_end

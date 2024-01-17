@@ -4,7 +4,7 @@ and save them into dict for in game use """
 import csv
 import os
 
-from engine.utils.data_loading import stat_convert
+from engine.utils.data_loading import stat_convert, load_images
 
 
 class GameData:
@@ -54,7 +54,7 @@ class CharacterData(GameData):
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
             tuple_column = ("Buttons", "Status", "Enemy Status")  # value in tuple only
-            dict_column = ("Prepare Animation", "Property",)
+            dict_column = ("Prepare Animation", "After Animation", "Property",)
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
             dict_column = [index for index, item in enumerate(header) if item in dict_column]
             moveset_dict = {}
@@ -200,7 +200,8 @@ class CharacterData(GameData):
                         edit_file2.close()
 
                     # Add character mode data
-                    self.character_list[row[0]]["Mode"] = {}
+                    self.character_list[row[0]]["Mode"] = {"Normal": default_mode["Normal"],
+                                                           "City": default_mode["Normal"]}
                     if os.path.exists(
                             os.path.join(self.data_dir, "character", folder_list[file_index], row[0], "mode.csv")):
                         with open(os.path.join(self.data_dir, "character", folder_list[file_index], row[0], "mode.csv"),
@@ -210,9 +211,11 @@ class CharacterData(GameData):
                             for row_index2, row2 in enumerate(rd2[1:]):
                                 self.character_list[row[0]]["Mode"][row2[0]] = {header2[index + 1]: stuff for
                                                                                 index, stuff in enumerate(row2[1:])}
-                    else:  # no specific mode list, has only normal mode
-                        self.character_list[row[0]]["Mode"]["Normal"] = default_mode["Normal"]
                 edit_file.close()
+
+        self.character_portraits = load_images(self.data_dir, screen_scale=self.screen_scale,
+                                               subfolder=("character", "portrait"),
+                                               key_file_name_readable=True)
 
         # Drop item
         self.drop_item_list = {}

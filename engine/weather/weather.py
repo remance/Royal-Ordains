@@ -9,7 +9,7 @@ from engine.utils.rotation import set_rotate
 class Weather(UIBattle):
     weather_icons = {}
 
-    def __init__(self, time_ui, weather_type, wind_direction, level, weather_data):
+    def __init__(self, weather_type, wind_direction, level, weather_data):
         self._layer = 99999999999999999999
         UIBattle.__init__(self)
         self.weather_type = weather_type
@@ -20,10 +20,8 @@ class Weather(UIBattle):
             self.has_stat_effect = True
             stat = weather_data[self.weather_type]
             self.name = stat["Name"]
-            self.level = level  # weather level 0 = Light, 1 = Normal, 2 = Strong
-            if self.level > 2:  # in case adding higher level number by mistake
-                self.level = 2
-            elif self.level < 0:  # can not be negative level
+            self.level = level  # weather level, start from 0
+            if self.level < 0:  # can not be negative level
                 self.level = 0
             cal_level = self.level + 1
 
@@ -48,12 +46,6 @@ class Weather(UIBattle):
 
             self.travel_angle = (int(self.travel_angle - (abs(180 - self.travel_angle) / 3)),
                                  int(self.travel_angle + (abs(180 - self.travel_angle) / 3)))
-
-            time_ui.image = time_ui.base_image.copy()  # reset time ui image
-
-            weather_image = self.weather_icons[self.name + "_" + str(self.level)]
-            weather_image_rect = weather_image.get_rect(topright=(time_ui.image.get_width() * 0.9, 0))
-            time_ui.image.blit(weather_image, weather_image_rect)
 
 
 class MatterSprite(UIBattle):

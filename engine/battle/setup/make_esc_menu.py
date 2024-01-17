@@ -24,15 +24,17 @@ def make_esc_menu(master_volume, music_volume, voice_volume, effect_volume):
     esc_button_text_size = int(22 * screen_scale[1])
 
     battle_menu_button = [
-        uibattle.EscButton(button_image, (screen_rect.center[0] / 3, screen_rect.height - (50 * screen_scale[1])),
+        uibattle.EscButton(button_image, (screen_rect.center[0] / 4.5, screen_rect.height - (50 * screen_scale[1])),
                            text="Resume", text_size=esc_button_text_size),
-        uibattle.EscButton(button_image, (screen_rect.center[0] / 1.5, screen_rect.height - (50 * screen_scale[1])),
+        uibattle.EscButton(button_image, (screen_rect.center[0] / 1.9, screen_rect.height - (50 * screen_scale[1])),
                            text="Encyclopedia", text_size=esc_button_text_size),
-        uibattle.EscButton(button_image, (screen_rect.center[0], screen_rect.height - (50 * screen_scale[1])),
+        uibattle.EscButton(button_image, (screen_rect.center[0] / 1.2, screen_rect.height - (50 * screen_scale[1])),
                            text="Option", text_size=esc_button_text_size),
-        uibattle.EscButton(button_image, (screen_rect.center[0] * 1.35, screen_rect.height - (50 * screen_scale[1])),
+        uibattle.EscButton(button_image, (screen_rect.center[0] * 1.2, screen_rect.height - (50 * screen_scale[1])),
                            text="End Battle", text_size=esc_button_text_size),
-        uibattle.EscButton(button_image, (screen_rect.center[0] * 1.7, screen_rect.height - (50 * screen_scale[1])),
+        uibattle.EscButton(button_image, (screen_rect.center[0] * 1.5, screen_rect.height - (50 * screen_scale[1])),
+                           text="Main Menu", text_size=esc_button_text_size),
+        uibattle.EscButton(button_image, (screen_rect.center[0] * 1.8, screen_rect.height - (50 * screen_scale[1])),
                            text="Desktop", text_size=esc_button_text_size)]
 
     # Create option menu

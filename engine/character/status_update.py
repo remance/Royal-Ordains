@@ -68,7 +68,7 @@ def status_update(self):
     self.speed = self.base_speed + speed_bonus
     self.dodge = int(self.base_dodge + (speed_bonus / 10))
     self.critical_chance = self.base_critical_chance + crit_chance_bonus
-    self.super_armour = self.base_super_armour
+    self.super_armour = self.base_super_armour + (defence_bonus / 10)
 
     self.hp_regen = self.base_hp_regen + hp_regen_bonus
     self.resource_regen = self.base_resource_regen + resource_regen_bonus

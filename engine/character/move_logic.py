@@ -9,6 +9,8 @@ def move_logic(self, dt):
         # animation allow movement or in air which always allow movement
         if "walk" in self.current_action:
             self.move_speed = self.walk_speed
+            if self.combat_state == "City":
+                self.move_speed = self.city_walk_speed
         elif "run" in self.current_action:
             self.move_speed = self.run_speed
         elif "fly" in self.current_action:
@@ -105,3 +107,6 @@ def move_logic(self, dt):
     elif self.current_action:  # not movable animation, reset speed
         if "movable" in self.current_action:  # in moving animation, interrupt it
             self.interrupt_animation = True
+
+    if self.base_pos[1] < self.ground_pos:
+        self.position = "Air"

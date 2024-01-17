@@ -12,13 +12,13 @@ def cal_dmg(self, target, critical):
     # attack pass through dodge now calculate defense
 
     # impact = self.knock_power
-    damage, element_effect = cal_dmg_element(self, target, critical)
+    damage = cal_dmg_element(self, target, critical)
 
     # Damage cannot be negative (it would heal instead) or 0, damage can only be 0 if original already 0
     if damage < 0:
         damage = 0
 
-    return damage, element_effect
+    return damage
 
 
 def cal_dmg_element(self, target, critical):
@@ -28,7 +28,6 @@ def cal_dmg_element(self, target, critical):
     damage = int((self.dmg - (self.dmg * (target.element_resistance[self.element] / 100))) * defence)
     if critical:
         damage *= 2
-    element_effect = {self.element: damage / 10}
     # damage *= self.owner.weapon_dmg_modifier
 
-    return damage, element_effect
+    return damage

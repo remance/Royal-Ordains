@@ -2094,51 +2094,52 @@ while True:
 
                 elif anim_prop_list_box.rect.collidepoint(mouse_pos) or frame_prop_list_box.rect.collidepoint(
                         mouse_pos):
-                    namegroup = anim_prop_namegroup  # click on animation property list
-                    list_box = anim_prop_list_box
-                    select_list = anim_property_select
-                    namelist = list_box.namelist
-                    naming = "anim"
-                    if frame_prop_list_box.rect.collidepoint(mouse_pos):  # click on frame property list
-                        namegroup = frame_prop_namegroup
-                        list_box = frame_prop_list_box
-                        select_list = frame_property_select[current_frame]
-                        namelist = list_box.namelist[current_frame]
-                        naming = "frame"
+                    if activate_list[current_frame]:
+                        namegroup = anim_prop_namegroup  # click on animation property list
+                        list_box = anim_prop_list_box
+                        select_list = anim_property_select
+                        namelist = list_box.namelist
+                        naming = "anim"
+                        if frame_prop_list_box.rect.collidepoint(mouse_pos):  # click on frame property list
+                            namegroup = frame_prop_namegroup
+                            list_box = frame_prop_list_box
+                            select_list = frame_property_select[current_frame]
+                            namelist = list_box.namelist[current_frame]
+                            naming = "frame"
 
-                    for index, name in enumerate(namegroup):
-                        if name.rect.collidepoint(mouse_pos):
-                            if name.selected:  # unselect
-                                name.select()
-                                select_list.remove(name.name)
-                                specific_frame = None
-                                if naming == "frame":
-                                    specific_frame = current_frame
-                                reload_animation(anim, model, specific_frame=specific_frame)
-                            else:
-                                if name.name == "Custom":
-                                    text_input_popup = ("text_input", "new_anim_prop")
-                                    input_ui.change_instruction("Custom Property:")
-                                    ui.add(input_ui_popup)
-                                elif name.name[-1] == "_" or name.name[-1].isdigit():  # property that need number value
-                                    if name.selected is False:
-                                        if "colour" in name.name:
-                                            text_input_popup = ("text_input", naming + "_prop_colour_" + name.name)
-                                            ui.add(colour_ui_popup)
-                                        else:
-                                            text_input_popup = ("text_input", naming + "_prop_num_" + name.name)
-                                            input_ui.change_instruction("Input Number Value:")
-                                            ui.add(input_ui_popup)
-                                else:
+                        for index, name in enumerate(namegroup):
+                            if name.rect.collidepoint(mouse_pos):
+                                if name.selected:  # unselect
                                     name.select()
-                                    select_list.append(name.name)
-                                    setup_list(NameList, current_frame_row, namelist, namegroup,
-                                               list_box, ui, screen_scale, layer=9, old_list=select_list)
+                                    select_list.remove(name.name)
                                     specific_frame = None
                                     if naming == "frame":
                                         specific_frame = current_frame
                                     reload_animation(anim, model, specific_frame=specific_frame)
-                            property_to_pool_data(naming)
+                                else:
+                                    if name.name == "Custom":
+                                        text_input_popup = ("text_input", "new_anim_prop")
+                                        input_ui.change_instruction("Custom Property:")
+                                        ui.add(input_ui_popup)
+                                    elif name.name[-1] == "_" or name.name[-1].isdigit():  # property that need number value
+                                        if name.selected is False:
+                                            if "colour" in name.name:
+                                                text_input_popup = ("text_input", naming + "_prop_colour_" + name.name)
+                                                ui.add(colour_ui_popup)
+                                            else:
+                                                text_input_popup = ("text_input", naming + "_prop_num_" + name.name)
+                                                input_ui.change_instruction("Input Number Value:")
+                                                ui.add(input_ui_popup)
+                                    else:
+                                        name.select()
+                                        select_list.append(name.name)
+                                        setup_list(NameList, current_frame_row, namelist, namegroup,
+                                                   list_box, ui, screen_scale, layer=9, old_list=select_list)
+                                        specific_frame = None
+                                        if naming == "frame":
+                                            specific_frame = current_frame
+                                        reload_animation(anim, model, specific_frame=specific_frame)
+                                property_to_pool_data(naming)
 
         if not play_animation:
             dt = 0

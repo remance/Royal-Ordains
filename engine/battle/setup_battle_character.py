@@ -1,17 +1,24 @@
+import copy
 from random import randint
 
-from engine.character.character import Character, AICharacter, PlayableCharacter
+from engine.character.character import Character, AICharacter, PlayableCharacter, CityAICharacter
 
 from engine.uibattle.uibattle import ScoreBoard
 
 
 def setup_battle_character(self, player_list, stage_char_list, add_helper=True):
+    object_id_list = [item["Object ID"] for item in stage_char_list]
     if player_list:
         for key, data in player_list.items():
+            additional_data = {"POS": (key * 100, Character.original_ground_pos),
+                               "Scene": 1, "Arrive Condition": []}
+            if "p" + str(key) in object_id_list:  # player stage data exist
+                additional_data = copy.deepcopy(stage_char_list[object_id_list.index("p" + str(key))])
+                additional_data.pop("ID")
             self.players[key]["Object"] = PlayableCharacter("p" + str(key), key,
                                                             data | self.character_data.character_list[data["ID"]] |
-                                                            {"POS": (key * 100, Character.original_ground_pos),
-                                                             "Scene": 1, "Arrive Condition": []})
+                                                            additional_data)
+
     self.player_objects = {key: value["Object"] for key, value in self.players.items()}
     player_team = {1: 0, 2: 0, 3: 0, 4: 0}
     for player in self.player_objects.values():  # increase AI health of opposite player team depending on player number
@@ -19,12 +26,21 @@ def setup_battle_character(self, player_list, stage_char_list, add_helper=True):
             if team != player.team:
                 player_team[team] += 1
     for data in stage_char_list:
-        health_scaling = player_team[data["Team"]]
-        if not health_scaling:  # 0 player is considered x1 same as 1 player
-            health_scaling = 1
-        AICharacter(data["Object ID"], data["Object ID"],
-                    data | self.character_data.character_list[data["ID"]] |
-                    {"Sprite Ver": self.chapter}, health_scaling=health_scaling)
+        if type(data["Object ID"]) is not str:  # only data with int object id created as AI
+            if "no_player_pick" not in data["Stage Property"] or \
+                    data["ID"] not in [player.sprite_id for player in self.player_objects.values()]:
+                # check if no_player_pick and player with same character exist
+                health_scaling = player_team[data["Team"]]
+                if not health_scaling:  # 0 player is considered x1 same as 1 player
+                    health_scaling = 1
+                if "city_npc" in data["Stage Property"]:  # city AI, has different combat update
+                    CityAICharacter(data["Object ID"], data["Object ID"],
+                                    data | self.character_data.character_list[data["ID"]] |
+                                    {"Sprite Ver": self.chapter})
+                else:
+                    AICharacter(data["Object ID"], data["Object ID"],
+                                data | self.character_data.character_list[data["ID"]] |
+                                {"Sprite Ver": self.chapter}, health_scaling=health_scaling)
 
     last_id = stage_char_list[-1]["Object ID"] + 1  # id continue from last stage chars
     if self.player_team_followers:  # player AI follower
