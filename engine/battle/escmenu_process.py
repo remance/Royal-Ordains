@@ -53,11 +53,9 @@ def escmenu_process(self, esc_press: bool):
                                         self.esc_value_boxes.values(), self.esc_option_text.values())
 
                 elif button.text == "End Battle":  # back to city
-                    self.exit_battle()
                     command = "end_battle"
 
                 elif button.text == "Main Menu":  # back to start_set menu
-                    self.exit_battle()
                     command = "main_menu"
 
                 elif button.text == "Desktop":  # quit self
@@ -96,7 +94,7 @@ def back_to_battle_state(self):
                            self.esc_slider_menu.values(),
                            self.esc_value_boxes.values(), self.esc_option_text.values(), self.cursor,
                            self.esc_text_popup)
-    self.realtime_ui_updater.add(self.player_1_battle_cursor)
+    self.realtime_ui_updater.add(self.main_player_battle_cursor)
     self.game_state = "battle"
 
 

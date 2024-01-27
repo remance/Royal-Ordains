@@ -34,9 +34,12 @@ def setup_battle_character(self, player_list, stage_char_list, add_helper=True):
                 if not health_scaling:  # 0 player is considered x1 same as 1 player
                     health_scaling = 1
                 if "city_npc" in data["Stage Property"]:  # city AI, has different combat update
+                    specific_behaviour = None
+                    if "specific_behaviour" in data["Stage Property"]:
+                        specific_behaviour = data["Stage Property"]["specific_behaviour"]
                     CityAICharacter(data["Object ID"], data["Object ID"],
                                     data | self.character_data.character_list[data["ID"]] |
-                                    {"Sprite Ver": self.chapter})
+                                    {"Sprite Ver": self.chapter}, specific_behaviour=specific_behaviour)
                 else:
                     AICharacter(data["Object ID"], data["Object ID"],
                                 data | self.character_data.character_list[data["ID"]] |

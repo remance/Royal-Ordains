@@ -24,9 +24,9 @@ def observer_ai(self, dt):
 
 def helper_ai(self, dt):
     """Movement AI for fairy helper, follow around cursor"""
-    if self.battle.player_1_battle_cursor.pos != self.old_cursor_pos and \
+    if self.battle.main_player_battle_cursor.pos != self.old_cursor_pos and \
             self.battle.decision_select not in self.battle.realtime_ui_updater:
-        self.old_cursor_pos = Vector2(self.battle.player_1_battle_cursor.pos)
+        self.old_cursor_pos = Vector2(self.battle.main_player_battle_cursor.pos)
         self.ai_movement_timer = 0.1
         self.command_pos = self.battle.base_cursor_pos
 

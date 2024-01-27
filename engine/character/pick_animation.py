@@ -53,7 +53,7 @@ def pick_animation(self):
                         if self.special_combat_state:
                             self.special_combat_state = 0
 
-                else:
+                else:  # prepare animation simply play without action related stuff
                     animation_name = self.equipped_weapon + self.combat_state + self.position + self.current_action[
                         "name"]
 
@@ -72,12 +72,16 @@ def pick_animation(self):
     else:  # idle animation
         self.current_moveset = None
         self.continue_moveset = None
-        animation_name = self.equipped_weapon + self.combat_state + self.position + "Idle"
         if not self.fly and self.position == "Air" and not self.y_momentum:  # air fall animation
             animation_name = self.equipped_weapon + "CombatAirFall"
-        if self.special_combat_state and self.combat_state == "Combat":
-            # use special idle if char has special state
-            animation_name += str(self.special_combat_state)
+        else:  # idle
+            if not self.replace_idle_animation:
+                animation_name = self.equipped_weapon + self.combat_state + self.position + "Idle"
+            else:
+                animation_name = self.replace_idle_animation
+            if self.special_combat_state and self.combat_state == "Combat":
+                # use special idle if char has special state
+                animation_name += str(self.special_combat_state)
 
     if "guard" in self.current_action:
         self.guarding = 0.1
@@ -103,6 +107,6 @@ def pick_animation(self):
     self.max_show_frame = len(self.current_animation_direction) - 1
 
     self.start_animation_body_part(new_animation=True)
-    self.final_animation_play_time = self.animation_play_time  # get new play speed
+    self.animation_play_time = self.base_animation_play_time  # get new play speed
     if "play_time_mod" in self.current_animation_direction[self.show_frame]:
-        self.final_animation_play_time *= self.current_animation_direction[self.show_frame]["play_time_mod"]
+        self.animation_play_time *= self.current_animation_direction[self.show_frame]["play_time_mod"]

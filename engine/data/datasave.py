@@ -33,8 +33,10 @@ class SaveData(GameData):
 
     @staticmethod
     def make_save_file(file_name, profile_data):
+        data = profile_data  # remove unrelated stuff
+        data["character"] = {key: value for key, value in data["character"].items() if key not in ("Object", "Team", "Playable")}
         with open(file_name, "wb") as f:
-            pickle.dump(profile_data, f, protocol=2)
+            pickle.dump(data, f, protocol=2)
 
     @staticmethod
     def load_save_file(file_name):

@@ -27,10 +27,10 @@ def pick_cutscene_animation(self, action):
         animation_name = self.current_action["name"]
         # self.angle = self.current_action["angle"]
     else:  # idle animation
-        animation_name = self.equipped_weapon + self.combat_state + self.position + "Idle"
-        if self.special_combat_state and self.combat_state == "Combat":
-            # use special idle if char has special state
-            animation_name += str(self.special_combat_state)
+        if not self.replace_idle_animation:
+            animation_name = self.equipped_weapon + self.combat_state + self.position + "Idle"
+        else:
+            animation_name = self.replace_idle_animation
 
     if animation_name in self.animation_pool:
         self.current_animation = self.animation_pool[animation_name]
@@ -52,8 +52,8 @@ def pick_cutscene_animation(self, action):
                 self.show_frame = 0
 
     self.start_animation_body_part(new_animation=True)
-    self.final_animation_play_time = self.default_animation_play_time  # use default play speed
+    self.animation_play_time = self.default_animation_play_time  # use default play speed
     if "play_time_mod" in self.current_animation_direction[self.show_frame]:
-        self.final_animation_play_time *= self.current_animation_direction[self.show_frame]["play_time_mod"]
+        self.animation_play_time *= self.current_animation_direction[self.show_frame]["play_time_mod"]
 
 

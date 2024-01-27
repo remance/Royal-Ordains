@@ -56,7 +56,6 @@ class Lorebook(UIMenu):
         self.page = 0
         self.max_page = 0
         self.rect = self.image.get_rect(center=(self.screen_size[0] / 2, self.screen_size[1] / 2))
-
         self.tag_list = [{stuff["Tag"]: True for stuff in self.history_lore.values() if stuff["Tag"] != ""},
                          {stuff["Tag"]: True for stuff in self.character_lore.values() if
                           stuff["Tag"] != ""},

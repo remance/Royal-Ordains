@@ -226,8 +226,8 @@ class YesNo(UIBattle):
         yes_image_rect = self.yes_image.get_rect(midleft=(0, self.image.get_height() / 2))
         no_image_rect = self.no_image.get_rect(midright=(self.image.get_width(),
                                                          self.image.get_height() / 2))
-        cursor_pos = (self.battle.player_1_battle_cursor.pos[0] - self.rect.topleft[0],
-                      self.battle.player_1_battle_cursor.pos[1] - self.rect.topleft[1])
+        cursor_pos = (self.battle.main_player_battle_cursor.pos[0] - self.rect.topleft[0],
+                      self.battle.main_player_battle_cursor.pos[1] - self.rect.topleft[1])
         if yes_image_rect.collidepoint(cursor_pos):
             self.image = self.base_image.copy()
             self.no_zoom_animation_timer = 0
@@ -531,6 +531,76 @@ class ScoreBoard(UIBattle):
         self.body_part.base_image.blit(gold_text, gold_rect)
 
 
+class CityMap(UIBattle):
+    def __init__(self, images):
+        UIBattle.__init__(self)
+        self._layer = 1
+        self.selected_animation_timer = []
+        self.images = images
+        self.image = self.images["map"]
+        self.base_image = self.image.copy()
+
+        self.base_image2 = self.image.copy()
+        self.selected = None
+
+        self.rect = self.image.get_rect(topleft=(0, 0))
+
+        self.stage_select_rect = {"herbalist": self.images["herbalist"].get_rect(center=(252 * self.screen_scale[0], 691 * self.screen_scale[1])),
+                                  "barrack": self.images["barrack"].get_rect(center=(428 * self.screen_scale[0], 394 * self.screen_scale[1])),
+                                  "blacksmith": self.images["blacksmith"].get_rect(center=(438 * self.screen_scale[0], 579 * self.screen_scale[1])),
+                                  "cathedral": self.images["cathedral"].get_rect(center=(711 * self.screen_scale[0], 645 * self.screen_scale[1])),
+                                  "plaza": self.images["plaza"].get_rect(center=(884 * self.screen_scale[0], 704 * self.screen_scale[1])),
+                                  "tavern": self.images["tavern"].get_rect(center=(970 * self.screen_scale[0], 801 * self.screen_scale[1])),
+                                  "garden": self.images["garden"].get_rect(center=(1022 * self.screen_scale[0], 497 * self.screen_scale[1])),
+                                  "artificer": self.images["artificer"].get_rect(center=(1339 * self.screen_scale[0], 382 * self.screen_scale[1])),
+                                  "market": self.images["market"].get_rect(center=(1377 * self.screen_scale[0], 629 * self.screen_scale[1])),
+                                  "scriptorium": self.images["scriptorium"].get_rect(center=(1617 * self.screen_scale[0], 436 * self.screen_scale[1])),
+                                  "throne": self.images["throne"].get_rect(center=(1015 * self.screen_scale[0], 109 * self.screen_scale[1])),
+                                  "library": self.images["library"].get_rect(center=(730 * self.screen_scale[0], 202 * self.screen_scale[1])),
+                                  "hall": self.images["hall"].get_rect(center=(1021 * self.screen_scale[0], 199 * self.screen_scale[1])),
+                                  "council": self.images["council"].get_rect(center=(1298 * self.screen_scale[0], 198 * self.screen_scale[1]))
+                                  }
+
+        for image, rect in self.stage_select_rect.items():
+            self.base_image.blit(self.images[image], rect)
+        self.image = self.base_image.copy()
+        self.selected_map = None
+
+    def update(self):
+        cursor_pos = (self.battle.cursor.pos[0] - self.rect.topleft[0],
+                      self.battle.cursor.pos[1] - self.rect.topleft[1])
+        found_select = False
+        self.selected_map = None
+        for image, rect in self.stage_select_rect.items():
+            if rect.collidepoint(cursor_pos):
+                found_select = True
+                self.image = self.base_image.copy()
+                if self.selected_animation_timer:  # already has previous hovering
+                    if self.selected_animation_timer[0] != image:  # different hovering
+                        self.selected_animation_timer = [image, 0]
+                else:
+                    self.selected_animation_timer = [image, 0]
+                self.selected_animation_timer[1] += self.battle.dt / 5
+                zoom_animation_timer = 1 + self.selected_animation_timer[1]
+                if self.selected_animation_timer[1] > 0.2:
+                    zoom_animation_timer = 1.2 - (self.selected_animation_timer[1] - 0.2)
+                    if self.selected_animation_timer[1] > 0.4:
+                        self.selected_animation_timer[1] = 0
+
+                new_image = smoothscale(self.images[image],
+                                        (self.images[image].get_width() * zoom_animation_timer,
+                                         self.images[image].get_height() * zoom_animation_timer))
+                self.image.blit(new_image, new_image.get_rect(center=rect.center))
+
+                if self.battle.player_key_press[self.battle.main_player]["Weak"]:
+                    self.selected_map = image
+                break
+
+        if not found_select:
+            self.selected_animation_timer = []
+            self.image = self.base_image
+
+
 class CharacterInteractPrompt(UIBattle):
     def __init__(self, image):
         """Weak button prompt that indicate player can talk to target"""
@@ -590,7 +660,7 @@ class CharacterSpeechBox(UIBattle):
         self.finish_unfolding = False
         self.current_length = self.left_corner.get_width()  # current unfolded length start at 20
         self.text_surface = Font(self.ui_font["manuscript_font"],
-                                 int(30 * self.screen_scale[1])).render(text, True, (0, 0, 0))
+                                 int(34 * self.screen_scale[1])).render(text, True, (0, 0, 0))
         self.base_image = Surface((self.text_surface.get_width() + int(self.left_corner.get_width() * 1.5),
                                    self.left_corner.get_height()), SRCALPHA)
         self.base_image.blit(self.left_corner, self.left_corner_rect)  # start animation with the left corner

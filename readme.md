@@ -143,19 +143,31 @@ The current game version consists of 5 playable characters and first mission for
 
 # Future Playable Characters
 
-Warrior / Warrior type
+### Warrior type
 
-Exiled Scout / Archer type
+<img src="https://github.com/remance/preview2/blob/main/orsanoas1.png?raw=true" width="100" height="100"></a> Warrior
 
-Sweeper / Skill type
+### Archer type
 
-Desperate Widow / Mage type
+Exiled Scout
 
-Hedge Shaman / Mage type
+### Skill type
 
-Dryad / Support type
+Sweeper
 
-Alchemist / Special type
+### Mage type
+
+<img src="https://github.com/remance/preview2/blob/main/elmaliern1.png?raw=true" width="100" height="100"></a> Desperate Widow
+
+Hedge Shaman
+
+### Support type
+
+Dryad
+
+### Special type
+
+Alchemist
 
 ---------------
 

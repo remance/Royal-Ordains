@@ -13,6 +13,11 @@ def player_input_battle_mode(self, player_index, dt):
                 if pressed:
                     new_key = key
                     if key in ("Left", "Right"):  # replace left right input with forward one for moveset check
+                        if not self.stoppable_frame:
+                            if key == "Left":
+                                self.new_angle = 90
+                            else:
+                                self.new_angle = -90
                         if rotation_dict[key] == self.angle:
                             new_key = "Forward"
                         else:
@@ -108,21 +113,21 @@ def player_input_battle_mode(self, player_index, dt):
                             self.command_action = self.guard_command_action
 
                     elif self.last_command_key_input == "Special":
-                        if "moveset" not in self.current_action or \
-                                ("moveset" not in self.command_action and self.stoppable_frame):
+                        if not self.current_moveset or ("moveset" not in self.command_action and self.stoppable_frame):
                             self.moveset_command_key_input = tuple(self.command_key_input)
                             self.specific_special_check()
 
-                    elif "moveset" in self.current_action:  # check for holding attack
-                        if self.command_key_hold:
+                    elif self.current_moveset:
+                        # check for holding attack
+                        if self.command_key_hold and "hold" in self.current_moveset["Property"]:
                             if "Weak" in self.command_key_hold and "weak" in self.current_action:
-                                self.current_action = self.weak_attack_hold_command_action
+                                self.current_action = self.weak_attack_hold_command_action | self.current_moveset["Property"]
 
                             elif "Strong" in self.command_key_hold and "strong" in self.current_action:
-                                self.current_action = self.strong_attack_hold_command_action
+                                self.current_action = self.strong_attack_hold_command_action | self.current_moveset["Property"]
 
                             elif "Special" in self.command_key_hold and "special" in self.current_action:
-                                self.current_action = self.special_hold_command_action
+                                self.current_action = self.special_hold_command_action | self.current_moveset["Property"]
 
                     elif self.last_command_key_input == "Down" and "couch" not in self.current_action and \
                             "air" not in self.current_action and self.position == "Stand":
@@ -169,8 +174,8 @@ def player_input_battle_mode(self, player_index, dt):
                                     self.command_key_input = []
                                     self.player_key_input_timer = []
                             else:
-                                self.new_angle = 90
-                                if not self.current_action or "movable" in self.current_action:
+                                if not self.current_action or ("movable" in self.current_action and
+                                                               not self.current_moveset):
                                     self.x_momentum = -self.walk_speed / 10
 
                         elif self.last_command_key_input == "Right" or \
@@ -195,13 +200,14 @@ def player_input_battle_mode(self, player_index, dt):
                                     self.command_key_input = []
                                     self.player_key_input_timer = []
                             else:
-                                self.new_angle = -90
-                                if not self.current_action or "movable" in self.current_action:
+                                if not self.current_action or ("movable" in self.current_action and
+                                                               not self.current_moveset):
                                     self.x_momentum = self.walk_speed / 10
 
                         if self.x_momentum:
                             if "air" not in self.current_action and "guard" not in self.current_action and \
-                                    self.position != "Air" and "dash" not in self.current_action:
+                                    self.position != "Air" and "dash" not in self.current_action and \
+                                    not self.current_moveset:
                                 # movement with air does not use specific command action
                                 if not self.command_action:
                                     self.command_action = self.walk_command_action
@@ -224,29 +230,21 @@ def player_input_battle_mode(self, player_index, dt):
                                 elif self.command_key_hold and self.command_key_hold[-1] == "Right":
                                     self.x_momentum = self.jump_power
 
-                    elif self.position == "Couch":  # switch direction during couch
-                        if "Down" in self.command_key_hold:
-                            if self.last_command_key_input == "Left":
-                                self.new_angle = 90
-
-                            elif self.last_command_key_input == "Right":
-                                self.new_angle = -90
-
                 self.last_command_key_input = None
 
             if "guard" in self.current_action and "hold" in self.current_action and "Guard" not in self.command_key_hold:
                 # release guard holding
                 self.current_action = self.guard_command_action
 
-            elif "hold" in self.current_action:  # no longer hold attack move
+            elif "hold" in self.current_action:  # check for no longer hold attack move
                 if "weak" in self.current_action and "Weak" not in self.command_key_hold:
-                    self.current_action = self.weak_attack_command_action
+                    self.current_action = self.weak_attack_command_action | self.current_moveset["Property"]
 
                 elif "strong" in self.current_action and "Strong" not in self.command_key_hold:
-                    self.current_action = self.strong_attack_command_action
+                    self.current_action = self.strong_attack_command_action | self.current_moveset["Property"]
 
                 elif "special" in self.current_action and "Special" not in self.command_key_hold:
-                    self.current_action = self.special_command_action
+                    self.current_action = self.special_command_action | self.current_moveset["Property"]
 
             elif self.position == "Couch" and "Down" not in self.command_key_hold:  # couch require holding down button
                 self.command_action = self.couch_stand_command_action

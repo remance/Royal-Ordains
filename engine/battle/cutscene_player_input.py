@@ -19,7 +19,6 @@ def cutscene_player_input(self):
                 elif "player_interact" in child_event["Property"]:
                     end_event(self, child_event)
                     if "start mission" in child_event["Property"]:  # start new mission after interact
-                        self.exit_battle()
                         if child_event["Property"]["start mission"] in self.game.preset_map_data[self.chapter]:
                             # go to assigned mission
                             return child_event["Property"]["start mission"]

@@ -4,6 +4,7 @@ def nayedien_start(self, *args):
             self.special_combat_state = int(self.current_moveset["Move"][-1])
     elif self.current_action and "not_reset_special_state" not in self.current_action:
         # any action that is not in moveset or with preventive condition will reset special combat state
+        print(self.current_action)
         self.special_combat_state = 0
 
 

@@ -18,7 +18,7 @@ from engine.character.character_specific_special import special_dict
 from engine.character.character_specific_start_animation import animation_start_dict
 from engine.character.character_specific_status_update import status_update_dict
 from engine.character.character_specific_update import update_dict
-from engine.data.datastat import final_recursive_dict
+from engine.data.datastat import final_parent_moveset
 from engine.drop.drop import Drop
 from engine.uibattle.uibattle import CharacterIndicator
 from engine.utils.common import empty_method
@@ -250,6 +250,7 @@ class Character(sprite.Sprite):
         self.hit_enemy = False
         self.is_boss = False
         self.is_summon = False
+        self.replace_idle_animation = None
         self.frame_timer = 0
         self.effect_timer = 0
         self.effect_frame = 0
@@ -408,7 +409,7 @@ class Character(sprite.Sprite):
                 for key, value in self.available_skill[position].items():  # check for skill with requirement move
                     if "Requirement Move" in value and value["Requirement Move"]:  # add to parent moveset
                         skill_data_dict = {"Move": key} | {key2: value2 for key2, value2 in value.items()}
-                        final_recursive_dict(self.moveset[position], value["Buttons"], skill_data_dict,
+                        final_parent_moveset(self.moveset[position], value["Buttons"], skill_data_dict,
                                              value["Requirement Move"], [False], [])
 
                 self.moveset[position] = button_key_skill_dict | self.moveset[position]
@@ -423,11 +424,11 @@ class Character(sprite.Sprite):
 
         self.original_critical_chance = 5 + int((self.dexterity / 10) + (self.wisdom / 30))
 
-        self.original_defence = (self.agility / 20) + (self.constitution / 10) + (self.wisdom / 20)
+        self.original_defence = (self.agility / 20) + (self.constitution / 10) + (self.wisdom / 50)
         self.original_guard = 10 * self.constitution
         self.original_super_armour = self.constitution
 
-        self.max_health = int((stat["Base Health"] + (stat["Base Health"] * (self.constitution / 100))) * health_scaling)  # health of character
+        self.max_health = int((stat["Base Health"] + (stat["Base Health"] * (self.constitution / 50))) * health_scaling)  # max health of character
         self.max_resource = int(stat["Max Resource"] + (stat["Max Resource"] * self.intelligence / 100))
 
         self.original_resource_cost_modifier = 1
@@ -437,8 +438,8 @@ class Character(sprite.Sprite):
 
         self.original_animation_play_time = self.default_animation_play_time / (
                 1 + (self.agility / 100))  # higher value mean longer play time
-        self.animation_play_time = self.original_animation_play_time
-        self.final_animation_play_time = self.animation_play_time
+        self.base_animation_play_time = self.original_animation_play_time
+        self.animation_play_time = self.base_animation_play_time
         self.original_speed = self.agility * 2
 
         self.original_dodge = 1 + int((self.agility / 10) + (self.wisdom / 30))
@@ -661,7 +662,7 @@ class Character(sprite.Sprite):
                          ("forced move" in self.current_action and (self.x_momentum or self.y_momentum)) or
                          (self.current_moveset and "hold" in self.current_moveset["Property"])):
                     hold_check = True
-                    if self.current_moveset:
+                    if self.current_moveset and "hold" in self.current_moveset["Property"]:
                         self.hold_timer += dt
                         self.hold_power_bonus = 1
                         if self.current_moveset["Property"]["hold"] == "power" and self.hold_timer >= 1:
@@ -1120,6 +1121,8 @@ class AICharacter(Character):
                         if target == this_char.game_id:  # find target char object
                             self.target = this_char
                             break
+                elif stuff == "idle":  # replace idle animation
+                    self.replace_idle_animation = stat["Stage Property"][stuff]
                 else:
                     self.__setattr__(stuff, True)
 
@@ -1160,9 +1163,31 @@ class CityAICharacter(Character):
         if ai_behaviour in ai_combat_dict:
             self.ai_combat = ai_combat_dict[ai_behaviour]
 
+        if "Stage Property" in stat:
+            for stuff in stat["Stage Property"]:
+                if stuff == "target":
+                    if type(stat["Stage Property"]["target"]) is int:  # target is AI
+                        target = stat["Stage Property"]["target"]
+                    else:  # target is player
+                        target = stat["Stage Property"]["target"][-1]
+
+                    for this_char in self.battle.all_chars:
+                        if target == this_char.game_id:  # find target char object
+                            self.target = this_char
+                            break
+                elif stuff == "idle":  # replace idle animation
+                    self.replace_idle_animation = stat["Stage Property"][stuff]
+                else:
+                    self.__setattr__(stuff, True)
+
         self.ai_timer = 0  # for whatever timer require for AI action
         self.ai_movement_timer = 0  # timer to move for AI
         self.end_ai_movment_timer = randint(2, 6)
+
+        # reset animation play speed for city character to default
+        self.original_animation_play_time = self.default_animation_play_time
+        self.animation_play_time = self.original_animation_play_time
+        self.final_animation_play_time = self.animation_play_time
 
         self.enter_battle(self.battle.character_animation_data)
 

@@ -13,6 +13,7 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
     music.set_endevent(self.SONG_END)
     self.battle.prepare_new_stage(chapter, mission, stage, players, scene=scene)
     next_battle = self.battle.run_game()  # run next stage
+    self.battle.exit_battle()  # run exit battle for previous one
     # Finish battle, check for next one
     music.unload()
     music.set_endevent(self.SONG_END)
@@ -59,10 +60,10 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
             self.start_battle(chapter + 1, 1, 0, players=players, scene="throne")
         else:
             self.start_battle(chapter, mission, 0, players=players, scene="throne")
-    elif next_battle == "city":
+    elif type(next_battle) is str:
         write_all_player_save(self)
+        self.start_battle(chapter, mission, 0, players=players, scene=next_battle)
 
-        self.start_battle(chapter, mission, 0, players=players, scene="throne")
     elif next_battle is not False:  # start specific mission
         write_all_player_save(self)
 

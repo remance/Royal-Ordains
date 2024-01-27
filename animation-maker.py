@@ -263,14 +263,13 @@ for char in char_list:
         except FileNotFoundError as b:
             print(b)
 
-char_list = []  # get char with existing stat
-
 for file_index, char_file in enumerate(("playable.csv", "enemy.csv")):
     with open(os.path.join(data_dir, "character", char_file),
               encoding="utf-8", mode="r") as edit_file:
         rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
         for row_index, row in enumerate(rd[1:]):
-            char_list.append(row[0])
+            if row[0] not in char_list:
+                char_list.append(row[0])
 
 default_mode = {}
 with open(os.path.join(data_dir, "animation", "template.csv"),
@@ -2416,6 +2415,7 @@ while True:
                                     part_list = list(
                                         weapon_sprite_pool[selected_part][model.sprite_version[int(p_selector.text[1])]][character_mode_list[animation_race][model.sprite_mode[int(p_selector.text[1])]][current_part]].keys())
                                 except KeyError:  # part not exist
+                                    print(current_part)
                                     part_list = []
                             popup_list_open(popup_list_box, popup_namegroup, ui, "part_select",
                                             part_selector.rect.topleft, part_list, "bottom", screen_scale)
@@ -2460,7 +2460,7 @@ while True:
                         popup_list_open(popup_list_box, popup_namegroup, ui, "animation_race_select",
                                         (animation_race_button.rect.bottomleft[0],
                                          animation_race_button.rect.bottomleft[1]),
-                                        ["New Race"] + [key for key in current_pool if key != "template"],
+                                        ["New Race"] + [key for key in current_pool if key != "Template"],
                                         "top", screen_scale, current_row=current_popup_row)
 
                     elif new_button.rect.collidepoint(mouse_pos):
@@ -2649,7 +2649,7 @@ while True:
             elif text_input_popup[1] == "new_race":
                 if input_box.text not in current_pool:  # no existing name already
                     animation_race = input_box.text
-                    current_pool[animation_race] = {key: value.copy() for key, value in current_pool["template"].items()}
+                    current_pool[animation_race] = {key: value.copy() for key, value in current_pool["Template"].items()}
                     for key in current_pool[animation_race]:
                         for index in range(len(current_pool[animation_race][key])):
                             current_pool[animation_race][key][index] = {key2: value2.copy() if type(value2) is list else value2 for key2, value2 in
@@ -2804,7 +2804,7 @@ while True:
                         property_to_pool_data(naming)
                         break
 
-            elif text_input_popup[1] == "change_size" and re.search("[a-zA-Z]", input_box.text) is None:
+            elif text_input_popup[1] == "change_size" and input_box.text and re.search("[a-zA-Z]", input_box.text) is None:
                 model.size = float(input_box.text)
                 model.read_animation(animation_name, old=True)
                 reload_animation(anim, model)

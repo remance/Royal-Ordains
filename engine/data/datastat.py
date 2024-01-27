@@ -3,6 +3,7 @@ and save them into dict for in game use """
 
 import csv
 import os
+import copy
 
 from engine.utils.data_loading import stat_convert, load_images
 
@@ -144,15 +145,19 @@ class CharacterData(GameData):
                                 if row2[header2.index("Position")] not in moveset_dict:
                                     # keep moveset in each position dict for easier access
                                     moveset_dict[row2[header2.index("Position")]] = {}
+
+                                parent_move_list = row2[header2.index("Requirement Move")]
+                                if "all_child_moveset" in move_data["Property"]:
+                                    parent_move_list = [row3[header2.index("Move")] for row3 in rd2][1:]
                                 if not row2[header2.index("Requirement Move")]:
                                     # parent move, must also always at row above any child move in csv file
                                     moveset_dict[row2[header2.index("Position")]][row2[0]] = move_data
-                                else:
+                                if row2[header2.index("Requirement Move")] or "all_child_moveset" in move_data["Property"]:
                                     found = None
-                                    for parent_move in row2[header2.index("Requirement Move")]:
+                                    for parent_move in parent_move_list:
                                         done_check = [False]
                                         already_check = []
-                                        final_recursive_dict(moveset_dict[row2[header2.index("Position")]],
+                                        final_parent_moveset(moveset_dict[row2[header2.index("Position")]],
                                                              row2[0], move_data, parent_move, done_check,
                                                              already_check)
                                         if False in done_check:
@@ -169,7 +174,13 @@ class CharacterData(GameData):
                             for item in remain_next_move_loop:  # one last try to find parent
                                 done_check = ["test"]
                                 already_check = []
-                                final_recursive_dict(item[0], item[1], item[2], item[3], done_check, already_check)
+                                final_parent_moveset(item[0], item[1], item[2], item[3], done_check, already_check)
+
+                            # rearrange moveset dict to order by button number so game detect more complex combo first
+                            already_check = []
+                            for position in moveset_dict:
+                                for move in moveset_dict[position]:
+                                    recursive_rearrange_moveset(moveset_dict[position][move], already_check)
                             self.character_list[row[0]]["Move"] = moveset_dict
                             edit_file2.close()
 
@@ -249,15 +260,15 @@ class CharacterData(GameData):
         edit_file.close()
 
 
-def final_recursive_dict(parent_move_data, move_key, move_data, parent_move_name, done_check, already_check):
+def final_parent_moveset(parent_move_data, move_key, move_data, parent_move_name, done_check, already_check):
     try:
-        recursive_moveset_dict(parent_move_data, move_key, move_data, parent_move_name, done_check, already_check)
+        recursive_find_parent_moveset(parent_move_data, move_key, move_data, parent_move_name, done_check, already_check)
         return
     except ValueError:
         return
 
 
-def recursive_moveset_dict(parent_move_data, move_key, move_data, parent_move_name, done_check, already_check):
+def recursive_find_parent_moveset(parent_move_data, move_key, move_data, parent_move_name, done_check, already_check):
     for k, v in parent_move_data.items():
         if v["Move"] == parent_move_name:  # found parent move
             if "Next Move" not in v:
@@ -269,4 +280,20 @@ def recursive_moveset_dict(parent_move_data, move_key, move_data, parent_move_na
         else:  # not yet search deeper
             if "Next Move" in v and v["Move"] not in already_check:
                 already_check.append(v["Move"])  # add move to already check to prevent unending loop
-                recursive_moveset_dict(v["Next Move"], move_key, move_data, parent_move_name, done_check, already_check)
+                recursive_find_parent_moveset(v["Next Move"], move_key, move_data, parent_move_name, done_check, already_check)
+
+
+def recursive_rearrange_moveset(move_data, already_check):
+    if "Next Move" in move_data and move_data["Next Move"] and move_data["Move"] not in already_check:
+        already_check.append(move_data["Move"])
+        old_v = copy.deepcopy(move_data["Next Move"])
+        for key in move_data["Next Move"].copy():  # remove to keep old dict reference
+            move_data["Next Move"].pop(key)
+        for key in sorted(old_v, key=lambda key: len(key), reverse=True):
+            move_data["Next Move"][key] = old_v[key]
+        for move in move_data["Next Move"]:
+            if move not in already_check:
+                recursive_rearrange_moveset(move_data["Next Move"][move], already_check)
+    if move_data["Move"] not in already_check:
+        already_check.append(move_data["Move"])
+

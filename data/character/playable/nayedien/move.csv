@@ -19,18 +19,24 @@
 "Strong","sweak7strong3","Frost Sword Overload","Stand",,"sweak7strong2",,,,,,500,700,,500,,,20,"Water",,,,
 "Strong","sweak7strong4","Light Hammer Overload","Stand",,"sweak7strong3",,,,,,500,700,,,500,,20,"Physical",,,,
 "Strong","sweak7strong5","Dark Mace Overload","Stand",,"sweak7strong4",,,,,,500,700,,,,500,20,"Physical",,,,
-"Strong","sweak1strongstrong","Wind Piercer","Stand",,"sweak1strong,sweak1strongspecialstrongstrong",,,300,,,24,86,90,,35,,,"Air",,,,
-"Strong","sweak2strongstrong","Fire Splitter","Stand",,"sweak2strong,sweak2strongspecialstrongstrong",,,400,,,95,168,400,,,,5,"Fire",,,,
-"Strong","sweak3strongstrong","Ice Slash","Stand",,"sweak3strong,sweak3strongspecialstrongstrong",,,,,,110,197,120,,,,,"Water",,,,
-"Strong","sweak4strongstrong","Light Hammer Swing","Stand",,"sweak4strong,sweak4strongspecialstrongstrong",,,,,,150,274,300,,150,,,"Physical",,,,
-"Strong","sweak5strongstrong","Night Bash","Stand",,"sweak5strong,sweak5strongspecialstrongstrong",,,,,,115,235,,,,400,,"Physical",,,,
-"Strong","sweak6strongstrong","Earth Cleave","Stand",,"sweak6strong,sweak6strongspecialstrongstrong",,,,,,240,512,150,,,350,40,"Earth",,,,
-"Special","sweak1strongspecial","Spear Tornado","Stand",,"sweak1strong,sweak1strongspecialstrongstrong",,,300,,,75,25,,,200,,25,"Air",,,,"multiple hits"
-"Special","sweak2strongspecial","Fire Spin","Stand",,"sweak2strong,sweak2strongspecialstrongstrong",,,,,,172,350,,,,250,10,"Fire",,,,
-"Special","sweak3strongspecial","Sword Upper Slash","Stand",,"sweak3strong,sweak3strongspecialstrongstrong",,,,,,90,111,,,,,,"Water",,,,
-"Special","sweak4strongspecial","Day Break","Stand",,"sweak4strong,sweak4strongspecialstrongstrong",,,,,,250,500,,,700,,30,"Physical",,,,
-"Special","sweak5strongspecial","Dark Space","Stand",,"sweak5strong,sweak5strongspecialstrongstrong",,,,,,250,500,,,,700,30,"Physical",,,,
-"Special","sweak6strongspecial","Stone Barrage","Stand",,"sweak6strong,sweak6strongspecialstrongstrong",,,700,800,,300,43,100,,100,,20,"Earth",,,,
+"Forward,Strong","sweak1strongfstrong","Spear Rush","Stand",,"sweak1strong,sweak1strongspecialstrongstrong,sweak1strongstrong,sweak1strongspecial,sweak1strongspecialstrong",,,600,,,50,60,50,,,10,,"Air",,,,"x_momentum:400,movable,forced move,penetrate"
+"Forward,Strong","sweak2strongfstrong","Flail Sweep","Stand",,"sweak2strong,sweak2strongspecialstrongstrong,sweak2strongstrong,sweak2strongspecial,sweak2strongspecialstrong",,,600,,,50,60,50,,,10,,"Fire",,,,"x_momentum:400,movable,forced move,penetrate"
+"Forward,Strong","sweak3strongfstrong",,"Stand",,"sweak3strong,sweak3strongspecialstrongstrong,sweak3strongstrong,sweak3strongspecial,sweak3strongspecialstrong",,,600,,,50,60,50,,,10,,"Water",,,,"x_momentum:400,movable,forced move,penetrate"
+"Forward,Strong","sweak4strongfstrong","Axe Spin","Stand",,"sweak4strong,sweak4strongspecialstrongstrong,sweak4strongstrong,sweak4strongspecial,sweak4strongspecialstrong",,,600,,,50,60,50,,,10,,"Physical",,,,"x_momentum:400,movable,forced move,penetrate"
+"Forward,Strong","sweak5strongfstrong","Dark Cloud","Stand",,"sweak5strong,sweak5strongspecialstrongstrong,sweak5strongstrong,sweak5strongspecial,sweak5strongspecialstrong",,,600,,,50,60,50,,,10,,"Physical",,,,"x_momentum:400,movable,forced move,penetrate"
+"Forward,Strong","sweak6strongfstrong","Earth Riding","Stand",,"sweak6strong,sweak6strongspecialstrongstrong,sweak6strongstrong,sweak6strongspecial,sweak6strongspecialstrong",,,600,,,50,60,50,,,10,,"Earth",,,,"x_momentum:400,movable,forced move,penetrate"
+"Strong","sweak1strongstrong","Wind Piercer","Stand",,"sweak1strong,sweak1strongfstrong,sweak1strongspecialstrongstrong",,,300,,,24,86,90,,35,,,"Air",,,,
+"Strong","sweak2strongstrong","Fire Splitter","Stand",,"sweak2strong,sweak2strongfstrong,sweak2strongspecialstrongstrong",,,400,,,95,168,400,,,,5,"Fire",,,,
+"Strong","sweak3strongstrong","Ice Slash","Stand",,"sweak3strong,sweak3strongfstrong,sweak3strongspecialstrongstrong",,,,,,110,197,120,,,,,"Water",,,,
+"Strong","sweak4strongstrong","Light Hammer Swing","Stand",,"sweak4strong,sweak4strongfstrong,sweak4strongspecialstrongstrong",,,,,,150,274,300,,150,,,"Physical",,,,
+"Strong","sweak5strongstrong","Night Bash","Stand",,"sweak5strong,sweak5strongfstrong,sweak5strongspecialstrongstrong",,,,,,115,235,,,,400,,"Physical",,,,
+"Strong","sweak6strongstrong","Earth Cleave","Stand",,"sweak6strong,sweak6strongfstrong,sweak6strongspecialstrongstrong",,,,,,240,512,150,,,350,40,"Earth",,,,
+"Special","sweak1strongspecial","Spear Tornado","Stand",,"sweak1strong,sweak1strongfstrong,sweak1strongspecialstrongstrong",,,300,,,75,25,,,200,,25,"Air",,,,"multiple hits"
+"Special","sweak2strongspecial","Fire Spin","Stand",,"sweak2strong,sweak2strongfstrong,sweak2strongspecialstrongstrong",,,,,,172,350,,,,250,10,"Fire",,,,
+"Special","sweak3strongspecial","Sword Upper Slash","Stand",,"sweak3strong,sweak3strongfstrong,sweak3strongspecialstrongstrong",,,,,,90,111,,,,,,"Water",,,,
+"Special","sweak4strongspecial","Day Break","Stand",,"sweak4strong,sweak4strongfstrong,sweak4strongspecialstrongstrong",,,,,,250,500,,,700,,30,"Physical",,,,
+"Special","sweak5strongspecial","Dark Space","Stand",,"sweak5strong,sweak5strongfstrong,sweak5strongspecialstrongstrong",,,,,,250,500,,,,700,30,"Physical",,,,
+"Special","sweak6strongspecial","Stone Barrage","Stand",,"sweak6strong,sweak6strongfstrong,sweak6strongspecialstrongstrong",,,700,800,,300,43,100,,100,,20,"Earth",,,,
 "Strong","sweak1strongspecialstrong","Guiding Wind","Stand",,"sweak1strongspecial,sweak1strongstrong",,,,,,67,36,45,,,,,"Air",,,,"multiple hits"
 "Strong","sweak2strongspecialstrong","Fire Maker","Stand",,"sweak2strongspecial,sweak2strongstrong",,,,,,75,7,,,,,,"Fire",,,,"penetrate"
 "Strong","sweak3strongspecialstrong","Cold Breeze","Stand",,"sweak3strongspecial,sweak3strongstrong",,,,,,115,6,,,,45,,"Water",,42,,"penetrate"

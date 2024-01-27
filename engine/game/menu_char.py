@@ -65,13 +65,13 @@ def menu_char(self, esc_press):
             self.battle.main_story_profile = self.save_data.save_profile["character"][self.profile_index[main_story_player]]
             self.battle.main_player = main_story_player
 
-            # self.start_battle(1, 1, 1, players={key: value for key, value in
-            #                                         self.player_char_select.items() if value})
+            self.start_battle(1, 1, 1, players={key: value for key, value in
+                                                    self.player_char_select.items() if value})
             # start in throne room of current chapter and mission of the lowest progress player
-            self.start_battle(self.save_data.save_profile["character"][self.profile_index[main_story_player]]["chapter"],
-                              self.save_data.save_profile["character"][self.profile_index[main_story_player]]["mission"],
-                              0, players={key: value for key, value in
-                                          self.player_char_select.items() if value}, scene="throne")
+            # self.start_battle(self.save_data.save_profile["character"][self.profile_index[main_story_player]]["chapter"],
+            #                   self.save_data.save_profile["character"][self.profile_index[main_story_player]]["mission"],
+            #                   0, players={key: value for key, value in
+            #                               self.player_char_select.items() if value}, scene="throne")
 
     else:
         for key_list in (self.player_key_press, self.player_key_hold):  # check key holding for stat mode as well

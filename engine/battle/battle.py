@@ -17,7 +17,7 @@ from engine.drama.drama import TextDrama
 from engine.effect.effect import Effect
 from engine.stage.stage import Stage
 from engine.stageobject.stageobject import StageObject
-from engine.uibattle.uibattle import FPSCount, BattleCursor, YesNo, CharacterSpeechBox, CharacterInteractPrompt
+from engine.uibattle.uibattle import FPSCount, BattleCursor, YesNo, CharacterSpeechBox, CharacterInteractPrompt, CityMap
 from engine.utils.common import clean_object, clean_group_object
 from engine.utils.data_loading import load_image, load_images
 from engine.utils.text_making import number_to_minus_or_plus
@@ -255,7 +255,7 @@ class Battle:
 
         # Create battle ui
         cursor_images = load_images(self.data_dir, subfolder=("ui", "cursor_battle"))  # no need to scale cursor
-        self.player_1_battle_cursor = BattleCursor(cursor_images, self.player_key_control[1])
+        self.main_player_battle_cursor = BattleCursor(cursor_images, self.player_key_control[1])
 
         self.fps_count = FPSCount(self)  # FPS number counter
         if self.game.show_fps:
@@ -265,6 +265,8 @@ class Battle:
         CharacterSpeechBox.images = battle_ui_images
 
         self.speech_prompt = CharacterInteractPrompt(battle_ui_images["button_weak"])
+        self.city_map = CityMap(load_images(self.data_dir, screen_scale=self.screen_scale,
+                                            subfolder=("ui", "map_select_ui")))
 
         battle_ui_dict = make_battle_ui(battle_ui_images)
 
@@ -435,11 +437,8 @@ class Battle:
             if value["Object"] not in loaded_item:  # load image
                 if value["Type"] == "stage":  # type of object with image data to load
                     if value["Type"] == "stage":  # load background stage
-                        stage_folder = ("map", "stage")
-                        if self.stage == 0:  # city stage
-                            stage_folder = ("map", "city")
                         image = load_image(self.data_dir, self.screen_scale, value["Object"] + ".png",
-                                           stage_folder)  # no scaling yet
+                                           ("map", "stage"))  # no scaling yet
                         if "front" in value["Type"]:
                             self.frontground_stage.images[value["Object"]] = image
                         else:
@@ -609,7 +608,7 @@ class Battle:
         self.ui_dt = 0  # Realtime used for ui timer
         self.weather_spawn_timer = 0
         self.show_cursor_timer = 0
-        self.player_1_battle_cursor.shown = True
+        self.main_player_battle_cursor.shown = True
         self.player_damage = {1: 0, 2: 0, 3: 0, 4: 0}
         self.player_kill = {1: 0, 2: 0, 3: 0, 4: 0}
         self.player_boss_kill = {1: 0, 2: 0, 3: 0, 4: 0}
@@ -637,7 +636,7 @@ class Battle:
         self.joystick_player = self.game.joystick_player
 
         self.screen.fill((0, 0, 0))
-        self.realtime_ui_updater.add(self.player_1_battle_cursor)
+        self.realtime_ui_updater.add(self.main_player_battle_cursor)
         self.remove_ui_updater(self.cursor)
         # self.map_def_array = []
         # self.mapunitarray = [[x[random.randint(0, 1)] if i != j else 0 for i in range(1000)] for j in range(1000)]
@@ -694,9 +693,9 @@ class Battle:
                                         adjusted_angle = (angle + 90) % 360
                                         if self.game_state == "battle":
                                             new_pos = pygame.Vector2(
-                                                self.player_1_battle_cursor.pos[0] + (
+                                                self.main_player_battle_cursor.pos[0] + (
                                                         self.true_dt * 1000 * sin(radians(adjusted_angle))),
-                                                self.player_1_battle_cursor.pos[1] - (
+                                                self.main_player_battle_cursor.pos[1] - (
                                                         self.true_dt * 1000 * cos(radians(adjusted_angle))))
                                         else:
                                             new_pos = pygame.Vector2(
@@ -726,8 +725,8 @@ class Battle:
                                                 self.player_key_press[player][player_key_bind_name[axis_name]] = True
 
             self.base_cursor_pos = Vector2(
-                (self.player_1_battle_cursor.pos[0] - self.battle_camera_center[0] + self.camera_pos[0]),
-                (self.player_1_battle_cursor.pos[1] - self.battle_camera_center[1] + self.camera_pos[
+                (self.main_player_battle_cursor.pos[0] - self.battle_camera_center[0] + self.camera_pos[0]),
+                (self.main_player_battle_cursor.pos[1] - self.battle_camera_center[1] + self.camera_pos[
                     1]))  # mouse pos on the map based on camera position
             self.command_cursor_pos = Vector2(self.base_cursor_pos[0] / self.screen_scale[0],
                                               self.base_cursor_pos[1] / self.screen_scale[1])  # with screen scale
@@ -736,10 +735,8 @@ class Battle:
                 if event.type == QUIT:  # quit game
                     if self.game_state != "menu":  # open menu first before add popup
                         self.game_state = "menu"
-                        self.add_ui_updater(self.battle_menu,
-                                            self.battle_menu_button,
-                                            self.esc_text_popup)  # add menu and its buttons to drawer
-                        self.add_ui_updater(self.cursor)
+                        self.add_ui_updater(self.battle_menu, self.battle_menu_button,
+                                            self.esc_text_popup, self.cursor)  # add menu and its buttons to drawer
                     self.input_popup = ("confirm_input", "quit")
                     self.input_ui.change_instruction("Quit Game?")
                     self.add_ui_updater(self.confirm_ui_popup, self.cursor)
@@ -829,9 +826,6 @@ class Battle:
             if self.player_key_press[self.main_player]["Menu/Cancel"]:  # or self.player_key_press[2]["Menu/Cancel"]
                 # open/close menu
                 esc_press = True
-            elif self.player_key_press[self.main_player]["Special"] and self.city_mode:
-                # open city map
-                pass
 
             if self.player_unit_input_delay:  # delay for command input
                 self.player_unit_input_delay -= self.dt
@@ -840,8 +834,8 @@ class Battle:
 
             self.ui_updater.update()  # update ui before more specific update
 
-            if esc_press:  # open/close menu
-                if self.game_state == "battle":  # in battle
+            if self.game_state == "battle":  # game in battle state
+                if esc_press:  # open/close menu
                     self.game_state = "menu"  # open menu
                     self.esc_text_popup.popup((self.screen_rect.centerx, self.screen_rect.height * 0.9),
                                               self.game.localisation.grab_text(
@@ -852,9 +846,12 @@ class Battle:
                                         self.battle_menu_button,
                                         self.esc_text_popup)  # add menu and its buttons to drawer
                     esc_press = False  # reset esc press, so it not stops esc menu when open
-                    self.realtime_ui_updater.remove(self.player_1_battle_cursor)
+                    self.realtime_ui_updater.remove(self.main_player_battle_cursor)
+                elif self.player_key_press[self.main_player]["Special"] and self.city_mode:
+                    if self.game_state != "map":  # open city map
+                        self.add_ui_updater(self.cursor, self.city_map)
+                        self.game_state = "map"
 
-            if self.game_state == "battle":  # game in battle state
                 self.camera_process()
 
                 # Update game time
@@ -866,16 +863,16 @@ class Battle:
                 self.ui_dt = self.dt  # get ui timer before apply
 
 
-                if self.player_1_battle_cursor.pos_change:  # display cursor when have movement
+                if self.main_player_battle_cursor.pos_change:  # display cursor when have movement
                     self.show_cursor_timer = 0.1
-                    self.player_1_battle_cursor.shown = True
+                    self.main_player_battle_cursor.shown = True
 
                 if self.show_cursor_timer:
                     self.show_cursor_timer += self.dt
                     if self.show_cursor_timer > 3:
                         self.show_cursor_timer = 0
-                        self.player_1_battle_cursor.shown = False
-                        self.player_1_battle_cursor.rect.topleft = (-100, -100)
+                        self.main_player_battle_cursor.shown = False
+                        self.main_player_battle_cursor.rect.topleft = (-100, -100)
 
                 # Drama text function
                 if not self.drama_timer and self.drama_text.queue:  # Start timer and draw if there is event queue
@@ -1207,7 +1204,6 @@ class Battle:
                         if self.end_delay >= 5:  # end battle
                             self.decision_select.selected = None
                             self.end_delay = 0
-                            self.exit_battle()
                             if self.stage + 1 in self.game.preset_map_data[self.chapter][
                                 self.mission]:  # has next stage
                                 return True
@@ -1245,9 +1241,24 @@ class Battle:
                 else:
                     command = self.escmenu_process(esc_press)
                     if command == "end_battle":  # return to city if not in city stage
-                        return "city"
+                        return "throne"
                     elif command == "main_menu":  # return to main menu
                         return False
+
+            elif self.game_state == "map":
+                self.camera.update(self.shown_camera_pos, self.battle_camera, self.realtime_ui_updater)
+                # self.frontground_stage.update(self.shown_camera_pos)  # update frontground stage last
+                self.ui_drawer.draw(self.screen)  # draw the UI
+
+                if self.city_map.selected_map:  # player select new map
+                    selected_map = self.city_map.selected_map
+                    self.city_map.selected_map = None
+                    self.remove_ui_updater(self.cursor, self.city_map)
+                    self.game_state = "battle"
+                    return selected_map
+                elif self.player_key_press[self.main_player]["Special"]:
+                    self.remove_ui_updater(self.cursor, self.city_map)
+                    self.game_state = "battle"
 
             display.update()  # update game display, draw everything
             self.clock.tick(1000)  # clock update even if self pause
