@@ -165,7 +165,7 @@ class BattleMapData(GameData):
                         parent_id = item["ID"]
                         if parent_id not in next_level:
                             next_level[parent_id] = []
-                    next_level[parent_id].append(item)
+                        next_level[parent_id].append(item)
                 unit_file.close()
                 return final_event_data
             unit_file.close()

@@ -2,23 +2,19 @@ import gc
 import os
 from datetime import datetime
 
-from pygame.mixer import music
+from pygame.mixer import Channel
 
 
 def start_battle(self, chapter, mission, stage, players=None, scene=None):
     # self.error_log.write("\n Map: " + str(self.map_selected) + "\n")
     self.loading_screen("start")
 
-    music.unload()
-    music.set_endevent(self.SONG_END)
+    Channel(0).stop()
     self.battle.prepare_new_stage(chapter, mission, stage, players, scene=scene)
     next_battle = self.battle.run_game()  # run next stage
     self.battle.exit_battle()  # run exit battle for previous one
     # Finish battle, check for next one
-    music.unload()
-    music.set_endevent(self.SONG_END)
-    music.load(self.music_list[0])
-    music.play(-1)
+    Channel(0).play(self.music_pool["menu"])
     gc.collect()  # collect no longer used object in previous battle from memory
 
     if next_battle is True:  # finish stage, continue to next one

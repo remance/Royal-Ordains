@@ -1,5 +1,7 @@
 import pygame
 
+from engine.uibattle.uibattle import CharacterSpeechBox
+
 from engine.utils.common import edit_config
 
 
@@ -87,6 +89,18 @@ def menu_option(self, esc_press):
             self.remove_ui_updater(self.fps_count)
         edit_config("USER", "fps", self.show_fps, self.config_path,
                     self.config)
+
+    elif self.easy_text_box.event_press:
+        if self.easy_text_box.tick is False:
+            self.easy_text_box.change_tick(True)
+            CharacterSpeechBox.font_name = "text_paragraph"
+            edit_config("USER", "easy_text", 1, self.config_path,
+                        self.config)
+        else:
+            self.easy_text_box.change_tick(False)
+            CharacterSpeechBox.font_name = "manuscript_font"
+            edit_config("USER", "easy_text", 0, self.config_path,
+                        self.config)
 
     for key, value in self.option_menu_sliders.items():
         if value.event:  # press on slider bar

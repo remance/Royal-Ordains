@@ -163,7 +163,7 @@ Hedge Shaman
 
 ### Support type
 
-Dryad
+<img src="https://github.com/remance/preview2/blob/main/yuawies1.png?raw=true" width="100" height="100"></a> Dryad
 
 ### Special type
 

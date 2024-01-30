@@ -40,7 +40,7 @@ class Drop(sprite.Sprite):
 
         self.battle.all_team_drop[self.team].add(self)
 
-        self.current_animation = self.effect_animation_pool[game_id][self.battle.chapter_sprite_ver]["Item"][1.0]
+        self.current_animation = self.effect_animation_pool[game_id][self.battle.chapter_sprite_ver]["Item"][1]
 
         self.base_image = self.current_animation[self.show_frame][0]
         self.image = self.base_image
@@ -55,7 +55,7 @@ class Drop(sprite.Sprite):
         self.adjust_sprite()
 
     def update(self, dt):
-        done, just_start = self.play_animation(0.1, dt)
+        self.play_animation(0.1, dt)
 
         if self.pickable_timer:
             self.pickable_timer -= dt

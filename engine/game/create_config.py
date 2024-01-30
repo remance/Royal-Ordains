@@ -13,7 +13,7 @@ def create_config(self):
     config["VERSION"] = {"ver": self.game_version}
 
     config["DEFAULT"] = {"screen_width": screen_width, "screen_height": screen_height, "full_screen": 0,
-                         "fps": 0, "master_volume": 100.0, "music_volume": 100.0,
+                         "fps": 0, "master_volume": 100.0, "music_volume": 100.0, "easy_text": 0,
                          "voice_volume": 100.0, "effect_volume": 50.0, "max_fps": 60,
                          "language": "en", "control player 1": "keyboard", "control player 2": "keyboard",
                          "control player 3": "keyboard", "control player 4": "keyboard",

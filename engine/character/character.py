@@ -185,6 +185,10 @@ class Character(sprite.Sprite):
                               "knockdown": True, "freeze": 1, "next action": standup_command_action}
     knockdown_command_action = {"name": "Knockdown", "movable": True, "forced move": True,
                                 "knockdown": True, "hold": True, "next action": liedown_command_action, "stand": True}
+    stun_end_command_action = {"name": "StunEnd"}
+    stun_command_action = {"name": "Stun", "forced move": True,
+                           "knockdown": True, "freeze": 5, "hold": True, "next action": stun_end_command_action,
+                           "stand": True}
 
     die_command_action = {"name": "Die", "uninterruptible": True, "uncontrollable": True, "stand": True,
                           "forced move": True, "die": True}
@@ -308,6 +312,8 @@ class Character(sprite.Sprite):
         self.in_combat_timer = 0
         self.default_sprite_size = 1
 
+        self.stun_threshold = 0
+        self.stun_value = 0
         self.move_speed = 0  # speed of current movement
 
         self.resurrect_count = 0
@@ -1071,6 +1077,8 @@ class AICharacter(Character):
         self.is_boss = stat["Boss"]
         self.is_summon = stat["Summon"]
         self.ai_lock = False  # lock AI from activity when start battle, and it positions outside of scene lock
+        if self.is_boss:
+            self.stun_threshold = self.max_health
         if self.base_pos[0] > self.battle.base_stage_end:
             self.ai_lock = True
         if self.is_summon:

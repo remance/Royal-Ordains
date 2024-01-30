@@ -641,6 +641,7 @@ class CharacterInteractPrompt(UIBattle):
 
 class CharacterSpeechBox(UIBattle):
     images = {}
+    font_name = "manuscript_font"
 
     def __init__(self, character, text, specific_timer=None, player_input_indicator=False, cutscene_event=None):
         """Speech box that appear from character head"""
@@ -649,6 +650,7 @@ class CharacterSpeechBox(UIBattle):
         self.body = self.images["speech_body"]
         self.left_corner = self.images["speech_start"]
         self.right_corner = self.images["speech_end"]
+        self.font_size = int(34 * self.screen_scale[1])
 
         self.left_corner_rect = self.left_corner.get_rect(topleft=(0, 0))  # The starting point
 
@@ -659,8 +661,7 @@ class CharacterSpeechBox(UIBattle):
         self.base_pos = self.character.base_pos.copy()
         self.finish_unfolding = False
         self.current_length = self.left_corner.get_width()  # current unfolded length start at 20
-        self.text_surface = Font(self.ui_font["manuscript_font"],
-                                 int(34 * self.screen_scale[1])).render(text, True, (0, 0, 0))
+        self.text_surface = Font(self.ui_font[self.font_name], self.font_size).render(text, True, (0, 0, 0))
         self.base_image = Surface((self.text_surface.get_width() + int(self.left_corner.get_width() * 1.5),
                                    self.left_corner.get_height()), SRCALPHA)
         self.base_image.blit(self.left_corner, self.left_corner_rect)  # start animation with the left corner

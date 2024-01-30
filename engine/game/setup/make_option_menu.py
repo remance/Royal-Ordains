@@ -28,23 +28,28 @@ def make_option_menu(button_image_list, config, keybind):
     option_menu_image = load_images(data_dir, screen_scale=screen_scale,
                                     subfolder=("ui", "option_ui"))
 
-    fullscreen_box = TickBox((screen_rect.width / 2, screen_rect.height / 6.5),
+    fullscreen_box = TickBox((screen_rect.width / 3, screen_rect.height / 6.5),
                              option_menu_image["untick"], option_menu_image["tick"], "fullscreen")
-    fps_box = TickBox((screen_rect.width / 2, screen_rect.height / 10),
+    fps_box = TickBox((screen_rect.width / 3, screen_rect.height / 10),
                       option_menu_image["untick"], option_menu_image["tick"], "fps")
+    easy_text_box = TickBox((screen_rect.width / 1.5, screen_rect.height / 10),
+                            option_menu_image["untick"], option_menu_image["tick"], "easytext")
 
     if int(config["full_screen"]) == 1:
         fullscreen_box.change_tick(True)
     if int(config["fps"]) == 1:
         fps_box.change_tick(True)
+    if int(config["easy_text"]) == 1:
+        easy_text_box.change_tick(True)
 
     fps_text = OptionMenuText(
-        (fps_box.pos[0] - (fps_box.pos[0] / 4.5), fps_box.pos[1]),
+        (fps_box.pos[0] - (fps_box.pos[0] / 5), fps_box.pos[1]),
         localisation.grab_text(key=("ui", "option_fps",)), font_size)
-
     fullscreen_text = OptionMenuText(
-        (fullscreen_box.pos[0] - (fullscreen_box.pos[0] / 4.5), fullscreen_box.pos[1]),
+        (fullscreen_box.pos[0] - (fullscreen_box.pos[0] / 5), fullscreen_box.pos[1]),
         localisation.grab_text(key=("ui", "option_full_screen",)), font_size)
+    easy_text = OptionMenuText((easy_text_box.pos[0] - (easy_text_box.pos[0] / 10), easy_text_box.pos[1]),
+                               localisation.grab_text(key=("ui", "option_easy_text",)), font_size)
 
     # Volume change scroll bar
     option_menu_slider_images = load_images(data_dir, screen_scale=screen_scale,
@@ -160,4 +165,4 @@ def make_option_menu(button_image_list, config, keybind):
             "fullscreen_text": fullscreen_text, "fps_box": fps_box,
             "fps_text": fps_text, "keybind_text": keybind_text, "keybind_icon": keybind_icon,
             "control_switch": control_switch, "control_player_next": control_player_next,
-            "control_player_back": control_player_back}
+            "control_player_back": control_player_back, "easy_text_box": easy_text_box, "easy_text": easy_text}

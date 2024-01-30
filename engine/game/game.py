@@ -61,7 +61,7 @@ class Game:
     screen_scale = (1, 1)
     screen_size = ()
 
-    game_version = "0.1.9"
+    game_version = "0.2"
     joystick_bind_name = {"XBox": {0: "A", 1: "B", 2: "X", 3: "Y", 4: "-", 5: "Home", 6: "+", 7: "Start", 8: None,
                                    9: None, 10: None, 11: "D-Up", 12: "D-Down", 13: "D-Left", 14: "D-Right",
                                    15: "Capture", "axis-0": "L. Stick Left", "axis+0": "L. Stick R.",
@@ -167,6 +167,7 @@ class Game:
         try:
             self.config = config
             self.show_fps = int(self.config["USER"]["fps"])
+            self.easy_text = int(self.config["USER"]["easy_text"])
             self.screen_width = int(self.config["USER"]["screen_width"])
             self.screen_height = int(self.config["USER"]["screen_height"])
             self.full_screen = int(self.config["USER"]["full_screen"])
@@ -188,6 +189,7 @@ class Game:
             config = self.create_config()
             self.config = config
             self.show_fps = int(self.config["USER"]["fps"])
+            self.easy_text = int(self.config["USER"]["easy_text"])
             self.screen_width = int(self.config["USER"]["screen_width"])
             self.screen_height = int(self.config["USER"]["screen_height"])
             self.full_screen = int(self.config["USER"]["full_screen"])
@@ -374,19 +376,17 @@ class Game:
         if pygame.mixer:
             pygame.mixer.set_num_channels(1000)
             pygame.mixer.music.set_volume(self.play_music_volume)
-            self.SONG_END = pygame.USEREVENT + 1
-            self.music_list = glob.glob(self.data_dir + "/sound/music/menu.ogg")
-
-            self.battle_music_pool = glob.glob(os.path.join(self.data_dir, "sound", "music", "battle", "*.ogg"))
-            self.battle_music_pool = [pygame.mixer.Sound(item) for item in self.battle_music_pool]
-
-            pygame.mixer.music.load(self.music_list[0])
-            pygame.mixer.music.play(-1)
+            self.music_pool = glob.glob(os.path.join(self.data_dir, "sound", "music", "*.ogg"))
+            self.music_pool = {item.split("\\")[-1].replace(".ogg", ""): pygame.mixer.Sound(item) for
+                               item in self.music_pool}
+            pygame.mixer.Channel(0).play(self.music_pool["menu"])
 
         # Main menu interface
         self.fps_count = FPSCount(self)  # FPS number counter
         if self.show_fps:
             self.add_ui_updater(self.fps_count)
+        if self.easy_text:
+            CharacterSpeechBox.font_name = "text_paragraph"
 
         base_button_image_list = load_base_button(self.data_dir, self.screen_scale)
 
@@ -445,13 +445,15 @@ class Game:
         self.control_switch = option_menu_dict["control_switch"]
         self.control_player_next = option_menu_dict["control_player_next"]
         self.control_player_back = option_menu_dict["control_player_back"]
+        self.easy_text_box = option_menu_dict["easy_text_box"]
+        self.easy_text = option_menu_dict["easy_text"]
 
         self.option_text_list = tuple(
-            [self.resolution_text, self.fullscreen_text, self.fps_text] +
+            [self.resolution_text, self.fullscreen_text, self.fps_text, self.easy_text] +
             [value for value in self.volume_texts.values()])
         self.option_menu_button = (
             self.back_button, self.default_button, self.keybind_button, self.resolution_drop,
-            self.fullscreen_box, self.fps_box)
+            self.fullscreen_box, self.fps_box, self.easy_text_box)
 
         # Character select menu button
         self.start_button = MenuButton(base_button_image_list,
@@ -617,6 +619,9 @@ class Game:
                                     self.player_key_hold}
 
             key_press = pygame.key.get_pressed()
+
+            if not pygame.mixer.Channel(0).get_busy():  # replay menu song when not playing anything
+                pygame.mixer.Channel(0).play(self.music_pool["menu"])
 
             if self.url_delay:
                 self.url_delay -= self.dt
@@ -785,9 +790,6 @@ class Game:
 
                     elif self.input_popup[1] == "quit":
                         pygame.time.wait(1000)
-                        if pygame.mixer:
-                            pygame.mixer.music.stop()
-                            pygame.mixer.music.unload()
                         pygame.quit()
                         sys.exit()
 

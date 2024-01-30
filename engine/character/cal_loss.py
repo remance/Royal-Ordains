@@ -30,6 +30,8 @@ def cal_loss(self, attacker, final_dmg, impact, hit_angle, dmg_text_pos, critica
                 else:
                     self.x_momentum = impact[0]
                 self.y_momentum = -impact[1]
+                if self.y_momentum < -3000:  # maximum y up momentum to prevent too long knock
+                    self.y_momentum = -3000
             else:
                 self.x_momentum = 0
 
@@ -70,6 +72,13 @@ def cal_loss(self, attacker, final_dmg, impact, hit_angle, dmg_text_pos, critica
                                                    volume_mod=self.hit_volume_mod)
 
         else:  # play damaged sound when hit for immovable enemy
+            if self.is_boss:  # boss add stun value to play stun animation
+                self.stun_value += impact_check
+                if self.stun_value >= self.stun_threshold:
+                    self.interrupt_animation = True
+                    self.command_action = self.stun_action
+                    self.stun_value = 0
+                    self.stun_threshold *= 2
             self.battle.add_sound_effect_queue(self.sound_effect_pool["Damaged"][0], self.pos,
                                                self.dmg_sound_distance,
                                                self.dmg_screen_shake,
@@ -83,7 +92,6 @@ def cal_loss(self, attacker, final_dmg, impact, hit_angle, dmg_text_pos, critica
         self.health -= final_dmg
         if not self.health and attacker and attacker.player_control:
             # target die, add kill stat if attacker is player
-            print(attacker.game_id, attacker.name, self.name)
             self.battle.player_kill[int(attacker.game_id[-1])] += 1
             if self.is_boss:
                 self.battle.player_boss_kill[int(attacker.game_id[-1])] += 1

@@ -190,7 +190,7 @@ class Battle:
 
         self.lorebook_stuff = game.lorebook_stuff
 
-        self.battle_music_pool = game.battle_music_pool
+        self.music_pool = game.music_pool
         self.sound_effect_pool = game.sound_effect_pool
         self.sound_effect_queue = {}
 
@@ -279,7 +279,6 @@ class Battle:
         self.player_portraits = {1: self.player_1_portrait, 2: self.player_2_portrait,
                                  3: self.player_3_portrait, 4: self.player_4_portrait}
         self.current_weather = Weather(1, 0, 0, None)
-        self.reach_scene_weather_list = {}
 
         TextDrama.images = load_images(self.data_dir, screen_scale=self.screen_scale,
                                        subfolder=("ui", "popup_ui", "drama_text"))
@@ -315,9 +314,10 @@ class Battle:
         self.show_cursor_timer = 0
 
         # music player
-        self.music_left = pygame.mixer.Channel(0)
+        self.current_music = None
+        self.music_left = pygame.mixer.Channel(1)
         self.music_left.set_volume(self.play_music_volume, 0)
-        self.music_right = pygame.mixer.Channel(1)
+        self.music_right = pygame.mixer.Channel(2)
         self.music_right.set_volume(0, self.play_music_volume)
 
         # Battle map object
@@ -336,7 +336,7 @@ class Battle:
         self.stage_end = 0
         self.execute_cutscene = None
         self.start_cutscene = []
-        self.reach_scene_cutscene_list = {}  # cutscene that play when camera reach scene
+        self.reach_scene_event_list = {}  # cutscene that play when camera reach scene
         self.player_interact_event_list = {}
         self.base_stage_end_list = {}
         self.stage_end_list = {}
@@ -365,12 +365,10 @@ class Battle:
         self.players = players
         self.existing_playable_characters = [value["ID"] for value in self.players.values()]
 
-        # Random music played from list
-        music = self.battle_music_pool[randint(0, len(self.battle_music_pool) - 1)]
-        self.music_left.play(music, fade_ms=100)
-        self.music_left.set_volume(self.play_music_volume, 0)
-        self.music_right.play(music, fade_ms=100)
-        self.music_right.set_volume(0, self.play_music_volume)
+        # Stop any current music
+        self.current_music = None
+        self.music_left.stop()
+        self.music_right.stop()
 
         # try:
         #     self.music_event = csv_read(self.main_dir, "music_event.csv",
@@ -425,14 +423,13 @@ class Battle:
         self.decision_select.selected = None
         self.end_delay = 0
         self.start_cutscene = []
-        self.reach_scene_cutscene_list = {}
+        self.reach_scene_event_list = {}
         self.player_interact_event_list = {}
         self.base_stage_end_list = {}
         self.stage_end_list = {}
         self.speech_prompt.clear()
 
         first_lock = None
-        self.reach_scene_weather_list = {}
         for value in stage_object_data.values():
             if value["Object"] not in loaded_item:  # load image
                 if value["Type"] == "stage":  # type of object with image data to load
@@ -446,7 +443,19 @@ class Battle:
 
                         loaded_item.append(value["Object"])
                 elif value["Type"] == "weather":
-                    self.reach_scene_weather_list[value["POS"]] = value["Object"]
+                    if value["POS"] not in self.reach_scene_event_list:
+                        self.reach_scene_event_list[value["POS"]] = {}
+                    self.reach_scene_event_list[value["POS"]]["weather"] = value["Object"]
+                elif value["Type"] == "music":
+                    if value["POS"] not in self.reach_scene_event_list:
+                        self.reach_scene_event_list[value["POS"]] = {}
+                    self.reach_scene_event_list[value["POS"]]["music"] = self.music_pool[str(value["Object"])]
+                elif value["Type"] == "sound":
+                    if value["POS"] not in self.reach_scene_event_list:
+                        self.reach_scene_event_list[value["POS"]] = {}
+                    if "sound" not in self.reach_scene_event_list[value["POS"]]:
+                        self.reach_scene_event_list[value["POS"]]["sound"] = []
+                    self.reach_scene_event_list[value["POS"]]["sound"].append(self.sound_effect_pool[str(value["Object"])])
 
             if "stage" in value["Type"]:  # assign stage data
                 if "front" in value["Type"]:
@@ -565,9 +574,9 @@ class Battle:
                     for key, value2 in value.items():
                         for key3, value3 in value2.items():
                             if value3[0]["Type"] == "cutscene":  # check only parent event type data
-                                if key not in self.reach_scene_cutscene_list:
-                                    self.reach_scene_cutscene_list[key] = []
-                                self.reach_scene_cutscene_list[key].append(value3)
+                                if key not in self.reach_scene_event_list:
+                                    self.reach_scene_event_list[key] = []
+                                self.reach_scene_event_list[key].append(value3)
             elif "execute" in trigger:
                 for key, value2 in value.items():
                     self.execute_cutscene = value2
@@ -816,11 +825,10 @@ class Battle:
                             self.player_joystick.pop(key)
                             self.joystick_player.pop(value)
 
-            if not self.music_left.get_busy():  # change if music finish playing
-                music = self.battle_music_pool[randint(0, len(self.battle_music_pool) - 1)]
-                self.music_left.play(music, fade_ms=100)
+            if not self.music_left.get_busy() and self.current_music:  # change if music finish playing
+                self.music_left.play(self.current_music, fade_ms=100)
                 self.music_left.set_volume(self.play_music_volume, 0)
-                self.music_right.play(music, fade_ms=100)
+                self.music_right.play(self.current_music, fade_ms=100)
                 self.music_right.set_volume(0, self.play_music_volume)
 
             if self.player_key_press[self.main_player]["Menu/Cancel"]:  # or self.player_key_press[2]["Menu/Cancel"]
@@ -989,20 +997,30 @@ class Battle:
                     for player_index, player_object in self.player_objects.items():
                         player_object.player_input(player_index, self.dt)
 
-                    if self.reach_scene_cutscene_list:
-                        # check for cutscene event with camera reaching
-                        if self.battle_stage.reach_scene in self.reach_scene_cutscene_list:
-                            for parent_event in self.reach_scene_cutscene_list[self.battle_stage.reach_scene]:
-                                # play one parent at a time
-                                self.cutscene_playing = parent_event
-                                if "replayable" not in parent_event[0]["Property"]:
-                                    self.reach_scene_cutscene_list.pop(self.battle_stage.reach_scene)
-
-                    if self.reach_scene_weather_list:
-                        if self.battle_stage.reach_scene in self.reach_scene_weather_list:
-                            self.current_weather.__init__(self.reach_scene_weather_list[self.battle_stage.reach_scene],
-                                                          0, 0, self.weather_data)
-                            self.reach_scene_weather_list.pop(self.battle_stage.reach_scene)
+                    if self.reach_scene_event_list:
+                        # check for event with camera reaching
+                        if self.battle_stage.reach_scene in self.reach_scene_event_list:
+                            if "weather" in self.reach_scene_event_list[self.battle_stage.reach_scene]:  # change weather
+                                self.current_weather.__init__(
+                                    self.reach_scene_event_list[self.battle_stage.reach_scene]["weather"],
+                                    0, 0, self.weather_data)
+                                self.reach_scene_event_list[self.battle_stage.reach_scene].pop("weather")
+                            if "music" in self.reach_scene_event_list[self.battle_stage.reach_scene]:  # change weather
+                                self.current_music = self.reach_scene_event_list[self.battle_stage.reach_scene]["music"]
+                                self.reach_scene_event_list[self.battle_stage.reach_scene].pop("music")
+                            if "sound" in self.reach_scene_event_list[self.battle_stage.reach_scene]:  # change weather
+                                for sound_effect in self.reach_scene_event_list[self.battle_stage.reach_scene]:
+                                    self.add_sound_effect_queue(self.sound_effect_pool[sound_effect[0]],
+                                                                self.camera_pos, sound_effect[1], sound_effect[2])
+                                self.reach_scene_event_list[self.battle_stage.reach_scene].pop("sound")
+                            if "cutscene" in self.reach_scene_event_list[self.battle_stage.reach_scene]:  # cutscene
+                                for parent_event in self.reach_scene_event_list[self.battle_stage.reach_scene]["cutscene"]:
+                                    # play one parent at a time
+                                    self.cutscene_playing = parent_event
+                                    if "replayable" not in parent_event[0]["Property"]:
+                                        self.reach_scene_event_list[self.battle_stage.reach_scene].pop("cutscene")
+                            if not self.reach_scene_event_list[self.battle_stage.reach_scene]:  # no more event left
+                                self.reach_scene_event_list.pop(self.battle_stage.reach_scene)
 
                     if self.player_interact_event_list:
                         event_list = sorted({key[0]: self.main_player_object.base_pos.distance_to(key[1]) for key in
