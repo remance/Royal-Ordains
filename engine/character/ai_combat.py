@@ -1,12 +1,14 @@
 def find_move_to_attack(self):
-    for move, value in self.moveset[self.position].items():
-        if value["AI Range"] >= self.nearest_enemy[1] and value["Move"] not in self.attack_cooldown:
-            # blind (7) cause random attack
-            self.engage_combat()
-            self.moveset_command_key_input = move
-            self.check_move_existence()
-            self.command_action = self.attack_command_actions[move[-1]]
-            break
+    if self.nearest_enemy[1] <= self.ai_max_attack_range:
+        # has enemy to attack and within max range attack
+        for move, value in self.moveset[self.position].items():
+            if value["AI Range"] >= self.nearest_enemy[1] and value["Move"] not in self.attack_cooldown:
+                # blind (7) cause random attack
+                self.engage_combat()
+                self.moveset_command_key_input = move
+                self.check_move_existence()
+                self.command_action = self.attack_command_actions[move[-1]]
+                break
 
 
 def training_ai(self):
@@ -54,7 +56,8 @@ def guard_ai(self):
         self.ai_timer = 0
         self.interrupt_animation = True
         self.command_action = {}  # consider go to idle first then check for move
-        find_move_to_attack(self)
+        if self.nearest_enemy:
+            find_move_to_attack(self)
 
     elif not self.guarding and self.ai_timer:
         self.ai_timer = 0

@@ -1,7 +1,7 @@
 import copy
 from random import randint
 
-from engine.character.character import Character, AICharacter, PlayableCharacter, CityAICharacter
+from engine.character.character import Character, AICharacter, PlayerCharacter, CityAICharacter
 
 from engine.uibattle.uibattle import ScoreBoard
 
@@ -15,9 +15,9 @@ def setup_battle_character(self, player_list, stage_char_list, add_helper=True):
             if "p" + str(key) in object_id_list:  # player stage data exist
                 additional_data = copy.deepcopy(stage_char_list[object_id_list.index("p" + str(key))])
                 additional_data.pop("ID")
-            self.players[key]["Object"] = PlayableCharacter("p" + str(key), key,
-                                                            data | self.character_data.character_list[data["ID"]] |
-                                                            additional_data)
+            self.players[key]["Object"] = PlayerCharacter("p" + str(key), key,
+                                                          data | self.character_data.character_list[data["ID"]] |
+                                                          additional_data)
 
     self.player_objects = {key: value["Object"] for key, value in self.players.items()}
     player_team = {1: 0, 2: 0, 3: 0, 4: 0}
@@ -30,8 +30,9 @@ def setup_battle_character(self, player_list, stage_char_list, add_helper=True):
             if "no_player_pick" not in data["Stage Property"] or \
                     data["ID"] not in [player.sprite_id for player in self.player_objects.values()]:
                 # check if no_player_pick and player with same character exist
-                health_scaling = player_team[data["Team"]]
-                if not health_scaling:  # 0 player is considered x1 same as 1 player
+                health_scaling = player_team[data["Team"]] * 2
+                if not player_team[data["Team"]] or player_team[data["Team"]] == 1:
+                    # 0 player is considered x1 same as 1 player
                     health_scaling = 1
                 if "city_npc" in data["Stage Property"]:  # city AI, has different combat update
                     specific_behaviour = None

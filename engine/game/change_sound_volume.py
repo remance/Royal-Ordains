@@ -1,4 +1,4 @@
-from pygame.mixer import music
+from pygame.mixer import Channel
 
 
 def change_sound_volume(self):
@@ -11,7 +11,7 @@ def change_sound_volume(self):
     self.voice_volume = float(self.config["USER"]["voice_volume"])
     self.play_voice_volume = self.master_volume * self.voice_volume / 10000
 
-    music.set_volume(self.play_music_volume)  # set new music player volume
+    Channel(0).set_volume(self.play_music_volume)  # set new music player volume
 
     self.battle.master_volume = self.master_volume
     self.battle.play_music_volume = self.play_music_volume

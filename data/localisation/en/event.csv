@@ -40,13 +40,13 @@
 "King/Iri/1_1_city_throne_talk1.4","Seem that you still travel around. Anything new of note?"
 "King/Iri/1_1_city_throne_talk1.5","Well, nothing as vital as this crisis. Let's catch up later."
 "King/Iri/1_1_city_throne_talk1.6","Verily. We appreciate your arrival and help."
-"King/Omshle/1_1_city_throne_talk1.1",
-"King/Omshle/1_1_city_throne_talk1.2",
-"King/Omshle/1_1_city_throne_talk1.3",
-"King/Omshle/1_1_city_throne_talk1.4",
-"King/Omshle/1_1_city_throne_talk1.5",
-"King/Omshle/1_1_city_throne_talk1.6",
-"King/Omshle/1_1_city_throne_talk1.7",
+"King/Pasgelo/1_1_city_throne_talk1.1",
+"King/Pasgelo/1_1_city_throne_talk1.2",
+"King/Pasgelo/1_1_city_throne_talk1.3",
+"King/Pasgelo/1_1_city_throne_talk1.4",
+"King/Pasgelo/1_1_city_throne_talk1.5",
+"King/Pasgelo/1_1_city_throne_talk1.6",
+"King/Pasgelo/1_1_city_throne_talk1.7",
 "King/Laguasangte/1_1_city_throne_talk1.1","So you come."
 "King/Laguasangte/1_1_city_throne_talk1.2","i am."
 "King/Laguasangte/1_1_city_throne_talk1.3","Then that means..."
@@ -114,7 +114,7 @@
 "Nayedien/Iri/1_1_city_throne_talk1.5","Would you kindly spare time recounting his tale anon?"
 "Nayedien/Iri/1_1_city_throne_talk1.6","Yes, my dear. Whenever our schedules allow it."
 "Nayedien/Iri/1_1_city_throne_talk1.7","…My gratitude."
-"Nayedien/Omshle/1_1_city_throne_talk1.1",
+"Nayedien/Pasgelo/1_1_city_throne_talk1.1",
 "Nayedien/Elmaliern/1_1_city_throne_talk1.1",
 "Nayedien/Bauqah/1_1_city_throne_talk1.1",
 "Nayedien/Yuawies/1_1_city_throne_talk1.1",
@@ -183,10 +183,10 @@
 "Hermanos/Nayedien/1_1_city_throne_talk1.7","Understandable, no one deserves respect they do not earn."
 "Hermanos/Nayedien/1_1_city_throne_talk1.8","Hear hear! Now, just for you, any court rumour I gather"
 "Hermanos/Nayedien/1_1_city_throne_talk1.9","you will hear it from me first. I will always be here!"
-"Hermanos/Omshle/1_1_city_throne_talk1.1",
-"Hermanos/Omshle/1_1_city_throne_talk1.2",
-"Hermanos/Omshle/1_1_city_throne_talk1.3",
-"Hermanos/Omshle/1_1_city_throne_talk1.4","Ah, I do not really want to know. Just be careful with them."
+"Hermanos/Pasgelo/1_1_city_throne_talk1.1",
+"Hermanos/Pasgelo/1_1_city_throne_talk1.2",
+"Hermanos/Pasgelo/1_1_city_throne_talk1.3",
+"Hermanos/Pasgelo/1_1_city_throne_talk1.4","Ah, I do not really want to know. Just be careful with them."
 "Hermanos/Any/1_1_city_throne_talk2.1","Nothing new yet. Talk to me after finishing your quest."
 "Vraesier/Orsanoas/1_1_city_tavern_talk1.1","GOOD DAY, WARRIOR. I NEED YOUR HELP."
 "Vraesier/Orsanoas/1_1_city_tavern_talk1.2","What?"
@@ -438,7 +438,7 @@
 "Yuawies",
 "Duskuksa",
 "Nayedien",
-"Omshle",
+"Pasgelo",
 ,
 ,
 ,

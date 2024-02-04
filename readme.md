@@ -149,17 +149,18 @@ The current game version consists of 5 playable characters and first mission for
 
 ### Archer type
 
-Exiled Scout
+<img src="https://github.com/remance/preview2/blob/main/minara1.png?raw=true" width="100" height="100"></a> Exiled Scout
 
 ### Skill type
 
-Sweeper
+<img src="https://github.com/remance/preview2/blob/main/bauqah1.png?raw=true" width="100" height="100"></a> Hedge Shaman
+
 
 ### Mage type
 
 <img src="https://github.com/remance/preview2/blob/main/elmaliern1.png?raw=true" width="100" height="100"></a> Desperate Widow
 
-Hedge Shaman
+Mage of Season
 
 ### Support type
 
@@ -167,7 +168,7 @@ Hedge Shaman
 
 ### Special type
 
-Alchemist
+Sweeper
 
 ---------------
 

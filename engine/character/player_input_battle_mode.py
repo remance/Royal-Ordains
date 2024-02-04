@@ -12,20 +12,31 @@ def player_input_battle_mode(self, player_index, dt):
             for key, pressed in self.battle.player_key_press[player_index].items():
                 if pressed:
                     new_key = key
-                    if key in ("Left", "Right"):  # replace left right input with forward one for moveset check
-                        if not self.stoppable_frame:
-                            if key == "Left":
-                                self.new_angle = 90
-                            else:
-                                self.new_angle = -90
-                        if rotation_dict[key] == self.angle:
-                            new_key = "Forward"
+                    if key == "Order Menu" or key == "Inventory Menu":
+                        self.input_mode = key
+                        self.player_input = self.player_input_wheel_ui_mode
+                        self.battle.realtime_ui_updater.add(self.battle.player_wheel_uis[player_index])
+                        if key == "Order Menu":
+                            self.battle.player_wheel_uis[player_index].change_text_icon(self.command_name_list)
                         else:
-                            new_key = "Backward"
-                    self.player_command_key_input.append(key)
-                    self.command_key_input.append(new_key)
-                    self.player_key_input_timer.append(0.5)
-                    self.last_command_key_input = key
+                            self.battle.player_wheel_uis[player_index].change_text_icon(
+                                [value for value in
+                                 self.battle.all_story_profiles[player_index]["equipment"]["inventory"].values()])
+                    else:
+                        if key in ("Left", "Right"):  # replace left right input with forward one for moveset check
+                            if not self.stoppable_frame:
+                                if key == "Left":
+                                    self.new_angle = 90
+                                else:
+                                    self.new_angle = -90
+                            if rotation_dict[key] == self.angle:
+                                new_key = "Forward"
+                            else:
+                                new_key = "Backward"
+                        self.player_command_key_input.append(key)
+                        self.command_key_input.append(new_key)
+                        self.player_key_input_timer.append(0.5)
+                        self.last_command_key_input = key
 
             for key, pressed in self.battle.player_key_hold[player_index].items():
                 if pressed:

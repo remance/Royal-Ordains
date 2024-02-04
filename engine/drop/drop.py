@@ -4,7 +4,7 @@ from pygame import sprite, Vector2
 class Drop(sprite.Sprite):
     battle = None
     drop_item_list = None
-    effect_animation_pool = None
+    item_sprite_pool = None
 
     ground_pos = 1000
 
@@ -39,10 +39,9 @@ class Drop(sprite.Sprite):
         self.team = team
 
         self.battle.all_team_drop[self.team].add(self)
+        self.current_animation = self.item_sprite_pool[self.battle.chapter_sprite_ver]["Normal"][game_id][1]
 
-        self.current_animation = self.effect_animation_pool[game_id][self.battle.chapter_sprite_ver]["Item"][1]
-
-        self.base_image = self.current_animation[self.show_frame][0]
+        self.base_image = self.current_animation[self.show_frame]
         self.image = self.base_image
 
         self.angle = 0
@@ -55,8 +54,6 @@ class Drop(sprite.Sprite):
         self.adjust_sprite()
 
     def update(self, dt):
-        self.play_animation(0.1, dt)
-
         if self.pickable_timer:
             self.pickable_timer -= dt
             if self.pickable_timer < 0:
@@ -99,12 +96,10 @@ class Drop(sprite.Sprite):
             if self.base_pos[1] >= self.ground_pos:  # reach ground
                 self.x_momentum = 0
                 self.y_momentum = 0
-
         elif self.base_pos[1] < self.ground_pos:  # fall down to ground
             self.base_pos[1] += self.fall_gravity * dt
             self.pos = (self.base_pos[0] * self.screen_scale[0],
                         self.base_pos[1] * self.screen_scale[1])
-
             self.adjust_sprite()
         else:  # only start counting duration when reach ground
             self.duration -= dt

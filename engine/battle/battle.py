@@ -278,6 +278,13 @@ class Battle:
         self.player_4_portrait = battle_ui_dict["player_4_portrait"]
         self.player_portraits = {1: self.player_1_portrait, 2: self.player_2_portrait,
                                  3: self.player_3_portrait, 4: self.player_4_portrait}
+
+        self.player_1_wheel_ui = battle_ui_dict["player_1_wheel_ui"]
+        self.player_2_wheel_ui = battle_ui_dict["player_2_wheel_ui"]
+        self.player_3_wheel_ui = battle_ui_dict["player_3_wheel_ui"]
+        self.player_4_wheel_ui = battle_ui_dict["player_4_wheel_ui"]
+        self.player_wheel_uis = {1: self.player_1_wheel_ui, 2: self.player_2_wheel_ui,
+                                 3: self.player_3_wheel_ui, 4: self.player_4_wheel_ui}
         self.current_weather = Weather(1, 0, 0, None)
 
         TextDrama.images = load_images(self.data_dir, screen_scale=self.screen_scale,
@@ -442,20 +449,6 @@ class Battle:
                             self.battle_stage.images[value["Object"]] = image
 
                         loaded_item.append(value["Object"])
-                elif value["Type"] == "weather":
-                    if value["POS"] not in self.reach_scene_event_list:
-                        self.reach_scene_event_list[value["POS"]] = {}
-                    self.reach_scene_event_list[value["POS"]]["weather"] = value["Object"]
-                elif value["Type"] == "music":
-                    if value["POS"] not in self.reach_scene_event_list:
-                        self.reach_scene_event_list[value["POS"]] = {}
-                    self.reach_scene_event_list[value["POS"]]["music"] = self.music_pool[str(value["Object"])]
-                elif value["Type"] == "sound":
-                    if value["POS"] not in self.reach_scene_event_list:
-                        self.reach_scene_event_list[value["POS"]] = {}
-                    if "sound" not in self.reach_scene_event_list[value["POS"]]:
-                        self.reach_scene_event_list[value["POS"]]["sound"] = []
-                    self.reach_scene_event_list[value["POS"]]["sound"].append(self.sound_effect_pool[str(value["Object"])])
 
             if "stage" in value["Type"]:  # assign stage data
                 if "front" in value["Type"]:
@@ -503,27 +496,24 @@ class Battle:
         self.score_board = None
 
         self.spawn_delay_timer = {}
-
-        start_enemy = [item for item in stage_data["character"] if "camera_stage" not in item["Arrive Condition"]]
-        self.later_enemy = {stage: [item for item in stage_data["character"] if
-                                    "camera_stage" in item["Arrive Condition"] and
-                                    int(item["POS"][0] / 1920) + 1 == stage] for stage in later_enemy}
-        for stage, value in self.later_enemy.items():  # rearrange arrival list based on delay
+        start_enemy = [item for item in stage_data["character"] if "camera_scene" not in item["Arrive Condition"]]
+        self.later_enemy = {scene: [item for item in stage_data["character"] if
+                                    "camera_scene" in item["Arrive Condition"] and
+                                    item["Scene"] == scene] for scene in later_enemy}
+        for scene, value in self.later_enemy.items():  # rearrange arrival list based on delay
             new_value = {}
-            self.spawn_delay_timer[stage] = 0
+            self.spawn_delay_timer[scene] = 0
             for item in value:
-                if any("delay" in item2 for item2 in item["Arrive Condition"]):  # character has delay for arrival
-                    for condition in item["Arrive Condition"]:
-                        if "delay" in condition:
-                            timer = float(condition.split("/")[-1])
-                            if timer not in new_value:
-                                new_value[timer] = []
-                            new_value[timer].append(item)
+                if "delay" in item["Arrive Condition"]:  # character has delay for arrival
+                    timer = float(item["Arrive Condition"]["delay"])
+                    if timer not in new_value:
+                        new_value[timer] = []
+                    new_value[timer].append(item)
                 else:
                     if 0 not in new_value:
                         new_value[0] = []
                     new_value[0].append(item)
-            self.later_enemy[stage] = new_value
+            self.later_enemy[scene] = new_value
 
         add_helper = True
         if self.stage == 0:  # city stage not add helper
@@ -548,7 +538,6 @@ class Battle:
                     for key3, value3 in value2.items():
                         if value3[0]["Type"]:  # check only parent event type data
                             self.start_cutscene.append(value3)
-                # print(self.start_cutscene)
             elif "interact" in trigger:
                 for key, value2 in value.items():
                     char_found = None
@@ -573,10 +562,23 @@ class Battle:
                 if "reach_scene" in trigger:
                     for key, value2 in value.items():
                         for key3, value3 in value2.items():
+                            if key not in self.reach_scene_event_list:
+                                self.reach_scene_event_list[key] = {}
                             if value3[0]["Type"] == "cutscene":  # check only parent event type data
-                                if key not in self.reach_scene_event_list:
-                                    self.reach_scene_event_list[key] = []
-                                self.reach_scene_event_list[key].append(value3)
+                                if "cutscene" not in self.reach_scene_event_list[key]:
+                                    self.reach_scene_event_list[key]["cutscene"] = []
+                                self.reach_scene_event_list[key]["cutscene"].append(value3)
+                            elif value3[0]["Type"] == "weather":
+                                self.reach_scene_event_list[key]["weather"] = value3[0]["Object"]
+                            elif value3[0]["Type"] == "music":
+                                self.reach_scene_event_list[key]["music"] = self.music_pool[
+                                    str(value3[0]["Object"])]
+                            elif value3[0]["Type"] == "sound":
+                                if "sound" not in self.reach_scene_event_list[key]:
+                                    self.reach_scene_event_list[key]["sound"] = []
+                                self.reach_scene_event_list[key]["sound"].append(
+                                    self.sound_effect_pool[str(value3[0]["Object"])])
+
             elif "execute" in trigger:
                 for key, value2 in value.items():
                     self.execute_cutscene = value2
@@ -831,7 +833,7 @@ class Battle:
                 self.music_right.play(self.current_music, fade_ms=100)
                 self.music_right.set_volume(0, self.play_music_volume)
 
-            if self.player_key_press[self.main_player]["Menu/Cancel"]:  # or self.player_key_press[2]["Menu/Cancel"]
+            if self.player_key_press[self.main_player]["Menu/Cancel"]:
                 # open/close menu
                 esc_press = True
 
@@ -853,9 +855,8 @@ class Battle:
                     self.add_ui_updater(self.battle_menu, self.cursor,
                                         self.battle_menu_button,
                                         self.esc_text_popup)  # add menu and its buttons to drawer
-                    esc_press = False  # reset esc press, so it not stops esc menu when open
                     self.realtime_ui_updater.remove(self.main_player_battle_cursor)
-                elif self.player_key_press[self.main_player]["Special"] and self.city_mode:
+                elif self.city_mode and self.player_key_press[self.main_player]["Special"]:
                     if self.game_state != "map":  # open city map
                         self.add_ui_updater(self.cursor, self.city_map)
                         self.game_state = "map"
@@ -983,8 +984,8 @@ class Battle:
 
                             self.stage_scene_lock.pop(self.next_lock)
 
-                    if self.later_enemy[
-                        self.battle_stage.spawn_check_scene]:  # check for enemy arriving based on camera pos
+                    if self.later_enemy[self.battle_stage.spawn_check_scene]:
+                        # check for enemy arriving based on camera pos
                         self.spawn_delay_timer[self.battle_stage.spawn_check_scene] += self.dt
                         first_delay = tuple(self.later_enemy[self.battle_stage.spawn_check_scene].keys())[0]
                         if self.spawn_delay_timer[self.battle_stage.spawn_check_scene] >= first_delay:
@@ -1295,9 +1296,9 @@ class Battle:
 
         self.remove_ui_updater(self.battle_menu, self.battle_menu_button, self.esc_slider_menu.values(),
                                self.esc_value_boxes.values(), self.esc_option_text.values(),
-                               self.player_portraits.values(), self.esc_text_popup)  # remove menu and ui
+                               self.esc_text_popup)  # remove menu and ui
 
-        self.realtime_ui_updater.remove(self.player_portraits.values())
+        self.realtime_ui_updater.remove(self.player_portraits.values(), self.player_wheel_uis.values())
 
         self.music_left.stop()
         self.music_right.stop()

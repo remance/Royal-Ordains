@@ -92,6 +92,8 @@ def hit_register(self, target, body_part):
                                 Effect(None, ("Crash Player", "Crash", self.rect.centerx, self.rect.centery,
                                               -self.angle, 1, 0, 1), 0)
                             target.show_frame -= 3
+                            if target.show_frame < 0:
+                                target.show_frame = 0
                             if self.stick_reach and not self.penetrate:
                                 self.stick_timer = 5
                     else:  # perfect guard, not reduce meter

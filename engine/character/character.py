@@ -120,6 +120,9 @@ class Character(sprite.Sprite):
     from engine.character.player_input_city_mode import player_input_city_mode
     player_input_city_mode = player_input_city_mode
 
+    from engine.character.player_input_wheel_ui_mode import player_input_wheel_ui_mode
+    player_input_wheel_ui_mode = player_input_wheel_ui_mode
+
     from engine.character.remove_moveset_not_match_stat_requirement import remove_moveset_not_match_stat_requirement
     remove_moveset_not_match_stat_requirement = remove_moveset_not_match_stat_requirement
 
@@ -215,6 +218,8 @@ class Character(sprite.Sprite):
     special_character_drop_table = {"Rodhinbar": {"Rodhinbar Arrow": 5},
                                     "Iri": {"Scrap": 15, "Trap Remain": 5}}
     # static variable
+    command_list = {"Down": "Attack", "Left": "Free", "Up": "Follow", "Right": "Stay"}
+    command_name_list = tuple(command_list.values())
     default_animation_play_time = 0.1
     knock_down_sound_distance = 1500
     knock_down_screen_shake = 15
@@ -240,6 +245,7 @@ class Character(sprite.Sprite):
         self.melee_target = None  # target for melee attacking
         self.player_control = player_control  # character controlled by player
         self.leader = leader
+        self.followers = []
         self.taking_damage_angle = None
         self.indicator = None
         self.cutscene_event = None
@@ -453,14 +459,13 @@ class Character(sprite.Sprite):
         for element in self.original_element_resistance:  # resistance from
             self.original_element_resistance[element] = 0
 
-        self.body_size = stat["Size"]
-        self.body_size = int(self.body_size / 10)
+        self.body_size = int(stat["Size"] / 10)
         if self.body_size < 1:
             self.body_size = 1
 
         self.sprite_size = self.body_size * 100 * self.screen_scale[1]  # use for pseudo sprite size of character for positioning of effect
 
-        self.base_body_mass = stat["Size"]
+        self.base_body_mass = (stat["Size"] + self.weight) * 10
         self.body_mass = self.base_body_mass  # use for impact resistance when hit
 
         self.arrive_condition = stat["Arrive Condition"]
@@ -580,10 +585,10 @@ class Character(sprite.Sprite):
                                 p + "_special_10": None}
 
         # Variables related to sound
-        self.knock_down_sound_distance = self.knock_down_sound_distance * self.base_body_mass
-        self.knock_down_screen_shake = self.knock_down_screen_shake * self.base_body_mass
-        self.heavy_dmg_sound_distance = self.heavy_dmg_sound_distance * self.base_body_mass
-        self.dmg_sound_distance = self.dmg_sound_distance * self.base_body_mass
+        self.knock_down_sound_distance = self.knock_down_sound_distance + self.base_body_mass
+        self.knock_down_screen_shake = self.knock_down_screen_shake + self.base_body_mass
+        self.heavy_dmg_sound_distance = self.heavy_dmg_sound_distance + self.base_body_mass
+        self.dmg_sound_distance = self.dmg_sound_distance + self.base_body_mass
 
         self.hit_volume_mod = self.base_body_mass / 10
 
@@ -659,7 +664,8 @@ class Character(sprite.Sprite):
 
                 # Animation and sprite system
                 if self.show_frame >= len(self.current_animation_direction):  # TODO remove when really fixed
-                    print(self.name, self.show_frame, self.current_animation, self.current_action)
+                    print(self.name, self.show_frame, self.max_show_frame, self.current_animation, self.current_action)
+                    print(self.current_animation_direction)
                     raise Exception()
 
                 if "hold" in self.current_animation_direction[self.show_frame]["property"] and \
@@ -901,9 +907,10 @@ class Character(sprite.Sprite):
         pass
 
 
-class PlayableCharacter(Character):
+class PlayerCharacter(Character):
     def __init__(self, game_id, layer_id, stat):
         Character.__init__(self, game_id, layer_id, stat, player_control=True)
+        self.input_mode = None
         self.player_input = self.player_input_battle_mode
         if self.battle.city_mode:
             self.player_input = self.player_input_city_mode
@@ -913,6 +920,7 @@ class PlayableCharacter(Character):
         self.player_key_input_timer = []
         self.player_key_hold_timer = {}
         self.resurrect_count = 2
+        self.max_follower_allowance = (self.battle.chapter * 20) + self.charisma
 
         # Add equipment stat
         # self.current_weapon = None
@@ -1011,7 +1019,7 @@ class PlayableCharacter(Character):
             self.money_score = True
         if self.common_skill["Wealth"][2]:  # money pickup also increase resource
             self.money_resource = True
-        if self.common_skill["Wealth"][3]:  # food has double effect
+        if self.common_skill["Wealth"][3]:  # killing has more chance to drop gold items
             pass
         if self.common_skill["Wealth"][4]:  #
             pass
@@ -1024,8 +1032,8 @@ class PlayableCharacter(Character):
             self.knock_recover = True
         if self.common_skill["Immunity"][2]:  # shorten all debuff duration by half
             pass
-        if self.common_skill["Immunity"][3]:  # increase resurrection count by 1
-            pass
+        if self.common_skill["Immunity"][3]:  # increase resurrection count by 2
+            self.resurrect_count += 2
         if self.common_skill["Immunity"][4]:  # immune to weather effect
             self.immune_weather = True
         if self.common_skill["Immunity"][5]:  # unlock immune barrier skill
@@ -1077,6 +1085,7 @@ class AICharacter(Character):
         self.is_boss = stat["Boss"]
         self.is_summon = stat["Summon"]
         self.ai_lock = False  # lock AI from activity when start battle, and it positions outside of scene lock
+        self.follow_command = "Free"
         if self.is_boss:
             self.stun_threshold = self.max_health
         if self.base_pos[0] > self.battle.base_stage_end:
@@ -1084,7 +1093,9 @@ class AICharacter(Character):
         if self.is_summon:
             self.health_as_resource = True  # each time summon use resource it uses health instead
         if self.leader:
+            self.follow_command = "Follow"
             self.indicator = CharacterIndicator(self)
+            self.leader.followers.append(self)
         if "Ground Y POS" in stat and stat["Ground Y POS"]:  # replace ground pos based on data in stage
             self.ground_pos = stat["Ground Y POS"]
 
@@ -1093,7 +1104,9 @@ class AICharacter(Character):
             ai_behaviour = specific_behaviour
 
         self.ai_move = types.MethodType(ai_move_dict["default"], self)
-        if ai_behaviour in ai_move_dict:
+        if self.leader:
+            self.ai_move = types.MethodType(ai_move_dict["follower"], self)
+        elif ai_behaviour in ai_move_dict:
             self.ai_move = types.MethodType(ai_move_dict[ai_behaviour], self)
 
         self.ai_combat = types.MethodType(ai_combat_dict["default"], self)
@@ -1109,14 +1122,13 @@ class AICharacter(Character):
         self.ai_max_attack_range = 0
         self.ai_timer = 0  # for whatever timer require for AI action
         self.ai_movement_timer = 0  # timer to move for AI
-        self.end_ai_movment_timer = randint(2, 6)
+        self.end_ai_movement_timer = randint(1, 3)
         if self.is_boss:
-            self.end_ai_movment_timer = 5
+            self.end_ai_movement_timer = 3
         for position in self.moveset.values():
             for move in position.values():
-                if self.ai_max_attack_range < move["AI Range"]:
+                if "no max ai range" not in move["Property"] and self.ai_max_attack_range < move["AI Range"]:
                     self.ai_max_attack_range = move["AI Range"]
-
         if "Stage Property" in stat:
             for stuff in stat["Stage Property"]:
                 if stuff == "target":
@@ -1139,15 +1151,15 @@ class AICharacter(Character):
         self.enter_battle(self.battle.character_animation_data)
 
     def ai_update(self, dt):
-        self.ai_timer = 0  # for whatever timer require for AI action
-        self.ai_movement_timer = 0  # timer to move for AI
         if self.ai_timer:
             self.ai_timer += dt
         if self.ai_movement_timer:
             self.ai_movement_timer += dt
+            if self.ai_movement_timer > self.end_ai_movement_timer:
+                self.ai_movement_timer = 0
         if not self.broken:
             self.ai_combat()
-            self.ai_move(dt)
+            self.ai_move()
         else:
             self.ai_retreat()
 
@@ -1190,7 +1202,7 @@ class CityAICharacter(Character):
 
         self.ai_timer = 0  # for whatever timer require for AI action
         self.ai_movement_timer = 0  # timer to move for AI
-        self.end_ai_movment_timer = randint(2, 6)
+        self.end_ai_movement_timer = randint(2, 6)
 
         # reset animation play speed for city character to default
         self.original_animation_play_time = self.default_animation_play_time

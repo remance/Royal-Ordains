@@ -178,9 +178,9 @@ class BattleMapData(GameData):
                 rd = list(csv.reader(unit_file, quoting=csv.QUOTE_ALL))
                 header = rd[0]
                 int_column = ("Team",)  # value int only
-                list_column = ("POS", "Arrive Condition")  # value in list only
+                list_column = ("POS", )  # value in list only
                 float_column = ("Angle", "Start Health", "Start Stamina")  # value in float
-                dict_column = ("Stage Property", )
+                dict_column = ("Stage Property", "Arrive Condition")
                 int_column = [index for index, item in enumerate(header) if item in int_column]
                 list_column = [index for index, item in enumerate(header) if item in list_column]
                 float_column = [index for index, item in enumerate(header) if item in float_column]

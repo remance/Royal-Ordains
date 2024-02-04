@@ -27,7 +27,7 @@ from engine.lorebook.lorebook import Lorebook, SubsectionName, lorebook_process
 from engine.menubackground.menubackground import MenuActor, MenuRotate, StaticImage
 from engine.stageobject.stageobject import StageObject
 from engine.uibattle.uibattle import Profiler, FPSCount, DamageNumber, CharacterSpeechBox, \
-    CharacterIndicator
+    CharacterIndicator, WheelUI
 from engine.uimenu.uimenu import OptionMenuText, SliderMenu, MenuCursor, BoxUI, BrownMenuButton, \
     URLIconLink, MenuButton, TextPopup, MapTitle, CharacterSelector, CharacterStatAllocator, CharacterProfileBox, \
     NameTextBox
@@ -363,8 +363,9 @@ class Game:
         self.effect_animation_pool = self.animation_data.effect_animation_pool  # effect sprite animation pool
 
         BodyPart.body_sprite_pool = self.body_sprite_pool
-        Drop.effect_animation_pool = self.effect_animation_pool
+        Drop.item_sprite_pool = self.body_sprite_pool["Item"]["special"]
         Effect.effect_animation_pool = self.effect_animation_pool
+        WheelUI.item_sprite_pool = self.body_sprite_pool["Item"]["special"]
         StageObject.stage_object_animation_pool = self.stage_object_animation_pool
 
         # Load sound effect
@@ -375,18 +376,18 @@ class Game:
             pygame.mixer = None
         if pygame.mixer:
             pygame.mixer.set_num_channels(1000)
-            pygame.mixer.music.set_volume(self.play_music_volume)
             self.music_pool = glob.glob(os.path.join(self.data_dir, "sound", "music", "*.ogg"))
             self.music_pool = {item.split("\\")[-1].replace(".ogg", ""): pygame.mixer.Sound(item) for
                                item in self.music_pool}
             pygame.mixer.Channel(0).play(self.music_pool["menu"])
+            pygame.mixer.Channel(0).set_volume(self.play_music_volume)
 
         # Main menu interface
         self.fps_count = FPSCount(self)  # FPS number counter
         if self.show_fps:
             self.add_ui_updater(self.fps_count)
         if self.easy_text:
-            CharacterSpeechBox.font_name = "text_paragraph"
+            CharacterSpeechBox.font_name = "main_button"
 
         base_button_image_list = load_base_button(self.data_dir, self.screen_scale)
 

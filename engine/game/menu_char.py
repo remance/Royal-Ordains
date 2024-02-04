@@ -13,8 +13,7 @@ empty_character_save = {"chapter": 1, "mission": 1, "playtime": 0, "total score"
                         "equipment": {"head": None, "body": None, "arm": None, "leg": None, "feet": None,
                                       "weapon 1": None, "weapon 2": None, "accessory 1": None, "accessory 2": None,
                                       "accessory 3": None, "accessory 4": None, "accessory 5": None,
-                                      "inventory 1": None, "inventory 2": None,
-                                      "inventory 3": None, "inventory 4": None},
+                                      "inventory": {"Up": None, "Right": None, "Down": None, "Left": None}},
                         "storage": {}, "story event": {}, "story choice": {}}
 
 

@@ -93,7 +93,7 @@ def menu_option(self, esc_press):
     elif self.easy_text_box.event_press:
         if self.easy_text_box.tick is False:
             self.easy_text_box.change_tick(True)
-            CharacterSpeechBox.font_name = "text_paragraph"
+            CharacterSpeechBox.font_name = "main_button"
             edit_config("USER", "easy_text", 1, self.config_path,
                         self.config)
         else:

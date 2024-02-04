@@ -758,98 +758,81 @@ class DamageNumber(UIBattle):
 
 
 class WheelUI(UIBattle):
-    wheel_icons = {}
+    item_sprite_pool = None
+    choice_list_key = {"Down": 1, "Left": 2, "Up": 3, "Right": 4}
+    choice_key = tuple(choice_list_key.keys())
 
-    def __init__(self, image, selected_image, pos, text_size=20):
+    def __init__(self, images, pos, text_size=20):
         """Wheel choice ui to select item"""
         self._layer = 11
         UIBattle.__init__(self)
         self.font = Font(self.ui_font["main_button"], text_size)
         self.pos = pos
         self.choice_list = ()
+        self.selected = "Up"
 
-        self.wheel_button_image = image
-        self.wheel_selected_button_image = selected_image
+        self.wheel_button_image = images["wheel"]
+        self.wheel_selected_button_image = images["wheel_selected"]
+        self.wheel_text_image = images["wheel_text"]
 
-        self.base_image2 = Surface((image.get_width() * 6,
-                                    image.get_height() * 6), SRCALPHA)  # empty image
-        self.rect = self.base_image2.get_rect(center=self.pos)
+        self.base_image2 = Surface((self.wheel_button_image.get_width() * 5,
+                                    self.wheel_button_image.get_height() * 4), SRCALPHA)  # empty image
+        self.rect = self.base_image2.get_rect(midtop=self.pos)
 
-        self.wheel_image_with_stuff = []
-        self.wheel_selected_image_with_stuff = []
-        self.wheel_rect = []
-
-    def generate(self, blit_list):
         image_center = (self.base_image2.get_width() / 2, self.base_image2.get_height() / 2)
         self.wheel_image_with_stuff = []
         self.wheel_selected_image_with_stuff = []
         self.wheel_rect = []
-        angle_space = 360 / len(blit_list)
+        angle_space = 360 / 4
         angle = 0
-        for wheel_button in range(len(blit_list)):
+        for wheel_button in range(4):
             base_target = Vector2(image_center[0] - (image_center[0] / 2 *
                                                      sin(radians(angle))),
-                                  image_center[1] + (image_center[1] / 2 *
+                                  image_center[1] + (image_center[1] / 1.6 *
                                                      cos(radians(angle))))
             angle += angle_space
 
             self.wheel_image_with_stuff.append(self.wheel_button_image.copy())
             self.wheel_selected_image_with_stuff.append(self.wheel_selected_button_image.copy())
             self.wheel_rect.append(self.wheel_button_image.get_rect(center=base_target))
-
-        self.image = self.base_image2.copy()
-        for index, rect in enumerate(self.wheel_rect):
-            self.image.blit(self.wheel_image_with_stuff[index], rect)
-
-        self.change_text_icon(blit_list)
-
-    def selection(self, mouse_pos):
-        closest_rect_distance = None
-        closest_rect_index = None
-        new_mouse_pos = Vector2(mouse_pos[0] / self.battle_camera_size[0] * self.image.get_width(),
-                                mouse_pos[1] / self.battle_camera_size[1] * self.image.get_height())
-        for index, rect in enumerate(self.wheel_rect):
-            distance = Vector2(rect.center).distance_to(new_mouse_pos)
-            if closest_rect_distance is None or distance < closest_rect_distance:
-                closest_rect_index = index
-                closest_rect_distance = distance
+            self.base_image2.blit(self.wheel_image_with_stuff[wheel_button], self.wheel_rect[wheel_button])
         self.image = self.base_image2.copy()
 
+    def selection(self, key_input):
+        self.selected = key_input
         for index, rect in enumerate(self.wheel_rect):
-            if index == closest_rect_index:
+            if self.selected == self.choice_key[index]:
                 self.image.blit(self.wheel_selected_image_with_stuff[index], rect)
             else:
                 self.image.blit(self.wheel_image_with_stuff[index], rect)
-        if self.choice_list and closest_rect_index <= len(self.choice_list) - 1:
-            text_surface = self.font.render(self.choice_list[closest_rect_index], True, (0, 0, 0))
-            text_box = Surface((text_surface.get_width() * 1.2,
-                                text_surface.get_height() * 1.2))  # empty image
-            text_box.fill((255, 255, 255))
-            text_rect = text_surface.get_rect(center=(text_box.get_width() / 2,
-                                                      text_box.get_height() / 2))
-            text_box.blit(text_surface, text_rect)
-            box_rect = text_surface.get_rect(center=(self.image.get_width() / 2,
-                                                     self.image.get_height() / 2.5))
-            self.image.blit(text_box, box_rect)  # blit text description at the center of wheel
-            return self.choice_list[closest_rect_index]
+            text_image = self.wheel_text_image.copy()
+            text_surface = self.font.render(self.choice_list[index], True, (0, 0, 0))
+            text_image.blit(text_surface, text_surface.get_rect(center=(text_image.get_width() / 2,
+                                                                        text_image.get_height() / 2)))
+
+            self.image.blit(text_image, text_image.get_rect(center=self.wheel_rect[index].midbottom))
 
     def change_text_icon(self, blit_list):
         """Add icon or text to the wheel choice"""
         self.image = self.base_image2.copy()
-        self.choice_list = tuple(blit_list.keys())
+        self.choice_list = blit_list
         for index, item in enumerate(blit_list):
             if item:  # Wheel choice with icon or text inside
-                if item in self.wheel_icons:  # text
-                    surface = self.wheel_icons[item]
-                else:
-                    surface = self.font.render(item, True, (0, 0, 0))
+                surface = self.item_sprite_pool[self.battle.chapter_sprite_ver]["Normal"][item][1][0]
                 rect = surface.get_rect(center=(self.wheel_image_with_stuff[index].get_width() / 2,
                                                 self.wheel_image_with_stuff[index].get_height() / 2))
                 self.wheel_image_with_stuff[index].blit(surface, rect)
                 self.wheel_selected_image_with_stuff[index].blit(surface, rect)
-                self.image.blit(self.wheel_image_with_stuff[index], self.wheel_rect[index])
-            else:  # inactive wheel choice
-                self.image.blit(self.wheel_inactive_image_list[index], self.wheel_rect[index])
+                if self.selected == self.choice_key[index]:
+                    self.image.blit(self.wheel_selected_image_with_stuff[index], self.wheel_rect[index])
+                else:
+                    self.image.blit(self.wheel_image_with_stuff[index], self.wheel_rect[index])
+                text_image = self.wheel_text_image.copy()
+                text_surface = self.font.render(item, True, (0, 0, 0))
+                text_image.blit(text_surface, text_surface.get_rect(center=(text_image.get_width() / 2,
+                                                                            text_image.get_height() / 2)))
+
+                self.image.blit(text_image, text_image.get_rect(center=self.wheel_rect[index].midbottom))
 
 
 class EscBox(UIBattle):

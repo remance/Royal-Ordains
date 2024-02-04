@@ -1,4 +1,4 @@
-def add_sound_effect_queue(self, sound_name, sound_pos, sound_distance_power, shake_power, volume_mod=1):
+def add_sound_effect_queue(self, sound_object, sound_pos, sound_distance_power, shake_power, volume_mod=1):
     """Stereo sound effect player based on sound pos distance from center camera pos"""
     screen_shake_power = self.cal_shake_value(sound_pos, shake_power)
     self.screen_shake_value += screen_shake_power
@@ -34,8 +34,8 @@ def add_sound_effect_queue(self, sound_name, sound_pos, sound_distance_power, sh
         final_effect_volume = [left_effect_volume, right_effect_volume]  # left right sound volume
 
         if right_effect_volume or left_effect_volume:
-            if sound_name not in self.sound_effect_queue:
-                self.sound_effect_queue[sound_name] = final_effect_volume
+            if sound_object not in self.sound_effect_queue:
+                self.sound_effect_queue[sound_object] = final_effect_volume
             else:
-                self.sound_effect_queue[sound_name][0] += final_effect_volume[0]
-                self.sound_effect_queue[sound_name][1] += final_effect_volume[1]
+                self.sound_effect_queue[sound_object][0] += final_effect_volume[0]
+                self.sound_effect_queue[sound_object][1] += final_effect_volume[1]

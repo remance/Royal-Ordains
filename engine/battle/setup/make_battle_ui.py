@@ -3,13 +3,7 @@ from engine.uibattle.uibattle import WheelUI, PlayerPortrait
 
 def make_battle_ui(battle_ui_image):
     from engine.game.game import Game
-    from engine.battle.battle import Battle
     screen_scale = Game.screen_scale
-    battle_camera_size = Battle.battle_camera_size
-
-    # Right top bar ui that show rough information of selected battalions
-    wheel_ui = WheelUI(battle_ui_image["wheel"], battle_ui_image["wheel_selected"],
-                       (battle_camera_size[0] / 2, battle_camera_size[1] / 2))
 
     player_1_portrait = PlayerPortrait(battle_ui_image["player1"], battle_ui_image["health_bar"],
                                        battle_ui_image["resource_bar"], battle_ui_image["guard_bar"],
@@ -27,6 +21,12 @@ def make_battle_ui(battle_ui_image):
                                        battle_ui_image["resource_bar"], battle_ui_image["guard_bar"],
                                        (1650 * screen_scale[0], 120 * screen_scale[1]))
 
-    return {"wheel_ui": wheel_ui,
+    player_1_wheel_ui = WheelUI(battle_ui_image, player_1_portrait.rect.midbottom)
+    player_2_wheel_ui = WheelUI(battle_ui_image, player_2_portrait.rect.midbottom)
+    player_3_wheel_ui = WheelUI(battle_ui_image, player_3_portrait.rect.midbottom)
+    player_4_wheel_ui = WheelUI(battle_ui_image, player_4_portrait.rect.midbottom)
+
+    return {"player_1_wheel_ui": player_1_wheel_ui, "player_2_wheel_ui": player_2_wheel_ui,
+            "player_3_wheel_ui": player_3_wheel_ui, "player_4_wheel_ui": player_4_wheel_ui,
             "player_1_portrait": player_1_portrait, "player_2_portrait": player_2_portrait,
             "player_3_portrait": player_3_portrait, "player_4_portrait": player_4_portrait}

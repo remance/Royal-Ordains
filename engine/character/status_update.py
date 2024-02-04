@@ -78,8 +78,8 @@ def status_update(self):
     self.base_animation_play_time = self.original_animation_play_time * animation_speed_modifier
 
     self.body_mass = self.base_body_mass
-    if "less mass" in self.current_action:  # knockdown reduce mass
-        self.body_mass = int(self.base_body_mass / self.current_action["less mass"])
+    if "less mass" in self.current_action:  # action that reduce mass
+        self.body_mass = int(self.base_body_mass * self.current_action["less mass"])
 
     if self.defence < 0:  # seem like using if is faster than max()
         self.defence = 0

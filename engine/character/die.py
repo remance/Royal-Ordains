@@ -28,6 +28,12 @@ def die(self, how):
         if speech.character == self:  # kill speech
             speech.kill()
 
+    for follower in self.followers:
+        follower.leader = None
+    self.followers = []
+    if self.leader:
+        self.leader.followers.remove(self)
+
     if how == "flee":
         clean_group_object((self.body_parts,))
         clean_object(self)
