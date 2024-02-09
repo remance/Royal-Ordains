@@ -29,7 +29,7 @@ from engine.stageobject.stageobject import StageObject
 from engine.uibattle.uibattle import Profiler, FPSCount, DamageNumber, CharacterSpeechBox, \
     CharacterIndicator, WheelUI
 from engine.uimenu.uimenu import OptionMenuText, SliderMenu, MenuCursor, BoxUI, BrownMenuButton, \
-    URLIconLink, MenuButton, TextPopup, MapTitle, CharacterSelector, CharacterStatAllocator, CharacterProfileBox, \
+    URLIconLink, MenuButton, TextPopup, MapTitle, CharacterSelector, CharacterInterface, CharacterProfileBox, \
     NameTextBox
 from engine.updater.updater import ReversedLayeredUpdates
 from engine.utils.common import edit_config, empty_method, cutscene_update
@@ -466,22 +466,22 @@ class Game:
 
         char_selector_images = load_images(self.data_dir, screen_scale=self.screen_scale,
                                            subfolder=("ui", "charselect_ui"), key_file_name_readable=True)
-        self.player1_char_selector = CharacterSelector((self.screen_width / 8, self.screen_height / 2.1),
+        self.player1_char_selector = CharacterSelector((self.screen_width / 8, self.screen_height / 2.2),
                                                        char_selector_images)
-        self.player1_char_stat = CharacterStatAllocator(self.player1_char_selector.rect.center, 1)
-        self.player2_char_selector = CharacterSelector((self.screen_width / 2.7, self.screen_height / 2.1),
+        self.player1_char_interface = CharacterInterface(self.player1_char_selector.rect.center, 1)
+        self.player2_char_selector = CharacterSelector((self.screen_width / 2.7, self.screen_height / 2.2),
                                                        char_selector_images)
-        self.player2_char_stat = CharacterStatAllocator(self.player2_char_selector.rect.center, 2)
-        self.player3_char_selector = CharacterSelector((self.screen_width / 1.6, self.screen_height / 2.1),
+        self.player2_char_interface = CharacterInterface(self.player2_char_selector.rect.center, 2)
+        self.player3_char_selector = CharacterSelector((self.screen_width / 1.6, self.screen_height / 2.2),
                                                        char_selector_images)
-        self.player3_char_stat = CharacterStatAllocator(self.player3_char_selector.rect.center, 3)
-        self.player4_char_selector = CharacterSelector((self.screen_width / 1.15, self.screen_height / 2.1),
+        self.player3_char_interface = CharacterInterface(self.player3_char_selector.rect.center, 3)
+        self.player4_char_selector = CharacterSelector((self.screen_width / 1.15, self.screen_height / 2.2),
                                                        char_selector_images)
-        self.player4_char_stat = CharacterStatAllocator(self.player4_char_selector.rect.center, 4)
+        self.player4_char_interface = CharacterInterface(self.player4_char_selector.rect.center, 4)
         self.player_char_selectors = {1: self.player1_char_selector, 2: self.player2_char_selector,
                                       3: self.player3_char_selector, 4: self.player4_char_selector}
-        self.player_char_stats = {1: self.player1_char_stat, 2: self.player2_char_stat,
-                                  3: self.player3_char_stat, 4: self.player4_char_stat}
+        self.player_char_interfaces = {1: self.player1_char_interface, 2: self.player2_char_interface,
+                                       3: self.player3_char_interface, 4: self.player4_char_interface}
         self.char_menu_buttons = (self.player1_char_selector, self.player2_char_selector, self.player3_char_selector,
                                   self.player4_char_selector, self.char_back_button, self.start_button)
         CharacterProfileBox.image = char_selector_images["Charsheet"]

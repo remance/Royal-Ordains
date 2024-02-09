@@ -3,18 +3,12 @@ import os
 
 from datetime import datetime
 
+from engine.data.datasave import empty_character_save
+
 inf = float("inf")
 
-playable_character = {"Vraesier": 0, "Rodhinbar": 1, "Iri": 2, "Duskuksa": 3, "Nayedien": 4}
-default_start = {"Sprite Ver": 1, "Team": 1, "Playable": True, "Skill Allocation": {}, "Start Health": 100}
-empty_character_save = {"chapter": 1, "mission": 1, "playtime": 0, "total score": 0, "total kill": 0,
-                        "total gold": 0, "boss kill": 0, "total damage": 0, "last save": "Not Saved",
-                        "character": {},
-                        "equipment": {"head": None, "body": None, "arm": None, "leg": None, "feet": None,
-                                      "weapon 1": None, "weapon 2": None, "accessory 1": None, "accessory 2": None,
-                                      "accessory 3": None, "accessory 4": None, "accessory 5": None,
-                                      "inventory": {"Up": None, "Right": None, "Down": None, "Left": None}},
-                        "storage": {}, "story event": {}, "story choice": {}}
+playable_character = {"Vraesier": 0, "Rodhinbar": 1, "Iri": 2, "Duskuksa": 3, "Nayedien": 4}  # "Orsanoas": 5
+new_start = {"Sprite Ver": 1, "skill allocation": {}}
 
 
 def menu_char(self, esc_press):
@@ -27,8 +21,8 @@ def menu_char(self, esc_press):
         for selector in self.player_char_selectors.values():
             selector.change_mode("empty")
         self.remove_ui_updater(self.char_menu_buttons, self.player1_char_selector, self.player2_char_selector,
-                               self.player3_char_selector, self.player4_char_selector, self.player1_char_stat,
-                               self.player2_char_stat, self.player3_char_stat, self.player4_char_stat,
+                               self.player3_char_selector, self.player4_char_selector, self.player1_char_interface,
+                               self.player2_char_interface, self.player3_char_interface, self.player4_char_interface,
                                [item2 for item in self.char_profile_boxes.values() for item2 in item.values()],
                                [item for item in self.char_profile_page_text.values()])
         self.back_mainmenu()
@@ -61,10 +55,11 @@ def menu_char(self, esc_press):
                         main_story_player = key
                         last_check_progress = progress
                     self.battle.all_story_profiles[key] = self.save_data.save_profile["character"][self.profile_index[key]]
+
             self.battle.main_story_profile = self.save_data.save_profile["character"][self.profile_index[main_story_player]]
             self.battle.main_player = main_story_player
 
-            self.start_battle(1, 1, 1, players={key: value for key, value in
+            self.start_battle(1, 1, 3, players={key: value for key, value in
                                                     self.player_char_select.items() if value})
             # start in throne room of current chapter and mission of the lowest progress player
             # self.start_battle(self.save_data.save_profile["character"][self.profile_index[main_story_player]]["chapter"],
@@ -78,8 +73,8 @@ def menu_char(self, esc_press):
                 for key, pressed in key_list[player].items():
                     if pressed:
                         selector = self.player_char_selectors[player]
-                        if selector.mode == "stat" and key in ("Up", "Down", "Left", "Right"):
-                            self.player_char_stats[player].player_input(key)
+                        if selector.mode == "stat":
+                            self.player_char_interfaces[player].player_input(key)
 
         for player in self.player_key_press:
             for key_press, pressed in self.player_key_press[player].items():
@@ -187,12 +182,10 @@ def menu_char(self, esc_press):
                             self.remove_ui_updater([item for item in self.char_profile_boxes[player].values()],
                                                    self.char_profile_page_text[player])
                             if self.profile_index[player] in self.save_data.save_profile["character"]:
-                                stat = self.save_data.save_profile["character"][self.profile_index[player]]
-                                start_stat = stat["character"]
-
+                                save_profile = self.save_data.save_profile["character"][self.profile_index[player]]
                                 selector.change_mode("stat")
-                                self.add_ui_updater(self.player_char_stats[player])
-                                self.player_char_stats[player].add_stat(start_stat)
+                                self.add_ui_updater(self.player_char_interfaces[player])
+                                self.player_char_interfaces[player].add_profile(save_profile)
                             else:  # start character selection for empty profile slot
                                 selector.change_mode("Vraesier")
 
@@ -206,24 +199,28 @@ def menu_char(self, esc_press):
                                     if ".1" in key and "C" in key:  # starting character skill
                                         skill_list[value["Name"]] = 0
                             start_stat = {key: value for key, value in start_stat.items() if
-                                          key in self.player_char_stats[player].stat_row} | \
+                                          key in self.player_char_interfaces[player].stat_row} | \
                                          {key: value for key, value in start_stat.items() if
-                                          key in self.player_char_stats[player].common_skill_row} | skill_list
+                                          key in self.player_char_interfaces[player].common_skill_row} | skill_list
                             start_stat["Status Remain"] = 100
                             start_stat["Skill Remain"] = 2
                             start_stat["ID"] = selector.mode
 
                             selector.change_mode("stat")
-                            self.add_ui_updater(self.player_char_stats[player])
-                            self.player_char_stats[player].add_stat(start_stat)
+                            self.add_ui_updater(self.player_char_interfaces[player])
+                            self.player_char_interfaces[player].add_stat(start_stat)
 
                         else:  # ready
-                            self.player_char_select[player] = {"ID": self.player_char_stats[player].stat["ID"]} | \
-                                                              default_start | self.player_char_stats[player].stat | \
-                                                              {"Skill Allocation": {key: value for key, value in
-                                                                                    self.player_char_stats[
+                            self.player_char_select[player] = {"ID": self.player_char_interfaces[player].stat["ID"]} | \
+                                                              new_start | {key: value for key, value in
+                                                                           self.player_char_interfaces[
                                                                                         player].stat.items() if
-                                                                                    key in self.player_char_stats[
+                                                                           key not in self.player_char_interfaces[
+                                                                                        player].all_skill_row} | \
+                                                              {"skill allocation": {key: value for key, value in
+                                                                                    self.player_char_interfaces[
+                                                                                        player].stat.items() if
+                                                                                    key in self.player_char_interfaces[
                                                                                         player].all_skill_row}}
                             slot = self.profile_index[player]  # make save data when ready but not write yet
                             if slot not in self.save_data.save_profile["character"]:  # new profile data
@@ -277,7 +274,7 @@ def menu_char(self, esc_press):
                                                    self.char_profile_page_text[player])
                         elif selector.mode == "stat":
                             self.player_char_select[player] = None
-                            self.remove_ui_updater(self.player_char_stats[player])
+                            self.remove_ui_updater(self.player_char_interfaces[player])
                             if self.profile_index[player] in self.save_data.save_profile["character"]:
                                 # back to profile select
                                 selector.change_mode("profile")

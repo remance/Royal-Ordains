@@ -107,32 +107,32 @@ class BattleCursor(UIBattle):
 
 
 class PlayerPortrait(UIBattle):
-    def __init__(self, image, health_bar_image, resource_bar_image, guard_bar_image, pos):
+    def __init__(self, health_bar_image, resource_bar_image, guard_bar_image, pos):
         self._layer = 9
         UIBattle.__init__(self, player_interact=False)
-        self.image = image.copy()
-        self.rect = self.image.get_rect(center=pos)
+        self.image = Surface((320 * self.screen_scale[0], 120 * self.screen_scale[1]), SRCALPHA)
+        self.rect = self.image.get_rect(midleft=pos)
 
         self.font = Font(self.ui_font["main_button"], int(20 * self.screen_scale[1]))
 
         self.health_bar_image = health_bar_image
         self.base_health_bar_image = health_bar_image.copy()
-        self.health_bar_rect = self.health_bar_image.get_rect(topleft=(290 * self.screen_scale[0],
-                                                                       87 * self.screen_scale[1]))
+        self.health_bar_rect = self.health_bar_image.get_rect(topleft=(120 * self.screen_scale[0],
+                                                                       20 * self.screen_scale[1]))
         self.health_text_rect = self.health_bar_image.get_rect(center=(self.health_bar_image.get_width() / 2,
                                                                        self.health_bar_image.get_height() / 2))
 
         self.resource_bar_image = resource_bar_image
         self.base_resource_bar_image = resource_bar_image.copy()
-        self.resource_bar_rect = self.resource_bar_image.get_rect(topleft=(290 * self.screen_scale[0],
-                                                                           123 * self.screen_scale[1]))
+        self.resource_bar_rect = self.resource_bar_image.get_rect(topleft=(120 * self.screen_scale[0],
+                                                                           50 * self.screen_scale[1]))
         self.resource_text_rect = self.resource_bar_image.get_rect(center=(self.health_bar_image.get_width() / 2,
                                                                            self.health_bar_image.get_height() / 2))
 
         self.guard_bar_image = guard_bar_image
         self.base_guard_bar_image = guard_bar_image.copy()
-        self.guard_bar_rect = self.guard_bar_image.get_rect(topleft=(290 * self.screen_scale[0],
-                                                                     161 * self.screen_scale[1]))
+        self.guard_bar_rect = self.guard_bar_image.get_rect(topleft=(120 * self.screen_scale[0],
+                                                                     80 * self.screen_scale[1]))
         self.guard_text_rect = self.guard_bar_image.get_rect(center=(self.health_bar_image.get_width() / 2,
                                                                      self.health_bar_image.get_height() / 2))
 
@@ -140,6 +140,22 @@ class PlayerPortrait(UIBattle):
         self.last_health_value = None
         self.last_resource_value = None
         self.last_guard_value = None
+        self.last_resurrect_value = None
+
+        self.base_image = self.image.copy()
+
+    def add_char_portrait(self, who):
+        self.image = self.base_image.copy()
+        portrait = self.battle.character_data.character_portraits[who.sprite_id + who.sprite_ver]
+        portrait_rect = portrait.get_rect(topleft=(0, 0))
+        self.image.blit(portrait, portrait_rect)
+        self.reset_value()
+
+    def reset_value(self):
+        self.last_health_value = None
+        self.last_resource_value = None
+        self.last_guard_value = None
+        self.last_resurrect_value = None
 
     def value_input(self, who):
         if self.last_health_value != who.health:
@@ -374,134 +390,13 @@ class UIScroll(UIBattle):
             return self.current_row
 
 
-class UnitSelector(UIBattle):
-    def __init__(self, pos, image, icon_scale=1):
-        self._layer = 10
+class CharacterBaseInterface(UIBattle):
+    def __init__(self, pos, image):
         UIBattle.__init__(self, player_interact=False)
-        self.image = image
+        # self.layer = 10
         self.pos = pos
-        self.rect = self.image.get_rect(topleft=self.pos)
-        self.icon_scale = icon_scale
-        self.current_row = 0
-        self.max_row_show = 2
-        self.row_size = 0
-        self.scroll = None  # got add after create scroll object
-
-    def setup_unit_icon(self, troop_icon_group, subunit_list):
-        """Setup character selection list in selector ui"""
-        if troop_icon_group:  # remove all old icon first before making new list
-            for icon in troop_icon_group:
-                icon.kill()
-                del icon
-
-        if subunit_list:
-            for this_subunit in subunit_list:
-                max_column_show = int(
-                    self.image.get_width() / ((this_subunit.portrait.get_width() * self.icon_scale * 1.5)))
-                break
-            current_index = int(self.current_row * max_column_show)  # the first index of current row
-            self.row_size = len(subunit_list) / max_column_show
-
-            if not self.row_size.is_integer():
-                self.row_size = int(self.row_size) + 1
-
-            if self.current_row > self.row_size - 1:
-                self.current_row = self.row_size - 1
-                current_index = int(self.current_row * max_column_show)
-
-            for index, this_subunit in enumerate(
-                    subunit_list):  # add character icon for drawing according to appropriated current row
-                if this_subunit.is_leader:
-                    if index == 0:
-                        start_column = self.rect.topleft[0] + (this_subunit.portrait.get_width() / 1.5)
-                        column = start_column
-                        row = self.rect.topleft[1] + (this_subunit.portrait.get_height() / 2)
-                    if index >= current_index:
-                        new_icon = UnitIcon((column, row), this_subunit,
-                                            (int(this_subunit.portrait.get_width() * self.icon_scale),
-                                             int(this_subunit.portrait.get_height() * self.icon_scale)))
-                        troop_icon_group.add(new_icon)
-                        column += new_icon.image.get_width() * 1.2
-                        if column > self.rect.topright[0] - ((new_icon.image.get_width() * self.icon_scale) * 3):
-                            row += new_icon.image.get_height() * 1.5
-                            column = start_column
-                        if row > self.rect.bottomright[1] - ((new_icon.image.get_height() / 2) * self.icon_scale):
-                            break  # do not draw for row that exceed the box
-        self.scroll.change_image(new_row=self.current_row, row_size=self.row_size)
-
-
-class UnitIcon(UIBattle, Sprite):
-    colour = None
-
-    def __init__(self, pos, unit, size):
-        self._layer = 11
-        UIBattle.__init__(self, has_containers=True)
-        self.who = unit  # link character object so when click can correctly select or go to position
-        self.pos = pos  # pos on character selector ui
-        self.place_pos = pos  # pos when drag by mouse
-        self.name = ""  # not used for character icon, for checking with CampIcon
-        self.selected = False
-        self.right_selected = False
-
-        self.leader_image = smoothscale(unit.portrait, size)  # scale leader image to fit the icon
-        self.not_selected_image = Surface((self.leader_image.get_width() + (self.leader_image.get_width() / 7),
-                                           self.leader_image.get_height() + (
-                                                   self.leader_image.get_height() / 7)))  # create image black corner block
-        self.selected_image = self.not_selected_image.copy()
-        self.selected_image.fill((0, 0, 0))  # fill black corner
-        self.right_selected_image = self.not_selected_image.copy()
-        self.right_selected_image.fill((150, 150, 150))  # fill grey corner
-        self.not_selected_image.fill((255, 255, 255))  # fill white corner
-
-        for image in (
-                self.not_selected_image, self.selected_image,
-                self.right_selected_image):  # add team colour and leader image
-            center_image = Surface((self.leader_image.get_width() + (self.leader_image.get_width() / 14),
-                                    self.leader_image.get_height() + (
-                                            self.leader_image.get_height() / 14)))  # create image block
-            center_image.fill(self.colour[self.who.team])  # fill colour according to team
-            image_rect = center_image.get_rect(center=((image.get_width() / 2),
-                                                       (image.get_height() / 2)))
-            image.blit(center_image, image_rect)  # blit colour block into border image
-            self.leader_image_rect = self.leader_image.get_rect(center=(image.get_width() / 2,
-                                                                        image.get_height() / 2))
-            image.blit(self.leader_image, self.leader_image_rect)  # blit leader image
-
-        self.image = self.not_selected_image
+        self.image = image
         self.rect = self.image.get_rect(center=self.pos)
-
-    def change_pos(self, pos):
-        """change position of icon to new one"""
-        self.rect = self.image.get_rect(center=pos)
-
-    def change_image(self, new_image=None, change_side=False):
-        """For changing side"""
-        if change_side:
-            self.image.fill((144, 167, 255))
-            if self.who.team == 2:
-                self.image.fill((255, 114, 114))
-            self.image.blit(self.leader_image, self.leader_image_rect)
-        if new_image:
-            self.leader_image = new_image
-            self.image.blit(self.leader_image, self.leader_image_rect)
-
-    def selection(self, how="left"):
-        if how == "left":
-            if self.selected:
-                self.selected = False
-                self.image = self.not_selected_image
-            else:
-                self.selected = True
-                self.right_selected = False
-                self.image = self.selected_image
-        else:
-            if self.right_selected:
-                self.right_selected = False
-                self.image = self.not_selected_image
-            else:
-                self.right_selected = True
-                self.selected = False
-                self.image = self.right_selected_image
 
 
 class ScoreBoard(UIBattle):
@@ -512,9 +407,9 @@ class ScoreBoard(UIBattle):
 
     def update(self):
         """Add score and gold to scoreboard image"""
-        score_text = self.font.render(minimise_number_text(self.battle.mission_score) + "/" +
-                                      str(self.battle.reserve_resurrect_mission_score), True, (0, 0, 0))
-        gold_text = self.font.render(minimise_number_text(self.battle.mission_gold), True, (0, 0, 0))
+        score_text = self.font.render(minimise_number_text(self.battle.stage_score) + "/" +
+                                      str(self.battle.reserve_resurrect_stage_score), True, (0, 0, 0))
+        gold_text = self.font.render(minimise_number_text(self.battle.stage_gold), True, (0, 0, 0))
 
         if self.body_part.owner.sprite_direction == "l_side":
             score_rect = score_text.get_rect(center=(self.body_part.base_image.get_width() / 3,
@@ -833,20 +728,6 @@ class WheelUI(UIBattle):
                                                                             text_image.get_height() / 2)))
 
                 self.image.blit(text_image, text_image.get_rect(center=self.wheel_rect[index].midbottom))
-
-
-class EscBox(UIBattle):
-    def __init__(self, image):
-        self._layer = 1
-        UIBattle.__init__(self, player_interact=False)
-        self.pos = (self.screen_size[0] / 2, self.screen_size[1] / 2)
-        self.mode = "menu"  # Current menu mode
-        self.image = image
-        self.rect = self.image.get_rect(center=self.pos)
-
-    def change_mode(self, mode):
-        """Change between 0 menu, 1 option, 2 lorebook mode"""
-        self.mode = mode
 
 
 class EscButton(UIBattle):

@@ -3,7 +3,7 @@ import os
 import sys
 import time
 from math import sin, cos, radians
-from random import randint, uniform
+from random import uniform
 
 import pygame
 from pygame import Vector2, display, mouse
@@ -106,13 +106,12 @@ class Battle:
         # add enemy trap with delay and cycle
         # add one more playable char
         # add online/lan multiplayer?
-        # add shop (price affect by charisma), inventory, consumable system and equipment system
+        # add shop, inventory, consumable system and equipment system
         # add quest system?
         # add ranking record system
         # add save/profile system (add story event finish check to save)
         # finish main menu
-        # add follower setup and command system
-        # add city character variant sprite (duskuksa)
+        # add follower setup
 
         self.clock = pygame.time.Clock()  # Game clock to keep track of realtime pass
 
@@ -204,7 +203,6 @@ class Battle:
         self.weather_matter_images = self.battle_map_data.weather_matter_images
         self.weather_list = self.battle_map_data.weather_list
         self.stage_reward = self.battle_map_data.stage_reward
-        self.reward_list = self.battle_map_data.reward_list
         self.character_animation_data = self.game.character_animation_data
         self.body_sprite_pool = self.game.body_sprite_pool
         self.effect_animation_pool = self.game.effect_animation_pool
@@ -213,6 +211,7 @@ class Battle:
         self.save_data = game.save_data
         self.main_story_profile = {}
         self.all_story_profiles = {1: None, 2: None, 3: None, 4: None}
+        self.player_char_interfaces = game.player_char_interfaces
 
         self.game_speed = 1
         self.all_team_character = {1: pygame.sprite.Group(), 2: pygame.sprite.Group(),
@@ -227,11 +226,10 @@ class Battle:
         self.player_kill = {1: 0, 2: 0, 3: 0, 4: 0}
         self.player_boss_kill = {1: 0, 2: 0, 3: 0, 4: 0}
         self.play_time = 0
-        self.total_score = 0
-        self.mission_gold = 0
-        self.mission_score = 0
-        self.last_resurrect_mission_score = 10000
-        self.reserve_resurrect_mission_score = 0
+        self.stage_gold = 0
+        self.stage_score = 0
+        self.last_resurrect_stage_score = 5000
+        self.reserve_resurrect_stage_score = 0
 
         self.players = {}  # player
         self.player_team_followers = {}
@@ -240,6 +238,7 @@ class Battle:
         self.existing_playable_characters = []
         self.later_enemy = {}
         self.city_mode = False
+        self.esc_menu_mode = "menu"
 
         self.helper = None  # helper character that can be moved via cursor
         self.score_board = None
@@ -294,7 +293,8 @@ class Battle:
 
         # Battle ESC menu
         esc_menu_dict = make_esc_menu(self.master_volume, self.music_volume, self.voice_volume, self.effect_volume)
-        self.battle_menu = esc_menu_dict["battle_menu"]
+
+        self.player_char_base_interfaces = esc_menu_dict["player_char_base_interfaces"]
         self.battle_menu_button = esc_menu_dict["battle_menu_button"]
         self.esc_option_menu_button = esc_menu_dict["esc_option_menu_button"]
         self.esc_slider_menu = esc_menu_dict["esc_slider_menu"]
@@ -353,7 +353,6 @@ class Battle:
         self.stage_end_choice = False
         self.stage_scene_lock = {}
         self.lock_objective = None
-        self.stage_end_choice = False
         self.next_lock = None
         self.cutscene_playing = None
 
@@ -523,6 +522,7 @@ class Battle:
         if not self.city_mode:
             for player in self.player_objects:
                 self.realtime_ui_updater.add(self.player_portraits[player])
+                self.player_portraits[player].add_char_portrait(self.player_objects[player])
 
         self.main_player_object = self.player_objects[self.main_player]
         for trigger, value in stage_event_data.items():
@@ -584,15 +584,6 @@ class Battle:
                     self.execute_cutscene = value2
         yield set_done_load()
 
-        # yield set_start_load(self, "character animation")
-        # who_todo = []
-        # for this_char in self.character_updater:
-        #     new_check = [item[0] for item in who_todo]
-        #     if this_char.sprite_id not in new_check:
-        #         who_todo.append([this_char.sprite_id, this_char.sprite_ver, this_char.sprite_size, this_char.mode_list])
-        # self.character_animation_pool = self.game.create_character_sprite_pool(who_todo)
-        # yield set_done_load()
-
     def run_game(self):
         # Create Starting Values
         self.game_state = "battle"  # battle mode
@@ -624,10 +615,10 @@ class Battle:
         self.player_kill = {1: 0, 2: 0, 3: 0, 4: 0}
         self.player_boss_kill = {1: 0, 2: 0, 3: 0, 4: 0}
         self.play_time = 0
-        self.total_score = 0
-        self.mission_score = 0
-        self.last_resurrect_mission_score = 10000  # start at 10000 to get next resurrect reserve
-        self.reserve_resurrect_mission_score = 0
+        self.stage_gold = 0
+        self.stage_score = 0
+        self.last_resurrect_stage_score = 5000  # start at 5000 to get next resurrect reserve
+        self.reserve_resurrect_stage_score = 0
 
         self.base_cursor_pos = [0, 0]  # mouse pos on the map based on camera position
         self.command_cursor_pos = [0, 0]  # with zoom and screen scale for character command
@@ -746,7 +737,7 @@ class Battle:
                 if event.type == QUIT:  # quit game
                     if self.game_state != "menu":  # open menu first before add popup
                         self.game_state = "menu"
-                        self.add_ui_updater(self.battle_menu, self.battle_menu_button,
+                        self.add_ui_updater(self.battle_menu_button,
                                             self.esc_text_popup, self.cursor)  # add menu and its buttons to drawer
                     self.input_popup = ("confirm_input", "quit")
                     self.input_ui.change_instruction("Quit Game?")
@@ -846,14 +837,16 @@ class Battle:
 
             if self.game_state == "battle":  # game in battle state
                 if esc_press:  # open/close menu
+                    if self.city_mode:  # add character setup UI for city mode when pause game
+                        for player in self.player_objects:
+                            self.add_ui_updater(self.player_char_base_interfaces[player], self.player_char_interfaces[player])
                     self.game_state = "menu"  # open menu
                     self.esc_text_popup.popup((self.screen_rect.centerx, self.screen_rect.height * 0.9),
                                               self.game.localisation.grab_text(
                                                   ("map", self.chapter, self.mission, self.stage,
                                                    self.battle_stage.current_scene, "Text")),
                                               width_text_wrapper=1000 * self.game.screen_scale[0])
-                    self.add_ui_updater(self.battle_menu, self.cursor,
-                                        self.battle_menu_button,
+                    self.add_ui_updater(self.cursor, self.battle_menu_button,
                                         self.esc_text_popup)  # add menu and its buttons to drawer
                     self.realtime_ui_updater.remove(self.main_player_battle_cursor)
                 elif self.city_mode and self.player_key_press[self.main_player]["Special"]:
@@ -1182,46 +1175,44 @@ class Battle:
 
                 if not self.city_mode and not self.all_team_enemy[1]:  # all enemies dead, end stage process
                     if not self.end_delay and not self.cutscene_playing:
+                        mission_str = str(self.chapter) + "." + str(self.mission) + "." + str(self.stage)
                         # not ending stage yet, due to decision waiting or playing cutscene
                         if self.decision_select not in self.realtime_ui_updater and self.stage_end_choice:
                             # TODO add condition to repeat previous decision this when already done mission before
-                            if "Victory" not in self.drama_text.queue:
-                                self.drama_text.queue.append("Victory")
-                            self.realtime_ui_updater.add(self.decision_select)
+                            if mission_str not in self.main_story_profile["story choice"]:
+                                if "Victory" not in self.drama_text.queue:
+                                    self.drama_text.queue.append("Victory")
+                                self.realtime_ui_updater.add(self.decision_select)
                         elif not self.stage_end_choice:
                             if "Victory" not in self.drama_text.queue:
                                 self.drama_text.queue.append("Victory")
 
-                        if self.decision_select.selected:
+                        if self.decision_select.selected or mission_str in self.main_story_profile["story choice"]:
                             self.end_delay = 0.1
-                            # self.save_data decision_route[self.decision_select.selected]
-                            if self.decision_select.selected == "yes":
-                                self.player_team_followers = self.stage_reward["yes"][self.chapter][self.mission][
-                                    self.stage]
+                            choice = self.decision_select.selected
+                            if mission_str in self.main_story_profile["story choice"]:
+                                choice = self.main_story_profile["story choice"][mission_str]
+                            if choice == "yes":
                                 for character in self.character_updater:
                                     if character.is_boss:
                                         # start decision animation
                                         character.engage_combat()
                                         character.position = "Stand"  # enforce stand position
-                                        if self.decision_select.selected == "yes":
-                                            character.current_action = character.submit_action
+                                        character.current_action = character.submit_action
                                         character.show_frame = 0
                                         character.frame_timer = 0
                                         character.pick_animation()
                             else:  # start execution cutscene
                                 self.cutscene_playing = self.execute_cutscene
-                                # self.player_equipment_store.append(self.stage_reward["no"][self.chapter][self.mission][self.stage])
 
                             self.realtime_ui_updater.remove(self.decision_select)
 
                     if not self.cutscene_playing and \
                             (self.decision_select.selected or self.decision_select not in self.realtime_ui_updater):
                         #  player select decision or mission has no decision, count end delay
-
                         self.end_delay += self.dt
 
                         if self.end_delay >= 5:  # end battle
-                            self.decision_select.selected = None
                             self.end_delay = 0
                             if self.stage + 1 in self.game.preset_map_data[self.chapter][
                                 self.mission]:  # has next stage
@@ -1294,10 +1285,14 @@ class Battle:
         # self.ui_updater.clear(self.screen)  # clear all sprite
         # self.battle_camera.clear(self.screen)  # clear all sprite
 
-        self.remove_ui_updater(self.battle_menu, self.battle_menu_button, self.esc_slider_menu.values(),
+        # remove menu and ui
+        self.remove_ui_updater(self.battle_menu_button, self.esc_slider_menu.values(),
                                self.esc_value_boxes.values(), self.esc_option_text.values(),
-                               self.esc_text_popup)  # remove menu and ui
+                               self.esc_text_popup, self.player_char_base_interfaces.values(),
+                               self.player_char_interfaces.values())
 
+        for key, value in self.player_objects.items():
+            self.player_portraits[key].reset_value()
         self.realtime_ui_updater.remove(self.player_portraits.values(), self.player_wheel_uis.values())
 
         self.music_left.stop()
@@ -1328,8 +1323,7 @@ class Battle:
         for profile_num, profile in self.all_story_profiles.items():  # update each active player's profile stat
             if profile:
                 profile["playtime"] += self.play_time
-                profile["total score"] += self.mission_score
-                profile["total gold"] += self.mission_gold
-                profile["total kill"] += self.player_kill[profile_num]
-                profile["boss kill"] += self.player_boss_kill[profile_num]
-
+                profile["total scores"] += self.stage_score
+                profile["total golds"] += self.stage_gold
+                profile["total kills"] += self.player_kill[profile_num]
+                profile["boss kills"] += self.player_boss_kill[profile_num]

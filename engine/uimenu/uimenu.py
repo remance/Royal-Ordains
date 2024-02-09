@@ -671,14 +671,14 @@ class CharacterProfileBox(UIMenu):
             text_rect = text.get_rect(topleft=(15 * self.screen_scale[0], 100 * self.screen_scale[1]))
             self.image.blit(text, text_rect)
 
-            text = self.small_font.render("Total Kill(Boss): " +
-                                          minimise_number_text(str(int(data["total kill"]))) + "(" +
-                                          minimise_number_text(str(int(data["boss kill"]))) + ")", True, (0, 0, 0))
+            text = self.small_font.render("Total Kills(Boss): " +
+                                          minimise_number_text(str(int(data["total kills"]))) + "(" +
+                                          minimise_number_text(str(int(data["boss kills"]))) + ")", True, (0, 0, 0))
             text_rect = text.get_rect(topleft=(15 * self.screen_scale[0], 125 * self.screen_scale[1]))
             self.image.blit(text, text_rect)
 
-            text = self.small_font.render("Gold/Score: " + minimise_number_text(str(int(data["total gold"]))) + "/" +
-                                          minimise_number_text(str(int(data["total score"]))), True, (0, 0, 0))
+            text = self.small_font.render("Golds/Scores: " + minimise_number_text(str(int(data["total golds"]))) + "/" +
+                                          minimise_number_text(str(int(data["total scores"]))), True, (0, 0, 0))
             text_rect = text.get_rect(topleft=(15 * self.screen_scale[0], 150 * self.screen_scale[1]))
             self.image.blit(text, text_rect)
 
@@ -729,7 +729,7 @@ class CharacterSelector(UIMenu):
                 self.delay = 0
 
 
-class CharacterStatAllocator(UIMenu):
+class CharacterInterface(UIMenu):
     def __init__(self, pos, player):
         UIMenu.__init__(self)
         self.font = Font(self.ui_font["main_button"], int(24 * self.screen_scale[1]))
@@ -738,7 +738,9 @@ class CharacterStatAllocator(UIMenu):
         self.input_delay = 0
         self.pos = pos
         self.player = player
+        self.mode = "stat"
 
+        # Stat interface
         self.stat_row = ("Strength", "Dexterity", "Agility",
                          "Constitution", "Intelligence", "Wisdom", "Charisma")
         self.common_skill_row = ("Ground Movement", "Air Movement", "Tinkerer", "Arm Mastery", "Wealth",
@@ -746,24 +748,25 @@ class CharacterStatAllocator(UIMenu):
         self.skill_row = []
         self.all_skill_row = []
         self.stat = {}
+        self.profile = {}
 
         self.image = Surface((350 * self.screen_scale[0], 900 * self.screen_scale[1]), SRCALPHA)
         text = self.small_font.render("Status (Cost)", True, (0, 0, 0))
-        text_rect = text.get_rect(center=(290 * self.screen_scale[0], 80 * self.screen_scale[1]))
+        text_rect = text.get_rect(center=(290 * self.screen_scale[0], 30 * self.screen_scale[1]))
         self.image.blit(text, text_rect)
 
         self.stat_rect = {}
         self.skill_rect = {}
-        start_stat_row = 120 * self.screen_scale[1]
+        start_stat_row = 50 * self.screen_scale[1]
 
-        text = self.small_font.render("Status Point Left: ", True, (0, 0, 0))
+        text = self.small_font.render("Status Points Left: ", True, (0, 0, 0))
         self.status_point_left_text_rect = text.get_rect(midleft=(10 * self.screen_scale[0],
-                                                                  80 * self.screen_scale[1]))
+                                                                  30 * self.screen_scale[1]))
         self.image.blit(text, self.status_point_left_text_rect)
 
-        text = self.small_font.render("Skill Point Left: ", True, (0, 0, 0))
+        text = self.small_font.render("Skill Points Left: ", True, (0, 0, 0))
         self.skill_point_left_text_rect = text.get_rect(midleft=(10 * self.screen_scale[0],
-                                                                 380 * self.screen_scale[1]))
+                                                                 330 * self.screen_scale[1]))
         self.image.blit(text, self.skill_point_left_text_rect)
 
         for index, stat in enumerate(self.stat_row):
@@ -774,7 +777,7 @@ class CharacterStatAllocator(UIMenu):
             start_stat_row += 36 * self.screen_scale[1]
 
         text = self.small_font.render("Current Level", True, (0, 0, 0))
-        text_rect = text.get_rect(center=(290 * self.screen_scale[0], 380 * self.screen_scale[1]))
+        text_rect = text.get_rect(center=(290 * self.screen_scale[0], 330 * self.screen_scale[1]))
         self.image.blit(text, text_rect)
 
         # start_stat_row = 440 * self.screen_scale[1]
@@ -785,7 +788,16 @@ class CharacterStatAllocator(UIMenu):
         #     self.image.blit(text, text_rect)
         #     start_stat_row += 36 * self.screen_scale[1]
 
-        self.base_image = self.image.copy()
+        self.stat_base_image = self.image.copy()
+
+        # Equipment interface
+        self.image = Surface((350 * self.screen_scale[0], 900 * self.screen_scale[1]), SRCALPHA)
+
+        # Follower interface
+        self.image = Surface((350 * self.screen_scale[0], 900 * self.screen_scale[1]), SRCALPHA)
+
+        # Storage interface
+        self.image = Surface((350 * self.screen_scale[0], 900 * self.screen_scale[1]), SRCALPHA)
 
         self.rect = self.image.get_rect(center=self.pos)
 
@@ -825,20 +837,28 @@ class CharacterStatAllocator(UIMenu):
             if self.input_delay < 0:
                 self.input_delay = 0
 
+    def add_profile(self, profile):
+        self.profile = profile
+        start_stat = {key: value for key, value in profile["character"].items() if key in
+                      ("Strength", "Dexterity", "Agility", "Constitution", "Intelligence",
+                       "Wisdom", "Charisma")} | profile["character"]["skill allocation"] | \
+                     {key: value for key, value in profile["character"].items() if key in
+                      ("Status Remain", "Skill Remain", "ID")}
+        self.add_stat(start_stat)
+
     def add_stat(self, stat_dict):
         self.stat = stat_dict
-        self.image = self.base_image.copy()
+        self.image = self.stat_base_image.copy()
 
         self.all_skill_row = [item for item in self.common_skill_row]
         for skill in self.game.character_data.character_list[stat_dict["ID"]]["Skill"].values():
             for key, value in skill.items():
                 if ".1" in key and "C" in key:  # starting skill
                     self.all_skill_row.append(value["Name"])
-
         self.last_row = len(self.stat_row) + len(self.all_skill_row) - 1
 
         self.skill_rect = {}
-        start_stat_row = 400 * self.screen_scale[1]
+        start_stat_row = 350 * self.screen_scale[1]
         for index, stat in enumerate(self.all_skill_row):
             text = self.font.render(stat + ": ", True, (0, 0, 0))
             text_rect = text.get_rect(midleft=(10 * self.screen_scale[0], start_stat_row))
@@ -880,6 +900,12 @@ class CharacterStatAllocator(UIMenu):
                 self.image.blit(text, text_rect)
                 row += 1
 
+    def check_follower_list(self):
+        follower_list = []
+        for mission_str, choice in self.profile["story choice"].items():
+            mission_num = mission_str.split(".")
+            follower_list += self.game.battle.stage_reward[choice][mission_num[0]][mission_num[1]][mission_num[2]]["follower"]
+
     def change_stat(self, stat, how):
         self.stat[stat], self.stat["Status Remain"] = stat_allocation_check(self.stat[stat], self.stat["Status Remain"],
                                                                             how)
@@ -904,18 +930,23 @@ class CharacterStatAllocator(UIMenu):
                     self.current_row = 0
                 self.add_stat(self.stat)
                 self.input_delay = 0.15
-            elif key == "Left":  # switch to previous in playable_character list
+            elif key == "Left":
                 if self.current_row <= 6:  # change stat
                     self.change_stat(self.stat_row[self.current_row], "down")
                 else:  # change skill
                     self.change_skill(self.all_skill_row[self.current_row - 7], "down")
                 self.input_delay = 0.15
-            elif key == "Right":  # switch to next in playable_character list
+            elif key == "Right":
                 if self.current_row <= 6:  # change stat
                     self.change_stat(self.stat_row[self.current_row], "up")
                 else:  # change skill
                     self.change_skill(self.all_skill_row[self.current_row - 7], "up")
                 self.input_delay = 0.15
+            if self.game.battle.city_mode:
+                if key == "Special":  # go to next page (equipment)
+                    self.mode = "equipment"
+                elif key == "Guard":  # go to previous page (storage)
+                    self.mode = "storage"
 
 
 class ControllerIcon(UIMenu):
@@ -1323,7 +1354,7 @@ class TextPopup(UIMenu):
             if type(text_input) == str:
                 self.text_input = [text_input]
             text_surface = []
-            if width_text_wrapper:
+            if width_text_wrapper:  # has specific popup width size
                 max_height = 0
                 max_width = width_text_wrapper
                 for text in self.text_input:

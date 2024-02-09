@@ -142,7 +142,6 @@ class Character(sprite.Sprite):
     dash_command_action = {"name": "Dash", "uncontrollable": True, "movable": True, "forced move": True, "no dmg": True,
                            "hold": True, "dash": True, "not_reset_special_state": True}
 
-    jump_idle_command_action = {"name": "Idle", "movable": True}
     relax_command_action = {"name": "Relax", "low level": True}
     special_relax_command = ()
 
@@ -396,12 +395,12 @@ class Character(sprite.Sprite):
         if "Score" in stat:
             self.score = stat["Score"]
 
-        if "Skill Allocation" in stat:  # refind leveled skill allocated since name is only from first level
+        if "skill allocation" in stat:  # refind leveled skill allocated since name is only from first level
             for position_name, position in self.skill.items():
                 for skill in tuple(position.keys()):
-                    if position[skill]["Name"] in stat["Skill Allocation"] and \
-                            stat["Skill Allocation"][position[skill]["Name"]]:
-                        skill_id = skill[:3] + str(stat["Skill Allocation"][position[skill]["Name"]])
+                    if position[skill]["Name"] in stat["skill allocation"] and \
+                            stat["skill allocation"][position[skill]["Name"]]:
+                        skill_id = skill[:3] + str(stat["skill allocation"][position[skill]["Name"]])
                         self.available_skill[position_name][skill_id] = position[skill_id]
         else:  # all skill available
             for position_name, position in self.skill.items():
@@ -519,7 +518,7 @@ class Character(sprite.Sprite):
         self.guard_cost_modifier = self.base_guard_cost_modifier
         self.resource_cost_modifier = self.base_resource_cost_modifier
 
-        self.health = self.max_health * stat["Start Health"] / 100
+        self.health = self.max_health * stat["Start Health"]
         self.resource1 = self.max_resource * 0.01
         self.resource2 = self.max_resource * 0.02
         self.resource10 = self.max_resource * 0.10
@@ -945,10 +944,9 @@ class PlayerCharacter(Character):
                         "Immunity", "Resourceful", "Combat Contest")
 
         self.common_skill = {skill: {1: False, 2: False, 3: False, 4: False, 5: False} for skill in common_skill}
-
         for skill in common_skill:
-            if stat["Skill Allocation"][skill]:
-                for level in range(int(stat["Skill Allocation"][skill] + 1)):
+            if stat["skill allocation"][skill]:
+                for level in range(int(stat["skill allocation"][skill] + 1)):
                     self.common_skill[skill][level] = True
 
         self.slide_attack = False
@@ -1217,7 +1215,7 @@ class CityAICharacter(Character):
         if self.ai_movement_timer:
             self.ai_movement_timer += dt
         self.ai_combat(self)
-        self.ai_move(self, dt)
+        self.ai_move(self)
 
 #
 # class CutsceneCharacter:

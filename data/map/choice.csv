@@ -1,5 +1,8 @@
-"Choice","Chapter","Mission","Stage","ID","Reward"
-"yes",1,1,3,"rabbit","Bigta:1,Rban1:4,Rban2:2,Rban3:2,Rban4:1,Rban6:2,Rban8:2"
-"yes",1,2,10,"bandit group","Adaqua:1,Hban1:3,Hban2:2"
-"yes",1,3,10,"animal",
-"yes",1,5,10,"bandit army","Hban1:5,Hban2:3,Hban3:1"
+"Choice","Chapter","Mission","Stage","Follower Reward","Item Reward","Gold Reward"
+"yes",1,1,3,"Bigta,Rban1,Rban2,Rban3,Rban4,Rban6,Rban8,Animal1,Animal2",,
+"no",1,1,3,,"Great Mini Shield",1500
+"yes",1,2,2,"Adaqua,Hban1,Hban2",,
+"no",1,2,2,,"Stealth Mantle",4200
+"yes",1,3,3,"Animal4",,
+"no",1,3,3,,"Green Druid Staff",5500
+"yes",1,5,10,"Dban1,Dban2,Dban3,Eban1,Eban2,Eban3",,

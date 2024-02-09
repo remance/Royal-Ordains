@@ -24,7 +24,7 @@ def drop_collide_check(self):
                     self.owner.resource = self.owner.max_resource
                 DamageNumber(str(int(item.stat["Resource"])), self.rect.midbottom, False, "resource")
             if item.stat["Gold"]:
-                self.battle.mission_gold += item.stat["Gold"]
+                self.battle.stage_gold += item.stat["Gold"]
                 if self.owner.money_score:
                     self.battle.increase_player_score(item.stat["Gold"])
                 if self.owner.money_resource:

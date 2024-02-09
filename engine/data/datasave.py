@@ -5,6 +5,15 @@ from pathlib import Path
 
 from engine.data.datastat import GameData
 
+empty_character_save = {"chapter": 1, "mission": 1, "playtime": 0, "total scores": 0, "total kills": 0,
+                        "total golds": 0, "boss kills": 0, "total damages": 0, "last save": "Not Saved",
+                        "character": {},
+                        "equipment": {"head": None, "body": None, "arm": None, "leg": None, "feet": None,
+                                      "weapon 1": None, "weapon 2": None, "accessory 1": None, "accessory 2": None,
+                                      "accessory 3": None, "accessory 4": None,
+                                      "inventory": {"Up": None, "Right": None, "Down": None, "Left": None}},
+                        "storage": {}, "story event": {}, "story choice": {}, "followers": {}, "follower list": []}
+
 
 class SaveData(GameData):
     def __init__(self):
@@ -23,7 +32,9 @@ class SaveData(GameData):
         sub1_directories = [x for x in read_folder.iterdir() if x.is_file()]
         if "game.dat" not in [os.sep.join(os.path.normpath(item).split(os.sep)[-1:]) for
                               item in sub1_directories]:  # make common game save data
-            self.make_save_file(os.path.join(self.main_dir, "save", "game.dat"), {"last chapter": 1, "last mission": 1})
+            self.make_save_file(os.path.join(self.main_dir, "save", "game.dat"), {"chapter": 1, "mission": 1})
+
+        sub1_directories = [x for x in read_folder.iterdir() if x.is_file()]  # to include new game.dat save
         for save_file in sub1_directories:
             file_name = os.sep.join(os.path.normpath(save_file).split(os.sep)[-1:])
             if file_name != "game.dat":
@@ -34,7 +45,8 @@ class SaveData(GameData):
     @staticmethod
     def make_save_file(file_name, profile_data):
         data = profile_data  # remove unrelated stuff
-        data["character"] = {key: value for key, value in data["character"].items() if key not in ("Object", "Team", "Playable")}
+        if "character" in data:
+            data["character"] = {key: value for key, value in data["character"].items() if key not in ("Object", "Team", "Playable")}
         with open(file_name, "wb") as f:
             pickle.dump(data, f, protocol=2)
 

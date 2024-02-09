@@ -11,7 +11,7 @@ def setup_battle_character(self, player_list, stage_char_list, add_helper=True):
     if player_list:
         for key, data in player_list.items():
             additional_data = {"POS": (key * 100, Character.original_ground_pos),
-                               "Scene": 1, "Arrive Condition": []}
+                               "Scene": 1, "Team": 1, "Arrive Condition": []}
             if "p" + str(key) in object_id_list:  # player stage data exist
                 additional_data = copy.deepcopy(stage_char_list[object_id_list.index("p" + str(key))])
                 additional_data.pop("ID")
@@ -53,7 +53,7 @@ def setup_battle_character(self, player_list, stage_char_list, add_helper=True):
                 for number in range(int(data)):
                     last_id += 1
                     AICharacter(last_id, last_id, self.character_data.character_list[key] |
-                                {"ID": key, "Sprite Ver": 1, "Team": 1, "Start Health": 100,
+                                {"ID": key, "Sprite Ver": 1, "Team": 1, "Start Health": 1,
                                  "POS": (randint(100, 400), Character.original_ground_pos), "Scene": 1,
                                  "Arrive Condition": ()}, leader=self.players[1]["Object"])
 
@@ -61,7 +61,7 @@ def setup_battle_character(self, player_list, stage_char_list, add_helper=True):
         self.helper = AICharacter("helper", 99999999, self.character_data.character_list["Dashisi"] |
                                   {"ID": "Dashisi", "POS": (1000, 140 * self.screen_scale[1]), "Scene": 1,
                                    "Team": 1, "Sprite Ver": self.chapter,
-                                   "Arrive Condition": (), "Start Health": 100})  # add pixie helper character
+                                   "Arrive Condition": (), "Start Health": 1})  # add pixie helper character
         # Score board in animation must always be p1_special_10 part
         self.score_board = ScoreBoard(self.helper.body_parts["p1_special_10"])
         self.helper.body_parts["p1_special_10"].base_image_update_contains.append(self.score_board)

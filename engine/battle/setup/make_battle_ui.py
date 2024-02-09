@@ -5,21 +5,21 @@ def make_battle_ui(battle_ui_image):
     from engine.game.game import Game
     screen_scale = Game.screen_scale
 
-    player_1_portrait = PlayerPortrait(battle_ui_image["player1"], battle_ui_image["health_bar"],
+    player_1_portrait = PlayerPortrait(battle_ui_image["health_bar"],
                                        battle_ui_image["resource_bar"], battle_ui_image["guard_bar"],
-                                       (250 * screen_scale[0], 120 * screen_scale[1]))
+                                       (250 * screen_scale[0], 60 * screen_scale[1]))
 
-    player_2_portrait = PlayerPortrait(battle_ui_image["player2"], battle_ui_image["health_bar"],
+    player_2_portrait = PlayerPortrait(battle_ui_image["health_bar"],
                                        battle_ui_image["resource_bar"], battle_ui_image["guard_bar"],
-                                       (650 * screen_scale[0], 120 * screen_scale[1]))
+                                       (650 * screen_scale[0], 60 * screen_scale[1]))
 
-    player_3_portrait = PlayerPortrait(battle_ui_image["player1"], battle_ui_image["health_bar"],
+    player_3_portrait = PlayerPortrait(battle_ui_image["health_bar"],
                                        battle_ui_image["resource_bar"], battle_ui_image["guard_bar"],
-                                       (1250 * screen_scale[0], 120 * screen_scale[1]))
+                                       (1250 * screen_scale[0], 60 * screen_scale[1]))
 
-    player_4_portrait = PlayerPortrait(battle_ui_image["player1"], battle_ui_image["health_bar"],
+    player_4_portrait = PlayerPortrait(battle_ui_image["health_bar"],
                                        battle_ui_image["resource_bar"], battle_ui_image["guard_bar"],
-                                       (1650 * screen_scale[0], 120 * screen_scale[1]))
+                                       (1650 * screen_scale[0], 60 * screen_scale[1]))
 
     player_1_wheel_ui = WheelUI(battle_ui_image, player_1_portrait.rect.midbottom)
     player_2_wheel_ui = WheelUI(battle_ui_image, player_2_portrait.rect.midbottom)

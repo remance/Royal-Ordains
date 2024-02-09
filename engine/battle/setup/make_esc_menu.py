@@ -1,6 +1,6 @@
 from pygame import Surface, SRCALPHA
 
-from engine.uibattle import uibattle
+from engine.uibattle.uibattle import EscButton, CharacterBaseInterface
 from engine.uimenu.uimenu import SliderMenu, ValueBox, OptionMenuText
 from engine.utils.data_loading import load_images
 
@@ -11,34 +11,45 @@ def make_esc_menu(master_volume, music_volume, voice_volume, effect_volume):
     data_dir = Game.data_dir
     screen_scale = Game.screen_scale
     screen_rect = Game.screen_rect
+    screen_width = screen_rect.width
+    screen_height = screen_rect.height
     localisation = Game.localisation
     font_size = int(32 * screen_scale[1])
+    char_selector_images = load_images(data_dir, screen_scale=screen_scale,
+                                       subfolder=("ui", "charselect_ui"), key_file_name_readable=True)
+
+    player1_char_base_interface = CharacterBaseInterface((screen_width / 8, screen_height / 2.2),
+                                                         char_selector_images["Profile"])
+    player2_char_base_interface = CharacterBaseInterface((screen_width / 2.7, screen_height / 2.2),
+                                                         char_selector_images["Profile"])
+    player3_char_base_interface = CharacterBaseInterface((screen_width / 1.6, screen_height / 2.2),
+                                                         char_selector_images["Profile"])
+    player4_char_base_interface = CharacterBaseInterface((screen_width / 1.15, screen_height / 2.2),
+                                                         char_selector_images["Profile"])
+    player_char_base_interfaces = {1: player1_char_base_interface, 2: player2_char_base_interface,
+                                   3: player3_char_base_interface, 4: player4_char_base_interface}
 
     # Create ESC Menu box and buttons
-    battle_menu_image = Surface((screen_rect.width, screen_rect.height), SRCALPHA)
-    battle_menu_image.fill((50, 50, 50, 100))
-    battle_menu = uibattle.EscBox(battle_menu_image)
-
     button_image = load_images(data_dir, screen_scale=screen_scale, subfolder=("ui", "battlemenu_ui", "button"))
 
     esc_button_text_size = int(22 * screen_scale[1])
 
     battle_menu_button = [
-        uibattle.EscButton(button_image, (screen_rect.center[0] / 4.5, screen_rect.height - (50 * screen_scale[1])),
+        EscButton(button_image, (screen_rect.center[0] / 4.5, screen_rect.height - (50 * screen_scale[1])),
                            text="Resume", text_size=esc_button_text_size),
-        uibattle.EscButton(button_image, (screen_rect.center[0] / 1.9, screen_rect.height - (50 * screen_scale[1])),
+        EscButton(button_image, (screen_rect.center[0] / 1.9, screen_rect.height - (50 * screen_scale[1])),
                            text="Encyclopedia", text_size=esc_button_text_size),
-        uibattle.EscButton(button_image, (screen_rect.center[0] / 1.2, screen_rect.height - (50 * screen_scale[1])),
+        EscButton(button_image, (screen_rect.center[0] / 1.2, screen_rect.height - (50 * screen_scale[1])),
                            text="Option", text_size=esc_button_text_size),
-        uibattle.EscButton(button_image, (screen_rect.center[0] * 1.2, screen_rect.height - (50 * screen_scale[1])),
+        EscButton(button_image, (screen_rect.center[0] * 1.2, screen_rect.height - (50 * screen_scale[1])),
                            text="End Battle", text_size=esc_button_text_size),
-        uibattle.EscButton(button_image, (screen_rect.center[0] * 1.5, screen_rect.height - (50 * screen_scale[1])),
+        EscButton(button_image, (screen_rect.center[0] * 1.5, screen_rect.height - (50 * screen_scale[1])),
                            text="Main Menu", text_size=esc_button_text_size),
-        uibattle.EscButton(button_image, (screen_rect.center[0] * 1.8, screen_rect.height - (50 * screen_scale[1])),
+        EscButton(button_image, (screen_rect.center[0] * 1.8, screen_rect.height - (50 * screen_scale[1])),
                            text="Desktop", text_size=esc_button_text_size)]
 
     # Create option menu
-    esc_option_menu_button = uibattle.EscButton(button_image, (screen_rect.center[0], screen_rect.center[1] * 1.3),
+    esc_option_menu_button = EscButton(button_image, (screen_rect.center[0], screen_rect.center[1] * 1.3),
                                                 text="Confirm", text_size=esc_button_text_size)
 
     # Volume change scroll bar
@@ -67,6 +78,7 @@ def make_esc_menu(master_volume, music_volume, voice_volume, effect_volume):
                                         localisation.grab_text(key=("ui", "option_" + key + "_volume",)),
                                         font_size) for key in volume_slider}
 
-    return {"battle_menu": battle_menu, "battle_menu_button": battle_menu_button,
+    return {"battle_menu_button": battle_menu_button,
             "esc_option_menu_button": esc_option_menu_button,
-            "esc_slider_menu": volume_slider, "esc_value_boxes": value_box, "volume_texts": volume_texts}
+            "esc_slider_menu": volume_slider, "esc_value_boxes": value_box, "volume_texts": volume_texts,
+            "player_char_base_interfaces": player_char_base_interfaces}

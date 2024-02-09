@@ -72,7 +72,7 @@ def pick_animation(self):
     else:  # idle animation
         self.current_moveset = None
         self.continue_moveset = None
-        if not self.fly and self.position == "Air" and not self.y_momentum:  # air fall animation
+        if not self.fly and self.position == "Air" and self.y_momentum < 0:  # air fall animation
             animation_name = self.equipped_weapon + "CombatAirFall"
         else:  # idle
             if not self.replace_idle_animation:

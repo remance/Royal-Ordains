@@ -37,7 +37,7 @@ def sort_list_dir_with_str(dir_list, str_list):
 
 def make_long_text(surface, text, pos, font, color=Color("black"), with_texture=()):
     """
-    Blit long text into separate row of text
+    Blit long text into separate row of text by blitting text word by word
     :param surface: Input Pygame Surface
     :param text: Text in either list or string format
     :param pos: Starting position

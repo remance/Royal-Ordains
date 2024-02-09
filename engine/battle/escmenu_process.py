@@ -10,43 +10,43 @@ def escmenu_process(self, esc_press: bool):
     """
     self.remove_ui_updater(self.text_popup)
     command = None
-    if esc_press and self.battle_menu.mode == "menu":  # in menu or option
+    if esc_press and self.esc_menu_mode == "menu":  # in menu or option
         back_to_battle_state(self)
 
-    elif self.battle_menu.mode == "menu":  # esc menu
-        # Player can interact with UI during this state like mouse over to show information or scrolling event log
-        # if self.players:
-        #     if self.portrait_rect.collidepoint(self.cursor.pos):
-        #         if self.cursor.is_alt_select_just_up:
-        #             popout_encyclopedia(self, self.lorebook.leader_section,
-        #                                 self.lorebook.leader_id_reindex[self.players.troop_id])
-        #         else:
-        #             self.text_popup.popup(self.cursor.rect,
-        #                                   (self.localisation.grab_text(("leader", self.players.troop_id))[
-        #                                        "Name"],
-        #                                    self.localisation.grab_text(("leader", self.players.troop_id))[
-        #                                        "Description"]),
-        #                                   width_text_wrapper=500 * self.screen_scale[0])
-        #             self.add_ui_updater(self.text_popup)
-
+    elif self.esc_menu_mode == "menu":  # esc menu
+        if self.city_mode:  # check for keyboard input with char stat
+            for key_list in (self.player_key_press, self.player_key_hold):
+                # check key holding for stat mode as well
+                for player in key_list:
+                    if player in self.player_objects:
+                        for key, pressed in key_list[player].items():
+                            if pressed:
+                                self.player_char_interfaces[player].player_input(key)
+                                if self.player_char_interfaces[player].mode == "stat":  # save stat
+                                    for key, value in self.player_char_interfaces[player].stat.items():
+                                        if key in self.player_char_interfaces[player].all_skill_row:
+                                            self.all_story_profiles[player]["character"]["skill allocation"][
+                                                key] = value
+                                        else:
+                                            self.all_story_profiles[player]["character"][key] = value
         for button in self.battle_menu_button:
             if button.event_press:
                 if button.text == "Resume":  # resume battle
                     back_to_battle_state(self)
 
                 elif button.text == "Encyclopedia":  # open lorebook
-                    self.battle_menu.change_mode("lorebook")  # change to enclycopedia mode
+                    self.esc_menu_mode = "lorebook"  # change to enclycopedia mode
                     self.add_ui_updater(self.lorebook_stuff)  # add sprite related to lorebook
                     self.lorebook.change_section(0, self.lore_name_list, self.subsection_name,
                                                  self.tag_filter_name,
                                                  self.lore_name_list.scroll, self.filter_tag_list,
                                                  self.filter_tag_list.scroll)
-                    self.remove_ui_updater(self.battle_menu, self.battle_menu_button, self.esc_slider_menu.values(),
+                    self.remove_ui_updater(self.battle_menu_button, self.esc_slider_menu.values(),
                                            self.esc_value_boxes.values(),
                                            self.esc_option_text.values(), self.esc_text_popup)  # remove menu sprite
 
                 elif button.text == "Option":  # open option menu
-                    self.battle_menu.change_mode("option")  # change to option menu mode
+                    self.esc_menu_mode = "option"  # change to option menu mode
                     self.remove_ui_updater(self.battle_menu_button,
                                            self.esc_text_popup)  # remove start_set esc menu button
                     self.add_ui_updater(self.esc_option_menu_button, self.esc_slider_menu.values(),
@@ -64,14 +64,14 @@ def escmenu_process(self, esc_press: bool):
             else:
                 button.image = button.images[0]
 
-    elif self.battle_menu.mode == "lorebook":  # lore book
+    elif self.esc_menu_mode == "lorebook":  # lore book
         command = self.lorebook_process(esc_press)
         if command == "exit":
-            self.battle_menu.change_mode("menu")  # go back to start_set esc menu
-            self.add_ui_updater(self.battle_menu, self.battle_menu_button,
+            self.esc_menu_mode = "menu"  # go back to start_set esc menu
+            self.add_ui_updater(self.battle_menu_button,
                                 self.esc_text_popup)  # add start_set esc menu buttons back
 
-    elif self.battle_menu.mode == "option":  # option menu
+    elif self.esc_menu_mode == "option":  # option menu
         for key, value in self.esc_slider_menu.items():
             if value.event:  # press on slider bar
                 value.player_input(self.esc_value_boxes[key])  # update slider button based on mouse value
@@ -80,7 +80,7 @@ def escmenu_process(self, esc_press: bool):
                 self.game.change_sound_volume()
 
         if self.esc_option_menu_button.event_press or esc_press:  # confirm or esc, close option menu
-            self.battle_menu.change_mode("menu")  # go back to start_set esc menu
+            self.esc_menu_mode = "menu"  # go back to start_set esc menu
             self.remove_ui_updater(self.esc_option_menu_button, self.esc_slider_menu.values(),
                                    self.esc_value_boxes.values(),
                                    self.esc_option_text.values())  # remove option menu sprite
@@ -90,22 +90,23 @@ def escmenu_process(self, esc_press: bool):
 
 
 def back_to_battle_state(self):
-    self.remove_ui_updater(self.battle_menu, self.battle_menu_button, self.esc_option_menu_button,
+    self.remove_ui_updater(self.battle_menu_button, self.esc_option_menu_button,
                            self.esc_slider_menu.values(),
                            self.esc_value_boxes.values(), self.esc_option_text.values(), self.cursor,
-                           self.esc_text_popup)
+                           self.esc_text_popup, self.player_char_base_interfaces.values(),
+                           self.player_char_interfaces.values())
     self.realtime_ui_updater.add(self.main_player_battle_cursor)
     self.game_state = "battle"
 
 
 def popout_encyclopedia(self, section, subsection):
-    self.battle_menu.change_mode("lorebook")  # change to enclycopedia mode
+    self.esc_menu_mode = "lorebook"  # change to enclycopedia mode
     self.add_ui_updater(self.lorebook_stuff)  # add sprite related to lorebook
     self.lorebook.change_section(section, self.lore_name_list,
                                  self.subsection_name, self.tag_filter_name,
                                  self.lore_name_list.scroll, self.filter_tag_list,
                                  self.filter_tag_list.scroll)
     self.lorebook.change_subsection(subsection)
-    self.remove_ui_updater(self.battle_menu, self.battle_menu_button, self.esc_slider_menu.values(),
+    self.remove_ui_updater(self.battle_menu_button, self.esc_slider_menu.values(),
                            self.esc_value_boxes.values(), self.esc_option_text.values(),
                            self.esc_text_popup)  # remove menu sprite
