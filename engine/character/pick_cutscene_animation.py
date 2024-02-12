@@ -55,5 +55,3 @@ def pick_cutscene_animation(self, action):
     self.animation_play_time = self.default_animation_play_time  # use default play speed
     if "play_time_mod" in self.current_animation_direction[self.show_frame]:
         self.animation_play_time *= self.current_animation_direction[self.show_frame]["play_time_mod"]
-
-

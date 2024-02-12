@@ -26,4 +26,3 @@ def camera_process(self):
         #     self.camera_mode = "Free"
     else:
         self.fix_camera()
-

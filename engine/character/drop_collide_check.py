@@ -1,9 +1,9 @@
-from pygame.sprite import spritecollide
 from random import choice, randint
+
+from pygame.sprite import spritecollide
 
 from engine.character.character import Character
 from engine.drop.drop import Drop
-
 from engine.uibattle.uibattle import DamageNumber
 
 

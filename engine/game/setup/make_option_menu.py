@@ -2,10 +2,10 @@ from pygame.transform import flip
 
 from engine.uimenu.uimenu import MenuButton, TickBox, OptionMenuText, SliderMenu, ValueBox, \
     ControllerIcon, KeybindIcon, MenuImageButton
-from engine.utils.data_loading import load_image, load_images, make_bar_list
+from engine.utils.data_loading import load_image, make_bar_list
 
 
-def make_option_menu(button_image_list, config, keybind):
+def make_option_menu(option_menu_images, battle_ui_images, button_image_list, config, keybind):
     """
     This method create UI in option menu and keybinding menu
     """
@@ -25,15 +25,12 @@ def make_option_menu(button_image_list, config, keybind):
     default_button = MenuButton(button_image_list, (screen_rect.width / 1.5, screen_rect.height / 1.2),
                                 key_name="option_menu_default")
 
-    option_menu_image = load_images(data_dir, screen_scale=screen_scale,
-                                    subfolder=("ui", "option_ui"))
-
     fullscreen_box = TickBox((screen_rect.width / 3, screen_rect.height / 6.5),
-                             option_menu_image["untick"], option_menu_image["tick"], "fullscreen")
+                             option_menu_images["untick"], option_menu_images["tick"], "fullscreen")
     fps_box = TickBox((screen_rect.width / 3, screen_rect.height / 10),
-                      option_menu_image["untick"], option_menu_image["tick"], "fps")
+                      option_menu_images["untick"], option_menu_images["tick"], "fps")
     easy_text_box = TickBox((screen_rect.width / 1.5, screen_rect.height / 10),
-                            option_menu_image["untick"], option_menu_image["tick"], "easytext")
+                            option_menu_images["untick"], option_menu_images["tick"], "easytext")
 
     if int(config["full_screen"]) == 1:
         fullscreen_box.change_tick(True)
@@ -52,11 +49,8 @@ def make_option_menu(button_image_list, config, keybind):
                                localisation.grab_text(key=("ui", "option_easy_text",)), font_size)
 
     # Volume change scroll bar
-    option_menu_slider_images = load_images(data_dir, screen_scale=screen_scale,
-                                            subfolder=("ui", "option_ui", "slider"))
-    scroller_images = (option_menu_slider_images["scroller_box"], option_menu_slider_images["scroller"])
-    scroll_button_images = (
-        option_menu_slider_images["scroll_button_normal"], option_menu_slider_images["scroll_button_click"])
+    scroller_images = (option_menu_images["scroller_box"], option_menu_images["scroller"])
+    scroll_button_images = (option_menu_images["scroll_button_normal"], option_menu_images["scroll_button_click"])
     volume_slider = {"master": SliderMenu(scroller_images, scroll_button_images,
                                           (screen_rect.width / 2, screen_rect.height / 4),
                                           float(config["master_volume"])),
@@ -70,7 +64,7 @@ def make_option_menu(button_image_list, config, keybind):
                                           (screen_rect.width / 2, screen_rect.height / 2),
                                           float(config["effect_volume"])),
                      }
-    value_box = {key: ValueBox(option_menu_slider_images["value"],
+    value_box = {key: ValueBox(option_menu_images["value"],
                                (volume_slider[key].rect.topright[0] * 1.1, volume_slider[key].rect.center[1]),
                                volume_slider[key].value, int(26 * screen_scale[1])) for key in volume_slider}
 
@@ -97,42 +91,52 @@ def make_option_menu(button_image_list, config, keybind):
 
     keybind_text = {"Weak": OptionMenuText((screen_rect.width / 4, screen_rect.height / 5),
                                            localisation.grab_text(
-                                               key=("ui", "keybind_weak_attack",)), font_size),
+                                               key=("ui", "keybind_weak_attack",)), font_size,
+                                           button_image=battle_ui_images["button_weak"]),
                     "Strong": OptionMenuText((screen_rect.width / 4, screen_rect.height / 3.5),
                                              localisation.grab_text(
-                                                 key=("ui", "keybind_strong_attack",)), font_size),
+                                                 key=("ui", "keybind_strong_attack",)), font_size,
+                                             button_image=battle_ui_images["button_strong"]),
                     "Guard": OptionMenuText((screen_rect.width / 4, screen_rect.height / 2.5),
-                                            localisation.grab_text(key=("ui", "keybind_guard",)), font_size),
+                                            localisation.grab_text(key=("ui", "keybind_guard",)), font_size,
+                                            button_image=battle_ui_images["button_guard"]),
                     "Special": OptionMenuText((screen_rect.width / 4, screen_rect.height / 2),
-                                              localisation.grab_text(key=("ui", "keybind_special",)), font_size),
+                                              localisation.grab_text(key=("ui", "keybind_special",)), font_size,
+                                              button_image=battle_ui_images["button_special"]),
                     "Left": OptionMenuText((screen_rect.width / 4, screen_rect.height / 1.7),
-                                           localisation.grab_text(key=("ui", "keybind_move_left",)), font_size),
+                                           localisation.grab_text(key=("ui", "keybind_move_left",)), font_size,
+                                           button_image=battle_ui_images["button_left"]),
                     "Right": OptionMenuText((screen_rect.width / 4, screen_rect.height / 1.5),
-                                            localisation.grab_text(key=("ui", "keybind_move_right",)), font_size),
-                    "Up": OptionMenuText((screen_rect.width / 2, screen_rect.height / 5),
-                                         localisation.grab_text(key=("ui", "keybind_move_up",)), font_size),
-                    "Down": OptionMenuText((screen_rect.width / 2, screen_rect.height / 3.5),
-                                           localisation.grab_text(key=("ui", "keybind_move_down",)), font_size),
-                    "Menu/Cancel": OptionMenuText((screen_rect.width / 2, screen_rect.height / 2.5),
-                                                  localisation.grab_text(key=("ui", "keybind_menu",)), font_size),
-                    "Order Menu": OptionMenuText((screen_rect.width / 2, screen_rect.height / 2),
-                                                 localisation.grab_text(key=("ui", "keybind_order_menu",)), font_size),
-                    "Inventory Menu": OptionMenuText((screen_rect.width / 2, screen_rect.height / 1.7),
-                                                     localisation.grab_text(key=("ui", "keybind_inventory_menu",)), font_size)
+                                            localisation.grab_text(key=("ui", "keybind_move_right",)), font_size,
+                                            button_image=battle_ui_images["button_right"]),
+                    "Up": OptionMenuText((screen_rect.width / 1.5, screen_rect.height / 5),
+                                         localisation.grab_text(key=("ui", "keybind_move_up",)), font_size,
+                                         button_image=battle_ui_images["button_up"]),
+                    "Down": OptionMenuText((screen_rect.width / 1.5, screen_rect.height / 3.5),
+                                           localisation.grab_text(key=("ui", "keybind_move_down",)), font_size,
+                                           button_image=battle_ui_images["button_down"]),
+                    "Menu/Cancel": OptionMenuText((screen_rect.width / 1.5, screen_rect.height / 2.5),
+                                                  localisation.grab_text(key=("ui", "keybind_menu",)), font_size,
+                                                  button_image=battle_ui_images["button_menu"]),
+                    "Order Menu": OptionMenuText((screen_rect.width / 1.5, screen_rect.height / 2),
+                                                 localisation.grab_text(key=("ui", "keybind_order_menu",)), font_size,
+                                                 button_image=battle_ui_images["button_order"]),
+                    "Inventory Menu": OptionMenuText((screen_rect.width / 1.5, screen_rect.height / 1.7),
+                                                     localisation.grab_text(key=("ui", "keybind_inventory_menu",)),
+                                                     font_size, button_image=battle_ui_images["button_inventory"])
                     }
 
     control_type = "keyboard"  # make default keyboard for now, get changed later when player enter keybind menu
 
     keybind = keybind[control_type]
 
-    control_images = load_images(data_dir, screen_scale=screen_scale, subfolder=("ui", "option_ui"))
     control_switch = ControllerIcon((screen_rect.width / 2, screen_rect.height * 0.1),
-                                    control_images, control_type)
+                                    option_menu_images, control_type)
 
     control_player_next = MenuImageButton((screen_rect.width / 1.7, screen_rect.height * 0.1),
-                                          control_images["change"])
+                                          option_menu_images["change"])
     control_player_back = MenuImageButton((screen_rect.width / 2.5, screen_rect.height * 0.1),
-                                          flip(control_images["change"], True, False))
+                                          flip(option_menu_images["change"], True, False))
 
     keybind_icon = {"Weak": KeybindIcon((screen_rect.width / 3, screen_rect.height / 5),
                                         font_size, control_type, keybind["Weak"]),
@@ -147,15 +151,15 @@ def make_option_menu(button_image_list, config, keybind):
                                         control_type, keybind["Left"]),
                     "Right": KeybindIcon((screen_rect.width / 3, screen_rect.height / 1.5), font_size,
                                          control_type, keybind["Right"]),
-                    "Up": KeybindIcon((screen_rect.width / 1.7, screen_rect.height / 5), font_size,
+                    "Up": KeybindIcon((screen_rect.width / 1.3, screen_rect.height / 5), font_size,
                                       control_type, keybind["Up"]),
-                    "Down": KeybindIcon((screen_rect.width / 1.7, screen_rect.height / 3.5), font_size,
+                    "Down": KeybindIcon((screen_rect.width / 1.3, screen_rect.height / 3.5), font_size,
                                         control_type, keybind["Down"]),
-                    "Menu/Cancel": KeybindIcon((screen_rect.width / 1.7, screen_rect.height / 2.5), font_size,
+                    "Menu/Cancel": KeybindIcon((screen_rect.width / 1.3, screen_rect.height / 2.5), font_size,
                                                control_type, keybind["Menu/Cancel"]),
-                    "Order Menu": KeybindIcon((screen_rect.width / 1.7, screen_rect.height / 2), font_size,
+                    "Order Menu": KeybindIcon((screen_rect.width / 1.3, screen_rect.height / 2), font_size,
                                               control_type, keybind["Order Menu"]),
-                    "Inventory Menu": KeybindIcon((screen_rect.width / 1.7, screen_rect.height / 1.7), font_size,
+                    "Inventory Menu": KeybindIcon((screen_rect.width / 1.3, screen_rect.height / 1.7), font_size,
                                                   control_type, keybind["Inventory Menu"])}
 
     return {"back_button": back_button, "keybind_button": keybind_button,

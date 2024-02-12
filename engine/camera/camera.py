@@ -21,4 +21,3 @@ class Camera:
 
         for surface in out_surfaces:  # surface that get blit with pos on screen instead of in battle
             self.image.blit(surface.image, surface.rect)
-

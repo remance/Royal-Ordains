@@ -7,8 +7,6 @@ import pygame
 from pygame import sprite, Vector2
 from pygame.mask import from_surface
 
-from engine.uibattle.uibattle import CharacterSpeechBox
-
 from engine.character.ai_combat import ai_combat_dict
 from engine.character.ai_move import ai_move_dict
 from engine.character.ai_retreat import ai_retreat_dict
@@ -21,6 +19,7 @@ from engine.character.character_specific_update import update_dict
 from engine.data.datastat import final_parent_moveset
 from engine.drop.drop import Drop
 from engine.uibattle.uibattle import CharacterIndicator
+from engine.uibattle.uibattle import CharacterSpeechBox
 from engine.utils.common import empty_method
 
 rotation_list = (90, -90)
@@ -209,9 +208,9 @@ class Character(sprite.Sprite):
                                "Trumpet": 3, "Golden Goblet": 1, "Ruby": 0.8, "Ring": 1,
                                "Sapphire": 0.8, "Topaz": 0.8, "Emerald": 0.8, "Amethyst": 0.8, "Opal": 0.8,
                                "Rare Coin": 1, "Beer": 7, "Wine": 6}  # , "Kid Doll": 0.5,
-                               # "Rabbit Doll": 0.45, "Dog Doll": 0.3, "Cat Doll": 0.3, "Bear Doll": 0.2,
-                               # "Gryphon Doll": 0.1, "Unicorn Doll": 0.08, "Slime Doll": 0.06, "Dragon Doll": 0.05,
-                               # "Princess Doll": 0.03
+    # "Rabbit Doll": 0.45, "Dog Doll": 0.3, "Cat Doll": 0.3, "Bear Doll": 0.2,
+    # "Gryphon Doll": 0.1, "Unicorn Doll": 0.08, "Slime Doll": 0.06, "Dragon Doll": 0.05,
+    # "Princess Doll": 0.03
 
     # drop that get added when playable character exist
     special_character_drop_table = {"Rodhinbar": {"Rodhinbar Arrow": 5},
@@ -439,7 +438,8 @@ class Character(sprite.Sprite):
         self.original_guard = 10 * self.constitution
         self.original_super_armour = self.constitution
 
-        self.max_health = int((stat["Base Health"] + (stat["Base Health"] * (self.constitution / 50))) * health_scaling)  # max health of character
+        self.max_health = int((stat["Base Health"] + (
+                    stat["Base Health"] * (self.constitution / 50))) * health_scaling)  # max health of character
         self.max_resource = int(stat["Max Resource"] + (stat["Max Resource"] * self.intelligence / 100))
 
         self.original_resource_cost_modifier = 1
@@ -462,7 +462,8 @@ class Character(sprite.Sprite):
         if self.body_size < 1:
             self.body_size = 1
 
-        self.sprite_size = self.body_size * 100 * self.screen_scale[1]  # use for pseudo sprite size of character for positioning of effect
+        self.sprite_size = self.body_size * 100 * self.screen_scale[
+            1]  # use for pseudo sprite size of character for positioning of effect
 
         self.base_body_mass = (stat["Size"] + self.weight) * 10
         self.body_mass = self.base_body_mass  # use for impact resistance when hit
@@ -790,7 +791,8 @@ class Character(sprite.Sprite):
                     if "y_momentum" in self.current_action and type(self.current_action["y_momentum"]) is not str:
                         self.y_momentum = self.current_action["y_momentum"]
 
-                if self.reach_camera_event and self.battle.base_camera_begin < self.base_pos[0] < self.battle.base_camera_end:
+                if self.reach_camera_event and self.battle.base_camera_begin < self.base_pos[
+                    0] < self.battle.base_camera_end:
                     # play event related to character reach inside camera
                     for key, value in self.reach_camera_event.items():
                         for item in value:
@@ -866,7 +868,8 @@ class Character(sprite.Sprite):
                     part.re_rect()
 
         hold_check = False
-        if ("hold" in self.current_animation_direction[self.show_frame]["property"] and "hold" in self.current_action) or \
+        if ("hold" in self.current_animation_direction[self.show_frame][
+            "property"] and "hold" in self.current_action) or \
                 not self.max_show_frame:
             hold_check = True
         done = self.play_cutscene_animation(dt, hold_check)
@@ -919,7 +922,6 @@ class PlayerCharacter(Character):
         self.player_key_input_timer = []
         self.player_key_hold_timer = {}
         self.resurrect_count = 2
-        self.max_follower_allowance = (self.battle.chapter * 20) + self.charisma
 
         # Add equipment stat
         # self.current_weapon = None
@@ -1217,6 +1219,7 @@ class CityAICharacter(Character):
         self.ai_combat(self)
         self.ai_move(self)
 
+
 #
 # class CutsceneCharacter:
 #     def __init__(self, game_id, layer_id):
@@ -1309,8 +1312,8 @@ class BodyPart(sprite.Sprite):
                     self.data[7]][self.data[5]]
             elif "special" in self.part_name:
                 self.base_image = \
-                self.body_sprite_pool[self.data[0]]["special"][self.sprite_ver][self.mode][self.data[1]][
-                    self.data[7]][self.data[5]]
+                    self.body_sprite_pool[self.data[0]]["special"][self.sprite_ver][self.mode][self.data[1]][
+                        self.data[7]][self.data[5]]
             else:
                 self.base_image = self.body_sprite_pool[self.data[0]][self.part_name][self.sprite_ver][self.mode][
                     self.data[1]][self.data[7]][self.data[5]]

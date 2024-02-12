@@ -8,7 +8,6 @@ def escmenu_process(self, esc_press: bool):
     :param esc_press: esc button
     :return: special command that process in battle loop
     """
-    self.remove_ui_updater(self.text_popup)
     command = None
     if esc_press and self.esc_menu_mode == "menu":  # in menu or option
         back_to_battle_state(self)
@@ -22,13 +21,7 @@ def escmenu_process(self, esc_press: bool):
                         for key, pressed in key_list[player].items():
                             if pressed:
                                 self.player_char_interfaces[player].player_input(key)
-                                if self.player_char_interfaces[player].mode == "stat":  # save stat
-                                    for key, value in self.player_char_interfaces[player].stat.items():
-                                        if key in self.player_char_interfaces[player].all_skill_row:
-                                            self.all_story_profiles[player]["character"]["skill allocation"][
-                                                key] = value
-                                        else:
-                                            self.all_story_profiles[player]["character"][key] = value
+
         for button in self.battle_menu_button:
             if button.event_press:
                 if button.text == "Resume":  # resume battle
@@ -43,20 +36,23 @@ def escmenu_process(self, esc_press: bool):
                                                  self.filter_tag_list.scroll)
                     self.remove_ui_updater(self.battle_menu_button, self.esc_slider_menu.values(),
                                            self.esc_value_boxes.values(),
-                                           self.esc_option_text.values(), self.esc_text_popup)  # remove menu sprite
+                                           self.esc_option_text.values(),
+                                           self.stage_translation_text_popup)  # remove menu sprite
 
                 elif button.text == "Option":  # open option menu
                     self.esc_menu_mode = "option"  # change to option menu mode
                     self.remove_ui_updater(self.battle_menu_button,
-                                           self.esc_text_popup)  # remove start_set esc menu button
+                                           self.stage_translation_text_popup)  # remove start_set esc menu button
                     self.add_ui_updater(self.esc_option_menu_button, self.esc_slider_menu.values(),
                                         self.esc_value_boxes.values(), self.esc_option_text.values())
 
                 elif button.text == "End Battle":  # back to city
                     command = "end_battle"
+                    back_to_battle_state(self)
 
                 elif button.text == "Main Menu":  # back to start_set menu
                     command = "main_menu"
+                    back_to_battle_state(self)
 
                 elif button.text == "Desktop":  # quit self
                     self.activate_input_popup(("confirm_input", "quit"), "Quit Game?", self.confirm_ui_popup)
@@ -69,7 +65,7 @@ def escmenu_process(self, esc_press: bool):
         if command == "exit":
             self.esc_menu_mode = "menu"  # go back to start_set esc menu
             self.add_ui_updater(self.battle_menu_button,
-                                self.esc_text_popup)  # add start_set esc menu buttons back
+                                self.stage_translation_text_popup)  # add start_set esc menu buttons back
 
     elif self.esc_menu_mode == "option":  # option menu
         for key, value in self.esc_slider_menu.items():
@@ -84,16 +80,20 @@ def escmenu_process(self, esc_press: bool):
             self.remove_ui_updater(self.esc_option_menu_button, self.esc_slider_menu.values(),
                                    self.esc_value_boxes.values(),
                                    self.esc_option_text.values())  # remove option menu sprite
-            self.add_ui_updater(self.battle_menu_button, self.esc_text_popup)  # add start_set esc menu buttons back
+            self.add_ui_updater(self.battle_menu_button,
+                                self.stage_translation_text_popup)  # add start_set esc menu buttons back
 
     return command
 
 
 def back_to_battle_state(self):
+    for interface in self.player_char_interfaces.values():
+        interface.change_mode("stat")
+
     self.remove_ui_updater(self.battle_menu_button, self.esc_option_menu_button,
                            self.esc_slider_menu.values(),
                            self.esc_value_boxes.values(), self.esc_option_text.values(), self.cursor,
-                           self.esc_text_popup, self.player_char_base_interfaces.values(),
+                           self.stage_translation_text_popup, self.player_char_base_interfaces.values(),
                            self.player_char_interfaces.values())
     self.realtime_ui_updater.add(self.main_player_battle_cursor)
     self.game_state = "battle"
@@ -109,4 +109,4 @@ def popout_encyclopedia(self, section, subsection):
     self.lorebook.change_subsection(subsection)
     self.remove_ui_updater(self.battle_menu_button, self.esc_slider_menu.values(),
                            self.esc_value_boxes.values(), self.esc_option_text.values(),
-                           self.esc_text_popup)  # remove menu sprite
+                           self.stage_translation_text_popup)  # remove menu sprite

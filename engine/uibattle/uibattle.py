@@ -1,11 +1,9 @@
 import cProfile
-import datetime
 from math import cos, sin, radians
 
 import pygame.transform
 from pygame import Vector2, Surface, SRCALPHA, Color, Rect, draw, mouse
 from pygame.font import Font
-from pygame.sprite import Sprite
 from pygame.transform import smoothscale
 
 from engine.uimenu.uimenu import UIMenu
@@ -393,7 +391,6 @@ class UIScroll(UIBattle):
 class CharacterBaseInterface(UIBattle):
     def __init__(self, pos, image):
         UIBattle.__init__(self, player_interact=False)
-        # self.layer = 10
         self.pos = pos
         self.image = image
         self.rect = self.image.get_rect(center=self.pos)
@@ -440,20 +437,34 @@ class CityMap(UIBattle):
 
         self.rect = self.image.get_rect(topleft=(0, 0))
 
-        self.stage_select_rect = {"herbalist": self.images["herbalist"].get_rect(center=(252 * self.screen_scale[0], 691 * self.screen_scale[1])),
-                                  "barrack": self.images["barrack"].get_rect(center=(428 * self.screen_scale[0], 394 * self.screen_scale[1])),
-                                  "blacksmith": self.images["blacksmith"].get_rect(center=(438 * self.screen_scale[0], 579 * self.screen_scale[1])),
-                                  "cathedral": self.images["cathedral"].get_rect(center=(711 * self.screen_scale[0], 645 * self.screen_scale[1])),
-                                  "plaza": self.images["plaza"].get_rect(center=(884 * self.screen_scale[0], 704 * self.screen_scale[1])),
-                                  "tavern": self.images["tavern"].get_rect(center=(970 * self.screen_scale[0], 801 * self.screen_scale[1])),
-                                  "garden": self.images["garden"].get_rect(center=(1022 * self.screen_scale[0], 497 * self.screen_scale[1])),
-                                  "artificer": self.images["artificer"].get_rect(center=(1339 * self.screen_scale[0], 382 * self.screen_scale[1])),
-                                  "market": self.images["market"].get_rect(center=(1377 * self.screen_scale[0], 629 * self.screen_scale[1])),
-                                  "scriptorium": self.images["scriptorium"].get_rect(center=(1617 * self.screen_scale[0], 436 * self.screen_scale[1])),
-                                  "throne": self.images["throne"].get_rect(center=(1015 * self.screen_scale[0], 109 * self.screen_scale[1])),
-                                  "library": self.images["library"].get_rect(center=(730 * self.screen_scale[0], 202 * self.screen_scale[1])),
-                                  "hall": self.images["hall"].get_rect(center=(1021 * self.screen_scale[0], 199 * self.screen_scale[1])),
-                                  "council": self.images["council"].get_rect(center=(1298 * self.screen_scale[0], 198 * self.screen_scale[1]))
+        self.stage_select_rect = {"herbalist": self.images["herbalist"].get_rect(
+            center=(252 * self.screen_scale[0], 691 * self.screen_scale[1])),
+                                  "barrack": self.images["barrack"].get_rect(
+                                      center=(428 * self.screen_scale[0], 394 * self.screen_scale[1])),
+                                  "blacksmith": self.images["blacksmith"].get_rect(
+                                      center=(438 * self.screen_scale[0], 579 * self.screen_scale[1])),
+                                  "cathedral": self.images["cathedral"].get_rect(
+                                      center=(711 * self.screen_scale[0], 645 * self.screen_scale[1])),
+                                  "plaza": self.images["plaza"].get_rect(
+                                      center=(884 * self.screen_scale[0], 704 * self.screen_scale[1])),
+                                  "tavern": self.images["tavern"].get_rect(
+                                      center=(970 * self.screen_scale[0], 801 * self.screen_scale[1])),
+                                  "garden": self.images["garden"].get_rect(
+                                      center=(1022 * self.screen_scale[0], 497 * self.screen_scale[1])),
+                                  "artificer": self.images["artificer"].get_rect(
+                                      center=(1339 * self.screen_scale[0], 382 * self.screen_scale[1])),
+                                  "market": self.images["market"].get_rect(
+                                      center=(1377 * self.screen_scale[0], 629 * self.screen_scale[1])),
+                                  "scriptorium": self.images["scriptorium"].get_rect(
+                                      center=(1617 * self.screen_scale[0], 436 * self.screen_scale[1])),
+                                  "throne": self.images["throne"].get_rect(
+                                      center=(1015 * self.screen_scale[0], 109 * self.screen_scale[1])),
+                                  "library": self.images["library"].get_rect(
+                                      center=(730 * self.screen_scale[0], 202 * self.screen_scale[1])),
+                                  "hall": self.images["hall"].get_rect(
+                                      center=(1021 * self.screen_scale[0], 199 * self.screen_scale[1])),
+                                  "council": self.images["council"].get_rect(
+                                      center=(1298 * self.screen_scale[0], 198 * self.screen_scale[1]))
                                   }
 
         for image, rect in self.stage_select_rect.items():
@@ -536,7 +547,8 @@ class CharacterInteractPrompt(UIBattle):
 
 class CharacterSpeechBox(UIBattle):
     images = {}
-    font_name = "manuscript_font"
+    font_name = {"simple": "simple_talk_font", 1: "ch1_talk_font", 2: "ch2_talk_font", 3: "ch3_talk_font"}
+    simple_font = False
 
     def __init__(self, character, text, specific_timer=None, player_input_indicator=False, cutscene_event=None):
         """Speech box that appear from character head"""
@@ -556,7 +568,10 @@ class CharacterSpeechBox(UIBattle):
         self.base_pos = self.character.base_pos.copy()
         self.finish_unfolding = False
         self.current_length = self.left_corner.get_width()  # current unfolded length start at 20
-        self.text_surface = Font(self.ui_font[self.font_name], self.font_size).render(text, True, (0, 0, 0))
+        font = self.battle.chapter
+        if self.simple_font:
+            font = "simple"
+        self.text_surface = Font(self.ui_font[self.font_name[font]], self.font_size).render(text, True, (0, 0, 0))
         self.base_image = Surface((self.text_surface.get_width() + int(self.left_corner.get_width() * 1.5),
                                    self.left_corner.get_height()), SRCALPHA)
         self.base_image.blit(self.left_corner, self.left_corner_rect)  # start animation with the left corner

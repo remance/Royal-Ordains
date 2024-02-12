@@ -1,6 +1,5 @@
 import copy
 import os
-
 from datetime import datetime
 
 from engine.data.datasave import empty_character_save
@@ -24,7 +23,8 @@ def menu_char(self, esc_press):
                                self.player3_char_selector, self.player4_char_selector, self.player1_char_interface,
                                self.player2_char_interface, self.player3_char_interface, self.player4_char_interface,
                                [item2 for item in self.char_profile_boxes.values() for item2 in item.values()],
-                               [item for item in self.char_profile_page_text.values()])
+                               [item for item in self.char_profile_page_text.values()], self.player1_text_popup,
+                               self.player2_text_popup, self.player3_text_popup, self.player4_text_popup)
         self.back_mainmenu()
 
     elif self.start_button.event:
@@ -54,18 +54,21 @@ def menu_char(self, esc_press):
                     if progress < last_check_progress:  # found player with lower progress
                         main_story_player = key
                         last_check_progress = progress
-                    self.battle.all_story_profiles[key] = self.save_data.save_profile["character"][self.profile_index[key]]
+                    self.battle.all_story_profiles[key] = self.save_data.save_profile["character"][
+                        self.profile_index[key]]
 
-            self.battle.main_story_profile = self.save_data.save_profile["character"][self.profile_index[main_story_player]]
+            self.battle.main_story_profile = self.save_data.save_profile["character"][
+                self.profile_index[main_story_player]]
             self.battle.main_player = main_story_player
 
-            self.start_battle(1, 1, 3, players={key: value for key, value in
-                                                    self.player_char_select.items() if value})
+            # self.start_battle(1, 1, 3, players={key: value for key, value in
+            #                                         self.player_char_select.items() if value})
             # start in throne room of current chapter and mission of the lowest progress player
-            # self.start_battle(self.save_data.save_profile["character"][self.profile_index[main_story_player]]["chapter"],
-            #                   self.save_data.save_profile["character"][self.profile_index[main_story_player]]["mission"],
-            #                   0, players={key: value for key, value in
-            #                               self.player_char_select.items() if value}, scene="throne")
+            self.start_battle(
+                self.save_data.save_profile["character"][self.profile_index[main_story_player]]["chapter"],
+                self.save_data.save_profile["character"][self.profile_index[main_story_player]]["mission"],
+                0, players={key: value for key, value in
+                            self.player_char_select.items() if value}, scene="throne")
 
     else:
         for key_list in (self.player_key_press, self.player_key_hold):  # check key holding for stat mode as well
@@ -102,7 +105,8 @@ def menu_char(self, esc_press):
                                     new_page = int((tuple(self.save_data.save_profile["character"].keys())[-1]) / 4) + 1
                                 else:
                                     new_page = 1
-                            self.profile_index[player] = ((new_page * 4) + self.profile_index[player]) - (self.profile_page[player] * 4)
+                            self.profile_index[player] = ((new_page * 4) + self.profile_index[player]) - (
+                                        self.profile_page[player] * 4)
                             self.profile_page[player] = new_page
                             self.profile_index[player] = check_other_player_select_slot(self, player)
 
@@ -114,7 +118,8 @@ def menu_char(self, esc_press):
                                 str(self.profile_page[player] + 1) + "/" + last_page)
                             for player2 in self.profile_page:
                                 self.update_profile_slots(player2)
-                        elif selector.mode not in ("stat", "ready", "readymain"):  # switch to previous in playable_character list
+                        elif selector.mode not in (
+                        "stat", "ready", "readymain"):  # switch to previous in playable_character list
                             if "1" in selector.mode:  # currently in description mode, go to normal
                                 selector.change_mode(selector.mode[:-1])
                             current_id = tuple(playable_character.keys()).index(selector.mode)
@@ -130,9 +135,11 @@ def menu_char(self, esc_press):
                             if not tuple(self.save_data.save_profile["character"].keys()):
                                 if new_page > 1:
                                     new_page = 0
-                            elif new_page > int((tuple(self.save_data.save_profile["character"].keys())[-1]) / 4) + 1:  # go to first page
+                            elif new_page > int((tuple(self.save_data.save_profile["character"].keys())[
+                                -1]) / 4) + 1:  # go to first page
                                 new_page = 0
-                            self.profile_index[player] = ((new_page * 4) + self.profile_index[player]) - (self.profile_page[player] * 4)
+                            self.profile_index[player] = ((new_page * 4) + self.profile_index[player]) - (
+                                        self.profile_page[player] * 4)
                             self.profile_page[player] = new_page
                             self.profile_index[player] = check_other_player_select_slot(self, player)
                             last_page = "2"
@@ -143,7 +150,8 @@ def menu_char(self, esc_press):
                                 str(self.profile_page[player] + 1) + "/" + last_page)
                             for player2 in self.profile_page:
                                 self.update_profile_slots(player2)
-                        elif selector.mode not in ("stat", "ready", "readymain"):  # switch to next in playable_character list
+                        elif selector.mode not in (
+                        "stat", "ready", "readymain"):  # switch to next in playable_character list
                             if "1" in selector.mode:  # currently in description mode, go to normal
                                 selector.change_mode(selector.mode[:-1])
                             current_id = tuple(playable_character.keys()).index(selector.mode)
@@ -210,13 +218,13 @@ def menu_char(self, esc_press):
                             self.add_ui_updater(self.player_char_interfaces[player])
                             self.player_char_interfaces[player].add_stat(start_stat)
 
-                        else:  # ready
+                        else:  # stat to ready
                             self.player_char_select[player] = {"ID": self.player_char_interfaces[player].stat["ID"]} | \
                                                               new_start | {key: value for key, value in
                                                                            self.player_char_interfaces[
-                                                                                        player].stat.items() if
+                                                                               player].stat.items() if
                                                                            key not in self.player_char_interfaces[
-                                                                                        player].all_skill_row} | \
+                                                                               player].all_skill_row} | \
                                                               {"skill allocation": {key: value for key, value in
                                                                                     self.player_char_interfaces[
                                                                                         player].stat.items() if
@@ -225,14 +233,19 @@ def menu_char(self, esc_press):
                             slot = self.profile_index[player]  # make save data when ready but not write yet
                             if slot not in self.save_data.save_profile["character"]:  # new profile data
                                 self.save_data.save_profile["character"][slot] = copy.deepcopy(empty_character_save)
-                            self.save_data.save_profile["character"][slot]["character"] = self.player_char_select[player]
+                            self.save_data.save_profile["character"][slot]["character"] = self.player_char_select[
+                                player]
 
                             selector.change_mode("ready", delay=False)
+                            self.remove_ui_updater(self.player_char_interfaces[player].text_popup)
                             main_story_player = 1
                             last_check_progress = inf
                             for key, selector in self.player_char_selectors.items():
                                 if selector.mode in ("ready", "readymain"):
-                                    progress = (self.save_data.save_profile["character"][self.profile_index[key]]["chapter"] * 100) + self.save_data.save_profile["character"][self.profile_index[key]]["mission"]
+                                    progress = (self.save_data.save_profile["character"][self.profile_index[key]][
+                                                    "chapter"] * 100) + \
+                                               self.save_data.save_profile["character"][self.profile_index[key]][
+                                                   "mission"]
                                     if progress < last_check_progress:  # found player with lower progress
                                         main_story_player = key
                                         last_check_progress = progress
@@ -254,7 +267,10 @@ def menu_char(self, esc_press):
                             last_check_progress = inf
                             for key, selector in self.player_char_selectors.items():
                                 if selector.mode in ("ready", "readymain"):
-                                    progress = (self.save_data.save_profile["character"][self.profile_index[key]]["chapter"] * 100) + self.save_data.save_profile["character"][self.profile_index[key]]["mission"]
+                                    progress = (self.save_data.save_profile["character"][self.profile_index[key]][
+                                                    "chapter"] * 100) + \
+                                               self.save_data.save_profile["character"][self.profile_index[key]][
+                                                   "mission"]
                                     if progress < last_check_progress:  # found player with lower progress
                                         main_story_player = key
                                         last_check_progress = progress

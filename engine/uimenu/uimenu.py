@@ -1,9 +1,9 @@
+import datetime
 import types
 from functools import lru_cache
 
 import pygame
 import pyperclip
-import datetime
 from pygame import Surface, SRCALPHA, Rect, Color, draw, mouse
 from pygame.font import Font
 from pygame.sprite import Sprite
@@ -606,11 +606,20 @@ class BrownMenuButton(UIMenu, Containable):  # NOTE: the button is not brown any
 
 
 class OptionMenuText(UIMenu):
-    def __init__(self, pos, text, text_size):
+    def __init__(self, pos, text, text_size, button_image=None):
         UIMenu.__init__(self, player_interact=False)
         self.pos = pos
         self.font = Font(self.ui_font["main_button"], text_size)
-        self.image = text_render_with_bg(text, self.font, Color("black"))
+        if button_image:  # add image to front of text
+            text_surface = text_render_with_bg(text, self.font, Color("black"))
+            self.image = Surface((button_image.get_width() + (5 * self.screen_scale[0]) +
+                                  text_surface.get_width(), button_image.get_height()), SRCALPHA)
+            text_rect = text_surface.get_rect(topright=(self.image.get_width(), 0))
+            self.image.blit(text_surface, text_rect)
+            button_rect = button_image.get_rect(topleft=(0, 0))
+            self.image.blit(button_image, button_rect)
+        else:
+            self.image = text_render_with_bg(text, self.font, Color("black"))
         self.rect = self.image.get_rect(center=(self.pos[0] - (self.image.get_width() / 2), self.pos[1]))
 
 
@@ -657,7 +666,8 @@ class CharacterProfileBox(UIMenu):
             self.image.blit(text, text_rect)
 
             # add play stat
-            text = self.small_font.render("Chapter:" + str(data["chapter"]) + "." + str(data["mission"]), True, (0, 0, 0))
+            text = self.small_font.render("Chapter:" + str(data["chapter"]) + "." + str(data["mission"]), True,
+                                          (0, 0, 0))
             text_rect = text.get_rect(topleft=(120 * self.screen_scale[0], 40 * self.screen_scale[1]))
             self.image.blit(text, text_rect)
 
@@ -730,15 +740,18 @@ class CharacterSelector(UIMenu):
 
 
 class CharacterInterface(UIMenu):
-    def __init__(self, pos, player):
+    def __init__(self, pos, player, text_popup, char_interface_images, battle_ui_images):
         UIMenu.__init__(self)
         self.font = Font(self.ui_font["main_button"], int(24 * self.screen_scale[1]))
         self.small_font = Font(self.ui_font["main_button"], int(18 * self.screen_scale[1]))
         self.current_row = 0
+        self.current_col = 0
+        self.current_page = 0
         self.input_delay = 0
         self.pos = pos
         self.player = player
         self.mode = "stat"
+        self.text_popup = text_popup
 
         # Stat interface
         self.stat_row = ("Strength", "Dexterity", "Agility",
@@ -748,11 +761,16 @@ class CharacterInterface(UIMenu):
         self.skill_row = []
         self.all_skill_row = []
         self.stat = {}
+        self.follower_list = []
         self.profile = {}
+        self.current_follower_preset_num = 1
+        self.current_follower_preset = {}
+        self.current_follower_preset_cost = 0
+        self.max_follower_allowance = 0
 
-        self.image = Surface((350 * self.screen_scale[0], 900 * self.screen_scale[1]), SRCALPHA)
+        self.image = Surface((400 * self.screen_scale[0], 950 * self.screen_scale[1]), SRCALPHA)
         text = self.small_font.render("Status (Cost)", True, (0, 0, 0))
-        text_rect = text.get_rect(center=(290 * self.screen_scale[0], 30 * self.screen_scale[1]))
+        text_rect = text.get_rect(center=(330 * self.screen_scale[0], 30 * self.screen_scale[1]))
         self.image.blit(text, text_rect)
 
         self.stat_rect = {}
@@ -766,7 +784,7 @@ class CharacterInterface(UIMenu):
 
         text = self.small_font.render("Skill Points Left: ", True, (0, 0, 0))
         self.skill_point_left_text_rect = text.get_rect(midleft=(10 * self.screen_scale[0],
-                                                                 330 * self.screen_scale[1]))
+                                                                 320 * self.screen_scale[1]))
         self.image.blit(text, self.skill_point_left_text_rect)
 
         for index, stat in enumerate(self.stat_row):
@@ -777,8 +795,19 @@ class CharacterInterface(UIMenu):
             start_stat_row += 36 * self.screen_scale[1]
 
         text = self.small_font.render("Current Level", True, (0, 0, 0))
-        text_rect = text.get_rect(center=(290 * self.screen_scale[0], 330 * self.screen_scale[1]))
+        text_rect = text.get_rect(center=(320 * self.screen_scale[0], 320 * self.screen_scale[1]))
         self.image.blit(text, text_rect)
+
+        text_surface = text_render_with_bg("Description", self.font, Color("black"))
+        button_image = battle_ui_images["button_order"]
+        helper_image = Surface((button_image.get_width() + (5 * self.screen_scale[0]) +
+                              text_surface.get_width(), button_image.get_height()), SRCALPHA)
+        text_rect = text_surface.get_rect(topright=(helper_image.get_width(), 0))
+        helper_image.blit(text_surface, text_rect)
+        button_rect = button_image.get_rect(topleft=(0, 0))
+        helper_image.blit(button_image, button_rect)
+        helper_image_rect = helper_image.get_rect(topleft=(0, 900 * self.screen_scale[1]))
+        self.image.blit(helper_image, helper_image_rect)
 
         # start_stat_row = 440 * self.screen_scale[1]
         # for index, stat in enumerate(self.common_skill_row):
@@ -791,47 +820,73 @@ class CharacterInterface(UIMenu):
         self.stat_base_image = self.image.copy()
 
         # Equipment interface
-        self.image = Surface((350 * self.screen_scale[0], 900 * self.screen_scale[1]), SRCALPHA)
+        self.image = Surface((400 * self.screen_scale[0], 950 * self.screen_scale[1]), SRCALPHA)
+        slot_image = char_interface_images["Box_accessory"]
+        self.equipment_slot_rect = {"weapon 1": slot_image.get_rect(topleft=(50 * self.screen_scale[0],
+                                                                             10 * self.screen_scale[1])),
+                                    "weapon 2": slot_image.get_rect(topleft=(50 * self.screen_scale[0],
+                                                                             130 * self.screen_scale[1])),
+                                    "accessory 1": slot_image.get_rect(topleft=(50 * self.screen_scale[0],
+                                                                                250 * self.screen_scale[1])),
+                                    "accessory 2": slot_image.get_rect(topleft=(50 * self.screen_scale[0],
+                                                                                370 * self.screen_scale[1])),
+                                    "accessory 3": slot_image.get_rect(topleft=(50 * self.screen_scale[0],
+                                                                                490 * self.screen_scale[1])),
+                                    "item 1": slot_image.get_rect(topleft=(50 * self.screen_scale[0],
+                                                                           610 * self.screen_scale[1])),
+                                    "item 2": slot_image.get_rect(topleft=(50 * self.screen_scale[0],
+                                                                           730 * self.screen_scale[1])),
+                                    "head": slot_image.get_rect(topleft=(250 * self.screen_scale[0],
+                                                                         10 * self.screen_scale[1])),
+                                    "body": slot_image.get_rect(topleft=(250 * self.screen_scale[0],
+                                                                         130 * self.screen_scale[1])),
+                                    "arm": slot_image.get_rect(topleft=(250 * self.screen_scale[0],
+                                                                        250 * self.screen_scale[1])),
+                                    "leg": slot_image.get_rect(topleft=(250 * self.screen_scale[0],
+                                                                        370 * self.screen_scale[1])),
+                                    "accessory 4": slot_image.get_rect(topleft=(250 * self.screen_scale[0],
+                                                                                490 * self.screen_scale[1])),
+                                    "item 3": slot_image.get_rect(topleft=(250 * self.screen_scale[0],
+                                                                           610 * self.screen_scale[1])),
+                                    "item 4": slot_image.get_rect(topleft=(250 * self.screen_scale[0],
+                                                                           730 * self.screen_scale[1]))}
+        for key, value in self.equipment_slot_rect.items():
+            if "weapon" in key:
+                self.image.blit(char_interface_images["Box_weapon"], value)
+            elif "accessory" in key:
+                self.image.blit(char_interface_images["Box_accessory"], value)
+            elif "item" in key:
+                self.image.blit(char_interface_images["Box_item"], value)
+            else:
+                self.image.blit(char_interface_images["Box_armor"], value)
 
-        # Follower interface
-        self.image = Surface((350 * self.screen_scale[0], 900 * self.screen_scale[1]), SRCALPHA)
+        self.equipment_base_image = self.image.copy()
+
+        # Follower preset interface
+        self.image = Surface((400 * self.screen_scale[0], 950 * self.screen_scale[1]), SRCALPHA)
+        self.follower_preset_box_image = char_interface_images["Charsheet"]
+        self.follower_preset_box_rects = {
+            key: self.follower_preset_box_image.get_rect(topleft=(0, (key * (210 * self.screen_scale[1])))) for key in
+            range(4)}
+        for box, rect in self.follower_preset_box_rects.items():
+            self.image.blit(self.follower_preset_box_image, rect)
+        self.follower_preset_base_image = self.image.copy()
+        # Follower list interface
+        self.image = Surface((400 * self.screen_scale[0], 950 * self.screen_scale[1]), SRCALPHA)
+        self.follower_rects = {key: (0, key * 100) for key in range(9)}
+        for index in range(9):
+            draw.line(self.image, (0, 0, 0), (0, ((index + 1) * 100) * self.screen_scale[1]),
+                      (400, (index + 1) * 100 * self.screen_scale[1]), 2)
+        self.follower_base_image = self.image.copy()
 
         # Storage interface
-        self.image = Surface((350 * self.screen_scale[0], 900 * self.screen_scale[1]), SRCALPHA)
+        self.image = Surface((400 * self.screen_scale[0], 950 * self.screen_scale[1]), SRCALPHA)
+        self.storage_base_image = self.image.copy()
 
-        self.rect = self.image.get_rect(center=self.pos)
+        self.player_input = self.player_input_stat
+        self.rect = self.image.get_rect(topleft=self.pos)
 
     def update(self):
-        if not self.pause and self.rect.collidepoint(
-                self.cursor.pos):  # check for stat detail popup based on mouse over
-            mouse_pos = (self.cursor.pos[0] - self.rect.topleft[0],
-                         self.cursor.pos[1] - self.rect.topleft[1])
-            for key, value in self.stat_rect.items():
-                if value.collidepoint(mouse_pos):
-                    self.game.add_ui_updater(self.game.text_popup)
-                    self.game.text_popup.popup(self.game.cursor.rect,
-                                               (self.game.localisation.grab_text(("help", key, "Name")),
-                                                self.game.localisation.grab_text(("help", key, "Description"))),
-                                               shown_id=key,
-                                               width_text_wrapper=1000 * self.game.screen_scale[0])
-                    break
-
-            for key, value in self.skill_rect.items():
-                if value.collidepoint(mouse_pos):
-                    self.game.add_ui_updater(self.game.text_popup)
-                    new_key = key + "." + str(int(self.stat[key]))
-                    if self.game.localisation.grab_text(("help", new_key, "Buttons")):
-                        text = (self.game.localisation.grab_text(("help", new_key, "Name")),
-                                self.game.localisation.grab_text(("help", new_key, "Description")),
-                                "Buttons: " + self.game.localisation.grab_text(("help", new_key, "Buttons")))
-                    else:
-                        text = (self.game.localisation.grab_text(("help", new_key, "Name")),
-                                self.game.localisation.grab_text(("help", new_key, "Description")))
-                    self.game.text_popup.popup(self.game.cursor.rect, text,
-                                               shown_id=key,
-                                               width_text_wrapper=1000 * self.game.screen_scale[0])
-                    break
-
         if self.input_delay > 0:
             self.input_delay -= self.game.dt
             if self.input_delay < 0:
@@ -849,62 +904,246 @@ class CharacterInterface(UIMenu):
     def add_stat(self, stat_dict):
         self.stat = stat_dict
         self.image = self.stat_base_image.copy()
+        if self.stat:
+            self.all_skill_row = [item for item in self.common_skill_row]
+            for skill in self.game.character_data.character_list[stat_dict["ID"]]["Skill"].values():
+                for key, value in skill.items():
+                    if ".1" in key and "C" in key:  # starting skill
+                        self.all_skill_row.append(value["Name"])
+            self.last_row = len(self.stat_row) + len(self.all_skill_row) - 1
 
-        self.all_skill_row = [item for item in self.common_skill_row]
-        for skill in self.game.character_data.character_list[stat_dict["ID"]]["Skill"].values():
-            for key, value in skill.items():
-                if ".1" in key and "C" in key:  # starting skill
-                    self.all_skill_row.append(value["Name"])
-        self.last_row = len(self.stat_row) + len(self.all_skill_row) - 1
+            self.skill_rect = {}
+            start_stat_row = 350 * self.screen_scale[1]
+            for index, stat in enumerate(self.all_skill_row):
+                text = self.font.render(stat + ": ", True, (0, 0, 0))
+                text_rect = text.get_rect(midleft=(10 * self.screen_scale[0], start_stat_row))
+                self.skill_rect[stat] = text_rect  # save stat name rect for stat point later
+                self.image.blit(text, text_rect)
+                start_stat_row += 36 * self.screen_scale[1]
 
-        self.skill_rect = {}
-        start_stat_row = 350 * self.screen_scale[1]
-        for index, stat in enumerate(self.all_skill_row):
-            text = self.font.render(stat + ": ", True, (0, 0, 0))
-            text_rect = text.get_rect(midleft=(10 * self.screen_scale[0], start_stat_row))
-            self.skill_rect[stat] = text_rect  # save stat name rect for stat point later
-            self.image.blit(text, text_rect)
-            start_stat_row += 36 * self.screen_scale[1]
+            row = 0
+            for stat in stat_dict:
+                if stat in self.stat_rect:
+                    if row == self.current_row:
+                        text = self.font.render(
+                            str(int(stat_dict[stat])) + " (" + str(int(stat_dict[stat] / 10) + 1) + ")",
+                            True, (0, 0, 0), (255, 255, 255, 255))
+                    else:
+                        text = self.font.render(
+                            str(int(stat_dict[stat])) + " (" + str(int(stat_dict[stat] / 10) + 1) + ")",
+                            True, (0, 0, 0))
+                    text_rect = text.get_rect(midright=(380 * self.screen_scale[0], self.stat_rect[stat].midleft[1]))
+                    self.image.blit(text, text_rect)
+                    row += 1
+                elif stat in self.skill_rect:
+                    if row == self.current_row:
+                        text = self.font.render(str(int(stat_dict[stat])),
+                                                True, (0, 0, 0), (255, 255, 255, 255))
+                    else:
+                        text = self.font.render(str(int(stat_dict[stat])),
+                                                True, (0, 0, 0))
+                    text_rect = text.get_rect(midright=(380 * self.screen_scale[0], self.skill_rect[stat].midleft[1]))
+                    self.image.blit(text, text_rect)
+                    row += 1
+                elif "Remain" in stat:  # point left
+                    if "Status" in stat:
+                        text = self.font.render(str(int(stat_dict[stat])), True, (0, 0, 0))
+                        text_rect = text.get_rect(
+                            midleft=(180 * self.screen_scale[0], self.status_point_left_text_rect.midleft[1]))
+                    else:
+                        text = self.font.render(str(int(stat_dict[stat])), True, (0, 0, 0))
+                        text_rect = text.get_rect(
+                            midleft=(180 * self.screen_scale[0], self.skill_point_left_text_rect.midleft[1]))
+                    self.image.blit(text, text_rect)
+                    row += 1
 
-        row = 0
-        for stat in stat_dict:
-            if stat in self.stat_rect:
-                if row == self.current_row:
-                    text = self.font.render(str(int(stat_dict[stat])) + " (" + str(int(stat_dict[stat] / 10) + 1) + ")",
-                                            True, (0, 0, 0), (255, 255, 255, 255))
-                else:
-                    text = self.font.render(str(int(stat_dict[stat])) + " (" + str(int(stat_dict[stat] / 10) + 1) + ")",
-                                            True, (0, 0, 0))
-                text_rect = text.get_rect(midright=(330 * self.screen_scale[0], self.stat_rect[stat].midleft[1]))
-                self.image.blit(text, text_rect)
-                row += 1
-            elif stat in self.skill_rect:
-                if row == self.current_row:
-                    text = self.font.render(str(int(stat_dict[stat])),
-                                            True, (0, 0, 0), (255, 255, 255, 255))
-                else:
-                    text = self.font.render(str(int(stat_dict[stat])),
-                                            True, (0, 0, 0))
-                text_rect = text.get_rect(midright=(330 * self.screen_scale[0], self.skill_rect[stat].midleft[1]))
-                self.image.blit(text, text_rect)
-                row += 1
-            elif "Remain" in stat:  # point left
-                if "Status" in stat:
-                    text = self.font.render(str(int(stat_dict[stat])), True, (0, 0, 0))
-                    text_rect = text.get_rect(
-                        midleft=(180 * self.screen_scale[0], self.status_point_left_text_rect.midleft[1]))
-                else:
-                    text = self.font.render(str(int(stat_dict[stat])), True, (0, 0, 0))
-                    text_rect = text.get_rect(
-                        midleft=(180 * self.screen_scale[0], self.skill_point_left_text_rect.midleft[1]))
-                self.image.blit(text, text_rect)
-                row += 1
+            if self.profile:
+                self.max_follower_allowance = (self.profile["chapter"] * 20) + stat_dict["Charisma"]
+                for key, value in self.stat.items():
+                    if key in self.all_skill_row:
+                        self.profile["character"]["skill allocation"][key] = value
+                    else:
+                        self.profile["character"][key] = value
+
+    def change_equipment_list(self):
+        self.image = self.equipment_base_image.copy()
+
+    def change_storage_list(self):
+        self.image = self.storage_base_image.copy()
 
     def check_follower_list(self):
-        follower_list = []
+        self.follower_list = []
         for mission_str, choice in self.profile["story choice"].items():
-            mission_num = mission_str.split(".")
-            follower_list += self.game.battle.stage_reward[choice][mission_num[0]][mission_num[1]][mission_num[2]]["follower"]
+            mission_num = [float(item) for item in mission_str.split(".")]
+            self.follower_list += self.game.battle.stage_reward[choice][mission_num[0]][mission_num[1]][mission_num[2]][
+                "follower"]
+
+    def calculate_follower_stuff(self, follower_dict):
+        total_cost = 0
+        total_melee = 0
+        total_range = 0
+        for follower, num in follower_dict.items():
+            total_cost += self.game.character_data.character_list[follower]["Follower Cost"] * num
+            if self.game.character_data.character_list[follower]["Type"] == "Melee":
+                total_melee += num
+            else:
+                total_range += num
+        return total_cost, total_melee, total_range
+
+    def add_follower_preset_list(self):
+        self.image = self.follower_preset_base_image.copy()
+        for preset, rect in self.follower_preset_box_rects.items():
+            real_preset = preset * (self.current_page + 1)
+            if self.current_row == preset:  # current preset row
+                draw.rect(self.image, (255, 255, 255),
+                          (0, rect.topleft[1], 400 * self.screen_scale[0], 200 * self.screen_scale[1]),
+                          width=int(3 * self.screen_scale[0]))
+            if real_preset == self.profile["selected follower preset"]:  # currently selected preset for battle
+                draw.rect(self.image, (150, 0, 0),
+                          ((5 * self.screen_scale[0]), rect.topleft[1] + (5 * self.screen_scale[0]),
+                           395 * self.screen_scale[0], 195 * self.screen_scale[1]),
+                          width=int(5 * self.screen_scale[0]))
+            if self.profile["followers"][real_preset]:
+                self.image.blit(
+                    self.game.character_data.character_portraits[
+                        tuple(self.profile["followers"][real_preset].keys())[0]],
+                    rect)
+                total_cost, total_melee, total_range = self.calculate_follower_stuff(
+                    self.profile["followers"][real_preset])
+                text_surface = self.font.render(
+                    "Cost/Fund: " + str(total_cost) + "/" + str(self.max_follower_allowance), True, (0, 0, 0))
+                text_rect = text_surface.get_rect(topleft=(110 * self.screen_scale[0],
+                                                           rect.topright[1] + (20 * self.screen_scale[1])))
+                self.image.blit(text_surface, text_rect)
+
+                text_surface = self.font.render("Melee/Range: " + str(total_melee) + "/" + str(total_range),
+                                                True, (0, 0, 0))
+                text_rect = text_surface.get_rect(topleft=(110 * self.screen_scale[0],
+                                                           rect.topright[1] + (70 * self.screen_scale[1])))
+                self.image.blit(text_surface, text_rect)
+
+                if total_cost > self.max_follower_allowance:
+                    text_surface = self.font.render("Warning: Cost exceed fund.", True, (0, 0, 0))
+                    text_rect = text_surface.get_rect(topleft=(10 * self.screen_scale[0],
+                                                               rect.topright[1] + (120 * self.screen_scale[1])))
+                    self.image.blit(text_surface, text_rect)
+
+                    text_surface = self.small_font.render("Some followers will not appear in battle.", True, (0, 0, 0))
+                    text_rect = text_surface.get_rect(topleft=(10 * self.screen_scale[0],
+                                                               rect.topright[1] + (150 * self.screen_scale[1])))
+                    self.image.blit(text_surface, text_rect)
+            else:
+                text_surface = self.font.render("Empty", True, (0, 0, 0))
+                text_rect = text_surface.get_rect(topright=(400 * self.screen_scale[0],
+                                                            rect.topright[1] + (20 * self.screen_scale[1])))
+                self.image.blit(text_surface, text_rect)
+
+            # Add preset number
+            text_surface = self.font.render("(" + str(preset) + ")", True, (0, 0, 0))
+            text_rect = text_surface.get_rect(bottomright=(rect.bottomright[0],
+                                                           rect.bottomright[1] - (5 * self.screen_scale[1])))
+            self.image.blit(text_surface, text_rect)
+
+    def add_follower_list(self):
+        self.image = self.follower_base_image.copy()
+
+        text_surface = self.font.render("Preset " + str(self.current_follower_preset_num), True, (0, 0, 0))
+        text_rect = text_surface.get_rect(topleft=(20 * self.screen_scale[0], 20 * self.screen_scale[1]))
+        self.image.blit(text_surface, text_rect)
+
+        total_cost, total_melee, total_range = self.calculate_follower_stuff(
+            self.profile["followers"][self.current_follower_preset_num])
+        remain_fund = self.max_follower_allowance - total_cost
+        text_surface = self.small_font.render(
+            "Total Cost: " + str(total_cost) + "/ Remaining Fund: " + str(remain_fund),
+            True, (0, 0, 0))
+        text_rect = text_surface.get_rect(topleft=(20 * self.screen_scale[0], 50 * self.screen_scale[1]))
+        self.image.blit(text_surface, text_rect)
+
+        text_surface = self.small_font.render("Total Melee/Range: " + str(total_melee) + "/" + str(total_range),
+                                              True, (0, 0, 0))
+        text_rect = text_surface.get_rect(topleft=(20 * self.screen_scale[0], 70 * self.screen_scale[1]))
+        self.image.blit(text_surface, text_rect)
+
+        for index, follower in enumerate(self.follower_list):
+            if index >= self.current_row or self.current_row + 8 > len(self.follower_list):
+                if self.current_row == index:  # current preset row
+                    draw.rect(self.image, (255, 255, 255),
+                              (0, ((index + 1) * 100) * self.screen_scale[1], 400 * self.screen_scale[0],
+                               100 * self.screen_scale[1]),
+                              width=int(3 * self.screen_scale[0]))
+
+                portrait = self.game.character_data.character_portraits[follower]
+                rect = portrait.get_rect(topleft=(0, (index + 1) * 100 * self.screen_scale[1]))
+                self.image.blit(portrait, rect)
+
+                text_surface = self.small_font.render(self.localisation.grab_text(("enemy", follower, "Name")),
+                                                      True, (0, 0, 0))
+                text_rect = text_surface.get_rect(topleft=(110 * self.screen_scale[0],
+                                                           (index + 1) * 100 * self.screen_scale[1]))
+                self.image.blit(text_surface, text_rect)
+                follower_num = 0
+                if follower in self.current_follower_preset:
+                    follower_num = self.current_follower_preset[follower]
+                text_surface = self.font.render("x" + str(follower_num),
+                                                True, (0, 0, 0))
+                text_rect = text_surface.get_rect(topleft=(110 * self.screen_scale[0],
+                                                           (((index + 1) * 100) + 20) * self.screen_scale[1]))
+                self.image.blit(text_surface, text_rect)
+
+                text_surface = self.small_font.render(
+                    str(self.game.character_data.character_list[follower]["Follower Cost"]) + " Cost",
+                    True, (0, 0, 0))
+                text_rect = text_surface.get_rect(topright=(400 * self.screen_scale[0],
+                                                            (((index + 1) * 100) + 20) * self.screen_scale[1]))
+                self.image.blit(text_surface, text_rect)
+
+                text = str(self.game.character_data.character_list[follower]["Type"])
+                if self.game.character_data.character_list[follower]["Boss"]:
+                    text += " Only One"
+                text_surface = self.small_font.render(text, True, (0, 0, 0))
+                text_rect = text_surface.get_rect(topleft=(110 * self.screen_scale[0],
+                                                           (((index + 1) * 100) + 50) * self.screen_scale[1]))
+
+                self.image.blit(text_surface, text_rect)
+                if index - self.current_row > 7:
+                    break
+
+    def change_mode(self, mode):
+        self.mode = mode
+        self.current_row = 0
+        self.current_page = 0
+        self.current_col = 0
+        self.game.battle.remove_ui_updater(self.text_popup)
+        self.game.remove_ui_updater(self.text_popup)
+        if self.mode == "stat":
+            self.player_input = self.player_input_stat
+            self.add_stat(self.stat)
+        elif self.mode == "equipment":
+            self.player_input = self.player_input_equipment
+            self.change_equipment_list()
+        elif "follower" in self.mode:
+            self.player_input = self.player_input_follower
+            if self.mode == "follower":
+                self.add_follower_preset_list()
+            else:
+                self.check_follower_list()
+                self.add_follower_list()
+        elif "storage" in self.mode:
+            self.player_input = self.player_input_storage
+            self.change_storage_list()
+
+    def add_remove_text_popup(self):
+        if self.game.battle.city_mode:
+            if self.text_popup not in self.game.battle.ui_updater:
+                self.game.battle.add_ui_updater(self.text_popup)
+            else:
+                self.game.battle.remove_ui_updater(self.text_popup)
+        else:
+            if self.text_popup not in self.game.ui_updater:
+                self.game.add_ui_updater(self.text_popup)
+            else:
+                self.game.remove_ui_updater(self.text_popup)
 
     def change_stat(self, stat, how):
         self.stat[stat], self.stat["Status Remain"] = stat_allocation_check(self.stat[stat], self.stat["Status Remain"],
@@ -916,37 +1155,217 @@ class CharacterInterface(UIMenu):
                                                                              self.stat["Skill Remain"], how)
         self.add_stat(self.stat)
 
-    def player_input(self, key):
+    def player_input_stat(self, key):
         if not self.input_delay:
-            if key == "Up":
-                self.current_row -= 1
-                if self.current_row < 0:
-                    self.current_row = self.last_row
-                self.add_stat(self.stat)
+            if key in ("Up", "Down", "Left", "Right"):
                 self.input_delay = 0.15
-            elif key == "Down":
-                self.current_row += 1
-                if self.current_row > self.last_row:
-                    self.current_row = 0
-                self.add_stat(self.stat)
+                if key == "Up":
+                    self.current_row -= 1
+                    if self.current_row < 0:
+                        self.current_row = self.last_row
+                    self.add_stat(self.stat)
+                elif key == "Down":
+                    self.current_row += 1
+                    if self.current_row > self.last_row:
+                        self.current_row = 0
+                    self.add_stat(self.stat)
+                elif key == "Left":
+                    if self.current_row <= 6:  # change stat
+                        self.change_stat(self.stat_row[self.current_row], "down")
+                    else:  # change skill
+                        self.change_skill(self.all_skill_row[self.current_row - 7], "down")
+                elif key == "Right":
+                    if self.current_row <= 6:  # change stat
+                        self.change_stat(self.stat_row[self.current_row], "up")
+                    else:  # change skill
+                        self.change_skill(self.all_skill_row[self.current_row - 7], "up")
+            else:
+                self.input_delay = 0.3
+                if key == "Order Menu":  # popup text description
+                    self.add_remove_text_popup()
+                    if self.current_row <= 6:
+                        stat = self.stat_row[self.current_row]
+                        self.text_popup.popup(self.rect.topleft,
+                                              (self.game.localisation.grab_text(("help", stat, "Name")),
+                                               self.game.localisation.grab_text(("help", stat, "Description"))),
+                                              shown_id=stat, width_text_wrapper=400 * self.game.screen_scale[0])
+                    else:
+                        new_key = self.all_skill_row[self.current_row - 7] + "." + \
+                                  str(int(self.stat[self.all_skill_row[self.current_row - 7]]))
+                        if self.game.localisation.grab_text(("help", new_key, "Buttons")):
+                            text = (self.game.localisation.grab_text(("help", new_key, "Name")),
+                                    self.game.localisation.grab_text(("help", new_key, "Description")),
+                                    "Buttons: " + self.game.localisation.grab_text(("help", new_key, "Buttons")))
+                        else:
+                            text = (self.game.localisation.grab_text(("help", new_key, "Name")),
+                                    self.game.localisation.grab_text(("help", new_key, "Description")))
+                        self.text_popup.popup(self.rect.topleft, text,
+                                              shown_id=key, width_text_wrapper=400 * self.game.screen_scale[0])
+                if self.game.battle.city_mode:
+                    if key == "Special":  # go to next page (equipment)
+                        self.change_mode("equipment")
+                    elif key == "Guard":  # go to previous page (storage)
+                        self.change_mode("storage")
+
+    def player_input_equipment(self, key):
+        if not self.input_delay:
+            if key in ("Up", "Down", "Left", "Right"):
                 self.input_delay = 0.15
-            elif key == "Left":
-                if self.current_row <= 6:  # change stat
-                    self.change_stat(self.stat_row[self.current_row], "down")
-                else:  # change skill
-                    self.change_skill(self.all_skill_row[self.current_row - 7], "down")
+                if key == "Up":
+                    self.current_row -= 1
+                    if self.current_row < 0:
+                        self.current_row = self.last_row
+                elif key == "Down":
+                    self.current_row += 1
+                    if self.current_row > self.last_row:
+                        self.current_row = 0
+                elif key == "Left":
+                    pass
+                elif key == "Right":
+                    pass
+
+            else:
+                self.input_delay = 0.3
+                if self.game.battle.city_mode:
+                    if key == "Special":  # go to next page (follower)
+                        self.change_mode("follower")
+                    elif key == "Guard":  # go to previous page (stat)
+                        self.change_mode("stat")
+
+    def player_input_follower(self, key):
+        if not self.input_delay:
+            if self.mode == "follower":  # follower preset list
+                if key in ("Up", "Down", "Left", "Right"):
+                    self.input_delay = 0.15
+                    if key == "Up":
+                        self.current_row -= 1
+                        if self.current_row < 0:
+                            self.current_row = 3
+                        self.add_follower_preset_list()
+                    elif key == "Down":
+                        self.current_row += 1
+                        if self.current_row > 3:
+                            self.current_row = 0
+                        self.add_follower_preset_list()
+                    elif key == "Left":
+                        self.current_page -= 1
+                        if self.current_page < 0:
+                            self.current_page = 2
+                        self.current_row = 0
+                        self.add_follower_preset_list()
+                    elif key == "Right":
+                        self.current_page += 1
+                        if self.current_page > 2:
+                            self.current_page = 0
+                        self.current_row = 0
+                        self.add_follower_preset_list()
+                else:
+                    self.input_delay = 0.3
+                    if key == "Order Menu":  # popup follower description
+                        self.add_remove_text_popup()
+                        follower_list = ["Empty"]
+                        if self.profile["followers"][self.current_row * (self.current_page + 1)]:
+                            follower_list = []
+                            for key, value in self.profile["followers"][self.current_row * (self.current_page + 1)].items():
+                                follower_list.append(self.localisation.grab_text(("enemy", key, "Name")) + " x" + str(value))
+                        self.text_popup.popup(self.rect.topleft,
+                                              follower_list,
+                                              shown_id=follower_list, width_text_wrapper=400 * self.game.screen_scale[0])
+                    elif key == "Weak":
+                        self.current_follower_preset_num = self.current_row * (self.current_page + 1)
+                        self.current_follower_preset = self.profile["followers"][self.current_follower_preset_num]
+                        self.change_mode("follower_list")
+                    elif key == "Strong":
+                        self.profile["selected follower preset"] = self.current_row * (self.current_page + 1)
+                        self.add_follower_preset_list()
+
+            else:  # follower list
+                if key in ("Up", "Down", "Left", "Right"):
+                    self.input_delay = 0.15
+                    if key == "Up":
+                        self.current_row -= 1
+                        if self.current_row < 0:
+                            self.current_row = len(self.follower_list) - 1
+                        self.add_follower_list()
+                    elif key == "Down":
+                        self.current_row += 1
+                        if self.current_row > len(self.follower_list) - 1:
+                            self.current_row = 0
+                        self.add_follower_list()
+                    elif key == "Left":
+                        if self.follower_list[self.current_row] in self.current_follower_preset:
+                            self.current_follower_preset[self.follower_list[self.current_row]] -= 1
+                            if not self.current_follower_preset[self.follower_list[self.current_row]]:
+                                self.current_follower_preset.pop(self.follower_list[self.current_row])
+                            self.add_follower_list()
+                    elif key == "Right":
+                        total_cost, total_melee, total_range = self.calculate_follower_stuff(
+                            self.profile["followers"][self.current_follower_preset_num])
+                        remain_fund = (self.max_follower_allowance - total_cost) - \
+                                      self.game.character_data.character_list[self.follower_list[self.current_row]][
+                                          "Follower Cost"]
+                        if remain_fund >= 0:  # can add follower since has enough fund
+                            if self.follower_list[self.current_row] in self.current_follower_preset:
+                                if not self.game.character_data.character_list[self.follower_list[self.current_row]][
+                                    "Boss"]:
+                                    # Boss follower can only be single follower
+                                    self.current_follower_preset[self.follower_list[self.current_row]] += 1
+                            else:
+                                self.current_follower_preset[self.follower_list[self.current_row]] = 1
+                        self.add_follower_list()
+                else:
+                    self.input_delay = 0.3
+                    if key == "Order Menu":  # popup follower description
+                        self.add_remove_text_popup()
+                        follower_stat = self.game.character_data.character_list[self.follower_list[self.current_row]]
+                        stat = str(follower_stat["Strength"]) + "/" + str(follower_stat["Dexterity"]) + "/" + \
+                               str(follower_stat["Agility"]) + "/" + str(follower_stat["Constitution"]) + "/" + \
+                               str(follower_stat["Intelligence"]) + "/" + str(follower_stat["Wisdom"]) + "/" + \
+                               str(follower_stat["Charisma"])
+                        self.text_popup.popup(self.rect.topleft,
+                                              (self.localisation.grab_text(("enemy", self.follower_list[self.current_row], "Name")),
+                                               self.localisation.grab_text(
+                                                  ("enemy", self.follower_list[self.current_row], "Description")),
+                                               "Base Stat: " + stat,
+                                               "Base Health: " + minimise_number_text(str(follower_stat["Base Health"])),
+                                               "Type: " + follower_stat["Type"]),
+                                              shown_id=stat, width_text_wrapper=400 * self.game.screen_scale[0])
+                    elif key == "Strong":
+                        self.change_mode("follower")
+
+                    elif self.game.battle.city_mode:
+                        if key == "Special":  # go to next page (storage)
+                            self.change_mode("storage")
+                        elif key == "Guard":  # go to previous page (equipment)
+                            self.change_mode("equipment")
+
+    def player_input_storage(self, key):
+        if not self.input_delay:
+            if key in ("Up", "Down", "Left", "Right"):
                 self.input_delay = 0.15
-            elif key == "Right":
-                if self.current_row <= 6:  # change stat
-                    self.change_stat(self.stat_row[self.current_row], "up")
-                else:  # change skill
-                    self.change_skill(self.all_skill_row[self.current_row - 7], "up")
-                self.input_delay = 0.15
-            if self.game.battle.city_mode:
-                if key == "Special":  # go to next page (equipment)
-                    self.mode = "equipment"
-                elif key == "Guard":  # go to previous page (storage)
-                    self.mode = "storage"
+                if key == "Up":
+                    self.current_row -= 1
+                    if self.current_row < 0:
+                        self.current_row = self.last_row
+                elif key == "Down":
+                    self.current_row += 1
+                    if self.current_row > self.last_row:
+                        self.current_row = 0
+                elif key == "Left":
+                    self.current_col -= 1
+                    if self.current_col < 0:
+                        self.current_col = 5
+                elif key == "Right":
+                    self.current_row += 1
+                    if self.current_row > 5:
+                        self.current_row = 0
+            else:
+                self.input_delay = 0.3
+                if self.game.battle.city_mode:
+                    if key == "Special":  # go to next page (stat)
+                        self.change_mode("stat")
+                    elif key == "Guard":  # go to previous page (follower)
+                        self.change_mode("follower")
 
 
 class ControllerIcon(UIMenu):
@@ -1365,7 +1784,7 @@ class TextPopup(UIMenu):
                         surface = self.font.render(text, True, (0, 0, 0))
                         text_image.blit(surface, (self.font_size, 0))
                         text_surface.append(text_image)  # text input font surface
-                        max_height += self.font_size * 2
+                        max_height += self.font_size
                     else:
                         # Find new image height, using code from make_long_text
                         x, y = (self.font_size, self.font_size)
@@ -1382,8 +1801,7 @@ class TextPopup(UIMenu):
                                 x += word_width + space
                             x = self.font_size  # reset x
                             y += word_height  # start on new row
-                        image_height = y
-                        text_image = Surface((width_text_wrapper, image_height))
+                        text_image = Surface((width_text_wrapper, y))
                         text_image.fill((255, 255, 255))
                         make_long_text(text_image, text, (self.font_size, self.font_size), self.font)
                         text_surface.append(text_image)
@@ -1435,7 +1853,7 @@ class TextPopup(UIMenu):
                 if exceed_right:
                     self.rect = self.image.get_rect(topright=popup_rect.bottomleft)
         else:  # popup_rect is pos
-            self.rect = self.image.get_rect(midbottom=popup_rect)
+            self.rect = self.image.get_rect(topleft=popup_rect)
 
 
 class BoxUI(UIMenu, Containable, Container):

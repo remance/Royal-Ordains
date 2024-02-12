@@ -111,7 +111,7 @@ class Battle:
         # add ranking record system
         # add save/profile system (add story event finish check to save)
         # finish main menu
-        # add follower setup
+        # add choice story check
 
         self.clock = pygame.time.Clock()  # Game clock to keep track of realtime pass
 
@@ -166,8 +166,7 @@ class Battle:
 
         self.button_ui = game.button_ui
 
-        self.text_popup = game.text_popup
-        self.esc_text_popup = game.esc_text_popup
+        self.stage_translation_text_popup = game.stage_translation_text_popup
 
         self.input_box = game.input_box
         self.input_ui = game.input_ui
@@ -232,7 +231,6 @@ class Battle:
         self.reserve_resurrect_stage_score = 0
 
         self.players = {}  # player
-        self.player_team_followers = {}
         self.player_objects = {}
         self.players_control_input = {1: None, 2: None, 3: None, 4: None}
         self.existing_playable_characters = []
@@ -260,7 +258,7 @@ class Battle:
         if self.game.show_fps:
             self.realtime_ui_updater.add(self.fps_count)
 
-        battle_ui_images = load_images(self.data_dir, screen_scale=self.screen_scale, subfolder=("ui", "battle_ui"))
+        battle_ui_images = self.game.battle_ui_images
         CharacterSpeechBox.images = battle_ui_images
 
         self.speech_prompt = CharacterInteractPrompt(battle_ui_images["button_weak"])
@@ -292,7 +290,8 @@ class Battle:
             self.battle_camera_size)  # message at the top of screen that show up for important event
 
         # Battle ESC menu
-        esc_menu_dict = make_esc_menu(self.master_volume, self.music_volume, self.voice_volume, self.effect_volume)
+        esc_menu_dict = make_esc_menu(self.game.char_selector_images, self.game.button_image, self.game.option_menu_images,
+                                      self.master_volume, self.music_volume, self.voice_volume, self.effect_volume)
 
         self.player_char_base_interfaces = esc_menu_dict["player_char_base_interfaces"]
         self.battle_menu_button = esc_menu_dict["battle_menu_button"]
@@ -546,7 +545,8 @@ class Battle:
                             char_found = char
                             break
                     for key3, value3 in value2.items():
-                        if "/Any/" in value3[0]["ID"] or "/" + self.main_player_object.sprite_id + "/" in value3[0]["ID"]:
+                        if "/Any/" in value3[0]["ID"] or "/" + self.main_player_object.sprite_id + "/" in value3[0][
+                            "ID"]:
                             # only add event involving the character of first player
                             if value3[0]["Type"] == "char":
                                 # must always have char id as second item in trigger
@@ -738,7 +738,8 @@ class Battle:
                     if self.game_state != "menu":  # open menu first before add popup
                         self.game_state = "menu"
                         self.add_ui_updater(self.battle_menu_button,
-                                            self.esc_text_popup, self.cursor)  # add menu and its buttons to drawer
+                                            self.stage_translation_text_popup,
+                                            self.cursor)  # add menu and its buttons to drawer
                     self.input_popup = ("confirm_input", "quit")
                     self.input_ui.change_instruction("Quit Game?")
                     self.add_ui_updater(self.confirm_ui_popup, self.cursor)
@@ -773,7 +774,8 @@ class Battle:
                     #     self.drama_text.queue.append("Rushed to the English line, he fought valiantly alone")
                     elif event.key == K_F6:
                         for enemy in self.all_team_enemy[1]:
-                            if not enemy.invincible and self.base_stage_start <= enemy.base_pos[0] <= self.base_stage_end:
+                            if not enemy.invincible and self.base_stage_start <= enemy.base_pos[
+                                0] <= self.base_stage_end:
                                 enemy.health = 0
                     elif event.key == K_F7:  # clear profiler
                         if hasattr(self.game, "profiler"):
@@ -839,15 +841,17 @@ class Battle:
                 if esc_press:  # open/close menu
                     if self.city_mode:  # add character setup UI for city mode when pause game
                         for player in self.player_objects:
-                            self.add_ui_updater(self.player_char_base_interfaces[player], self.player_char_interfaces[player])
+                            self.add_ui_updater(self.player_char_base_interfaces[player],
+                                                self.player_char_interfaces[player])
                     self.game_state = "menu"  # open menu
-                    self.esc_text_popup.popup((self.screen_rect.centerx, self.screen_rect.height * 0.9),
-                                              self.game.localisation.grab_text(
-                                                  ("map", self.chapter, self.mission, self.stage,
-                                                   self.battle_stage.current_scene, "Text")),
-                                              width_text_wrapper=1000 * self.game.screen_scale[0])
+                    self.stage_translation_text_popup.popup(
+                        (self.screen_rect.midleft[0], self.screen_rect.height * 0.88),
+                        self.game.localisation.grab_text(
+                            ("map", self.chapter, self.mission, self.stage,
+                             self.battle_stage.current_scene, "Text")),
+                        width_text_wrapper=self.screen_rect.width)
                     self.add_ui_updater(self.cursor, self.battle_menu_button,
-                                        self.esc_text_popup)  # add menu and its buttons to drawer
+                                        self.stage_translation_text_popup)  # add menu and its buttons to drawer
                     self.realtime_ui_updater.remove(self.main_player_battle_cursor)
                 elif self.city_mode and self.player_key_press[self.main_player]["Special"]:
                     if self.game_state != "map":  # open city map
@@ -863,7 +867,6 @@ class Battle:
 
                 self.ui_timer += self.dt  # ui update by real time instead of self time to reduce workload
                 self.ui_dt = self.dt  # get ui timer before apply
-
 
                 if self.main_player_battle_cursor.pos_change:  # display cursor when have movement
                     self.show_cursor_timer = 0.1
@@ -994,7 +997,8 @@ class Battle:
                     if self.reach_scene_event_list:
                         # check for event with camera reaching
                         if self.battle_stage.reach_scene in self.reach_scene_event_list:
-                            if "weather" in self.reach_scene_event_list[self.battle_stage.reach_scene]:  # change weather
+                            if "weather" in self.reach_scene_event_list[
+                                self.battle_stage.reach_scene]:  # change weather
                                 self.current_weather.__init__(
                                     self.reach_scene_event_list[self.battle_stage.reach_scene]["weather"],
                                     0, 0, self.weather_data)
@@ -1008,7 +1012,8 @@ class Battle:
                                                                 self.camera_pos, sound_effect[1], sound_effect[2])
                                 self.reach_scene_event_list[self.battle_stage.reach_scene].pop("sound")
                             if "cutscene" in self.reach_scene_event_list[self.battle_stage.reach_scene]:  # cutscene
-                                for parent_event in self.reach_scene_event_list[self.battle_stage.reach_scene]["cutscene"]:
+                                for parent_event in self.reach_scene_event_list[self.battle_stage.reach_scene][
+                                    "cutscene"]:
                                     # play one parent at a time
                                     self.cutscene_playing = parent_event
                                     if "replayable" not in parent_event[0]["Property"]:
@@ -1018,7 +1023,8 @@ class Battle:
 
                     if self.player_interact_event_list:
                         event_list = sorted({key[0]: self.main_player_object.base_pos.distance_to(key[1]) for key in
-                                             [(item2, item2) if type(item2) is tuple else (item2, item2.base_pos) for item2 in
+                                             [(item2, item2) if type(item2) is tuple else (item2, item2.base_pos) for
+                                              item2 in
                                               self.player_interact_event_list]}.items(), key=lambda item: item[1])
                         for item in event_list:
                             target_pos = item[0]
@@ -1031,15 +1037,15 @@ class Battle:
                                     self.speech_prompt.clear()  # remove prompt
                                     if (self.main_player_object.base_pos[0] - target_pos[0] < 0 and
                                         self.main_player_object.angle != -90) or \
-                                        (self.main_player_object.base_pos[0] - target_pos[0] >= 0 and
-                                         self.main_player_object.angle != 90):  # face target
+                                            (self.main_player_object.base_pos[0] - target_pos[0] >= 0 and
+                                             self.main_player_object.angle != 90):  # face target
                                         self.main_player_object.new_angle *= -1
                                         self.main_player_object.rotate_logic()
                                     if type(item[0]) is not tuple:
                                         if (item[0].base_pos[0] - self.main_player_object.base_pos[0] < 0 and
                                             item[0].angle != -90) or \
-                                            (item[0].base_pos[0] - self.main_player_object.base_pos[0] >= 0 and
-                                             item[0].angle != 90):  # face player
+                                                (item[0].base_pos[0] - self.main_player_object.base_pos[0] >= 0 and
+                                                 item[0].angle != 90):  # face player
                                             item[0].new_angle *= -1
                                             item[0].rotate_logic()
 
@@ -1049,7 +1055,8 @@ class Battle:
                                         if not self.player_interact_event_list[item[0]]:
                                             self.player_interact_event_list.pop(item[0])
                                     else:  # event can be replayed, use copy instead of original to prevent delete
-                                        self.cutscene_playing = copy.deepcopy(self.player_interact_event_list[item[0]][0])
+                                        self.cutscene_playing = copy.deepcopy(
+                                            self.player_interact_event_list[item[0]][0])
                                 break
 
                 else:  # currently in cutscene mode
@@ -1194,7 +1201,7 @@ class Battle:
                                 choice = self.main_story_profile["story choice"][mission_str]
                             if choice == "yes":
                                 for character in self.character_updater:
-                                    if character.is_boss:
+                                    if character.is_boss and not character.leader:  # boss char that is not follower
                                         # start decision animation
                                         character.engage_combat()
                                         character.position = "Stand"  # enforce stand position
@@ -1288,7 +1295,7 @@ class Battle:
         # remove menu and ui
         self.remove_ui_updater(self.battle_menu_button, self.esc_slider_menu.values(),
                                self.esc_value_boxes.values(), self.esc_option_text.values(),
-                               self.esc_text_popup, self.player_char_base_interfaces.values(),
+                               self.stage_translation_text_popup, self.player_char_base_interfaces.values(),
                                self.player_char_interfaces.values())
 
         for key, value in self.player_objects.items():

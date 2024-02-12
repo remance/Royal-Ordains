@@ -41,7 +41,7 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
                         # complete all chapter stage, update to next chapter
                         self.save_data.save_profile["character"][slot]["chapter"] = chapter + 1
                         self.save_data.save_profile["character"][slot]["mission"] = 1
-                    print(self.battle_map_data.stage_level_up[chapter][mission]["Status"], self.battle_map_data.stage_level_up[chapter][mission]["Skill"])
+
                     self.save_data.save_profile["character"][slot]["character"]["Status Remain"] += \
                         self.battle_map_data.stage_level_up[chapter][mission]["Status"]
                     self.save_data.save_profile["character"][slot]["character"]["Skill Remain"] += \
@@ -49,7 +49,8 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
 
                     if self.battle.decision_select.selected:
                         mission_str = str(chapter) + "." + str(mission) + "." + str(stage)
-                        self.save_data.save_profile["character"][slot]["story choice"][mission_str] = self.battle.decision_select.selected
+                        self.save_data.save_profile["character"][slot]["story choice"][
+                            mission_str] = self.battle.decision_select.selected
                         for follower in self.battle.stage_reward[self.battle.decision_select.selected][chapter][
                             mission][stage]["follower"]:
                             if follower not in self.save_data.save_profile["character"][slot]["follower list"]:
@@ -71,6 +72,7 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
     write_all_player_save(self)
 
     self.battle.decision_select.selected = None  # reset decision here instead of in battle method
+    self.battle.city_mode = False  # reset battle city mode so char interface not allow switching other modes when quit
 
     if next_battle is True:  # finish stage, continue to next one
         if stage + 1 in self.preset_map_data[chapter][mission]:  # has next stage

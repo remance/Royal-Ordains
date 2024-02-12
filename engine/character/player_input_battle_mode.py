@@ -132,13 +132,16 @@ def player_input_battle_mode(self, player_index, dt):
                         # check for holding attack
                         if self.command_key_hold and "hold" in self.current_moveset["Property"]:
                             if "Weak" in self.command_key_hold and "weak" in self.current_action:
-                                self.current_action = self.weak_attack_hold_command_action | self.current_moveset["Property"]
+                                self.current_action = self.weak_attack_hold_command_action | self.current_moveset[
+                                    "Property"]
 
                             elif "Strong" in self.command_key_hold and "strong" in self.current_action:
-                                self.current_action = self.strong_attack_hold_command_action | self.current_moveset["Property"]
+                                self.current_action = self.strong_attack_hold_command_action | self.current_moveset[
+                                    "Property"]
 
                             elif "Special" in self.command_key_hold and "special" in self.current_action:
-                                self.current_action = self.special_hold_command_action | self.current_moveset["Property"]
+                                self.current_action = self.special_hold_command_action | self.current_moveset[
+                                    "Property"]
 
                     elif self.last_command_key_input == "Down" and "couch" not in self.current_action and \
                             "air" not in self.current_action and self.position == "Stand":

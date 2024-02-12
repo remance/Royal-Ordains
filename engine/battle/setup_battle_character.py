@@ -2,7 +2,6 @@ import copy
 from random import randint
 
 from engine.character.character import Character, AICharacter, PlayerCharacter, CityAICharacter
-
 from engine.uibattle.uibattle import ScoreBoard
 
 
@@ -46,16 +45,21 @@ def setup_battle_character(self, player_list, stage_char_list, add_helper=True):
                                 data | self.character_data.character_list[data["ID"]] |
                                 {"Sprite Ver": self.chapter}, health_scaling=health_scaling)
 
-    last_id = stage_char_list[-1]["Object ID"] + 1  # id continue from last stage chars
-    if self.player_team_followers:  # player AI follower
-        for value in self.player_team_followers.values():
-            for key, data in value.items():
-                for number in range(int(data)):
-                    last_id += 1
-                    AICharacter(last_id, last_id, self.character_data.character_list[key] |
-                                {"ID": key, "Sprite Ver": 1, "Team": 1, "Start Health": 1,
-                                 "POS": (randint(100, 400), Character.original_ground_pos), "Scene": 1,
-                                 "Arrive Condition": ()}, leader=self.players[1]["Object"])
+    if player_list and not self.city_mode:  # add AI followers for added player in battle
+        last_id = stage_char_list[-1]["Object ID"] + 1  # id continue from last stage chars
+        for player in player_list:
+            max_follower_allowance = (self.chapter * 20) + self.all_story_profiles[player]["character"]["Charisma"]
+            for key, number in self.all_story_profiles[player]["followers"][
+                self.all_story_profiles[player]["selected follower preset"]].items():
+                for _ in range(int(number)):
+                    if max_follower_allowance >= self.character_data.character_list[key]["Follower Cost"]:
+                        # if cost exceed fund will not be added
+                        max_follower_allowance -= self.character_data.character_list[key]["Follower Cost"]
+                        last_id += 1
+                        AICharacter(last_id, last_id, self.character_data.character_list[key] |
+                                    {"ID": key, "Sprite Ver": self.chapter, "Team": 1, "Start Health": 1,
+                                     "POS": (randint(100, 400), Character.original_ground_pos), "Scene": 1,
+                                     "Arrive Condition": ()}, leader=self.players[1]["Object"])
 
     if add_helper:
         self.helper = AICharacter("helper", 99999999, self.character_data.character_list["Dashisi"] |

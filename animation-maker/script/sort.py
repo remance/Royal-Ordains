@@ -65,4 +65,3 @@ for animation_race in sub1_directories:
         edit_file.close()
 
         sort_animation(pool, part_name_header)
-

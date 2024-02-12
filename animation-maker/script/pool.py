@@ -3,8 +3,6 @@ import os
 import sys
 from pathlib import Path
 
-import pygame
-
 from engine.data.datastat import stat_convert
 from engine.utils.data_loading import filename_convert_readable
 
@@ -77,7 +75,8 @@ def anim_to_pool(animation_name, pool, char, activate_list, new=False, replace=N
 
 def anim_save_pool(pool, race_name, anim_column_header):
     """Save animation pool data"""
-    with open(os.path.join(main_dir, "data", "animation", filename_convert_readable(race_name, revert=True) + ".csv"), mode="w",
+    with open(os.path.join(main_dir, "data", "animation", filename_convert_readable(race_name, revert=True) + ".csv"),
+              mode="w",
               encoding='utf-8', newline="") as edit_file:
         filewriter = csv.writer(edit_file, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL)
         save_list = pool

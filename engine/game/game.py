@@ -32,7 +32,7 @@ from engine.uimenu.uimenu import OptionMenuText, SliderMenu, MenuCursor, BoxUI, 
     URLIconLink, MenuButton, TextPopup, MapTitle, CharacterSelector, CharacterInterface, CharacterProfileBox, \
     NameTextBox
 from engine.updater.updater import ReversedLayeredUpdates
-from engine.utils.common import edit_config, empty_method, cutscene_update
+from engine.utils.common import edit_config, cutscene_update
 from engine.utils.data_loading import load_image, load_images, csv_read, load_base_button
 from engine.utils.text_making import number_to_minus_or_plus
 from engine.weather.weather import MatterSprite, SpecialWeatherEffect, Weather
@@ -283,10 +283,10 @@ class Game:
         self.battle_cursor_drawer = pygame.sprite.LayeredUpdates()
 
         self.character_updater = pygame.sprite.Group()  # updater for character objects
-        self.character_updater.cutscene_update = types.MethodType(cutscene_update,  self.character_updater)
+        self.character_updater.cutscene_update = types.MethodType(cutscene_update, self.character_updater)
         self.realtime_ui_updater = pygame.sprite.Group()  # for UI stuff that need to be updated in real time like drama and weather objects, also used as drawer
         self.effect_updater = pygame.sprite.Group()  # updater for effect objects (e.g. range attack sprite)
-        self.effect_updater.cutscene_update = types.MethodType(cutscene_update,  self.effect_updater)
+        self.effect_updater.cutscene_update = types.MethodType(cutscene_update, self.effect_updater)
 
         self.all_chars = pygame.sprite.Group()  # group to keep all character objects for cleaning
         self.all_damage_effects = pygame.sprite.Group()  # group to keep all damage objects for collision check
@@ -382,12 +382,20 @@ class Game:
             pygame.mixer.Channel(0).play(self.music_pool["menu"])
             pygame.mixer.Channel(0).set_volume(self.play_music_volume)
 
+        # Load UI images
+        self.battle_ui_images = load_images(self.data_dir, screen_scale=self.screen_scale, subfolder=("ui", "battle_ui"))
+        self.char_selector_images = load_images(self.data_dir, screen_scale=self.screen_scale,
+                                                subfolder=("ui", "char_ui"), key_file_name_readable=True)
+        self.button_image = load_images(self.data_dir, screen_scale=self.screen_scale,
+                                        subfolder=("ui", "battlemenu_ui", "button"))
+        self.option_menu_images = load_images(self.data_dir, screen_scale=self.screen_scale,
+                                    subfolder=("ui", "option_ui"))
         # Main menu interface
         self.fps_count = FPSCount(self)  # FPS number counter
         if self.show_fps:
             self.add_ui_updater(self.fps_count)
         if self.easy_text:
-            CharacterSpeechBox.font_name = "main_button"
+            CharacterSpeechBox.simple_font = True
 
         base_button_image_list = load_base_button(self.data_dir, self.screen_scale)
 
@@ -426,7 +434,8 @@ class Game:
                                         key_name="select_button")
 
         # Option menu button
-        option_menu_dict = make_option_menu(base_button_image_list, self.config["USER"],
+        option_menu_dict = make_option_menu(self.option_menu_images, self.battle_ui_images,
+                                            base_button_image_list, self.config["USER"],
                                             self.player_key_bind_list[1])
         self.back_button = option_menu_dict["back_button"]
         self.keybind_button = option_menu_dict["keybind_button"]
@@ -464,31 +473,43 @@ class Game:
                                            (self.screen_rect.width / 4, self.screen_rect.height / 1.05),
                                            key_name="back_button")
 
-        char_selector_images = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                           subfolder=("ui", "charselect_ui"), key_file_name_readable=True)
-        self.player1_char_selector = CharacterSelector((self.screen_width / 8, self.screen_height / 2.2),
-                                                       char_selector_images)
-        self.player1_char_interface = CharacterInterface(self.player1_char_selector.rect.center, 1)
-        self.player2_char_selector = CharacterSelector((self.screen_width / 2.7, self.screen_height / 2.2),
-                                                       char_selector_images)
-        self.player2_char_interface = CharacterInterface(self.player2_char_selector.rect.center, 2)
-        self.player3_char_selector = CharacterSelector((self.screen_width / 1.6, self.screen_height / 2.2),
-                                                       char_selector_images)
-        self.player3_char_interface = CharacterInterface(self.player3_char_selector.rect.center, 3)
-        self.player4_char_selector = CharacterSelector((self.screen_width / 1.15, self.screen_height / 2.2),
-                                                       char_selector_images)
-        self.player4_char_interface = CharacterInterface(self.player4_char_selector.rect.center, 4)
+        self.player1_text_popup = TextPopup()  # popup box that show text for player 1 interface
+        self.player2_text_popup = TextPopup()  # popup box that show text for player 2 interface
+        self.player3_text_popup = TextPopup()  # popup box that show text for player 3 interface
+        self.player4_text_popup = TextPopup()  # popup box that show text for player 4 interface
+
+        self.player1_char_selector = CharacterSelector((self.screen_width / 8, self.screen_height / 2.4),
+                                                       self.char_selector_images)
+        self.player1_char_interface = CharacterInterface(self.player1_char_selector.rect.topleft, 1,
+                                                         self.player1_text_popup, self.char_selector_images,
+                                                         self.battle_ui_images)
+        self.player2_char_selector = CharacterSelector((self.screen_width / 2.7, self.screen_height / 2.4),
+                                                       self.char_selector_images)
+        self.player2_char_interface = CharacterInterface(self.player2_char_selector.rect.topleft, 2,
+                                                         self.player2_text_popup, self.char_selector_images,
+                                                         self.battle_ui_images)
+        self.player3_char_selector = CharacterSelector((self.screen_width / 1.6, self.screen_height / 2.4),
+                                                       self.char_selector_images)
+        self.player3_char_interface = CharacterInterface(self.player3_char_selector.rect.topleft, 3,
+                                                         self.player3_text_popup, self.char_selector_images,
+                                                         self.battle_ui_images)
+        self.player4_char_selector = CharacterSelector((self.screen_width / 1.15, self.screen_height / 2.4),
+                                                       self.char_selector_images)
+        self.player4_char_interface = CharacterInterface(self.player4_char_selector.rect.topleft, 4,
+                                                         self.player4_text_popup, self.char_selector_images,
+                                                         self.battle_ui_images)
         self.player_char_selectors = {1: self.player1_char_selector, 2: self.player2_char_selector,
                                       3: self.player3_char_selector, 4: self.player4_char_selector}
         self.player_char_interfaces = {1: self.player1_char_interface, 2: self.player2_char_interface,
                                        3: self.player3_char_interface, 4: self.player4_char_interface}
         self.char_menu_buttons = (self.player1_char_selector, self.player2_char_selector, self.player3_char_selector,
                                   self.player4_char_selector, self.char_back_button, self.start_button)
-        CharacterProfileBox.image = char_selector_images["Charsheet"]
-        self.char_profile_boxes = {key + 1: {key2 + 1: CharacterProfileBox((self.player_char_selectors[key + 1].rect.topleft[0],
-                                                                            self.player_char_selectors[key + 1].rect.topleft[1] +
-                                                                            (key2 * (210 * self.screen_scale[1])))) for
-                                             key2 in range(4)} for key in range(4)}
+        CharacterProfileBox.image = self.char_selector_images["Charsheet"]
+        self.char_profile_boxes = {
+            key + 1: {key2 + 1: CharacterProfileBox((self.player_char_selectors[key + 1].rect.topleft[0],
+                                                     self.player_char_selectors[key + 1].rect.topleft[1] +
+                                                     (key2 * (210 * self.screen_scale[1])))) for
+                      key2 in range(4)} for key in range(4)}
         self.char_profile_page_text = {key + 1: NameTextBox((self.player1_char_selector.image.get_width() / 1.5,
                                                              42 * self.screen_scale[1]),
                                                             (self.player_char_selectors[key + 1].rect.center[0],
@@ -514,8 +535,7 @@ class Game:
                                    self.input_ui, self.input_box)
 
         # Text popup
-        self.text_popup = TextPopup()  # popup box that show text when mouse over something
-        self.esc_text_popup = TextPopup()  # popup box for text that translate background script
+        self.stage_translation_text_popup = TextPopup()  # popup box for text that translate background script
 
         # Encyclopedia interface
         Lorebook.history_lore = self.localisation.create_lore_data("history")
@@ -764,7 +784,6 @@ class Game:
                 elif event.type == QUIT:
                     esc_press = True
 
-            self.remove_ui_updater(self.text_popup)
             self.ui_updater.update()
 
             # Reset screen
@@ -785,7 +804,8 @@ class Game:
 
                     elif self.input_popup[1] == "delete profile":
                         self.save_data.save_profile["character"].pop(self.input_popup[2])
-                        self.save_data.remove_save_file(os.path.join(self.main_dir, "save", str(self.input_popup[2]) + ".dat"))
+                        self.save_data.remove_save_file(
+                            os.path.join(self.main_dir, "save", str(self.input_popup[2]) + ".dat"))
                         for player2 in self.profile_page:
                             self.update_profile_slots(player2)
 

@@ -1,9 +1,9 @@
 """This file contains all class and function that read troop/leader related data
 and save them into dict for in game use """
 
+import copy
 import csv
 import os
-import copy
 
 from engine.utils.data_loading import stat_convert, load_images
 
@@ -130,7 +130,7 @@ class CharacterData(GameData):
                             rd2 = tuple(csv.reader(edit_file2, quoting=csv.QUOTE_ALL))
                             header2 = rd2[0]
                             tuple_column = (
-                            "Buttons", "Requirement Move", "Status", "Enemy Status")  # value in tuple only
+                                "Buttons", "Requirement Move", "Status", "Enemy Status")  # value in tuple only
                             tuple_column = [index for index, item in enumerate(header2) if item in tuple_column]
                             dict_column = ("Stat Requirement", "Prepare Animation", "Property",)
                             dict_column = [index for index, item in enumerate(header2) if item in dict_column]
@@ -152,7 +152,8 @@ class CharacterData(GameData):
                                 if not row2[header2.index("Requirement Move")]:
                                     # parent move, must also always at row above any child move in csv file
                                     moveset_dict[row2[header2.index("Position")]][row2[0]] = move_data
-                                if row2[header2.index("Requirement Move")] or "all_child_moveset" in move_data["Property"]:
+                                if row2[header2.index("Requirement Move")] or "all_child_moveset" in move_data[
+                                    "Property"]:
                                     found = None
                                     for parent_move in parent_move_list:
                                         done_check = [False]
@@ -262,7 +263,8 @@ class CharacterData(GameData):
 
 def final_parent_moveset(parent_move_data, move_key, move_data, parent_move_name, done_check, already_check):
     try:
-        recursive_find_parent_moveset(parent_move_data, move_key, move_data, parent_move_name, done_check, already_check)
+        recursive_find_parent_moveset(parent_move_data, move_key, move_data, parent_move_name, done_check,
+                                      already_check)
         return
     except ValueError:
         return
@@ -280,7 +282,8 @@ def recursive_find_parent_moveset(parent_move_data, move_key, move_data, parent_
         else:  # not yet search deeper
             if "Next Move" in v and v["Move"] not in already_check:
                 already_check.append(v["Move"])  # add move to already check to prevent unending loop
-                recursive_find_parent_moveset(v["Next Move"], move_key, move_data, parent_move_name, done_check, already_check)
+                recursive_find_parent_moveset(v["Next Move"], move_key, move_data, parent_move_name, done_check,
+                                              already_check)
 
 
 def recursive_rearrange_moveset(move_data, already_check):
@@ -296,4 +299,3 @@ def recursive_rearrange_moveset(move_data, already_check):
                 recursive_rearrange_moveset(move_data["Next Move"][move], already_check)
     if move_data["Move"] not in already_check:
         already_check.append(move_data["Move"])
-

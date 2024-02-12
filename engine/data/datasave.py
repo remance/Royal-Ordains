@@ -1,6 +1,5 @@
 import os
 import pickle
-
 from pathlib import Path
 
 from engine.data.datastat import GameData
@@ -8,11 +7,13 @@ from engine.data.datastat import GameData
 empty_character_save = {"chapter": 1, "mission": 1, "playtime": 0, "total scores": 0, "total kills": 0,
                         "total golds": 0, "boss kills": 0, "total damages": 0, "last save": "Not Saved",
                         "character": {},
-                        "equipment": {"head": None, "body": None, "arm": None, "leg": None, "feet": None,
+                        "equipment": {"head": None, "body": None, "arm": None, "leg": None,
                                       "weapon 1": None, "weapon 2": None, "accessory 1": None, "accessory 2": None,
                                       "accessory 3": None, "accessory 4": None,
                                       "inventory": {"Up": None, "Right": None, "Down": None, "Left": None}},
-                        "storage": {}, "story event": {}, "story choice": {}, "followers": {}, "follower list": []}
+                        "storage": {}, "story event": {}, "story choice": {}, "selected follower preset": 0,
+                        "followers": {0: {}, 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {}, 8: {},
+                                      9: {}, 10: {}, 11: {}}, "follower list": []}
 
 
 class SaveData(GameData):
@@ -46,7 +47,8 @@ class SaveData(GameData):
     def make_save_file(file_name, profile_data):
         data = profile_data  # remove unrelated stuff
         if "character" in data:
-            data["character"] = {key: value for key, value in data["character"].items() if key not in ("Object", "Team", "Playable")}
+            data["character"] = {key: value for key, value in data["character"].items() if
+                                 key not in ("Object", "Team", "Playable")}
         with open(file_name, "wb") as f:
             pickle.dump(data, f, protocol=2)
 
