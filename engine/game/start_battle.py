@@ -43,9 +43,20 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
                         self.save_data.save_profile["character"][slot]["mission"] = 1
 
                     self.save_data.save_profile["character"][slot]["character"]["Status Remain"] += \
-                        self.battle_map_data.stage_level_up[chapter][mission]["Status"]
+                        self.battle_map_data.stage_reward[chapter][mission]["Status"]
                     self.save_data.save_profile["character"][slot]["character"]["Skill Remain"] += \
-                        self.battle_map_data.stage_level_up[chapter][mission]["Skill"]
+                        self.battle_map_data.stage_reward[chapter][mission]["Skill"]
+
+                    for follower in self.battle_map_data.stage_reward[chapter][mission]["follower"]:
+                        if follower not in self.save_data.save_profile["character"][slot]["Follower Reward"]:
+                            self.save_data.save_profile["character"][slot]["Follower Reward"].append(follower)
+                    for item in self.battle_map_data.stage_reward[chapter][mission]["Item Reward"]:
+                        if item in self.save_data.save_profile["character"][slot]["storage"]:
+                            self.save_data.save_profile["character"][slot]["storage"][item] += 1
+                        else:
+                            self.save_data.save_profile["character"][slot]["storage"][item] = 1
+                    self.save_data.save_profile["character"][slot]["total golds"] += \
+                        self.battle_map_data.stage_reward[chapter][mission]["Gold Reward"]
 
                     if self.battle.decision_select.selected:
                         mission_str = str(chapter) + "." + str(mission) + "." + str(stage)
@@ -57,7 +68,10 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
                                 self.save_data.save_profile["character"][slot]["follower list"].append(follower)
                         for item in self.battle.stage_reward[self.battle.decision_select.selected][
                             chapter][mission][stage]["item"]:
-                            self.save_data.save_profile["character"][slot]["storage"][item] = 1
+                            if item in self.save_data.save_profile["character"][slot]["storage"][item]:
+                                self.save_data.save_profile["character"][slot]["storage"][item] += 1
+                            else:
+                                self.save_data.save_profile["character"][slot]["storage"][item] = 1
                         self.save_data.save_profile["character"][slot]["total golds"] += \
                             self.battle.stage_reward[self.battle.decision_select.selected][chapter][mission][
                                 stage]["gold"]

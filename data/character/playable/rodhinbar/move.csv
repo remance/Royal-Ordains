@@ -1,9 +1,9 @@
 "Buttons","Move","Name","Position","Stat Requirement","Requirement Move","Prepare Animation","After Animation","AI Range","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"Forward,Forward,Strong","sffstrong","Air Shot","Stand",,,,,2000,3000,,1,100,,,,150,,"Physical",,,,"hold:power"
-"Forward,Forward,Strong","affstrong","Ground Shot","Air",,,,,500,3000,,1,115,,,,150,,"Physical",,,,"hold:power"
-"Forward,Strong","cfstrong","Aim Shot","Couch",,,,,2000,3000,,1,120,160,,,60,,"Physical",,,,"hold:power"
-"Forward,Strong","sfstrong","Aim Shot","Stand",,,,,2000,3000,,1,110,200,,,40,,"Physical",,,,"hold:power"
-"Forward,Strong","afstrong","Aim Shot","Air",,,,,2000,3000,,1,100,120,,,120,,"Physical",,,,"hold:power"
+"Forward,Forward,Strong","sffstrong","Air Shot","Stand",,,,,2000,3000,,1,100,,,,150,,"Physical",,,,"can_hold:power"
+"Forward,Forward,Strong","affstrong","Ground Shot","Air",,,,,500,3000,,1,115,,,,150,,"Physical",,,,"can_hold:power"
+"Forward,Strong","cfstrong","Aim Shot","Couch",,,,,2000,3000,,1,120,160,,,60,,"Physical",,,,"can_hold:power"
+"Forward,Strong","sfstrong","Aim Shot","Stand",,,,,2000,3000,,1,110,200,,,40,,"Physical",,,,"can_hold:power"
+"Forward,Strong","afstrong","Aim Shot","Air",,,,,2000,3000,,1,100,120,,,120,,"Physical",,,,"can_hold:power"
 "Down,Strong","adstrong","Down Shot","Air",,,,,2000,3000,,1,130,,,,280,,"Physical",,,,
 "Down,Forward,Strong","adfstrong","Air Tri-Shots","Air","Dexterity:60",,,,1500,2000,,3,150,30,,,200,,"Physical",,,,
 "Weak","cweak1","Back fist","Couch",,,,,150,,,,15,24,,,40,,"Physical",,,,

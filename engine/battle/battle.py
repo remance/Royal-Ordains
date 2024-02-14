@@ -310,6 +310,8 @@ class Battle:
 
         self.shown_camera_pos = self.camera_pos  # pos of camera shown to player, in case of screen shaking or other effects
 
+        self.dt = 0  # Realtime used for time calculation
+        self.ui_dt = 0  # Realtime used for ui timer
         self.screen_shake_value = 0  # count for how long to shake camera
 
         Battle.camera = Camera(self.screen, self.battle_camera_size)
@@ -601,8 +603,6 @@ class Battle:
 
         self.shown_camera_pos = self.camera_pos
 
-        self.player_unit_input_delay = 0
-        self.text_delay = 0
         self.screen_shake_value = 0
         self.ui_timer = 0  # This is timer for ui update function, use realtime
         self.drama_timer = 0  # This is timer for combat related function, use self time (realtime * game_speed)
@@ -735,14 +735,8 @@ class Battle:
 
             for event in pygame.event.get():  # get event that happen
                 if event.type == QUIT:  # quit game
-                    if self.game_state != "menu":  # open menu first before add popup
-                        self.game_state = "menu"
-                        self.add_ui_updater(self.battle_menu_button,
-                                            self.stage_translation_text_popup,
-                                            self.cursor)  # add menu and its buttons to drawer
-                    self.input_popup = ("confirm_input", "quit")
-                    self.input_ui.change_instruction("Quit Game?")
-                    self.add_ui_updater(self.confirm_ui_popup, self.cursor)
+                    pygame.quit()
+                    sys.exit()
 
                 elif event.type == pygame.JOYBUTTONUP:
                     joystick = event.instance_id
@@ -774,8 +768,8 @@ class Battle:
                     #     self.drama_text.queue.append("Rushed to the English line, he fought valiantly alone")
                     elif event.key == K_F6:
                         for enemy in self.all_team_enemy[1]:
-                            if not enemy.invincible and self.base_stage_start <= enemy.base_pos[
-                                0] <= self.base_stage_end:
+                            if not enemy.invincible and int(enemy.base_pos[0] / 1920) in \
+                                    (self.battle_stage.spawn_check_scene - 1, self.battle_stage.spawn_check_scene):
                                 enemy.health = 0
                     elif event.key == K_F7:  # clear profiler
                         if hasattr(self.game, "profiler"):
@@ -829,11 +823,6 @@ class Battle:
             if self.player_key_press[self.main_player]["Menu/Cancel"]:
                 # open/close menu
                 esc_press = True
-
-            if self.player_unit_input_delay:  # delay for command input
-                self.player_unit_input_delay -= self.dt
-                if self.player_unit_input_delay < 0:
-                    self.player_unit_input_delay = 0
 
             self.ui_updater.update()  # update ui before more specific update
 
@@ -957,8 +946,7 @@ class Battle:
 
                         elif (type(self.next_lock) is int and self.battle_stage.current_scene == self.next_lock) or \
                                 (type(self.next_lock) is tuple and self.battle_stage.current_scene ==
-                                 self.next_lock[
-                                     0]):
+                                 self.next_lock[0]):
                             # player (camera) reach next lock
                             if type(self.next_lock) is tuple:  # stage lock for multiple scenes
                                 self.base_stage_start = self.base_stage_end_list[self.next_lock[0]]
@@ -1185,7 +1173,6 @@ class Battle:
                         mission_str = str(self.chapter) + "." + str(self.mission) + "." + str(self.stage)
                         # not ending stage yet, due to decision waiting or playing cutscene
                         if self.decision_select not in self.realtime_ui_updater and self.stage_end_choice:
-                            # TODO add condition to repeat previous decision this when already done mission before
                             if mission_str not in self.main_story_profile["story choice"]:
                                 if "Victory" not in self.drama_text.queue:
                                     self.drama_text.queue.append("Victory")
@@ -1273,7 +1260,7 @@ class Battle:
                     self.remove_ui_updater(self.cursor, self.city_map)
                     self.game_state = "battle"
                     return selected_map
-                elif self.player_key_press[self.main_player]["Special"]:
+                elif self.player_key_press[self.main_player]["Special"] or esc_press:
                     self.remove_ui_updater(self.cursor, self.city_map)
                     self.game_state = "battle"
 

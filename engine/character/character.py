@@ -672,18 +672,18 @@ class Character(sprite.Sprite):
                         "hold" in self.current_action and \
                         ((not self.current_moveset and "forced move" not in self.current_action) or
                          ("forced move" in self.current_action and (self.x_momentum or self.y_momentum)) or
-                         (self.current_moveset and "hold" in self.current_moveset["Property"])):
+                         (self.current_moveset and "can_hold" in self.current_moveset["Property"])):
                     hold_check = True
-                    if self.current_moveset and "hold" in self.current_moveset["Property"]:
+                    if self.current_moveset and "can_hold" in self.current_moveset["Property"]:
                         self.hold_timer += dt
                         self.hold_power_bonus = 1
-                        if self.current_moveset["Property"]["hold"] == "power" and self.hold_timer >= 1:
+                        if self.current_moveset["Property"]["can_hold"] == "power" and self.hold_timer >= 1:
                             # hold beyond 1 second to hit harder
                             self.hold_power_bonus = 2.5
-                        elif self.current_moveset["Property"]["hold"] == "timing" and 2 >= self.hold_timer >= 1:
+                        elif self.current_moveset["Property"]["can_hold"] == "timing" and 2 >= self.hold_timer >= 1:
                             # hold release at specific time
                             self.hold_power_bonus = 4
-                        elif self.current_moveset["Property"]["hold"] == "trigger" and self.hold_timer >= 0.5:
+                        elif self.current_moveset["Property"]["can_hold"] == "trigger" and self.hold_timer >= 0.5:
                             self.hold_timer -= 0.5
                             self.resource -= self.current_moveset["Resource Cost"]
                             if self.resource < 0:
@@ -873,7 +873,11 @@ class Character(sprite.Sprite):
                 not self.max_show_frame:
             hold_check = True
         done = self.play_cutscene_animation(dt, hold_check)
-        if done or (self.cutscene_target_pos and self.cutscene_target_pos == self.base_pos):
+        if self.cutscene_target_pos and self.cutscene_target_pos != self.base_pos:
+            # keep moving animation until reach target
+            if done:
+                self.show_frame = 0
+        elif done or (self.cutscene_target_pos and self.cutscene_target_pos == self.base_pos):
             if done:
                 self.show_frame = 0
                 self.frame_timer = 0
@@ -1084,12 +1088,10 @@ class AICharacter(Character):
         self.old_cursor_pos = None
         self.is_boss = stat["Boss"]
         self.is_summon = stat["Summon"]
-        self.ai_lock = False  # lock AI from activity when start battle, and it positions outside of scene lock
+        self.ai_lock = True  # lock AI from activity when start battle, and it positions outside of scene lock
         self.follow_command = "Free"
         if self.is_boss:
             self.stun_threshold = self.max_health
-        if self.base_pos[0] > self.battle.base_stage_end:
-            self.ai_lock = True
         if self.is_summon:
             self.health_as_resource = True  # each time summon use resource it uses health instead
         if self.leader:
@@ -1151,17 +1153,21 @@ class AICharacter(Character):
         self.enter_battle(self.battle.character_animation_data)
 
     def ai_update(self, dt):
-        if self.ai_timer:
-            self.ai_timer += dt
-        if self.ai_movement_timer:
-            self.ai_movement_timer += dt
-            if self.ai_movement_timer > self.end_ai_movement_timer:
-                self.ai_movement_timer = 0
-        if not self.broken:
-            self.ai_combat()
-            self.ai_move()
-        else:
-            self.ai_retreat()
+        if self.ai_lock and self.battle.base_stage_end >= self.base_pos[0] >= self.battle.base_stage_start:
+            # unlock once in player scene
+            self.ai_lock = False
+        if not self.ai_lock:
+            if self.ai_timer:
+                self.ai_timer += dt
+            if self.ai_movement_timer:
+                self.ai_movement_timer += dt
+                if self.ai_movement_timer > self.end_ai_movement_timer:
+                    self.ai_movement_timer = 0
+            if not self.broken:
+                self.ai_combat()
+                self.ai_move()
+            else:
+                self.ai_retreat()
 
 
 class CityAICharacter(Character):

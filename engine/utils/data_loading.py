@@ -372,5 +372,7 @@ def item_conversion(i):
         return int(i)
     elif ("." in i and re.search("[a-zA-Z]", i) is None) or i == "inf":
         return float(i)
+    elif "," in i:
+        return tuple(i.split(","))
     else:
         return i

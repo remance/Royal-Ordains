@@ -130,7 +130,7 @@ def player_input_battle_mode(self, player_index, dt):
 
                     elif self.current_moveset:
                         # check for holding attack
-                        if self.command_key_hold and "hold" in self.current_moveset["Property"]:
+                        if self.command_key_hold and "can_hold" in self.current_moveset["Property"]:
                             if "Weak" in self.command_key_hold and "weak" in self.current_action:
                                 self.current_action = self.weak_attack_hold_command_action | self.current_moveset[
                                     "Property"]

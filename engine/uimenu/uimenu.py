@@ -740,13 +740,16 @@ class CharacterSelector(UIMenu):
 
 
 class CharacterInterface(UIMenu):
+    item_sprite_pool = None
+    storage_first_row = tuple([5 * item for item in range(12)])
+
     def __init__(self, pos, player, text_popup, char_interface_images, battle_ui_images):
         UIMenu.__init__(self)
         self.font = Font(self.ui_font["main_button"], int(24 * self.screen_scale[1]))
         self.small_font = Font(self.ui_font["main_button"], int(18 * self.screen_scale[1]))
         self.current_row = 0
-        self.current_col = 0
         self.current_page = 0
+        self.max_page = 0
         self.input_delay = 0
         self.pos = pos
         self.player = player
@@ -798,8 +801,8 @@ class CharacterInterface(UIMenu):
         text_rect = text.get_rect(center=(320 * self.screen_scale[0], 320 * self.screen_scale[1]))
         self.image.blit(text, text_rect)
 
-        text_surface = text_render_with_bg("Description", self.font, Color("black"))
-        button_image = battle_ui_images["button_order"]
+        text_surface = text_render_with_bg("Help", self.font, Color("black"))
+        button_image = battle_ui_images["button_guard"]
         helper_image = Surface((button_image.get_width() + (5 * self.screen_scale[0]) +
                               text_surface.get_width(), button_image.get_height()), SRCALPHA)
         text_rect = text_surface.get_rect(topright=(helper_image.get_width(), 0))
@@ -832,9 +835,9 @@ class CharacterInterface(UIMenu):
                                                                                 370 * self.screen_scale[1])),
                                     "accessory 3": slot_image.get_rect(topleft=(50 * self.screen_scale[0],
                                                                                 490 * self.screen_scale[1])),
-                                    "item 1": slot_image.get_rect(topleft=(50 * self.screen_scale[0],
+                                    "item Up": slot_image.get_rect(topleft=(50 * self.screen_scale[0],
                                                                            610 * self.screen_scale[1])),
-                                    "item 2": slot_image.get_rect(topleft=(50 * self.screen_scale[0],
+                                    "item Right": slot_image.get_rect(topleft=(50 * self.screen_scale[0],
                                                                            730 * self.screen_scale[1])),
                                     "head": slot_image.get_rect(topleft=(250 * self.screen_scale[0],
                                                                          10 * self.screen_scale[1])),
@@ -846,9 +849,9 @@ class CharacterInterface(UIMenu):
                                                                         370 * self.screen_scale[1])),
                                     "accessory 4": slot_image.get_rect(topleft=(250 * self.screen_scale[0],
                                                                                 490 * self.screen_scale[1])),
-                                    "item 3": slot_image.get_rect(topleft=(250 * self.screen_scale[0],
+                                    "item Down": slot_image.get_rect(topleft=(250 * self.screen_scale[0],
                                                                            610 * self.screen_scale[1])),
-                                    "item 4": slot_image.get_rect(topleft=(250 * self.screen_scale[0],
+                                    "item Left": slot_image.get_rect(topleft=(250 * self.screen_scale[0],
                                                                            730 * self.screen_scale[1]))}
         for key, value in self.equipment_slot_rect.items():
             if "weapon" in key:
@@ -858,8 +861,9 @@ class CharacterInterface(UIMenu):
             elif "item" in key:
                 self.image.blit(char_interface_images["Box_item"], value)
             else:
-                self.image.blit(char_interface_images["Box_armor"], value)
+                self.image.blit(char_interface_images["Box_" + key], value)
 
+        self.image.blit(helper_image, helper_image_rect)
         self.equipment_base_image = self.image.copy()
 
         # Follower preset interface
@@ -870,6 +874,8 @@ class CharacterInterface(UIMenu):
             range(4)}
         for box, rect in self.follower_preset_box_rects.items():
             self.image.blit(self.follower_preset_box_image, rect)
+        self.image.blit(helper_image, helper_image_rect)
+
         self.follower_preset_base_image = self.image.copy()
         # Follower list interface
         self.image = Surface((400 * self.screen_scale[0], 950 * self.screen_scale[1]), SRCALPHA)
@@ -877,10 +883,41 @@ class CharacterInterface(UIMenu):
         for index in range(9):
             draw.line(self.image, (0, 0, 0), (0, ((index + 1) * 100) * self.screen_scale[1]),
                       (400, (index + 1) * 100 * self.screen_scale[1]), 2)
+        self.image.blit(helper_image, helper_image_rect)
         self.follower_base_image = self.image.copy()
 
         # Storage interface
         self.image = Surface((400 * self.screen_scale[0], 950 * self.screen_scale[1]), SRCALPHA)
+        self.small_box_images = {"weapon": pygame.transform.smoothscale(char_interface_images["Box_weapon"],
+                                                                        (50 * self.screen_scale[0],
+                                                                         50 * self.screen_scale[1])),
+                                 "armour": pygame.transform.smoothscale(char_interface_images["Box_weapon"],
+                                                                        (50 * self.screen_scale[0],
+                                                                         50 * self.screen_scale[1])),
+                                 "accessory": pygame.transform.smoothscale(char_interface_images["Box_accessory"],
+                                                                           (50 * self.screen_scale[0],
+                                                                            50 * self.screen_scale[1])),
+                                 "item": pygame.transform.smoothscale(char_interface_images["Box_item"],
+                                                                      (50 * self.screen_scale[0],
+                                                                       50 * self.screen_scale[1])),
+                                 "empty": pygame.transform.smoothscale(char_interface_images["Box_empty"],
+                                                                       (50 * self.screen_scale[0],
+                                                                        50 * self.screen_scale[1]))}
+        self.storage_box_rects = {}
+        slot_index = 0
+        for col in range(12):
+            for row in range(5):
+                self.storage_box_rects[slot_index] = self.small_box_images["empty"].get_rect(topleft=((35 * self.screen_scale[0]) + (row * 70 * self.screen_scale[0]),
+                                                                        (14 * self.screen_scale[1]) + (col * 70 * self.screen_scale[1])))
+                self.image.blit(self.small_box_images["empty"], self.storage_box_rects[slot_index])
+                slot_index += 1
+
+        self.page_text = NameTextBox((self.image.get_width() / 1.5, 42 * self.screen_scale[1]),
+                                     (self.image.get_width() / 2, self.image.get_height() - 75 * self.screen_scale[1]),
+                                     "1/1", text_size=36 * self.screen_scale[1], center_text=True)
+
+        self.image.blit(helper_image, helper_image_rect)
+
         self.storage_base_image = self.image.copy()
 
         self.player_input = self.player_input_stat
@@ -888,7 +925,10 @@ class CharacterInterface(UIMenu):
 
     def update(self):
         if self.input_delay > 0:
-            self.input_delay -= self.game.dt
+            if self.game.battle.city_mode:
+                self.input_delay -= self.game.battle.dt
+            else:
+                self.input_delay -= self.game.dt
             if self.input_delay < 0:
                 self.input_delay = 0
 
@@ -967,9 +1007,64 @@ class CharacterInterface(UIMenu):
 
     def change_equipment_list(self):
         self.image = self.equipment_base_image.copy()
+        for equip_type, rect in self.equipment_slot_rect.items():
+            if "item" in equip_type:
+                item = self.profile["equipment"]["item"][equip_type.split(" ")[1]]
+            else:
+                item = self.profile["equipment"][equip_type]
+            if item:
+                item_image = self.item_sprite_pool[self.game.battle.chapter_sprite_ver]["Normal"][item][1][0]
+                image_rect = item_image.get_rect(center=rect.center)
+                self.image.blit(item_image, image_rect)
+        pygame.draw.rect(self.image, (200, 200, 0),
+                         (self.equipment_slot_rect[tuple(self.equipment_slot_rect.keys())[self.current_row]].topleft[0],
+                          self.equipment_slot_rect[tuple(self.equipment_slot_rect.keys())[self.current_row]].topleft[1],
+                          rect.width, rect.height), width=int(5 * self.screen_scale[0]))
 
     def change_storage_list(self):
         self.image = self.storage_base_image.copy()
+
+        slot_index = 0
+        page_slot_index = 0
+        if self.current_page:
+            slot_index += 60 * self.current_page
+        for index, item in enumerate(self.profile["storage"]):
+            if index == slot_index:  # only add item of current page
+                number = self.profile["storage"][item]
+                rect = self.storage_box_rects[page_slot_index]
+
+                if item in self.game.character_data.equip_item_list:  # item type
+                    self.image.blit(self.small_box_images["item"], rect)
+                else:  # equipment type
+                    if item in self.game.character_data.gear_list:
+                        self.image.blit(self.small_box_images[self.game.character_data.gear_list[item]["Type"]], rect)
+                    else:  # custom equipment
+                        self.image.blit(self.small_box_images[item["Type"]], rect)
+                item_image = pygame.transform.smoothscale(self.item_sprite_pool[self.game.battle.chapter_sprite_ver][
+                                                              "Normal"][item][1][0], (50 * self.screen_scale[0],
+                                                                                      50 * self.screen_scale[1]))
+                image_rect = item_image.get_rect(center=rect.center)
+                self.image.blit(item_image, image_rect)
+
+                text_surface = text_render_with_bg(minimise_number_text(str(number)), self.small_font, Color("black"))
+                text_rect = text_surface.get_rect(bottomright=rect.bottomright)
+                self.image.blit(text_surface, text_rect)
+
+                page_slot_index += 1
+                slot_index += 1
+
+        pygame.draw.rect(self.image, (200, 100, 100), (self.storage_box_rects[self.current_row].topleft[0],
+                                                       self.storage_box_rects[self.current_row].topleft[1],
+                                                       50 * self.screen_scale[0],
+                                                       50 * self.screen_scale[1]), width=int(3 * self.screen_scale[0]))
+
+        text_surface = self.font.render("Gold: " + minimise_number_text(str(self.profile["total golds"])),
+                                        True, (0, 0, 0))
+        text_rect = text_surface.get_rect(topleft=(20 * self.screen_scale[0], 830 * self.screen_scale[1]))
+        self.image.blit(text_surface, text_rect)
+
+        self.page_text.rename(str(self.current_page + 1) + "/" + str(self.max_page + 1))
+        self.image.blit(self.page_text.image, self.page_text.rect)
 
     def check_follower_list(self):
         self.follower_list = []
@@ -993,7 +1088,8 @@ class CharacterInterface(UIMenu):
     def add_follower_preset_list(self):
         self.image = self.follower_preset_base_image.copy()
         for preset, rect in self.follower_preset_box_rects.items():
-            real_preset = preset * (self.current_page + 1)
+            real_preset = (preset + 1) + (4 * self.current_page) - 1
+            preset_num = real_preset + 1
             if self.current_row == preset:  # current preset row
                 draw.rect(self.image, (255, 255, 255),
                           (0, rect.topleft[1], 400 * self.screen_scale[0], 200 * self.screen_scale[1]),
@@ -1039,10 +1135,13 @@ class CharacterInterface(UIMenu):
                 self.image.blit(text_surface, text_rect)
 
             # Add preset number
-            text_surface = self.font.render("(" + str(preset) + ")", True, (0, 0, 0))
+            text_surface = self.font.render("(" + str(preset_num) + ")", True, (0, 0, 0))
             text_rect = text_surface.get_rect(bottomright=(rect.bottomright[0],
                                                            rect.bottomright[1] - (5 * self.screen_scale[1])))
             self.image.blit(text_surface, text_rect)
+
+        self.page_text.rename(str(self.current_page + 1) + "/3")
+        self.image.blit(self.page_text.image, self.page_text.rect)
 
     def add_follower_list(self):
         self.image = self.follower_base_image.copy()
@@ -1113,7 +1212,6 @@ class CharacterInterface(UIMenu):
         self.mode = mode
         self.current_row = 0
         self.current_page = 0
-        self.current_col = 0
         self.game.battle.remove_ui_updater(self.text_popup)
         self.game.remove_ui_updater(self.text_popup)
         if self.mode == "stat":
@@ -1130,6 +1228,7 @@ class CharacterInterface(UIMenu):
                 self.check_follower_list()
                 self.add_follower_list()
         elif "storage" in self.mode:
+            self.max_page = int(len(self.profile["storage"]) / 61)
             self.player_input = self.player_input_storage
             self.change_storage_list()
 
@@ -1155,10 +1254,10 @@ class CharacterInterface(UIMenu):
                                                                              self.stat["Skill Remain"], how)
         self.add_stat(self.stat)
 
-    def player_input_stat(self, key):
+    def player_input_sort(self, key):
         if not self.input_delay:
             if key in ("Up", "Down", "Left", "Right"):
-                self.input_delay = 0.15
+                self.input_delay = 0.2
                 if key == "Up":
                     self.current_row -= 1
                     if self.current_row < 0:
@@ -1180,8 +1279,39 @@ class CharacterInterface(UIMenu):
                     else:  # change skill
                         self.change_skill(self.all_skill_row[self.current_row - 7], "up")
             else:
-                self.input_delay = 0.3
-                if key == "Order Menu":  # popup text description
+                self.input_delay = 0.4
+                if key == "Weak":  # sort based on selected option
+                    pass
+                elif key == "Strong":  # cancel, change back to previous interface
+                    pass
+
+    def player_input_stat(self, key):
+        if not self.input_delay:
+            if key in ("Up", "Down", "Left", "Right"):
+                self.input_delay = 0.2
+                if key == "Up":
+                    self.current_row -= 1
+                    if self.current_row < 0:
+                        self.current_row = self.last_row
+                    self.add_stat(self.stat)
+                elif key == "Down":
+                    self.current_row += 1
+                    if self.current_row > self.last_row:
+                        self.current_row = 0
+                    self.add_stat(self.stat)
+                elif key == "Left":
+                    if self.current_row <= 6:  # change stat
+                        self.change_stat(self.stat_row[self.current_row], "down")
+                    else:  # change skill
+                        self.change_skill(self.all_skill_row[self.current_row - 7], "down")
+                elif key == "Right":
+                    if self.current_row <= 6:  # change stat
+                        self.change_stat(self.stat_row[self.current_row], "up")
+                    else:  # change skill
+                        self.change_skill(self.all_skill_row[self.current_row - 7], "up")
+            else:
+                self.input_delay = 0.4
+                if key == "Special":  # popup text description
                     self.add_remove_text_popup()
                     if self.current_row <= 6:
                         stat = self.stat_row[self.current_row]
@@ -1201,42 +1331,108 @@ class CharacterInterface(UIMenu):
                                     self.game.localisation.grab_text(("help", new_key, "Description")))
                         self.text_popup.popup(self.rect.topleft, text,
                                               shown_id=key, width_text_wrapper=400 * self.game.screen_scale[0])
+                elif key == "Guard":
+                    self.add_remove_text_popup()
+                    self.text_popup.popup(self.rect.topleft,
+                                          ("Inventory Menu Button (" + self.game.player_key_bind_button_name[self.player]["Inventory Menu"] + "): Switch to Equipment (When in city only)",
+                                           "Order Menu Button (" + self.game.player_key_bind_button_name[self.player]["Order Menu"] + "): Switch to Storage (When in city only)",
+                                           "Special Button (" + self.game.player_key_bind_button_name[self.player]["Special"] + "): Toggle description"),
+                                          shown_id=key, width_text_wrapper=400 * self.game.screen_scale[0])
                 if self.game.battle.city_mode:
-                    if key == "Special":  # go to next page (equipment)
+                    if key == "Inventory Menu":  # go to next page (equipment)
                         self.change_mode("equipment")
-                    elif key == "Guard":  # go to previous page (storage)
+                    elif key == "Order Menu":  # go to previous page (storage)
                         self.change_mode("storage")
 
     def player_input_equipment(self, key):
         if not self.input_delay:
             if key in ("Up", "Down", "Left", "Right"):
-                self.input_delay = 0.15
+                self.input_delay = 0.25
                 if key == "Up":
                     self.current_row -= 1
                     if self.current_row < 0:
-                        self.current_row = self.last_row
+                        self.current_row = len(self.equipment_slot_rect) - 1
+                    self.change_equipment_list()
                 elif key == "Down":
                     self.current_row += 1
-                    if self.current_row > self.last_row:
+                    if self.current_row > len(self.equipment_slot_rect) - 1:
                         self.current_row = 0
+                    self.change_equipment_list()
                 elif key == "Left":
-                    pass
+                    self.current_row -= 7
+                    if self.current_row < 0:
+                        self.current_row = len(self.equipment_slot_rect) + self.current_row
+                    self.change_equipment_list()
                 elif key == "Right":
-                    pass
+                    self.current_row += 7
+                    if self.current_row > len(self.equipment_slot_rect) - 1:
+                        self.current_row = self.current_row - len(self.equipment_slot_rect)
+                    self.change_equipment_list()
 
             else:
-                self.input_delay = 0.3
-                if self.game.battle.city_mode:
-                    if key == "Special":  # go to next page (follower)
-                        self.change_mode("follower")
-                    elif key == "Guard":  # go to previous page (stat)
-                        self.change_mode("stat")
+                self.input_delay = 0.4
+                if key == "Inventory Menu":  # go to next page (follower)
+                    self.change_mode("follower")
+                elif key == "Order Menu":  # go to previous page (stat)
+                    self.change_mode("stat")
+                elif key == "Special":
+                    stat = ("Empty",)
+                    equip_type = self.equipment_slot_rect[tuple(self.equipment_slot_rect.keys())[self.current_row]]
+                    if "item" in equip_type:
+                        item_id = self.profile["equipment"]["item"][equip_type.split(" ")[1]]
+                    else:
+                        item_id = self.profile["equipment"][equip_type]
+                    if item_id:
+                        if item_id in self.game.character_data.gear_list:
+                            stat = [self.localisation.grab_text(("gear", item_id, "Name")),
+                                    self.localisation.grab_text(("gear", item_id, "Description")),
+                                    "Rarity: " + self.localisation.grab_text(
+                                        ("ui", self.game.character_data.gear_list[item_id]["Rarity"]))]
+                            stat += [str(key) + ": " + str(value) for key, value in
+                                     self.game.character_data.gear_list[item_id]["Modifier"].items()]
+                        else:  # custom equipment
+                            pass  # TODO add when work on custom equip
+                elif key == "Guard":
+                    self.add_remove_text_popup()
+                    self.text_popup.popup(self.rect.topleft,
+                                          ("Inventory Menu Button (" + self.game.player_key_bind_button_name[self.player]["Inventory Menu"] + "): Switch to Follower Preset",
+                                           "Order Menu Button (" + self.game.player_key_bind_button_name[self.player]["Order Menu"] + "): Switch to Character Stat",
+                                           "Special Button (" + self.game.player_key_bind_button_name[self.player]["Special"] + "): Toggle description",
+                                           "When in equipment selection list",
+                                           "Weak Button (" + self.game.player_key_bind_button_name[self.player]["Weak"] + "): Equip current equipment",
+                                           "Strong Button (" + self.game.player_key_bind_button_name[self.player]["Strong"] + "): Cancel",
+                                           "Special Button (" + self.game.player_key_bind_button_name[self.player]["Special"] + "): Sort gear list"),
+                                          shown_id=key, width_text_wrapper=400 * self.game.screen_scale[0])
+
+    def player_input_equipment_select(self, key):
+        if not self.input_delay:
+            if key in ("Up", "Down", "Left", "Right"):
+                self.input_delay = 0.25
+                if key == "Up":
+                    self.current_row -= 1
+                    if self.current_row < 0:
+                        self.current_row = len(self.equipment_slot_rect) - 1
+                    self.change_equipment_list()
+                elif key == "Down":
+                    self.current_row += 1
+                    if self.current_row > len(self.equipment_slot_rect) - 1:
+                        self.current_row = 0
+                    self.change_equipment_list()
+
+            else:
+                self.input_delay = 0.4
+                if key == "Special":
+                    pass  # sort
+                elif key == "Weak":
+                    self.profile["equipment"]
+                elif key == "Strong":
+                    pass
 
     def player_input_follower(self, key):
         if not self.input_delay:
             if self.mode == "follower":  # follower preset list
                 if key in ("Up", "Down", "Left", "Right"):
-                    self.input_delay = 0.15
+                    self.input_delay = 0.4
                     if key == "Up":
                         self.current_row -= 1
                         if self.current_row < 0:
@@ -1260,8 +1456,8 @@ class CharacterInterface(UIMenu):
                         self.current_row = 0
                         self.add_follower_preset_list()
                 else:
-                    self.input_delay = 0.3
-                    if key == "Order Menu":  # popup follower description
+                    self.input_delay = 0.4
+                    if key == "Special":  # popup follower description
                         self.add_remove_text_popup()
                         follower_list = ["Empty"]
                         if self.profile["followers"][self.current_row * (self.current_page + 1)]:
@@ -1278,10 +1474,28 @@ class CharacterInterface(UIMenu):
                     elif key == "Strong":
                         self.profile["selected follower preset"] = self.current_row * (self.current_page + 1)
                         self.add_follower_preset_list()
+                    elif key == "Inventory Menu":  # go to next page (storage)
+                        self.change_mode("storage")
+                    elif key == "Order Menu":  # go to previous page (equipment)
+                        self.change_mode("equipment")
+                    elif key == "Guard":
+                        self.add_remove_text_popup()
+                        self.text_popup.popup(self.rect.topleft,
+                                              ("Weak Button (" + self.game.player_key_bind_button_name[self.player][
+                                                  "Weak"] + "): Edit current preset list",
+                                               "Strong Button (" + self.game.player_key_bind_button_name[self.player][
+                                                  "Strong"] + "): Use current preset list",
+                                               "Inventory Menu Button (" + self.game.player_key_bind_button_name[self.player][
+                                                   "Inventory Menu"] + "): Switch to Storage",
+                                               "Order Menu Button (" + self.game.player_key_bind_button_name[self.player][
+                                                   "Order Menu"] + "): Switch to Equipment",
+                                               "Special Button (" + self.game.player_key_bind_button_name[self.player][
+                                                   "Special"] + "): Toggle Description"),
+                                              shown_id=key, width_text_wrapper=400 * self.game.screen_scale[0])
 
             else:  # follower list
                 if key in ("Up", "Down", "Left", "Right"):
-                    self.input_delay = 0.15
+                    self.input_delay = 0.3
                     if key == "Up":
                         self.current_row -= 1
                         if self.current_row < 0:
@@ -1314,7 +1528,7 @@ class CharacterInterface(UIMenu):
                                 self.current_follower_preset[self.follower_list[self.current_row]] = 1
                         self.add_follower_list()
                 else:
-                    self.input_delay = 0.3
+                    self.input_delay = 0.4
                     if key == "Order Menu":  # popup follower description
                         self.add_remove_text_popup()
                         follower_stat = self.game.character_data.character_list[self.follower_list[self.current_row]]
@@ -1332,40 +1546,105 @@ class CharacterInterface(UIMenu):
                                               shown_id=stat, width_text_wrapper=400 * self.game.screen_scale[0])
                     elif key == "Strong":
                         self.change_mode("follower")
-
-                    elif self.game.battle.city_mode:
-                        if key == "Special":  # go to next page (storage)
-                            self.change_mode("storage")
-                        elif key == "Guard":  # go to previous page (equipment)
-                            self.change_mode("equipment")
+                    elif key == "Inventory Menu":  # go to next page (storage)
+                        self.change_mode("storage")
+                    elif key == "Order Menu":  # go to previous page (equipment)
+                        self.change_mode("equipment")
+                    elif key == "Guard":
+                        self.add_remove_text_popup()
+                        self.text_popup.popup(self.rect.topleft,
+                                              "Weak Button (" + self.game.player_key_bind_button_name[self.player][
+                                                  "Weak"] + "): Sort follower list",
+                                               "Strong Button (" + self.game.player_key_bind_button_name[self.player][
+                                                  "Strong"] + "): Back to follower preset list",
+                                               "Inventory Menu Button (" + self.game.player_key_bind_button_name[self.player][
+                                                   "Inventory Menu"] + "): Switch to Storage",
+                                               "Order Menu Button (" + self.game.player_key_bind_button_name[self.player][
+                                                   "Order Menu"] + "): Switch to Equipment",
+                                               "Special Button (" +
+                                               self.game.player_key_bind_button_name[self.player][
+                                                   "Special"] + "): Toggle Description",
+                                              shown_id=key, width_text_wrapper=400 * self.game.screen_scale[0])
 
     def player_input_storage(self, key):
         if not self.input_delay:
             if key in ("Up", "Down", "Left", "Right"):
-                self.input_delay = 0.15
+                self.input_delay = 0.25
                 if key == "Up":
-                    self.current_row -= 1
+                    self.current_row -= 5
                     if self.current_row < 0:
-                        self.current_row = self.last_row
+                        self.current_row += 60
+                    self.change_storage_list()
                 elif key == "Down":
-                    self.current_row += 1
-                    if self.current_row > self.last_row:
-                        self.current_row = 0
+                    self.current_row += 5
+                    if self.current_row > 59:
+                        self.current_row -= 60
+                    self.change_storage_list()
                 elif key == "Left":
-                    self.current_col -= 1
-                    if self.current_col < 0:
-                        self.current_col = 5
+                    self.current_row -= 1
+                    if self.current_row < 0 or self.current_row + 1 in self.storage_first_row:
+                        if self.max_page:  # has more than one page
+                            self.current_page -= 1
+                            if self.current_page < 0:  # go to last page
+                                self.current_page = self.max_page
+                            else:
+                                self.current_row += 5
+                        else:
+                            self.current_row += 5
+                    self.change_storage_list()
                 elif key == "Right":
                     self.current_row += 1
-                    if self.current_row > 5:
-                        self.current_row = 0
+                    if self.current_row % 5 == 0:
+                        if self.max_page:  # has more than one page
+                            self.current_page += 1
+                            if self.current_page == self.max_page:  # back to first page
+                                self.current_page = 0
+                            else:
+                                self.current_row -= 5
+                        else:
+                            self.current_row -= 5
+                    self.change_storage_list()
             else:
-                self.input_delay = 0.3
-                if self.game.battle.city_mode:
-                    if key == "Special":  # go to next page (stat)
-                        self.change_mode("stat")
-                    elif key == "Guard":  # go to previous page (follower)
-                        self.change_mode("follower")
+                self.input_delay = 0.4
+                if key == "Special":  # popup item description
+                    self.add_remove_text_popup()
+                    stat = ("Empty",)
+                    try:
+                        item_id = tuple(self.profile["storage"].keys())[self.current_row]
+                        if item_id in self.game.character_data.equip_item_list:  # item type
+                            stat = (self.localisation.grab_text(("item", item_id, "Name")),
+                                    self.localisation.grab_text(("item", item_id, "Description")))
+                        else:  # equipment type
+                            if item_id in self.game.character_data.gear_list:
+                                stat = [self.localisation.grab_text(("gear", item_id, "Name")),
+                                        self.localisation.grab_text(("gear", item_id, "Description")),
+                                        "Rarity: " + self.localisation.grab_text(("ui", self.game.character_data.gear_list[item_id]["Rarity"]))]
+                                stat += [str(key) + ": " + str(value) for key, value in self.game.character_data.gear_list[item_id]["Modifier"].items()]
+                            else:  # custom equipment
+                                pass  # TODO add when work on custom equip
+                    except IndexError:
+                        pass
+
+                    self.text_popup.popup(self.rect.topleft, stat,
+                                          shown_id=stat, width_text_wrapper=400 * self.game.screen_scale[0])
+
+                elif key == "Inventory Menu":  # go to next page (stat)
+                    self.change_mode("stat")
+                elif key == "Order Menu":  # go to previous page (follower)
+                    self.change_mode("follower")
+                elif key == "Guard":
+                    self.add_remove_text_popup()
+                    self.text_popup.popup(self.rect.topleft,
+                                          ("Weak Button (" + self.game.player_key_bind_button_name[self.player][
+                                              "Weak"] + "): Sort storage list",
+                                          "Inventory Menu Button (" + self.game.player_key_bind_button_name[self.player][
+                                              "Inventory Menu"] + "): Switch to Character Stat",
+                                          "Order Menu Button (" + self.game.player_key_bind_button_name[self.player][
+                                              "Order Menu"] + "): Switch to Follower Preset List",
+                                          "Special Button (" +
+                                          self.game.player_key_bind_button_name[self.player][
+                                              "Special"] + "): Toggle Description"),
+                                          shown_id=key, width_text_wrapper=400 * self.game.screen_scale[0])
 
 
 class ControllerIcon(UIMenu):
@@ -1777,14 +2056,14 @@ class TextPopup(UIMenu):
                 max_height = 0
                 max_width = width_text_wrapper
                 for text in self.text_input:
-                    image_height = int((len(text) * self.font_size) / (width_text_wrapper * 1.2))
+                    image_height = int((len(text) * self.font.size(" ")[0]) / width_text_wrapper)
                     if not image_height:  # only one line
                         text_image = Surface((width_text_wrapper, self.font_size))
                         text_image.fill((255, 255, 255))
                         surface = self.font.render(text, True, (0, 0, 0))
                         text_image.blit(surface, (self.font_size, 0))
                         text_surface.append(text_image)  # text input font surface
-                        max_height += self.font_size
+                        max_height += surface.get_height()
                     else:
                         # Find new image height, using code from make_long_text
                         x, y = (self.font_size, self.font_size)

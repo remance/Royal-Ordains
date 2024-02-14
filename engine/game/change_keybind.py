@@ -17,6 +17,7 @@ def change_keybind(self):
                              self.game.player_list}
     self.player_key_hold = {player: {key: False for key in self.player_key_bind[player]} for player in
                             self.game.player_list}
+    self.player_key_bind_button_name = self.get_keybind_button_name()
 
     edit_config("USER", "control player " + str(self.control_switch.player),
                 self.config["USER"]["control player " + str(self.control_switch.player)],

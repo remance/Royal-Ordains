@@ -219,6 +219,7 @@ def menu_char(self, esc_press):
                             self.player_char_interfaces[player].add_stat(start_stat)
 
                         else:  # stat to ready
+                            self.battle.remove_ui_updater(self.player_char_interfaces[player].text_popup)
                             self.player_char_select[player] = {"ID": self.player_char_interfaces[player].stat["ID"]} | \
                                                               new_start | {key: value for key, value in
                                                                            self.player_char_interfaces[
@@ -290,7 +291,8 @@ def menu_char(self, esc_press):
                                                    self.char_profile_page_text[player])
                         elif selector.mode == "stat":
                             self.player_char_select[player] = None
-                            self.remove_ui_updater(self.player_char_interfaces[player])
+                            self.remove_ui_updater(self.player_char_interfaces[player],
+                                                   self.player_char_interfaces[player].text_popup)
                             if self.profile_index[player] in self.save_data.save_profile["character"]:
                                 # back to profile select
                                 selector.change_mode("profile")

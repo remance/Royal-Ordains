@@ -81,19 +81,19 @@ class BattleMapData(GameData):
                 self.stage_reward[row[0]][row[1]][row[2]][row[3]] = {"follower": row[4], "item": row[5], "gold": row[6]}
         edit_file.close()
 
-        self.stage_level_up = {}
-        with open(os.path.join(self.data_dir, "map", "levelup.csv"),
+        self.stage_reward = {}
+        with open(os.path.join(self.data_dir, "map", "reward.csv"),
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
                     row = stat_convert(row, n, i)
-                if row[0] not in self.stage_level_up:  # chapter
-                    self.stage_level_up[row[0]] = {}
-                if row[1] not in self.stage_level_up[row[0]]:  # mission
-                    self.stage_level_up[row[0]][row[1]] = {}
-                self.stage_level_up[row[0]][row[1]] = {header[2]: row[2], header[3]: row[3]}
+                if row[0] not in self.stage_reward:  # chapter
+                    self.stage_reward[row[0]] = {}
+                if row[1] not in self.stage_reward[row[0]]:  # mission
+                    self.stage_reward[row[0]][row[1]] = {}
+                self.stage_reward[row[0]][row[1]] = {header[2]: row[2], header[3]: row[3]}
         edit_file.close()
 
         preset_map_list = []
@@ -163,7 +163,7 @@ class BattleMapData(GameData):
                         parent_id = item["ID"]
                         if parent_id not in next_level:
                             next_level[parent_id] = []
-                        next_level[parent_id].append(item)
+                    next_level[parent_id].append(item)
                 unit_file.close()
                 return final_event_data
             unit_file.close()

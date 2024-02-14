@@ -10,7 +10,7 @@ empty_character_save = {"chapter": 1, "mission": 1, "playtime": 0, "total scores
                         "equipment": {"head": None, "body": None, "arm": None, "leg": None,
                                       "weapon 1": None, "weapon 2": None, "accessory 1": None, "accessory 2": None,
                                       "accessory 3": None, "accessory 4": None,
-                                      "inventory": {"Up": None, "Right": None, "Down": None, "Left": None}},
+                                      "item": {"Up": None, "Right": None, "Down": None, "Left": None}},
                         "storage": {}, "story event": {}, "story choice": {}, "selected follower preset": 0,
                         "followers": {0: {}, 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {}, 8: {},
                                       9: {}, 10: {}, 11: {}}, "follower list": []}

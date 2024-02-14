@@ -115,6 +115,9 @@ class Game:
     from engine.game.create_config import create_config
     create_config = create_config
 
+    from engine.game.get_keybind_button_name import get_keybind_button_name
+    get_keybind_button_name = get_keybind_button_name
+
     from engine.game.loading_screen import loading_screen
     loading_screen = loading_screen
 
@@ -252,6 +255,7 @@ class Game:
                                  self.player_list}
         self.player_key_hold = {player: {key: False for key in self.player_key_bind[player]} for player in
                                 self.player_list}  # key that consider holding
+        self.player_key_bind_button_name = self.get_keybind_button_name()
 
         Game.ui_font = csv_read(self.data_dir, "ui_font.csv", ("ui",), header_key=True)
         for item in Game.ui_font:  # add ttf file extension for font data reading.
@@ -366,6 +370,7 @@ class Game:
         Drop.item_sprite_pool = self.body_sprite_pool["Item"]["special"]
         Effect.effect_animation_pool = self.effect_animation_pool
         WheelUI.item_sprite_pool = self.body_sprite_pool["Item"]["special"]
+        CharacterInterface.item_sprite_pool = self.body_sprite_pool["Item"]["special"]
         StageObject.stage_object_animation_pool = self.stage_object_animation_pool
 
         # Load sound effect
@@ -774,15 +779,18 @@ class Game:
                                 self.player_key_bind_name = {player: {value: key for key, value in
                                                                       self.player_key_bind[player].items()}
                                                              for player in self.player_list}
+                                self.player_key_bind_button_name = self.get_keybind_button_name()
 
                             break
 
                     self.player_key_bind_name = {
                         player: {value: key for key, value in self.player_key_bind[player].items()} for
                         player in self.player_list}
+                    self.player_key_bind_button_name = self.get_keybind_button_name()
 
                 elif event.type == QUIT:
-                    esc_press = True
+                    pygame.quit()
+                    sys.exit()
 
             self.ui_updater.update()
 

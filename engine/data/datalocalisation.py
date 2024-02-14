@@ -11,7 +11,6 @@ class Localisation:
         self.data_dir = Game.data_dir
         self.language = Game.language
         self.debug = debug
-
         # start with the creation of common UI localisation
         self.text = {"en": {"ui": csv_read(self.data_dir, "ui.csv", ("localisation", "en"),
                                            dict_value_return_as_str=True)},
@@ -23,13 +22,14 @@ class Localisation:
         except FileNotFoundError:
             pass
 
-        self.read_module_lore("history", "history")
-        self.read_module_lore("character", "character")
-        self.read_module_lore("enemy", "enemy")
-        self.read_module_lore("item", "item")
-        self.read_module_lore("status", "status")
-        self.read_module_lore("event", "event")
-        self.read_module_lore("help", "help")
+        self.read_localisation("history")
+        self.read_localisation("character")
+        self.read_localisation("enemy")
+        self.read_localisation("gear")
+        self.read_localisation("item")
+        self.read_localisation("status")
+        self.read_localisation("event")
+        self.read_localisation("help")
 
         # Load map description
         self.text["en"]["map"] = {}
@@ -69,30 +69,26 @@ class Localisation:
         except FileNotFoundError:
             pass
 
-    def read_module_lore(self, lore_type, lore_key):
+    def read_localisation(self, file_name):
         """
-        Read module lore data
-        :param lore_type: File names to read
-        :param lore_key: key name
+        Read localisation data
+        :param file_name: File name to read
         :return:
         """
-        self.text["en"][lore_key] = {}
-        if not isinstance(lore_type, (list, tuple)):
-            lore_type = [lore_type]
-        for lore in lore_type:
-            with open(os.path.join(self.data_dir, "localisation", "en",
-                                   lore + ".csv"), encoding="utf-8", mode="r") as edit_file:
-                lore_csv_read(edit_file, self.text["en"][lore_key])
-            edit_file.close()
-            if self.language != "en":
-                try:
-                    self.text[self.language][lore_key] = {}
-                    with open(os.path.join(self.data_dir, "localisation", self.language,
-                                           lore + ".csv"), encoding="utf-8", mode="r") as edit_file:
-                        lore_csv_read(edit_file, self.text[self.language][lore_key])
-                    edit_file.close()
-                except FileNotFoundError:
-                    pass
+        self.text["en"][file_name] = {}
+        with open(os.path.join(self.data_dir, "localisation", "en",
+                               file_name + ".csv"), encoding="utf-8", mode="r") as edit_file:
+            lore_csv_read(edit_file, self.text["en"][file_name])
+        edit_file.close()
+        if self.language != "en":
+            try:
+                self.text[self.language][file_name] = {}
+                with open(os.path.join(self.data_dir, "localisation", self.language,
+                                       file_name + ".csv"), encoding="utf-8", mode="r") as edit_file:
+                    lore_csv_read(edit_file, self.text[self.language][file_name])
+                edit_file.close()
+            except FileNotFoundError:
+                pass
 
     def grab_text(self, key=(), alternative_text_data=None):
         """
