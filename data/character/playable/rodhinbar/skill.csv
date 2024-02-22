@@ -1,29 +1,29 @@
 "Move","Name","Buttons","Position","Prepare Animation","After Animation","AI Range","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
 "C1.1","Barrage","Down,Forward,Weak","Stand",,,2000,2000,0,3,95,100,,,50,,"Physical",,,,
 "C1.2","Swift Arrows","Down,Forward,Weak","Stand",,,2000,2000,0,4,121,100,,,50,,"Physical",,,,
-"C1.3","Rapid Shots","Down,Forward,Weak","Stand",,,2000,2000,0,5,143,100,,,50,20,"Physical",,,,
-"C1.4","Volley","Down,Forward,Weak","Stand",,,2000,2000,0,6,168,150,,,100,20,"Physical",,,,
-"C1.5","Finest Archery","Down,Forward,Weak","Stand",,,3000,3000,0,7,186,150,,,100,20,"Physical",94,,,
+"C1.3","Rapid Shots","Down,Forward,Weak","Stand",,,2000,2000,0,5,143,100,,,50,0.2,"Physical",,,,
+"C1.4","Volley","Down,Forward,Weak","Stand",,,2000,2000,0,6,168,150,,,100,0.2,"Physical",,,,
+"C1.5","Finest Archery","Down,Forward,Weak","Stand",,,3000,3000,0,7,186,150,,,100,0.2,"Physical",94,,,
 "C2.1","Charged Shot","Down,Forward,Strong","Stand",,,4000,4500,6,1,215,400,,50,,,"Physical",,,,
 "C2.2","Penetrating Shot","Down,Forward,Strong","Stand",,,4000,4500,6,1,275,400,,50,,,"Physical",,,,"penetrate"
-"C2.3","Great Shot","Down,Forward,Strong","Stand",,,5000,5500,6,1,350,400,,50,,50,"Physical",,,,"penetrate"
-"C2.4","Power Shot","Down,Forward,Strong","Stand",,,5000,5500,6,1,416,800,,200,,50,"Physical",,,,"penetrate"
-"C2.5","Kill Shot","Down,Forward,Strong","Stand",,,6000,6500,6,1,1352,800,,200,,50,"Physical",,,,"penetrate,no defence"
+"C2.3","Great Shot","Down,Forward,Strong","Stand",,,5000,5500,6,1,350,400,,50,,0.5,"Physical",,,,"penetrate"
+"C2.4","Power Shot","Down,Forward,Strong","Stand",,,5000,5500,6,1,416,800,,200,,0.5,"Physical",,,,"penetrate"
+"C2.5","Kill Shot","Down,Forward,Strong","Stand",,,6000,6500,6,1,1352,800,,200,,0.5,"Physical",,,,"penetrate,no defence"
 "C3.1","Arrow Shower","Guard,Down,Down,Strong","Stand",,,2000,2200,0,12,44,,,,100,,"Physical",,,,"spawn,spawn_after,spawn_same,spawn_sky,spawn_near_target,spawn_number:3"
 "C3.2","Arrow Swarm","Guard,Down,Down,Strong","Stand",,,2000,2200,0,14,57,,,,100,,"Physical",,,,"spawn,spawn_after,spawn_same,spawn_sky,spawn_near_target,spawn_number:2"
 "C3.3","Arrow Storm","Guard,Down,Down,Strong","Stand",,,2000,2200,0,16,70,,,,100,,"Physical",,35,,"spawn,spawn_after,spawn_same,spawn_sky,spawn_near_target,spawn_number:2"
 "C3.4","Arrow Tempest","Guard,Down,Down,Strong","Stand",,,2000,2200,0,20,95,,,,100,,"Physical",,35,,"spawn,spawn_after,spawn_same,spawn_sky,spawn_near_target,spawn_number:4"
 "C3.5","Blot Out the Sun","Guard,Down,Down,Strong","Stand",,,2000,2200,0,20,120,,,,100,,"Physical",,35,,"spawn,spawn_after,spawn_same,spawn_sky,spawn_near_target,spawn_number:4,no dodge"
-"C4.1","Precision Slash","Guard,Forward,Forward,Strong","Stand",,,300,,3,0,100,50,,,65,30,"Physical",,,,"no dodge"
-"C4.2","Razor Edge Slash","Guard,Forward,Forward,Strong","Stand",,,300,,3,0,121,50,,,65,30,"Physical",,33,,"no dodge"
-"C4.3","Penetrating Slash","Guard,Forward,Forward,Strong","Stand",,,300,,3,0,138,50,,,65,100,"Physical",,33,,"no dodge"
-"C4.4","Undeniable Attack","Guard,Forward,Forward,Strong","Stand",,,300,,3,0,170,50,,,65,100,"Physical",,33,,"no dodge,no defence"
-"C4.5","Fateful Assault","Guard,Forward,Forward,Strong","Stand",,,300,,3,0,215,50,,,65,100,"Physical",,33,,"no dodge,no defence,no guard"
+"C4.1","Precision Slash","Guard,Forward,Forward,Strong","Stand",,,300,,3,0,100,50,,,65,0.3,"Physical",,,,"no dodge"
+"C4.2","Razor Edge Slash","Guard,Forward,Forward,Strong","Stand",,,300,,3,0,121,50,,,65,0.3,"Physical",,33,,"no dodge"
+"C4.3","Penetrating Slash","Guard,Forward,Forward,Strong","Stand",,,300,,3,0,138,50,,,65,1,"Physical",,33,,"no dodge"
+"C4.4","Undeniable Attack","Guard,Forward,Forward,Strong","Stand",,,300,,3,0,170,50,,,65,1,"Physical",,33,,"no dodge,no defence"
+"C4.5","Fateful Assault","Guard,Forward,Forward,Strong","Stand",,,300,,3,0,215,50,,,65,1,"Physical",,33,,"no dodge,no defence,no guard"
 "C5.1","Retreating Shot","Guard,Down,Backward,Strong","Stand",,,600,,10,1,68,35,,,60,,"Physical",,,,
-"C5.2","Tactical Withdrawal","Guard,Down,Backward,Strong","Stand",,,400,400,10,1,71,35,,,60,,"Physical",,5,,
+"C5.2","Tactical Withdrawal","Guard,Down,Backward,Strong","Stand",,,400,400,10,1,73,35,,,60,,"Physical",,5,,
 "C5.3","Luring Escape","Guard,Down,Backward,Strong","Stand",,,400,400,10,1,82,35,,,60,,"Physical",,"5,12",,
-"C5.4","Ambush Setup","Guard,Down,Backward,Strong","Stand",,,400,400,10,1,89,35,,,60,,"Physical",,"5,12,36",,
-"C5.5","Death Trap","Guard,Down,Backward,Strong","Stand",,,400,400,10,1,93,35,,,60,,"Physical",,"5,12,36",,"penetrate"
+"C5.4","Ambush Setup","Guard,Down,Backward,Strong","Stand",,,400,400,10,3,64,35,,,60,,"Physical",,"5,12,36",,
+"C5.5","Death Trap","Guard,Down,Backward,Strong","Stand",,,400,400,10,3,75,35,,,60,,"Physical",,"5,12,36",,"penetrate"
 "C6.1","Rapid Draw","Down,Forward,Weak","Stand",,,1000,,60,0,,,,,,,"Physical",,92,,
 "C6.2","Combat Acceleration","Down,Forward,Weak","Stand",,,1000,,60,0,,,,,,,"Physical",,"90,92",,
 "C6.3","Planning Annihilation","Down,Forward,Weak","Stand",,,1000,,60,0,,,,,,,"Physical",,"90,92,93",,

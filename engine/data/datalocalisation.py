@@ -26,6 +26,7 @@ class Localisation:
         self.read_localisation("character")
         self.read_localisation("enemy")
         self.read_localisation("gear")
+        self.read_localisation("gear_mod")
         self.read_localisation("item")
         self.read_localisation("status")
         self.read_localisation("event")
@@ -90,9 +91,9 @@ class Localisation:
             except FileNotFoundError:
                 pass
 
-    def grab_text(self, key=(), alternative_text_data=None):
+    def grab_text(self, key, alternative_text_data=None):
         """
-        Find localisation of provided object key name,
+        Find localisation of provided object key name list,
         Return: Translated text if found in provided language, if not then English text, if not found anywhere then return key
         """
         text_data = self.text

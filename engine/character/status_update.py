@@ -7,10 +7,10 @@ def status_update(self):
     """Calculate stat with effect from skill and status"""
     # Reset to base stat
     self.stamina_dmg_bonus = 0
-    self.attack_impact_effect = 1
+    self.impact_modifier = self.base_impact_modifier
     self.weapon_dmg_modifier = 1
 
-    attack_bonus = 0
+    power_bonus = 0
     defence_bonus = 0
     speed_bonus = 0
     hp_regen_bonus = 0
@@ -41,14 +41,17 @@ def status_update(self):
     # Apply effect and modifier from status effect
     if self.status_effect:
         for cal_effect in self.status_effect.values():
-            attack_bonus += cal_effect["Attack Bonus"]
+            power_bonus += cal_effect["Power Bonus"]
             defence_bonus += cal_effect["Defence Bonus"]
             speed_bonus += cal_effect["Speed Bonus"]
             hp_regen_bonus += cal_effect["HP Regeneration Bonus"]
             resource_regen_bonus += cal_effect["Resource Regeneration Bonus"]
-            animation_speed_modifier -= cal_effect["Animation Speed Modifier"]
+            animation_speed_modifier += cal_effect["Animation Time Modifier"]
             self.element_resistance = {element: value + cal_effect[element + " Resistance Bonus"] for
                                        element, value in self.base_element_resistance.items()}
+
+    self.element_resistance = {element: value if value <= 0.9 else 0.9 for
+                               element, value in self.base_element_resistance.items()}
 
     if 50 in self.status_effect:  # half resource cost
         self.resource_cost_modifier -= 0.5
@@ -57,38 +60,42 @@ def status_update(self):
     if not self.immune_weather:
         weather = self.battle.current_weather
         if weather.has_stat_effect:
-            attack_bonus += weather.atk_buff
+            power_bonus += weather.atk_buff
             defence_bonus += weather.def_buff
             speed_bonus += weather.speed_buff
             hp_regen_bonus += weather.hp_regen_buff
 
     # Apply modifier to stat
-    self.power_bonus = self.base_power_bonus + attack_bonus
-    self.defence = (100 - (self.base_defence + defence_bonus)) / 100
+    self.power_bonus = self.base_power_bonus + power_bonus
+    self.defence = self.base_defence + defence_bonus
     self.speed = self.base_speed + speed_bonus
-    self.dodge = int(self.base_dodge + (speed_bonus / 10))
+    self.dodge = self.base_dodge + (speed_bonus / 1000)
     self.critical_chance = self.base_critical_chance + crit_chance_bonus
-    self.super_armour = self.base_super_armour + (defence_bonus / 10)
+    self.super_armour = self.base_super_armour + (defence_bonus * 1)  # each 1% defence bonus affect super armour by 1
 
     self.hp_regen = self.base_hp_regen + hp_regen_bonus
     self.resource_regen = self.base_resource_regen + resource_regen_bonus
 
-    if animation_speed_modifier < 0.1:
-        animation_speed_modifier = 0.1
-    self.base_animation_play_time = self.original_animation_play_time * animation_speed_modifier
-
-    self.body_mass = self.base_body_mass
-    if "less mass" in self.current_action:  # action that reduce mass
-        self.body_mass = int(self.base_body_mass * self.current_action["less mass"])
+    self.animation_play_time = self.base_animation_play_time * animation_speed_modifier
+    if self.animation_play_time < 0:  # can not be 0
+        self.animation_play_time = 0.01
 
     if self.defence < 0:  # seem like using if is faster than max()
         self.defence = 0
+    elif self.defence > 0.9:
+        self.defence = 0.9
     if self.dodge < 0:
         self.dodge = 0
+    elif self.dodge > 0.9:
+        self.dodge = 0.9
     if self.guard_cost_modifier < 0:
         self.guard_cost_modifier = 0
+    elif self.guard_cost_modifier > 1:
+        self.guard_cost_modifier = 1
     if self.resource_cost_modifier < 0:
         self.resource_cost_modifier = 0
+    elif self.resource_cost_modifier > 1:
+        self.resource_cost_modifier = 1
 
     self.run_speed = 600 + self.speed
     self.walk_speed = 350 + self.speed

@@ -7,8 +7,8 @@
 "Weak","cstrong1weak","Pushing Palm","Couch","Strength:34","cstrong1",,,100,,,,16,276,,,124,,"Physical",,,,
 "Weak","cstrong2weak","Headbutt","Couch","Strength:41","cstrong2",,,150,,,,33,90,,,30,,"Physical",,17,,
 "Weak","cstrong3weak","Hammer Axe Cross","Couch","Strength:48","cstrong3",,,250,,,,22,75,,,75,,"Physical",,,,
-"Forward,Special","cfspecial","Hot Hammer","Couch","Wisdom:45",,,,250,,,8,115,150,,,,10,"Fire",,43,,
-"Special","cfspecial2","Cold Axe","Couch","Wisdom:60","cfspecial",,,300,,,15,115,150,,,,10,"Cold",,42,,
+"Forward,Special","cfspecial","Hot Hammer","Couch","Wisdom:45",,,,250,,,8,115,150,,,,0.1,"Fire",,43,,
+"Special","cfspecial2","Cold Axe","Couch","Wisdom:60","cfspecial",,,300,,,15,115,150,,,,0.1,"Cold",,42,,
 "Special","cspecial","Rune Recharge","Couch",,,,,250,,,-3,,,,,,,"Physical",,,,"hold:trigger"
 "Weak","sweak1","Hammer Jab","Stand",,,,,200,,,,19,100,,,40,,"Physical",,,,
 "Weak","sweak2","Axe Slash Down","Stand",,"sweak1",,,250,,,,25,60,,,160,,"Physical",,,,

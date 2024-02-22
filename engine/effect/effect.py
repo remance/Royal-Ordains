@@ -62,7 +62,7 @@ class Effect(sprite.Sprite):
 
         self.object_type = "effect"
 
-        self.fall_gravity = self.battle.original_fall_gravity
+        self.fall_gravity = self.battle.base_fall_gravity
 
         self.owner = owner
         self.part_stat = part_stat
@@ -208,9 +208,9 @@ class DamageEffect(Effect):
         self.dmg = moveset["Power"] + self.owner.power_bonus * self.owner.hold_power_bonus
         self.element = moveset["Element"]
         self.impact = ((moveset["Push Impact"] - moveset["Pull Impact"]) *
-                       self.owner.attack_impact_effect,
+                       self.owner.impact_modifier,
                        (moveset["Down Impact"] - moveset["Up Impact"]) *
-                       self.owner.attack_impact_effect)
+                       self.owner.impact_modifier)
         if self.element == "Physical":
             self.dmg = uniform(self.dmg * self.owner.min_physical, self.dmg * self.owner.max_physical)
         else:
@@ -246,7 +246,7 @@ class DamageEffect(Effect):
                             stat[3] = -100
                         if self.owner.nearest_enemy:  # find the nearest enemy to target
                             if "spawn_target" in self.other_property:
-                                if self.owner.sprite_direction == "l_side":
+                                if self.owner.angle == 90:
                                     stat[2] = uniform(self.owner.nearest_enemy[0].pos[0],
                                                       self.owner.nearest_enemy[0].pos[0] + (200 * self.screen_scale[0]))
                                 else:
@@ -258,7 +258,7 @@ class DamageEffect(Effect):
 
                             elif "spawn_near_target" in self.other_property:
                                 if self.owner.nearest_enemy:  # find the nearest enemy to target
-                                    if self.owner.sprite_direction == "l_side":
+                                    if self.owner.angle == 90:
                                         stat[2] = uniform(self.owner.nearest_enemy[0].pos[0],
                                                           self.owner.nearest_enemy[0].pos[0] + (
                                                                   500 * self.screen_scale[0]))
@@ -276,7 +276,7 @@ class DamageEffect(Effect):
                         else:  # random target instead
                             stat[2] = uniform(self.pos[0] - (self.travel_distance * self.screen_scale[0]),
                                               self.pos[0] + (self.travel_distance * self.screen_scale[0]))
-                            if self.owner.sprite_direction == "l_side":
+                            if self.owner.angle == 90:
                                 stat[4] = randint(160, 180)
                             else:
                                 stat[4] = randint(-180, -160)
@@ -318,7 +318,7 @@ class DamageEffect(Effect):
                     if self.y_momentum <= 0:
                         self.y_momentum = -200
 
-                if self.base_pos[1] >= self.owner.original_ground_pos:  # reach ground
+                if self.base_pos[1] >= self.owner.base_ground_pos:  # reach ground
                     self.x_momentum = 0
                     self.y_momentum = 0
 
@@ -399,9 +399,9 @@ class DamageEffect(Effect):
 
                     if not self.random_move and (
                             self.base_pos[0] <= 0 or self.base_pos[0] > self.stage_end or
-                            self.base_pos[1] >= self.owner.original_ground_pos or
+                            self.base_pos[1] >= self.owner.base_ground_pos or
                             self.base_pos[1] < -500):  # pass outside of map
-                        if self.stick_reach == "stick" and self.base_pos[1] >= self.owner.original_ground_pos:
+                        if self.stick_reach == "stick" and self.base_pos[1] >= self.owner.base_ground_pos:
                             # stuck at ground
                             self.travel_distance = 0
                             self.stick_timer = 5

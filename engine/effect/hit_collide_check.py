@@ -32,7 +32,7 @@ def hit_collide_check(self, check_damage_effect=True):
                 self.hit_register(enemy, enemy_part)
                 self.already_hit.append(enemy)
 
-                if not self.penetrate and not self.stick_reach:
+                if not self.penetrate and not self.owner.attack_penetrate and not self.stick_reach:
                     self.reach_target()
                     return True
 
@@ -53,8 +53,8 @@ def dmg_crash_check(self, crashed_part):
 
     if self.owner.crash_guard_resource_regen:  # crash regen resource, 2% instead of normal 1%
         self.owner.resource += self.owner.resource2  # regen
-        if self.owner.resource > self.owner.max_resource:  # resource cannot exceed the max resource
-            self.owner.resource = self.owner.max_resource
+        if self.owner.resource > self.owner.base_resource:  # resource cannot exceed the max resource
+            self.owner.resource = self.owner.base_resource
 
     if self.owner.crash_haste:
         self.owner.apply_status(45)  # get haste buff

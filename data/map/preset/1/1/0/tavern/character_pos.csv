@@ -1,9 +1,9 @@
 "Object ID","ID","Scene","POS","Ground Y POS","Angle","Start Health","Team","Arrive Condition","Stage Property"
-1,"Board",1,"900,1000",1000,90,100,1,,"city_npc"
-2,"Duhon",1,"150,1000",1000,-90,100,1,,"city_npc"
-3,"Barman1",1,"500,1000",1000,-90,100,1,,"city_npc"
-4,"Barman2",1,"680,1000",1000,90,100,1,,"city_npc"
-5,"Vraesier",1,"1500,1000",1000,-90,100,1,,"city_npc,no_player_pick,idle:SitIdle"
-6,"Tom",1,"1130,1000",1000,-90,100,1,,"city_npc"
-7,"Toodles",1,"850,1000",1000,90,100,1,,"city_npc"
-8,"Nraesier",1,"1750,1000",1000,90,100,1,,"city_npc"
+"p1",,1,"1200,1000",1000,90,1,1,,
+"p2",,1,"1400,1000",1000,90,1,1,,
+"p3",,1,"1600,1000",1000,90,1,1,,
+"p4",,1,"1800,1000",1000,90,1,1,,
+1,"Nayedien",1,"100,1000",700,-90,1,1,,"city_npc,no_player_pick"
+2,"King",1,"290,950",800,-90,1,1,,"city_npc"
+3,"Vurus",1,"550,1000",1000,-90,1,1,,"city_npc"
+4,"Hermanos",1,"1600,1000",1000,90,1,1,,"city_npc"

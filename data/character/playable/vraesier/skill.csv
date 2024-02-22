@@ -1,19 +1,19 @@
 "Move","Name","Buttons","Position","Prepare Animation","After Animation","AI Range","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"C1.1","Double Piercing","Down,Forward,Strong","Stand",,,300,0,4,,65,105,,,45,5,"Physical",,,,"multiple hits"
-"C1.2","Triple Piercing","Down,Forward,Strong","Stand",,,300,0,5,,70,105,,,45,10,"Physical",,,,"multiple hits"
-"C1.3","Quadruple Piercing","Down,Forward,Strong","Stand",,,300,0,6,,75,105,,,45,13,"Physical",,,,"multiple hits"
-"C1.4","Speed Piercing","Down,Forward,Strong","Stand",,,300,0,8,,87,105,,,45,21,"Physical",14,,,"multiple hits"
-"C1.5","Unseen Assaults","Down,Forward,Strong","Stand",,,300,0,10,,100,105,,,45,35,"Physical",14,7,,"multiple hits"
-"C2.1","Counterattack","Guard,Strong","Stand","name:Parry,parry:true",,200,0,,,110,135,,,135,,"Physical",,,,"no auto next"
-"C2.2","Counter Cross Slash","Guard,Strong","Stand","name:Parry,parry:true",,200,0,,,135,135,,,135,,"Physical",,,,"no auto next,multiple hits"
-"C2.3","Bloody Parry","Guard,Strong","Stand","name:Parry,parry:true",,200,0,,,210,135,,,135,,"Physical",28,,,"no auto next,multiple hits"
-"C2.4","Revenge Guard","Guard,Strong","Stand","name:Parry,parry:true",,200,0,,,326,135,,,135,,"Physical",28,54,,"no auto next,multiple hits"
-"C2.5","Sword of Vengeance","Guard,Strong","Stand","name:Parry,parry:true",,200,0,,,485,135,,,135,100,"Physical",28,54,,"no auto next,multiple hits"
-"C3.1","Vital Slash","Down,Backward,Strong","Stand",,,300,0,5,,87,156,,,42,15,"Physical",,32,,
-"C3.2","Bloodletting","Down,Backward,Strong","Stand",,,300,0,6,,103,156,,,42,15,"Physical",,"32,27",,
-"C3.3","Slow Killing","Down,Backward,Strong","Stand",,,300,0,6,,125,156,,,42,23,"Physical",,"32,27,36",,
-"C3.4","Bloodbath","Down,Backward,Strong","Stand",,,300,0,7,,170,156,,,42,39,"Physical",,"32,27,36,10",,
-"C3.5","Fountain of Blood","Down,Backward,Strong","Stand",,,300,0,,,264,156,,,42,48,"Physical",,"32,27,36,10",,
+"C1.1","Double Piercing","Down,Forward,Strong","Stand",,,300,0,4,,65,105,,,45,0.05,"Physical",,,,"multiple hits"
+"C1.2","Triple Piercing","Down,Forward,Strong","Stand",,,300,0,5,,70,105,,,45,0.1,"Physical",,,,"multiple hits"
+"C1.3","Quadruple Piercing","Down,Forward,Strong","Stand",,,300,0,6,,75,105,,,45,0.13,"Physical",,,,"multiple hits"
+"C1.4","Speed Piercing","Down,Forward,Strong","Stand",,,300,0,8,,87,105,,,45,0.21,"Physical",14,,,"multiple hits"
+"C1.5","Unseen Assaults","Down,Forward,Strong","Stand",,,300,0,10,,100,105,,,45,0.35,"Physical",14,7,,"multiple hits"
+"C2.1","Counterattack","Guard,Strong","Stand","name:Parry,parry:true",,200,0,,,110,135,,,135,0,"Physical",,,,"no auto next"
+"C2.2","Counter Cross Slash","Guard,Strong","Stand","name:Parry,parry:true",,200,0,,,135,135,,,135,0,"Physical",,,,"no auto next,multiple hits"
+"C2.3","Bloody Parry","Guard,Strong","Stand","name:Parry,parry:true",,200,0,,,210,135,,,135,0,"Physical",28,,,"no auto next,multiple hits"
+"C2.4","Revenge Guard","Guard,Strong","Stand","name:Parry,parry:true",,200,0,,,326,135,,,135,0,"Physical",28,54,,"no auto next,multiple hits"
+"C2.5","Sword of Vengeance","Guard,Strong","Stand","name:Parry,parry:true",,200,0,,,485,135,,,135,1,"Physical",28,54,,"no auto next,multiple hits"
+"C3.1","Vital Slash","Down,Backward,Strong","Stand",,,300,0,5,,87,156,,,42,0.15,"Physical",,32,,
+"C3.2","Bloodletting","Down,Backward,Strong","Stand",,,300,0,6,,103,156,,,42,0.15,"Physical",,"32,27",,
+"C3.3","Slow Killing","Down,Backward,Strong","Stand",,,300,0,6,,125,156,,,42,0.23,"Physical",,"32,27,36",,
+"C3.4","Bloodbath","Down,Backward,Strong","Stand",,,300,0,7,,170,156,,,42,0.39,"Physical",,"32,27,36,10",,
+"C3.5","Fountain of Blood","Down,Backward,Strong","Stand",,,300,0,,,264,156,,,42,0.48,"Physical",,"32,27,36,10",,
 "C4.1","Second Wind","Guard,Down,Strong","Stand",,,0,0,30,15,,,,,,,"Physical",79,,,
 "C4.2","Steady Recovery","Guard,Down,Strong","Stand",,,0,0,30,15,,,,,,,"Physical","80,81",,,
 "C4.3","Cleansing Body","Guard,Down,Strong","Stand",,,0,0,30,15,,,,,,,"Physical","30,82,83",,,

@@ -46,39 +46,31 @@ class BattleMapData(GameData):
             except FileNotFoundError:
                 self.weather_matter_images[this_weather] = ()
 
-        weather_icon_list = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                        subfolder=("map", "weather", "icon"))  # Load weather icon
-        self.weather_icon = {}
-        for weather_icon in weather_list:
-            for strength in range(0, 3):
-                new_name = weather_icon + "_" + str(strength)
-                for item in weather_icon_list:
-                    if new_name == fcv(item):
-                        self.weather_icon[new_name] = weather_icon_list[item]
-                        break
-
         read_folder = Path(os.path.join(self.data_dir, "map", "preset"))
         sub1_directories = [x for x in read_folder.iterdir() if x.is_dir()]
 
-        self.stage_reward = {}
+        self.choice_stage_reward = {}
         with open(os.path.join(self.data_dir, "map", "choice.csv"),
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
-            tuple_column = ("Follower Reward", "Item Reward")
+            tuple_column = ("Follower Reward", "Item Reward", "Gear Reward")
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
                     row = stat_convert(row, n, i, tuple_column=tuple_column)
-                if row[0] not in self.stage_reward:  # choice
-                    self.stage_reward[row[0]] = {}
-                if row[1] not in self.stage_reward[row[0]]:  # chapter
-                    self.stage_reward[row[0]][row[1]] = {}
-                if row[2] not in self.stage_reward[row[0]][row[1]]:  # mission
-                    self.stage_reward[row[0]][row[1]][row[2]] = {}
-                if row[3] not in self.stage_reward[row[0]][row[1]][row[2]]:  # stage
-                    self.stage_reward[row[0]][row[1]][row[2]][row[3]] = {}
-                self.stage_reward[row[0]][row[1]][row[2]][row[3]] = {"follower": row[4], "item": row[5], "gold": row[6]}
+                if row[0] not in self.choice_stage_reward:  # choice
+                    self.choice_stage_reward[row[0]] = {}
+                if row[1] not in self.choice_stage_reward[row[0]]:  # chapter
+                    self.choice_stage_reward[row[0]][row[1]] = {}
+                if row[2] not in self.choice_stage_reward[row[0]][row[1]]:  # mission
+                    self.choice_stage_reward[row[0]][row[1]][row[2]] = {}
+                if row[3] not in self.choice_stage_reward[row[0]][row[1]][row[2]]:  # stage
+                    self.choice_stage_reward[row[0]][row[1]][row[2]][row[3]] = {}
+                self.choice_stage_reward[row[0]][row[1]][row[2]][row[3]] = {"Follower Reward": row[4],
+                                                                            "Item Reward": row[5],
+                                                                            "Gear Reward": row[6],
+                                                                            "Gold Reward": row[7]}
         edit_file.close()
 
         self.stage_reward = {}
@@ -86,14 +78,19 @@ class BattleMapData(GameData):
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
+            tuple_column = ("Follower Reward", "Item Reward")
+            tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
+            dict_column = ("Gear Reward",)
+            dict_column = [index for index, item in enumerate(header) if item in dict_column]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
-                    row = stat_convert(row, n, i)
+                    row = stat_convert(row, n, i, tuple_column=tuple_column, dict_column=dict_column)
                 if row[0] not in self.stage_reward:  # chapter
                     self.stage_reward[row[0]] = {}
                 if row[1] not in self.stage_reward[row[0]]:  # mission
                     self.stage_reward[row[0]][row[1]] = {}
-                self.stage_reward[row[0]][row[1]] = {header[2]: row[2], header[3]: row[3]}
+                self.stage_reward[row[0]][row[1]] = {header[2]: row[2], header[3]: row[3], header[4]: row[4],
+                                                     header[5]: row[5], header[6]: row[6], header[7]: row[7]}
         edit_file.close()
 
         preset_map_list = []

@@ -7,8 +7,6 @@ from engine.utils.rotation import set_rotate
 
 
 class Weather(UIBattle):
-    weather_icons = {}
-
     def __init__(self, weather_type, wind_direction, level, weather_data):
         self._layer = 99999999999999999999
         UIBattle.__init__(self)
@@ -25,7 +23,7 @@ class Weather(UIBattle):
                 self.level = 0
             cal_level = self.level + 1
 
-            self.atk_buff = stat["Attack Bonus"] * cal_level
+            self.atk_buff = stat["Power Bonus"] * cal_level
             self.def_buff = stat["Defence Bonus"] * cal_level
             self.speed_buff = stat["Speed Bonus"] * cal_level
             self.hp_regen_buff = stat["HP Regeneration Bonus"] * cal_level

@@ -1,6 +1,5 @@
 from engine.uibattle.uibattle import EscButton, CharacterBaseInterface
 from engine.uimenu.uimenu import SliderMenu, ValueBox, OptionMenuText
-from engine.utils.data_loading import load_images
 
 
 def make_esc_menu(char_selector_images, button_images, option_menu_images,

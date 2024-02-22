@@ -1,8 +1,13 @@
 import gc
-import os
 from datetime import datetime
+from os.path import join as path_join
+from random import choices
 
 from pygame.mixer import Channel
+
+gear_reward_quantity_list = (1, 2, 3, 4, 5)
+gear_reward_quantity_score = (50, 30, 20, 7, 3)
+gear_type_list = ("weapon 1", "weapon 2", "head", "chest", "arm", "leg", "accessory")
 
 
 def start_battle(self, chapter, mission, stage, players=None, scene=None):
@@ -25,7 +30,7 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
             self.save_data.save_profile["game"]["mission"] = mission
         elif self.save_data.save_profile["game"]["mission"] < mission:
             self.save_data.save_profile["game"]["mission"] = mission
-        self.save_data.make_save_file(os.path.join(self.main_dir, "save", "game.dat"),
+        self.save_data.make_save_file(path_join(self.main_dir, "save", "game.dat"),
                                       self.save_data.save_profile["game"])
 
         for player, slot in self.profile_index.items():  # check for update for all active players to update state
@@ -42,40 +47,54 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
                         self.save_data.save_profile["character"][slot]["chapter"] = chapter + 1
                         self.save_data.save_profile["character"][slot]["mission"] = 1
 
+                    # One time rewards
                     self.save_data.save_profile["character"][slot]["character"]["Status Remain"] += \
-                        self.battle_map_data.stage_reward[chapter][mission]["Status"]
+                        self.stage_reward[chapter][mission]["Status"]
                     self.save_data.save_profile["character"][slot]["character"]["Skill Remain"] += \
-                        self.battle_map_data.stage_reward[chapter][mission]["Skill"]
+                        self.stage_reward[chapter][mission]["Skill"]
 
-                    for follower in self.battle_map_data.stage_reward[chapter][mission]["follower"]:
-                        if follower not in self.save_data.save_profile["character"][slot]["Follower Reward"]:
-                            self.save_data.save_profile["character"][slot]["Follower Reward"].append(follower)
-                    for item in self.battle_map_data.stage_reward[chapter][mission]["Item Reward"]:
-                        if item in self.save_data.save_profile["character"][slot]["storage"]:
-                            self.save_data.save_profile["character"][slot]["storage"][item] += 1
-                        else:
-                            self.save_data.save_profile["character"][slot]["storage"][item] = 1
-                    self.save_data.save_profile["character"][slot]["total golds"] += \
-                        self.battle_map_data.stage_reward[chapter][mission]["Gold Reward"]
+                    for follower in self.stage_reward[chapter][mission]["Follower Reward"]:
+                        if follower not in self.save_data.save_profile["character"][slot]["follower list"]:
+                            self.save_data.save_profile["character"][slot]["follower list"].append(follower)
 
-                    if self.battle.decision_select.selected:
+                    if self.battle.decision_select.selected:  # choice reward
                         mission_str = str(chapter) + "." + str(mission) + "." + str(stage)
+                        choice = self.battle.decision_select.selected
                         self.save_data.save_profile["character"][slot]["story choice"][
-                            mission_str] = self.battle.decision_select.selected
-                        for follower in self.battle.stage_reward[self.battle.decision_select.selected][chapter][
-                            mission][stage]["follower"]:
+                            mission_str] = choice
+                        for follower in self.choice_stage_reward[choice][chapter][mission][stage]["Follower Reward"]:
                             if follower not in self.save_data.save_profile["character"][slot]["follower list"]:
                                 self.save_data.save_profile["character"][slot]["follower list"].append(follower)
-                        for item in self.battle.stage_reward[self.battle.decision_select.selected][
-                            chapter][mission][stage]["item"]:
+                        for item in self.choice_stage_reward[choice][chapter][mission][stage]["Item Reward"]:
+                            if item in self.save_data.save_profile["character"][slot]["storage"]:
+                                self.save_data.save_profile["character"][slot]["storage"][item] += 1
+                            else:
+                                self.save_data.save_profile["character"][slot]["storage"][item] = 1
+                        for item in self.choice_stage_reward[choice][chapter][mission][stage]["Gear Reward"]:
                             if item in self.save_data.save_profile["character"][slot]["storage"][item]:
                                 self.save_data.save_profile["character"][slot]["storage"][item] += 1
                             else:
                                 self.save_data.save_profile["character"][slot]["storage"][item] = 1
                         self.save_data.save_profile["character"][slot]["total golds"] += \
-                            self.battle.stage_reward[self.battle.decision_select.selected][chapter][mission][
-                                stage]["gold"]
-                    print(self.save_data.save_profile["character"][slot])
+                            self.choice_stage_reward[choice][chapter][mission][stage]["Gold Reward"]
+
+                # Multiple time rewards
+                for item in self.battle_map_data.stage_reward[chapter][mission]["Item Reward"]:
+                    if item in self.save_data.save_profile["character"][slot]["storage"]:
+                        self.save_data.save_profile["character"][slot]["storage"][item] += 1
+                    else:
+                        self.save_data.save_profile["character"][slot]["storage"][item] = 1
+                self.save_data.save_profile["character"][slot]["total golds"] += \
+                    self.battle_map_data.stage_reward[chapter][mission]["Gold Reward"]
+                quantity_roll = choices(gear_reward_quantity_list, gear_reward_quantity_score)[0]
+                for i in range(quantity_roll):  # create random custom equipment
+                    gear_type = choices(gear_type_list)[0]
+                    rarity = choices(tuple(self.battle_map_data.stage_reward[chapter][mission]["Gear Reward"].keys()),
+                                     tuple(
+                                         self.battle_map_data.stage_reward[chapter][mission]["Gear Reward"].values()))[
+                        0]
+                    # new_gear = self.generate_custom_equipment(gear_type, rarity)  # TODO finish this
+                    # for key in self.character_data.gear_mod_list:
 
     for player, slot in self.profile_index.items():
         save_profile = self.save_data.save_profile["character"][self.profile_index[player]]  # reset data for interface
@@ -132,5 +151,5 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
 def write_all_player_save(self):
     for player, slot in self.profile_index.items():  # save data for all active player before start next mission
         if self.player_char_selectors[player].mode != "empty":
-            self.save_data.make_save_file(os.path.join(self.main_dir, "save", str(slot) + ".dat"),
+            self.save_data.make_save_file(path_join(self.main_dir, "save", str(slot) + ".dat"),
                                           self.battle.all_story_profiles[player])

@@ -1,1 +1,50 @@
-"ID","Range","Health","Resource","Status","Enemy Status","Value","Property"
+"ID","Range","Health","Resource","Status","Enemy Status","Value","Capacity","Chapter","Mission","Shop","Type","Damage Effect","Property"
+"Small Healing Kit",2000,150,,,,200,4,1,1,,"Heal",,
+"Medium Healing Kit",2000,500,,,,860,3,1,3,,"Heal",,
+"Large Healing Kit",2000,1200,,,,2100,2,1,5,,"Heal",,
+"Great Healing Kit",2000,2700,,,,5500,2,2,5,,"Heal",,
+"Master Healing Kit",2000,6000,,,,12000,1,3,5,,"Heal",,
+"Elixir",,,,,,,2,,,,,,
+"Super Elixir",,,,,,,1,,,,,,
+"Weather Idol",,,,,,50,1,,,,,,"weather:0"
+"Sun Idol",,,,,,500,1,,,,"Weather",,"weather:1"
+"Snow Idol",,,,,,500,1,,,,"Weather",,"weather:2"
+"Fog Idol",,,,,,500,1,,,,"Weather",,"weather:3"
+"Rain Idol",,,,,,500,1,,,,"Weather",,"weather:4"
+"Cloud Idol",,,,,,500,1,,,,"Weather",,"weather:5"
+"Wind Idol",,,,,,500,1,,,,"Weather",,"weather:8"
+"Storm Idol",,,,,,1000,1,,,,"Weather",,"weather:6"
+"Hail Idol",,,,,,1000,1,,,,"Weather",,"weather:7"
+"Wet Idol",,,,,,1000,1,,,,"Weather",,"weather:9"
+"Decay Idol",,,,,,1500,1,,,,"Weather",,"weather:10"
+"Sand Idol",,,,,,1000,1,,,,"Weather",,"weather:11"
+"Blood Idol",,,,,,1000,1,,,,"Weather",,"weather:12"
+"Chaos Winter Idol",,,,,,1500,1,,,,"Weather",,"weather:13"
+"Blood Winter Idol",,,,,,1500,1,,,,"Weather",,"weather:14"
+"Dark Winter Idol",,,,,,1500,1,,,,"Weather",,"weather:15"
+"Lucky Charm",,,,,,,1,,,,,,
+"Monster Caller",,,,,,,4,,,,,,
+"Stampede Caller",,,,,,,2,,,,,,
+"Invasion Caller",,,,,,,1,,,,,,
+"Fireball Scroll",,,,,,,3,,,,"Magic",,
+"Lightning Bolt Scroll",,,,,,,3,,,,"Magic",,
+"Ice Shards Scroll",,,,,,,3,,,,"Magic",,
+"Magic Missiles Scroll",,,,,,,3,,,,"Magic",,
+"Blizzard Scroll",,,,,,,2,,,,"Magic",,
+"Meteor Scroll",,,,,,,2,,,,"Magic",,
+"Thunder Storm Scroll",,,,,,,2,,,,"Magic",,
+"Magic Barrages Scroll",,,,,,,2,,,,"Magic",,
+"Magic Chaos Scroll",,,,,,,2,,,,"Magic",,
+"Power Rune",,,,,,,3,,,,"Magic",,
+"Defence Rune",,,,,,,3,,,,"Magic",,
+"Speed Rune",,,,,,,3,,,,"Magic",,
+"Might Rune",,,,,,,3,,,,"Magic",,
+"Guardian Rune",,,,,,,3,,,,"Magic",,
+"Haste Rune",,,,,,,3,,,,"Magic",,
+"Small Explosive",,,,,,,5,,,,"Damage",,
+"Medium Explosive",,,,,,,4,,,,"Damage",,
+"Large Explosive",,,,,,,3,,,,"Damage",,
+"Mega Explosive",,,,,,,2,,,,"Damage",,
+"Oily Burst Bomb",,,,,,,,,,,,,
+"Shrapnel Bomb",,,,,,,,,,,,,
+"Poison Bomb",,,,,,,,,,,,,

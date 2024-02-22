@@ -12,7 +12,7 @@ def nayedien_initiate(self):
     self.check_move_existence = types.MethodType(nayedien_check_move_existence, self)
     self.health_as_resource = True
     self.moveset_reset_when_relax_only = True
-    self.combo_with_no_hit = True
+    self.can_combo_with_no_hit = True
     self.special_relax_command = tuple([{"name": "Relax" + str(state), "low level": True} for state in range(8)])
 
 

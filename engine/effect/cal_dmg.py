@@ -22,12 +22,14 @@ def cal_dmg(self, target, critical):
 
 
 def cal_dmg_element(self, target, critical):
-    defence = target.defence
-    if self.no_defence:
+    defence = 1 - target.defence
+    if self.no_defence or self.owner.attack_no_defence:
         defence = 1
-    damage = int((self.dmg - (self.dmg * (target.element_resistance[self.element] / 100))) * defence)
+    element = self.element
+    if self.owner.attack_element:
+        element = self.owner.attack_element
+    damage = int((self.dmg - (self.dmg * (target.element_resistance[element]))) * defence)
     if critical:
         damage *= 2
-    # damage *= self.owner.weapon_dmg_modifier
 
     return damage

@@ -20,8 +20,7 @@ def player_input_battle_mode(self, player_index, dt):
                             self.battle.player_wheel_uis[player_index].change_text_icon(self.command_name_list)
                         else:
                             self.battle.player_wheel_uis[player_index].change_text_icon(
-                                [value for value in
-                                 self.battle.all_story_profiles[player_index]["equipment"]["inventory"].values()])
+                                tuple(self.items.values()), item_wheel=True)
                     else:
                         if key in ("Left", "Right"):  # replace left right input with forward one for moveset check
                             if not self.stoppable_frame:
@@ -111,13 +110,13 @@ def player_input_battle_mode(self, player_index, dt):
                         elif "run" in self.current_action and self.dash_move:
                             self.interrupt_animation = True
                             self.command_action = self.dash_command_action
-                            if self.sprite_direction == "r_side":
+                            if self.angle == -90:
                                 self.x_momentum = self.run_speed
                             else:
                                 self.x_momentum = -self.run_speed
 
                         elif (not self.current_action or self.stoppable_frame) and \
-                                self.guard_meter >= self.guard_meter20:
+                                self.guard >= self.guard_meter20:
                             # can only start guarding when meter higher than 20%
                             if self.stoppable_frame:
                                 self.interrupt_animation = True
@@ -232,6 +231,19 @@ def player_input_battle_mode(self, player_index, dt):
                                         self.command_action = self.run_command_action
 
                     elif self.position == "Air":
+                        if self.air_dash_move:
+                            if len(self.command_key_input) > 1 and ((self.last_command_key_input == "Left" and \
+                                                                     self.player_command_key_input[
+                                                                         -2] == "Left" and self.angle == 90) or
+                                                                    (self.last_command_key_input == "Right" and \
+                                                                     self.player_command_key_input[
+                                                                         -2] == "Right" and self.angle == -90)):
+                                self.interrupt_animation = True
+                                self.command_action = self.dash_command_action
+                                if self.angle == -90:
+                                    self.x_momentum += self.run_speed
+                                else:
+                                    self.x_momentum -= self.run_speed
                         if (self.double_jump and self.can_double_jump) or self.unlimited_jump:
                             if self.last_command_key_input == "Up":
                                 self.interrupt_animation = True

@@ -60,7 +60,7 @@ def menu_char(self, esc_press):
             self.battle.main_story_profile = self.save_data.save_profile["character"][
                 self.profile_index[main_story_player]]
             self.battle.main_player = main_story_player
-
+            #
             # self.start_battle(1, 1, 3, players={key: value for key, value in
             #                                         self.player_char_select.items() if value})
             # start in throne room of current chapter and mission of the lowest progress player
@@ -106,7 +106,7 @@ def menu_char(self, esc_press):
                                 else:
                                     new_page = 1
                             self.profile_index[player] = ((new_page * 4) + self.profile_index[player]) - (
-                                        self.profile_page[player] * 4)
+                                    self.profile_page[player] * 4)
                             self.profile_page[player] = new_page
                             self.profile_index[player] = check_other_player_select_slot(self, player)
 
@@ -119,7 +119,7 @@ def menu_char(self, esc_press):
                             for player2 in self.profile_page:
                                 self.update_profile_slots(player2)
                         elif selector.mode not in (
-                        "stat", "ready", "readymain"):  # switch to previous in playable_character list
+                                "stat", "ready", "readymain"):  # switch to previous in playable_character list
                             if "1" in selector.mode:  # currently in description mode, go to normal
                                 selector.change_mode(selector.mode[:-1])
                             current_id = tuple(playable_character.keys()).index(selector.mode)
@@ -139,7 +139,7 @@ def menu_char(self, esc_press):
                                 -1]) / 4) + 1:  # go to first page
                                 new_page = 0
                             self.profile_index[player] = ((new_page * 4) + self.profile_index[player]) - (
-                                        self.profile_page[player] * 4)
+                                    self.profile_page[player] * 4)
                             self.profile_page[player] = new_page
                             self.profile_index[player] = check_other_player_select_slot(self, player)
                             last_page = "2"
@@ -151,7 +151,7 @@ def menu_char(self, esc_press):
                             for player2 in self.profile_page:
                                 self.update_profile_slots(player2)
                         elif selector.mode not in (
-                        "stat", "ready", "readymain"):  # switch to next in playable_character list
+                                "stat", "ready", "readymain"):  # switch to next in playable_character list
                             if "1" in selector.mode:  # currently in description mode, go to normal
                                 selector.change_mode(selector.mode[:-1])
                             current_id = tuple(playable_character.keys()).index(selector.mode)
@@ -259,6 +259,9 @@ def menu_char(self, esc_press):
                                         selector.change_mode("readymain", delay=False)
                             for player2 in self.profile_page:
                                 self.update_profile_slots(player2)
+
+                            self.player_char_interfaces[player].add_profile(
+                                self.save_data.save_profile["character"][slot])
 
                     elif key_press == "Strong":  # cancel, go back to previous state
                         if selector.mode in ("ready", "readymain"):

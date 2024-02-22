@@ -255,7 +255,7 @@ Sweeper
 
 ### Animation maker
 
-Animation maker for the Vector-based character animation in game. The tool is made with pygame and the code is compatible enough for other purposes with some modification.
+Animation maker for the Vector-based character animation in game. The tool is made with pygame and the code may be compatible enough for other purposes with some modifications.
 
 ![alt text](https://github.com/remance/preview2/blob/main/animation-maker.png?raw=true)
 

@@ -15,8 +15,7 @@ def player_input_wheel_ui_mode(self, player_index, dt):
                         self.battle.player_wheel_uis[player_index].change_text_icon(self.command_name_list)
                     else:
                         self.battle.player_wheel_uis[player_index].change_text_icon(
-                            [value for value in
-                             self.battle.all_story_profiles[player_index]["equipment"]["inventory"].values()])
+                            tuple(self.items.values()), item_wheel=True)
             elif key in ("Left", "Right", "Up", "Down"):  # select item in wheel
                 self.battle.player_wheel_uis[player_index].selection(key)
             elif key == "Weak":  # select choice
@@ -24,9 +23,14 @@ def player_input_wheel_ui_mode(self, player_index, dt):
                     command = self.command_list[self.battle.player_wheel_uis[player_index].selected]
                     for follower in self.followers:
                         follower.follow_command = command
-                    CharacterSpeechBox(self.battle.player_objects[player_index], command)
+                    CharacterSpeechBox(self, command)
                 else:
-                    pass  # TODO add later for item system
+                    command = self.items[self.battle.player_wheel_uis[player_index].selected]
+                    if self.item_usage[command]:
+                        # has enough to use
+                        self.engage_combat()
+                        self.command_action = \
+                            self.useitem_command_action | {"item": command}
                 self.input_mode = None
                 self.player_input = self.player_input_battle_mode
                 self.battle.realtime_ui_updater.remove(self.battle.player_wheel_uis[player_index])

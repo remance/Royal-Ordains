@@ -1,0 +1,47 @@
+"ID","Name","Prefix","Suffix"
+"base_power_bonus","Power","Strong,Powerful,","of Battle,of Strength,of Power"
+"base_defence","Defence","Defender,Tough,","of Defence,"
+"base_animation_play_time","Action Time","Nimble,Rapid,Agile,Unmatchable",
+"base_speed","Move Speed","Speed,Fast,Quicken,Hasten,Swift",
+"base_guard","Guard","Guardian","of Blocking,of Guardian"
+"base_guard_cost_modifier","Guard Cost","Undaunt",
+"base_resource_cost_modifier","Resource Cost","Concontrated,Wizardry","of Concentration"
+"base_impact_modifier","Impact","Impactful,",
+"base_super_armour","Super Armour","Indomitable,Unmovable,Unstoppable,Titan,Colossus",
+"base_health","Health","Healthy,Tough,Tenacious,Vigorous","of Health"
+"base_resource","Resource","Mindful,Focused",
+"base_critical_chance","Critical Chance",,
+"physical_resistance","Physical Resist","Ghost,",
+"fire_resistance","Fire Resist","Imp,Phoenix",
+"water_resistance","Water Resist","Undine,Leviathan",
+"air_resistance","Air Resist","Eagle",
+"earth_resistance","Earth Resist","Golem",
+"magic_resistance","Magic Resist",,
+"poison_resistance","Poison Resist","Spider,Snake,",
+"stun_chance","Stun Chance","Blunt,Stunning",
+"slow_chance","Slow Chance","Slowing,",
+"bleed_chance","Bleeding Chance","Razor,Bleeding",
+"poison_chance","Poison Chance","Poisoned",
+"curse_chance","Curse Chance","Cursed",
+"burn_chance","Burn Chance","Flaming,Burning",
+"freeze_chance","Freeze Chance","Cold,Ice,Freezing,Frozen",
+"shock_chance","Shock Chance","Shocking",
+"base_hp_regen","Health Regen","Regenerative,Healing","of Life"
+"base_resource_regen","Resource Regen","Wise,","of Resource"
+"base_dodge","Dodge Chance","Shadow,Blurring","of Shadow,of Eluding,"
+"item_effect_modifier","Item Effect","Mastery,Tinkerer",
+"resurrect_count","Resurrect Count","Stubborn,",
+"buff_duration_modifier","Buff Duration","Paladin",
+"debuff_duration_modifier","Debuff Duration","Inquisitor",
+"attack_element_fire","Fire Element","Fire,Flame,Ember,Inferno,Fiery",
+"attack_element_water","Water Element","Water,Wet",
+"attack_element_air","Air Element","Air,Wind",
+"attack_element_earth","Earth Element","Earth,Solid",
+"attack_element_poison","Poison Element","Poison",
+"attack_element_magic","Magic Element","Magical",
+"attack_element_physical","Physical Element","Elementless,Pure",
+"attack_penetrate","Penetrate","Sharp,Penetrating",
+"attack_no_defence","Ignore Defence","Mighty,Fatal,Deadly",
+"attack_no_guard","Ignore Guard","Unblockable",
+"attack_no_dodge","No dodge","Hawk,Keen,Accurate","of Marksman"
+"no_weight","No weight","Weightless,",

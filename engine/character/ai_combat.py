@@ -37,7 +37,7 @@ def guard_ai(self):
     """Common combat AI will use only stand position with guard priority and not use combo"""
     if (not self.current_action or "guard" in self.current_action) and not self.command_action and self.nearest_enemy:
         if self.nearest_enemy[1] <= self.ai_max_attack_range and not self.ai_timer:
-            if not self.guarding and self.guard_meter == self.max_guard:
+            if not self.guarding and self.guard == self.max_guard:
                 # always guard first when enemy near
                 self.guarding = 0.1
                 self.ai_timer = 0.1
@@ -51,7 +51,7 @@ def guard_ai(self):
             else:
                 self.new_angle = 90
 
-    if self.guarding and (self.ai_timer > 3 or self.guard_meter < self.guard_meter20):
+    if self.guarding and (self.ai_timer > 3 or self.guard < self.guard_meter20):
         # guard only for 3 seconds then attack
         self.ai_timer = 0
         self.interrupt_animation = True
@@ -83,6 +83,6 @@ def complex_ai(self):
         self.interrupt_animation = True
 
 
-ai_combat_dict = {"default": training_ai, "common_melee": common_ai, "common_range": common_ai, "sentry": common_ai,
-                  "trap": common_ai, "bigta": common_ai, "guard_melee": guard_ai, "pursue_melee": common_ai,
+ai_combat_dict = {"default": training_ai, "common": common_ai, "sentry": common_ai,
+                  "trap": common_ai, "bigta": common_ai, "guard_melee": guard_ai, "pursue": common_ai,
                   "boss_cheer": cheer_ai}

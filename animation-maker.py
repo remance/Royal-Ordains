@@ -1352,8 +1352,8 @@ class Model:
             # reset history when create new animation
             self.clear_history()
 
-        if len(self.animation_history) > 2:  # save only last 1000 activity
-            new_first = len(self.animation_history) - 2
+        if len(self.animation_history) > 100:  # save only last 100 activity
+            new_first = len(self.animation_history) - 100
             self.part_name_history = self.part_name_history[new_first:]
             self.animation_history = self.animation_history[new_first:]
             self.body_part_history = self.body_part_history[new_first:]
@@ -1409,21 +1409,13 @@ class Model:
              enumerate(self.bodypart_list)})
 
     def clear_history(self):
-        self.part_name_history = [
-            {frame_num: {key: value for key, value in self.part_name_list[frame_num].items()} for frame_num, _ in
-             enumerate(self.part_name_list)}]
-        self.animation_history = [
-            {frame_num: {key: (value[:].copy() if value is not None else value) for key, value in
-                         self.animation_part_list[frame_num].items()} for
-             frame_num, _ in enumerate(self.animation_part_list)}]
-        self.body_part_history = [
-            {frame_num: {key: value for key, value in self.bodypart_list[frame_num].items()} for frame_num, _ in
-             enumerate(self.bodypart_list)}]
+        self.part_name_history = []
+        self.animation_history = []
+        self.body_part_history = []
         self.current_history = 0
 
 
 class Animation:
-    # created in 22 dec 2020 by cenk
     def __init__(self, spd_ms, loop):
         self.frames = None
         self.speed_ms = spd_ms / 1000
@@ -1909,10 +1901,10 @@ while True:
                 elif key_press[pygame.K_v]:  # paste frame
                     paste_press = True
                 elif key_press[pygame.K_z]:  # undo change
-                    keypress_delay = 0.1
+                    keypress_delay = 0.2
                     undo_press = True
                 elif key_press[pygame.K_y]:  # redo change
-                    keypress_delay = 0.1
+                    keypress_delay = 0.2
                     redo_press = True
             elif key_press[pygame.K_LALT] or key_press[pygame.K_RALT]:
                 if key_press[pygame.K_c]:  # copy part

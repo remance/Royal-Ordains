@@ -19,7 +19,7 @@
 "Strong","sweak1strong","Upper Smash","Stand",,"sweak1",,,300,,,,40,,,240,,,"Physical",,,,
 "Strong","sweak1strong2","Bow Smash","Stand","Strength:52","sweak1strong",,,300,,,,60,,,,200,,"Physical",,,,
 "Strong","sweak2strong","Front Kick","Stand",,"sweak2",,,300,,,,48,120,,,200,,"Physical",,,,
-"Strong","sweak2strong2","Fast Step Slash","Stand","Strength:66","sweak2strong",,,300,,,,79,80,,,,10,"Physical",,,,
+"Strong","sweak2strong2","Fast Step Slash","Stand","Strength:66","sweak2strong",,,300,,,,79,80,,,,0.1,"Physical",,,,
 "Strong","sstrong1","Sword Slash","Stand",,,,,300,,,,35,60,,,40,,"Physical",,,,
 "Strong","sstrong2","Sword Stab","Stand",,"sstrong1",,,300,,,,46,20,,72,,,"Physical",,,,
 "Strong","sstrong3","Sword Slash Out","Stand","Strength:41","sstrong2",,,300,,,,68,55,,,80,,"Physical",,,,

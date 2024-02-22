@@ -6,7 +6,7 @@ def common_special(self):
 
 def vraesier_special(self):
     if self.mode != "Demon":
-        if self.resource == self.max_resource:
+        if self.resource == self.base_resource:
             self.mode = "Demon"
             self.engage_combat()
             self.command_action = self.activate_command_action

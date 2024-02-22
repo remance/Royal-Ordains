@@ -21,7 +21,7 @@ class Drop(sprite.Sprite):
         self._layer = 9999999999999999996
         sprite.Sprite.__init__(self, self.containers)
         self.screen_scale = self.battle.screen_scale
-        self.fall_gravity = self.battle.original_fall_gravity / 2  # fall a bit slower
+        self.fall_gravity = self.battle.base_fall_gravity / 2  # fall a bit slower
         self.show_frame = 0
         self.frame_timer = 0
         self.x_momentum = 0

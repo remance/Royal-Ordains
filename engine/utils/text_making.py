@@ -35,7 +35,7 @@ def sort_list_dir_with_str(dir_list, str_list):
     return sorted_dir
 
 
-def make_long_text(surface, text, pos, font, color=Color("black"), with_texture=()):
+def make_long_text(surface, text, pos, font, color=Color("black"), with_texture=(), specific_width=None):
     """
     Blit long text into separate row of text by blitting text word by word
     :param surface: Input Pygame Surface
@@ -43,7 +43,8 @@ def make_long_text(surface, text, pos, font, color=Color("black"), with_texture=
     :param pos: Starting position
     :param font: Pygame Font
     :param color: Text colour
-    :param with_texture: list array with value for argument of text_render_with_texture (texture, (gf_colour, o_colour, opx))
+    :param with_texture: List array with value for argument of text_render_with_texture (texture, (gf_colour, o_colour, opx))
+    :param specific_width: Specific width size of text
     """
     # TODO Add sizing and colouring for highlight and maybe URL system
     if type(text) != list:
@@ -53,6 +54,8 @@ def make_long_text(surface, text, pos, font, color=Color("black"), with_texture=
         words = [word.split(" ") for word in str(this_text).splitlines()]  # 2D array where each row is a list of words
         space = font.size(" ")[0]  # the width of a space
         max_width = surface.get_width()
+        if specific_width:
+            max_width = specific_width
         for line in words:
             for word in line:
                 if not with_texture:
@@ -63,11 +66,11 @@ def make_long_text(surface, text, pos, font, color=Color("black"), with_texture=
                 word_width, word_height = word_surface.get_size()
                 if x + word_width >= max_width:
                     x = pos[0]  # reset x
-                    y += word_height  # start on new row.
+                    y += word_height  # start on new line.
                 surface.blit(word_surface, (x, y))
                 x += word_width + space
             x = pos[0]  # reset x
-            y += word_height  # start on new row
+            y += word_height  # start on new line
 
 
 def text_render_with_texture(text, font, texture, with_bg=None):

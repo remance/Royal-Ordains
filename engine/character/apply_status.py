@@ -9,4 +9,7 @@ def apply_status(self, effect):
             StatusEffect(self, (effect_stat["Status Sprite"], effect_stat["Status Sprite"],
                                 self.pos[0], self.pos[1], 0, 1, 0, 1), 0)
 
-    self.status_duration[effect] = effect_stat["Duration"]
+    if effect_stat["Debuff"]:
+        self.status_duration[effect] = int(effect_stat["Duration"] * self.debuff_duration_modifier)
+    else:
+        self.status_duration[effect] = int(effect_stat["Duration"] * self.buff_duration_modifier)

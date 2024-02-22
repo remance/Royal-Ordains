@@ -159,11 +159,11 @@ class PlayerPortrait(UIBattle):
         if self.last_health_value != who.health:
             self.last_health_value = who.health
             self.health_bar_image = self.base_health_bar_image.copy()
-            percent = 1 - (who.health / who.max_health)
+            percent = 1 - (who.health / who.base_health)
             bar = Surface((self.bar_size[0] * percent, self.bar_size[1]))
             bar.fill((0, 0, 0))
             self.health_bar_image.blit(bar, (self.bar_size[0] - bar.get_width(), 0))
-            value_text = self.font.render(str(int(self.last_health_value)) + " / " + str(who.max_health), True,
+            value_text = self.font.render(str(int(self.last_health_value)) + " / " + str(who.base_health), True,
                                           (255, 255, 255))
             self.health_bar_image.blit(value_text, self.health_text_rect)
             self.image.blit(self.health_bar_image, self.health_bar_rect)
@@ -171,19 +171,19 @@ class PlayerPortrait(UIBattle):
         if self.last_resource_value != who.resource:
             self.last_resource_value = who.resource
             self.resource_bar_image = self.base_resource_bar_image.copy()
-            percent = 1 - (who.resource / who.max_resource)
+            percent = 1 - (who.resource / who.base_resource)
             bar = Surface((self.bar_size[0] * percent, self.bar_size[1]))
             bar.fill((0, 0, 0))
             self.resource_bar_image.blit(bar, (self.bar_size[0] - bar.get_width(), 0))
-            value_text = self.font.render(str(int(self.last_resource_value)) + " / " + str(who.max_resource), True,
+            value_text = self.font.render(str(int(self.last_resource_value)) + " / " + str(who.base_resource), True,
                                           (255, 255, 255))
             self.resource_bar_image.blit(value_text, self.resource_text_rect)
             self.image.blit(self.resource_bar_image, self.resource_bar_rect)
 
-        if self.last_guard_value != who.guard_meter:
-            self.last_guard_value = who.guard_meter
+        if self.last_guard_value != who.guard:
+            self.last_guard_value = who.guard
             self.guard_bar_image = self.base_guard_bar_image.copy()
-            percent = 1 - (who.guard_meter / who.max_guard)
+            percent = 1 - (who.guard / who.max_guard)
             bar = Surface((self.bar_size[0] * percent, self.bar_size[1]))
             bar.fill((0, 0, 0))
             self.guard_bar_image.blit(bar, (self.bar_size[0] - bar.get_width(), 0))
@@ -301,7 +301,7 @@ class CharacterIndicator(UIBattle):
         UIBattle.__init__(self, has_containers=True)
         self.font = Font(self.ui_font["main_button"], 42)
         self.character = character
-        self.height_adjust = self.character.sprite_size * 3.5
+        self.height_adjust = character.sprite_size * 3.5
         if character.player_control:
             text = character.game_id
 
@@ -408,7 +408,7 @@ class ScoreBoard(UIBattle):
                                       str(self.battle.reserve_resurrect_stage_score), True, (0, 0, 0))
         gold_text = self.font.render(minimise_number_text(self.battle.stage_gold), True, (0, 0, 0))
 
-        if self.body_part.owner.sprite_direction == "l_side":
+        if self.body_part.owner.angle == 90:
             score_rect = score_text.get_rect(center=(self.body_part.base_image.get_width() / 3,
                                                      self.body_part.base_image.get_height() / 2.5))
             gold_rect = gold_text.get_rect(center=(self.body_part.base_image.get_width() / 3,
@@ -439,33 +439,33 @@ class CityMap(UIBattle):
 
         self.stage_select_rect = {"herbalist": self.images["herbalist"].get_rect(
             center=(252 * self.screen_scale[0], 691 * self.screen_scale[1])),
-                                  "barrack": self.images["barrack"].get_rect(
-                                      center=(428 * self.screen_scale[0], 394 * self.screen_scale[1])),
-                                  "blacksmith": self.images["blacksmith"].get_rect(
-                                      center=(438 * self.screen_scale[0], 579 * self.screen_scale[1])),
-                                  "cathedral": self.images["cathedral"].get_rect(
-                                      center=(711 * self.screen_scale[0], 645 * self.screen_scale[1])),
-                                  "plaza": self.images["plaza"].get_rect(
-                                      center=(884 * self.screen_scale[0], 704 * self.screen_scale[1])),
-                                  "tavern": self.images["tavern"].get_rect(
-                                      center=(970 * self.screen_scale[0], 801 * self.screen_scale[1])),
-                                  "garden": self.images["garden"].get_rect(
-                                      center=(1022 * self.screen_scale[0], 497 * self.screen_scale[1])),
-                                  "artificer": self.images["artificer"].get_rect(
-                                      center=(1339 * self.screen_scale[0], 382 * self.screen_scale[1])),
-                                  "market": self.images["market"].get_rect(
-                                      center=(1377 * self.screen_scale[0], 629 * self.screen_scale[1])),
-                                  "scriptorium": self.images["scriptorium"].get_rect(
-                                      center=(1617 * self.screen_scale[0], 436 * self.screen_scale[1])),
-                                  "throne": self.images["throne"].get_rect(
-                                      center=(1015 * self.screen_scale[0], 109 * self.screen_scale[1])),
-                                  "library": self.images["library"].get_rect(
-                                      center=(730 * self.screen_scale[0], 202 * self.screen_scale[1])),
-                                  "hall": self.images["hall"].get_rect(
-                                      center=(1021 * self.screen_scale[0], 199 * self.screen_scale[1])),
-                                  "council": self.images["council"].get_rect(
-                                      center=(1298 * self.screen_scale[0], 198 * self.screen_scale[1]))
-                                  }
+            "barrack": self.images["barrack"].get_rect(
+                center=(428 * self.screen_scale[0], 394 * self.screen_scale[1])),
+            "blacksmith": self.images["blacksmith"].get_rect(
+                center=(438 * self.screen_scale[0], 579 * self.screen_scale[1])),
+            "cathedral": self.images["cathedral"].get_rect(
+                center=(711 * self.screen_scale[0], 645 * self.screen_scale[1])),
+            "plaza": self.images["plaza"].get_rect(
+                center=(884 * self.screen_scale[0], 704 * self.screen_scale[1])),
+            "tavern": self.images["tavern"].get_rect(
+                center=(970 * self.screen_scale[0], 801 * self.screen_scale[1])),
+            "garden": self.images["garden"].get_rect(
+                center=(1022 * self.screen_scale[0], 497 * self.screen_scale[1])),
+            "artificer": self.images["artificer"].get_rect(
+                center=(1339 * self.screen_scale[0], 382 * self.screen_scale[1])),
+            "market": self.images["market"].get_rect(
+                center=(1377 * self.screen_scale[0], 629 * self.screen_scale[1])),
+            "scriptorium": self.images["scriptorium"].get_rect(
+                center=(1617 * self.screen_scale[0], 436 * self.screen_scale[1])),
+            "throne": self.images["throne"].get_rect(
+                center=(1015 * self.screen_scale[0], 109 * self.screen_scale[1])),
+            "library": self.images["library"].get_rect(
+                center=(730 * self.screen_scale[0], 202 * self.screen_scale[1])),
+            "hall": self.images["hall"].get_rect(
+                center=(1021 * self.screen_scale[0], 199 * self.screen_scale[1])),
+            "council": self.images["council"].get_rect(
+                center=(1298 * self.screen_scale[0], 198 * self.screen_scale[1]))
+        }
 
         for image, rect in self.stage_select_rect.items():
             self.base_image.blit(self.images[image], rect)
@@ -612,7 +612,7 @@ class CharacterSpeechBox(UIBattle):
             self.kill()
             return
 
-        if self.character.sprite_direction == "l_side":  # left direction facing
+        if self.character.angle == 90:  # left direction facing
             if self.head_part.rect.midleft[0] - (
                     self.battle.shown_camera_pos[0] - self.battle.camera.camera_w_center) < self.base_image.get_width():
                 # text will exceed screen, go other way
@@ -668,18 +668,22 @@ class DamageNumber(UIBattle):
 
 
 class WheelUI(UIBattle):
+    from engine.character.character import PlayerCharacter
+    command_list = PlayerCharacter.command_list
     item_sprite_pool = None
     choice_list_key = {"Down": 1, "Left": 2, "Up": 3, "Right": 4}
     choice_key = tuple(choice_list_key.keys())
 
-    def __init__(self, images, pos, text_size=20):
+    def __init__(self, images, player, pos):
         """Wheel choice ui to select item"""
         self._layer = 11
         UIBattle.__init__(self)
-        self.font = Font(self.ui_font["main_button"], text_size)
+        self.small_font = Font(self.ui_font["main_button"], int(16 * self.screen_scale[1]))
+        self.font = Font(self.ui_font["main_button"], int(20 * self.screen_scale[1]))
         self.pos = pos
         self.choice_list = ()
         self.selected = "Up"
+        self.player = player
 
         self.wheel_button_image = images["wheel"]
         self.wheel_selected_button_image = images["wheel_selected"]
@@ -715,30 +719,55 @@ class WheelUI(UIBattle):
                 self.image.blit(self.wheel_selected_image_with_stuff[index], rect)
             else:
                 self.image.blit(self.wheel_image_with_stuff[index], rect)
-            text_image = self.wheel_text_image.copy()
-            text_surface = self.font.render(self.choice_list[index], True, (0, 0, 0))
-            text_image.blit(text_surface, text_surface.get_rect(center=(text_image.get_width() / 2,
-                                                                        text_image.get_height() / 2)))
+            if self.choice_list[index]:
+                text_image = self.wheel_text_image.copy()  # blit text again to avoid wheel overlap old text
+                if self.choice_list == self.command_list:
+                    text_surface = self.small_font.render(self.localisation.grab_text(("ui", self.choice_list[index])),
+                                                          True,
+                                                          (0, 0, 0))
+                else:
+                    text_surface = self.small_font.render(self.localisation.grab_text(("item", self.choice_list[index],
+                                                                                       "Name")), True, (0, 0, 0))
 
-            self.image.blit(text_image, text_image.get_rect(center=self.wheel_rect[index].midbottom))
+                text_image.blit(text_surface, text_surface.get_rect(center=(text_image.get_width() / 2,
+                                                                            text_image.get_height() / 2)))
 
-    def change_text_icon(self, blit_list):
+                self.image.blit(text_image, text_image.get_rect(center=self.wheel_rect[index].midbottom))
+
+    def change_text_icon(self, blit_list, item_wheel=False):
         """Add icon or text to the wheel choice"""
         self.image = self.base_image2.copy()
         self.choice_list = blit_list
-        for index, item in enumerate(blit_list):
-            if item:  # Wheel choice with icon or text inside
-                surface = self.item_sprite_pool[self.battle.chapter_sprite_ver]["Normal"][item][1][0]
+        for index, value in enumerate(blit_list):
+            self.wheel_image_with_stuff[index] = self.wheel_button_image.copy()
+            self.wheel_selected_image_with_stuff[index] = self.wheel_selected_button_image.copy()
+            if value:  # Wheel choice with icon at center
+                surface = self.item_sprite_pool[self.battle.chapter_sprite_ver]["Normal"][value][1][0]
                 rect = surface.get_rect(center=(self.wheel_image_with_stuff[index].get_width() / 2,
                                                 self.wheel_image_with_stuff[index].get_height() / 2))
+
                 self.wheel_image_with_stuff[index].blit(surface, rect)
                 self.wheel_selected_image_with_stuff[index].blit(surface, rect)
+
+                if item_wheel:
+                    text_surface = text_render_with_bg(str(self.battle.player_objects[self.player].item_usage[value]),
+                                                       self.font)  # add item number
+                    self.wheel_image_with_stuff[index].blit(text_surface,
+                                                            text_surface.get_rect(topright=rect.topright))
+                    self.wheel_selected_image_with_stuff[index].blit(text_surface,
+                                                                     text_surface.get_rect(topright=rect.topright))
+
+                    text_surface = self.small_font.render(self.localisation.grab_text(("item", value, "Name")), True,
+                                                          (0, 0, 0))
+                else:
+                    text_surface = self.small_font.render(self.localisation.grab_text(("ui", value)), True,
+                                                          (0, 0, 0))
+
                 if self.selected == self.choice_key[index]:
                     self.image.blit(self.wheel_selected_image_with_stuff[index], self.wheel_rect[index])
                 else:
                     self.image.blit(self.wheel_image_with_stuff[index], self.wheel_rect[index])
                 text_image = self.wheel_text_image.copy()
-                text_surface = self.font.render(item, True, (0, 0, 0))
                 text_image.blit(text_surface, text_surface.get_rect(center=(text_image.get_width() / 2,
                                                                             text_image.get_height() / 2)))
 

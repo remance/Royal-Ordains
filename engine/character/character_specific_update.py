@@ -15,7 +15,7 @@ def common_update(self, *args):
 
 def vraesier_update(self, dt, *args):
     if self.mode == "Demon":
-        self.resource -= dt * 5
+        self.resource -= dt * 10
         if self.resource <= 0:
             self.resource = 0
             if "uninterruptible" not in self.command_action:  # revert to normal
@@ -25,10 +25,10 @@ def vraesier_update(self, dt, *args):
     else:
         if self.resource >= self.resource50:
             self.mode = "Bloody"
-            if self.resource >= self.max_resource:
+            if self.resource >= self.base_resource:
                 self.mode = "Ready"
 
-    if self.resource < self.max_resource:
+    if self.resource < self.base_resource:
         for enemy in self.near_enemy:
             if enemy[1] < 500:
                 # nearby bleeding status enemy increase resource
@@ -39,8 +39,8 @@ def vraesier_update(self, dt, *args):
                 elif 33 in enemy[0].status_effect:  # major bleeding
                     self.resource += dt * 3
 
-                if self.resource > self.max_resource:  # resource max, no need for continuing loop
-                    self.resource = self.max_resource
+                if self.resource > self.base_resource:  # resource max, no need for continuing loop
+                    self.resource = self.base_resource
                     break
             else:
                 break

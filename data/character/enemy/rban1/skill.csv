@@ -1,2 +1,2 @@
 "Move","Name","Buttons","Position","Prepare Animation","After Animation","AI Range","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"Arrive2","Diving Attack","Down,Special","Air","name:Arrive2Prepare,fly:True",,2000,,10,,200,50,,,100,10,"Physical",,,,"movable,y_momentum,drop speed:1.5,repeat,no max ai range"
+"Arrive2","Diving Attack","Down,Special","Air","name:Arrive2Prepare,fly:True",,2000,,10,,200,50,,,100,0.1,"Physical",,,,"movable,y_momentum:-10000,drop speed:1.5,repeat,no max ai range"

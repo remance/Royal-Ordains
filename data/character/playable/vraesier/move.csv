@@ -9,33 +9,33 @@
 "Weak","sweak2","Close Slash","Stand",,"sweak1",,,250,,,,32,30,,,100,,"Physical",,,,
 "Weak","sweak3","Upper Kick","Stand",,"sweak2",,,300,,,,41,100,,175,,,"Physical",,,,
 "Strong","sweak1strong","Upper Slash","Stand",,"sweak1",,,300,,,,72,,,450,,,"Physical",,,,
-"Strong","sweak2strong","Quick Jab","Stand",,"sweak2",,,300,,,,64,125,,,250,5,"Physical",,31,,
+"Strong","sweak2strong","Quick Jab","Stand",,"sweak2",,,300,,,,64,125,,,250,0.05,"Physical",,31,,
 "Strong","sweak3strong","Quick Slash","Stand",,"sweak3",,,300,,,,91,150,,,400,,"Physical",,,,
 "Strong","sstrong1","Pierce","Stand",,,,,300,,,,41,75,,,50,,"Physical",,,,
 "Strong","sstrong2","Slash Up","Stand",,"sstrong1",,,300,,,,52,25,,90,,,"Physical",,,,
 "Strong","sstrong3","Slash Down","Stand",,"sstrong2",,,300,,,,67,150,,,400,,"Physical",,,,
 "Special","sstrong1special","Demonic Twin Slash","Stand","Dexterity:45","sstrong1",,,300,,,6,73,250,,,600,,"Physical",,,,
 "Special","sstrong2special","Demonic Twin Sweep","Stand","Dexterity:60","sstrong2",,,350,,,10,83,700,,100,,,"Physical",,,,
-"Special","sstrong3special","Demonic Trickery","Stand","Dexterity:70","sstrong3",,,350,,,13,112,350,,,,25,"Physical",,,,
+"Special","sstrong3special","Demonic Trickery","Stand","Dexterity:70","sstrong3",,,350,,,13,112,350,,,,0.25,"Physical",,,,
 "Weak","aweak1","Air Kick Down","Air",,,,,150,,,,31,45,,,50,,"Physical",,,,
 "Weak","aweak2","Air Spin Kick","Air",,"aweak1",,,200,,,,48,125,,,30,,"Physical",,,,
 "Weak","aweak3","Air Pierce","Air",,"aweak2",,,250,,,,67,100,,,100,,"Physical",,31,,
 "Strong","aweak1strong","Air Step","Air","Dexterity:36","aweak1",,,150,,,,32,,,50,,,"Physical",,,,"air"
 "Strong","aweak2strong","Air Slash","Air","Dexterity:53","aweak2",,,250,,,,94,50,,,,,"Physical",,31,,
 "Strong","aweak3strong","Air Sword Lift","Air","Dexterity:87","aweak3",,,250,,,,110,,,115,,,"Physical",,,,
-"Down,Strong","adstrong","Air Pierce Down","Air",,,"name:adstrongprepare,fly:True",,100,,,,140,,,,350,,"Physical",,,,"movable,y_momentum,drop speed:2,repeat"
+"Down,Strong","adstrong","Air Pierce Down","Air",,,"name:adstrongprepare,fly:True",,100,,,,140,,,,350,,"Physical",,,,"movable,y_momentum:-10000,x_momentum:0,drop speed:2,repeat"
 "Strong","astrong1","Left Air Punch","Air",,,,,150,,,,81,75,,,60,,"Physical",,,,
 "Strong","astrong2","Two-handed Slash Out","Air",,"astrong1",,,300,,,,100,120,,,60,,"Physical",,,,
-"Strong","astrong3","Full Arc Slash","Air",,"astrong2",,,300,,,,114,,,,300,5,"Physical",,,,"multiple hits"
+"Strong","astrong3","Full Arc Slash","Air",,"astrong2",,,300,,,,114,,,,300,0.05,"Physical",,,,"multiple hits"
 "Special","astrong1special","Demonic Beat Down","Air","Strength:53","astrong1",,,150,,,3,43,46,,,,,"Physical",,,,
 "Special","astrong2special","Demonic Pull","Air","Strength:66","astrong2",,,230,,,8,211,,182,,,,"Physical",,32,,"penetrate"
-"Special","astrong3special","Demonic Meteor","Air","Strength:83","astrong3","name:sstrong3specialprepare,fly:True",,300,,,10,300,,,,1000,15,"Physical",,,,"movable,y_momentum,drop speed:2,repeat"
-"Special","cspecial","Demonic Crush","Couch",,,,,350,,,4,180,,,,600,1,"Physical",,,,
-"Special","sspecial1","Demonic Slash In","Stand",,,,,350,,,2,92,175,,,200,2,"Physical",,,,
-"Special","sspecial2","Demonic Slash Out","Stand",,"sspecial1",,,350,,,3,135,200,,,175,4,"Physical",,,,
-"Special","sspecial3","Demonic Great Slash","Stand",,"sspecial2",,,350,,,6,166,400,,,300,6,"Physical",,32,,
-"Special","sspecial4","Demonic Gorging","Stand","Strength:50","sspecial3",,,350,,,2,122,250,,,,10,"Physical",,,,
-"Special","sspecial5","Demonic Rising Star","Stand","Strength:72","sspecial4",,,350,,,7,215,,,500,,5,"Physical",,,,
-"Special","aspecial","Demonic Lift","Air",,,,,350,,,4,250,,,600,,1,"Physical",,,,
+"Special","astrong3special","Demonic Meteor","Air","Strength:83","astrong3","name:sstrong3specialprepare,fly:True",,300,,,10,300,,,,1000,0.15,"Physical",,,,"movable,y_momentum:-10000,x_momentum:0,drop speed:2,repeat"
+"Special","cspecial","Demonic Crush","Couch",,,,,350,,,4,180,,,,600,0.05,"Physical",,,,
+"Special","sspecial1","Demonic Slash In","Stand",,,,,350,,,2,92,175,,,200,0.1,"Physical",,,,
+"Special","sspecial2","Demonic Slash Out","Stand",,"sspecial1",,,350,,,3,135,200,,,175,0.2,"Physical",,,,
+"Special","sspecial3","Demonic Great Slash","Stand",,"sspecial2",,,350,,,6,166,400,,,300,0.1,"Physical",,32,,
+"Special","sspecial4","Demonic Gorging","Stand","Strength:50","sspecial3",,,350,,,2,122,250,,,,0.1,"Physical",,,,
+"Special","sspecial5","Demonic Rising Star","Stand","Strength:72","sspecial4",,,350,,,7,215,,,500,,0.1,"Physical",,,,
+"Special","aspecial","Demonic Lift","Air",,,,,350,,,4,250,,,600,,0.1,"Physical",,,,
 "Forward,Strong","fsstrong","Slash Dash","Stand",,,,,450,,,,45,50,,,,,"Physical",,,,"all_child_moveset,x_momentum:300,movable,forced move"
 "Backward,Strong","bsstrong","Retreating Slash","Stand",,,,,200,,,,45,50,,,,,"Physical",,,,"all_child_moveset,x_momentum:-300,movable,forced move"

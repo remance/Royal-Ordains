@@ -1,8 +1,11 @@
-"Choice","Chapter","Mission","Stage","Follower Reward","Item Reward","Gold Reward"
-"yes",1,1,3,"Bigta,Rban1,Rban2,Rban3,Rban4,Rban6,Animal1,Animal2",,
-"no",1,1,3,,"Great Mini Shield",1500
-"yes",1,2,2,"Adaqua,Hban1,Hban2",,
-"no",1,2,2,,"Stealth Mantle",4200
-"yes",1,3,3,"Animal4",,
-"no",1,3,3,,"Green Druid Staff",5500
-"yes",1,5,10,"Dban1,Dban2,Dban3,Eban1,Eban2,Eban3",,
+"Choice","Chapter","Mission","Stage","Follower Reward","Item Reward","Gear Reward","Gold Reward"
+"yes",1,1,3,"Bigta,Rban1,Rban2,Rban3,Rban4,Rban6,Animal1,Animal2",,,
+"no",1,1,3,,,"Great Mini Shield",5000
+"yes",1,2,2,"Adaqua,Hban1,Hban2",,,
+"no",1,2,2,,,"Stealth Mantle",8200
+"yes",1,3,3,"Animal4",,,
+"no",1,3,3,,,"Green Druid Staff",10500
+"yes",1,4,,,,,
+"no",1,4,,,,,
+"yes",1,5,10,"Dban1,Dban2,Dban3,Eban1,Eban2,Eban3",,,
+"no",1,5,,,,,

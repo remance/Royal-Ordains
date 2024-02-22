@@ -14,25 +14,28 @@ def drop_collide_check(self):
                                         self.owner.sprite_id == item.stat["Specific Receiver"]):
             # can pick this drop
             if item.stat["Health"]:
-                self.owner.health += item.stat["Health"]
-                if self.owner.health > self.owner.max_health:
-                    self.owner.health = self.owner.max_health
+                self.owner.health += item.stat["Health"] * self.owner.item_effect_modifier
+                if self.owner.health > self.owner.base_health:
+                    self.owner.health = self.owner.base_health
                 DamageNumber(str(int(item.stat["Health"])), self.rect.midtop, False, "health")
             if item.stat["Resource"]:
-                self.owner.resource += item.stat["Resource"]
-                if self.owner.resource > self.owner.max_resource:
-                    self.owner.resource = self.owner.max_resource
+                self.owner.resource += item.stat["Resource"] * self.owner.item_effect_modifier
+                if self.owner.resource > self.owner.base_resource:
+                    self.owner.resource = self.owner.base_resource
                 DamageNumber(str(int(item.stat["Resource"])), self.rect.midbottom, False, "resource")
+            if item.stat["Status"]:
+                for effect in item.stat["Status"]:
+                    self.owner.apply_status(effect)
             if item.stat["Gold"]:
-                self.battle.stage_gold += item.stat["Gold"]
+                self.battle.stage_gold += item.stat["Gold"] * self.owner.gold_drop_modifier
                 if self.owner.money_score:
                     self.battle.increase_player_score(item.stat["Gold"])
                 if self.owner.money_resource:
                     self.owner.resource += item.stat["Gold"] / 100
-                    if self.owner.resource > self.owner.max_resource:
-                        self.owner.resource = self.owner.max_resource
+                    if self.owner.resource > self.owner.base_resource:
+                        self.owner.resource = self.owner.base_resource
             if item.stat["Revive"]:
-                self.owner.resurrect_count += item.stat["Revive"]
+                self.owner.resurrect_count += item.stat["Revive"] * self.owner.item_effect_modifier
                 DamageNumber("+" + str(int(item.stat["Revive"])), self.rect.midtop, False, "revive")
             if item.stat["Property"]:
                 for item2 in item.stat["Property"]:

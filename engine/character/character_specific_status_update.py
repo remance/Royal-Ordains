@@ -15,7 +15,7 @@ def nayedien_status_update(self):
 
 def vraesier_status_update(self):
     if self.mode == "Demon":
-        self.attack_impact_effect += 0.5
+        self.impact_modifier += 0.5
         self.power_bonus += 10
         self.super_armour *= 2
 

@@ -115,6 +115,9 @@ class Game:
     from engine.game.create_config import create_config
     create_config = create_config
 
+    from engine.game.generate_custom_equipment import generate_custom_equipment
+    generate_custom_equipment = generate_custom_equipment
+
     from engine.game.get_keybind_button_name import get_keybind_button_name
     get_keybind_button_name = get_keybind_button_name
 
@@ -347,10 +350,10 @@ class Game:
         self.character_data = CharacterData()
         self.battle_map_data = BattleMapData()
 
-        Weather.weather_icons = self.battle_map_data.weather_icon
-
         self.preset_map_folder = self.battle_map_data.preset_map_folder
         self.preset_map_data = self.battle_map_data.preset_map_data
+        self.choice_stage_reward = self.battle_map_data.choice_stage_reward
+        self.stage_reward = self.battle_map_data.stage_reward
 
         Character.character_data = self.character_data
         Character.status_list = self.character_data.status_list
@@ -388,13 +391,14 @@ class Game:
             pygame.mixer.Channel(0).set_volume(self.play_music_volume)
 
         # Load UI images
-        self.battle_ui_images = load_images(self.data_dir, screen_scale=self.screen_scale, subfolder=("ui", "battle_ui"))
+        self.battle_ui_images = load_images(self.data_dir, screen_scale=self.screen_scale,
+                                            subfolder=("ui", "battle_ui"))
         self.char_selector_images = load_images(self.data_dir, screen_scale=self.screen_scale,
                                                 subfolder=("ui", "char_ui"), key_file_name_readable=True)
         self.button_image = load_images(self.data_dir, screen_scale=self.screen_scale,
                                         subfolder=("ui", "battlemenu_ui", "button"))
         self.option_menu_images = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                    subfolder=("ui", "option_ui"))
+                                              subfolder=("ui", "option_ui"))
         # Main menu interface
         self.fps_count = FPSCount(self)  # FPS number counter
         if self.show_fps:

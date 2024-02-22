@@ -9,7 +9,7 @@ def play_cutscene_animation(self, dt, hold_check):
     done = False
     if not hold_check:  # not holding current frame
         self.frame_timer += dt
-        if self.frame_timer >= self.animation_play_time:  # start next frame or end animation
+        if self.frame_timer >= self.final_animation_play_time:  # start next frame or end animation
             self.frame_timer = 0
             self.stoppable_frame = False
             if self.show_frame != self.max_show_frame:  # continue next frame
@@ -27,7 +27,7 @@ def play_cutscene_animation(self, dt, hold_check):
                                                    self.pos, sound[1], sound[2])
 
             if not done:  # check if new frame has play speed mod
-                self.animation_play_time = self.default_animation_play_time
+                self.final_animation_play_time = self.default_animation_play_time
                 if "play_time_mod" in self.current_animation_direction[self.show_frame]:
-                    self.animation_play_time *= self.current_animation_direction[self.show_frame]["play_time_mod"]
+                    self.final_animation_play_time *= self.current_animation_direction[self.show_frame]["play_time_mod"]
     return done

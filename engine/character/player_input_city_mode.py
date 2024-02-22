@@ -49,13 +49,13 @@ def player_input_city_mode(self, player_index, dt):
                         (self.command_key_hold and self.command_key_hold[-1] == "Left"):
                     self.new_angle = 90
                     if not self.current_action or "movable" in self.current_action:
-                        self.x_momentum = -self.walk_speed / 10
+                        self.x_momentum = -self.city_walk_speed / 10
 
                 elif self.last_command_key_input == "Right" or \
                         (self.command_key_hold and self.command_key_hold[-1] == "Right"):
                     self.new_angle = -90
                     if not self.current_action or "movable" in self.current_action:
-                        self.x_momentum = self.walk_speed / 10
+                        self.x_momentum = self.city_walk_speed / 10
 
                 if self.x_momentum:
                     if not self.command_action:

@@ -3,7 +3,7 @@ import os
 import sys
 import time
 from math import sin, cos, radians
-from random import uniform
+from random import uniform, randint
 
 import pygame
 from pygame import Vector2, display, mouse
@@ -94,7 +94,7 @@ class Battle:
     battle_camera_max = None
     start_camera_mode = "Follow"
 
-    original_fall_gravity = 900
+    base_fall_gravity = 900
 
     def __init__(self, game):
         self.game = game
@@ -106,12 +106,14 @@ class Battle:
         # add enemy trap with delay and cycle
         # add one more playable char
         # add online/lan multiplayer?
-        # add shop, inventory, consumable system and equipment system
+        # add shop,
         # add quest system?
         # add ranking record system
         # add save/profile system (add story event finish check to save)
         # finish main menu
         # add choice story check
+        # add dialogue log in save and esc
+        # add victory scene in throne room that show reward from finished mission
 
         self.clock = pygame.time.Clock()  # Game clock to keep track of realtime pass
 
@@ -201,7 +203,6 @@ class Battle:
         self.weather_data = self.battle_map_data.weather_data
         self.weather_matter_images = self.battle_map_data.weather_matter_images
         self.weather_list = self.battle_map_data.weather_list
-        self.stage_reward = self.battle_map_data.stage_reward
         self.character_animation_data = self.game.character_animation_data
         self.body_sprite_pool = self.game.body_sprite_pool
         self.effect_animation_pool = self.game.effect_animation_pool
@@ -290,7 +291,8 @@ class Battle:
             self.battle_camera_size)  # message at the top of screen that show up for important event
 
         # Battle ESC menu
-        esc_menu_dict = make_esc_menu(self.game.char_selector_images, self.game.button_image, self.game.option_menu_images,
+        esc_menu_dict = make_esc_menu(self.game.char_selector_images, self.game.button_image,
+                                      self.game.option_menu_images,
                                       self.master_volume, self.music_volume, self.voice_volume, self.effect_volume)
 
         self.player_char_base_interfaces = esc_menu_dict["player_char_base_interfaces"]
@@ -360,6 +362,7 @@ class Battle:
     def prepare_new_stage(self, chapter, mission, stage, players, scene):
 
         for message in self.inner_prepare_new_stage(chapter, mission, stage, players, scene):
+            self.game.error_log.write("Start Stage:" + str(chapter) + "." + str(mission) + "." + str(stage))
             print(message, end="")
 
     def inner_prepare_new_stage(self, chapter, mission, stage, players, scene):
@@ -459,12 +462,20 @@ class Battle:
             elif "endchoice" in value["Type"]:
                 self.stage_end_choice = True
             elif "lock" in value["Type"]:
+                first_lock_pos = value["POS"]
+                lock_pos = value["POS"]
+                if type(first_lock_pos) is str:
+                    lock_pos = tuple(
+                        [int(item) for item in value["POS"].split(",")])  # list of stage lock, get last one
+                    first_lock_pos = lock_pos[-1]  # get last one
+                else:
+                    lock_pos = (lock_pos,)
                 if not first_lock:  # change stage end to first lock
                     first_lock = True
-                    self.base_stage_end = 1920 * value["POS"]
-                    self.stage_end = (1920 * self.screen_scale[0] * value["POS"]) - self.battle_camera_center[0]
-                    self.next_lock = value["POS"]
-                self.stage_scene_lock[value["POS"]] = value["Object"]
+                    self.base_stage_end = 1920 * first_lock_pos
+                    self.stage_end = (1920 * self.screen_scale[0] * first_lock_pos) - self.battle_camera_center[0]
+                    self.next_lock = lock_pos
+                self.stage_scene_lock[lock_pos] = value["Object"]
             elif value["Type"] == "object":
                 StageObject(value["Object"], value["POS"])
 
@@ -571,7 +582,10 @@ class Battle:
                                     self.reach_scene_event_list[key]["cutscene"] = []
                                 self.reach_scene_event_list[key]["cutscene"].append(value3)
                             elif value3[0]["Type"] == "weather":
-                                self.reach_scene_event_list[key]["weather"] = value3[0]["Object"]
+                                weather_strength = 0
+                                if "strength" in value3[0]["Property"]:
+                                    weather_strength = value3[0]["Property"]["strength"]
+                                self.reach_scene_event_list[key]["weather"] = (value3[0]["Object"], weather_strength)
                             elif value3[0]["Type"] == "music":
                                 self.reach_scene_event_list[key]["music"] = self.music_pool[
                                     str(value3[0]["Object"])]
@@ -911,7 +925,7 @@ class Battle:
                     self.play_sound_effect(key, value)
                 self.sound_effect_queue = {}
 
-                if self.ui_timer >= 0.1:
+                if self.ui_timer >= 0.1 and not self.city_mode:
                     for key, value in self.player_objects.items():
                         self.player_portraits[key].value_input(value)
 
@@ -936,30 +950,20 @@ class Battle:
                                 self.lock_objective = None
                                 if self.stage_scene_lock:
                                     self.next_lock = tuple(self.stage_scene_lock.keys())[0]
-                                    self.base_stage_end = self.base_stage_end_list[self.next_lock]
-                                    self.stage_end = self.stage_end_list[self.next_lock]
+                                    self.base_stage_end = self.base_stage_end_list[self.next_lock[-1]]
+                                    self.stage_end = self.stage_end_list[self.next_lock[-1]]
                                 else:  # no more lock, make the stage_end the final stage position
                                     self.next_lock = None  # assign None so no need to do below code in later update
                                     self.base_stage_end = self.base_stage_end_list[
                                         tuple(self.base_stage_end_list.keys())[-1]]
                                     self.stage_end = self.stage_end_list[tuple(self.stage_end_list.keys())[-1]]
 
-                        elif (type(self.next_lock) is int and self.battle_stage.current_scene == self.next_lock) or \
-                                (type(self.next_lock) is tuple and self.battle_stage.current_scene ==
-                                 self.next_lock[0]):
+                        elif self.battle_stage.current_scene >= self.next_lock[0]:
                             # player (camera) reach next lock
-                            if type(self.next_lock) is tuple:  # stage lock for multiple scenes
-                                self.base_stage_start = self.base_stage_end_list[self.next_lock[0]]
-                                self.stage_start = self.stage_end_list[self.next_lock[0]] + (
-                                        self.battle_camera_center[0] * 2)
-                                self.base_stage_end = self.base_stage_end_list[self.next_lock[1]]
-                                self.stage_end = self.stage_end_list[self.next_lock[1]]
-                            else:  # stage lock for single scene
-                                self.base_stage_start = self.base_stage_end_list[self.next_lock - 1]
-                                self.stage_start = self.stage_end_list[self.next_lock - 1] + (
-                                        self.battle_camera_center[0] * 2)
-                                self.base_stage_end = self.base_stage_end_list[self.next_lock]
-                                self.stage_end = self.stage_end_list[self.next_lock]
+                            self.base_stage_start = self.base_stage_end_list[self.next_lock[0]] - 1920
+                            self.stage_start = self.stage_end_list[self.next_lock[0]]
+                            self.base_stage_end = self.base_stage_end_list[self.next_lock[-1]]
+                            self.stage_end = self.stage_end_list[self.next_lock[-1]]
 
                             self.lock_objective = self.stage_scene_lock[self.next_lock]
                             if "survive" in self.lock_objective:
@@ -985,11 +989,13 @@ class Battle:
                     if self.reach_scene_event_list:
                         # check for event with camera reaching
                         if self.battle_stage.reach_scene in self.reach_scene_event_list:
-                            if "weather" in self.reach_scene_event_list[
-                                self.battle_stage.reach_scene]:  # change weather
+                            if "weather" in self.reach_scene_event_list[self.battle_stage.reach_scene]:
+                                # change weather
                                 self.current_weather.__init__(
-                                    self.reach_scene_event_list[self.battle_stage.reach_scene]["weather"],
-                                    0, 0, self.weather_data)
+                                    self.reach_scene_event_list[self.battle_stage.reach_scene]["weather"][0],
+                                    randint(0, 359),
+                                    self.reach_scene_event_list[self.battle_stage.reach_scene]["weather"][1],
+                                    self.weather_data)
                                 self.reach_scene_event_list[self.battle_stage.reach_scene].pop("weather")
                             if "music" in self.reach_scene_event_list[self.battle_stage.reach_scene]:  # change weather
                                 self.current_music = self.reach_scene_event_list[self.battle_stage.reach_scene]["music"]

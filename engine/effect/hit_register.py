@@ -1,4 +1,4 @@
-from random import randint
+from random import uniform
 
 from engine.uibattle.uibattle import DamageNumber
 
@@ -21,12 +21,13 @@ def hit_register(self, target, body_part):
                 Effect(None, ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)
             else:
                 Effect(None, ("Crash Enemy", "Crash", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)
-            if self.stick_reach and not self.penetrate:
+            if self.stick_reach and not self.penetrate and not self.owner.attack_penetrate:
                 self.stick_timer = 5
         else:
-            if self.no_dodge or randint(0, 100) > target.dodge:  # not miss, now cal def and dmg
+            if self.no_dodge or self.owner.attack_no_dodge or uniform(0,
+                                                                      1) > target.dodge:  # not miss, now cal def and dmg
                 critical = False
-                if self.critical_chance >= randint(0, 100):
+                if self.critical_chance >= uniform(0, 1):
                     critical = True
                 attacker_dmg = self.cal_dmg(target, critical)
                 self.owner.special_damage(attacker_dmg)
@@ -36,16 +37,17 @@ def hit_register(self, target, body_part):
 
                 if self.owner.hit_resource_regen:  # regen resource when hit
                     self.owner.resource += self.owner.resource1  # regen
-                    if self.owner.resource > self.owner.max_resource:  # resource cannot exceed the max resource
-                        self.owner.resource = self.owner.max_resource
+                    if self.owner.resource > self.owner.base_resource:  # resource cannot exceed the max resource
+                        self.owner.resource = self.owner.base_resource
 
-                if not target.guarding or target.angle == hit_angle or self.no_guard:  # guard bypass if hit from behind
+                if not target.guarding or target.angle == hit_angle or self.no_guard or self.owner.attack_no_guard:
+                    # guard bypass if hit from behind or attack ignore guard
                     if self.dmg:  # effect has damage to deal (some may simply be for apply status)
                         if self.owner.player_control:  # count dmg from player for data record
                             self.battle.player_damage[self.owner.player_control] += attacker_dmg
                         target.cal_loss(self.owner, attacker_dmg, self.impact, hit_angle, dmg_text_pos, critical)
 
-                    if not self.penetrate:
+                    if not self.penetrate and not self.owner.attack_penetrate:
                         if self.stick_reach == "stick":  # stuck at body part
                             self.stuck_part = body_part
                             self.stick_timer = 3
@@ -64,20 +66,20 @@ def hit_register(self, target, body_part):
 
                 else:  # guarded hit, reduce meter
                     if target.guarding > 0.5:  # not perfect guard (guard within 0.5 secs before taking hit)
-                        target.guard_meter -= attacker_dmg * target.guard_cost_modifier
+                        target.guard -= attacker_dmg * target.guard_cost_modifier
                         if target.crash_guard_resource_regen:
                             target.resource += target.resource1  # regen
-                            if target.resource > target.max_resource:  # resource cannot exceed the max resource
-                                target.resource = target.max_resource
+                            if target.resource > target.base_resource:  # resource cannot exceed the max resource
+                                target.resource = target.base_resource
 
-                        if target.guard_meter < 0:  # guard depleted, break with heavy damaged animation
+                        if target.guard < 0:  # guard depleted, break with heavy damaged animation
                             if self.owner.player_control:
                                 Effect(None, ("Crash Player", "Crash", self.rect.centerx, self.rect.centery,
                                               -self.angle, 1, 0, 1), 0)
                             else:
                                 Effect(None, ("Crash Enemy", "Crash", self.rect.centerx, self.rect.centery,
                                               -self.angle, 1, 0, 1), 0)
-                            target.guard_meter = 0
+                            target.guard = 0
                             target.interrupt_animation = True
                             target.command_action = target.guard_break_command_action
                             # target.battle.add_sound_effect_queue(target.sound_effect_pool["Guard Break"][0],
@@ -94,12 +96,12 @@ def hit_register(self, target, body_part):
                             target.show_frame -= 3
                             if target.show_frame < 0:
                                 target.show_frame = 0
-                            if self.stick_reach and not self.penetrate:
+                            if self.stick_reach and not self.penetrate and not self.owner.attack_penetrate:
                                 self.stick_timer = 5
                     else:  # perfect guard, not reduce meter
                         Effect(None,
                                ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)
-                        if self.stick_reach and not self.penetrate:
+                        if self.stick_reach and not self.penetrate and not self.owner.attack_penetrate:
                             self.stick_timer = 5
                 # if self.stat["Enemy Status"]:
                 #     for status in self.stat["Enemy Status"]:

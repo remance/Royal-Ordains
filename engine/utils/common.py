@@ -45,9 +45,12 @@ def stat_allocation_check(stat, point_pool, how):
             return stat, point_pool
 
 
-def skill_allocation_check(skill, point_pool, how):
+def skill_allocation_check(skill, point_pool, how, current_chapter):
     if how == "up":
-        if point_pool > 0:
+        max_level = current_chapter + 1  # max level increase every chapter
+        if max_level > 5:  # max skill lv in game is 5 so chapter 4 is when skill can be maxed
+            max_level = 5
+        if point_pool > 0 and skill < max_level:
             return skill + 1, point_pool - 1
         return skill, point_pool
     else:

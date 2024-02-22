@@ -25,22 +25,13 @@ def pick_animation(self):
                             self.resource -= resource_cost
                             if self.resource < 0:
                                 self.resource = 0
-                            elif self.resource > self.max_resource:
-                                self.resource = self.max_resource
+                            elif self.resource > self.base_resource:
+                                self.resource = self.base_resource
                         else:  # use health, no need require check since condition above should do it already
                             self.health -= resource_cost
 
                         if self.current_moveset["Cooldown"]:
                             self.attack_cooldown[self.current_moveset["Move"]] = self.current_moveset["Cooldown"]
-
-                        if self.current_moveset["Status"]:
-                            for effect in self.current_moveset["Status"]:
-                                self.apply_status(effect)
-                                for ally in self.near_ally:
-                                    if ally[1] <= self.current_moveset["Range"]:  # apply status based on range
-                                        ally[0].apply_status(effect)
-                                    else:
-                                        break
 
                     else:  # no resource to do the move, reset to idle
                         if self.current_moveset["Move"] in self.attack_cooldown:  # add cooldown value to screen
@@ -107,6 +98,6 @@ def pick_animation(self):
     self.max_show_frame = len(self.current_animation_direction) - 1
 
     self.start_animation_body_part(new_animation=True)
-    self.animation_play_time = self.base_animation_play_time  # get new play speed
+    self.final_animation_play_time = self.animation_play_time  # get new play speed
     if "play_time_mod" in self.current_animation_direction[self.show_frame]:
-        self.animation_play_time *= self.current_animation_direction[self.show_frame]["play_time_mod"]
+        self.final_animation_play_time *= self.current_animation_direction[self.show_frame]["play_time_mod"]

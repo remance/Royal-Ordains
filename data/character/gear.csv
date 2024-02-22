@@ -1,4 +1,4 @@
-"ID","Rarity","Modifier","Value","Type"
-"Great Mini Shield","Enchanted","Guard Cost Modifier:50,Guard Bonus:-100,Super Armour Bonus:60,Physical Resistance Bonus:5",20000,"accessory"
-"Stealth Mantle","Enchanted","Critical Bonus:15,Movement Speed Bonus:100,Dodge Chance Bonus:10,Air Resistance Bonus:10",20000,"accessory"
-"Green Druid Staff","Enchanted","Resource Cost Modifier:7,Resource Regeneration Bonus:0.4,Health Bonus:-150,Earth Resistance Bonus:15",20000,"accessory"
+"ID","Rarity","Modifier","Weight","Value","Type"
+"Great Mini Shield","Enchanted","base_guard_cost_modifier:-0.5,base_guard:-50,base_super_armour:80,physical_resistance:0.06",20,20000,"accessory"
+"Stealth Mantle","Enchanted","base_critical_chance:0.15,base_speed:100,base_dodge:0.1,air_resistance:0.1,base_defence:-0.1",2,20000,"accessory"
+"Green Druid Staff","Enchanted","base_resource_cost_modifier:-0.07,base_resource_regen:1,base_health:-150,earth_resistance:0.15",8,20000,"accessory"

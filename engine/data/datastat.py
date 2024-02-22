@@ -31,19 +31,18 @@ class CharacterData(GameData):
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
-            int_column = ("ID", "Physical Resistance Bonus",
-                          "Fire Resistance Bonus", "Water Resistance Bonus",
-                          "Air Resistance Bonus", "Earth Resistance Bonus", "Magic Resistance Bonus",
-                          "Heat Resistance Bonus", "Cold Resistance Bonus", "Poison Resistance Bonus",
-                          "Melee Attack Bonus", "Melee Defence Bonus", "Ranged Defence Bonus", "Speed Bonus",
-                          "Accuracy Bonus", "Range Bonus", "Reload Bonus", "Charge Bonus", "Charge Defence Bonus",
-                          "Melee Speed Bonus")  # value int only
+            int_column = ("ID", "Power Bonus", "Speed Bonus",)  # value int only
+            float_column = ("Animation Time Modifier", "Physical Resistance Bonus", "Fire Resistance Bonus",
+                            "Water Resistance Bonus", "Air Resistance Bonus", "Earth Resistance Bonus",
+                            "Magic Resistance Bonus", "Poison Resistance Bonus", "Magic Resistance Bonus")
             tuple_column = ("Special Effect", "Status Conflict")  # value in tuple only
             int_column = [index for index, item in enumerate(header) if item in int_column]
+            float_column = [index for index, item in enumerate(header) if item in float_column]
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
-                    row = stat_convert(row, n, i, tuple_column=tuple_column, int_column=int_column)
+                    row = stat_convert(row, n, i, tuple_column=tuple_column, int_column=int_column,
+                                       float_column=float_column)
                 self.status_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
         edit_file.close()
 
@@ -114,7 +113,7 @@ class CharacterData(GameData):
                     int_column = [index for index, item in enumerate(header) if item in int_column]
                     tuple_column = ("Property",)  # value in tuple only
                     tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
-                    dict_column = ("Drops",)
+                    dict_column = ("Drops", "Items")
                     dict_column = [index for index, item in enumerate(header) if item in dict_column]
                     for n, i in enumerate(row):
                         row = stat_convert(row, n, i, int_column=int_column, tuple_column=tuple_column,
@@ -262,12 +261,31 @@ class CharacterData(GameData):
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
-            dict_column = ("Modifier", )  # value in tuple only
+            dict_column = ("Modifier",)  # value in tuple only
             dict_column = [index for index, item in enumerate(header) if item in dict_column]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
                     row = stat_convert(row, n, i, dict_column=dict_column)
                 self.gear_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
+        edit_file.close()
+
+        gear_mod_list = {}
+        # use structure as gear type: mod id: "rarity", "weight", "chance"  for easier access
+        self.gear_mod_list = {"weapon": {}, "head": {}, "chest": {}, "arm": {}, "leg": {}, "accessory": {}}
+        with open(os.path.join(self.data_dir, "character", "gear_mod.csv"),
+                  encoding="utf-8", mode="r") as edit_file:
+            rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
+            header = rd[0]
+            tuple_column = ("Standard", "Quality", "Master Work", "Enchanted", "Legendary", "Gear Type")
+            tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
+            for index, row in enumerate(rd[1:]):
+                for n, i in enumerate(row):
+                    row = stat_convert(row, n, i, tuple_column=tuple_column)
+                gear_mod_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
+            for gear_type in self.gear_mod_list:
+                for mod in gear_mod_list:
+                    if gear_type in gear_mod_list[mod]["Gear Type"]:
+                        self.gear_mod_list[gear_type][mod] = gear_mod_list[mod]
         edit_file.close()
 
         # Effect that exist as its own sprite in battle
