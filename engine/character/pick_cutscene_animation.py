@@ -1,6 +1,7 @@
 def pick_cutscene_animation(self, action):
     """Pick animation to play for cutscene, simpler than normal pick_animation"""
     # reset various animation variable and position
+    print(self.name)
     self.stoppable_frame = False
     self.hit_enemy = False
     self.interrupt_animation = False

@@ -12,6 +12,8 @@ from engine.utils.text_making import number_to_minus_or_plus, text_render_with_b
 team_colour = {1: Color("black"), 2: Color("red"), 3: Color("blue"), 4: Color("darkgoldenrod1"),
                "health": Color("seagreen4"), "resource": Color("slateblue1"), "revive": Color("purple")}
 
+chapter_font_name = {"simple": "simple_talk_font", "1": "ch1_talk_font", "2": "ch2_talk_font", "3": "ch3_talk_font"}
+
 
 class UIBattle(UIMenu):
     def __init__(self, player_interact=True, has_containers=False):
@@ -514,6 +516,8 @@ class CharacterInteractPrompt(UIBattle):
         UIBattle.__init__(self, player_interact=False)
         self.character = None
         self.target = None
+        self.target_pos = None
+        self.button_image = image
         font = Font(self.ui_font["manuscript_font"], int(40 * self.screen_scale[1]))
         text_surface = text_render_with_bg("Talk", font)
         self.image = Surface((150 * self.screen_scale[0], 50 * self.screen_scale[1]), SRCALPHA)
@@ -523,23 +527,33 @@ class CharacterInteractPrompt(UIBattle):
 
         self.rect = self.image.get_rect(center=(0, 0))
 
-    def add_to_screen(self, character, target):
+    def add_to_screen(self, character, target, target_pos):
         self.character = character
+        self.target_pos = target_pos
         self.target = target
-        self.rect = self.image.get_rect(midbottom=(self.target[0] * self.screen_scale[0],
-                                                   self.target[1] * self.screen_scale[1]))
+        font = Font(self.ui_font[chapter_font_name[self.battle.chapter]], int(40 * self.screen_scale[1]))
+        text_surface = text_render_with_bg(target.show_name, font)
+        self.image = Surface((text_surface.get_width() + self.button_image.get_width() +
+                              (10 * self.screen_scale[0]), 50 * self.screen_scale[1]), SRCALPHA)
+        text_rect = text_surface.get_rect(midright=self.image.get_rect().midright)
+        self.image.blit(text_surface, text_rect)
+        self.image.blit(self.button_image, self.button_image.get_rect(midleft=self.image.get_rect().midleft))
+
+        self.rect = self.image.get_rect(midbottom=(self.target_pos[0] * self.screen_scale[0],
+                                                   self.target_pos[1] * self.screen_scale[1]))
         if self not in self.battle.battle_camera:
             self.battle.battle_camera.add(self)
             self.battle.effect_updater.add(self)
 
     def update(self, *args):
-        if self.target and not 100 < abs(self.character.base_pos[0] - self.target[0]) < 250:
+        if self.target_pos and not 100 < abs(self.character.base_pos[0] - self.target_pos[0]) < 250:
             # check if player move too far from current target prompt
             self.clear()
 
     def clear(self):
         self.character = None
         self.target = None
+        self.target_pos = None
         if self in self.battle.battle_camera:
             self.battle.battle_camera.remove(self)
             self.battle.effect_updater.remove(self)
@@ -547,7 +561,6 @@ class CharacterInteractPrompt(UIBattle):
 
 class CharacterSpeechBox(UIBattle):
     images = {}
-    font_name = {"simple": "simple_talk_font", 1: "ch1_talk_font", 2: "ch2_talk_font", 3: "ch3_talk_font"}
     simple_font = False
 
     def __init__(self, character, text, specific_timer=None, player_input_indicator=False, cutscene_event=None):
@@ -571,7 +584,7 @@ class CharacterSpeechBox(UIBattle):
         font = self.battle.chapter
         if self.simple_font:
             font = "simple"
-        self.text_surface = Font(self.ui_font[self.font_name[font]], self.font_size).render(text, True, (0, 0, 0))
+        self.text_surface = Font(self.ui_font[chapter_font_name[font]], self.font_size).render(text, True, (0, 0, 0))
         self.base_image = Surface((self.text_surface.get_width() + int(self.left_corner.get_width() * 1.5),
                                    self.left_corner.get_height()), SRCALPHA)
         self.base_image.blit(self.left_corner, self.left_corner_rect)  # start animation with the left corner
@@ -742,7 +755,7 @@ class WheelUI(UIBattle):
             self.wheel_image_with_stuff[index] = self.wheel_button_image.copy()
             self.wheel_selected_image_with_stuff[index] = self.wheel_selected_button_image.copy()
             if value:  # Wheel choice with icon at center
-                surface = self.item_sprite_pool[self.battle.chapter_sprite_ver]["Normal"][value][1][0]
+                surface = self.item_sprite_pool[self.battle.chapter]["Normal"][value][1][0]
                 rect = surface.get_rect(center=(self.wheel_image_with_stuff[index].get_width() / 2,
                                                 self.wheel_image_with_stuff[index].get_height() / 2))
 

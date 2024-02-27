@@ -1418,7 +1418,7 @@ class Model:
 class Animation:
     def __init__(self, spd_ms, loop):
         self.frames = None
-        self.speed_ms = spd_ms / 1000
+        self.speed_ms = 0.1
         self.start_frame = 0
         self.end_frame = 0
         self.first_time = time.time()
@@ -1576,9 +1576,11 @@ all_copy_button = Button("Copy A", image, (play_animation_button.pos[0] - (play_
 all_paste_button = Button("Paste A", image, (play_animation_button.pos[0] - play_animation_button.image.get_width() * 2,
                                              filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
                           description=("Paste all copied frames",))
-speed_button = Button("Speed: 1", image, (play_animation_button.pos[0] - play_animation_button.image.get_width(),
+speed_button = Button("Speed: 0.1",
+                      image, (play_animation_button.pos[0] - play_animation_button.image.get_width(),
                                           filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
-                      description=("Change preview play speed", "Change according to the input number."))
+                      description=("Change preview animation play time (in second per frame)",
+                                   "Change according to the input number."))
 frame_copy_button = Button("Copy F", image, (play_animation_button.pos[0] + play_animation_button.image.get_width(),
                                              filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
                            description=(
@@ -2144,7 +2146,7 @@ while True:
 
                     elif speed_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("text_input", "change_speed")
-                        input_ui.change_instruction("Input Speed Number Value:")
+                        input_ui.change_instruction("Input Time Number Value:")
                         ui.add(input_ui_popup)
 
                     elif all_copy_button.rect.collidepoint(mouse_pos):
@@ -2695,8 +2697,8 @@ while True:
             elif text_input_popup[1] == "change_speed":
                 if input_box.text.isdigit():
                     new_speed = int(input_box.text)
-                    speed_button.change_text("Speed: " + input_box.text)
-                    anim.speed_ms = (500 / new_speed) / 1000
+                    speed_button.change_text("Time: " + input_box.text)
+                    anim.speed_ms = new_speed
 
             elif text_input_popup[1] == "change_sound_distance":
                 if input_box.text.isdigit():

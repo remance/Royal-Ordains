@@ -48,9 +48,10 @@ def menu_char(self, esc_press):
             self.battle.all_story_profiles = {1: None, 2: None, 3: None, 4: None}
             for key, selector in self.player_char_selectors.items():
                 if selector.mode in ("ready", "readymain"):
-                    progress = (self.save_data.save_profile["character"][self.profile_index[key]][
-                                    "chapter"] * 100) + \
-                               self.save_data.save_profile["character"][self.profile_index[key]]["mission"]
+                    progress = (int(self.save_data.save_profile["character"][self.profile_index[key]][
+                                        "chapter"]) * 100) + \
+                               int(self.save_data.save_profile["character"][self.profile_index[key]][
+                                       "mission"])
                     if progress < last_check_progress:  # found player with lower progress
                         main_story_player = key
                         last_check_progress = progress
@@ -67,7 +68,7 @@ def menu_char(self, esc_press):
             self.start_battle(
                 self.save_data.save_profile["character"][self.profile_index[main_story_player]]["chapter"],
                 self.save_data.save_profile["character"][self.profile_index[main_story_player]]["mission"],
-                0, players={key: value for key, value in
+                "0", players={key: value for key, value in
                             self.player_char_select.items() if value}, scene="throne")
 
     else:
@@ -243,10 +244,10 @@ def menu_char(self, esc_press):
                             last_check_progress = inf
                             for key, selector in self.player_char_selectors.items():
                                 if selector.mode in ("ready", "readymain"):
-                                    progress = (self.save_data.save_profile["character"][self.profile_index[key]][
-                                                    "chapter"] * 100) + \
-                                               self.save_data.save_profile["character"][self.profile_index[key]][
-                                                   "mission"]
+                                    progress = (int(self.save_data.save_profile["character"][self.profile_index[key]][
+                                                    "chapter"]) * 100) + \
+                                               int(self.save_data.save_profile["character"][self.profile_index[key]][
+                                                   "mission"])
                                     if progress < last_check_progress:  # found player with lower progress
                                         main_story_player = key
                                         last_check_progress = progress
@@ -271,10 +272,10 @@ def menu_char(self, esc_press):
                             last_check_progress = inf
                             for key, selector in self.player_char_selectors.items():
                                 if selector.mode in ("ready", "readymain"):
-                                    progress = (self.save_data.save_profile["character"][self.profile_index[key]][
-                                                    "chapter"] * 100) + \
-                                               self.save_data.save_profile["character"][self.profile_index[key]][
-                                                   "mission"]
+                                    progress = (int(self.save_data.save_profile["character"][self.profile_index[key]][
+                                                        "chapter"]) * 100) + \
+                                               int(self.save_data.save_profile["character"][self.profile_index[key]][
+                                                       "mission"])
                                     if progress < last_check_progress:  # found player with lower progress
                                         main_story_player = key
                                         last_check_progress = progress

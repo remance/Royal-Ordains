@@ -9,6 +9,7 @@ from pygame import Surface, SRCALPHA, Rect, Color, draw, mouse
 from pygame.font import Font
 from pygame.sprite import Sprite
 
+from engine.game.generate_custom_equipment import rarity_mod_number
 from engine.utils.common import keyboard_mouse_press_check, stat_allocation_check, skill_allocation_check
 from engine.utils.data_loading import load_image
 from engine.utils.text_making import text_render_with_bg, make_long_text, minimise_number_text
@@ -667,13 +668,13 @@ class CharacterProfileBox(UIMenu):
             self.image.blit(portrait, portrait_rect)
 
             # add name
-            text = self.font.render(self.game.localisation.grab_text(("help", char_id, "Name")), True, (30, 30, 30))
+            text = self.font.render(self.game.localisation.grab_text(("character", char_id, "Name")), True, (30, 30, 30))
             text_rect = text.get_rect(topleft=(120 * self.screen_scale[0], 5 * self.screen_scale[1]))
             self.image.blit(text, text_rect)
 
             # add play stat
             text = self.small_font.render(self.localisation.grab_text(("ui", "Chapter")) +
-                                          ": " + str(data["chapter"]) + "." + str(data["mission"]), True,
+                                          ": " + data["chapter"] + "." + data["mission"], True,
                                           (30, 30, 30))
             text_rect = text.get_rect(topleft=(120 * self.screen_scale[0], 40 * self.screen_scale[1]))
             self.image.blit(text, text_rect)
@@ -1066,7 +1067,7 @@ class CharacterInterface(UIMenu):
                     row += 1
 
             if self.profile:
-                self.max_follower_allowance = (self.profile["chapter"] * 20) + stat_dict["Charisma"]
+                self.max_follower_allowance = (int(self.profile["chapter"]) * 20) + stat_dict["Charisma"]
                 for key, value in self.stat.items():
                     if key in self.all_skill_row:
                         self.profile["character"]["skill allocation"][key] = value
@@ -1098,7 +1099,7 @@ class CharacterInterface(UIMenu):
                     item = self.profile["equipment"]["item"][equip_type.split(" ")[1]]
                     if item:
                         item_image = pygame.transform.smoothscale(
-                            self.item_sprite_pool[self.game.battle.chapter_sprite_ver][
+                            self.item_sprite_pool[self.game.battle.chapter][
                             "Normal"][item][1][0], (60 * self.screen_scale[0],
                                                     60 * self.screen_scale[1]))
                         image_rect = item_image.get_rect(center=rect.center)
@@ -1111,7 +1112,7 @@ class CharacterInterface(UIMenu):
                     item = self.profile["equipment"][equip_type]
                     if item:
                         item_image = pygame.transform.smoothscale(
-                            self.item_sprite_pool[self.game.battle.chapter_sprite_ver][
+                            self.item_sprite_pool[self.game.battle.chapter][
                             "Normal"][item][1][0], (60 * self.screen_scale[0],
                                                     60 * self.screen_scale[1]))
                         image_rect = item_image.get_rect(center=rect.center)
@@ -1147,9 +1148,10 @@ class CharacterInterface(UIMenu):
                     name = self.localisation.grab_text(("gear", item, "Name"))
                 else:
                     stat = item  # custom equipment
-                    name = self.localisation.grab_text(("gear_name", stat["Name"][0], "Prefix")) + " " + \
-                           self.localisation.grab_text(("gear_name", stat["Name"][1], "Name")) + " " + \
-                           self.localisation.grab_text(("gear_name", stat["Name"][1], "Suffix"))
+                    name = self.localisation.grab_text(("gear_rarity", item["Rarity"], "Name")).split(",")[item["Name"][0]] + " " + \
+                           self.localisation.grab_text(("gear_preset", self.profile["character"]["ID"], item["Type"])) + " " + \
+                           self.localisation.grab_text(("gear_mod", item["Name"][1], "Suffix")).split(",")[
+                               rarity_mod_number[item["Rarity"]] - 1]
 
                 text_surface = self.font.render(
                     self.localisation.grab_text(("ui", "Rarity")) +
@@ -1250,9 +1252,10 @@ class CharacterInterface(UIMenu):
                         name = self.localisation.grab_text(("gear", item, "Name"))
                     else:
                         stat = item  # custom equipment
-                        name = self.localisation.grab_text(("gear_name", stat["Name"][0], "Prefix")) + " " + \
-                               self.localisation.grab_text(("gear_name", stat["Name"][1], "Name")) + " " + \
-                               self.localisation.grab_text(("gear_name", stat["Name"][1], "Suffix"))
+                        name = self.localisation.grab_text(("gear_rarity", item["Rarity"], "Name")).split(",")[item["Name"][0]] + " " + \
+                               self.localisation.grab_text(("gear_preset", self.profile["character"]["ID"], item["Type"])) + " " + \
+                               self.localisation.grab_text(("gear_mod", item["Name"][1], "Suffix")).split(",")[
+                                   rarity_mod_number[item["Rarity"]] - 1]
 
                     text_surface = self.small_font.render(
                         self.localisation.grab_text(("ui", "Rarity")) +
@@ -1285,7 +1288,7 @@ class CharacterInterface(UIMenu):
                         index2 += 1
 
                 item_image = pygame.transform.smoothscale(
-                        self.item_sprite_pool[self.game.battle.chapter_sprite_ver][
+                        self.item_sprite_pool[self.game.battle.chapter][
                             "Normal"][item][1][0], (60 * self.screen_scale[0],
                                                     60 * self.screen_scale[1]))
                 item_rect = item_image.get_rect(topleft=self.equipment_list_slot_rect[("equip", "new")[index]].topleft)
@@ -1336,9 +1339,12 @@ class CharacterInterface(UIMenu):
                                                           True, (30, 30, 30))
                 else:
                     text_surface = self.small_font.render(
-                        self.localisation.grab_text(("gear_name", item["Name"][0], "Prefix")) +
-                        " " + self.localisation.grab_text(("gear_name", item["Name"][1], "Name")) +
-                        " " + self.localisation.grab_text(("gear_name", item["Name"][1], "Suffix")),
+                        self.localisation.grab_text(("gear_rarity", item["Rarity"], "Name")).split(",")[
+                            item["Name"][0]] + " " + \
+                        self.localisation.grab_text(
+                            ("gear_preset", self.profile["character"]["ID"], item["Type"])) + " " + \
+                        self.localisation.grab_text(("gear_mod", item["Name"][1], "Suffix")).split(",")[
+                            rarity_mod_number[item["Rarity"]] - 1],
                         True, (30, 30, 30))
 
                 text_rect = text_surface.get_rect(
@@ -1373,7 +1379,7 @@ class CharacterInterface(UIMenu):
                         else:  # custom equipment
                             self.image.blit(self.small_box_images[item["Type"]], rect)
                     item_image = pygame.transform.smoothscale(
-                        self.item_sprite_pool[self.game.battle.chapter_sprite_ver][
+                        self.item_sprite_pool[self.game.battle.chapter][
                             "Normal"][item][1][0], (50 * self.screen_scale[0],
                                                     50 * self.screen_scale[1]))
                     image_rect = item_image.get_rect(center=rect.center)
@@ -1513,7 +1519,7 @@ class CharacterInterface(UIMenu):
                 rect = portrait.get_rect(topleft=(0, (index + 1) * 100 * self.screen_scale[1]))
                 self.image.blit(portrait, rect)
 
-                text_surface = self.small_font.render(self.localisation.grab_text(("enemy", follower, "Name")),
+                text_surface = self.small_font.render(self.localisation.grab_text(("character", follower, "Name")),
                                                       True, (30, 30, 30))
                 text_rect = text_surface.get_rect(topleft=(110 * self.screen_scale[0],
                                                            (index + 1) * 100 * self.screen_scale[1]))
@@ -1595,7 +1601,7 @@ class CharacterInterface(UIMenu):
     def change_skill(self, skill, how):
         chapter = 1
         if "Chapter" in self.profile:
-            chapter = self.profile["Chapter"]
+            chapter = int(self.profile["Chapter"])
         self.stat[skill], self.stat["Skill Remain"] = skill_allocation_check(self.stat[skill],
                                                                              self.stat["Skill Remain"], how, chapter)
         self.add_stat(self.stat)
@@ -1650,10 +1656,11 @@ class CharacterInterface(UIMenu):
                                 sort_list = {key: self.localisation.grab_text(("gear", key, "Name")) if
                                 key in self.game.character_data.gear_list else self.localisation.grab_text(
                                     ("item", key,
-                                     "Name")) if key in self.game.character_data.equip_item_list else self.localisation.grab_text(
-                                    ("gear_name", key["Name"][0], "Prefix")) + " " + self.localisation.grab_text(
-                                    ("gear_name", key["Name"][1], "Name")) + " " + self.localisation.grab_text(
-                                    ("gear_name", key["Name"][1], "Suffix")) for key in self.current_equipment_list}
+                                     "Name")) if key in self.game.character_data.equip_item_list else
+                                self.localisation.grab_text(("gear_rarity", key["Rarity"], "Name")).split(",")[key["Name"][0]] + " " + \
+                                self.localisation.grab_text(("gear_preset", self.profile["character"]["ID"], key["Type"])) + " " + \
+                                self.localisation.grab_text(("gear_mod", key["Name"][1], "Suffix")).split(",")[
+                               rarity_mod_number[key["Rarity"]] - 1] for key in self.current_equipment_list}
                             elif sort_how[0] == "Type":
                                 sort_list = {key: self.game.character_data.gear_list[key][
                                     "Type"] if key in self.game.character_data.gear_list else
@@ -1718,7 +1725,7 @@ class CharacterInterface(UIMenu):
                         sort_how = self.follower_sort_list[self.sub_menu_current_row].split(" ")
                         if self.mode == "follower_list":
                             if sort_how[0] == "Name":
-                                sort_list = {key: self.localisation.grab_text(("enemy", key, "Name")) for key in
+                                sort_list = {key: self.localisation.grab_text(("character", key, "Name")) for key in
                                              self.profile["follower list"]}
                             elif sort_how[0] == "Type":
                                 sort_list = {key: self.game.character_data.character_list[key]["Type"] for key in
@@ -1789,7 +1796,7 @@ class CharacterInterface(UIMenu):
                         warning = ""
                         chapter = 1
                         if "Chapter" in self.profile:
-                            chapter = self.profile["Chapter"]
+                            chapter = int(self.profile["Chapter"])
                         if self.stat[self.all_skill_row[self.current_row - 7]] == chapter + 1 and \
                                 self.stat[self.all_skill_row[self.current_row - 7]] != 5:
                             warning = self.game.localisation.grab_text(("ui", "warn_skill_next_chapter"))
@@ -2044,7 +2051,7 @@ class CharacterInterface(UIMenu):
                             for key, value in self.profile["follower preset"][
                                 self.current_row * (self.current_page + 1)].items():
                                 follower_list.append(
-                                    self.localisation.grab_text(("enemy", key, "Name")) + " x" + str(value))
+                                    self.localisation.grab_text(("character", key, "Name")) + " x" + str(value))
                         self.text_popup.popup(self.rect.topleft,
                                               follower_list,
                                               shown_id=follower_list,
@@ -2133,9 +2140,9 @@ class CharacterInterface(UIMenu):
                                str(follower_stat["Charisma"])
                         self.text_popup.popup(self.rect.topleft,
                                               (self.localisation.grab_text(
-                                                  ("enemy", self.profile["follower list"][self.current_row], "Name")),
+                                                  ("character", self.profile["follower list"][self.current_row], "Name")),
                                                self.localisation.grab_text(
-                                                   ("enemy", self.profile["follower list"][self.current_row],
+                                                   ("character", self.profile["follower list"][self.current_row],
                                                     "Description")),
                                                self.localisation.grab_text(("ui", "Base Stat")) + ": " + stat,
                                                self.localisation.grab_text(("ui", "Base Health")) + ": " +
@@ -2208,21 +2215,27 @@ class CharacterInterface(UIMenu):
                     self.add_remove_text_popup()
                     stat = ("Empty",)
                     try:
-                        item_id = tuple(self.profile["storage"].keys())[self.current_row]
-                        if item_id in self.game.character_data.equip_item_list:  # item type
-                            stat = (self.localisation.grab_text(("item", item_id, "Name")),
-                                    self.localisation.grab_text(("item", item_id, "Description")))
+                        item = tuple(self.profile["storage"].keys())[self.current_row]
+                        if item in self.game.character_data.equip_item_list:  # item type
+                            stat = (self.localisation.grab_text(("item", item, "Name")),
+                                    self.localisation.grab_text(("item", item, "Description")))
                         else:  # equipment type
-                            if item_id in self.game.character_data.gear_list:
-                                stat = [self.localisation.grab_text(("gear", item_id, "Name")),
-                                        self.localisation.grab_text(("gear", item_id, "Description")),
+                            if item in self.game.character_data.gear_list:
+                                stat = [self.localisation.grab_text(("gear", item, "Name")),
+                                        self.localisation.grab_text(("gear", item, "Description")),
                                         "Rarity: " + self.localisation.grab_text(
-                                            ("ui", self.game.character_data.gear_list[item_id]["Rarity"]))]
+                                            ("ui", self.game.character_data.gear_list[item]["Rarity"]))]
                                 stat += [str(key) + ": " + str(value) for key, value in
-                                         self.game.character_data.gear_list[item_id]["Modifier"].items()]
+                                         self.game.character_data.gear_list[item]["Modifier"].items()]
                             else:  # custom equipment
-                                pass  # TODO add when work on custom equip
-                    except IndexError:
+                                stat = [self.localisation.grab_text(("gear_rarity", item["Rarity"], "Name")).split(",")[item["Name"][0]] + " " + \
+                                        self.localisation.grab_text(("gear_preset", self.profile["character"]["ID"], item["Type"])) + " " + \
+                                        self.localisation.grab_text(("gear_mod", item["Name"][1], "Suffix")).split(",")[rarity_mod_number[item["Rarity"]] - 1],
+                                        "Rarity: " + self.localisation.grab_text(
+                                            ("ui", item["Rarity"]))]
+                                stat += [str(key) + ": " + str(value) for key, value in
+                                         item["Modifier"].items()]
+                    except IndexError:  # Empty slot
                         pass
 
                     self.text_popup.popup(self.rect.topleft, stat,
