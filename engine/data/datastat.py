@@ -248,11 +248,13 @@ class CharacterData(GameData):
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
+            str_column = ("Chapter", "Mission", "Stage")
+            str_column = [index for index, item in enumerate(header) if item in str_column]
             tuple_column = ("Status", "Enemy Status", "Property")  # value in tuple only
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
-                    row = stat_convert(row, n, i, tuple_column=tuple_column)
+                    row = stat_convert(row, n, i, tuple_column=tuple_column, str_column=str_column)
                 self.equip_item_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
         edit_file.close()
 

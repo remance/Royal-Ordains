@@ -10,7 +10,6 @@ def enter_stage(self, animation_data_pool):
     self.animation_pool = animation_data_pool[self.sprite_id]
 
     exist_part = []  # list to remove unused body parts from loop entirely
-
     for animation in self.animation_pool.values():
         for frame in animation["r_side"]:
             for part, data in frame.items():

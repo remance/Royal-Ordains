@@ -16,7 +16,6 @@ subsection_tag_colour = ([(255, 255, 255)] + subsection_tag_colour +
 class Lorebook(UIMenu):
     history_lore = {}
     character_lore = {}
-    enemy_lore = {}
     item_lore = {}
     status_lore = {}
 
@@ -24,9 +23,8 @@ class Lorebook(UIMenu):
 
     history_section = 0
     character_section = 1
-    enemy_section = 2
-    equipment_section = 3
-    status_section = 4
+    equipment_section = 2
+    status_section = 3
 
     def __init__(self, game, image, text_size=24):
         self._layer = 23
@@ -59,8 +57,6 @@ class Lorebook(UIMenu):
         self.tag_list = [{stuff["Tag"]: True for stuff in self.history_lore.values() if stuff["Tag"] != ""},
                          {stuff["Tag"]: True for stuff in self.character_lore.values() if
                           stuff["Tag"] != ""},
-                         {stuff["Tag"]: True for stuff in self.enemy_lore.values() if
-                          stuff["Tag"] != ""},
                          {stuff["Tag"]: True for stuff in self.item_lore.values() if stuff["Tag"] != ""},
                          {stuff["Tag"]: True for stuff in self.status_lore.values() if type(stuff) != int
                           and stuff["Tag"] != ""}]
@@ -68,8 +64,7 @@ class Lorebook(UIMenu):
             tag_list["No Tag"] = True
             self.tag_list[index] = {"No Tag": self.tag_list[index].pop("No Tag"), **self.tag_list[index]}
 
-        self.section_list = (self.history_lore, self.character_lore, self.enemy_lore, self.item_lore,
-                             self.status_lore)
+        self.section_list = (self.history_lore, self.character_lore, self.item_lore, self.status_lore)
 
     def change_page(self, page):
         """Change page of the current subsection, either next or previous page"""

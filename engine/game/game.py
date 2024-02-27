@@ -549,7 +549,6 @@ class Game:
         # Encyclopedia interface
         Lorebook.history_lore = self.localisation.create_lore_data("history")
         Lorebook.character_lore = self.localisation.create_lore_data("character")
-        Lorebook.enemy_lore = self.localisation.create_lore_data("enemy")
         Lorebook.item_lore = self.localisation.create_lore_data("item")
         Lorebook.status_lore = self.localisation.create_lore_data("status")
 

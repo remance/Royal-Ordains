@@ -19,7 +19,7 @@ class StageObject(sprite.Sprite):
         self.show_frame = 0
         self.frame_timer = 0
         self.repeat_animation = True
-        self.current_animation = self.stage_object_animation_pool[sprite_id][self.battle.chapter_sprite_ver]
+        self.current_animation = self.stage_object_animation_pool[sprite_id][self.battle.chapter]
 
         self.image = self.current_animation[self.show_frame]
 

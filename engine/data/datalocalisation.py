@@ -24,9 +24,10 @@ class Localisation:
 
         self.read_localisation("history")
         self.read_localisation("character")
-        self.read_localisation("enemy")
         self.read_localisation("gear")
         self.read_localisation("gear_mod")
+        self.read_localisation("gear_preset")
+        self.read_localisation("gear_rarity")
         self.read_localisation("item")
         self.read_localisation("status")
         self.read_localisation("event")

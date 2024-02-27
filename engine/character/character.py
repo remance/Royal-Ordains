@@ -236,6 +236,9 @@ class Character(sprite.Sprite):
         self.game_id = game_id
         self.layer_id = layer_id
         self.name = stat["Name"]
+        self.show_name = self.battle.localisation.grab_text(("character", stat["ID"] + self.battle.chapter, "Name"))
+        if "(" in self.show_name and "," in self.show_name:
+            self.show_name = self.battle.localisation.grab_text(("character", stat["ID"], "Name"))
         self.player_control = player_control  # character controlled by player
         self.indicator = None
         self.cutscene_event = None
@@ -1002,13 +1005,13 @@ class AICharacter(BattleCharacter, Character):
             self.stun_threshold = self.base_health
         if self.is_summon:
             self.health_as_resource = True  # each time summon use resource it uses health instead
-        if self.leader:
+        if leader:
             self.follow_command = "Follow"
-            if self.leader.player_control:  # only add indicator for player's follower
+            if leader.player_control:  # only add indicator for player's follower
                 self.indicator = CharacterIndicator(self)
-            self.leader.followers.append(self)
-            self.item_effect_modifier = self.leader.item_effect_modifier  # use leader item effect modifier
-            self.gold_pickup_modifier = self.leader.gold_drop_modifier
+            leader.followers.append(self)
+            self.item_effect_modifier = leader.item_effect_modifier  # use leader item effect modifier
+            self.gold_pickup_modifier = leader.gold_drop_modifier
         if "Ground Y POS" in stat and stat["Ground Y POS"]:  # replace ground pos based on data in stage
             self.ground_pos = stat["Ground Y POS"]
 
@@ -1017,7 +1020,7 @@ class AICharacter(BattleCharacter, Character):
             ai_behaviour = specific_behaviour
 
         self.ai_move = types.MethodType(ai_move_dict["default"], self)
-        if self.leader:
+        if leader:
             self.ai_move = types.MethodType(ai_move_dict["follower"], self)
         elif ai_behaviour in ai_move_dict:
             self.ai_move = types.MethodType(ai_move_dict[ai_behaviour], self)
@@ -1079,7 +1082,7 @@ class AICharacter(BattleCharacter, Character):
 
 
 class CityAICharacter(Character):
-    def __init__(self, game_id, layer_id, stat, leader=None, specific_behaviour=None):
+    def __init__(self, game_id, layer_id, stat, specific_behaviour=None):
         Character.__init__(self, game_id, layer_id, stat)
 
         if "Ground Y POS" in stat and stat["Ground Y POS"]:  # replace ground pos based on data in stage
@@ -1274,8 +1277,6 @@ class BodyPart(sprite.Sprite):
 
 
 def find_damage(self):
-    # if not self.owner.current_moveset:  # TODO remove later
-    #     (self.owner.name, self.owner.current_action, self.owner.show_frame)
     self.dmg = self.owner.current_moveset["Power"] + self.owner.power_bonus * self.owner.hold_power_bonus
     self.element = self.owner.current_moveset["Element"]
     self.impact = ((self.owner.current_moveset["Push Impact"] - self.owner.current_moveset["Pull Impact"]) *

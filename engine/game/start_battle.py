@@ -15,6 +15,7 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
     self.loading_screen("start")
 
     Channel(0).stop()
+    # self.self.save_data.save_profile["storage"][new_gear] = 1
     self.battle.prepare_new_stage(chapter, mission, stage, players, scene=scene)
     next_battle = self.battle.run_game()  # run next stage
     self.battle.exit_battle()  # run exit battle for previous one
@@ -23,7 +24,7 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
     Channel(0).play(self.music_pool["menu"])
     gc.collect()  # collect no longer used object in previous battle from memory
 
-    if stage + 1 not in self.preset_map_data[chapter][mission] and next_battle is True:
+    if next_battle is True and str(int(stage) + 1) not in self.preset_map_data[chapter][mission]:  # need to use is True
         # finish mission, update save data of the game first before individual save
         if self.save_data.save_profile["game"]["chapter"] < chapter:
             self.save_data.save_profile["game"]["chapter"] = chapter
@@ -39,13 +40,13 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
                 if self.save_data.save_profile["character"][slot]["chapter"] == chapter and \
                         self.save_data.save_profile["character"][slot]["mission"] == mission:
                     # update for player with this mission as last progress
-                    if mission + 1 in self.preset_map_data[chapter]:
+                    if str(int(mission) + 1) in self.preset_map_data[chapter]:
                         # update save state to next mission of the current chapter
-                        self.save_data.save_profile["character"][slot]["mission"] = mission + 1
-                    elif chapter + 1 in self.preset_map_data[chapter]:
+                        self.save_data.save_profile["character"][slot]["mission"] = str(int(mission) + 1)
+                    elif str(int(chapter) + 1) in self.preset_map_data[chapter]:
                         # complete all chapter stage, update to next chapter
-                        self.save_data.save_profile["character"][slot]["chapter"] = chapter + 1
-                        self.save_data.save_profile["character"][slot]["mission"] = 1
+                        self.save_data.save_profile["character"][slot]["chapter"] = str(int(chapter) + 1)
+                        self.save_data.save_profile["character"][slot]["mission"] = "1"
 
                     # One time rewards
                     self.save_data.save_profile["character"][slot]["character"]["Status Remain"] += \
@@ -58,7 +59,7 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
                             self.save_data.save_profile["character"][slot]["follower list"].append(follower)
 
                     if self.battle.decision_select.selected:  # choice reward
-                        mission_str = str(chapter) + "." + str(mission) + "." + str(stage)
+                        mission_str = chapter + "." + mission + "." + stage
                         choice = self.battle.decision_select.selected
                         self.save_data.save_profile["character"][slot]["story choice"][
                             mission_str] = choice
@@ -93,8 +94,7 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
                                      tuple(
                                          self.battle_map_data.stage_reward[chapter][mission]["Gear Reward"].values()))[
                         0]
-                    # new_gear = self.generate_custom_equipment(gear_type, rarity)  # TODO finish this
-                    # for key in self.character_data.gear_mod_list:
+                    self.self.save_data.save_profile["storage"][self.generate_custom_equipment(gear_type, rarity)] = 1
 
     for player, slot in self.profile_index.items():
         save_profile = self.save_data.save_profile["character"][self.profile_index[player]]  # reset data for interface
@@ -109,17 +109,17 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
 
     if next_battle is True:  # finish stage, continue to next one
         if stage + 1 in self.preset_map_data[chapter][mission]:  # has next stage
-            self.start_battle(chapter, mission, stage + 1, players=players)
+            self.start_battle(chapter, mission, str(int(stage) + 1), players=players)
         elif mission + 1 in self.preset_map_data[chapter]:  # proceed next mission, go to city throne map
-            self.start_battle(chapter, mission + 1, 0, players=players, scene="throne")
+            self.start_battle(chapter, str(int(mission) + 1), "0", players=players, scene="throne")
         elif chapter + 1 in self.preset_map_data[chapter]:  # complete all chapter stage, go to next chapter
-            self.start_battle(chapter + 1, 1, 0, players=players, scene="throne")
+            self.start_battle(str(int(chapter + 1)), "1", "0", players=players, scene="throne")
         else:
-            self.start_battle(chapter, mission, 0, players=players, scene="throne")
+            self.start_battle(chapter, mission, "0", players=players, scene="throne")
     elif type(next_battle) is str:  # city stage go to specific scene
-        self.start_battle(chapter, mission, 0, players=players, scene=next_battle)
+        self.start_battle(chapter, mission, "0", players=players, scene=next_battle)
     elif next_battle is not False:  # start specific mission
-        self.start_battle(chapter, next_battle, 1, players=players)
+        self.start_battle(chapter, next_battle, "1", players=players)
 
     # for when memory leak checking
     # logging.warning(mem_top())

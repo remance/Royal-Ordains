@@ -12,16 +12,273 @@
 "Duskuksa","Rune Sage Journeyman","A man of tradition and faith. This Rune Sage Apprentice intended to carry his forebears' legacy to the utmost. But with his lack of lineage, he will never leave a lot of common rune priests in the dwarf nepotistic society. That is until he joins the Royal Ordains with the promise of untold wealth and rewards that he can use to leap the cruel ladder of social standing, the only thing that matters next to tradition and blood ties to most dwarfs.","Support"
 "Nayedien","King’s Aide","An elf of peerless beauty and ambiguity. No one knows where this elf is from or any past-of-self. For reasons unknown, the King saw fit to assign this person of unknown origin a hero of Royal Ordains and close aide. Court rumour that the King was charmed by such beauty, their dubious relationship, and the implication of elvish intervention aside, no one can verily deny the mastery in martial prowess of this elven warrior.","Special"
 "Pasgelo","Mage of Season",,"Special"
-"King","King",,"City NPC"
-"Vurus","Commander",,"City NPC"
-"Dashisi","Court Jester",,"City NPC"
-"Amunsa","Blacksmith",,"City NPC"
-"Duhon","Tavern Keeper",,"City NPC"
-"Sasinola","Herbalist",,"City NPC"
-"Lisha","Artificer",,"City NPC"
-"Kapuni","Master of Ceremonies",,"City NPC"
-"Hermanos","Court Herald",,"City NPC"
-"Merlaros","Master of Ride",,"City NPC"
-1,"Lord Chancellor",,"City NPC"
-2,"Lord Chamberlain",,"City NPC"
-3,"Throne Guard",,"City NPC"
+"King","King",,"Noble"
+"Vurus","Vurus Akamanes",,"Noble"
+"Hermanos","Hermanos Vorehmus",,"Noble"
+"Solhatar","Solhatar Volus",,"Noble"
+"Serlon","Serlon Masrtos",,"Noble"
+"Elghest","Elghest Lostrer",,"Noble"
+"Aerlnarn","Aerlnarn",,"Noble"
+"Kapuni","Kapuni",,"Noble"
+"Maelsen","Maelsen Lostrer",,"Noble"
+"Kervos","Kervos Lohes",,"Noble"
+"Peurrus",,,"Noble"
+"Furlest",,,"Noble"
+"Courtbook","Courtbook",,"Interactable"
+"Amunsa","Amunsa",,"Lowborn"
+"Velmidas","Velmidas Lohes",,"Noble"
+"Board","Quest Board",,"Interactable"
+"Tom","Tom Cat",,"Lowborn"
+"Toodles","Toodles Galore",,"Lowborn"
+"Duhon","Duhon",,"Lowborn"
+"Barman1","Barman",,"Lowborn"
+"Sasinola","Sasinola",,"Lowborn"
+"Tanrsakt","Tanrsakt",,"Lowborn"
+"Shopper1","Shopper",,"Lowborn"
+"Lisha","Lisha",,"Lowborn"
+"Kemilsz","Kemilsz",,"Lowborn"
+"Monnirl","Monnirl Maaeir",,"Saint"
+"Micorte","Brother Micorte",,"Chronicler"
+"Quivenly","Sister Quivenly",,"Chronicler"
+"Roeveo","Brother Roeveo",,"Chronicler"
+"Orgatonion","Brother Orgatonion",,"Chronicler"
+"Vigumatik","Vigumatik",,"Chronicler"
+"Wigorsein","Wigorsein",,"Chronicler"
+"Jurmon","Jurmon",,"Chronicler"
+"Rudehst","Rudehst Nocvius",,"Noble"
+"Viskes","Viskes Lodehes",,"Noble"
+"Crier","Town Crier",,"Noble"
+"Severn","Severn Turneose",,"Noble"
+"Merlaros","Merlaros Vorehmus",,"Noble"
+"Dashisi","Dashisi",,"Noble"
+"Tulia","Tulia",,"Follower"
+"Ozna","Ozna",,"Follower"
+"Nraesier","Nraesier","Older sister of Vagran Marauder","Follower"
+"Mannequin","Mannequin",,"Training"
+"Rban1","Bunny Bandit","A footsoldier rabbit spearman. Weak but strong in number.","Rabbitman"
+"Rban2","Rabbit Raider","A footsoldier rabbit archer. Can shoot a barrage of arrows in high numbers.","Rabbitman"
+"Rban3","Hare Hooligan","A footsoldier rabbit slinger. Decent skirmisher in its own right.","Rabbitman"
+"Rban4","Fur Shell Companion","A rabbit snail cavalry. Slow but tough.","Rabbitman"
+"Rban5","Rabbit Hole","A rabbit in the hole waiting to stab a passerby in the rear.","Rabbitman"
+"Rban6","Woolly Ward","A rabbit guard. Not so bad as a frontline warrior.","Rabbitman"
+"Rban7","Warren Warrior",,"Rabbitman"
+"Rban8","Warren Watcher",,"Rabbitman"
+"Bigta","Bigta and Sertors","A bizarre cavalry pair of rabbit and dog. Deliver strong charge with lance.","Boss"
+"Hban1","Human Bandit Fighter","A common lowlife. Decent fighter but has bad morals.","Bandit"
+"Hban2","Human Bandit Archer","Either a poacher or a deserter. Can shoot arrows deadly for unarmoured foes.","Bandit"
+"Hban3","Human Hedge Mage",,"Bandit"
+"Hban4","Bandit Lookout Tower",,"Bandit"
+"Hban5","Human Bandit Ranger",,"Bandit"
+"Dban1","Dwarf Bandit Crossbowman",,"Bandit"
+"Dban2","Dwarf Marauder",,"Bandit"
+"Dban3","Dwarf Thug",,"Bandit"
+"Eban1","Elf Bandit Fighter",,"Bandit"
+"Eban2","Elf Rogue Scout",,"Bandit"
+"Eban3","Elf Taint Druid",,"Bandit"
+"Adaqua","Adaqua",,"Boss"
+"Animal1","Snail Defender",,"Animal"
+"Animal2","Toxic Mollusk",,"Animal"
+"Animal3","Wolf Guardian",,"Animal"
+"Animal4","Bird Lookout",,"Animal"
+"Animal5","Boar Charger",,"Animal"
+"Animal6","Fox Trickster",,"Animal"
+"Animal7","Eagle",,"Animal"
+"Animal8","Turtle Frogs Tower",,"Animal"
+"Animal9","Flying Pig",,"Animal"
+"Animal10","Great Snail",,"Animal"
+"Hero","Hero",,
+"Vraesier1","Vagrant Marauder",,
+"Vraesier2","Justiciar Enforcer",,
+"Vraesier3a","Demonic Guard",,
+"Vraesier3b","Justiciar Captain",,
+"Vraesier4a","Vengeance Incarnate",,
+"Vraesier4b","Justiciar Commander",,
+"Vraesier5a","Demoness of Order",,
+"Vraesier5b","Lady of Law",,
+"Vraesier6","Vraesier",,
+"Orsanoas1","Warrior",,
+"Orsanoas2","Berserker",,
+"Orsanoas3a",,,
+"Orsanoas3b",,,
+"Orsanoas4a",,,
+"Orsanoas4b",,,
+"Orsanoas5a",,,
+"Orsanoas5b",,,
+"Orsanoas6","Orsanoas",,
+"Minara1","Exiled Scout",,
+"Minara2","Learned Scout",,
+"Minara3a",,,
+"Minara3b","Forbidden Ranger",,
+"Minara4a","Inspiring Reconnoiterer",,
+"Minara4b",,,
+"Minara5a","Depth Hunter",,
+"Minara5b",,,
+"Minara6","Minara",,
+"Rodhinbar1","Headman",,
+"Rodhinbar2",,,
+"Rodhinbar3a","Warlord",,
+"Rodhinbar3b","Pacifist",,
+"Rodhinbar4a","Conqueror",,
+"Rodhinbar4b","Protector",,
+"Rodhinbar5a",,,
+"Rodhinbar5b","Peacekeeper",,
+"Rodhinbar6","Rodhinbar",,
+"Laguasangte1","Sweeper",,
+"Laguasangte2",,,
+"Laguasangte3a",,,
+"Laguasangte3b",,,
+"Laguasangte4a",,,
+"Laguasangte4b",,,
+"Laguasangte5a",,,
+"Laguasangte5b",,,
+"Laguasangte6","Laguasangte",,
+"Iri1","Traveller",,
+"Iri2","Master Trapper",,
+"Iri3a","Sorcery Engineer",,
+"Iri3b","Prodigy Engineer",,
+"Iri4a","Arcane Ambusher",,
+"Iri4b",,,
+"Iri5a",,,
+"Iri5b","Master Creator",,
+"Iri6","Family of Akat Whe",,
+"Elmaliern1","Desperate Widow",,
+"Elmaliern2","Aspiring Necromancer",,
+"Elmaliern3a",,,
+"Elmaliern3b",,,
+"Elmaliern4a",,,
+"Elmaliern4b",,,
+"Elmaliern5a",,,
+"Elmaliern5b",,,
+"Elmaliern6","Elmaliern",,
+"Bauqah1","Hedge Shaman",,
+"Bauqah2",,,
+"Bauqah3a",,,
+"Bauqah3b",,,
+"Bauqah4a",,,
+"Bauqah4b",,,
+"Bauqah5a",,,
+"Bauqah5b","Wild Lord",,
+"Bauqah6","Bauqah",,
+"Yuawies1","Dryad",,
+"Yuawies2","Glutton Dryad",,
+"Yuawies3a",,,
+"Yuawies3b",,,
+"Yuawies4a",,,
+"Yuawies4b",,,
+"Yuawies5a",,,
+"Yuawies5b",,,
+"Yuawies6","Yuawies",,
+"Duskuksa1","Rune Sage Journeyman",,
+"Duskuksa2","Rune Sage",,
+"Duskuksa3a","Rune Guard",,
+"Duskuksa3b","Rune Priest",,
+"Duskuksa4a",,,
+"Duskuksa4b",,,
+"Duskuksa5a",,,
+"Duskuksa5b","Rune Patriarch",,
+"Duskuksa6","Duskuksa",,
+"Nayedien1","King’s Aide",,
+"Nayedien2","Close Companion",,
+"Nayedien3a","Trusted Abettor",,
+"Nayedien3b","Apostate",,
+"Nayedien4a","Partner In Desire",,
+"Nayedien4b","Knower of Understanding",,
+"Nayedien5a","Pact Eternal",,
+"Nayedien5b","Celestial Transcendence",,
+"Nayedien6","Nayedien",,
+"Pasgelo1","Mage of Season",,
+"Pasgelo2",,,
+"Pasgelo3a",,,
+"Pasgelo3b",,,
+"Pasgelo4a",,,
+"Pasgelo4b",,,
+"Pasgelo5a",,,
+"Pasgelo5b",,,
+"Pasgelo6","Pasgelo",,
+"King","King",,
+"King4b","Emperor Consort",,
+"King5a","King",,
+"King5b","Emperor Regent",,
+"King6","Lestrius Maeranos",,
+"King7","Vars Karsiladan",,
+"Vurus","Lord Commander",,
+"Vurus3a","Lord Protector",,
+"Vurus3b","Lord Protector",,
+"Vurus4a","Brilliant Strategist",,
+"Vurus4b","Brilliant Strategist",,
+"Vurus5a","Brilliant Strategist",,
+"Vurus5b","Brilliant Strategist",,
+"Vurus6","Vurus Akamanes",,
+"Dasihsi1","Court Jester",,
+"Dasihsi2","Royal Jester",,
+"Dasihsi3a",,,
+"Dasihsi3b",,,
+"Dasihsi4a",,,
+"Dasihsi4b",,,
+"Dasihsi5a",,,
+"Dasihsi5b",,,
+"Dasihsi6","Dashisi",,
+"Kapuni1","Court Musician",,
+"Kapuni2",,,
+"Kapuni3a",,,
+"Kapuni3b",,,
+"Kapuni4a",,,
+"Kapuni4b",,,
+"Kapuni5a",,,
+"Kapuni5b",,,
+"Kapuni6","Kapuni",,
+"Amunsa","Blacksmith",,
+"Amunsa6","Amunsa",,
+"Duhon","Bartender",,
+"Duhon6","Duhon",,
+"Sasinola1","Herbalist",,
+"Sasinola6","Sasinola",,
+"Sihest","Head Chef",,
+"Lisha1",,,
+"Lisha6","Lisha",,
+"Monnirl1","Faithkeeper",,
+"Monnirl2","Faithkeeper",,
+"Monnirl3a","Saint",,
+"Monnirl3b","Saint",,
+"Monnirl4a","Monnirl Maaeir",,
+"Monnirl4b","Monnirl Maaeir",,
+"Monnirl5a","Monnirl Maaeir",,
+"Monnirl5b","Monnirl Maaeir",,
+"Monnirl6","Monnirl Maaeir",,
+"Hermanos","Court Herald",,
+"Solhatar","Lord Chancellor",,
+"Serlon","Lord Chamberlain",,
+"Elghest","Lord Steward",,
+"Aerlnarn","Head Servant",,
+"Maelsen","Throne Guard",,
+"Kervos","Lord Judge",,
+"Peurrus","Health Keeper",,
+"Furlest","Court Mage",,
+"Courtbook","Court Book",,
+"Velmidas","Chief Architect",,
+"Board","Quest Board",,
+"Tom","Tom Cat",,
+"Toodles","Toodles Galore",,
+"Barman1","Barman",,
+"Tanrsakt","Merchant",,
+"Shopper1","Shopper",,
+"Lisha","Lisha",,
+"Kemilsz","Attendant",,
+"Micorte","Chief Scholar",,
+"Quivenly","Illuminator",,
+"Roeveo","Scribe Assistant",,
+"Orgatonion","Scribe",,
+"Vigumatik","Master Artist",,
+"Wigorsein","Journeyman Artist",,
+"Jurmon","Apprentice Artist",,
+"Rudehst","Flower Keeper",,
+"Viskes","Master of Hunt",,
+"Crier","Town Crier",,
+"Severn","Chief Justiciar",,
+"Merlaros","Master of Ride",,
+"Tulia","Tulia",,
+"Ozna","Ozna",,
+"Nraesier1","Scout",,
+"Nraesier2","Pathfinder",,
+"Nraesier3","Nraesier",,
+"Mannequin","Training",,

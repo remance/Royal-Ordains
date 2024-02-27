@@ -12,7 +12,7 @@ from pygame.locals import *
 from engine.battle.setup.make_battle_ui import make_battle_ui
 from engine.battle.setup.make_esc_menu import make_esc_menu
 from engine.camera.camera import Camera
-from engine.character.character import Character
+from engine.character.character import Character, CityAICharacter
 from engine.drama.drama import TextDrama
 from engine.effect.effect import Effect
 from engine.stage.stage import Stage
@@ -106,8 +106,8 @@ class Battle:
         # add enemy trap with delay and cycle
         # add one more playable char
         # add online/lan multiplayer?
-        # add shop,
-        # add quest system?
+        # add shop
+        # add side mission system
         # add ranking record system
         # add save/profile system (add story event finish check to save)
         # finish main menu
@@ -368,7 +368,6 @@ class Battle:
     def inner_prepare_new_stage(self, chapter, mission, stage, players, scene):
         """Setup stuff when start new stage"""
         self.chapter = chapter
-        self.chapter_sprite_ver = str(chapter)
         self.mission = mission
         self.stage = stage
 
@@ -527,7 +526,7 @@ class Battle:
             self.later_enemy[scene] = new_value
 
         add_helper = True
-        if self.stage == 0:  # city stage not add helper
+        if self.stage == "0":  # city stage not add helper
             add_helper = False
         self.setup_battle_character(self.players, start_enemy, add_helper=add_helper)
 
@@ -537,67 +536,68 @@ class Battle:
                 self.player_portraits[player].add_char_portrait(self.player_objects[player])
 
         self.main_player_object = self.player_objects[self.main_player]
-        for trigger, value in stage_event_data.items():
-            if "char" in trigger:  # trigger depend on character
-                for key, value2 in value.items():
-                    for this_char in self.all_chars:
-                        if this_char.game_id == key:
-                            if "in_camera" in trigger:  # reach camera event
-                                this_char.reach_camera_event = value2
-                            break
-            elif "start" in trigger:
-                for key, value2 in value.items():
-                    for key3, value3 in value2.items():
-                        if value3[0]["Type"]:  # check only parent event type data
-                            self.start_cutscene.append(value3)
-            elif "interact" in trigger:
-                for key, value2 in value.items():
-                    char_found = None
-                    for char in self.all_chars:
-                        if char.game_id == key:
-                            char_found = char
-                            break
-                    for key3, value3 in value2.items():
-                        if "/Any/" in value3[0]["ID"] or "/" + self.main_player_object.sprite_id + "/" in value3[0][
-                            "ID"]:
-                            # only add event involving the character of first player
-                            if value3[0]["Type"] == "char":
-                                # must always have char id as second item in trigger
-                                if char_found:
-                                    if char_found not in self.player_interact_event_list:
-                                        self.player_interact_event_list[char_found] = []
-                                    self.player_interact_event_list[char_found].append(value3)
-                            elif value3[0]["Type"] == "pos":  # interact with specific pos
-                                if key not in self.player_interact_event_list:
-                                    self.player_interact_event_list[key] = []
-                                self.player_interact_event_list[key].append(value3)
-            elif "camera" in trigger:  # trigger depend on camera reaching something
-                if "reach_scene" in trigger:
+        if stage_event_data:
+            for trigger, value in stage_event_data.items():
+                if "char" in trigger:  # trigger depend on character
+                    for key, value2 in value.items():
+                        for this_char in self.all_chars:
+                            if this_char.game_id == key:
+                                if "in_camera" in trigger:  # reach camera event
+                                    this_char.reach_camera_event = value2
+                                break
+                elif "start" in trigger:
                     for key, value2 in value.items():
                         for key3, value3 in value2.items():
-                            if key not in self.reach_scene_event_list:
-                                self.reach_scene_event_list[key] = {}
-                            if value3[0]["Type"] == "cutscene":  # check only parent event type data
-                                if "cutscene" not in self.reach_scene_event_list[key]:
-                                    self.reach_scene_event_list[key]["cutscene"] = []
-                                self.reach_scene_event_list[key]["cutscene"].append(value3)
-                            elif value3[0]["Type"] == "weather":
-                                weather_strength = 0
-                                if "strength" in value3[0]["Property"]:
-                                    weather_strength = value3[0]["Property"]["strength"]
-                                self.reach_scene_event_list[key]["weather"] = (value3[0]["Object"], weather_strength)
-                            elif value3[0]["Type"] == "music":
-                                self.reach_scene_event_list[key]["music"] = self.music_pool[
-                                    str(value3[0]["Object"])]
-                            elif value3[0]["Type"] == "sound":
-                                if "sound" not in self.reach_scene_event_list[key]:
-                                    self.reach_scene_event_list[key]["sound"] = []
-                                self.reach_scene_event_list[key]["sound"].append(
-                                    self.sound_effect_pool[str(value3[0]["Object"])])
+                            if value3[0]["Type"]:  # check only parent event type data
+                                self.start_cutscene = value3
+                elif "interact" in trigger:
+                    for key, value2 in value.items():
+                        char_found = None
+                        for char in self.all_chars:
+                            if char.game_id == key:
+                                char_found = char
+                                break
+                        for key3, value3 in value2.items():
+                            if "/Any/" in value3[0]["ID"] or "/" + self.main_player_object.sprite_id + "/" in value3[0][
+                                "ID"]:
+                                # only add event involving the character of first player
+                                if value3[0]["Type"] == "char":
+                                    # must always have char id as second item in trigger
+                                    if char_found:
+                                        if char_found not in self.player_interact_event_list:
+                                            self.player_interact_event_list[char_found] = []
+                                        self.player_interact_event_list[char_found].append(value3)
+                                elif value3[0]["Type"] == "pos":  # interact with specific pos
+                                    if key not in self.player_interact_event_list:
+                                        self.player_interact_event_list[key] = []
+                                    self.player_interact_event_list[key].append(value3)
+                elif "camera" in trigger:  # trigger depend on camera reaching something
+                    if "reach_scene" in trigger:
+                        for key, value2 in value.items():
+                            for key3, value3 in value2.items():
+                                if key not in self.reach_scene_event_list:
+                                    self.reach_scene_event_list[key] = {}
+                                if value3[0]["Type"] == "cutscene":  # check only parent event type data
+                                    if "cutscene" not in self.reach_scene_event_list[key]:
+                                        self.reach_scene_event_list[key]["cutscene"] = []
+                                    self.reach_scene_event_list[key]["cutscene"].append(value3)
+                                elif value3[0]["Type"] == "weather":
+                                    weather_strength = 0
+                                    if "strength" in value3[0]["Property"]:
+                                        weather_strength = value3[0]["Property"]["strength"]
+                                    self.reach_scene_event_list[key]["weather"] = (value3[0]["Object"], weather_strength)
+                                elif value3[0]["Type"] == "music":
+                                    self.reach_scene_event_list[key]["music"] = self.music_pool[
+                                        str(value3[0]["Object"])]
+                                elif value3[0]["Type"] == "sound":
+                                    if "sound" not in self.reach_scene_event_list[key]:
+                                        self.reach_scene_event_list[key]["sound"] = []
+                                    self.reach_scene_event_list[key]["sound"].append(
+                                        self.sound_effect_pool[str(value3[0]["Object"])])
 
-            elif "execute" in trigger:
-                for key, value2 in value.items():
-                    self.execute_cutscene = value2
+                elif "execute" in trigger:
+                    for key, value2 in value.items():
+                        self.execute_cutscene = value2
         yield set_done_load()
 
     def run_game(self):
@@ -658,8 +658,13 @@ class Battle:
         # self.mapunitarray = [[x[random.randint(0, 1)] if i != j else 0 for i in range(1000)] for j in range(1000)]
         # pygame.mixer.music.set_endevent(self.SONG_END)  # End current music before battle start
 
+        # if self.start_cutscene:
+        #     # play start cutscene
+        #     self.cutscene_playing = self.start_cutscene
+        #     self.start_cutscene = []
+
         frame = 0
-        while True:  # self running
+        while True:  # battle running
             frame += 1
 
             if frame % 30 == 0 and hasattr(self.game, "profiler"):  # Remove for stable release, along with dev key
@@ -1026,7 +1031,7 @@ class Battle:
                                 target_pos = (item[0].base_pos[0], item[0].base_pos[1] - item[0].sprite_size * 4.5)
                             if 100 < abs(self.main_player_object.base_pos[0] - target_pos[0]) < 250:
                                 # use player with the lowest number as interactor
-                                self.speech_prompt.add_to_screen(self.main_player_object, target_pos)
+                                self.speech_prompt.add_to_screen(self.main_player_object, item[0], target_pos)
                                 if self.player_key_press[self.main_player]["Weak"]:  # player interact, start event
                                     self.speech_prompt.clear()  # remove prompt
                                     if (self.main_player_object.base_pos[0] - target_pos[0] < 0 and
@@ -1054,7 +1059,7 @@ class Battle:
                                 break
 
                 else:  # currently in cutscene mode
-                    for child_event in self.cutscene_playing.copy():
+                    for event_index, child_event in enumerate(self.cutscene_playing.copy()):
                         # play child events until found one that need waiting
                         if child_event["Object"] == "camera":
                             if child_event["Type"] == "move" and "POS" in child_event["Property"]:
@@ -1075,95 +1080,110 @@ class Battle:
                                     self.cutscene_playing.remove(child_event)
                         else:
                             event_character = None
-                            if child_event["Object"] == "pm":  # main player
-                                event_character = self.main_player_object
-                            else:
-                                for character in self.all_chars:
-                                    if character.game_id == child_event["Object"]:
-                                        event_character = character
-                                        break
-                            if event_character and (not event_character.cutscene_event or
-                                                    (("hold" in event_character.current_action or
-                                                      "repeat" in event_character.current_action) and
-                                                     event_character.cutscene_event != child_event)):
-                                # replace previous event on hold or repeat when there is new one to play next
-                                if "hold" in event_character.current_action:
-                                    # previous event done
-                                    self.cutscene_playing.remove(event_character.cutscene_event)
-
-                                event_character.cutscene_event = child_event
-                                if "POS" in child_event["Property"]:
-                                    if type(child_event["Property"]["POS"]) is str:
-                                        target_scene = self.battle_stage.current_scene
-                                        if "reach_" in child_event["Property"]["POS"]:
-                                            target_scene = self.battle_stage.reach_scene
-
-                                        if "start" in child_event["Property"]["POS"]:
-                                            positioning = event_character.layer_id
-                                            if event_character.layer_id > 4:
-                                                positioning = uniform(1, 4)
-                                            ground_pos = event_character.ground_pos
-                                            if event_character.fly:  # flying character can just move with current y pos
-                                                ground_pos = event_character.base_pos[1]
-                                            event_character.cutscene_target_pos = Vector2(
-                                                (1920 * target_scene) + (100 * positioning), ground_pos)
-                                        elif "middle" in child_event["Property"]["POS"]:
-                                            ground_pos = event_character.ground_pos
-                                            if event_character.fly:  # flying character can just move with current y pos
-                                                ground_pos = event_character.base_pos[1]
-                                            event_character.cutscene_target_pos = Vector2(
-                                                (1920 * target_scene) - (self.battle_camera_center[0] * 1.5),
-                                                ground_pos)
-                                        elif "center" in child_event["Property"]["POS"]:
-                                            # true center, regardless of flying
-                                            event_character.cutscene_target_pos = Vector2(
-                                                (1920 * target_scene) - (self.battle_camera_center[0] * 1.5),
-                                                self.battle_camera_center[1])
-                                    else:
-                                        event_character.cutscene_target_pos = Vector2(
-                                            child_event["Property"]["POS"][0],
-                                            child_event["Property"]["POS"][1])
-                                elif "target" in child_event["Property"]:
-                                    for character2 in self.all_chars:
-                                        if character2.game_id == child_event["Property"]["target"]:  # go to target pos
-                                            event_character.cutscene_target_pos = character2.base_pos
-                                            break
-                                if "angle" in child_event["Property"]:
-                                    if child_event["Property"]["angle"] == "target":
-                                        # facing target must have cutscene_target_pos
-                                        if event_character.cutscene_target_pos[0] >= event_character.base_pos[0]:
-                                            event_character.new_angle = -90
-                                        else:
-                                            event_character.new_angle = 90
-                                    else:
-                                        event_character.new_angle = int(child_event["Property"]["angle"])
-                                    event_character.rotate_logic()
-                                animation = child_event["Animation"]
-                                animation_dict = {}
-                                if animation:
-                                    animation_dict = {"name": child_event["Animation"]} | child_event["Property"]
-                                event_character.pick_cutscene_animation(animation_dict)
-                                if child_event["Text ID"]:
-                                    specific_timer = None
-                                    player_input_indicator = None
-                                    if "player_interact" in child_event["Property"]:
-                                        specific_timer = infinity
-                                        player_input_indicator = True
-                                    elif "timer" in child_event["Property"]:
-                                        specific_timer = child_event["Property"]
-                                    elif "select" not in child_event["Property"]:
-                                        # selecting event, also infinite timer but not add player input indication
-                                        specific_timer = infinity
-                                    CharacterSpeechBox(event_character,
-                                                       self.localisation.grab_text(("event",
-                                                                                    child_event["Text ID"],
-                                                                                    "Text")),
-                                                       specific_timer=specific_timer,
-                                                       player_input_indicator=player_input_indicator,
-                                                       cutscene_event=child_event)
-                            elif not event_character:
-                                # no character to play for this cutscene, no need to loop further
+                            if child_event["Type"] == "setup":  # add character for cutscene
+                                print(child_event)
+                                CityAICharacter(child_event["Object"], event_index,
+                                                child_event["Property"] | self.character_data.character_list[child_event["Object"]] |
+                                                {"ID": child_event["Object"],
+                                                 "Scene": 1, "Team": 1, "Arrive Condition": {}, "Sprite Ver": self.chapter})
                                 self.cutscene_playing.remove(child_event)
+                            else:
+                                if child_event["Object"] == "pm":  # main player
+                                    event_character = self.main_player_object
+                                else:
+                                    for character in self.all_chars:
+                                        if character.game_id == child_event["Object"]:
+                                            event_character = character
+                                            break
+                                if event_character:
+                                    if child_event["Type"] == "hide":
+                                        self.battle_camera.remove(event_character.body_parts.values())
+                                        if child_event["Object"] == "pm":  # also hide indicator
+                                            pass
+                                    elif child_event["Type"] == "remove":
+                                        pass
+                                    elif (not event_character.cutscene_event or
+                                                (("hold" in event_character.current_action or
+                                                  "repeat" in event_character.current_action) and
+                                                 event_character.cutscene_event != child_event)):
+                                        # replace previous event on hold or repeat when there is new one to play next
+                                        if "hold" in event_character.current_action:
+                                            # previous event done
+                                            self.cutscene_playing.remove(event_character.cutscene_event)
+
+                                        event_character.cutscene_event = child_event
+                                        if "POS" in child_event["Property"]:
+                                            if type(child_event["Property"]["POS"]) is str:
+                                                target_scene = self.battle_stage.current_scene
+                                                if "reach_" in child_event["Property"]["POS"]:
+                                                    target_scene = self.battle_stage.reach_scene
+
+                                                if "start" in child_event["Property"]["POS"]:
+                                                    positioning = event_character.layer_id
+                                                    if event_character.layer_id > 4:
+                                                        positioning = uniform(1, 4)
+                                                    ground_pos = event_character.ground_pos
+                                                    if event_character.fly:  # flying character can just move with current y pos
+                                                        ground_pos = event_character.base_pos[1]
+                                                    event_character.cutscene_target_pos = Vector2(
+                                                        (1920 * target_scene) + (100 * positioning), ground_pos)
+                                                elif "middle" in child_event["Property"]["POS"]:
+                                                    ground_pos = event_character.ground_pos
+                                                    if event_character.fly:  # flying character can just move with current y pos
+                                                        ground_pos = event_character.base_pos[1]
+                                                    event_character.cutscene_target_pos = Vector2(
+                                                        (1920 * target_scene) - (self.battle_camera_center[0] * 1.5),
+                                                        ground_pos)
+                                                elif "center" in child_event["Property"]["POS"]:
+                                                    # true center, regardless of flying
+                                                    event_character.cutscene_target_pos = Vector2(
+                                                        (1920 * target_scene) - (self.battle_camera_center[0] * 1.5),
+                                                        self.battle_camera_center[1])
+                                            else:
+                                                event_character.cutscene_target_pos = Vector2(
+                                                    child_event["Property"]["POS"][0],
+                                                    child_event["Property"]["POS"][1])
+                                        elif "target" in child_event["Property"]:
+                                            for character2 in self.all_chars:
+                                                if character2.game_id == child_event["Property"]["target"]:  # go to target pos
+                                                    event_character.cutscene_target_pos = character2.base_pos
+                                                    break
+                                        if "angle" in child_event["Property"]:
+                                            if child_event["Property"]["angle"] == "target":
+                                                # facing target must have cutscene_target_pos
+                                                if event_character.cutscene_target_pos[0] >= event_character.base_pos[0]:
+                                                    event_character.new_angle = -90
+                                                else:
+                                                    event_character.new_angle = 90
+                                            else:
+                                                event_character.new_angle = int(child_event["Property"]["angle"])
+                                            event_character.rotate_logic()
+                                        animation = child_event["Animation"]
+                                        action_dict = {}
+                                        if animation:
+                                            action_dict = {"name": child_event["Animation"]} | child_event["Property"]
+                                        event_character.pick_cutscene_animation(action_dict)
+                                        if child_event["Text ID"]:
+                                            specific_timer = None
+                                            player_input_indicator = None
+                                            if "player_interact" in child_event["Property"]:
+                                                specific_timer = infinity
+                                                player_input_indicator = True
+                                            elif "timer" in child_event["Property"]:
+                                                specific_timer = child_event["Property"]
+                                            elif "select" not in child_event["Property"]:
+                                                # selecting event, also infinite timer but not add player input indication
+                                                specific_timer = infinity
+                                            CharacterSpeechBox(event_character,
+                                                               self.localisation.grab_text(("event",
+                                                                                            child_event["Text ID"],
+                                                                                            "Text")),
+                                                               specific_timer=specific_timer,
+                                                               player_input_indicator=player_input_indicator,
+                                                               cutscene_event=child_event)
+                                else:
+                                    # no character to play for this cutscene, no need to loop this child event further
+                                    self.cutscene_playing.remove(child_event)
                         if "select" in child_event["Property"]:
                             if child_event["Property"]["select"] == "yesno":
                                 self.realtime_ui_updater.add(self.decision_select)
@@ -1176,7 +1196,7 @@ class Battle:
 
                 if not self.city_mode and not self.all_team_enemy[1]:  # all enemies dead, end stage process
                     if not self.end_delay and not self.cutscene_playing:
-                        mission_str = str(self.chapter) + "." + str(self.mission) + "." + str(self.stage)
+                        mission_str = self.chapter + "." + self.mission + "." + self.stage
                         # not ending stage yet, due to decision waiting or playing cutscene
                         if self.decision_select not in self.realtime_ui_updater and self.stage_end_choice:
                             if mission_str not in self.main_story_profile["story choice"]:

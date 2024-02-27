@@ -39,7 +39,7 @@ class Drop(sprite.Sprite):
         self.team = team
 
         self.battle.all_team_drop[self.team].add(self)
-        self.current_animation = self.item_sprite_pool[self.battle.chapter_sprite_ver]["Normal"][game_id][1]
+        self.current_animation = self.item_sprite_pool[self.battle.chapter]["Normal"][game_id][1]
 
         self.base_image = self.current_animation[self.show_frame]
         self.image = self.base_image
