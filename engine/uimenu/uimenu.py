@@ -185,6 +185,7 @@ class MenuCursor(UIMenu):
         self.pos = mouse.get_pos()
         self.rect.topleft = self.pos
         self.mouse_over_something = False
+        old_mouse_click = self.is_select_down
         if self.game and 1 in self.game.player_joystick:  # check for joystick button press as well
             for name, button in self.game.player_key_bind_name[1].items():
                 if button == "Weak":  # weak attack button = confirm
@@ -195,7 +196,11 @@ class MenuCursor(UIMenu):
         else:
             self.is_select_just_down, self.is_select_down, self.is_select_just_up = keyboard_mouse_press_check(
                 mouse, 0, self.is_select_just_down, self.is_select_down, self.is_select_just_up)
-
+            if old_mouse_click != self.is_select_down:
+                if self.is_select_down:
+                    self.image = self.images["click"]
+                else:
+                    self.image = self.images["normal"]
         # Alternative select press button, like mouse right
         self.is_alt_select_just_down, self.is_alt_select_down, self.is_alt_select_just_up = keyboard_mouse_press_check(
             mouse, 2, self.is_alt_select_just_down, self.is_alt_select_down, self.is_alt_select_just_up)
