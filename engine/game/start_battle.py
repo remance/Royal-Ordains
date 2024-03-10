@@ -22,6 +22,7 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
 
     # Finish battle, check for next one
     Channel(0).play(self.music_pool["menu"])
+    Channel(0).set_volume(self.play_music_volume)
     gc.collect()  # collect no longer used object in previous battle from memory
 
     if next_battle is True and str(int(stage) + 1) not in self.preset_map_data[chapter][mission]:  # need to use is True
@@ -94,15 +95,19 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
                                      tuple(
                                          self.battle_map_data.stage_reward[chapter][mission]["Gear Reward"].values()))[
                         0]
-                    self.self.save_data.save_profile["storage"][self.generate_custom_equipment(gear_type, rarity)] = 1
+                    self.save_data.save_profile["storage"][self.generate_custom_equipment(gear_type, rarity)] = 1
 
     for player, slot in self.profile_index.items():
-        save_profile = self.save_data.save_profile["character"][self.profile_index[player]]  # reset data for interface
-        self.player_char_interfaces[player].add_profile(save_profile)
-        self.save_data.save_profile["character"][slot]["last save"] = datetime.now().strftime(
-            "%d/%m/%Y %H:%M:%S")
+        if self.player_char_selectors[player].mode != "empty":
+            save_profile = self.save_data.save_profile["character"][self.profile_index[player]]  # save
+            self.player_char_interfaces[player].add_profile(save_profile)
+            self.save_data.save_profile["character"][slot]["last save"] = datetime.now().strftime(
+                "%d/%m/%Y %H:%M:%S")
 
-    write_all_player_save(self)
+    self.write_all_player_save()
+
+    players = {key: self.save_data.save_profile["character"][self.profile_index[key]]["character"] for key, value in
+               self.player_char_select.items() if value}
 
     self.battle.decision_select.selected = None  # reset decision here instead of in battle method
     self.battle.city_mode = False  # reset battle city mode so char interface not allow switching other modes when quit
@@ -116,6 +121,8 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
             self.start_battle(str(int(chapter + 1)), "1", "0", players=players, scene="throne")
         else:
             self.start_battle(chapter, mission, "0", players=players, scene="throne")
+    elif next_battle == "training":
+        self.start_battle(chapter, mission, "training", players=players)
     elif type(next_battle) is str:  # city stage go to specific scene
         self.start_battle(chapter, mission, "0", players=players, scene=next_battle)
     elif next_battle is not False:  # start specific mission
@@ -148,8 +155,4 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
     # print(gc.get_referrers(self.unit_animation_pool))
 
 
-def write_all_player_save(self):
-    for player, slot in self.profile_index.items():  # save data for all active player before start next mission
-        if self.player_char_selectors[player].mode != "empty":
-            self.save_data.make_save_file(path_join(self.main_dir, "save", str(slot) + ".dat"),
-                                          self.battle.all_story_profiles[player])
+

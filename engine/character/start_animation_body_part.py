@@ -12,7 +12,7 @@ def start_animation_body_part(self, new_animation=False):
                                      self.base_pos[1] + (part_data[3]))
                         summon = AICharacter(-1, self.character_data.character_list[
                             self.current_moveset["Property"]["summon"]] |
-                                             {"ID": self.current_moveset["Property"]["summon"],
+                                                   {"ID": self.current_moveset["Property"]["summon"],
                                               "Sprite Ver": self.sprite_ver,
                                               "Team": self.team, "Start Health": 100, "POS": start_pos,
                                               "Arrive Condition": ()}, leader=self)
@@ -20,13 +20,11 @@ def start_animation_body_part(self, new_animation=False):
                         summon.sprite_direction = self.sprite_direction
 
                     elif "trap" in self.effect_list[part_data[0]]["Property"]:
-                        TrapEffect(self, part_data, part_data[6], self.current_moveset,
-                                   reach_effect=self.effect_list[part_data[0]]["After Reach Effect"])
+                        TrapEffect(self, part_data, part_data[6], self.current_moveset)
                     else:
-                        DamageEffect(self, part_data, part_data[6], self.current_moveset,
-                                     reach_effect=self.effect_list[part_data[0]]["After Reach Effect"])
+                        DamageEffect(self, part_data, part_data[6], self.current_moveset)
                 else:
-                    Effect(self, part_data, part_data[6])
+                    Effect(self, part_data, part_data[6], self.current_moveset)
             else:
                 if key in self.body_parts:
                     # only change part if data not same as previous one

@@ -1,37 +1,51 @@
-"Name","Duration","Travel Speed","Status","Enemy Status","Special Effect","Damage Sprite Effect","Reach Effect","After Reach Effect","Sound Effect","Sound Distance","Property"
-"Movement",,,,,,,,,,,
-"Sound Burst Medium",,,,,,,,,,,
-"Blood Pull",,,,,,,,,,,
-"Rodhinbar Arrow",,1200,,,,,"stick",,,1000,
-"Arrow",,1000,,,,,"stick",,,1000,
-"Bolt",,1000,,,,,"stick",,,1000,
-"Nayedien Spear",,3500,,,,,"stick",,,2000,
-"Fast Stone",,1000,,,,,"bounce",,,1000,
-"Stone",,600,,,,,"bounce",,,1000,
-"Toxic Beard",,700,,,,,"stick",,,500,
-"Small Fire",6,,,,,,,,,600,"no effect collision"
-"Small Persist Fire",15,,,24,,,,,,600,"no effect collision"
-"Medium Persist Fire",15,,,24,,,,,,800,"no effect collision"
-"Small Air Burst",,3000,,,,,,,,,
-"Large Air Burst",,4000,,,,,,,,,
-"Light",,,,,,,,,,,
-"Cold Air",3,,,42,,,,,,,
-"Ice Branch",,,,,,,,,,,
-"Earth Spike",,,,,,,,,,,
-"Snare Bite.1",,,,1,,,,,,,
-"Snare Bite.2",,,,"1,6",,,,,,,
-"Snare Bite.3",,,,"1,6,33",,,,,,,
-"Stink Cloud.1",3,,,5,,,,,,,"no effect collision"
-"Stink Cloud.2",3,,,"5,13",,,,,,,"no effect collision"
-"Stink Cloud.3",3,,,"5,7",,,,,,,
-"Poison Cloud.1",3,,,18,,,,,,,"no effect collision"
-"Poison Cloud.2",3,,,"18,27",,,,,,,"no effect collision"
-"Firetrap.1",10,,,,,,,"Small Fire",,,"trap,drop:Trap Remain,reach spawn ground"
-"Firetrap.2",10,,,,,,,"Small Persist Fire",,,"trap,drop:Trap Remain,reach spawn ground"
-"Snaretrap.1",10,,,,,,,"Snare Bite.1",,,"trap,drop:Scrap,reach spawn ground"
-"Snaretrap.2",10,,,,,,,"Snare Bite.2",,,"trap,drop:Scrap,reach spawn ground"
-"Snaretrap.3",10,,,,,,,"Snare Bite.3",,,"trap,drop:Scrap,reach spawn ground"
-"Stinktrap.1",10,,,,,,,"Stink Cloud.1",,,"trap,drop:Scrap,reach spawn ground"
-"Stinktrap.2",10,,,,,,,"Stink Cloud.2",,,"trap,drop:Scrap,reach spawn ground"
-"Poisontrap.1",10,,,,,,,"Poison Cloud.1",,,"trap,drop:Trap Remain,reach spawn ground"
-"Poisontrap.2",10,,,,,,,"Poison Cloud.2",,,"trap,drop:Trap Remain,reach spawn ground"
+"Name","Duration","Travel Speed","Status","Enemy Status","Special Effect","Damage Sprite Effect","Reach Effect","After Reach Effect","Sound Effect","Sound Distance","Shake Value","Property"
+"Movement",,,,,,,,,,,,
+"Sound Burst Medium",,,,,,,,,,,,
+"Blood Pull",,,,,,,,,,,,
+"Rodhinbar Arrow",,1200,,,,,"stick",,"Arrow",1000,,
+"Arrow",,1000,,,,,"stick",,"Arrow",1000,,
+"Bolt",,1000,,,,,"stick",,"Bolt",1000,,
+"Nayedien Spear",,3500,,,,,"stick",,"Javelin",2000,,
+"Fast Stone",,1000,,,,,"bounce",,"Stone",1000,,
+"Stone",,600,,,,,"bounce",,"Stone",1000,,
+"Toxic Beard",,700,,,,,"stick",,"Arrow",500,,
+"Small Fire",6,,,,,,,,,600,,"no effect collision"
+"Small Persist Fire",15,,,24,,,,,,600,,"no effect collision"
+"Medium Persist Fire",15,,,24,,,,,,800,,"no effect collision"
+"Small Air Burst",,3000,,,,,,,,,2,
+"Large Air Burst",,4000,,,,,,,,,5,
+"Light",,,,7,,,,,,,,"no effect collision"
+"Cold Air",3,,,42,,,,,,,,
+"Ice Branch",,,,,,,,,,,,
+"Earth Spike",,,,,,,,,,,,
+"Snare Bite.1",,,,1,,,,,,,,
+"Snare Bite.2",,,,"1,6",,,,,,,,
+"Snare Bite.3",,,,"1,6,33",,,,,,,,
+"Stink Cloud.1",3,,,5,,,,,,,,"no effect collision"
+"Stink Cloud.2",3,,,"5,13",,,,,,,,"no effect collision"
+"Stink Cloud.3",3,,,"5,7",,,,,,,,
+"Poison Cloud.1",3,,,18,,,,,,,,"no effect collision"
+"Poison Cloud.2",3,,,"18,27",,,,,,,,"no effect collision"
+"Firetrap.1",10,,,,,,,"Small Fire","Glass Trap",1000,,"trap,drop:Trap Remain,reach spawn ground"
+"Firetrap.2",10,,,,,,,"Small Persist Fire","Glass Trap",1000,,"trap,drop:Trap Remain,reach spawn ground"
+"Snaretrap.1",10,,,,,,,"Snare Bite.1","Snare Trap",1000,,"trap,drop:Scrap,reach spawn ground"
+"Snaretrap.2",10,,,,,,,"Snare Bite.2","Snare Trap",1000,,"trap,drop:Scrap,reach spawn ground"
+"Snaretrap.3",10,,,,,,,"Snare Bite.3","Snare Trap",1000,,"trap,drop:Scrap,reach spawn ground"
+"Stinktrap.1",10,,,,,,,"Stink Cloud.1","Smoke Puff",1000,,"trap,drop:Scrap,reach spawn ground"
+"Stinktrap.2",10,,,,,,,"Stink Cloud.2","Smoke Puff",1000,,"trap,drop:Scrap,reach spawn ground"
+"Poisontrap.1",10,,,,,,,"Poison Cloud.1","Glass Trap",1000,,"trap,drop:Trap Remain,reach spawn ground"
+"Poisontrap.2",10,,,,,,,"Poison Cloud.2","Glass Trap",1000,,"trap,drop:Trap Remain,reach spawn ground"
+"Sand",,600,,36,,,,,,,,
+"Shock Stone",,500,,22,,,"bounce",,,,,
+"Firework",,500,,,,,,"Firework Explosion",,,,
+"Acid Bomb",,500,,,,,,,,,,
+"Frost Bomb",,500,,,,,,"Frost Explosion",,,,
+"Flashbang",,500,,,,,,"Light",,,,
+"Caltrops",10,,,,,,,,,,,
+"Bladed Spinner",,1000,,32,,,"stick",,,,,
+"Shrapnel Bomb",,500,,,,,,"Shrapnel",,,,
+"Small Bomb",,500,,,,,,"Small Explosion",,,,
+"Firework Explosion",,,,"20,49",,,,,"Firework Explosion",5000,80,
+"Shrapnel",,,,,,,,,"Shrapnel",3000,60,
+"Small Explosion",,,,,,,,,"Explosion",4000,80,
+"Frost Explosion",,,,,,,,,"Frost Explosion",2500,50,

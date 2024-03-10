@@ -1,4 +1,5 @@
 "ID","Text ID","Object","Animation","Type","Trigger","Property"
+"music/scene1",,"tavern",,"music","camera_reach_scene,1",
 "Vraesier/Nayedien/1_1_city_tavern_talk1","Vraesier/Nayedien/1_1_city_tavern_talk1.1",,"Talk","char","interact,1",
 ,"Vraesier/Nayedien/1_1_city_tavern_talk1.2",,"Talk",,,
 ,"Vraesier/Nayedien/1_1_city_tavern_talk1.3",,"Idle",,,

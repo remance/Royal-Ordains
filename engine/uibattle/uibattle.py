@@ -1,4 +1,5 @@
 import cProfile
+from datetime import datetime
 from math import cos, sin, radians
 
 import pygame.transform
@@ -7,7 +8,8 @@ from pygame.font import Font
 from pygame.transform import smoothscale
 
 from engine.uimenu.uimenu import UIMenu
-from engine.utils.text_making import number_to_minus_or_plus, text_render_with_bg, minimise_number_text
+from engine.utils.text_making import number_to_minus_or_plus, text_render_with_bg, text_render_with_texture, \
+    minimise_number_text
 
 team_colour = {1: Color("black"), 2: Color("red"), 3: Color("blue"), 4: Color("darkgoldenrod1"),
                "health": Color("seagreen4"), "resource": Color("slateblue1"), "revive": Color("purple")}
@@ -106,6 +108,45 @@ class BattleCursor(UIBattle):
             self.rect.topleft = self.pos
 
 
+class ScreenFade(UIBattle):
+    def __init__(self):
+        self._layer = 99
+        UIBattle.__init__(self)
+        self.font = Font(self.ui_font["manuscript_font"], int(100 * self.screen_scale[1]))
+        self.text = None
+        self.rect = self.battle.screen.get_rect()
+        self.image = pygame.Surface(self.rect.size, SRCALPHA)
+        self.alpha = 0
+        self.fade_direction = 1000
+
+    def reset(self, direction: (-1, 1), text=None):
+        """
+        Reset value for new fading
+        @param direction: must be either -1 or 1
+        @param text: new text
+        """
+        self.alpha = 1  # fade in
+        if direction == -1:  # fade out
+            self.alpha = 254
+        self.fade_direction = direction * 1000
+        self.image = pygame.Surface(self.rect.size, SRCALPHA)
+        self.text = text
+
+    def update(self):
+        if 0 < self.alpha < 255:  # keep fading
+            self.alpha += self.fade_direction * self.battle.true_dt
+            if self.alpha > 255:
+                self.alpha = 255
+            elif self.alpha < 0:
+                self.alpha = 0
+            self.image.fill((20, 20, 20, self.alpha))
+        elif self.alpha == 255 and self.text:  # add text when finish fading if any
+            text_surface = text_render_with_texture(self.text, self.font, self.font_texture["gold"])
+            text_rect = text_surface.get_rect(center=self.image.get_rect().center)
+            self.image.blit(text_surface, text_rect)
+            self.text = None  # remove text after finish blit
+
+
 class PlayerPortrait(UIBattle):
     def __init__(self, health_bar_image, resource_bar_image, guard_bar_image, pos):
         self._layer = 9
@@ -146,7 +187,7 @@ class PlayerPortrait(UIBattle):
 
     def add_char_portrait(self, who):
         self.image = self.base_image.copy()
-        portrait = self.battle.character_data.character_portraits[who.sprite_id + who.sprite_ver]
+        portrait = self.battle.character_data.character_portraits[who.char_id + who.sprite_ver]
         portrait_rect = portrait.get_rect(topleft=(0, 0))
         self.image.blit(portrait, portrait_rect)
         self.reset_value()
@@ -166,7 +207,7 @@ class PlayerPortrait(UIBattle):
             bar.fill((0, 0, 0))
             self.health_bar_image.blit(bar, (self.bar_size[0] - bar.get_width(), 0))
             value_text = self.font.render(str(int(self.last_health_value)) + " / " + str(who.base_health), True,
-                                          (255, 255, 255))
+                                          (220, 220, 220))
             self.health_bar_image.blit(value_text, self.health_text_rect)
             self.image.blit(self.health_bar_image, self.health_bar_rect)
 
@@ -178,7 +219,7 @@ class PlayerPortrait(UIBattle):
             bar.fill((0, 0, 0))
             self.resource_bar_image.blit(bar, (self.bar_size[0] - bar.get_width(), 0))
             value_text = self.font.render(str(int(self.last_resource_value)) + " / " + str(who.base_resource), True,
-                                          (255, 255, 255))
+                                          (220, 220, 220))
             self.resource_bar_image.blit(value_text, self.resource_text_rect)
             self.image.blit(self.resource_bar_image, self.resource_bar_rect)
 
@@ -190,9 +231,52 @@ class PlayerPortrait(UIBattle):
             bar.fill((0, 0, 0))
             self.guard_bar_image.blit(bar, (self.bar_size[0] - bar.get_width(), 0))
             value_text = self.font.render(str(int(self.last_guard_value)) + " / " + str(who.max_guard), True,
-                                          (255, 255, 255))
+                                          (220, 220, 220))
             self.guard_bar_image.blit(value_text, self.guard_text_rect)
             self.image.blit(self.guard_bar_image, self.guard_bar_rect)
+
+
+class TrainingHelper(UIBattle):
+    def __init__(self, images, player, pos):
+        self._layer = 9
+        UIBattle.__init__(self, player_interact=False)
+        self.images = images
+        self.player = player
+        self.image = Surface((320 * self.screen_scale[0], 500 * self.screen_scale[1]), SRCALPHA)
+        self.font = Font(self.ui_font["main_button"], int(22 * self.screen_scale[1]))
+        self.base_image = self.image.copy()
+        self.pos = pos
+        self.rect = self.image.get_rect(topleft=self.pos)
+        self.combo_input = []
+        self.old_combo_input = []
+
+    def update(self):
+        if self.combo_input:
+            self.combo_input = [[item[0], item[1] - self.battle.dt, item[2]] for
+                                item in self.combo_input if item[1] - self.battle.dt > 0]
+            if len(self.combo_input) > 5:
+                self.combo_input = self.combo_input[-5:]
+        if self.old_combo_input != self.combo_input:
+            self.old_combo_input = self.combo_input.copy()
+            self.image = self.base_image.copy()
+            for index, item in enumerate(self.combo_input):
+                button_surface = Surface((320 * self.screen_scale[0], 100 * self.screen_scale[1]), SRCALPHA)
+                if item[2]:
+                    button_surface.fill((70, 70, 70, 200))
+                else:
+                    button_surface.fill((200, 200, 200, 200))
+                for index2, button in enumerate(item[0]["Buttons"]):
+                    if index2 != 0:
+                        button_surface.blit(self.images["button_" + button.lower()],
+                                            self.images["button_" + button.lower()].get_rect(topleft=((index2 * 50 * self.screen_scale[0], 0))))
+                    else:
+                        button_surface.blit(self.images["button_" + button.lower()],
+                                            self.images["button_" + button.lower()].get_rect(topleft=(0, 0)))
+                text_surface = text_render_with_bg("(" + item[0]["Position"] + ") " + item[0]["Name"], self.font)
+                text_rect = text_surface.get_rect(topleft=(0, 50 * self.screen_scale[1]))
+                button_surface.blit(text_surface, text_rect)
+                self.image.blit(button_surface, button_surface.get_rect(topleft=(0,
+                                                                                 (index * 100) * self.screen_scale[1])))
 
 
 class FPSCount(UIBattle):
@@ -311,7 +395,7 @@ class CharacterIndicator(UIBattle):
                                              Font(self.ui_font["manuscript_font"], int(42 * self.screen_scale[1])),
                                              gf_colour=team_colour[self.character.team], o_colour=Color("white"))
         else:
-            text = "C" + str(character.team)
+            text = "F" + str(character.leader.game_id)
 
             self.image = text_render_with_bg(text,
                                              Font(self.ui_font["manuscript_font"], int(32 * self.screen_scale[1])),
@@ -407,8 +491,8 @@ class ScoreBoard(UIBattle):
     def update(self):
         """Add score and gold to scoreboard image"""
         score_text = self.font.render(minimise_number_text(self.battle.stage_score) + "/" +
-                                      str(self.battle.reserve_resurrect_stage_score), True, (0, 0, 0))
-        gold_text = self.font.render(minimise_number_text(self.battle.stage_gold), True, (0, 0, 0))
+                                      str(self.battle.reserve_resurrect_stage_score), True, (20, 20, 20))
+        gold_text = self.font.render(minimise_number_text(self.battle.stage_gold), True, (20, 20, 20))
 
         if self.body_part.owner.angle == 90:
             score_rect = score_text.get_rect(center=(self.body_part.base_image.get_width() / 3,
@@ -441,6 +525,8 @@ class CityMap(UIBattle):
 
         self.stage_select_rect = {"herbalist": self.images["herbalist"].get_rect(
             center=(252 * self.screen_scale[0], 691 * self.screen_scale[1])),
+            "training": self.images["training"].get_rect(
+                center=(330 * self.screen_scale[0], 285 * self.screen_scale[1])),
             "barrack": self.images["barrack"].get_rect(
                 center=(428 * self.screen_scale[0], 394 * self.screen_scale[1])),
             "blacksmith": self.images["blacksmith"].get_rect(
@@ -570,7 +656,7 @@ class CharacterSpeechBox(UIBattle):
         self.body = self.images["speech_body"]
         self.left_corner = self.images["speech_start"]
         self.right_corner = self.images["speech_end"]
-        self.font_size = int(34 * self.screen_scale[1])
+        self.font_size = int(30 * self.screen_scale[1])
 
         self.left_corner_rect = self.left_corner.get_rect(topleft=(0, 0))  # The starting point
 
@@ -596,6 +682,13 @@ class CharacterSpeechBox(UIBattle):
             self.timer = 3
             if len(text) > 20:
                 self.timer += int(len(text) / 20)
+        for profile in self.battle.all_story_profiles.values():  # add speech text to dialogue log for all save
+            if profile:
+                profile["dialogue log"].append("(" + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + ")" +
+                                                " ch." + self.battle.chapter + "." + self.battle.mission + "." +
+                                                self.battle.stage + " " + self.character.show_name + ": " + text)
+                if len(profile["dialogue log"]) > 200:
+                    profile["dialogue log"] = profile["dialogue log"][1:]
 
     def update(self, dt):
         """Play unfold animation and blit drama text at the end"""
@@ -681,8 +774,7 @@ class DamageNumber(UIBattle):
 
 
 class WheelUI(UIBattle):
-    from engine.character.character import PlayerCharacter
-    command_list = PlayerCharacter.command_list
+    command_list = {"Down": "Attack", "Left": "Free", "Up": "Follow", "Right": "Stay"}  # same as in PlayerCharacter
     item_sprite_pool = None
     choice_list_key = {"Down": 1, "Left": 2, "Up": 3, "Right": 4}
     choice_key = tuple(choice_list_key.keys())
@@ -734,13 +826,21 @@ class WheelUI(UIBattle):
                 self.image.blit(self.wheel_image_with_stuff[index], rect)
             if self.choice_list[index]:
                 text_image = self.wheel_text_image.copy()  # blit text again to avoid wheel overlap old text
-                if self.choice_list == self.command_list:
+                if self.choice_list[index] in self.command_list.values():   # command
                     text_surface = self.small_font.render(self.localisation.grab_text(("ui", self.choice_list[index])),
                                                           True,
-                                                          (0, 0, 0))
+                                                          (20, 20, 20))
                 else:
+                    text_surface = text_render_with_bg(
+                        str(self.battle.player_objects[self.player].item_usage[self.choice_list[index]]),
+                        self.font)  # add item number
+                    self.wheel_image_with_stuff[index].blit(text_surface,
+                                                            text_surface.get_rect(topright=rect.topright))
+                    self.wheel_selected_image_with_stuff[index].blit(text_surface,
+                                                                     text_surface.get_rect(topright=rect.topright))
+
                     text_surface = self.small_font.render(self.localisation.grab_text(("item", self.choice_list[index],
-                                                                                       "Name")), True, (0, 0, 0))
+                                                                                       "Name")), True, (20, 20, 20))
 
                 text_image.blit(text_surface, text_surface.get_rect(center=(text_image.get_width() / 2,
                                                                             text_image.get_height() / 2)))
@@ -771,10 +871,10 @@ class WheelUI(UIBattle):
                                                                      text_surface.get_rect(topright=rect.topright))
 
                     text_surface = self.small_font.render(self.localisation.grab_text(("item", value, "Name")), True,
-                                                          (0, 0, 0))
+                                                          (20, 20, 20))
                 else:
                     text_surface = self.small_font.render(self.localisation.grab_text(("ui", value)), True,
-                                                          (0, 0, 0))
+                                                          (20, 20, 20))
 
                 if self.selected == self.choice_key[index]:
                     self.image.blit(self.wheel_selected_image_with_stuff[index], self.wheel_rect[index])
@@ -797,7 +897,7 @@ class EscButton(UIBattle):
         self.font = Font(self.ui_font["main_button"], text_size)
 
         if text != "":  # blit menu text into button image
-            text_surface = self.font.render(self.text, True, (0, 0, 0))
+            text_surface = self.font.render(self.text, True, (20, 20, 20))
             text_rect = text_surface.get_rect(center=self.images[0].get_rect().center)
             self.images[0].blit(text_surface, text_rect)  # button idle image
             self.images[1].blit(text_surface, text_rect)  # button mouse over image

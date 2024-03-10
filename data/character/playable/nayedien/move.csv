@@ -1,10 +1,10 @@
 "Buttons","Move","Name","Position","Stat Requirement","Requirement Move","Prepare Animation","After Animation","AI Range","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
 "Strong","astrong","Burst Push","Air",,,,,200,,,25,70,100,,,,,"Physical",,,,"penetrate"
-"Weak","sweak1","Low Sweep Kick","Stand",,,,,80,,,10,2,,,,100,,"Physical",,,,
-"Weak","sweak2","Revert Middle Kick","Stand",,"sweak1",,,110,,,,3,50,,150,,,"Physical",,,,
-"Weak","sweak3","Moon Rise Kick","Stand",,"sweak2",,,130,,,,4,200,,50,,,"Physical",,,,
+"Weak","sweak1","Low Sweep Kick","Stand",,,,,150,,,10,2,,,,100,,"Physical",,,,
+"Weak","sweak2","Revert Middle Kick","Stand",,"sweak1",,,180,,,,3,50,,150,,,"Physical",,,,
+"Weak","sweak3","Moon Rise Kick","Stand",,"sweak2",,,200,,,,4,200,,50,,,"Physical",,,,
 "Weak","sweak4","Power Push","Stand","Strength:40,Dexterity:40","sweak3",,,300,450,,20,5,300,,,,0.05,"Physical",,,,
-"Weak","sweak5","Flurry Blows","Stand","Strength:60,Dexterity:50","sweak4",,,100,,,5,50,,,,350,,"Physical",,,,"multiple hits"
+"Weak","sweak5","Flurry Blows","Stand","Strength:60,Dexterity:50","sweak4",,,200,,,5,50,,,,350,,"Physical",,,,"multiple hits"
 "Weak","sweak6","Power Burst","Stand","Strength:70,Dexterity:60","sweak5",,,600,700,,60,200,250,,150,,0.25,"Physical",,,,"penetrate"
 "Weak","sweak7","Overload","Stand","Dexterity:70,Wisdom:50","sweak6",,,,,,-1000,,,,,,,"Physical",53,,,"penetrate"
 "Strong","sweak1strong","Wind Spear Lift","Stand",,"sweak1",,,250,,,42,125,,,350,,,"Air",,,,
@@ -39,7 +39,7 @@
 "Special","sweak6strongspecial","Stone Barrage","Stand",,"sweak6strong,sweak6strongfstrong,sweak6strongspecialstrongstrong",,,700,800,,300,43,100,,100,,0.2,"Earth",,,,
 "Strong","sweak1strongspecialstrong","Guiding Wind","Stand",,"sweak1strongspecial,sweak1strongstrong",,,,,,67,36,45,,,,,"Air",,,,"multiple hits"
 "Strong","sweak2strongspecialstrong","Fire Maker","Stand",,"sweak2strongspecial,sweak2strongstrong",,,,,,75,7,,,,,,"Fire",,,,"penetrate"
-"Strong","sweak3strongspecialstrong","Cold Breeze","Stand",,"sweak3strongspecial,sweak3strongstrong",,,,,,115,6,,,,45,,"Water",,42,,"penetrate"
+"Strong","sweak3strongspecialstrong","Clean Slash","Stand",,"sweak3strongspecial,sweak3strongstrong",,,300,,,115,95,80,,50,,0.5,"Water",,,,
 "Strong","sweak4strongspecialstrong","Light Push","Stand",,"sweak4strongspecial,sweak4strongstrong",,,,,,88,110,100,,100,,,"Physical",,,,
 "Strong","sweak5strongspecialstrong","Dark Blow","Stand",,"sweak5strongspecial,sweak5strongstrong",,,,,,169,215,50,,110,,,"Physical",,,,
 "Strong","sweak6strongspecialstrong","Earth Axe Overhead Slam","Stand",,"sweak6strongspecial,sweak6strongstrong",,,,,,324,400,,,,500,,"Earth",,,,

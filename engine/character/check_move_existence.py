@@ -62,3 +62,14 @@ def nayedien_check_move_existence(self):
                         self.continue_moveset = self.current_moveset["Next Move"]
                     return True
     return False
+
+
+def training_moveset_existence_check(self):
+    old_moveset = None
+    if self.continue_moveset and self.stoppable_frame:
+        old_moveset = self.current_moveset
+    found_move = self.battle_check_move_existence()
+    if self.player_control and found_move:
+        move = [self.current_moveset, 5, old_moveset]
+        self.battle.player_trainings[int(self.game_id[1])].combo_input.append(move)
+    return found_move

@@ -6,7 +6,7 @@ def apply_status(self, effect):
         self.status_effect[effect] = effect_stat  # add status effect
         # play status animation
         if effect_stat["Status Sprite"]:
-            StatusEffect(self, (effect_stat["Status Sprite"], effect_stat["Status Sprite"],
+            StatusEffect(self, (effect_stat["Status Sprite"], "Base",
                                 self.pos[0], self.pos[1], 0, 1, 0, 1), 0)
 
     if effect_stat["Debuff"]:

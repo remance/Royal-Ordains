@@ -30,7 +30,7 @@ def status_update(self):
             self.x_momentum = randint(-1000, 1000)
 
     for key in tuple(self.status_duration.keys()):  # loop seem to be faster than comprehension
-        self.status_duration[key] -= self.timer
+        self.status_duration[key] -= 0.1
         if self.status_duration[key] <= 0:
             self.status_duration.pop(key)
 
@@ -106,12 +106,12 @@ def status_update(self):
         self.walk_speed = 0
 
     if self.is_summon:  # summon reduce hp based on time
-        self.health -= self.timer
+        self.health -= 0.1
         if self.health < 0:
             self.health = 0
 
     # Cooldown
     for key in tuple(self.attack_cooldown.keys()):  # loop is faster than comprehension here
-        self.attack_cooldown[key] -= self.timer
+        self.attack_cooldown[key] -= 0.1
         if self.attack_cooldown[key] <= 0:  # remove cooldown if time reach 0
             self.attack_cooldown.pop(key)

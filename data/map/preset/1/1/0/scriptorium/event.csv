@@ -1,1 +1,2 @@
-"ID","Text ID","Object","Animation","Type","Property"
+"ID","Text ID","Object","Animation","Type","Trigger","Property"
+"music/scene1",,"scriptorium",,"music","camera_reach_scene,1",

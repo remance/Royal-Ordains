@@ -1,6 +1,7 @@
 import copy
 import os
 from datetime import datetime
+from os.path import join as path_join
 
 from engine.data.datasave import empty_character_save
 
@@ -37,12 +38,6 @@ def menu_char(self, esc_press):
                     all_ready = False  # some not ready
                     break
         if all_ready:
-            for player, data in self.player_char_select.items():
-                if data:  # add character data to save profile data
-                    slot = self.profile_index[player]
-                    self.save_data.save_profile["character"][slot]["last save"] = dt_string
-                    self.save_data.make_save_file(os.path.join(self.main_dir, "save", str(slot) + ".dat"),
-                                                  self.save_data.save_profile["character"][slot])
             main_story_player = 1  # find which player has the lowest progress to use as main
             last_check_progress = inf
             self.battle.all_story_profiles = {1: None, 2: None, 3: None, 4: None}
@@ -61,15 +56,22 @@ def menu_char(self, esc_press):
             self.battle.main_story_profile = self.save_data.save_profile["character"][
                 self.profile_index[main_story_player]]
             self.battle.main_player = main_story_player
+            players = {key: self.save_data.save_profile["character"][self.profile_index[key]]["character"] for key, value in
+                              self.player_char_select.items() if value}
             #
-            # self.start_battle(1, 1, 3, players={key: value for key, value in
-            #                                         self.player_char_select.items() if value})
+            # self.start_battle("1", "1", "3",
+            #                   players=players for key, value in
+            #                            self.player_char_select.items() if value})
             # start in throne room of current chapter and mission of the lowest progress player
             self.start_battle(
                 self.save_data.save_profile["character"][self.profile_index[main_story_player]]["chapter"],
                 self.save_data.save_profile["character"][self.profile_index[main_story_player]]["mission"],
-                "0", players={key: value for key, value in
-                            self.player_char_select.items() if value}, scene="throne")
+                "0", players=players, scene="throne")
+            # self.start_battle(
+            #     self.save_data.save_profile["character"][self.profile_index[main_story_player]]["chapter"],
+            #     self.save_data.save_profile["character"][self.profile_index[main_story_player]]["mission"],
+            #     "training", players={key: players for key, value in
+            #                             self.player_char_select.items() if value})
 
     else:
         for key_list in (self.player_key_press, self.player_key_hold):  # check key holding for stat mode as well
@@ -196,7 +198,7 @@ def menu_char(self, esc_press):
                                 self.add_ui_updater(self.player_char_interfaces[player])
                                 self.player_char_interfaces[player].add_profile(save_profile)
                             else:  # start character selection for empty profile slot
-                                selector.change_mode("Vraesier")
+                                selector.change_mode(tuple(playable_character.keys())[0])
 
                         elif selector.mode not in ("stat", "ready", "readymain"):  # go to stat allocation
                             if "1" in selector.mode:  # currently in description mode, go to normal first
@@ -237,7 +239,10 @@ def menu_char(self, esc_press):
                                 self.save_data.save_profile["character"][slot] = copy.deepcopy(empty_character_save)
                             self.save_data.save_profile["character"][slot]["character"] = self.player_char_select[
                                 player]
-
+                            # save when press ready
+                            self.save_data.save_profile["character"][slot]["last save"] = dt_string
+                            self.save_data.make_save_file(path_join(self.main_dir, "save", str(slot) + ".dat"),
+                                                          self.save_data.save_profile["character"][slot])
                             selector.change_mode("ready", delay=False)
                             self.remove_ui_updater(self.player_char_interfaces[player].text_popup)
                             main_story_player = 1
@@ -306,7 +311,7 @@ def menu_char(self, esc_press):
                                 for player2 in self.profile_page:
                                     self.update_profile_slots(player2)
                             else:  # go back to select char, for new profile
-                                selector.change_mode("Vraesier")
+                                selector.change_mode(tuple(playable_character.keys())[0])
                         else:
                             selector.change_mode("profile")
                             self.add_ui_updater([item for item in self.char_profile_boxes[player].values()],

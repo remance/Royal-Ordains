@@ -35,25 +35,17 @@ def helper_ai(self):
         self.command_pos = Vector2(self.battle.camera_pos[0], 140 * self.screen_scale[1])
         # print(self.battle.camera_pos, self.base_pos, self.ai_movement_timer)
 
-    if self.pos.distance_to(self.command_pos) > 50:
-        if self.pos.distance_to(self.command_pos) > 50:
-            if abs(self.pos[0] - self.command_pos[0]) > 40:
-                self.x_momentum = self.command_pos[0] - self.pos[0]
-            if abs(self.pos[1] - self.command_pos[1]) > 40:
-                self.y_momentum = self.pos[1] - self.command_pos[1]
-
-            if not self.current_action and not self.command_action:
-                if self.pos.distance_to(self.command_pos) > 300:
-                    self.command_action = self.run_command_action | {"x_momentum": True}
-                else:
-                    self.command_action = self.walk_command_action | {"x_momentum": True}
-        else:
-            self.base_pos = self.command_pos.copy()
-            self.pos = Vector2((self.base_pos[0] * self.screen_scale[0],
-                                self.base_pos[1] * self.screen_scale[1]))
-
-            for part in self.body_parts.values():
-                part.re_rect()
+    new_distance = self.pos.distance_to(self.command_pos)
+    if new_distance > 50:
+        if abs(self.pos[0] - self.command_pos[0]) > 40:
+            self.x_momentum = self.command_pos[0] - self.pos[0]
+        if abs(self.pos[1] - self.command_pos[1]) > 40:
+            self.y_momentum = self.pos[1] - self.command_pos[1]
+        if not self.current_action and not self.command_action:
+            if new_distance > 300:
+                self.command_action = self.run_command_action | {"x_momentum": True}
+            else:
+                self.command_action = self.walk_command_action
     else:
         self.x_momentum = 0
         self.y_momentum = 0

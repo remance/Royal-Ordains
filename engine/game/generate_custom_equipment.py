@@ -14,7 +14,7 @@ def generate_custom_equipment(self, equip_type, rarity):
             new_mod = choices(tuple(mod_list.keys()), [value["Appear Chance"] for value in mod_list.values()])[0]
         modifier[new_mod] = True
         if True not in mod_list[new_mod][rarity]:
-            modifier[new_mod] = uniform(mod_list[new_mod][rarity][0], mod_list[new_mod][rarity][1])
+            modifier[new_mod] = round(uniform(mod_list[new_mod][rarity][0], mod_list[new_mod][rarity][1]), 2)
     pick_suffix = tuple(modifier.keys())[choice(range(rarity_mod_number[rarity]))]
     pick_prefix = randint(0, 9)
     return {"Name": (pick_prefix, pick_suffix), "Rarity": rarity, "Modifier": modifier, "Weight": weight,

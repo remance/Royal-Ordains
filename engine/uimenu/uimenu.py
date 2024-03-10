@@ -635,8 +635,8 @@ class CharacterProfileBox(UIMenu):
 
     def __init__(self, pos):
         UIMenu.__init__(self, player_interact=False)
-        self.font = Font(self.ui_font["main_button"], int(28 * self.screen_scale[1]))
-        self.small_font = Font(self.ui_font["main_button"], int(24 * self.screen_scale[1]))
+        self.font = Font(self.ui_font["main_button"], int(26 * self.screen_scale[1]))
+        self.small_font = Font(self.ui_font["main_button"], int(22 * self.screen_scale[1]))
         self.selected_box = Surface(self.image.get_size(), SRCALPHA)
         self.selected_box.fill((200, 200, 200))
         self.taken_box = Surface(self.image.get_size(), SRCALPHA)
@@ -691,18 +691,6 @@ class CharacterProfileBox(UIMenu):
             text_rect = text.get_rect(topleft=(15 * self.screen_scale[0], 100 * self.screen_scale[1]))
             self.image.blit(text, text_rect)
 
-            text = self.small_font.render(self.localisation.grab_text(("ui", "Total Kills(Boss)")) + ": " +
-                                          minimise_number_text(str(int(data["total kills"]))) + "(" +
-                                          minimise_number_text(str(int(data["boss kills"]))) + ")", True, (30, 30, 30))
-            text_rect = text.get_rect(topleft=(15 * self.screen_scale[0], 125 * self.screen_scale[1]))
-            self.image.blit(text, text_rect)
-
-            text = self.small_font.render(self.localisation.grab_text(("ui", "Golds/Scores")) +
-                                          ": " + minimise_number_text(str(int(data["total golds"]))) + "/" +
-                                          minimise_number_text(str(int(data["total scores"]))), True, (30, 30, 30))
-            text_rect = text.get_rect(topleft=(15 * self.screen_scale[0], 150 * self.screen_scale[1]))
-            self.image.blit(text, text_rect)
-
             # add char stat
             text = self.small_font.render(self.localisation.grab_text(("ui", "Stat")) +
                                           ": " + str(int(data["character"]["Strength"])) + "/" +
@@ -712,6 +700,18 @@ class CharacterProfileBox(UIMenu):
                                           str(int(data["character"]["Intelligence"])) + "/" +
                                           str(int(data["character"]["Wisdom"])) + "/" +
                                           str(int(data["character"]["Charisma"])), True, (30, 30, 30))
+            text_rect = text.get_rect(topleft=(15 * self.screen_scale[0], 125 * self.screen_scale[1]))
+            self.image.blit(text, text_rect)
+
+            text = self.small_font.render(self.localisation.grab_text(("ui", "Total Kills(Boss)")) + ": " +
+                                          minimise_number_text(str(int(data["total kills"]))) + "(" +
+                                          minimise_number_text(str(int(data["boss kills"]))) + ")", True, (30, 30, 30))
+            text_rect = text.get_rect(topleft=(15 * self.screen_scale[0], 150 * self.screen_scale[1]))
+            self.image.blit(text, text_rect)
+
+            text = self.small_font.render(self.localisation.grab_text(("ui", "Golds/Scores")) +
+                                          ": " + minimise_number_text(str(int(data["total golds"]))) + "/" +
+                                          minimise_number_text(str(int(data["total scores"]))), True, (30, 30, 30))
             text_rect = text.get_rect(topleft=(15 * self.screen_scale[0], 175 * self.screen_scale[1]))
             self.image.blit(text, text_rect)
 
@@ -2704,16 +2704,12 @@ class TextPopup(UIMenu):
                         max_width = text_rect.width
                     max_height += self.font_size + int(self.font_size / 5)
 
-            self.image = Surface((max_width + 6, max_height + 6))  # black border
-            image = Surface((max_width + 2, max_height + 2))  # white Box
-            image.fill((220, 220, 220))
-            rect = self.image.get_rect(topleft=(2, 2))  # white box image position at (2,2) on black border image
-            self.image.blit(image, rect)
+            self.image = Surface((max_width, max_height))  # white Box
+            self.image.fill((220, 220, 220))
 
-            height = 1
+            height = 0
             for surface in text_surface:
-                text_rect = surface.get_rect(topleft=(4, height))
-                image.blit(surface, text_rect)
+                text_rect = surface.get_rect(topleft=(0, height))
                 self.image.blit(surface, text_rect)  # blit text
                 height += surface.get_height()
 
@@ -2833,7 +2829,10 @@ class ListUI(UIMenu, Containable):
 
     @staticmethod
     def get_scroll_box_height(scroll_bar_height, items, item_size):
-        return int(scroll_bar_height * (item_size / len(items)))
+        len_items = len(items)
+        if not len_items:
+            len_items = 1
+        return int(scroll_bar_height * (item_size / len_items))
 
     @staticmethod
     def get_has_scroll(items, item_size):
@@ -2849,6 +2848,8 @@ class ListUI(UIMenu, Containable):
 
     @staticmethod
     def get_scroll_box_size(scroll_bar_height, item_size, len_items):
+        if not len_items:
+            len_items = 1
         return (14, int(scroll_bar_height * (item_size / len_items)))
 
     @staticmethod
@@ -2938,9 +2939,9 @@ class ListUI(UIMenu, Containable):
         if scroll_box_rect:
             scroll_box = make_image_by_frame(cls.get_scroll_box_frame(), scroll_box_rect[2:])
 
-        font1 = Font(ui_font["main_button"], 20)
-        font2 = Font(ui_font["main_button"], 14)
-        font3 = Font(ui_font["main_button"], 18)
+        font1 = Font(ui_font["text_paragraph"], int(20 * Game.screen_scale[1]))
+        font2 = Font(ui_font["text_paragraph"], int(16 * Game.screen_scale[1]))
+        font3 = Font(ui_font["text_paragraph"], int(12 * Game.screen_scale[1]))
 
         assert type(scroll_box_index) == int, type(scroll_box_index)
         size = rect[2:]
@@ -2991,7 +2992,7 @@ class ListUI(UIMenu, Containable):
         if scroll_box_rect := scroll_box_rect:
             image.blit(scroll_box, scroll_box_rect)
             if in_scroll_box or hold_scroll_box is not None:
-                draw.rect(image, (1030, 30, 30) if hold_scroll_box is not None else (50,) * 3,
+                draw.rect(image, (130, 30, 30) if hold_scroll_box is not None else (50, 50, 50),
                           scroll_box_rect, 1)
 
         return image
@@ -3022,14 +3023,22 @@ class ListUI(UIMenu, Containable):
         self.in_scroll_box = False
         if self.rect.collidepoint(mouse_pos):
             self.mouse_over = True
-            if self.rect.collidepoint(mouse_pos):
-                in_list = True
+            in_list = True
             if scroll_bar_rect := self.get_scroll_bar_rect(has_scroll, self.rect, scroll_bar_height):
                 if scroll_bar_rect.collidepoint(relative_mouse_pos):
                     if self.get_scroll_box_rect(has_scroll, self.rect, self.scroll_down_index, scroll_step_height,
                                                 scroll_box_size).collidepoint(relative_mouse_pos):
                         self.in_scroll_box = True
                     in_list = False
+            if self.cursor.scroll_up:
+                self.scroll_down_index -= 1
+                if self.scroll_down_index < 0:
+                    self.scroll_down_index = 0
+            elif self.cursor.scroll_down:
+                self.scroll_down_index += 1
+                noiovl = self.get_number_of_items_outside_visible_list(self.items, self.visible_list_capacity)
+                if self.scroll_down_index > noiovl:
+                    self.scroll_down_index = noiovl
 
         # if the number of items changed a recalculation of the scroll bar is needed
         if self.last_length_check != len(self.items):

@@ -176,13 +176,13 @@ class AnimationData(GameData):
                             animation_list = {1.0: [{0: value, 1: flip(value, True, False),
                                                      2: flip(value, False, True),
                                                      3: flip(value, True, True)} for value in animation_list]}
-                        else:
+                        else:  # single frame effect
                             animation_list = {1.0: [{0: value, 1: flip(value, True, False),
                                                      2: flip(value, False, True),
                                                      3: flip(value, True, True)} for key, value in images.items() if
                                                     true_name == key]}
 
-                        if "effect" in part_size_scaling:
+                        if "effect" in part_size_scaling:  # effect with sprite scaling
                             if fcv(folder[-1]) in part_size_scaling["effect"]:
                                 if final_name in part_size_scaling["effect"][fcv(folder[-1])]:
                                     scale_list = part_size_scaling["effect"][fcv(folder[-1])][final_name]

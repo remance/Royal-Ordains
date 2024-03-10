@@ -5,15 +5,16 @@ from pathlib import Path
 from engine.data.datastat import GameData
 
 empty_character_save = {"chapter": "1", "mission": "1", "playtime": 0, "total scores": 0, "total kills": 0,
-                        "total golds": 0, "boss kills": 0, "total damages": 0, "last save": "Not Saved",
+                        "total golds": 500, "boss kills": 0, "total damages": 0, "last save": "Not Saved",
                         "character": {},
                         "equipment": {"head": None, "body": None, "arm": None, "leg": None,
                                       "weapon 1": None, "weapon 2": None, "accessory 1": None, "accessory 2": None,
                                       "accessory 3": None, "accessory 4": None,
-                                      "item": {"Down": None, "Left": None, "Up": None, "Right": None}},
-                        "storage": {}, "story event": {}, "story choice": {}, "selected follower preset": 0,
+                                      "item": {"Down": None, "Left": None, "Up": None, "Right": "Small Healing Kit"}},
+                        "storage": {"Small Healing Kit": 5}, "story event": {},
+                        "story choice": {}, "selected follower preset": 0,
                         "follower preset": {0: {}, 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {}, 8: {},
-                                      9: {}, 10: {}, 11: {}}, "follower list": [], "dialogue log": {},
+                                            9: {}, 10: {}, 11: {}}, "follower list": [], "dialogue log": [],
                         "save state": {"1.0": {}}}
 
 

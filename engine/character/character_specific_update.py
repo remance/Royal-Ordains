@@ -15,11 +15,13 @@ def common_update(self, *args):
 
 def vraesier_update(self, dt, *args):
     if self.mode == "Demon":
-        self.resource -= dt * 10
+        self.mode_timer += dt
+        self.resource -= self.mode_timer
         if self.resource <= 0:
             self.resource = 0
             if "uninterruptible" not in self.command_action:  # revert to normal
                 self.interrupt_animation = True
+                self.mode_timer = 0
                 self.command_action = self.deactivate_command_action
                 self.mode = "Normal"
     else:
