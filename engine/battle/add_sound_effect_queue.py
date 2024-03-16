@@ -8,11 +8,11 @@ def add_sound_effect_queue(self, sound_object, sound_pos, sound_distance_power, 
         if distance < 1:
             distance = 1
         if sound_pos[0] > self.camera_pos[0]:  # sound to the right of center camera
-            left_distance = distance + abs(sound_pos[0] - self.battle.camera_pos[0])
+            left_distance = distance + abs(sound_pos[0] - self.camera_pos[0])
             right_distance = distance
         elif sound_pos[0] < self.camera_pos[0]:  # sound to the left of center camera
             left_distance = distance
-            right_distance = distance + abs(sound_pos[0] - self.battle.camera_pos[0])
+            right_distance = distance + abs(sound_pos[0] - self.camera_pos[0])
         else:  # sound at the center camera
             left_distance = distance
             right_distance = distance

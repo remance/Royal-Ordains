@@ -37,5 +37,5 @@
 "Special","sspecial4","Demonic Gorging","Stand","Strength:50","sspecial3",,,350,,,2,122,250,,,,0.1,"Physical",,,,
 "Special","sspecial5","Demonic Rising Star","Stand","Strength:72","sspecial4",,,350,,,7,215,,,500,,0.1,"Physical",,,,
 "Special","aspecial","Demonic Lift","Air",,,,,350,,,4,250,,,600,,0.1,"Physical",,,,
-"Forward,Strong","fsstrong","Slash Dash","Stand",,,,,450,,,,45,50,,,,,"Physical",,,,"all_child_moveset,x_momentum:300,movable,forced move"
-"Backward,Strong","bsstrong","Retreating Slash","Stand",,,,,200,,,,45,50,,,,,"Physical",,,,"all_child_moveset,x_momentum:-300,movable,forced move"
+"Forward,Strong","fsstrong","Slash Dash","Stand",,,,,450,,,,45,50,,,,,"Physical",,,,"all child moveset,x_momentum:300,movable,forced move"
+"Backward,Strong","bsstrong","Retreating Slash","Stand",,,,,200,,,,45,50,,,,,"Physical",,,,"all child moveset,x_momentum:-300,movable,forced move"

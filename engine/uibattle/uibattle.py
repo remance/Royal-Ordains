@@ -14,16 +14,17 @@ from engine.utils.text_making import number_to_minus_or_plus, text_render_with_b
 team_colour = {1: Color("black"), 2: Color("red"), 3: Color("blue"), 4: Color("darkgoldenrod1"),
                "health": Color("seagreen4"), "resource": Color("slateblue1"), "revive": Color("purple")}
 
-chapter_font_name = {"simple": "simple_talk_font", "1": "ch1_talk_font", "2": "ch2_talk_font", "3": "ch3_talk_font"}
+chapter_font_name = {"simple": "simple_talk_font", "1": "ch1_talk_font", "2": "ch2_talk_font", "3": "ch3_talk_font",
+                     "4": "ch4_talk_font", "5": "ch5_talk_font", "6": "ch6_talk_font"}
 
 
 class UIBattle(UIMenu):
-    def __init__(self, player_interact=True, has_containers=False):
+    def __init__(self, player_cursor_interact=True, has_containers=False):
         """
         Parent class for all battle menu user interface
         """
         from engine.battle.battle import Battle
-        UIMenu.__init__(self, player_interact=player_interact, has_containers=has_containers)
+        UIMenu.__init__(self, player_cursor_interact=player_cursor_interact, has_containers=has_containers)
         self.updater = Battle.ui_updater  # change updater to use battle ui updater instead of main menu one
         self.battle = Battle.battle
         self.screen = Battle.screen
@@ -148,9 +149,10 @@ class ScreenFade(UIBattle):
 
 
 class PlayerPortrait(UIBattle):
-    def __init__(self, health_bar_image, resource_bar_image, guard_bar_image, pos):
+    def __init__(self, health_bar_image, resource_bar_image, guard_bar_image, player, pos):
         self._layer = 9
-        UIBattle.__init__(self, player_interact=False)
+        UIBattle.__init__(self, player_cursor_interact=False)
+        self.player = player
         self.image = Surface((320 * self.screen_scale[0], 120 * self.screen_scale[1]), SRCALPHA)
         self.rect = self.image.get_rect(midleft=pos)
 
@@ -190,6 +192,20 @@ class PlayerPortrait(UIBattle):
         portrait = self.battle.character_data.character_portraits[who.char_id + who.sprite_ver]
         portrait_rect = portrait.get_rect(topleft=(0, 0))
         self.image.blit(portrait, portrait_rect)
+        if self.battle.city_mode and self.player == self.battle.main_player:  # add helper text for main player
+            text_surface = self.font.render(self.localisation.grab_text(("ui", "press")) + " " +
+                                            self.game.player_key_bind_button_name[self.player]["Special"] +
+                                            self.localisation.grab_text(("ui", "open_map")), True, (30, 30, 30),
+                                            (220, 220, 220))
+            text_rect = text_surface.get_rect(topleft=(110 * self.screen_scale[0], 30 * self.screen_scale[1]))
+            self.image.blit(text_surface, text_rect)
+
+            text_surface = self.font.render(self.localisation.grab_text(("ui", "press")) + " " +
+                                            self.game.player_key_bind_button_name[self.player]["Guard"] +
+                                            self.localisation.grab_text(("ui", "open_mission")), True, (30, 30, 30),
+                                            (220, 220, 220))
+            text_rect = text_surface.get_rect(topleft=(110 * self.screen_scale[0], 60 * self.screen_scale[1]))
+            self.image.blit(text_surface, text_rect)
         self.reset_value()
 
     def reset_value(self):
@@ -239,7 +255,7 @@ class PlayerPortrait(UIBattle):
 class TrainingHelper(UIBattle):
     def __init__(self, images, player, pos):
         self._layer = 9
-        UIBattle.__init__(self, player_interact=False)
+        UIBattle.__init__(self, player_cursor_interact=False)
         self.images = images
         self.player = player
         self.image = Surface((320 * self.screen_scale[0], 500 * self.screen_scale[1]), SRCALPHA)
@@ -282,7 +298,7 @@ class TrainingHelper(UIBattle):
 class FPSCount(UIBattle):
     def __init__(self, parent):
         self._layer = 12
-        UIBattle.__init__(self, player_interact=False)
+        UIBattle.__init__(self, player_cursor_interact=False)
         self.image = Surface((80 * self.screen_scale[0], 40 * self.screen_scale[1]), SRCALPHA)
         self.base_image = self.image.copy()
         self.font = Font(self.ui_font["main_button"], int(30 * self.screen_scale[1]))
@@ -476,7 +492,7 @@ class UIScroll(UIBattle):
 
 class CharacterBaseInterface(UIBattle):
     def __init__(self, pos, image):
-        UIBattle.__init__(self, player_interact=False)
+        UIBattle.__init__(self, player_cursor_interact=False)
         self.pos = pos
         self.image = image
         self.rect = self.image.get_rect(center=self.pos)
@@ -484,7 +500,7 @@ class CharacterBaseInterface(UIBattle):
 
 class ScoreBoard(UIBattle):
     def __init__(self, body_part):
-        UIBattle.__init__(self, player_interact=False)
+        UIBattle.__init__(self, player_cursor_interact=False)
         self.body_part = body_part
         self.font = Font(self.ui_font["main_button"], int(20 * self.screen_scale[1]))
 
@@ -595,11 +611,89 @@ class CityMap(UIBattle):
             self.image = self.base_image
 
 
+class CityMission(UIBattle):
+    def __init__(self, images):
+        UIBattle.__init__(self)
+        self._layer = 1
+        self.selected_animation_timer = []
+        self.images = images
+        self.image = self.images["map"]
+        self.base_image = self.image.copy()
+
+        self.base_image2 = self.image.copy()
+        self.selected = None
+
+        self.rect = self.image.get_rect(topleft=(0, 0))
+
+        self.stage_select_rect = {"chapter1": self.images["chapter1"].get_rect(
+            center=(252 * self.screen_scale[0], 691 * self.screen_scale[1])),
+            "chapter2": self.images["chapter2"].get_rect(
+                center=(330 * self.screen_scale[0], 285 * self.screen_scale[1])),
+            "chapter3": self.images["chapter3"].get_rect(
+                center=(428 * self.screen_scale[0], 394 * self.screen_scale[1])),
+            "chapter4": self.images["chapter4"].get_rect(
+                center=(438 * self.screen_scale[0], 579 * self.screen_scale[1])),
+            "chapter5": self.images["chapter5"].get_rect(
+                center=(711 * self.screen_scale[0], 645 * self.screen_scale[1])),
+            "chapter6": self.images["chapter6"].get_rect(
+                center=(884 * self.screen_scale[0], 704 * self.screen_scale[1])),
+            "mission1": self.images["mission1"].get_rect(
+                center=(970 * self.screen_scale[0], 801 * self.screen_scale[1])),
+            "mission2": self.images["mission2"].get_rect(
+                center=(1022 * self.screen_scale[0], 497 * self.screen_scale[1])),
+            "mission3": self.images["mission3"].get_rect(
+                center=(1339 * self.screen_scale[0], 382 * self.screen_scale[1])),
+            "mission4": self.images["mission4"].get_rect(
+                center=(1377 * self.screen_scale[0], 629 * self.screen_scale[1])),
+            "mission5": self.images["mission5"].get_rect(
+                center=(1617 * self.screen_scale[0], 436 * self.screen_scale[1]))
+        }
+
+        for image, rect in self.stage_select_rect.items():
+            self.base_image.blit(self.images[image], rect)
+        self.image = self.base_image.copy()
+        self.selected_map = None
+
+    def update(self):
+        cursor_pos = (self.battle.cursor.pos[0] - self.rect.topleft[0],
+                      self.battle.cursor.pos[1] - self.rect.topleft[1])
+        found_select = False
+        self.selected_map = None
+        for image, rect in self.stage_select_rect.items():
+            if rect.collidepoint(cursor_pos):
+                found_select = True
+                self.image = self.base_image.copy()
+                if self.selected_animation_timer:  # already has previous hovering
+                    if self.selected_animation_timer[0] != image:  # different hovering
+                        self.selected_animation_timer = [image, 0]
+                else:
+                    self.selected_animation_timer = [image, 0]
+                self.selected_animation_timer[1] += self.battle.dt / 5
+                zoom_animation_timer = 1 + self.selected_animation_timer[1]
+                if self.selected_animation_timer[1] > 0.2:
+                    zoom_animation_timer = 1.2 - (self.selected_animation_timer[1] - 0.2)
+                    if self.selected_animation_timer[1] > 0.4:
+                        self.selected_animation_timer[1] = 0
+
+                new_image = smoothscale(self.images[image],
+                                        (self.images[image].get_width() * zoom_animation_timer,
+                                         self.images[image].get_height() * zoom_animation_timer))
+                self.image.blit(new_image, new_image.get_rect(center=rect.center))
+
+                if self.battle.player_key_press[self.battle.main_player]["Weak"]:
+                    self.selected_map = image
+                break
+
+        if not found_select:
+            self.selected_animation_timer = []
+            self.image = self.base_image
+
+
 class CharacterInteractPrompt(UIBattle):
     def __init__(self, image):
         """Weak button prompt that indicate player can talk to target"""
         self._layer = 9999999999999999999998
-        UIBattle.__init__(self, player_interact=False)
+        UIBattle.__init__(self, player_cursor_interact=False)
         self.character = None
         self.target = None
         self.target_pos = None
@@ -652,7 +746,7 @@ class CharacterSpeechBox(UIBattle):
     def __init__(self, character, text, specific_timer=None, player_input_indicator=False, cutscene_event=None):
         """Speech box that appear from character head"""
         self._layer = 9999999999999999998
-        UIBattle.__init__(self, player_interact=False, has_containers=True)
+        UIBattle.__init__(self, player_cursor_interact=False, has_containers=True)
         self.body = self.images["speech_body"]
         self.left_corner = self.images["speech_start"]
         self.right_corner = self.images["speech_end"]
@@ -910,7 +1004,7 @@ class EscButton(UIBattle):
 class Profiler(cProfile.Profile, UIBattle):
 
     def __init__(self):
-        UIBattle.__init__(self, player_interact=False)
+        UIBattle.__init__(self, player_cursor_interact=False)
         self.size = (1200, 600)
         self.image = Surface(self.size)
         self.rect = Rect((0, 0, *self.size))

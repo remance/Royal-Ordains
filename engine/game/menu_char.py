@@ -63,15 +63,14 @@ def menu_char(self, esc_press):
             #                   players=players for key, value in
             #                            self.player_char_select.items() if value})
             # start in throne room of current chapter and mission of the lowest progress player
-            self.start_battle(
-                self.save_data.save_profile["character"][self.profile_index[main_story_player]]["chapter"],
-                self.save_data.save_profile["character"][self.profile_index[main_story_player]]["mission"],
-                "0", players=players, scene="throne")
             # self.start_battle(
             #     self.save_data.save_profile["character"][self.profile_index[main_story_player]]["chapter"],
             #     self.save_data.save_profile["character"][self.profile_index[main_story_player]]["mission"],
-            #     "training", players={key: players for key, value in
-            #                             self.player_char_select.items() if value})
+            #     "0", players=players, scene="throne")
+            self.start_battle(
+                self.save_data.save_profile["character"][self.profile_index[main_story_player]]["chapter"],
+                self.save_data.save_profile["character"][self.profile_index[main_story_player]]["mission"],
+                "training", players=players)
 
     else:
         for key_list in (self.player_key_press, self.player_key_hold):  # check key holding for stat mode as well
@@ -205,10 +204,9 @@ def menu_char(self, esc_press):
                                 selector.mode = selector.mode[:-1]
                             start_stat = self.character_data.character_list[selector.mode]
                             skill_list = {}
-                            for skill in self.character_data.character_list[selector.mode]["Skill"].values():
-                                for key, value in skill.items():
-                                    if ".1" in key and "C" in key:  # starting character skill
-                                        skill_list[value["Name"]] = 0
+                            for key, value in self.character_data.character_list[selector.mode]["Skill UI"].items():
+                                if ".1" in key and "C" in key:  # starting character skill
+                                    skill_list[value["Name"]] = 0
                             start_stat = {key: value for key, value in start_stat.items() if
                                           key in self.player_char_interfaces[player].stat_row} | \
                                          {key: value for key, value in start_stat.items() if
@@ -269,7 +267,7 @@ def menu_char(self, esc_press):
                             self.player_char_interfaces[player].add_profile(
                                 self.save_data.save_profile["character"][slot])
 
-                    elif key_press == "Strong":  # cancel, go back to previous state
+                    elif key_press == "Strong" and not selector.delay:  # cancel, go back to previous state
                         if selector.mode in ("ready", "readymain"):
                             selector.change_mode("stat")
 

@@ -46,8 +46,9 @@
 "Crier","Town Crier",,,,,,,,,,,,,,,,,,,,,,,,,,,"idle",
 "Severn","Severn Turneose",,,,,,,,,,,,,,,,,,,,,,,,,,,,
 "Merlaros","Merlaros Vorehmus",,,,,,,,,,,,,,,,,,,,,,,,,,,,
-"Mannequin","Mannequin",10000000000,,,0,0,0,100,0,0,0,0.1,0.1,0.1,0.1,0.1,0.1,0.1,,,,10,1,,,,,"training","no_forced_move"
-"Mannequin1","Tall Mannequin",10000000000,,,0,0,0,100,0,0,0,0.1,0.1,0.1,0.1,0.1,0.1,0.1,,,,10,1,,,,,"training","no_forced_move"
+"Mannequin","Mannequin",10000000000,,,0,0,0,100,0,0,0,0,0,0,0,0,0,0,,,,10,1,,,,,"training","no_forced_move"
+"Mannequin1","Tall Mannequin",10000000000,,,0,0,0,100,0,0,0,0,0,0,0,0,0,0,,,,10,1,,,,,"training","no_forced_move"
+"Mannequin2","Mannequin Attack",10000000000,,,1,1,1,100,1,1,0,0,0,0,0,0,0,0,,,,10,1,,,,,"trap","no_forced_move"
 "Dashisi","Dashisi",100000,,,30,80,15,70,63,87,94,1,1,1,1,1,1,1,,,,2,,,,,,"helper","fly,invincible,no_pickup,no_clip"
 "Tulia","Tulia",960,,,8,39,24,16,38,41,27,,,,0.1,,,,,,,10,1,,"TRUE",,"Range","full_range",
 "Ozna","Ozna",11300,,,53,24,15,40,28,34,40,0.15,0.3,,0.2,0.4,0.1,0.3,,,,7,,,"TRUE",,"Melee","full_melee",

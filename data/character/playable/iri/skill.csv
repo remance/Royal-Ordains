@@ -1,34 +1,34 @@
 "Move","Name","Buttons","Position","Prepare Animation","After Animation","AI Range","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"C1.1","Fire Trap","Forward,Strong","Couch",,,700,,0,31,5,,,,,,"Fire",,,,"penetrate"
-"C1.2","Burning Oil Trap","Forward,Strong","Couch",,,700,,0,31,6,,,,,,"Fire",,,,"penetrate"
-"C1.3","Napalm Trap","Forward,Strong","Couch",,,700,,0,35,,,,,,,"Fire",,,,"penetrate"
-"C1.4","Black Flame Trap","Forward,Strong","Couch",,,700,,0,39,,,,,,,"Fire",,,,"penetrate"
-"C1.5","Inferno Trap","Forward,Strong","Couch",,,700,,0,45,,,,,,,"Fire",,,,"penetrate"
-"C2.1","Stink Trap","Down,Forward,Weak","Stand",,,700,100,0,17,,,,,,,"Physical",,,,"penetrate"
-"C2.2","Tear Trap","Down,Forward,Weak","Stand",,,700,100,0,19,,,,,,,"Physical",,,,"penetrate"
-"C2.3","Blind Trap","Down,Forward,Weak","Stand",,,700,100,0,20,,,,,,,"Physical",,,,"penetrate"
-"C2.4","Stun Trap","Down,Forward,Weak","Stand",,,700,100,0,25,,,,,,,"Physical",,,,"penetrate"
-"C2.5","Brain Drain Trap","Down,Forward,Weak","Stand",,,700,100,0,30,,,,,,,"Physical",,,,"penetrate"
-"C3.1","Snare Trap","Guard,Backward,Weak","Couch",,,500,,0,12,38,,,,50,,"Physical",,,,"penetrate"
-"C3.2","Paralysis Trap","Guard,Backward,Weak","Couch",,,500,,0,15,,,,,,,"Physical",,,,"penetrate"
-"C3.3","Razor Trap","Guard,Backward,Weak","Couch",,,500,,0,22,,,,,,,"Physical",,,,"penetrate"
-"C3.4","Lifesnare Trap","Guard,Backward,Weak","Couch",,,500,,0,26,,,,,,,"Physical",,,,"penetrate"
-"C3.5","Death Zone Trap","Guard,Backward,Weak","Couch",,,500,,0,28,,,,,,,"Physical",,,,"penetrate"
-"C4.1","Poison Trap","Guard,Forward,Weak","Couch",,,500,,0,16,1,,,,,,"Poison",,,,"penetrate"
-"C4.2","Numb Trap","Guard,Forward,Weak","Couch",,,500,,0,17,2,,,,,,"Poison",,,,"penetrate"
-"C4.3","Deadly Poison Trap","Guard,Forward,Weak","Couch",,,500,,0,20,5,,,,,,"Poison",,,,"penetrate"
-"C4.4","Certain Death Trap","Guard,Forward,Weak","Couch",,,500,,0,26,10,,,,,,"Poison",,,,"penetrate"
-"C4.5","Necromist Trap","Guard,Forward,Weak","Couch",,,500,,0,35,16,,,,,,"Poison",,,,"penetrate"
-"C5.1","Bolt Thrower Deploy","Guard,Forward,Strong","Stand",,,700,,0,48,,,,,,,"Physical",,,,"summon:Summon1"
-"C5.2","Scorpion Deploy","Guard,Forward,Strong","Stand",,,700,,0,59,,,,,,,"Physical",,,,"summon:Summon2"
-"C5.3","Reinforced Scorpion Deploy","Guard,Forward,Strong","Stand",,,700,,0,75,,,,,,,"Physical",,,,"summon:Summon3"
-"C5.4","Ballista Deploy","Guard,Forward,Strong","Stand",,,700,,0,91,,,,,,,"Physical",,,,"summon:Summon4"
-"C5.5","Power Ballista Deploy","Guard,Forward,Strong","Stand",,,700,,0,110,,,,,,,"Physical",,,,"summon:Summon5"
-"C6.1","Focused Engineering","Guard,Backward,Forward,Strong","Couch",,,500,,45,,,,,,,,"Physical","50,95",,,
-"C6.2","Unbound Expertise","Guard,Backward,Forward,Strong","Couch",,,500,,45,,,,,,,,"Physical","50,51,95",,,
-"C6.3","Multitask Exertion","Guard,Backward,Forward,Strong","Couch",,,500,,45,,,,,,,,"Physical","50,51,95",,,
-"C6.4","Ingenious Moment","Guard,Backward,Forward,Strong","Couch",,,500,,45,,,,,,,,"Physical","50,51,95",,,
-"C6.5","Trapper Mastermind","Guard,Backward,Forward,Strong","Couch",,,500,,45,,,,,,,,"Physical","50,51,95",,,
+"C1.1","Fire Trap","Guard,Special","Couch",,,700,,0,31,5,,,,,,"Fire",,,,"penetrate"
+"C1.2","Burning Oil Trap","Guard,Special","Couch",,,700,,0,31,6,,,,,,"Fire",,,,"penetrate"
+"C1.3","Napalm Trap","Guard,Special","Couch",,,700,,0,35,,,,,,,"Fire",,,,"penetrate"
+"C1.4","Black Flame Trap","Guard,Special","Couch",,,700,,0,39,,,,,,,"Fire",,,,"penetrate"
+"C1.5","Inferno Trap","Guard,Special","Couch",,,700,,0,45,,,,,,,"Fire",,,,"penetrate"
+"C2.1","Stink Trap","Guard,Weak","Stand",,,700,100,0,17,,,,,,,"Physical",,,,"penetrate"
+"C2.2","Tear Trap","Guard,Weak","Stand",,,700,100,0,19,,,,,,,"Physical",,,,"penetrate"
+"C2.3","Blind Trap","Guard,Weak","Stand",,,700,100,0,20,,,,,,,"Physical",,,,"penetrate"
+"C2.4","Stun Trap","Guard,Weak","Stand",,,700,100,0,25,,,,,,,"Physical",,,,"penetrate"
+"C2.5","Brain Drain Trap","Guard,Weak","Stand",,,700,100,0,30,,,,,,,"Physical",,,,"penetrate"
+"C3.1","Snare Trap","Guard,Strong","Couch",,,500,,0,12,38,,,,50,,"Physical",,,,"penetrate"
+"C3.2","Paralysis Trap","Guard,Strong","Couch",,,500,,0,15,,,,,,,"Physical",,,,"penetrate"
+"C3.3","Razor Trap","Guard,Strong","Couch",,,500,,0,22,,,,,,,"Physical",,,,"penetrate"
+"C3.4","Lifesnare Trap","Guard,Strong","Couch",,,500,,0,26,,,,,,,"Physical",,,,"penetrate"
+"C3.5","Death Zone Trap","Guard,Strong","Couch",,,500,,0,28,,,,,,,"Physical",,,,"penetrate"
+"C4.1","Poison Trap","Guard,Weak","Couch",,,500,,0,16,1,,,,,,"Poison",,,,"penetrate"
+"C4.2","Numb Trap","Guard,Weak","Couch",,,500,,0,17,2,,,,,,"Poison",,,,"penetrate"
+"C4.3","Deadly Poison Trap","Guard,Weak","Couch",,,500,,0,20,5,,,,,,"Poison",,,,"penetrate"
+"C4.4","Certain Death Trap","Guard,Weak","Couch",,,500,,0,26,10,,,,,,"Poison",,,,"penetrate"
+"C4.5","Necromist Trap","Guard,Weak","Couch",,,500,,0,35,16,,,,,,"Poison",,,,"penetrate"
+"C5.1","Bolt Thrower Deploy","Guard,Strong","Stand",,,700,,8,48,,,,,,,"Physical",,,,"summon:Summon1"
+"C5.2","Scorpion Deploy","Guard,Strong","Stand",,,700,,8,59,,,,,,,"Physical",,,,"summon:Summon2"
+"C5.3","Reinforced Scorpion Deploy","Guard,Strong","Stand",,,700,,8,75,,,,,,,"Physical",,,,"summon:Summon3"
+"C5.4","Ballista Deploy","Guard,Strong","Stand",,,700,,8,91,,,,,,,"Physical",,,,"summon:Summon4"
+"C5.5","Power Ballista Deploy","Guard,Strong","Stand",,,700,,8,110,,,,,,,"Physical",,,,"summon:Summon5"
+"C6.1","Focused Engineering","Special","Stand",,,500,,45,,,,,,,,"Physical","50,95",,,
+"C6.2","Unbound Expertise","Special","Stand",,,500,,45,,,,,,,,"Physical","50,51,95",,,
+"C6.3","Multitask Exertion","Special","Stand",,,500,,45,,,,,,,,"Physical","50,51,95",,,
+"C6.4","Ingenious Moment","Special","Stand",,,500,,45,,,,,,,,"Physical","50,51,95",,,
+"C6.5","Trapper Mastermind","Special","Stand",,,500,,45,,,,,,,,"Physical","50,51,95",,,
 "A1.1","Gravity Pull Trap",,"Couch",,,,,,,,,,,,,,,,,
 "A1.2",,,"Couch",,,,,,,,,,,,,,,,,
 "A1.3",,,"Couch",,,,,,,,,,,,,,,,,

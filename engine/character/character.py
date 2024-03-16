@@ -16,7 +16,7 @@ from engine.character.character_specific_special import special_dict
 from engine.character.character_specific_start_animation import animation_start_dict
 from engine.character.character_specific_status_update import status_update_dict
 from engine.character.character_specific_update import update_dict
-from engine.data.datastat import final_parent_moveset
+from engine.data.datastat import final_parent_moveset, recursive_rearrange_moveset
 from engine.uibattle.uibattle import CharacterIndicator, CharacterSpeechBox
 from engine.utils.common import empty_method
 
@@ -233,8 +233,8 @@ class Character(sprite.Sprite):
         """
         sprite.Sprite.__init__(self, self.containers)
         self.screen_scale = self.battle.screen_scale
-        self.game_id = game_id
-        self.layer_id = layer_id
+        self.game_id = game_id  # object ID for reference
+        self.layer_id = layer_id  # ID for sprite layer calculation
         self.name = stat["Name"]
         self.show_name = self.battle.localisation.grab_text(("character", stat["ID"] + self.battle.chapter, "Name"))
         if "(" in self.show_name and "," in self.show_name:
@@ -273,9 +273,16 @@ class Character(sprite.Sprite):
         self.is_boss = False
         self.is_summon = False
         self.can_combo_with_no_hit = False
+        self.command_moveset = None
         self.current_moveset = None
         self.continue_moveset = None
         self.reach_camera_event = {}
+
+        self.specific_animation_done = empty_method
+        self.specific_special_check = empty_method
+        self.specific_update = empty_method
+        self.specific_status_update = empty_method
+        self.special_damage = empty_method
 
         self.position = "Stand"
         self.combat_state = "City"
@@ -319,8 +326,13 @@ class Character(sprite.Sprite):
             self.sprite_ver = str(stat["Only Sprite Version"])
 
         self.command_pos = Vector2(0, 0)
-        self.base_pos = Vector2(stat["POS"][0] + (1920 * (stat["Scene"] - 1)),
-                                stat["POS"][1])  # true position of character in battle
+
+        if "Scene" in stat:  # data with scene positioning
+            self.base_pos = Vector2(stat["POS"][0] + (1920 * (stat["Scene"] - 1)),
+                                    stat["POS"][1])  # true position of character in battle
+        else:  # character with no scene position data such as summon
+            self.base_pos = Vector2(stat["POS"])  # true position of character in battle
+
         self.last_pos = None  # may be used by AI or specific character update check for position change
         self.pos = Vector2((self.base_pos[0] * self.screen_scale[0],
                             self.base_pos[1] * self.screen_scale[1]))
@@ -342,29 +354,6 @@ class Character(sprite.Sprite):
 
         self.retreat_stage_end = self.battle.base_stage_end + self.sprite_size
         self.retreat_stage_start = -self.sprite_size
-
-        # find and set method specific to character
-        if self.char_id in initiate_dict:
-            initiate_dict[self.char_id](self)
-        self.specific_animation_done = empty_method
-        if self.char_id in animation_start_dict:
-            self.specific_animation_done = types.MethodType(animation_start_dict[self.char_id], self)
-        self.specific_special_check = empty_method
-        if self.char_id in special_dict:
-            self.specific_special_check = types.MethodType(special_dict[self.char_id], self)
-        self.specific_update = empty_method
-        if self.char_id in update_dict:
-            self.specific_update = types.MethodType(update_dict[self.char_id], self)
-        self.specific_status_update = empty_method
-        if self.char_id in status_update_dict:
-            self.specific_status_update = types.MethodType(status_update_dict[self.char_id], self)
-        self.special_damage = empty_method
-        if self.char_id in damage_dict:
-            self.special_damage = types.MethodType(damage_dict[self.char_id], self)
-
-        if self.battle.stage == "training":  # replace moveset check with training one
-            self.battle_check_move_existence = self.check_move_existence
-            self.check_move_existence = self.training_moveset_existence_check
 
     def update(self, dt):
         self.ai_update(dt)
@@ -496,16 +485,34 @@ class BattleCharacter(Character):
 
         self.resurrect_count = 0
         self.guarding = 0
+        self.hold_power_bonus = 1
         self.attack_cooldown = {}  # character can attack with weapon only when cooldown reach attack speed
         self.gold_drop_modifier = 1
         self.status_effect = {}  # current status effect
         self.status_duration = {}  # current status duration
 
+        # find and set method specific to character
+        if self.char_id in initiate_dict:
+            initiate_dict[self.char_id](self)
+        if self.char_id in animation_start_dict:
+            self.specific_animation_done = types.MethodType(animation_start_dict[self.char_id], self)
+        if self.char_id in special_dict:
+            self.specific_special_check = types.MethodType(special_dict[self.char_id], self)
+        if self.char_id in update_dict:
+            self.specific_update = types.MethodType(update_dict[self.char_id], self)
+        if self.char_id in status_update_dict:
+            self.specific_status_update = types.MethodType(status_update_dict[self.char_id], self)
+        if self.char_id in damage_dict:
+            self.special_damage = types.MethodType(damage_dict[self.char_id], self)
+
+        if self.battle.stage == "training":  # replace moveset check with training one
+            self.battle_check_move_existence = self.check_move_existence
+            self.check_move_existence = self.training_moveset_existence_check
+
         # Get char stat
         stat_boost = 0
         leader_charisma = 0
         if self.leader:  # character with leader get stat boost from leader charisma
-            print(self.leader.name, self.leader.charisma)
             leader_charisma = self.leader.charisma
             stat_boost = int(leader_charisma / 5)
         self.strength = stat["Strength"] + (stat["Strength"] * (leader_charisma / 200)) + stat_boost
@@ -561,15 +568,29 @@ class BattleCharacter(Character):
                 if position not in self.moveset:  # add position with no move
                     self.moveset[position] = {}
 
+                # skill with no requirement move, not count skill with all child moveset
                 button_key_skill_dict = {value["Buttons"]: {"Move": key} | value for key, value in
                                          self.available_skill[position].items() if
                                          "Requirement Move" not in value or not value["Requirement Move"]}
+
                 for key, value in self.available_skill[position].items():  # check for skill with requirement move
-                    if "Requirement Move" in value and value["Requirement Move"]:  # add to parent moveset
+                    if ("Requirement Move" in value and value["Requirement Move"]) or \
+                            "all child moveset" in value["Property"]:
+                        # add to parent moveset, all child moveset not count skill as parent move
                         skill_data_dict = {"Move": key} | {key2: value2 for key2, value2 in value.items()}
-                        final_parent_moveset(self.moveset[position], value["Buttons"], skill_data_dict,
-                                             value["Requirement Move"], [False], [])
+                        if "all child moveset" in value["Property"]:
+                            parent_move_list = [key for key in stat["Move Original"][value["Position"]]]
+                        else:
+                            parent_move_list = value["Requirement Move"]
+                        for parent_move in parent_move_list:
+                            final_parent_moveset(self.moveset[position], value["Buttons"], skill_data_dict,
+                                                 parent_move, [False], [])
+
                 self.moveset[position] = button_key_skill_dict | self.moveset[position]
+            already_check = []
+            if position in self.moveset:
+                for move in self.moveset[position]:  # final rearrange of moveset to make complex button move first in listd
+                    recursive_rearrange_moveset(self.moveset[position][move], already_check)
 
         self.max_physical = 1 + (self.strength / 50) + (self.wisdom / 200)
         self.min_physical = self.dexterity / 100
@@ -618,7 +639,7 @@ class BattleCharacter(Character):
         self.attack_no_guard = False
         self.attack_no_dodge = False
 
-        if self.player_control:
+        if self.player_control:  # add equipment stat only for player character
             status_name = {"stun": 17, "poison": 18, "burn": 20, "freeze": 21, "shock": 22,
                            "slow": 27, "bleed": 32, "curse": 96}
             equipment = self.battle.all_story_profiles[int(self.game_id[1])]["equipment"]  # player game id in p+number
@@ -660,7 +681,6 @@ class BattleCharacter(Character):
             self.jump_power = 1
 
         # Final stat after receiving stat effect from various sources, reset every time status is updated
-        self.hold_power_bonus = 1
         self.power_bonus = self.base_power_bonus
         self.impact_modifier = self.base_impact_modifier
         self.critical_chance = self.base_critical_chance
@@ -681,14 +701,20 @@ class BattleCharacter(Character):
         self.guard_cost_modifier = self.base_guard_cost_modifier
         self.resource_cost_modifier = self.base_resource_cost_modifier
 
-        self.health = self.base_health * stat["Start Health"]
+        start_health = 1
+        if "Start Health" in stat:
+            start_health = stat["Start Health"]
+        start_resource = 1
+        if "Start Resource" in stat:
+            start_resource = stat["Start Resource"]
+        self.health = self.base_health * start_health
         self.resource1 = self.base_resource * 0.01
         self.resource2 = self.base_resource * 0.02
         self.resource10 = self.base_resource * 0.10
         self.resource25 = self.base_resource * 0.25
         self.resource50 = self.base_resource * 0.5
         self.resource75 = self.base_resource * 0.75
-        self.resource = self.base_resource * stat["Start Resource"]
+        self.resource = self.base_resource * start_resource
 
         self.run_speed = 600 + self.speed
         self.walk_speed = 350 + self.speed
@@ -1078,7 +1104,7 @@ class BattleAICharacter(AICharacter):
             ai_behaviour = specific_behaviour
 
         self.ai_move = types.MethodType(ai_move_dict["default"], self)
-        if leader:
+        if leader and not self.is_summon:  # summon use assigned behaviour in data instead of follower by default
             self.ai_move = types.MethodType(ai_move_dict["follower"], self)
         elif ai_behaviour in ai_move_dict:
             self.ai_move = types.MethodType(ai_move_dict[ai_behaviour], self)

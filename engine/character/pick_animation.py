@@ -8,6 +8,7 @@ def pick_animation(self):
             if self.current_moveset:  # has moveset to perform
                 animation_name = self.equipped_weapon + "Combat" + self.position + \
                                  self.current_moveset["Move"]
+
                 if "no prepare" not in self.current_action:
                     self.current_action = self.check_prepare_action(
                         self.current_moveset)  # check for prepare animation first

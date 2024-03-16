@@ -93,7 +93,8 @@ def check_new_animation(self, done):
             # has arrival (Arrive2) skill to use after finish arriving
             self.moveset_command_key_input = self.skill[self.position]["Arrive2"]["Buttons"]
             self.check_move_existence()
-            self.current_action = self.attack_command_actions["Special"] | self.current_moveset["Property"]
+            self.current_action = self.attack_command_actions["Special"] | self.command_moveset["Property"]
+
         elif "run" in self.current_action and not self.command_action:  # stop running, halt
             self.current_action = self.halt_command_action
             if self.angle == -90:
@@ -107,8 +108,15 @@ def check_new_animation(self, done):
         else:
             self.current_action = self.command_action  # continue next action when animation finish
             self.command_action = {}
-        self.specific_animation_done(done)
 
+        if self.command_moveset:  # assign next moveset to current
+            self.current_moveset = self.command_moveset
+            self.command_moveset = {}
+            self.continue_moveset = None
+            if "Next Move" in self.current_moveset:  # check for next move combo
+                self.continue_moveset = self.current_moveset["Next Move"]
+
+        self.specific_animation_done(done)
         # reset animation playing related value
         self.stoppable_frame = False
         self.hit_enemy = False

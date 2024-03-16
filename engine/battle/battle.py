@@ -18,7 +18,7 @@ from engine.stage.stage import Stage
 from engine.stageobject.stageobject import StageObject
 from engine.uimenu.uimenu import TextPopup
 from engine.uibattle.uibattle import FPSCount, BattleCursor, YesNo, CharacterSpeechBox, CharacterInteractPrompt, \
-    CityMap, ScreenFade
+    CityMap, CityMission, ScreenFade
 from engine.utils.common import clean_object, clean_group_object
 from engine.utils.data_loading import load_image, load_images
 from engine.utils.text_making import number_to_minus_or_plus
@@ -60,6 +60,9 @@ class Battle:
 
     from engine.battle.cutscene_player_input import cutscene_player_input
     cutscene_player_input = cutscene_player_input
+
+    from engine.battle.end_cutscene_event import end_cutscene_event
+    end_cutscene_event = end_cutscene_event
 
     from engine.battle.fix_camera import fix_camera
     fix_camera = fix_camera
@@ -114,12 +117,12 @@ class Battle:
         # add one more playable char
         # add online/lan multiplayer?
         # church add start event with blessing peasant
-        # add shop, blacksmith, enchant
+        # add enchant, add victory interface that show reward from finished mission
+        # rework skill help to use from data instead of localise
         # add side mission system
         # add ranking record system
         # add pvp mode, follower recruit unlock with all save story progress
         # finish main menu
-        # add victory scene in throne room that show reward from finished mission
 
         self.clock = pygame.time.Clock()  # Game clock to keep track of realtime pass
 
@@ -275,6 +278,8 @@ class Battle:
         self.speech_prompt = CharacterInteractPrompt(battle_ui_images["button_weak"])
         self.city_map = CityMap(load_images(self.data_dir, screen_scale=self.screen_scale,
                                             subfolder=("ui", "map_select_ui")))
+        self.city_mission = CityMission(load_images(self.data_dir, screen_scale=self.screen_scale,
+                                                    subfolder=("ui", "mission_select_ui")))
 
         battle_ui_dict = self.make_battle_ui(battle_ui_images)
 
@@ -509,12 +514,11 @@ class Battle:
             add_helper = False
         self.setup_battle_character(self.players, start_enemy, add_helper=add_helper)
 
-        if not self.city_mode:
-            for player in self.player_objects:
-                self.realtime_ui_updater.add(self.player_portraits[player])
-                self.player_portraits[player].add_char_portrait(self.player_objects[player])
-                if self.stage == "training":
-                    self.realtime_ui_updater.add(self.player_trainings[player])
+        for player in self.player_objects:
+            self.realtime_ui_updater.add(self.player_portraits[player])
+            self.player_portraits[player].add_char_portrait(self.player_objects[player])
+            if self.stage == "training":
+                self.realtime_ui_updater.add(self.player_trainings[player])
 
         self.main_player_object = self.player_objects[self.main_player]
         if stage_event_data:
@@ -621,7 +625,7 @@ class Battle:
 
         self.base_cursor_pos = [0, 0]  # mouse pos on the map based on camera position
         self.command_cursor_pos = [0, 0]  # with zoom and screen scale for character command
-        mouse.set_pos(Vector2(self.battle.camera_pos[0], 140 * self.screen_scale[1]))  # set cursor to midtop screen
+        mouse.set_pos(Vector2(self.camera_pos[0], 140 * self.screen_scale[1]))  # set cursor to midtop screen
 
         self.player_key_control = {player: self.config["USER"]["control player " + str(player)] for player in
                                    self.game.player_list}
@@ -1129,9 +1133,9 @@ class Battle:
                                         event_character.die(delete=True)
                                         self.cutscene_playing.remove(child_event)
                                     elif (not event_character.cutscene_event or
-                                                (("hold" in event_character.current_action or
-                                                  "repeat" in event_character.current_action) and
-                                                 event_character.cutscene_event != child_event)):
+                                          (("hold" in event_character.current_action or
+                                            "repeat" in event_character.current_action) and
+                                           event_character.cutscene_event != child_event)):
                                         # replace previous event on hold or repeat when there is new one to play next
                                         if "hold" in event_character.current_action:
                                             # previous event done
@@ -1197,7 +1201,8 @@ class Battle:
                                                 player_input_indicator = True
                                             elif "timer" in child_event["Property"]:
                                                 specific_timer = child_event["Property"]
-                                            elif "select" not in child_event["Property"]:
+                                            elif "select" in child_event["Property"] or \
+                                                    "hold" in child_event["Property"]:
                                                 # selecting event, also infinite timer but not add player input indication
                                                 specific_timer = infinity
                                             CharacterSpeechBox(event_character,
@@ -1213,12 +1218,38 @@ class Battle:
                         if "select" in child_event["Property"]:
                             if child_event["Property"]["select"] == "yesno":
                                 self.realtime_ui_updater.add(self.decision_select)
+
+                        elif "shop" in child_event["Property"]:  # open shop interface
+                            self.game_state = "shop"
+                            shop_npc = None
+                            for char in self.all_chars:
+                                if char.game_id == child_event["Object"] or \
+                                        (child_event["Object"] == "pm" and char == self.main_player_object):
+                                    shop_npc = char
+                                    break
+
+                            for player in self.player_objects:
+                                self.player_char_interfaces[player].shop_list = \
+                                    [key for key, value in self.character_data.shop_list.items() if
+                                     value["Shop"] == shop_npc.char_id and
+                                     (int(self.main_story_profile["chapter"]) > value["Chapter"] or
+                                      (int(self.main_story_profile["chapter"]) == value["Chapter"] and
+                                      int(self.main_story_profile["mission"]) >= value["Mission"]))]
+                                self.player_char_interfaces[player].purchase_list = {}
+                                self.player_char_interfaces[player].change_mode("shop")
+                                self.player_char_interfaces[player].input_delay = 0.1
+                                self.add_ui_updater(self.player_char_base_interfaces[player],
+                                                    self.player_char_interfaces[player])
+                            self.end_cutscene_event(child_event)
+
                         if "wait_done" in child_event["Property"] or "player_interact" in child_event["Property"] or \
                                 "select" in child_event["Property"]:
                             break
+
                     end_battle_specific_mission = self.cutscene_player_input()
                     if end_battle_specific_mission:  # event cause the end of mission, go to the output mission next
                         return end_battle_specific_mission
+
                     if not self.cutscene_playing:  # finish with current parent cutscene
                         for char in self.character_updater:  # add back hidden characters
                             self.battle_camera.add(char.body_parts.values())
@@ -1310,6 +1341,28 @@ class Battle:
                         return "throne"
                     elif command == "main_menu":  # return to main menu
                         return False
+
+            elif self.game_state == "shop":
+                self.battle_stage.update(self.shown_camera_pos)  # update stage first
+                self.camera.update(self.shown_camera_pos, self.battle_camera, self.realtime_ui_updater)
+                # self.frontground_stage.update(self.shown_camera_pos)  # update frontground stage last
+                self.ui_drawer.draw(self.screen)  # draw the UI
+                if esc_press:  # close shop
+                    for interface in self.player_char_interfaces.values():
+                        interface.shop_list = []
+                        interface.purchase_list = {}
+                        interface.change_mode("stat")
+                    self.remove_ui_updater(self.cursor, self.player_char_base_interfaces.values(),
+                                           self.player_char_interfaces.values())
+                    self.game_state = "battle"
+                else:
+                    for key_list in (self.player_key_press, self.player_key_hold):
+                        # check key holding for stat mode as well
+                        for player in key_list:
+                            if player in self.player_objects:
+                                for key, pressed in key_list[player].items():
+                                    if pressed:
+                                        self.player_char_interfaces[player].player_input(key)
 
             elif self.game_state == "map":
                 self.camera.update(self.shown_camera_pos, self.battle_camera, self.realtime_ui_updater)

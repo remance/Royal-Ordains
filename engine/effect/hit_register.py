@@ -67,10 +67,10 @@ def hit_register(self, target, body_part):
                 else:  # guarded hit, reduce meter
                     if self.owner.player_control:  # player hit enemy guard
                         Effect(None, ("Crash Enemy", "Base", self.rect.centerx, self.rect.centery,
-                                      self.angle, 1, 0, 1), 0)
+                                      -self.angle, 1, 0, 1), 0)
                     else:  # enemy hit player guard
                         Effect(None, ("Crash Player", "Base", self.rect.centerx, self.rect.centery,
-                                      self.angle, 1, 0, 1), 0)
+                                      -self.angle, 1, 0, 1), 0)
                     if target.guarding > 0.5:  # not perfect guard (guard within 0.5 secs before taking hit)
                         target.guard -= attacker_dmg * target.guard_cost_modifier
                         if target.crash_guard_resource_regen:

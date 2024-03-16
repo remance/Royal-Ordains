@@ -6,7 +6,7 @@ from engine.uimenu.uimenu import UIMenu
 class StaticImage(UIMenu):
     def __init__(self, pos, image):
         self._layer = -1
-        UIMenu.__init__(self, player_interact=False)
+        UIMenu.__init__(self, player_cursor_interact=False)
         self.image = image
         self.pos = pos
         self.rect = self.image.get_rect(center=self.pos)
@@ -15,7 +15,7 @@ class StaticImage(UIMenu):
 class MenuRotate(UIMenu):
     def __init__(self, pos, image, rotate_speed):
         self._layer = -2
-        UIMenu.__init__(self, player_interact=False, has_containers=True)
+        UIMenu.__init__(self, player_cursor_interact=False, has_containers=True)
         self.image = image
         self.image_base = self.image.copy()
         self.pos = pos

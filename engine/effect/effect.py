@@ -48,7 +48,7 @@ class Effect(sprite.Sprite):
 
     default_animation_speed = 0.1
 
-    def __init__(self, owner, part_stat, layer, moveset, from_owner=True):
+    def __init__(self, owner, part_stat, layer, moveset=None, from_owner=True):
         """Effect sprite that does not affect character on its own but can travel and
         create other Effect when reach target"""
         # TODO add end effect animation before removal
@@ -108,17 +108,8 @@ class Effect(sprite.Sprite):
 
         self.random_move = False
 
+        self.other_property = None
         self.moveset = moveset
-        if moveset:
-            self.other_property = moveset["Property"]
-            if not layer and self.moveset["Range"]:
-                # layer 0 in animation part data mean the effect can move on its own
-                self.travel = True
-                self.travel_distance = self.moveset["Range"]
-            if "random move" in moveset["Property"]:
-                self.random_move = True
-            if "one hit per enemy" in moveset["Property"]:
-                self.one_hit_per_enemy = True
 
         if self.effect_name in self.effect_list:
             self.effect_stat = self.effect_list[self.effect_name]
@@ -137,6 +128,17 @@ class Effect(sprite.Sprite):
                 self.sound_timer = self.sound_duration
                 if self.sound_duration > 2 and self.travel_distance:
                     self.sound_timer = self.sound_duration / 0.5
+
+            if moveset:
+                self.other_property = moveset["Property"]
+                if not layer and self.moveset["Range"] and "no travel" not in self.effect_stat["Property"]:
+                    # layer 0 in animation part data mean the effect can move on its own
+                    self.travel = True
+                    self.travel_distance = self.moveset["Range"]
+                if "random move" in moveset["Property"]:
+                    self.random_move = True
+                if "one hit per enemy" in moveset["Property"]:
+                    self.one_hit_per_enemy = True
 
         self.animation_pool = self.effect_animation_pool[self.effect_name][self.sprite_ver]
         self.current_animation = self.animation_pool[self.part_name][self.scale]
@@ -175,26 +177,38 @@ class Effect(sprite.Sprite):
     def reach_target(self, how=None):
         self.deal_dmg = False
         if self.reach_effect:
-            new_pos = self.pos
-            if "reach spawn ground" in self.effect_stat["Property"]:  # reach effect spawn with rect bottom on ground
-                height = self.effect_animation_pool[self.reach_effect][self.sprite_ver]["Base"][self.scale][0][
-                             self.flip].get_height() / 4
-                new_pos = (self.pos[0], self.pos[1] - height)
-            DamageEffect(self.owner, (self.reach_effect, "Base", new_pos[0], new_pos[1], 0, 0, 0, 1),
-                         self._layer, self.moveset, from_owner=False)
+            spawn_number = 1
+            if "spawn number" in self.effect_stat["Property"]:
+                spawn_number = self.effect_stat["Property"]["spawn number"]
+            for _ in range(spawn_number):
+                new_pos = self.pos
+                stat = [self.reach_effect, "Base", new_pos[0], new_pos[1], 0, 0, 0, 1]
+                if "reach spawn ground" in self.effect_stat["Property"]:  # reach effect spawn with rect bottom on ground
+                    height = self.effect_animation_pool[self.reach_effect][self.sprite_ver]["Base"][self.scale][0][
+                                 self.flip].get_height() / 4
+                    stat[3] = self.pos[1] - height
+                if "spawn all angle" in self.effect_stat["Property"]:
+                    stat[4] = randint(0, 359)
+                if "spawn same angle" in self.effect_stat["Property"]:
+                    stat[4] = self.angle + randint(-10, 10)
+                layer = 0
+                if "no dmg" in self.effect_stat["Property"]:
+                    Effect(self.owner, stat, layer, moveset=self.moveset, from_owner=False)
+                else:
+                    DamageEffect(self.owner, stat, layer, moveset=self.moveset, from_owner=False)
 
         if self.other_property:
-            if "spawn" in self.other_property and "spawn_after" in self.other_property and how == "border":
-                if "spawn_same" in self.other_property:  # spawn same effect
+            if "spawn" in self.other_property and "spawn after" in self.other_property and how == "border":
+                if "spawn same" in self.other_property:  # spawn same effect
                     spawn_number = 1
-                    if "spawn_number" in self.other_property:
-                        spawn_number = int(self.other_property["spawn_number"])
+                    if "spawn number" in self.other_property:
+                        spawn_number = int(self.other_property["spawn number"])
                     for _ in range(spawn_number):
                         stat = self.part_stat.copy()
-                        if "spawn_sky" in self.other_property:
+                        if "spawn sky" in self.other_property:
                             stat[3] = -100
                         if self.owner.nearest_enemy:  # find the nearest enemy to target
-                            if "spawn_target" in self.other_property:
+                            if "spawn target" in self.other_property:
                                 if self.owner.angle == 90:
                                     stat[2] = uniform(self.owner.nearest_enemy[0].pos[0],
                                                       self.owner.nearest_enemy[0].pos[0] + (200 * self.screen_scale[0]))
@@ -205,7 +219,7 @@ class Effect(sprite.Sprite):
                                 self.pos = (stat[2], stat[3])
                                 stat[4] = self.set_rotate(self.owner.nearest_enemy[0].pos, use_pos=True)
 
-                            elif "spawn_near_target" in self.other_property:
+                            elif "spawn near target" in self.other_property:
                                 if self.owner.nearest_enemy:  # find the nearest enemy to target
                                     if self.owner.angle == 90:
                                         stat[2] = uniform(self.owner.nearest_enemy[0].pos[0],
@@ -217,8 +231,8 @@ class Effect(sprite.Sprite):
                                             self.owner.nearest_enemy[0].pos[0])
 
                                     self.pos = (stat[2], stat[3])
-                                    target_pos = (uniform(self.owner.nearest_enemy[0].pos[0] - 100,
-                                                          self.owner.nearest_enemy[0].pos[0] + 100),
+                                    target_pos = (uniform(self.owner.nearest_enemy[0].pos[0] - 200,
+                                                          self.owner.nearest_enemy[0].pos[0] + 200),
                                                   self.owner.nearest_enemy[0].pos[1])
                                     stat[4] = self.set_rotate(target_pos, use_pos=True)
 
@@ -233,14 +247,14 @@ class Effect(sprite.Sprite):
                         moveset = self.moveset.copy()
                         moveset["Property"] = [item for item in moveset["Property"] if
                                                item != "spawn"]  # remove spawn property so it not loop spawn
-                        DamageEffect(self.owner, stat, 0, moveset, from_owner=False)
+                        DamageEffect(self.owner, stat, 0, moveset=moveset, from_owner=False)
         self.clean_object()
 
 
 class DamageEffect(Effect):
     def __init__(self, owner, part_stat, layer, moveset, from_owner=True, arc_shot=False, reach_effect=None):
         """Effect damage sprite that can affect character in some ways such as arrow, explosion, buff magic"""
-        Effect.__init__(self, owner, part_stat, layer, moveset, from_owner=from_owner)
+        Effect.__init__(self, owner, part_stat, layer, moveset=moveset, from_owner=from_owner)
         self.impact_effect = None
         self.arc_shot = arc_shot
         self.reach_effect = reach_effect
@@ -394,7 +408,6 @@ class DamageEffect(Effect):
                 if just_start and self.duration and not self.one_hit_per_enemy:
                     # reset already hit every animation frame for effect with duration and not with one hit condition
                     self.already_hit = []
-
                 if self.move_logic(dt, done):
                     return
 
@@ -403,7 +416,7 @@ class TrapEffect(Effect):
 
     def __init__(self, owner, stat, layer, moveset, from_owner=True):
         """Trap sprite that can trigger when character come near, the trap sprite itself does no damage"""
-        Effect.__init__(self, owner, stat, layer, moveset, from_owner=from_owner)
+        Effect.__init__(self, owner, stat, layer, moveset=moveset, from_owner=from_owner)
         self.activate = False
         self.impact_effect = None
         self.moveset = moveset
