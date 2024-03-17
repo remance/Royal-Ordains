@@ -1301,14 +1301,13 @@ class Battle:
 
                         if self.end_delay >= 5:  # end battle
                             self.end_delay = 0
-                            if self.stage + 1 in self.game.preset_map_data[self.chapter][
-                                self.mission]:  # has next stage
+
+                            if int(self.stage) + 1 in self.game.preset_map_data[self.chapter][self.mission] or \
+                                    int(self.mission) + 1 in self.game.preset_map_data[self.chapter]:
+                                # has next stage or mission
                                 return True
                             else:
-                                if self.mission + 1 in self.game.preset_map_data[self.chapter]:  # has next mission
-                                    return True
-                                else:
-                                    return False
+                                return False
 
             elif self.game_state == "menu":  # Complete battle pause when open either esc menu or lorebook
                 self.battle_stage.update(self.shown_camera_pos)  # update stage first
@@ -1322,6 +1321,13 @@ class Battle:
                         if self.input_popup[1] == "quit":  # quit game
                             pygame.quit()
                             sys.exit()
+
+                        elif self.input_popup[1] == "reward":
+                            for interface in self.player_char_interfaces.values():
+                                interface.reward_list = {}
+                                interface.change_mode("stat")
+                            self.remove_ui_updater(self.player_char_base_interfaces.values(),
+                                                   self.player_char_interfaces.values())
 
                         self.input_box.text_start("")
                         self.input_popup = None
@@ -1341,6 +1347,14 @@ class Battle:
                         return "throne"
                     elif command == "main_menu":  # return to main menu
                         return False
+
+            elif self.game_state == "reward":
+                self.battle_stage.update(self.shown_camera_pos)  # update stage first
+                self.camera.update(self.shown_camera_pos, self.battle_camera, self.realtime_ui_updater)
+                # self.frontground_stage.update(self.shown_camera_pos)  # update frontground stage last
+                self.ui_drawer.draw(self.screen)  # draw the UI
+                if esc_press:  # close and accept reward
+                    self.activate_input_popup(("confirm_input", "reward"), "Confirm Reward?", self.confirm_ui_popup)
 
             elif self.game_state == "shop":
                 self.battle_stage.update(self.shown_camera_pos)  # update stage first

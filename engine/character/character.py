@@ -412,7 +412,8 @@ class Character(sprite.Sprite):
                     self.start_animation_body_part()  # revert previous show_frame 0 animation start
                     return
             if (self.cutscene_target_pos and self.cutscene_target_pos == self.base_pos) or \
-                    (not self.cutscene_event or "repeat" not in self.cutscene_event["Property"]):
+                    (not self.cutscene_target_pos and
+                     (not self.cutscene_event or "repeat" not in self.cutscene_event["Property"])):
                 # animation consider finish when reach target or finish animation with no repeat, pick idle animation
                 self.current_action = {}
                 self.pick_cutscene_animation({})
