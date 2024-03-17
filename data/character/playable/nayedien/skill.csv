@@ -9,11 +9,11 @@
 "C2.3","Blazing Gyre","Special","Stand","sweak2strongspecial",,,300,,5,250,60,120,,,,,"Fire",,39,,"multiple hits,penetrate"
 "C2.4","Wrath Punishment","Special","Stand","sweak2strongspecial",,,300,,5,200,89,120,,,,,"Fire",,39,,"multiple hits,penetrate"
 "C2.5","Birth of All Element","Special","Stand","sweak2strongspecial",,,300,,5,150,115,120,,,,,"Fire",,39,,"multiple hits,penetrate"
-"C3.1","Sword Glacier","Special","Stand","sweak3strongspecial",,,400,,5,400,,,,,,,"Water",,21,,
-"C3.2","Frostbound","Special","Stand","sweak3strongspecial",,,400,,5,350,,,,,,,"Water",,21,,
-"C3.3","Frozen Moment","Special","Stand","sweak3strongspecial",,,400,,5,300,,,,,,,"Water",,21,,
-"C3.4","Claw of Time","Special","Stand","sweak3strongspecial",,,400,,5,250,,,,,,,"Water",,21,,
-"C3.5","Gaze Behind Infinity","Special","Stand","sweak3strongspecial",,,400,,5,200,,,,,,,"Water",,21,,
+"C3.1","Cold Breeze","Special","Stand","sweak3strongspecial",,,400,,5,400,8,,,,20,,"Water",,42,,"penetrate"
+"C3.2","Frostbound","Special","Stand","sweak3strongspecial",,,400,,5,350,12,,,,20,,"Water",,42,,"penetrate"
+"C3.3","Frozen Moment","Special","Stand","sweak3strongspecial",,,400,,5,300,18,,,,20,,"Water",,42,,"penetrate"
+"C3.4","Flow of Time","Special","Stand","sweak3strongspecial",,,400,,5,250,25,,,,20,,"Water",,42,,"penetrate"
+"C3.5","Gaze Behind Infinity","Special","Stand","sweak3strongspecial",,,400,,5,200,40,,,,20,,"Water",,42,,"penetrate"
 "C4.1","Hammer Light Radiance","Special","Stand","sweak4strongspecial",,,,,5,450,,,,,,,"Magic",,7,,
 "C4.2","Mellow Dawn","Special","Stand","sweak4strongspecial",,,,,5,400,,,,,,,"Magic",,7,,
 "C4.3","Shining Sin","Special","Stand","sweak4strongspecial",,,,,5,350,,,,,,,"Magic",,7,,

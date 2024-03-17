@@ -11,7 +11,7 @@ def drop_collide_check(self):
     collide_list = spritecollide(self, self.battle.all_team_drop[self.team], False)
     for item in collide_list:
         if not item.pickable_timer and (not item.stat["Specific Receiver"] or
-                                        self.owner.sprite_id == item.stat["Specific Receiver"]):
+                                        self.owner.char_id == item.stat["Specific Receiver"]):
             # can pick this drop
             if item.stat["Health"]:
                 self.owner.health += item.stat["Health"] * self.owner.item_effect_modifier

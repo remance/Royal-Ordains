@@ -8,6 +8,7 @@ def pick_animation(self):
             if self.current_moveset:  # has moveset to perform
                 animation_name = self.equipped_weapon + "Combat" + self.position + \
                                  self.current_moveset["Move"]
+
                 if "no prepare" not in self.current_action:
                     self.current_action = self.check_prepare_action(
                         self.current_moveset)  # check for prepare animation first
@@ -82,8 +83,7 @@ def pick_animation(self):
     if animation_name in self.animation_pool:
         self.current_animation = self.animation_pool[animation_name]
     else:  # animation not found, use default
-        print("notfound", self.name, animation_name, self.current_action, self.command_action,
-              self.moveset_command_key_input)
+        print("notfound", self.name, animation_name, self.current_action, self.command_action)
         animation_name = "Default"
         self.current_animation = self.animation_pool["Default"]
 

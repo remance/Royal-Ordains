@@ -1,3 +1,5 @@
+from math import log2
+
 from pygame.sprite import spritecollide, collide_mask
 
 
@@ -58,9 +60,14 @@ def dmg_crash_check(self, crashed_part):
 
     if self.owner.crash_haste:
         self.owner.apply_status(45)  # get haste buff
-
-    dmg_diff = abs(crashed_part.dmg - self.dmg) / 2
-    if dmg_diff < self.dmg / 2:  # both dmg quite near in power
+    dmg = 0
+    if self.dmg:
+        dmg = log2(self.dmg)
+    enemy_dmg = 0
+    if crashed_part.dmg:
+        enemy_dmg = log2(crashed_part.dmg)
+    dmg_diff = dmg - enemy_dmg
+    if -1 < dmg_diff < 1:  # both dmg quite near in power
         self.can_deal_dmg = False
         crashed_part.can_deal_dmg = False
         crashed_part.already_hit.append(self.owner)
@@ -73,19 +80,19 @@ def dmg_crash_check(self, crashed_part):
             self.owner.interrupt_animation = True
             if not crashed_part.owner.no_forced_move:
                 self.owner.command_action = self.owner.heavy_damaged_command_action
-        Effect(None, ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)
+        Effect(None, ("Crash Player", "Base", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)
         if self.object_type == "effect":  # end effect
             if self.stick_reach:  # bounce off
                 self.stick_timer = 5
             else:
                 self.reach_target()
                 return True
-    elif dmg_diff < self.dmg / 4:  # collided effect damage is much lower than this object, enemy lose
+    elif dmg_diff > 1:  # collided enemy damage is much lower than this object, enemy lose
         crashed_part.can_deal_dmg = False
         if self.owner.player_control:
-            Effect(None, ("Crash Player", "Crash", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)
+            Effect(None, ("Crash Player", "Base", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)
         else:
-            Effect(None, ("Crash Enemy", "Crash", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)
+            Effect(None, ("Crash Enemy", "Base", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)
         crashed_part.already_hit.append(self.owner)
         if crashed_part.object_type == "body":  # collided with enemy body part
             crashed_part.owner.interrupt_animation = True
@@ -98,7 +105,7 @@ def dmg_crash_check(self, crashed_part):
                 crashed_part.reach_target()
     else:  # this object dmg is much lower, enemy win
         self.can_deal_dmg = False
-        Effect(None, ("Crash Enemy", "Crash", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)
+        Effect(None, ("Crash Enemy", "Base", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)
         self.already_hit.append(crashed_part.owner)
         if self.object_type == "body":  # body part object collide with enemy
             self.owner.interrupt_animation = True

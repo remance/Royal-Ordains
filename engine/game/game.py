@@ -142,6 +142,9 @@ class Game:
     from engine.game.update_profile_slots import update_profile_slots
     update_profile_slots = update_profile_slots
 
+    from engine.game.write_all_player_save import write_all_player_save
+    write_all_player_save = write_all_player_save
+
     lorebook_process = lorebook_process
 
     resolution_list = ("3200 x 1800", "2560 x 1440", "1920 x 1080", "1600 x 900", "1360 x 768",
@@ -191,7 +194,8 @@ class Game:
                                        self.player_list}
             if self.game_version != self.config["VERSION"]["ver"]:  # remake config as game version change
                 raise KeyError  # cause KeyError to reset config file
-        except (KeyError, TypeError, NameError):  # config error will make the game recreate config with default
+        except (KeyError, TypeError, NameError) as b:  # config error will make the game recreate config with default
+            self.error_log.write(b)
             config = self.create_config()
             self.config = config
             self.show_fps = int(self.config["USER"]["fps"])
@@ -395,8 +399,8 @@ class Game:
                                             subfolder=("ui", "battle_ui"))
         self.char_selector_images = load_images(self.data_dir, screen_scale=self.screen_scale,
                                                 subfolder=("ui", "char_ui"), key_file_name_readable=True)
-        self.button_image = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                        subfolder=("ui", "battlemenu_ui", "button"))
+        self.button_images = load_images(self.data_dir, screen_scale=self.screen_scale,
+                                         subfolder=("ui", "battlemenu_ui", "button"))
         self.option_menu_images = load_images(self.data_dir, screen_scale=self.screen_scale,
                                               subfolder=("ui", "option_ui"))
         # Main menu interface
@@ -543,13 +547,9 @@ class Game:
         self.all_input_ui_popup = (self.input_ok_button, self.input_cancel_button, self.input_close_button,
                                    self.input_ui, self.input_box)
 
-        # Text popup
-        self.stage_translation_text_popup = TextPopup()  # popup box for text that translate background script
-
         # Encyclopedia interface
         Lorebook.history_lore = self.localisation.create_lore_data("history")
         Lorebook.character_lore = self.localisation.create_lore_data("character")
-        Lorebook.enemy_lore = self.localisation.create_lore_data("enemy")
         Lorebook.item_lore = self.localisation.create_lore_data("item")
         Lorebook.status_lore = self.localisation.create_lore_data("status")
 
@@ -652,6 +652,7 @@ class Game:
 
             if not pygame.mixer.Channel(0).get_busy():  # replay menu song when not playing anything
                 pygame.mixer.Channel(0).play(self.music_pool["menu"])
+                pygame.mixer.Channel(0).set_volume(self.play_music_volume)
 
             if self.url_delay:
                 self.url_delay -= self.dt

@@ -1,9 +1,9 @@
 "Buttons","Move","Name","Position","Stat Requirement","Requirement Move","Prepare Animation","After Animation","AI Range","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"Weak","cweak1","Left Punch Out","Couch",,,,,150,,,,25,20,,,50,,"Physical",,,,
+"Weak","cweak1","Low Punch","Couch",,,,,150,,,,25,20,,,50,,"Physical",,,,
 "Weak","cweak2","Low Pierce","Couch",,"cweak1",,,250,,,,34,15,,,80,,"Physical",,31,,
 "Weak","cweak3","Slash Down","Couch",,"cweak2",,,250,,,,50,,,,125,,"Physical",,,,
-"Strong","cstrong1","Right Ground Kick Down","Couch",,,,,150,,,,34,5,,,150,,"Physical",,,,
-"Strong","cstrong2","Left Spin Kick Up","Couch",,"cstrong1",,,200,,,,61,25,,120,,,"Physical",,,,
+"Strong","cstrong1","Ground Low Kick","Couch",,,,,150,,,,34,5,,,150,,"Physical",,,,
+"Strong","cstrong2","Spin Kick","Couch",,"cstrong1",,,200,,,,61,25,,120,,,"Physical",,,,
 "Strong","cstrong3","Rotate Slash","Couch",,"cstrong2",,,250,,,,82,70,,175,,,"Physical",,,,
 "Weak","sweak1","Right Punch","Stand",,,,,150,,,,27,15,,,60,,"Physical",,,,
 "Weak","sweak2","Close Slash","Stand",,"sweak1",,,250,,,,32,30,,,100,,"Physical",,,,
@@ -26,8 +26,8 @@
 "Down,Strong","adstrong","Air Pierce Down","Air",,,"name:adstrongprepare,fly:True",,100,,,,140,,,,350,,"Physical",,,,"movable,y_momentum:-10000,x_momentum:0,drop speed:2,repeat"
 "Strong","astrong1","Left Air Punch","Air",,,,,150,,,,81,75,,,60,,"Physical",,,,
 "Strong","astrong2","Two-handed Slash Out","Air",,"astrong1",,,300,,,,100,120,,,60,,"Physical",,,,
-"Strong","astrong3","Full Arc Slash","Air",,"astrong2",,,300,,,,114,,,,300,0.05,"Physical",,,,"multiple hits"
-"Special","astrong1special","Demonic Beat Down","Air","Strength:53","astrong1",,,150,,,3,43,46,,,,,"Physical",,,,
+"Strong","astrong3","Full Arc Slash","Air",,"astrong2",,,300,,,,114,,,,300,0.05,"Physical",,,,
+"Special","astrong1special","Demonic Beat Down","Air","Strength:53","astrong1",,,150,,,3,43,46,,,,,"Physical",,,,"multiple hits"
 "Special","astrong2special","Demonic Pull","Air","Strength:66","astrong2",,,230,,,8,211,,182,,,,"Physical",,32,,"penetrate"
 "Special","astrong3special","Demonic Meteor","Air","Strength:83","astrong3","name:sstrong3specialprepare,fly:True",,300,,,10,300,,,,1000,0.15,"Physical",,,,"movable,y_momentum:-10000,x_momentum:0,drop speed:2,repeat"
 "Special","cspecial","Demonic Crush","Couch",,,,,350,,,4,180,,,,600,0.05,"Physical",,,,
@@ -37,5 +37,5 @@
 "Special","sspecial4","Demonic Gorging","Stand","Strength:50","sspecial3",,,350,,,2,122,250,,,,0.1,"Physical",,,,
 "Special","sspecial5","Demonic Rising Star","Stand","Strength:72","sspecial4",,,350,,,7,215,,,500,,0.1,"Physical",,,,
 "Special","aspecial","Demonic Lift","Air",,,,,350,,,4,250,,,600,,0.1,"Physical",,,,
-"Forward,Strong","fsstrong","Slash Dash","Stand",,,,,450,,,,45,50,,,,,"Physical",,,,"all_child_moveset,x_momentum:300,movable,forced move"
-"Backward,Strong","bsstrong","Retreating Slash","Stand",,,,,200,,,,45,50,,,,,"Physical",,,,"all_child_moveset,x_momentum:-300,movable,forced move"
+"Forward,Strong","fsstrong","Slash Dash","Stand",,,,,450,,,,45,50,,,,,"Physical",,,,"all child moveset,x_momentum:300,movable,forced move"
+"Backward,Strong","bsstrong","Retreating Slash","Stand",,,,,200,,,,45,50,,,,,"Physical",,,,"all child moveset,x_momentum:-300,movable,forced move"

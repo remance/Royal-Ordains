@@ -15,29 +15,27 @@ def play_animation(self, dt, hold_check):
             if self.show_frame != self.max_show_frame:  # continue next frame
                 self.show_frame += 1
             else:  # reach end frame
-                if "repeat" in self.current_action:
-                    self.show_frame = 0
-                elif not self.freeze_timer:  # not has freeze animation timer to run out first
+                self.show_frame = 0
+                if "repeat" not in self.current_action:
+                    # not loop and not has freeze animation timer to run out first
                     done = True
-            self.start_animation_body_part()
             if self.current_animation_direction[self.show_frame]["sound_effect"]:  # play sound from animation
                 sound = self.current_animation_direction[self.show_frame]["sound_effect"]
                 self.battle.add_sound_effect_queue(self.sound_effect_pool[sound[0]][0],
                                                    self.pos, sound[1], sound[2])
-
             if not done:  # check if new frame has play speed mod
+                self.start_animation_body_part()
                 self.final_animation_play_time = self.animation_play_time
-                if (self.hit_enemy or self.can_combo_with_no_hit) and \
+                if (self.hit_enemy or self.can_combo_with_no_hit or "no hit combo" in self.current_action) and \
                         "stoppable" in self.current_animation_direction[self.show_frame]["property"]:
                     """only comboable after hit enemy, with exception for char with combo_with_no_hit"""
                     self.hit_enemy = False
                     self.stoppable_frame = True
                     # delay frame speed when hit, so it is easier to connect next move
-                    if not self.can_combo_with_no_hit:  # combo_with_no_hit make it so no delay animation
-                        self.final_animation_play_time = 0.3
-                    elif self.final_animation_play_time < 0.1:
-                        self.final_animation_play_time = 0.1
+                    if not self.can_combo_with_no_hit or self.hit_enemy:  # only slow down for frame that hit enemy
+                        self.final_animation_play_time *= 2
+                        if self.final_animation_play_time < 0.2:
+                            self.final_animation_play_time = 0.2
                 elif "play_time_mod" in self.current_animation_direction[self.show_frame]:
                     self.final_animation_play_time *= self.current_animation_direction[self.show_frame]["play_time_mod"]
-
     return done

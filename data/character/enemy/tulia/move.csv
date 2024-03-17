@@ -1,0 +1,6 @@
+"Buttons","Move","Name","Position","Stat Requirement","Requirement Move","Prepare Animation","After Animation","AI Range","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Weak","sweak1","Axe Slash","Stand",,,,,300,300,3,,18,50,,,,,"Physical",,,,
+"Weak","sweak2","Axe Slash 2","Stand",,"sweak1",,,300,300,3,,25,60,,,,,"Physical",,,,
+"Weak","sweak3","Axe Overhead Slash","Stand",,"sweak2",,,300,300,3,,41,,,,100,,"Physical",,,,
+"Strong","sstrong1","Straight Shot","Stand",,,,,1500,1800,5,,70,20,,,25,5,"Physical",,,,
+"Strong","sstrong2","Tri Shot","Stand",,"sstrong1",,,1500,1800,5,,55,35,,,20,10,"Physical",,,,

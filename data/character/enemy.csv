@@ -1,19 +1,56 @@
 "ID","Name","Base Health","Max Resource","Start Resource","Strength","Dexterity","Agility","Constitution","Intelligence","Wisdom","Charisma","Physical Resistance","Fire Resistance","Water Resistance","Air Resistance","Earth Resistance","Magic Resistance","Poison Resistance","Items","Drops","Score","Size","Only Sprite Version","Summon","Boss","Follower Cost","Type","AI Behaviour","Property"
+"King","Lestrius Maeranos",1000,,,20,20,20,30,40,40,30,,,,,,,,,,,10,,,,,,"idle","invincible"
+"Vurus","Vurus Akamanes",50000,,,32,51,46,37,97,98,82,,,,,,,,,,,10,,,,,,"full_melee",
+"Hermanos","Hermanos Vorehmus",24000,,,48,62,33,35,40,40,56,,,,,,,,,,,,,,,,,"idle",
+"Solhatar","Solhatar Volus",,,,,,,,,,,,,,,,,,,,,,,,,,,"full_melee",
+"Serlon","Serlon Masrtos",,,,,,,,,,,,,,,,,,,,,,,,,,,"full_melee",
+"Elghest","Elghest Lostrer",,,,,,,,,,,,,,,,,,,,,,,,,,,"full_melee",
+"Aerlnarn","Aerlnarn",,,,,,,,,,,,,,,,,,,,,,,,,,,"idle",
+"Kapuni","Kapuni",,,,,,,,,,,,,,,,,,,,,,,,,,,"idle",
+"Maelsen","Maelsen Lostrer",,,,,,,,,,,,,,,,,,,,,,,,,,,,
+"Kervos","Kervos Lohes",,,,,,,,,,,,,,,,,,,,,,,,,,,,
+"Peurrus","Peurrus Oitese",,,,,,,,,,,,,,,,,,,,,,,,,,,,
+"Furlest","Furlest Megtordar",,,,,,,,,,,,,,,,,,,,,,,,,,,,
+"Courtbook","Courtbook",,,,,,,,,,,,,,,,,,,,,,,,,,,"idle",
+"Amunsa","Amunsa",,,,,,,,,,,,,,,,,,,,,,,,,,,"full_melee",
+"Velmidas","Velmidas Lohes",,,,,,,,,,,,,,,,,,,,,,,,,,,,
 "Board","Quest Board",1,,,1,1,1,1,1,1,1,,,,,,,,,,,10,,,,,,"idle",
 "Tom","Tom Cat",10,,,2,50,50,5,10,10,25,,,,,,,,,,,5,,,,,,"idle",
 "Toodles","Toodles Galore",10,,,2,50,50,5,10,10,25,,,,,,,,,,,5,,,,,,"idle",
 "Duhon","Duhon",10,,,1,1,1,10,30,25,35,,,,,,,,,,,10,,,,,,"idle",
 "Barman1","Barman 1",10,,,1,1,1,1,1,1,1,,,,,,,,,,,10,,,,,,"idle",
 "Barman2","Barman 2",10,,,1,1,1,1,1,1,1,,,,,,,,,,,10,,,,,,"idle",
+"Sasinola","Sasinola",,,,,,,,,,,,,,,,,,,,,,,,,,,"idle",
+"Sihest","Sihest",,,,,,,,,,,,,,,,,,,,,,,,,,,,
+"Tanrsakt","Tanrsakt",,,,,,,,,,,,,,,,,,,,,,,,,,,"idle",
+"Shopper1","Shopper1",,,,,,,,,,,,,,,,,,,,,,,,,,,"idle",
+"Shopper2","Shopper2",,,,,,,,,,,,,,,,,,,,,,,,,,,"idle",
+"Shopper3","Shopper3",,,,,,,,,,,,,,,,,,,,,,,,,,,"idle",
+"Lisha","Lisha",,,,,,,,,,,,,,,,,,,,,,,,,,,,
+"Kemilsz","Kemilsz",,,,,,,,,,,,,,,,,,,,,,,,,,,,
+"Monnirl","Monnirl Maaeir",72000,,,71,75,83,90,71,75,88,0.3,0.3,0.3,0.3,0.3,0.3,0.5,,,,10,,,"TRUE",68,"Melee","full_melee",
+"Worshipper1","Worshipper1",,,,,,,,,,,,,,,,,,,,,,,,,,,"idle",
+"Worshipper2","Worshipper2",,,,,,,,,,,,,,,,,,,,,,,,,,,"idle",
+"Micorte","Brother Micorte",,,,,,,,,,,,,,,,,,,,,,,,,,,"idle",
+"Quivenly","Sister Quivenly",,,,,,,,,,,,,,,,,,,,,,,,,,,"idle",
+"Roeveo","Brother Roeveo",,,,,,,,,,,,,,,,,,,,,,,,,,,"idle",
+"Orgatonion","Brother Orgatonion",,,,,,,,,,,,,,,,,,,,,,,,,,,"idle",
+"Vigumatik","Vigumatik",,,,,,,,,,,,,,,,,,,,,,,,,,,"idle",
+"Wigorsein","Wigorsein",,,,,,,,,,,,,,,,,,,,,,,,,,,"idle",
+"Jurmon","Jurmon",,,,,,,,,,,,,,,,,,,,,,,,,,,"idle",
+"Rudehst","Rudehst Nocvius",,,,,,,,,,,,,,,,,,,,,,,,,,,,
+"Viskes","Viskes Lodehes",,,,,,,,,,,,,,,,,,,,,,,,,,,,
+"Kids","Kids",,,,,,,,,,,,,,,,,,,,,,,,,,,"idle",
+"Crier","Town Crier",,,,,,,,,,,,,,,,,,,,,,,,,,,"idle",
+"Severn","Severn Turneose",,,,,,,,,,,,,,,,,,,,,,,,,,,,
+"Merlaros","Merlaros Vorehmus",,,,,,,,,,,,,,,,,,,,,,,,,,,,
+"Mannequin","Mannequin",10000000000,,,0,0,0,100,0,0,0,0,0,0,0,0,0,0,,,,10,1,,,,,"training","no_forced_move"
+"Mannequin1","Tall Mannequin",10000000000,,,0,0,0,100,0,0,0,0,0,0,0,0,0,0,,,,10,1,,,,,"training","no_forced_move"
+"Mannequin2","Mannequin Attack",10000000000,,,1,1,1,100,1,1,0,0,0,0,0,0,0,0,,,,10,1,,,,,"trap","no_forced_move"
 "Dashisi","Dashisi",100000,,,30,80,15,70,63,87,94,1,1,1,1,1,1,1,,,,2,,,,,,"helper","fly,invincible,no_pickup,no_clip"
-"Mannequin","Mannequin",10000000000,,,0,0,0,100,0,0,0,0.1,0.1,0.1,0.1,0.1,0.1,0.1,,,,10,1,,,,,"training","no_forced_move"
-"King","King",1000,,,20,20,20,30,40,40,30,,,,,,,,,,,10,,,,,,"idle","invincible"
-"Vurus","Vurus",50000,,,32,51,46,37,97,98,82,,,,,,,,,,,10,,,,,,"full_melee",
 "Tulia","Tulia",960,,,8,39,24,16,38,41,27,,,,0.1,,,,,,,10,1,,"TRUE",,"Range","full_range",
 "Ozna","Ozna",11300,,,53,24,15,40,28,34,40,0.15,0.3,,0.2,0.4,0.1,0.3,,,,7,,,"TRUE",,"Melee","full_melee",
 "Nraesier","Nraesier",6500,,,36,61,48,39,32,53,36,,,,0.15,,,0.2,,,,10,,,"TRUE",1,"Range","full_range",
-"Monnirl","Monnirl",72000,,,71,75,83,90,71,75,88,0.3,0.3,0.3,0.3,0.3,0.3,0.5,,,,10,,,"TRUE",68,"Melee","full_melee",
-"Hermanos","Hermanos",24000,,,48,62,33,35,40,40,56,,,,,,,,,,,,,,,,,"idle",
 "Craven1","Male Citizen 1",100,,,1,1,10,1,2,3,3,,,,,,,,,,,10,1,,,,,"flee","invincible,broken"
 "Craven2","Male Citizen 2",100,,,1,1,10,1,1,2,6,,,,,,,,,,,10,1,,,,,"flee","invincible,broken"
 "Craven3","Female Citizen 1",100,,,1,1,10,1,3,2,5,,,,,,,,,,,10,1,,,,,"flee","invincible,broken"

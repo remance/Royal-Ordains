@@ -1,47 +1,47 @@
-"ID","Name","Prefix","Suffix"
-"base_power_bonus","Power","Strong,Powerful,","of Battle,of Strength,of Power"
-"base_defence","Defence","Defender,Tough,","of Defence,"
-"base_animation_play_time","Action Time","Nimble,Rapid,Agile,Unmatchable",
-"base_speed","Move Speed","Speed,Fast,Quicken,Hasten,Swift",
-"base_guard","Guard","Guardian","of Blocking,of Guardian"
-"base_guard_cost_modifier","Guard Cost","Undaunt",
-"base_resource_cost_modifier","Resource Cost","Concontrated,Wizardry","of Concentration"
-"base_impact_modifier","Impact","Impactful,",
-"base_super_armour","Super Armour","Indomitable,Unmovable,Unstoppable,Titan,Colossus",
-"base_health","Health","Healthy,Tough,Tenacious,Vigorous","of Health"
-"base_resource","Resource","Mindful,Focused",
-"base_critical_chance","Critical Chance",,
-"physical_resistance","Physical Resist","Ghost,",
-"fire_resistance","Fire Resist","Imp,Phoenix",
-"water_resistance","Water Resist","Undine,Leviathan",
-"air_resistance","Air Resist","Eagle",
-"earth_resistance","Earth Resist","Golem",
-"magic_resistance","Magic Resist",,
-"poison_resistance","Poison Resist","Spider,Snake,",
-"stun_chance","Stun Chance","Blunt,Stunning",
-"slow_chance","Slow Chance","Slowing,",
-"bleed_chance","Bleeding Chance","Razor,Bleeding",
-"poison_chance","Poison Chance","Poisoned",
-"curse_chance","Curse Chance","Cursed",
-"burn_chance","Burn Chance","Flaming,Burning",
-"freeze_chance","Freeze Chance","Cold,Ice,Freezing,Frozen",
-"shock_chance","Shock Chance","Shocking",
-"base_hp_regen","Health Regen","Regenerative,Healing","of Life"
-"base_resource_regen","Resource Regen","Wise,","of Resource"
-"base_dodge","Dodge Chance","Shadow,Blurring","of Shadow,of Eluding,"
-"item_effect_modifier","Item Effect","Mastery,Tinkerer",
-"resurrect_count","Resurrect Count","Stubborn,",
-"buff_duration_modifier","Buff Duration","Paladin",
-"debuff_duration_modifier","Debuff Duration","Inquisitor",
-"attack_element_fire","Fire Element","Fire,Flame,Ember,Inferno,Fiery",
-"attack_element_water","Water Element","Water,Wet",
-"attack_element_air","Air Element","Air,Wind",
-"attack_element_earth","Earth Element","Earth,Solid",
-"attack_element_poison","Poison Element","Poison",
-"attack_element_magic","Magic Element","Magical",
-"attack_element_physical","Physical Element","Elementless,Pure",
-"attack_penetrate","Penetrate","Sharp,Penetrating",
-"attack_no_defence","Ignore Defence","Mighty,Fatal,Deadly",
-"attack_no_guard","Ignore Guard","Unblockable",
-"attack_no_dodge","No dodge","Hawk,Keen,Accurate","of Marksman"
-"no_weight","No weight","Weightless,",
+"ID","Name","Suffix"
+"base_power_bonus","Power","of Battle,of Strength,of Power"
+"base_defence","Defence","of Defence,of Defender"
+"base_animation_play_time","Action Time","of Agility,of Haste,of Action"
+"base_speed","Move Speed","of Speed,of Quickness,of Switftness"
+"base_guard","Guard","of Blocking,of Guarding,of Guardian"
+"base_guard_cost_modifier","Guard Cost","of Deflect"
+"base_resource_cost_modifier","Resource Cost","of Concentration.of Conservation"
+"base_impact_modifier","Impact","of Impact"
+"base_super_armour","Super Armour","of Armour,of Bravery,of Indomitability,of Titan,of Colossus"
+"base_health","Health","of Health,of Toughness,of Tenacity,of Vigor"
+"base_resource","Resource","of Resource,of Mind,of Focus"
+"base_critical_chance","Critical Chance","of Chance,of Luck,of Critical"
+"physical_resistance","Physical Resist","of Ghost,of Spirit,of Invincible"
+"fire_resistance","Fire Resist","of Imp,of Phoenix,of Dragon"
+"water_resistance","Water Resist","of Fish,of Merman,of Undine,of Leviathan"
+"air_resistance","Air Resist","of Bird,of Eagle,of Wyvern"
+"earth_resistance","Earth Resist","of Golem,of Wall,of Castle"
+"magic_resistance","Magic Resist","of Mage,of Barrier"
+"poison_resistance","Poison Resist","of Spider,of Snake,"
+"stun_chance","Stun Chance","of Stun,of Overwhelming"
+"slow_chance","Slow Chance","of Slow,of Lathargic"
+"bleed_chance","Bleeding Chance","of Bleeding,of Blood,of Murder,of Massacre"
+"poison_chance","Poison Chance","of Rust,of Infection,of Decay,of Corruption"
+"curse_chance","Curse Chance","of Curse,of Evil"
+"burn_chance","Burn Chance","of Burn,of Blaze,of Incineration"
+"freeze_chance","Freeze Chance","of Cold,of Ice,of Frost,of Glacier,of Permafrost"
+"shock_chance","Shock Chance","of Shock,of Electricity,of Lightning,of Thunder"
+"base_hp_regen","Health Regen","of Nature,of Healing,of Life,of Heart,of Soul"
+"base_resource_regen","Resource Regen","of Resource,of Wiseness,of Essence,"
+"base_dodge","Dodge Chance","of Shadow,of Eluding,"
+"item_effect_modifier","Item Effect","of Mastery,of Tinkerer,of Genius"
+"resurrect_count","Resurrect Count","of Stubbornness,of Adventure"
+"buff_duration_modifier","Buff Duration","of Paladin"
+"debuff_duration_modifier","Debuff Duration","of Inquisitor"
+"attack_element_fire","Fire Element","of Fire,of Flame,of Ember,of Inferno,of Hell"
+"attack_element_water","Water Element","of Water,of Aqua"
+"attack_element_air","Air Element","of Air,of Wind,of Storm"
+"attack_element_earth","Earth Element","of Stone,of Earth"
+"attack_element_poison","Poison Element","of Poison,of Toxin,of Venom"
+"attack_element_magic","Magic Element","of Magic,of Wonder"
+"attack_element_physical","Physical Element","of Purity"
+"attack_penetrate","Penetrate","of Sharpness"
+"attack_no_defence","Ignore Defence","of Might,of Berserker,of Death"
+"attack_no_guard","Ignore Guard","of Piercing"
+"attack_no_dodge","No dodge","of Accuracy,of Marksman,of Hunt"
+"no_weight","No weight","of Lightweight,of Featherweight,of Ethereal"

@@ -146,12 +146,12 @@ class CharacterData(GameData):
                                     moveset_dict[row2[header2.index("Position")]] = {}
 
                                 parent_move_list = row2[header2.index("Requirement Move")]
-                                if "all_child_moveset" in move_data["Property"]:
+                                if "all child moveset" in move_data["Property"]:
                                     parent_move_list = [row3[header2.index("Move")] for row3 in rd2][1:]
                                 if not row2[header2.index("Requirement Move")]:
                                     # parent move, must also always at row above any child move in csv file
                                     moveset_dict[row2[header2.index("Position")]][row2[0]] = move_data
-                                if row2[header2.index("Requirement Move")] or "all_child_moveset" in move_data[
+                                if row2[header2.index("Requirement Move")] or "all child moveset" in move_data[
                                     "Property"]:
                                     found = None
                                     for parent_move in parent_move_list:
@@ -171,17 +171,20 @@ class CharacterData(GameData):
                                                      row2[0], move_data, parent_move))
                                         else:
                                             found = done_check[0]
-                            for item in remain_next_move_loop:  # one last try to find parent
+                            for item in remain_next_move_loop:
+                                # one last try to find parent in case it order in data is lower
                                 done_check = ["test"]
                                 already_check = []
                                 final_parent_moveset(item[0], item[1], item[2], item[3], done_check, already_check)
 
-                            # rearrange moveset dict to order by button number so game detect more complex combo first
-                            already_check = []
-                            for position in moveset_dict:
-                                for move in moveset_dict[position]:
-                                    recursive_rearrange_moveset(moveset_dict[position][move], already_check)
                             self.character_list[row[0]]["Move"] = moveset_dict
+                            self.character_list[row[0]]["Move Original"] = {}
+
+                            for row2 in rd2[1:]:
+                                if row2[header2.index("Position")] not in self.character_list[row[0]]["Move Original"]:
+                                    self.character_list[row[0]]["Move Original"][row2[header2.index("Position")]] = {}
+                                self.character_list[row[0]]["Move Original"][row2[header2.index("Position")]][row2[1]] = \
+                                    {header2[index]: stuff for index, stuff in enumerate(row2)}
                             edit_file2.close()
 
                     self.character_list[row[0]]["Skill"] = {}
@@ -193,11 +196,12 @@ class CharacterData(GameData):
                                 encoding="utf-8", mode="r") as edit_file2:
                             rd = tuple(csv.reader(edit_file2, quoting=csv.QUOTE_ALL))
                             header2 = rd[0]
-                            tuple_column = ("Buttons", "Status", "Enemy Status")  # value in tuple only
+                            tuple_column = ("Buttons", "Requirement Move", "Status", "Enemy Status")  # value in tuple only
                             dict_column = ("Prepare Animation", "Property",)
                             tuple_column = [index for index, item in enumerate(header2) if item in tuple_column]
                             dict_column = [index for index, item in enumerate(header2) if item in dict_column]
                             moveset_dict = {}
+                            moveset_ui_dict = {}
                             for index2, row2 in enumerate(rd[1:]):
                                 for n2, i2 in enumerate(row2):
                                     row2 = stat_convert(row2, n2, i2, tuple_column=tuple_column,
@@ -207,7 +211,9 @@ class CharacterData(GameData):
                                     # keep moveset in each position dict for easier access
                                     moveset_dict[row2[header2.index("Position")]] = {}
                                 moveset_dict[row2[header2.index("Position")]][row2[0]] = move_data
+                                moveset_ui_dict[row2[0]] = move_data
                             self.character_list[row[0]]["Skill"] = moveset_dict
+                            self.character_list[row[0]]["Skill UI"] = moveset_ui_dict
                         edit_file2.close()
 
                     # Add character mode data
@@ -248,11 +254,13 @@ class CharacterData(GameData):
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
+            str_column = ("Chapter", "Mission", "Stage")
+            str_column = [index for index, item in enumerate(header) if item in str_column]
             tuple_column = ("Status", "Enemy Status", "Property")  # value in tuple only
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
-                    row = stat_convert(row, n, i, tuple_column=tuple_column)
+                    row = stat_convert(row, n, i, tuple_column=tuple_column, str_column=str_column)
                 self.equip_item_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
         edit_file.close()
 
@@ -268,6 +276,8 @@ class CharacterData(GameData):
                     row = stat_convert(row, n, i, dict_column=dict_column)
                 self.gear_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
         edit_file.close()
+
+        self.shop_list = self.equip_item_list | self.gear_list
 
         gear_mod_list = {}
         # use structure as gear type: mod id: "rarity", "weight", "chance"  for easier access

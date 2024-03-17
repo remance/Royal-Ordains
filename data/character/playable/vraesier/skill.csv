@@ -1,34 +1,34 @@
 "Move","Name","Buttons","Position","Prepare Animation","After Animation","AI Range","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"C1.1","Double Piercing","Down,Forward,Strong","Stand",,,300,0,4,,65,105,,,45,0.05,"Physical",,,,"multiple hits"
-"C1.2","Triple Piercing","Down,Forward,Strong","Stand",,,300,0,5,,70,105,,,45,0.1,"Physical",,,,"multiple hits"
-"C1.3","Quadruple Piercing","Down,Forward,Strong","Stand",,,300,0,6,,75,105,,,45,0.13,"Physical",,,,"multiple hits"
-"C1.4","Speed Piercing","Down,Forward,Strong","Stand",,,300,0,8,,87,105,,,45,0.21,"Physical",14,,,"multiple hits"
-"C1.5","Unseen Assaults","Down,Forward,Strong","Stand",,,300,0,10,,100,105,,,45,0.35,"Physical",14,7,,"multiple hits"
+"C1.1","Double Piercing","Down,Forward,Strong","Stand",,,300,0,4,,65,105,,,45,0.05,"Physical",,,,"all child moveset,multiple hits"
+"C1.2","Triple Piercing","Down,Forward,Strong","Stand",,,300,0,5,,70,105,,,45,0.1,"Physical",,,,"all child moveset,multiple hits"
+"C1.3","Quadruple Piercing","Down,Forward,Strong","Stand",,,300,0,6,,75,105,,,45,0.13,"Physical",,,,"all child moveset,multiple hits"
+"C1.4","Speed Piercing","Down,Forward,Strong","Stand",,,300,0,8,,87,105,,,45,0.21,"Physical",14,,,"all child moveset,multiple hits"
+"C1.5","Unseen Assaults","Down,Forward,Strong","Stand",,,300,0,10,,100,105,,,45,0.35,"Physical",14,7,,"all child moveset,multiple hits"
 "C2.1","Counterattack","Guard,Strong","Stand","name:Parry,parry:true",,200,0,,,110,135,,,135,0,"Physical",,,,"no auto next"
 "C2.2","Counter Cross Slash","Guard,Strong","Stand","name:Parry,parry:true",,200,0,,,135,135,,,135,0,"Physical",,,,"no auto next,multiple hits"
 "C2.3","Bloody Parry","Guard,Strong","Stand","name:Parry,parry:true",,200,0,,,210,135,,,135,0,"Physical",28,,,"no auto next,multiple hits"
 "C2.4","Revenge Guard","Guard,Strong","Stand","name:Parry,parry:true",,200,0,,,326,135,,,135,0,"Physical",28,54,,"no auto next,multiple hits"
 "C2.5","Sword of Vengeance","Guard,Strong","Stand","name:Parry,parry:true",,200,0,,,485,135,,,135,1,"Physical",28,54,,"no auto next,multiple hits"
-"C3.1","Vital Slash","Down,Backward,Strong","Stand",,,300,0,5,,87,156,,,42,0.15,"Physical",,32,,
-"C3.2","Bloodletting","Down,Backward,Strong","Stand",,,300,0,6,,103,156,,,42,0.15,"Physical",,"32,27",,
-"C3.3","Slow Killing","Down,Backward,Strong","Stand",,,300,0,6,,125,156,,,42,0.23,"Physical",,"32,27,36",,
-"C3.4","Bloodbath","Down,Backward,Strong","Stand",,,300,0,7,,170,156,,,42,0.39,"Physical",,"32,27,36,10",,
-"C3.5","Fountain of Blood","Down,Backward,Strong","Stand",,,300,0,,,264,156,,,42,0.48,"Physical",,"32,27,36,10",,
+"C3.1","Vital Slash","Down,Backward,Strong","Stand",,,300,0,5,,87,156,,,42,0.15,"Physical",,32,,"all child moveset"
+"C3.2","Bloodletting","Down,Backward,Strong","Stand",,,300,0,6,,103,156,,,42,0.15,"Physical",,"32,27",,"all child moveset"
+"C3.3","Slow Killing","Down,Backward,Strong","Stand",,,300,0,6,,125,156,,,42,0.23,"Physical",,"32,27,36",,"all child moveset"
+"C3.4","Bloodbath","Down,Backward,Strong","Stand",,,300,0,7,,170,156,,,42,0.39,"Physical",,"32,27,36,10",,"all child moveset"
+"C3.5","Fountain of Blood","Down,Backward,Strong","Stand",,,300,0,,,264,156,,,42,0.48,"Physical",,"32,27,36,10",,"all child moveset"
 "C4.1","Second Wind","Guard,Down,Strong","Stand",,,0,0,30,15,,,,,,,"Physical",79,,,
 "C4.2","Steady Recovery","Guard,Down,Strong","Stand",,,0,0,30,15,,,,,,,"Physical","80,81",,,
 "C4.3","Cleansing Body","Guard,Down,Strong","Stand",,,0,0,30,15,,,,,,,"Physical","30,82,83",,,
 "C4.4","Vitality Burst","Guard,Down,Strong","Stand",,,0,0,30,15,,,,,,,"Physical","30,84,85",,,
 "C4.5","Complete Rejuvenation","Guard,Down,Strong","Stand",,,0,0,15,,,,,,,,"Physical","30,86,87",,,
-"C5.1","Eclipse Slash","Guard,Down,Up,Strong","Stand",,,300,0,7,,125,120,,,210,,"Physical",,,,
-"C5.2","Lesser Moon Arc","Guard,Down,Up,Strong","Stand",,,300,0,7,,164,120,,,210,,"Physical",88,,,
-"C5.3","Greater Moon Arc","Guard,Down,Up,Strong","Stand",,,500,650,7,,215,120,,,210,,"Physical",88,,,
-"C5.4","Pale Crescent","Guard,Down,Up,Strong","Stand",,,500,650,7,,300,120,,,210,,"Physical","88,89",,,
-"C5.5","Beauty of Death","Guard,Down,Up,Strong","Stand",,,500,650,7,,413,120,,,210,,"Physical","88,89",,,"ignore defence"
-"C6.1","Bash","Down,Forward,Weak","Stand",,,200,0,9,,42,30,,,155,,"Physical",,47,,
-"C6.2","Smite","Down,Forward,Weak","Stand",,,200,0,10,,50,100,,,400,,"Physical",,47,,
-"C6.3","Stagger Strike","Down,Forward,Weak","Stand",,,200,0,12,,67,100,,,400,,"Physical",,"47,49",,
-"C6.4","Mercy Blade","Down,Forward,Weak","Stand",,,200,0,13,,85,100,,,400,,"Physical",,"47,48,49",,
-"C6.5","Nightmare Blade","Down,Forward,Weak","Stand",,,200,0,15,,100,100,,,400,,"Physical",,"9,47,48,49",,
+"C5.1","Eclipse Slash","Guard,Down,Up,Strong","Stand",,,300,0,7,,125,120,,,210,,"Physical",,,,"all child moveset"
+"C5.2","Lesser Moon Arc","Guard,Down,Up,Strong","Stand",,,300,0,7,,164,120,,,210,,"Physical",88,,,"all child moveset"
+"C5.3","Greater Moon Arc","Guard,Down,Up,Strong","Stand",,,500,650,7,,215,120,,,210,,"Physical",88,,,"all child moveset"
+"C5.4","Pale Crescent","Guard,Down,Up,Strong","Stand",,,500,650,7,,300,120,,,210,,"Physical","88,89",,,"all child moveset"
+"C5.5","Beauty of Death","Guard,Down,Up,Strong","Stand",,,500,650,7,,413,120,,,210,,"Physical","88,89",,,"all child moveset,ignore defence"
+"C6.1","Bash","Down,Forward,Weak","Stand",,,200,0,9,,42,30,,,155,,"Physical",,47,,"all child moveset"
+"C6.2","Smite","Down,Forward,Weak","Stand",,,200,0,10,,50,100,,,400,,"Physical",,47,,"all child moveset"
+"C6.3","Stagger Strike","Down,Forward,Weak","Stand",,,200,0,12,,67,100,,,400,,"Physical",,"47,49",,"all child moveset"
+"C6.4","Mercy Blade","Down,Forward,Weak","Stand",,,200,0,13,,85,100,,,400,,"Physical",,"47,48,49",,"all child moveset"
+"C6.5","Nightmare Blade","Down,Forward,Weak","Stand",,,200,0,15,,100,100,,,400,,"Physical",,"9,47,48,49",,"all child moveset"
 "A1.1","Execution","Down,Forward,Special","Air",,,300,0,,10,,,,,,,"Physical",,,,
 "A1.2","Beheading","Down,Forward,Special","Air",,,300,0,,10,,,,,,,"Physical",,,,
 "A1.3","Decapitation","Down,Forward,Special","Air",,,300,0,,10,,,,,,,"Physical",,,,

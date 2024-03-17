@@ -6,7 +6,7 @@ from engine.drop.drop import Drop
 from engine.utils.common import clean_group_object, clean_object
 
 
-def die(self, how):
+def die(self, delete=False):
     """Character left battle, either dead or flee"""
     # remove from updater
     self.battle.all_team_character[self.team].remove(self)
@@ -34,7 +34,7 @@ def die(self, how):
     if self.leader:
         self.leader.followers.remove(self)
 
-    if how == "flee":
+    if delete:
         clean_group_object((self.body_parts,))
         clean_object(self)
     else:

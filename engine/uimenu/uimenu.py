@@ -9,6 +9,7 @@ from pygame import Surface, SRCALPHA, Rect, Color, draw, mouse
 from pygame.font import Font
 from pygame.sprite import Sprite
 
+from engine.game.generate_custom_equipment import rarity_mod_number
 from engine.utils.common import keyboard_mouse_press_check, stat_allocation_check, skill_allocation_check
 from engine.utils.data_loading import load_image
 from engine.utils.text_making import text_render_with_bg, make_long_text, minimise_number_text
@@ -111,11 +112,11 @@ def make_image_by_frame(frame: Surface, final_size):
 class UIMenu(Sprite):
     containers = None
 
-    def __init__(self, player_interact=True, has_containers=False):
+    def __init__(self, player_cursor_interact=True, has_containers=False):
         """
         Parent class for all menu user interface objects
 
-        :param player_interact: Player can interact (click) with UI in some way
+        :param player_cursor_interact: Player can interact (click) with UI in some way
         :param has_containers: Object has group containers to assign
         """
         from engine.game.game import Game
@@ -131,7 +132,7 @@ class UIMenu(Sprite):
         self.localisation = Game.localisation
         self.cursor = Game.cursor
         self.updater = Game.ui_updater
-        self.player_interact = player_interact
+        self.player_interact = player_cursor_interact
         if has_containers:
             Sprite.__init__(self, self.containers)
         else:
@@ -165,7 +166,7 @@ class MenuCursor(UIMenu):
     def __init__(self, images):
         """Game menu cursor"""
         self._layer = 1000000  # as high as possible, always blit last
-        UIMenu.__init__(self, player_interact=False, has_containers=True)
+        UIMenu.__init__(self, player_cursor_interact=False, has_containers=True)
         self.images = images
         self.image = images["normal"]
         self.pos = (0, 0)
@@ -185,6 +186,7 @@ class MenuCursor(UIMenu):
         self.pos = mouse.get_pos()
         self.rect.topleft = self.pos
         self.mouse_over_something = False
+        old_mouse_click = self.is_select_down
         if self.game and 1 in self.game.player_joystick:  # check for joystick button press as well
             for name, button in self.game.player_key_bind_name[1].items():
                 if button == "Weak":  # weak attack button = confirm
@@ -195,7 +197,11 @@ class MenuCursor(UIMenu):
         else:
             self.is_select_just_down, self.is_select_down, self.is_select_just_up = keyboard_mouse_press_check(
                 mouse, 0, self.is_select_just_down, self.is_select_down, self.is_select_just_up)
-
+            if old_mouse_click != self.is_select_down:
+                if self.is_select_down:
+                    self.image = self.images["click"]
+                else:
+                    self.image = self.images["normal"]
         # Alternative select press button, like mouse right
         self.is_alt_select_just_down, self.is_alt_select_down, self.is_alt_select_just_up = keyboard_mouse_press_check(
             mouse, 2, self.is_alt_select_just_down, self.is_alt_select_down, self.is_alt_select_just_up)
@@ -260,7 +266,7 @@ class SliderMenu(UIMenu):
 class InputUI(UIMenu):
     def __init__(self, image, pos):
         self._layer = 30
-        UIMenu.__init__(self, player_interact=False)
+        UIMenu.__init__(self, player_cursor_interact=False)
 
         self.pos = pos
         self.image = image
@@ -281,7 +287,7 @@ class InputUI(UIMenu):
 
 class InputBox(UIMenu):
     def __init__(self, pos, width, text="", click_input=False):
-        UIMenu.__init__(self, player_interact=False)
+        UIMenu.__init__(self, player_cursor_interact=False)
         self._layer = 31
         self.font = Font(self.ui_font["main_button"], int(30 * self.screen_scale[1]))
         self.pos = pos
@@ -404,7 +410,7 @@ class TextBox(UIMenu):
 class MenuImageButton(UIMenu):
     def __init__(self, pos, image, layer=1):
         self._layer = layer
-        UIMenu.__init__(self, player_interact=True)
+        UIMenu.__init__(self, player_cursor_interact=True)
         self.pos = pos
         self.image = image
         self.rect = self.image.get_rect(center=self.pos)
@@ -608,7 +614,7 @@ class BrownMenuButton(UIMenu, Containable):  # NOTE: the button is not brown any
 
 class OptionMenuText(UIMenu):
     def __init__(self, pos, text, text_size, button_image=None):
-        UIMenu.__init__(self, player_interact=False)
+        UIMenu.__init__(self, player_cursor_interact=False)
         self.pos = pos
         self.font = Font(self.ui_font["main_button"], text_size)
         if button_image:  # add image to front of text
@@ -628,9 +634,9 @@ class CharacterProfileBox(UIMenu):
     image = None
 
     def __init__(self, pos):
-        UIMenu.__init__(self, player_interact=False)
-        self.font = Font(self.ui_font["main_button"], int(28 * self.screen_scale[1]))
-        self.small_font = Font(self.ui_font["main_button"], int(24 * self.screen_scale[1]))
+        UIMenu.__init__(self, player_cursor_interact=False)
+        self.font = Font(self.ui_font["main_button"], int(26 * self.screen_scale[1]))
+        self.small_font = Font(self.ui_font["main_button"], int(22 * self.screen_scale[1]))
         self.selected_box = Surface(self.image.get_size(), SRCALPHA)
         self.selected_box.fill((200, 200, 200))
         self.taken_box = Surface(self.image.get_size(), SRCALPHA)
@@ -662,13 +668,13 @@ class CharacterProfileBox(UIMenu):
             self.image.blit(portrait, portrait_rect)
 
             # add name
-            text = self.font.render(self.game.localisation.grab_text(("help", char_id, "Name")), True, (30, 30, 30))
+            text = self.font.render(self.game.localisation.grab_text(("character", char_id, "Name")), True, (30, 30, 30))
             text_rect = text.get_rect(topleft=(120 * self.screen_scale[0], 5 * self.screen_scale[1]))
             self.image.blit(text, text_rect)
 
             # add play stat
             text = self.small_font.render(self.localisation.grab_text(("ui", "Chapter")) +
-                                          ": " + str(data["chapter"]) + "." + str(data["mission"]), True,
+                                          ": " + data["chapter"] + "." + data["mission"], True,
                                           (30, 30, 30))
             text_rect = text.get_rect(topleft=(120 * self.screen_scale[0], 40 * self.screen_scale[1]))
             self.image.blit(text, text_rect)
@@ -685,18 +691,6 @@ class CharacterProfileBox(UIMenu):
             text_rect = text.get_rect(topleft=(15 * self.screen_scale[0], 100 * self.screen_scale[1]))
             self.image.blit(text, text_rect)
 
-            text = self.small_font.render(self.localisation.grab_text(("ui", "Total Kills(Boss)")) + ": " +
-                                          minimise_number_text(str(int(data["total kills"]))) + "(" +
-                                          minimise_number_text(str(int(data["boss kills"]))) + ")", True, (30, 30, 30))
-            text_rect = text.get_rect(topleft=(15 * self.screen_scale[0], 125 * self.screen_scale[1]))
-            self.image.blit(text, text_rect)
-
-            text = self.small_font.render(self.localisation.grab_text(("ui", "Golds/Scores")) +
-                                          ": " + minimise_number_text(str(int(data["total golds"]))) + "/" +
-                                          minimise_number_text(str(int(data["total scores"]))), True, (30, 30, 30))
-            text_rect = text.get_rect(topleft=(15 * self.screen_scale[0], 150 * self.screen_scale[1]))
-            self.image.blit(text, text_rect)
-
             # add char stat
             text = self.small_font.render(self.localisation.grab_text(("ui", "Stat")) +
                                           ": " + str(int(data["character"]["Strength"])) + "/" +
@@ -706,6 +700,18 @@ class CharacterProfileBox(UIMenu):
                                           str(int(data["character"]["Intelligence"])) + "/" +
                                           str(int(data["character"]["Wisdom"])) + "/" +
                                           str(int(data["character"]["Charisma"])), True, (30, 30, 30))
+            text_rect = text.get_rect(topleft=(15 * self.screen_scale[0], 125 * self.screen_scale[1]))
+            self.image.blit(text, text_rect)
+
+            text = self.small_font.render(self.localisation.grab_text(("ui", "Total Kills(Boss)")) + ": " +
+                                          minimise_number_text(str(int(data["total kills"]))) + "(" +
+                                          minimise_number_text(str(int(data["boss kills"]))) + ")", True, (30, 30, 30))
+            text_rect = text.get_rect(topleft=(15 * self.screen_scale[0], 150 * self.screen_scale[1]))
+            self.image.blit(text, text_rect)
+
+            text = self.small_font.render(self.localisation.grab_text(("ui", "Golds/Scores")) +
+                                          ": " + minimise_number_text(str(int(data["total golds"]))) + "/" +
+                                          minimise_number_text(str(int(data["total scores"]))), True, (30, 30, 30))
             text_rect = text.get_rect(topleft=(15 * self.screen_scale[0], 175 * self.screen_scale[1]))
             self.image.blit(text, text_rect)
 
@@ -722,7 +728,7 @@ class CharacterProfileBox(UIMenu):
 
 class CharacterSelector(UIMenu):
     def __init__(self, pos, images):
-        UIMenu.__init__(self, player_interact=False)
+        UIMenu.__init__(self, player_cursor_interact=False)
         self.pos = pos
         self.images = images
         self.image = self.images["Empty"]
@@ -753,6 +759,12 @@ class CharacterInterface(UIMenu):
                       "Rarity Ascending", "Rarity Descending")
     follower_sort_list = ("Name Ascending", "Name Descending", "Type Ascending", "Type Descending", "Cost Ascending",
                           "Cost Descending", "Single Ascending", "Single Descending")
+    purchase_confirm_list = ("Confirm Purchase", "Cancel Purchase")
+    purchase_clear_confirm_list = ("Confirm Clear", "Cancel Clear")
+    storage_sell_list = ("Sell All", "Sell Half", "Sell One", "Cancel")
+    stat_row = ("Strength", "Dexterity", "Agility", "Constitution", "Intelligence", "Wisdom", "Charisma")
+    common_skill_row = ("Ground Movement", "Air Movement", "Tinkerer", "Arm Mastery", "Wealth",
+                        "Immunity", "Resourceful", "Combat Contest")
 
     def __init__(self, pos, player, text_popup, char_interface_images, battle_ui_images):
         UIMenu.__init__(self)
@@ -774,12 +786,12 @@ class CharacterInterface(UIMenu):
         self.selected_equipment_slot = None
         self.total_equip_stat = {}
         self.total_select_equip_stat = {}
+        self.purchase_list = {}
+        self.shop_list = []
+        self.reward_list = {}
+        self.shown_reward_list = []
 
         # Stat interface
-        self.stat_row = ("Strength", "Dexterity", "Agility",
-                         "Constitution", "Intelligence", "Wisdom", "Charisma")
-        self.common_skill_row = ("Ground Movement", "Air Movement", "Tinkerer", "Arm Mastery", "Wealth",
-                                 "Immunity", "Resourceful", "Combat Contest")
         self.skill_row = []
         self.all_skill_row = []
         self.stat = {}
@@ -833,14 +845,6 @@ class CharacterInterface(UIMenu):
         helper_image.blit(button_image, button_rect)
         helper_image_rect = helper_image.get_rect(topleft=(0, 900 * self.screen_scale[1]))
         self.image.blit(helper_image, helper_image_rect)
-
-        # start_stat_row = 440 * self.screen_scale[1]
-        # for index, stat in enumerate(self.common_skill_row):
-        #     text = self.font.render(stat + ": ", True, (30, 30, 30))
-        #     text_rect = text.get_rect(midleft=(10 * self.screen_scale[0], start_stat_row))
-        #     self.skill_rect[stat] = text_rect  # save stat name rect for stat point later
-        #     self.image.blit(text, text_rect)
-        #     start_stat_row += 36 * self.screen_scale[1]
 
         self.stat_base_image = self.image.copy()
 
@@ -983,6 +987,31 @@ class CharacterInterface(UIMenu):
         self.storage_base_image = self.image.copy()
         self.storage_image = self.image.copy()
 
+        # Shop interface
+        self.shop_base_image = self.follower_image.copy()
+        self.shop_image = self.follower_image.copy()
+
+        # Enchant interface
+        self.image = Surface((400 * self.screen_scale[0], 950 * self.screen_scale[1]), SRCALPHA)
+        equip_list_image_rect = char_interface_images["Equip_list"].get_rect(topleft=(0, 0))
+        self.image.blit(char_interface_images["Equip_list"], equip_list_image_rect)
+
+        text_surface = self.header_font.render(self.localisation.grab_text(("ui", "Selected")), True, (30, 30, 30))
+        text_rect = text_surface.get_rect(topleft=(100 * self.screen_scale[0], 10 * self.screen_scale[1]))
+        self.image.blit(text_surface, text_rect)
+
+        slot_image = char_interface_images["Box_empty"]
+        self.image.blit(slot_image, slot_image.get_rect(topleft=(100 * self.screen_scale[0],
+                                                                 60 * self.screen_scale[1])))
+        self.image.blit(helper_image, helper_image_rect)
+
+        self.enchant_base_image = self.image.copy()
+        self.enchant_image = self.image.copy()
+
+        # Reward interface
+        self.reward_base_image = self.follower_image.copy()
+        self.reward_image = self.follower_image.copy()
+
         self.player_input = self.player_input_stat
         self.rect = self.image.get_rect(topleft=self.pos)
 
@@ -1009,15 +1038,14 @@ class CharacterInterface(UIMenu):
         self.image = self.stat_base_image.copy()
         if self.stat:
             self.all_skill_row = [item for item in self.common_skill_row]
-            for skill in self.game.character_data.character_list[stat_dict["ID"]]["Skill"].values():
-                for key, value in skill.items():
-                    if ".1" in key and "C" in key:  # starting skill
-                        self.all_skill_row.append(value["Name"])
+            for key, value in self.game.character_data.character_list[stat_dict["ID"]]["Skill UI"].items():
+                if ".1" in key and "C" in key:  # starting skill
+                    self.all_skill_row.append(value["Name"])
             self.last_row = len(self.stat_row) + len(self.all_skill_row) - 1
 
             self.skill_rect = {}
             start_stat_row = 350 * self.screen_scale[1]
-            for index, stat in enumerate(self.all_skill_row):
+            for stat in self.all_skill_row:
                 text = self.font.render(stat + ": ", True, (30, 30, 30))
                 text_rect = text.get_rect(midleft=(10 * self.screen_scale[0], start_stat_row))
                 self.skill_rect[stat] = text_rect  # save stat name rect for stat point later
@@ -1061,7 +1089,7 @@ class CharacterInterface(UIMenu):
                     row += 1
 
             if self.profile:
-                self.max_follower_allowance = (self.profile["chapter"] * 20) + stat_dict["Charisma"]
+                self.max_follower_allowance = (int(self.profile["chapter"]) * 20) + stat_dict["Charisma"]
                 for key, value in self.stat.items():
                     if key in self.all_skill_row:
                         self.profile["character"]["skill allocation"][key] = value
@@ -1093,7 +1121,7 @@ class CharacterInterface(UIMenu):
                     item = self.profile["equipment"]["item"][equip_type.split(" ")[1]]
                     if item:
                         item_image = pygame.transform.smoothscale(
-                            self.item_sprite_pool[self.game.battle.chapter_sprite_ver][
+                            self.item_sprite_pool[self.game.battle.chapter][
                             "Normal"][item][1][0], (60 * self.screen_scale[0],
                                                     60 * self.screen_scale[1]))
                         image_rect = item_image.get_rect(center=rect.center)
@@ -1106,7 +1134,7 @@ class CharacterInterface(UIMenu):
                     item = self.profile["equipment"][equip_type]
                     if item:
                         item_image = pygame.transform.smoothscale(
-                            self.item_sprite_pool[self.game.battle.chapter_sprite_ver][
+                            self.item_sprite_pool[self.game.battle.chapter][
                             "Normal"][item][1][0], (60 * self.screen_scale[0],
                                                     60 * self.screen_scale[1]))
                         image_rect = item_image.get_rect(center=rect.center)
@@ -1142,9 +1170,10 @@ class CharacterInterface(UIMenu):
                     name = self.localisation.grab_text(("gear", item, "Name"))
                 else:
                     stat = item  # custom equipment
-                    name = self.localisation.grab_text(("gear_name", stat["Name"][0], "Prefix")) + " " + \
-                           self.localisation.grab_text(("gear_name", stat["Name"][1], "Name")) + " " + \
-                           self.localisation.grab_text(("gear_name", stat["Name"][1], "Suffix"))
+                    name = self.localisation.grab_text(("gear_rarity", item["Rarity"], "Name")).split(",")[item["Name"][0]] + " " + \
+                           self.localisation.grab_text(("gear_preset", self.profile["character"]["ID"], item["Type"])) + " " + \
+                           self.localisation.grab_text(("gear_mod", item["Name"][1], "Suffix")).split(",")[
+                               rarity_mod_number[item["Rarity"]] - 1]
 
                 text_surface = self.font.render(
                     self.localisation.grab_text(("ui", "Rarity")) +
@@ -1245,9 +1274,10 @@ class CharacterInterface(UIMenu):
                         name = self.localisation.grab_text(("gear", item, "Name"))
                     else:
                         stat = item  # custom equipment
-                        name = self.localisation.grab_text(("gear_name", stat["Name"][0], "Prefix")) + " " + \
-                               self.localisation.grab_text(("gear_name", stat["Name"][1], "Name")) + " " + \
-                               self.localisation.grab_text(("gear_name", stat["Name"][1], "Suffix"))
+                        name = self.localisation.grab_text(("gear_rarity", item["Rarity"], "Name")).split(",")[item["Name"][0]] + " " + \
+                               self.localisation.grab_text(("gear_preset", self.profile["character"]["ID"], item["Type"])) + " " + \
+                               self.localisation.grab_text(("gear_mod", item["Name"][1], "Suffix")).split(",")[
+                                   rarity_mod_number[item["Rarity"]] - 1]
 
                     text_surface = self.small_font.render(
                         self.localisation.grab_text(("ui", "Rarity")) +
@@ -1280,10 +1310,10 @@ class CharacterInterface(UIMenu):
                         index2 += 1
 
                 item_image = pygame.transform.smoothscale(
-                        self.item_sprite_pool[self.game.battle.chapter_sprite_ver][
+                        self.item_sprite_pool[self.game.battle.chapter][
                             "Normal"][item][1][0], (60 * self.screen_scale[0],
                                                     60 * self.screen_scale[1]))
-                item_rect = item_image.get_rect(topleft=self.equipment_list_slot_rect[("equip", "new")[index]].topleft)
+                item_rect = item_image.get_rect(center=self.equipment_list_slot_rect[("equip", "new")[index]].center)
                 self.image.blit(item_image, item_rect)
 
                 if item in self.game.character_data.equip_item_list:  # item type, add number in storage
@@ -1331,9 +1361,12 @@ class CharacterInterface(UIMenu):
                                                           True, (30, 30, 30))
                 else:
                     text_surface = self.small_font.render(
-                        self.localisation.grab_text(("gear_name", item["Name"][0], "Prefix")) +
-                        " " + self.localisation.grab_text(("gear_name", item["Name"][1], "Name")) +
-                        " " + self.localisation.grab_text(("gear_name", item["Name"][1], "Suffix")),
+                        self.localisation.grab_text(("gear_rarity", item["Rarity"], "Name")).split(",")[
+                            item["Name"][0]] + " " + \
+                        self.localisation.grab_text(
+                            ("gear_preset", self.profile["character"]["ID"], item["Type"])) + " " + \
+                        self.localisation.grab_text(("gear_mod", item["Name"][1], "Suffix")).split(",")[
+                            rarity_mod_number[item["Rarity"]] - 1],
                         True, (30, 30, 30))
 
                 text_rect = text_surface.get_rect(
@@ -1349,11 +1382,13 @@ class CharacterInterface(UIMenu):
             # also check if order change
             self.image = self.storage_base_image.copy()
             self.old_storage_list = copy.deepcopy(self.profile["storage"])
+            self.old_equipment = {}  # reset equipment as well
 
             slot_index = 0
             page_slot_index = 0
             if self.current_page:
                 slot_index += 60 * self.current_page
+            all_equip_item = list(self.profile["equipment"].values()) + list(self.profile["equipment"]["item"].values())
             for index, item in enumerate(self.profile["storage"]):
                 if index == slot_index:  # only add item of current page
                     number = self.profile["storage"][item]
@@ -1368,7 +1403,7 @@ class CharacterInterface(UIMenu):
                         else:  # custom equipment
                             self.image.blit(self.small_box_images[item["Type"]], rect)
                     item_image = pygame.transform.smoothscale(
-                        self.item_sprite_pool[self.game.battle.chapter_sprite_ver][
+                        self.item_sprite_pool[self.game.battle.chapter][
                             "Normal"][item][1][0], (50 * self.screen_scale[0],
                                                     50 * self.screen_scale[1]))
                     image_rect = item_image.get_rect(center=rect.center)
@@ -1378,6 +1413,12 @@ class CharacterInterface(UIMenu):
                                                        Color("black"))
                     text_rect = text_surface.get_rect(bottomright=rect.bottomright)
                     self.image.blit(text_surface, text_rect)
+
+                    if item in all_equip_item:  # add equipped indication
+                        text_surface = text_render_with_bg("E", self.small_font,
+                                                           Color("black"))
+                        text_rect = text_surface.get_rect(topleft=rect.topleft)
+                        self.image.blit(text_surface, text_rect)
 
                     page_slot_index += 1
                     slot_index += 1
@@ -1508,7 +1549,7 @@ class CharacterInterface(UIMenu):
                 rect = portrait.get_rect(topleft=(0, (index + 1) * 100 * self.screen_scale[1]))
                 self.image.blit(portrait, rect)
 
-                text_surface = self.small_font.render(self.localisation.grab_text(("enemy", follower, "Name")),
+                text_surface = self.small_font.render(self.localisation.grab_text(("character", follower, "Name")),
                                                       True, (30, 30, 30))
                 text_rect = text_surface.get_rect(topleft=(110 * self.screen_scale[0],
                                                            (index + 1) * 100 * self.screen_scale[1]))
@@ -1540,6 +1581,175 @@ class CharacterInterface(UIMenu):
                 if index - self.current_row > 7:
                     break
 
+    def calculate_shop_cost(self):
+        total_cost = 0
+        for item_id, num in self.purchase_list.items():
+            total_cost += self.game.character_data.shop_list[item_id]["Value"] * num
+        return total_cost
+
+    def add_shop_list(self):
+        self.image = self.shop_base_image.copy()
+
+        total_cost = self.calculate_shop_cost()
+        remain_fund = self.profile["total golds"] - total_cost
+        text_surface = self.font.render(
+            self.localisation.grab_text(("ui", "Total Cost")) + ": " + str(total_cost),
+            True, (30, 30, 30))
+        text_rect = text_surface.get_rect(topleft=(20 * self.screen_scale[0], 20 * self.screen_scale[1]))
+        self.image.blit(text_surface, text_rect)
+        text_surface = self.font.render(
+            self.localisation.grab_text(("ui", "Remaining Gold")) + ": " + str(remain_fund),
+            True, (30, 30, 30))
+        text_rect = text_surface.get_rect(topleft=(20 * self.screen_scale[0], 50 * self.screen_scale[1]))
+        self.image.blit(text_surface, text_rect)
+
+        for index, item in enumerate(self.shop_list):
+            if index >= self.current_row or self.current_row + 8 > len(self.shop_list):
+                if self.current_row == index:  # current preset row
+                    draw.rect(self.image, (220, 220, 220),
+                              (0, ((index + 1) * 100) * self.screen_scale[1], 400 * self.screen_scale[0],
+                               100 * self.screen_scale[1]),
+                              width=int(3 * self.screen_scale[0]))
+
+                item_image = self.item_sprite_pool[self.game.battle.chapter]["Normal"][item][1][0]
+                rect = item_image.get_rect(topleft=(0, (index + 1) * 100 * self.screen_scale[1]))
+                self.image.blit(item_image, rect)
+
+                if item in self.game.character_data.equip_item_list:
+                    make_long_text(self.image, self.localisation.grab_text(("item", item, "Name")),  # add item name
+                                   (110 * self.screen_scale[0],
+                                    (index + 1) * 100 * self.screen_scale[1]), self.font, color=(30, 30, 30),
+                                   specific_width=self.image.get_width() - (50 * self.screen_scale[0]))
+                elif item in self.game.character_data.gear_list:
+                    make_long_text(self.image, self.localisation.grab_text(("gear", item, "Name")),  # add item name
+                                   (110 * self.screen_scale[0],
+                                    (index + 1) * 100 * self.screen_scale[1]), self.font, color=(30, 30, 30),
+                                   specific_width=self.image.get_width() - (50 * self.screen_scale[0]))
+                else:
+                    make_long_text(self.image,
+                                   self.localisation.grab_text(("gear_rarity", item["Rarity"], "Name")).split(",")[
+                                       item["Name"][0]] + " " +
+                                   self.localisation.grab_text(
+                                       ("gear_preset", self.profile["character"]["ID"], item["Type"])) + " " + \
+                                   self.localisation.grab_text(("gear_mod", item["Name"][1], "Suffix")).split(",")[
+                                       rarity_mod_number[item["Rarity"]] - 1],  # add item name
+                                   (110 * self.screen_scale[0],
+                                    (index + 1) * 100 * self.screen_scale[1]), self.font, color=(30, 30, 30),
+                                   specific_width=self.image.get_width() - (100 * self.screen_scale[0]))
+
+                purchase_num = 0
+                if item in self.purchase_list:
+                    purchase_num = self.purchase_list[item]
+                text_surface = self.font.render("x" + str(purchase_num),
+                                                True, (30, 30, 30))
+                text_rect = text_surface.get_rect(topleft=(110 * self.screen_scale[0],
+                                                           (((index + 1) * 100) + 50) * self.screen_scale[1]))
+                self.image.blit(text_surface, text_rect)
+
+                text_surface = self.font.render(
+                    str(self.game.character_data.shop_list[item]["Value"]) + " Gold Cost",
+                    True, (30, 30, 30))
+                text_rect = text_surface.get_rect(topright=(400 * self.screen_scale[0],
+                                                            (((index + 1) * 100) + 50) * self.screen_scale[1]))
+                self.image.blit(text_surface, text_rect)
+
+                if index - self.current_row > 7:
+                    break
+
+    def add_reward_list(self):
+        self.image = self.reward_base_image.copy()
+
+        self.shown_reward_list = []
+        self.len_reward_list = len(self.reward_list["one"]) + len(self.reward_list["choice"]) + len(self.reward_list["multi"])
+        index = 0
+        for reward_type in self.reward_list:
+            for item in self.reward_list[reward_type]:
+                if index >= self.current_row or self.current_row + 8 > len(self.reward_list):
+                    if self.current_row == index:  # current preset row
+                        draw.rect(self.image, (220, 220, 220),
+                                  (0, ((index + 1) * 100) * self.screen_scale[1], 400 * self.screen_scale[0],
+                                   100 * self.screen_scale[1]),
+                                  width=int(3 * self.screen_scale[0]))
+
+                    if item in self.game.character_data.character_list:  # follower reward
+                        portrait = self.game.character_data.character_portraits[item]
+                        rect = portrait.get_rect(topleft=(0, (index + 1) * 100 * self.screen_scale[1]))
+                        self.image.blit(portrait, rect)
+                        make_long_text(self.image, self.localisation.grab_text(("character", item, "Name")),
+                                       (110 * self.screen_scale[0],
+                                        (index + 1) * 100 * self.screen_scale[1]), self.font, color=(30, 30, 30),
+                                       specific_width=self.image.get_width() - (50 * self.screen_scale[0]))
+                    else:  # item reward
+                        item_image = self.item_sprite_pool[self.game.battle.chapter]["Normal"][item][1][0]
+                        rect = item_image.get_rect(topleft=(0, (index + 1) * 100 * self.screen_scale[1]))
+                        self.image.blit(item_image, rect)
+                        if item in self.game.character_data.equip_item_list:
+                            make_long_text(self.image, self.localisation.grab_text(("item", item, "Name")),
+                                           (110 * self.screen_scale[0],
+                                            (index + 1) * 100 * self.screen_scale[1]), self.font, color=(30, 30, 30),
+                                           specific_width=self.image.get_width() - (50 * self.screen_scale[0]))
+                        elif item in self.game.character_data.gear_list:
+                            make_long_text(self.image, self.localisation.grab_text(("gear", item, "Name")),
+                                           (110 * self.screen_scale[0],
+                                            (index + 1) * 100 * self.screen_scale[1]), self.font, color=(30, 30, 30),
+                                           specific_width=self.image.get_width() - (50 * self.screen_scale[0]))
+                        elif item == "gold":
+                            make_long_text(self.image, self.localisation.grab_text(("ui", "Gold")),
+                                           (110 * self.screen_scale[0],
+                                            (index + 1) * 100 * self.screen_scale[1]), self.font, color=(30, 30, 30),
+                                           specific_width=self.image.get_width() - (50 * self.screen_scale[0]))
+                        elif item == "stat":
+                            make_long_text(self.image, self.localisation.grab_text(("ui", "Status Points")),
+                                           (110 * self.screen_scale[0],
+                                            (index + 1) * 100 * self.screen_scale[1]), self.font, color=(30, 30, 30),
+                                           specific_width=self.image.get_width() - (50 * self.screen_scale[0]))
+                        elif item == "skill":
+                            make_long_text(self.image, self.localisation.grab_text(("ui", "Skill Points")),
+                                           (110 * self.screen_scale[0],
+                                            (index + 1) * 100 * self.screen_scale[1]), self.font, color=(30, 30, 30),
+                                           specific_width=self.image.get_width() - (50 * self.screen_scale[0]))
+                        else:
+                            make_long_text(self.image,
+                                           self.localisation.grab_text(("gear_rarity", item["Rarity"], "Name")).split(",")[
+                                               item["Name"][0]] + " " +
+                                           self.localisation.grab_text(
+                                               ("gear_preset", self.profile["character"]["ID"], item["Type"])) + " " + \
+                                           self.localisation.grab_text(("gear_mod", item["Name"][1], "Suffix")).split(",")[
+                                               rarity_mod_number[item["Rarity"]] - 1],  # add item name
+                                           (110 * self.screen_scale[0],
+                                            (index + 1) * 100 * self.screen_scale[1]), self.font, color=(30, 30, 30),
+                                       specific_width=self.image.get_width() - (100 * self.screen_scale[0]))
+
+                    text_surface = self.font.render("x" + self.reward_list[item], True, (30, 30, 30))
+                    text_rect = text_surface.get_rect(topleft=(110 * self.screen_scale[0],
+                                                               (((index + 1) * 100) + 50) * self.screen_scale[1]))
+                    self.image.blit(text_surface, text_rect)
+
+                    text_surface = self.font.render(
+                        str(self.game.character_data.reward_list[item]["Value"] * self.reward_list[item]) + " Gold Value",
+                        True, (30, 30, 30))
+                    text_rect = text_surface.get_rect(topright=(400 * self.screen_scale[0],
+                                                                (((index + 1) * 100) + 50) * self.screen_scale[1]))
+                    self.image.blit(text_surface, text_rect)
+
+                    if reward_type == "one":
+                        text_surface = self.font.render(self.localisation.grab_text(("ui", "one_time_reward")),
+                                                        True, (30, 30, 30))
+                    elif reward_type == "choice":
+                        text_surface = self.font.render(self.localisation.grab_text(("ui", "choice_reward")),
+                                                        True, (30, 30, 30))
+                    else:
+                        text_surface = self.font.render(self.localisation.grab_text(("ui", "multi_time_reward")),
+                                                        True, (30, 30, 30))
+                    text_rect = text_surface.get_rect(topright=(400 * self.screen_scale[0],
+                                                                (((index + 1) * 100) + 70) * self.screen_scale[1]))
+                    self.image.blit(text_surface, text_rect)
+
+                    self.shown_reward_list.append((reward_type, item))
+
+                    if index - self.current_row > 7:
+                        break
+
     def start_new_mode(self):
         self.game.battle.remove_ui_updater(self.text_popup)
         self.game.remove_ui_updater(self.text_popup)
@@ -1562,6 +1772,12 @@ class CharacterInterface(UIMenu):
             self.max_page = int(len(self.profile["storage"]) / 61)
             self.player_input = self.player_input_storage
             self.change_storage_list()
+        elif "shop" in self.mode:
+            self.player_input = self.player_input_shop
+            self.add_shop_list()
+        elif "reward" in self.mode:
+            self.player_input = self.player_input_reward
+            self.add_reward_list()
 
     def change_mode(self, mode):
         self.mode = mode
@@ -1590,7 +1806,7 @@ class CharacterInterface(UIMenu):
     def change_skill(self, skill, how):
         chapter = 1
         if "Chapter" in self.profile:
-            chapter = self.profile["Chapter"]
+            chapter = int(self.profile["Chapter"])
         self.stat[skill], self.stat["Skill Remain"] = skill_allocation_check(self.stat[skill],
                                                                              self.stat["Skill Remain"], how, chapter)
         self.add_stat(self.stat)
@@ -1622,6 +1838,7 @@ class CharacterInterface(UIMenu):
         self.image.blit(sub_menu_image, sub_menu_rect)
 
     def player_input_sub_menu(self, key):
+        """Player input for when sub menu is active"""
         if not self.input_delay:
             if key in ("Up", "Down"):
                 self.input_delay = 0.2
@@ -1637,7 +1854,7 @@ class CharacterInterface(UIMenu):
                     self.add_sub_menu()
             else:
                 self.input_delay = 0.3
-                if key == "Weak":  # sort based on selected option
+                if key == "Weak":  # confirm and sort based on selected option
                     if self.sub_menu_button_list == self.item_sort_list:
                         sort_how = self.item_sort_list[self.sub_menu_current_row].split(" ")
                         if self.mode == "equipment_list":
@@ -1645,10 +1862,11 @@ class CharacterInterface(UIMenu):
                                 sort_list = {key: self.localisation.grab_text(("gear", key, "Name")) if
                                 key in self.game.character_data.gear_list else self.localisation.grab_text(
                                     ("item", key,
-                                     "Name")) if key in self.game.character_data.equip_item_list else self.localisation.grab_text(
-                                    ("gear_name", key["Name"][0], "Prefix")) + " " + self.localisation.grab_text(
-                                    ("gear_name", key["Name"][1], "Name")) + " " + self.localisation.grab_text(
-                                    ("gear_name", key["Name"][1], "Suffix")) for key in self.current_equipment_list}
+                                     "Name")) if key in self.game.character_data.equip_item_list else
+                                self.localisation.grab_text(("gear_rarity", key["Rarity"], "Name")).split(",")[key["Name"][0]] + " " + \
+                                self.localisation.grab_text(("gear_preset", self.profile["character"]["ID"], key["Type"])) + " " + \
+                                self.localisation.grab_text(("gear_mod", key["Name"][1], "Suffix")).split(",")[
+                               rarity_mod_number[key["Rarity"]] - 1] for key in self.current_equipment_list}
                             elif sort_how[0] == "Type":
                                 sort_list = {key: self.game.character_data.gear_list[key][
                                     "Type"] if key in self.game.character_data.gear_list else
@@ -1713,7 +1931,7 @@ class CharacterInterface(UIMenu):
                         sort_how = self.follower_sort_list[self.sub_menu_current_row].split(" ")
                         if self.mode == "follower_list":
                             if sort_how[0] == "Name":
-                                sort_list = {key: self.localisation.grab_text(("enemy", key, "Name")) for key in
+                                sort_list = {key: self.localisation.grab_text(("character", key, "Name")) for key in
                                              self.profile["follower list"]}
                             elif sort_how[0] == "Type":
                                 sort_list = {key: self.game.character_data.character_list[key]["Type"] for key in
@@ -1730,7 +1948,49 @@ class CharacterInterface(UIMenu):
                             else:
                                 sort_list = dict(sorted(sort_list.items(), key=lambda item: item[1], reverse=True))
                             self.profile["follower list"] = [key for key in sort_list]
+                    elif self.sub_menu_button_list == self.purchase_confirm_list:
+                        if self.purchase_confirm_list[self.sub_menu_current_row] == "Confirm Purchase":
+                            total_cost = self.calculate_shop_cost()
+                            if total_cost <= self.profile["total golds"]:
+                                for key, value in self.purchase_list.items():
+                                    if key in self.profile["storage"]:
+                                        self.profile["storage"][key] += value
+                                    else:
+                                        self.profile["storage"][key] = value
+                                self.profile["total golds"] -= total_cost
+                    elif self.sub_menu_button_list == self.purchase_clear_confirm_list:
+                        if self.purchase_clear_confirm_list[self.sub_menu_current_row] == "Confirm Clear":
+                            self.purchase_list = {}
+                    elif self.sub_menu_button_list == self.storage_sell_list:
+                        if "Sell" in self.storage_sell_list[self.sub_menu_current_row]:
+                            item_index = self.current_row * (self.current_page + 1)
+                            item = tuple(self.profile["storage"].keys())[item_index]
+                            if "All" in self.storage_sell_list[self.sub_menu_current_row]:
+                                sell_number = self.profile["storage"][item]
+                                self.profile["storage"][item] = 0
+                            elif "Half" in self.storage_sell_list[self.sub_menu_current_row]:
+                                sell_number = int(self.profile["storage"][item] / 2)
+                                self.profile["storage"][item] -= sell_number
+                            else:  # sell one item
+                                sell_number = 1
+                                self.profile["storage"][item] -= 1
+                            if item in self.game.character_data.equip_item_list:  # item type
+                                self.profile["total golds"] += self.game.character_data.equip_item_list[item]["Value"] * sell_number
+                            else:  # equipment type
+                                if item in self.game.character_data.gear_list:
+                                    self.profile["total golds"] += self.game.character_data.gear_list[item]["Value"] * sell_number
+                                else:  # custom equipment
+                                    self.profile["total golds"] += item["Value"] * sell_number
+                            if not self.profile["storage"][item]:  # item no longer exist in storage
+                                if item not in self.game.character_data.equip_item_list:
+                                    # check if item is equipped, if so unequip it
+                                    if item in self.profile["equipment"].values():
+                                        for key, value in self.profile["equipment"].items():
+                                            if value == item:
+                                                self.profile["equipment"][key] = None
+                                    self.profile["storage"].pop(item)  # remove sold equip from storage
                     self.start_new_mode()
+
                 elif key == "Strong":  # cancel, change back to previous interface
                     self.start_new_mode()
                 elif key == "Guard":
@@ -1784,7 +2044,7 @@ class CharacterInterface(UIMenu):
                         warning = ""
                         chapter = 1
                         if "Chapter" in self.profile:
-                            chapter = self.profile["Chapter"]
+                            chapter = int(self.profile["Chapter"])
                         if self.stat[self.all_skill_row[self.current_row - 7]] == chapter + 1 and \
                                 self.stat[self.all_skill_row[self.current_row - 7]] != 5:
                             warning = self.game.localisation.grab_text(("ui", "warn_skill_next_chapter"))
@@ -1856,7 +2116,7 @@ class CharacterInterface(UIMenu):
                     self.change_mode("follower")
                 elif key == "Order Menu":  # go to previous page (stat)
                     self.change_mode("stat")
-                elif key == "Weak":
+                elif key == "Weak":  # equip the selected gear
                     equip_type = tuple(self.equipment_slot_rect.keys())[self.current_row]
                     self.selected_equipment_slot = tuple(self.equipment_slot_rect.keys())[self.current_row]
                     self.current_equipment_list = []
@@ -1865,10 +2125,10 @@ class CharacterInterface(UIMenu):
                             self.current_equipment_list.append(key)
                         else:
                             if key in self.game.character_data.gear_list:
-                                if self.game.character_data.gear_list[key]["Type"] == equip_type.split(" ")[0]:
+                                if self.game.character_data.gear_list[key]["Type"] == equip_type:
                                     self.current_equipment_list.append(key)
                             elif type(key) is dict:
-                                if key["Type"] == equip_type.split(" ")[0]:
+                                if key["Type"] == equip_type:
                                     self.current_equipment_list.append(key)
 
                     self.change_mode("equipment_list")
@@ -1967,7 +2227,7 @@ class CharacterInterface(UIMenu):
                     self.text_popup.popup(self.rect.topleft, ["Total Equipment Modifiers"] +
                                           [self.localisation.grab_text(("gear_mod", key, "Name")) + ": " + str(value) for key, value in compare_stat.items()],
                                           shown_id=key, width_text_wrapper=400 * self.game.screen_scale[0])
-                elif key == "Strong":
+                elif key == "Weak":
                     item = self.show_equip_list[self.current_row]
                     if self.show_equip_list[self.current_row] == "Unequip":
                         item = None
@@ -1979,7 +2239,7 @@ class CharacterInterface(UIMenu):
                     self.change_equipment_list()
                 elif key == "Order Menu":
                     self.change_mode("equipment")
-                elif key == "Weak":
+                elif key == "Strong":  # open sort list
                     self.open_sub_menu(self.item_sort_list)
                 elif key == "Guard":
                     self.add_remove_text_popup()
@@ -1992,13 +2252,13 @@ class CharacterInterface(UIMenu):
                                            self.localisation.grab_text(("ui", "Button")) + " (" +
                                            self.game.player_key_bind_button_name[self.player]["Special"] +
                                            "): " + self.localisation.grab_text(("ui", "Toggle total modifier")),
-                                           self.localisation.grab_text(("ui", "keybind_strong_attack")) + " " +
-                                           self.localisation.grab_text(("ui", "Button")) + " (" +
-                                           self.game.player_key_bind_button_name[self.player]["Strong"] +
-                                           "): " + self.localisation.grab_text(("ui", "equip_item")),
                                            self.localisation.grab_text(("ui", "keybind_weak_attack")) + " " +
                                            self.localisation.grab_text(("ui", "Button")) + " (" +
                                            self.game.player_key_bind_button_name[self.player]["Weak"] +
+                                           "): " + self.localisation.grab_text(("ui", "equip_item")),
+                                           self.localisation.grab_text(("ui", "keybind_strong_attack")) + " " +
+                                           self.localisation.grab_text(("ui", "Button")) + " (" +
+                                           self.game.player_key_bind_button_name[self.player]["Strong"] +
                                            "): " + self.localisation.grab_text(("ui", "sort_item"))),
                                           shown_id=key, width_text_wrapper=400 * self.game.screen_scale[0])
 
@@ -2039,16 +2299,16 @@ class CharacterInterface(UIMenu):
                             for key, value in self.profile["follower preset"][
                                 self.current_row * (self.current_page + 1)].items():
                                 follower_list.append(
-                                    self.localisation.grab_text(("enemy", key, "Name")) + " x" + str(value))
+                                    self.localisation.grab_text(("character", key, "Name")) + " x" + str(value))
                         self.text_popup.popup(self.rect.topleft,
                                               follower_list,
                                               shown_id=follower_list,
                                               width_text_wrapper=400 * self.game.screen_scale[0])
-                    elif key == "Weak":
+                    elif key == "Strong":  # edit selected preset
                         self.current_follower_preset_num = self.current_row * (self.current_page + 1)
                         self.current_follower_preset = self.profile["follower preset"][self.current_follower_preset_num]
                         self.change_mode("follower_list")
-                    elif key == "Strong":
+                    elif key == "Weak":  # use this preset
                         self.profile["selected follower preset"] = self.current_row * (self.current_page + 1)
                         self.add_follower_preset_list()
                     elif key == "Inventory Menu":  # go to next page (storage)
@@ -2070,13 +2330,13 @@ class CharacterInterface(UIMenu):
                                                self.localisation.grab_text(("ui", "Button")) + " (" +
                                                self.game.player_key_bind_button_name[self.player]["Special"] +
                                                "): " + self.localisation.grab_text(("ui", "Toggle description")),
-                                               self.localisation.grab_text(("ui", "keybind_weak_attack")) + " " +
-                                               self.localisation.grab_text(("ui", "Button")) + " (" +
-                                               self.game.player_key_bind_button_name[self.player]["Weak"] +
-                                               "): " + self.localisation.grab_text(("ui", "edit_preset")),
                                                self.localisation.grab_text(("ui", "keybind_strong_attack")) + " " +
                                                self.localisation.grab_text(("ui", "Button")) + " (" +
                                                self.game.player_key_bind_button_name[self.player]["Strong"] +
+                                               "): " + self.localisation.grab_text(("ui", "edit_preset")),
+                                               self.localisation.grab_text(("ui", "keybind_weak_attack")) + " " +
+                                               self.localisation.grab_text(("ui", "Button")) + " (" +
+                                               self.game.player_key_bind_button_name[self.player]["Weak"] +
                                                "): " + self.localisation.grab_text(("ui", "use_preset"))),
                                               shown_id=key, width_text_wrapper=400 * self.game.screen_scale[0])
 
@@ -2128,9 +2388,9 @@ class CharacterInterface(UIMenu):
                                str(follower_stat["Charisma"])
                         self.text_popup.popup(self.rect.topleft,
                                               (self.localisation.grab_text(
-                                                  ("enemy", self.profile["follower list"][self.current_row], "Name")),
+                                                  ("character", self.profile["follower list"][self.current_row], "Name")),
                                                self.localisation.grab_text(
-                                                   ("enemy", self.profile["follower list"][self.current_row],
+                                                   ("character", self.profile["follower list"][self.current_row],
                                                     "Description")),
                                                self.localisation.grab_text(("ui", "Base Stat")) + ": " + stat,
                                                self.localisation.grab_text(("ui", "Base Health")) + ": " +
@@ -2138,7 +2398,7 @@ class CharacterInterface(UIMenu):
                                                self.localisation.grab_text(("ui", "Type")) + ": " + follower_stat[
                                                    "Type"]),
                                               shown_id=stat, width_text_wrapper=400 * self.game.screen_scale[0])
-                    elif key == "Weak":
+                    elif key == "Strong":
                         self.open_sub_menu(self.follower_sort_list)
                     elif key == "Order Menu":  # go to previous page (equipment)
                         self.change_mode("follower")
@@ -2153,9 +2413,9 @@ class CharacterInterface(UIMenu):
                                                self.localisation.grab_text(("ui", "Button")) + " (" +
                                                self.game.player_key_bind_button_name[self.player]["Special"] +
                                                "): " + self.localisation.grab_text(("ui", "Toggle description")),
-                                               self.localisation.grab_text(("ui", "keybind_weak_attack")) + " " +
+                                               self.localisation.grab_text(("ui", "keybind_strong_attack")) + " " +
                                                self.localisation.grab_text(("ui", "Button")) + " (" +
-                                               self.game.player_key_bind_button_name[self.player]["Weak"] +
+                                               self.game.player_key_bind_button_name[self.player]["Strong"] +
                                                "): " + self.localisation.grab_text(("ui", "sort_follower"))),
                                               shown_id=key, width_text_wrapper=400 * self.game.screen_scale[0])
 
@@ -2203,42 +2463,133 @@ class CharacterInterface(UIMenu):
                     self.add_remove_text_popup()
                     stat = ("Empty",)
                     try:
-                        item_id = tuple(self.profile["storage"].keys())[self.current_row]
-                        if item_id in self.game.character_data.equip_item_list:  # item type
-                            stat = (self.localisation.grab_text(("item", item_id, "Name")),
-                                    self.localisation.grab_text(("item", item_id, "Description")))
+                        item = tuple(self.profile["storage"].keys())[self.current_row * (self.current_page + 1)]
+                        if item in self.game.character_data.equip_item_list:  # item type
+                            stat = (self.localisation.grab_text(("item", item, "Name")),
+                                    self.localisation.grab_text(("item", item, "Description")))
                         else:  # equipment type
-                            if item_id in self.game.character_data.gear_list:
-                                stat = [self.localisation.grab_text(("gear", item_id, "Name")),
-                                        self.localisation.grab_text(("gear", item_id, "Description")),
-                                        "Rarity: " + self.localisation.grab_text(
-                                            ("ui", self.game.character_data.gear_list[item_id]["Rarity"]))]
-                                stat += [str(key) + ": " + str(value) for key, value in
-                                         self.game.character_data.gear_list[item_id]["Modifier"].items()]
+                            if item in self.game.character_data.gear_list:
+                                stat = self.get_equipment_description(item)
+
                             else:  # custom equipment
-                                pass  # TODO add when work on custom equip
-                    except IndexError:
+                                stat = self.get_custom_equipment_description(item)
+                    except IndexError:  # Empty slot
                         pass
 
                     self.text_popup.popup(self.rect.topleft, stat,
                                           shown_id=stat, width_text_wrapper=400 * self.game.screen_scale[0])
-                elif key == "Weak":
+                elif key == "Strong":
                     self.open_sub_menu(self.item_sort_list)
-                elif key == "Inventory Menu":  # go to next page (stat)
-                    self.change_mode("stat")
-                elif key == "Order Menu":  # go to previous page (follower)
-                    self.change_mode("follower")
+                elif key == "Weak":
+                    try:
+                        var = tuple(self.profile["storage"].keys())[self.current_row * (self.current_page + 1)]
+                        self.open_sub_menu(self.storage_sell_list)
+                    except KeyError:  # empty slot, not open sell menu
+                        pass
+                elif key == "Inventory Menu":  # go to next page (stat) or shop
+                    if self.shop_list:
+                        self.change_mode("shop")
+                    else:
+                        self.change_mode("stat")
+                elif key == "Order Menu":  # go to previous page (follower) or shop
+                    if self.shop_list:
+                        self.change_mode("shop")
+                    else:
+                        self.change_mode("follower")
                 elif key == "Guard":
                     self.add_remove_text_popup()
                     self.text_popup.popup(self.rect.topleft,
                                           (self.localisation.grab_text(("ui", "keybind_inventory_menu")) + " " +
                                            self.localisation.grab_text(("ui", "Button")) + " (" +
                                            self.game.player_key_bind_button_name[self.player]["Inventory Menu"] +
-                                           "): " + self.localisation.grab_text(("ui", "to_stat")),
+                                           "): " + self.localisation.grab_text(("ui", "storage_to_stat")),
                                            self.localisation.grab_text(("ui", "keybind_order_menu")) + " " +
                                            self.localisation.grab_text(("ui", "Button")) + " (" +
                                            self.game.player_key_bind_button_name[self.player]["Order Menu"] +
-                                           "): " + self.localisation.grab_text(("ui", "to_follower_preset")),
+                                           "): " + self.localisation.grab_text(("ui", "storage_to_follower_preset")),
+                                           self.localisation.grab_text(("ui", "keybind_special")) + " " +
+                                           self.localisation.grab_text(("ui", "Button")) + " (" +
+                                           self.game.player_key_bind_button_name[self.player]["Special"] +
+                                           "): " + self.localisation.grab_text(("ui", "Toggle description")),
+                                           self.localisation.grab_text(("ui", "keybind_strong_attack")) + " " +
+                                           self.localisation.grab_text(("ui", "Button")) + " (" +
+                                           self.game.player_key_bind_button_name[self.player]["Strong"] +
+                                           "): " + self.localisation.grab_text(("ui", "sort_item")),
+                                           self.localisation.grab_text(("ui", "keybind_weak_attack")) + " " +
+                                           self.localisation.grab_text(("ui", "Button")) + " (" +
+                                           self.game.player_key_bind_button_name[self.player]["Weak"] +
+                                           "): " + self.localisation.grab_text(("ui", "sell_item"))),
+                                          shown_id=key, width_text_wrapper=400 * self.game.screen_scale[0])
+
+    def player_input_shop(self, key):
+        if not self.input_delay:
+            if key in ("Up", "Down", "Left", "Right"):
+                self.input_delay = 0.25
+                if key == "Up":
+                    self.current_row -= 1
+                    if self.current_row < 0:
+                        self.current_row = len(self.shop_list) - 1
+                    self.add_shop_list()
+                elif key == "Down":
+                    self.current_row += 1
+                    if self.current_row > len(self.shop_list) - 1:
+                        self.current_row = 0
+                    self.add_shop_list()
+                elif key == "Left":
+                    if self.shop_list[self.current_row] in self.purchase_list:
+                        self.purchase_list[self.shop_list[self.current_row]] -= 1
+                        if not self.purchase_list[self.shop_list[self.current_row]]:
+                            self.purchase_list.pop(self.shop_list[self.current_row])
+                        self.add_shop_list()
+                elif key == "Right":
+                    total_cost = self.calculate_shop_cost()
+                    remain_fund = (self.profile["total golds"] - total_cost) - \
+                                  self.game.character_data.shop_list[self.shop_list[self.current_row]]["Value"]
+                    if remain_fund >= 0:  # can add to purchase since enough gold left to purchase
+                        if self.shop_list[self.current_row] in self.purchase_list:
+                            self.purchase_list[self.shop_list[self.current_row]] += 1
+                        else:
+                            self.purchase_list[self.shop_list[self.current_row]] = 1
+                    self.add_shop_list()
+            else:
+                self.input_delay = 0.3
+                if key == "Special":  # popup item description
+                    self.add_remove_text_popup()
+                    stat = ("Empty",)
+                    try:
+                        item = self.shop_list[self.current_row]
+                        if item in self.game.character_data.equip_item_list:  # item type
+                            stat = (self.localisation.grab_text(("item", item, "Name")),
+                                    self.localisation.grab_text(("item", item, "Description")))
+                        else:  # equipment type
+                            if item in self.game.character_data.gear_list:
+                                stat = self.get_equipment_description(item)
+                            else:  # custom equipment
+                                stat = self.get_custom_equipment_description(item)
+                    except IndexError:  # Empty slot
+                        pass
+
+                    self.text_popup.popup(self.rect.topleft, stat,
+                                          shown_id=stat, width_text_wrapper=400 * self.game.screen_scale[0])
+                elif key == "Weak":  # open up purchase confirm
+                    self.open_sub_menu(self.purchase_confirm_list)
+                elif key == "Strong":  # open up purchase clear confirm
+                    self.open_sub_menu(self.purchase_clear_confirm_list)
+                elif key == "Order Menu" or key == "Inventory Menu":  # go to storage page
+                    self.change_mode("storage")
+                elif key == "Guard":
+                    self.add_remove_text_popup()
+                    self.text_popup.popup(self.rect.topleft,
+                                          (self.localisation.grab_text(("ui", "keybind_order_menu")) + " " +
+                                           self.localisation.grab_text(("ui", "Button")) + " (" +
+                                           self.game.player_key_bind_button_name[self.player][
+                                               "Order Menu"] + "): " + self.localisation.grab_text(
+                                              ("ui", "to_storage")),
+                                           self.localisation.grab_text(("ui", "keybind_inventory_menu")) + " " +
+                                           self.localisation.grab_text(("ui", "Button")) + " (" +
+                                           self.game.player_key_bind_button_name[self.player][
+                                               "Inventory Menu"] + "): " + self.localisation.grab_text(
+                                               ("ui", "to_storage")),
                                            self.localisation.grab_text(("ui", "keybind_special")) + " " +
                                            self.localisation.grab_text(("ui", "Button")) + " (" +
                                            self.game.player_key_bind_button_name[self.player]["Special"] +
@@ -2246,8 +2597,115 @@ class CharacterInterface(UIMenu):
                                            self.localisation.grab_text(("ui", "keybind_weak_attack")) + " " +
                                            self.localisation.grab_text(("ui", "Button")) + " (" +
                                            self.game.player_key_bind_button_name[self.player]["Weak"] +
-                                           "): " + self.localisation.grab_text(("ui", "sort_item"))),
+                                           "): " + self.localisation.grab_text(("ui", "purchase_item")),
+                                           self.localisation.grab_text(("ui", "keybind_strong_attack")) + " " +
+                                           self.localisation.grab_text(("ui", "Button")) + " (" +
+                                           self.game.player_key_bind_button_name[self.player]["Strong"] +
+                                           "): " + self.localisation.grab_text(("ui", "clear_purchase_item")),
+                                           self.localisation.grab_text(("ui", "keybind_esc")) +
+                                           ": " + self.localisation.grab_text(("ui", "close_shop"))
+                                           ),
                                           shown_id=key, width_text_wrapper=400 * self.game.screen_scale[0])
+
+    def player_input_reward(self, key):
+        if not self.input_delay:
+            if key in ("Up", "Down", "Left", "Right"):
+                self.input_delay = 0.25
+                if key == "Up":
+                    self.current_row -= 1
+                    if self.current_row < 0:
+                        self.current_row = self.len_reward_list - 1
+                    self.add_reward_list()
+                elif key == "Down":
+                    self.current_row += 1
+                    if self.current_row > self.len_reward_list - 1:
+                        self.current_row = 0
+                    self.add_reward_list()
+            else:
+                self.input_delay = 0.3
+                if key == "Special":  # popup item description
+                    self.add_remove_text_popup()
+                    stat = ("Empty",)
+                    try:
+                        item = self.shown_reward_list[self.current_row][1]
+                        if item in self.game.character_data.equip_item_list:  # item type
+                            stat = (self.localisation.grab_text(("item", item, "Name")),
+                                    self.localisation.grab_text(("item", item, "Description")))
+                        elif item in self.game.character_data.character_list:
+                            follower_stat = self.game.character_data.character_list[item]
+                            stat = str(follower_stat["Strength"]) + "/" + str(follower_stat["Dexterity"]) + "/" + \
+                                   str(follower_stat["Agility"]) + "/" + str(follower_stat["Constitution"]) + "/" + \
+                                   str(follower_stat["Intelligence"]) + "/" + str(follower_stat["Wisdom"]) + "/" + \
+                                   str(follower_stat["Charisma"])
+                            self.text_popup.popup(self.rect.topleft,
+                                                  (self.localisation.grab_text(
+                                                      ("character", self.profile["follower list"][self.current_row],
+                                                       "Name")),
+                                                   self.localisation.grab_text(
+                                                       ("character", self.profile["follower list"][self.current_row],
+                                                        "Description")),
+                                                   self.localisation.grab_text(("ui", "Base Stat")) + ": " + stat,
+                                                   self.localisation.grab_text(("ui", "Base Health")) + ": " +
+                                                   minimise_number_text(str(follower_stat["Base Health"])),
+                                                   self.localisation.grab_text(("ui", "Type")) + ": " + follower_stat[
+                                                       "Type"]),
+                                                  shown_id=stat, width_text_wrapper=400 * self.game.screen_scale[0])
+                        else:  # equipment type
+                            if item in self.game.character_data.gear_list:
+                                stat = self.get_equipment_description(item)
+                            elif type(item) is dict:  # custom equipment
+                                stat = self.get_custom_equipment_description(item)
+                    except IndexError:  # Empty slot or item that does not have description
+                        pass
+
+                    self.text_popup.popup(self.rect.topleft, stat,
+                                          shown_id=stat, width_text_wrapper=400 * self.game.screen_scale[0])
+
+                elif key == "Guard":
+                    self.add_remove_text_popup()
+                    self.text_popup.popup(self.rect.topleft,
+                                          (self.localisation.grab_text(("ui", "keybind_special")) + " " +
+                                           self.localisation.grab_text(("ui", "Button")) + " (" +
+                                           self.game.player_key_bind_button_name[self.player]["Special"] +
+                                           "): " + self.localisation.grab_text(("ui", "Toggle description")),
+                                           self.localisation.grab_text(("ui", "keybind_esc")) +
+                                           ": " + self.localisation.grab_text(("ui", "close_reward"))
+                                           ),
+                                          shown_id=key, width_text_wrapper=400 * self.game.screen_scale[0])
+
+    def get_equipment_description(self, item):
+        stat = [self.localisation.grab_text(("gear", item, "Name")),
+                self.localisation.grab_text(("gear", item, "Description")),
+                "Rarity: " + self.localisation.grab_text(
+                    ("ui", self.game.character_data.gear_list[item]["Rarity"]))]
+        for key, value in self.game.character_data.gear_list[item]["Modifier"].items():
+            stat_str = str(value)
+            if "." in stat_str:  # convert percentage
+                stat_str = str(value * 100) + "%"
+            if "-" not in stat_str:
+                stat_str = "+" + stat_str
+
+            stat.append(self.localisation.grab_text(("gear_mod", key, "Name")) +
+                        ": " + stat_str)
+        return stat
+
+    def get_custom_equipment_description(self, item):
+        stat = [self.localisation.grab_text(("gear_rarity", item["Rarity"], "Name")).split(",")[
+                    item["Name"][0]] + " " + self.localisation.grab_text(
+            ("gear_preset", self.profile["character"]["ID"], item["Type"])) + " " + \
+            self.localisation.grab_text(("gear_mod", item["Name"][1], "Suffix")).split(",")[
+                rarity_mod_number[item["Rarity"]] - 1],
+            "Rarity: " + self.localisation.grab_text(
+                ("ui", item["Rarity"]))]
+        for key, value in item["Modifier"].items():
+            stat_str = str(value)
+            if "." in stat_str:  # convert percentage
+                stat_str = str(value * 100) + "%"
+            if "-" not in stat_str:
+                stat_str = "+" + stat_str
+            stat.append(self.localisation.grab_text(("gear_mod", key, "Name")) +
+                        ": " + stat_str)
+        return stat
 
 
 class ControllerIcon(UIMenu):
@@ -2327,7 +2785,7 @@ class KeybindIcon(UIMenu):
 class ValueBox(UIMenu):
     def __init__(self, image, pos, value, text_size):
         self._layer = 26
-        UIMenu.__init__(self, player_interact=False)
+        UIMenu.__init__(self, player_cursor_interact=False)
         self.font = Font(self.ui_font["main_button"], text_size)
         self.pos = pos
         self.image = image.copy()
@@ -2416,7 +2874,7 @@ class NameTextBox(UIMenu):
 class ListBox(UIMenu):
     def __init__(self, pos, image, layer=14):
         self._layer = layer
-        UIMenu.__init__(self, player_interact=False)
+        UIMenu.__init__(self, player_cursor_interact=False)
         self.image = image.copy()
         self.name_list_start = (self.image.get_width(), self.image.get_height())
         self.pos = pos
@@ -2624,7 +3082,7 @@ class TickBox(UIMenu):
 class TextPopup(UIMenu):
     def __init__(self):
         self._layer = 30
-        UIMenu.__init__(self, player_interact=False)
+        UIMenu.__init__(self, player_cursor_interact=False)
         self.font_size = int(24 * self.screen_scale[1])
         self.font = Font(self.ui_font["main_button"], self.font_size)
         self.pos = (0, 0)
@@ -2686,16 +3144,12 @@ class TextPopup(UIMenu):
                         max_width = text_rect.width
                     max_height += self.font_size + int(self.font_size / 5)
 
-            self.image = Surface((max_width + 6, max_height + 6))  # black border
-            image = Surface((max_width + 2, max_height + 2))  # white Box
-            image.fill((220, 220, 220))
-            rect = self.image.get_rect(topleft=(2, 2))  # white box image position at (2,2) on black border image
-            self.image.blit(image, rect)
+            self.image = Surface((max_width, max_height))  # white Box
+            self.image.fill((220, 220, 220))
 
-            height = 1
+            height = 0
             for surface in text_surface:
-                text_rect = surface.get_rect(topleft=(4, height))
-                image.blit(surface, text_rect)
+                text_rect = surface.get_rect(topleft=(0, height))
                 self.image.blit(surface, text_rect)  # blit text
                 height += surface.get_height()
 
@@ -2727,7 +3181,7 @@ class TextPopup(UIMenu):
 class BoxUI(UIMenu, Containable, Container):
 
     def __init__(self, size, parent):
-        UIMenu.__init__(self, player_interact=False)
+        UIMenu.__init__(self, player_cursor_interact=False)
         self.parent = parent
         self.size = size
         self._layer = -1  # NOTE: not sure if this is good since underscore indicate it is a private variable but it works for now
@@ -2815,7 +3269,10 @@ class ListUI(UIMenu, Containable):
 
     @staticmethod
     def get_scroll_box_height(scroll_bar_height, items, item_size):
-        return int(scroll_bar_height * (item_size / len(items)))
+        len_items = len(items)
+        if not len_items:
+            len_items = 1
+        return int(scroll_bar_height * (item_size / len_items))
 
     @staticmethod
     def get_has_scroll(items, item_size):
@@ -2831,6 +3288,8 @@ class ListUI(UIMenu, Containable):
 
     @staticmethod
     def get_scroll_box_size(scroll_bar_height, item_size, len_items):
+        if not len_items:
+            len_items = 1
         return (14, int(scroll_bar_height * (item_size / len_items)))
 
     @staticmethod
@@ -2920,9 +3379,9 @@ class ListUI(UIMenu, Containable):
         if scroll_box_rect:
             scroll_box = make_image_by_frame(cls.get_scroll_box_frame(), scroll_box_rect[2:])
 
-        font1 = Font(ui_font["main_button"], 20)
-        font2 = Font(ui_font["main_button"], 14)
-        font3 = Font(ui_font["main_button"], 18)
+        font1 = Font(ui_font["text_paragraph"], int(20 * Game.screen_scale[1]))
+        font2 = Font(ui_font["text_paragraph"], int(16 * Game.screen_scale[1]))
+        font3 = Font(ui_font["text_paragraph"], int(12 * Game.screen_scale[1]))
 
         assert type(scroll_box_index) == int, type(scroll_box_index)
         size = rect[2:]
@@ -2973,7 +3432,7 @@ class ListUI(UIMenu, Containable):
         if scroll_box_rect := scroll_box_rect:
             image.blit(scroll_box, scroll_box_rect)
             if in_scroll_box or hold_scroll_box is not None:
-                draw.rect(image, (1030, 30, 30) if hold_scroll_box is not None else (50,) * 3,
+                draw.rect(image, (130, 30, 30) if hold_scroll_box is not None else (50, 50, 50),
                           scroll_box_rect, 1)
 
         return image
@@ -3004,14 +3463,22 @@ class ListUI(UIMenu, Containable):
         self.in_scroll_box = False
         if self.rect.collidepoint(mouse_pos):
             self.mouse_over = True
-            if self.rect.collidepoint(mouse_pos):
-                in_list = True
+            in_list = True
             if scroll_bar_rect := self.get_scroll_bar_rect(has_scroll, self.rect, scroll_bar_height):
                 if scroll_bar_rect.collidepoint(relative_mouse_pos):
                     if self.get_scroll_box_rect(has_scroll, self.rect, self.scroll_down_index, scroll_step_height,
                                                 scroll_box_size).collidepoint(relative_mouse_pos):
                         self.in_scroll_box = True
                     in_list = False
+            if self.cursor.scroll_up:
+                self.scroll_down_index -= 1
+                if self.scroll_down_index < 0:
+                    self.scroll_down_index = 0
+            elif self.cursor.scroll_down:
+                self.scroll_down_index += 1
+                noiovl = self.get_number_of_items_outside_visible_list(self.items, self.visible_list_capacity)
+                if self.scroll_down_index > noiovl:
+                    self.scroll_down_index = noiovl
 
         # if the number of items changed a recalculation of the scroll bar is needed
         if self.last_length_check != len(self.items):

@@ -16,9 +16,8 @@ from engine.character.character_specific_special import special_dict
 from engine.character.character_specific_start_animation import animation_start_dict
 from engine.character.character_specific_status_update import status_update_dict
 from engine.character.character_specific_update import update_dict
-from engine.data.datastat import final_parent_moveset
-from engine.uibattle.uibattle import CharacterIndicator
-from engine.uibattle.uibattle import CharacterSpeechBox
+from engine.data.datastat import final_parent_moveset, recursive_rearrange_moveset
+from engine.uibattle.uibattle import CharacterIndicator, CharacterSpeechBox
 from engine.utils.common import empty_method
 
 rotation_list = (90, -90)
@@ -82,8 +81,9 @@ class Character(sprite.Sprite):
     from engine.character.check_action_hold import check_action_hold
     check_action_hold = check_action_hold
 
-    from engine.character.check_move_existence import check_move_existence
+    from engine.character.check_move_existence import check_move_existence, training_moveset_existence_check
     check_move_existence = check_move_existence
+    training_moveset_existence_check = training_moveset_existence_check
 
     from engine.character.check_new_animation import check_new_animation
     check_new_animation = check_new_animation
@@ -233,12 +233,17 @@ class Character(sprite.Sprite):
         """
         sprite.Sprite.__init__(self, self.containers)
         self.screen_scale = self.battle.screen_scale
-        self.game_id = game_id
-        self.layer_id = layer_id
+        self.game_id = game_id  # object ID for reference
+        self.layer_id = layer_id  # ID for sprite layer calculation
         self.name = stat["Name"]
+        self.show_name = self.battle.localisation.grab_text(("character", stat["ID"] + self.battle.chapter, "Name"))
+        if "(" in self.show_name and "," in self.show_name:
+            self.show_name = self.battle.localisation.grab_text(("character", stat["ID"], "Name"))
         self.player_control = player_control  # character controlled by player
         self.indicator = None
         self.cutscene_event = None
+        self.followers = []
+        self.leader = None
 
         self.current_action = {}  # action being performed
         self.command_action = {}  # next action to be performed
@@ -255,7 +260,8 @@ class Character(sprite.Sprite):
         self.freeze_timer = 0
         self.hold_timer = 0  # how long animation holding so far
         self.release_timer = 0  # time when hold release
-        self.timer = random()
+        self.timer = uniform(0, 0.1)
+        self.mode_timer = 0
 
         self.alive = True
         self.invisible = False
@@ -267,9 +273,16 @@ class Character(sprite.Sprite):
         self.is_boss = False
         self.is_summon = False
         self.can_combo_with_no_hit = False
+        self.command_moveset = None
         self.current_moveset = None
         self.continue_moveset = None
         self.reach_camera_event = {}
+
+        self.specific_animation_done = empty_method
+        self.specific_special_check = empty_method
+        self.specific_update = empty_method
+        self.specific_status_update = empty_method
+        self.special_damage = empty_method
 
         self.position = "Stand"
         self.combat_state = "City"
@@ -307,14 +320,19 @@ class Character(sprite.Sprite):
                                                   key=lambda x: abs(
                                                       x - self.angle))]  # find closest in list of rotation for sprite direction
 
-        self.sprite_id = str(stat["ID"])
+        self.char_id = str(stat["ID"])
         self.sprite_ver = str(stat["Sprite Ver"])
         if "Only Sprite Version" in stat and stat["Only Sprite Version"]:  # data suggest only one sprite version exist
             self.sprite_ver = str(stat["Only Sprite Version"])
 
         self.command_pos = Vector2(0, 0)
-        self.base_pos = Vector2(stat["POS"][0] + (1920 * (stat["Scene"] - 1)),
-                                stat["POS"][1])  # true position of character in battle
+
+        if "Scene" in stat:  # data with scene positioning
+            self.base_pos = Vector2(stat["POS"][0] + (1920 * (stat["Scene"] - 1)),
+                                    stat["POS"][1])  # true position of character in battle
+        else:  # character with no scene position data such as summon
+            self.base_pos = Vector2(stat["POS"])  # true position of character in battle
+
         self.last_pos = None  # may be used by AI or specific character update check for position change
         self.pos = Vector2((self.base_pos[0] * self.screen_scale[0],
                             self.base_pos[1] * self.screen_scale[1]))
@@ -337,25 +355,6 @@ class Character(sprite.Sprite):
         self.retreat_stage_end = self.battle.base_stage_end + self.sprite_size
         self.retreat_stage_start = -self.sprite_size
 
-        # find and set method specific to character
-        if self.sprite_id in initiate_dict:
-            initiate_dict[self.sprite_id](self)
-        self.specific_animation_done = empty_method
-        if self.sprite_id in animation_start_dict:
-            self.specific_animation_done = types.MethodType(animation_start_dict[self.sprite_id], self)
-        self.specific_special_check = empty_method
-        if self.sprite_id in special_dict:
-            self.specific_special_check = types.MethodType(special_dict[self.sprite_id], self)
-        self.specific_update = empty_method
-        if self.sprite_id in update_dict:
-            self.specific_update = types.MethodType(update_dict[self.sprite_id], self)
-        self.specific_status_update = empty_method
-        if self.sprite_id in status_update_dict:
-            self.specific_status_update = types.MethodType(status_update_dict[self.sprite_id], self)
-        self.special_damage = empty_method
-        if self.sprite_id in damage_dict:
-            self.special_damage = types.MethodType(damage_dict[self.sprite_id], self)
-
     def update(self, dt):
         self.ai_update(dt)
 
@@ -365,6 +364,10 @@ class Character(sprite.Sprite):
         hold_check = self.check_action_hold(dt)
         done = self.play_animation(dt, hold_check)
         self.check_new_animation(done)
+
+    @staticmethod
+    def inactive_update(*args):
+        pass
 
     def cutscene_update(self, dt):
         """Update for cutscene"""
@@ -396,14 +399,8 @@ class Character(sprite.Sprite):
                 not self.max_show_frame:
             hold_check = True
         done = self.play_cutscene_animation(dt, hold_check)
-        if self.cutscene_target_pos and self.cutscene_target_pos != self.base_pos:
-            # keep moving animation until reach target
+        if done or (self.cutscene_target_pos and self.cutscene_target_pos == self.base_pos):
             if done:
-                self.show_frame = 0
-        elif done or (self.cutscene_target_pos and self.cutscene_target_pos == self.base_pos):
-            if done:
-                self.show_frame = 0
-                self.frame_timer = 0
                 self.start_animation_body_part()
                 if self.cutscene_event and "die" in self.cutscene_event["Property"]:  # die animation
                     self.battle.cutscene_playing.remove(self.cutscene_event)
@@ -415,10 +412,9 @@ class Character(sprite.Sprite):
                     self.start_animation_body_part()  # revert previous show_frame 0 animation start
                     return
             if (self.cutscene_target_pos and self.cutscene_target_pos == self.base_pos) or \
-                    (not self.cutscene_event or "repeat" not in self.cutscene_event["Property"]):
+                    (not self.cutscene_target_pos and
+                     (not self.cutscene_event or "repeat" not in self.cutscene_event["Property"])):
                 # animation consider finish when reach target or finish animation with no repeat, pick idle animation
-                self.show_frame = 0
-                self.frame_timer = 0
                 self.current_action = {}
                 self.pick_cutscene_animation({})
             if self.cutscene_event and "repeat" not in self.cutscene_event["Property"] and \
@@ -456,7 +452,6 @@ class BattleCharacter(Character):
         """
         Character.__init__(self, game_id, layer_id, stat, player_control=player_control)
         self.leader = leader
-        self.followers = []
 
         self.moveset_command_key_input = ()
 
@@ -491,15 +486,29 @@ class BattleCharacter(Character):
 
         self.resurrect_count = 0
         self.guarding = 0
+        self.hold_power_bonus = 1
         self.attack_cooldown = {}  # character can attack with weapon only when cooldown reach attack speed
-        self.base_hp_regen = 0  # health regeneration modifier, will not resurrect dead troop by default
-        self.base_resource_regen = 0  # resource regeneration modifier
-        self.item_effect_modifier = 1
         self.gold_drop_modifier = 1
-        self.debuff_duration_modifier = 1
-        self.buff_duration_modifier = 1
         self.status_effect = {}  # current status effect
         self.status_duration = {}  # current status duration
+
+        # find and set method specific to character
+        if self.char_id in initiate_dict:
+            initiate_dict[self.char_id](self)
+        if self.char_id in animation_start_dict:
+            self.specific_animation_done = types.MethodType(animation_start_dict[self.char_id], self)
+        if self.char_id in special_dict:
+            self.specific_special_check = types.MethodType(special_dict[self.char_id], self)
+        if self.char_id in update_dict:
+            self.specific_update = types.MethodType(update_dict[self.char_id], self)
+        if self.char_id in status_update_dict:
+            self.specific_status_update = types.MethodType(status_update_dict[self.char_id], self)
+        if self.char_id in damage_dict:
+            self.special_damage = types.MethodType(damage_dict[self.char_id], self)
+
+        if self.battle.stage == "training":  # replace moveset check with training one
+            self.battle_check_move_existence = self.check_move_existence
+            self.check_move_existence = self.training_moveset_existence_check
 
         # Get char stat
         stat_boost = 0
@@ -560,16 +569,29 @@ class BattleCharacter(Character):
                 if position not in self.moveset:  # add position with no move
                     self.moveset[position] = {}
 
+                # skill with no requirement move, not count skill with all child moveset
                 button_key_skill_dict = {value["Buttons"]: {"Move": key} | value for key, value in
                                          self.available_skill[position].items() if
                                          "Requirement Move" not in value or not value["Requirement Move"]}
+
                 for key, value in self.available_skill[position].items():  # check for skill with requirement move
-                    if "Requirement Move" in value and value["Requirement Move"]:  # add to parent moveset
+                    if ("Requirement Move" in value and value["Requirement Move"]) or \
+                            "all child moveset" in value["Property"]:
+                        # add to parent moveset, all child moveset not count skill as parent move
                         skill_data_dict = {"Move": key} | {key2: value2 for key2, value2 in value.items()}
-                        final_parent_moveset(self.moveset[position], value["Buttons"], skill_data_dict,
-                                             value["Requirement Move"], [False], [])
+                        if "all child moveset" in value["Property"]:
+                            parent_move_list = [key for key in stat["Move Original"][value["Position"]]]
+                        else:
+                            parent_move_list = value["Requirement Move"]
+                        for parent_move in parent_move_list:
+                            final_parent_moveset(self.moveset[position], value["Buttons"], skill_data_dict,
+                                                 parent_move, [False], [])
 
                 self.moveset[position] = button_key_skill_dict | self.moveset[position]
+            already_check = []
+            if position in self.moveset:
+                for move in self.moveset[position]:  # final rearrange of moveset to make complex button move first in listd
+                    recursive_rearrange_moveset(self.moveset[position][move], already_check)
 
         self.max_physical = 1 + (self.strength / 50) + (self.wisdom / 200)
         self.min_physical = self.dexterity / 100
@@ -580,7 +602,7 @@ class BattleCharacter(Character):
         self.item_carry_bonus = (self.strength / 25) + (self.wisdom / 50)
 
         self.base_health = int((stat["Base Health"] + (
-                stat["Base Health"] * (self.constitution / 50))) * health_scaling)  # max health of character
+                stat["Base Health"] * (self.constitution / 20))) * health_scaling)  # max health of character
         self.base_resource = int(stat["Max Resource"] + (stat["Max Resource"] * self.intelligence / 100))
 
         self.base_power_bonus = 0
@@ -592,6 +614,12 @@ class BattleCharacter(Character):
         self.base_guard = 10 * self.constitution
         self.base_super_armour = self.constitution
         self.base_element_resistance = {key.split(" ")[0]: stat[key] for key in stat if " Resistance" in key}
+
+        self.base_hp_regen = 0  # health regeneration modifier, will not resurrect dead char by default
+        self.base_resource_regen = 0  # resource regeneration modifier
+        self.item_effect_modifier = 1
+        self.debuff_duration_modifier = 1
+        self.buff_duration_modifier = 1
 
         self.base_animation_play_time = self.default_animation_play_time / (
                 1 + (self.agility / 100))  # higher value mean longer play time
@@ -612,7 +640,7 @@ class BattleCharacter(Character):
         self.attack_no_guard = False
         self.attack_no_dodge = False
 
-        if self.player_control:
+        if self.player_control:  # add equipment stat only for player character
             status_name = {"stun": 17, "poison": 18, "burn": 20, "freeze": 21, "shock": 22,
                            "slow": 27, "bleed": 32, "curse": 96}
             equipment = self.battle.all_story_profiles[int(self.game_id[1])]["equipment"]  # player game id in p+number
@@ -654,7 +682,6 @@ class BattleCharacter(Character):
             self.jump_power = 1
 
         # Final stat after receiving stat effect from various sources, reset every time status is updated
-        self.hold_power_bonus = 1
         self.power_bonus = self.base_power_bonus
         self.impact_modifier = self.base_impact_modifier
         self.critical_chance = self.base_critical_chance
@@ -675,14 +702,20 @@ class BattleCharacter(Character):
         self.guard_cost_modifier = self.base_guard_cost_modifier
         self.resource_cost_modifier = self.base_resource_cost_modifier
 
-        self.health = self.base_health * stat["Start Health"]
+        start_health = 1
+        if "Start Health" in stat:
+            start_health = stat["Start Health"]
+        start_resource = 1
+        if "Start Resource" in stat:
+            start_resource = stat["Start Resource"]
+        self.health = self.base_health * start_health
         self.resource1 = self.base_resource * 0.01
         self.resource2 = self.base_resource * 0.02
         self.resource10 = self.base_resource * 0.10
         self.resource25 = self.base_resource * 0.25
         self.resource50 = self.base_resource * 0.5
         self.resource75 = self.base_resource * 0.75
-        self.resource = self.base_resource * stat["Start Resource"]
+        self.resource = self.base_resource * start_resource
 
         self.run_speed = 600 + self.speed
         self.walk_speed = 350 + self.speed
@@ -726,7 +759,7 @@ class BattleCharacter(Character):
                     self.rotate_logic()
                 self.move_logic(dt)  # Move function
 
-                if self.timer > 0.1:  # Update status and skill
+                if self.timer > 0.1:  # Update status and skill, every 1 second
                     if self.combat_state == "Combat" and self.position not in ("Air", "Couch"):
                         self.in_combat_timer -= self.timer
                         if self.in_combat_timer <= 0:
@@ -794,7 +827,7 @@ class BattleCharacter(Character):
                                     self.base_pos[0] <= self.retreat_stage_start):
                     self.alive = False  # remove character that pass stage border, enter dead state
                     self.health = 0
-                    self.die("flee")
+                    self.die(delete=True)
 
         else:  # die
             if self.alive:  # enter dead state
@@ -820,9 +853,9 @@ class BattleCharacter(Character):
                         self.health = self.base_health
                     else:  # permanent death
                         if self.is_summon:  # summon character does not leave corpse
-                            self.die("flee")
+                            self.die(delete=True)
                         else:
-                            self.die("dead")
+                            self.die()
 
 
 class PlayerCharacter(BattleCharacter, Character):
@@ -837,6 +870,141 @@ class PlayerCharacter(BattleCharacter, Character):
         else:
             BattleCharacter.__init__(self, game_id, layer_id, stat, player_control=True)
             self.player_input = self.player_input_battle_mode
+
+            common_skill = ("Ground Movement", "Air Movement", "Tinkerer", "Arm Mastery", "Wealth",
+                            "Immunity", "Resourceful", "Combat Contest")
+
+            self.common_skill = {skill: {1: False, 2: False, 3: False, 4: False, 5: False} for skill in common_skill}
+            for skill in common_skill:
+                if stat["skill allocation"][skill]:
+                    for level in range(int(stat["skill allocation"][skill] + 1)):
+                        self.common_skill[skill][level] = True
+
+            self.slide_attack = False
+            self.tackle_attack = False
+            self.dash_move = False
+            self.dodge_move = False
+            if self.common_skill["Ground Movement"][1]:  # can slide attack
+                self.slide_attack = True
+                self.moveset["Stand"] |= {key: value for key, value in
+                                          self.character_data.common_moveset_skill["Stand"].items() if key == "Slide"}
+            if self.common_skill["Ground Movement"][2]:  # can tackle attack
+                self.tackle_attack = True
+                self.moveset["Stand"] |= {key: value for key, value in
+                                          self.character_data.common_moveset_skill["Stand"].items() if key == "Tackle"}
+            if self.common_skill["Ground Movement"][3]:  # can dash after attack
+                self.dash_move = True
+            if self.common_skill["Ground Movement"][4]:  # weight no longer affect movement speed
+                self.base_speed += self.weight
+            if self.common_skill["Ground Movement"][5]:  # can perform dodge move while moving
+                self.dodge_move = True
+
+            self.can_double_jump = False
+            self.air_dash_move = False
+            self.unlimited_jump = False
+            self.double_jump = False
+            self.double_air_impact_resistance = False
+            self.hover = False
+
+            if self.common_skill["Air Movement"][1]:  # can double jump
+                self.double_jump = True
+            if self.common_skill["Air Movement"][2]:  # can dash midair
+                self.air_dash_move = True
+            if self.common_skill["Air Movement"][3]:  # weight no longer affect jump power
+                self.jump_power = 200
+            if self.common_skill["Air Movement"][4]:  # increase impact resistant while in air position
+                self.double_air_impact_resistance = True
+            if self.common_skill["Air Movement"][1]:  # can hover in air
+                self.hover = True
+
+            self.item_free_use_chance = False
+            self.unlock_secret_food_effect = False
+            self.free_first_item_use = False
+            if self.common_skill["Tinkerer"][1]:  # item may have a chance to be used for free
+                self.item_free_use_chance = True
+            if self.common_skill["Tinkerer"][2]:  # first item use is 100% free
+                self.free_first_item_use = True
+            if self.common_skill["Tinkerer"][3]:  # item has double effect
+                self.item_effect_modifier = 2
+            if self.common_skill["Tinkerer"][4]:  # food provide more effects
+                self.unlock_secret_food_effect = True
+            if self.common_skill["Tinkerer"][5]:  # can use summon drop skill
+                pass
+
+            self.double_pickup_usage = False
+            if self.common_skill["Arm Mastery"][1]:  # pick-up weapon has double usage
+                pass
+            if self.common_skill["Arm Mastery"][2]:  # increase more pick-up weapon usage
+                self.double_pickup_usage = True
+            if self.common_skill["Arm Mastery"][3]:  # food has double effect
+                pass
+            if self.common_skill["Arm Mastery"][4]:  # can slide attack
+                pass
+            if self.common_skill["Arm Mastery"][5]:  # can slide attack
+                pass
+
+            self.money_score = False
+            self.money_resource = False
+            if self.common_skill["Wealth"][1]:  # money drop also increase mission score
+                self.money_score = True
+            if self.common_skill["Wealth"][2]:  # money drop also increase resource
+                self.money_resource = True
+            if self.common_skill["Wealth"][3]:  # increase gold from drop by 100%
+                self.gold_drop_modifier += 1
+            if self.common_skill["Wealth"][4]:  #
+                pass
+            if self.common_skill["Wealth"][5]:  #
+                pass
+
+            self.knock_recover = False
+            self.immune_weather = False
+            if self.common_skill["Immunity"][1]:  # can recover from knockdown with guard action
+                self.knock_recover = True
+            if self.common_skill["Immunity"][2]:  # shorten all debuff duration by half
+                self.debuff_duration_modifier -= 0.5
+            if self.common_skill["Immunity"][3]:  # increase resurrection count by 2
+                self.resurrect_count += 2
+            if self.common_skill["Immunity"][4]:  # immune to weather effect
+                self.immune_weather = True
+            if self.common_skill["Immunity"][5]:  # unlock immune barrier skill
+                pass
+
+            self.hit_resource_regen = False
+            self.crash_guard_resource_regen = False
+            if self.common_skill["Resourceful"][1]:  # add resource regen 1% per second
+                self.base_resource_regen += self.base_resource * 0.01
+            if self.common_skill["Resourceful"][2]:  # resource regen when hit enemy
+                self.hit_resource_regen = True
+            if self.common_skill["Resourceful"][3]:  # resource regen when crash and guard
+                self.crash_guard_resource_regen = True
+            if self.common_skill["Resourceful"][4]:  # double max resource, and auto regen
+                self.base_resource += self.base_resource
+                self.resource1 = self.base_resource * 0.01
+                self.resource2 = self.base_resource * 0.02
+                self.resource10 = self.base_resource * 0.10
+                self.resource25 = self.base_resource * 0.25
+                self.resource50 = self.base_resource * 0.5
+                self.resource75 = self.base_resource * 0.75
+                self.base_resource_regen += self.base_resource * 0.02
+            if self.common_skill["Resourceful"][5]:
+                pass
+
+            self.guard_move = False
+            self.crash_haste = False
+            if self.common_skill["Combat Contest"][1]:  # increase max guard
+                self.guard_meter = int(self.base_guard * 1.5)
+                self.max_guard = self.guard_meter
+                self.guard_meter20 = self.guard_meter * 0.2
+                self.guard_meter5 = self.guard_meter * 0.05
+            if self.common_skill["Combat Contest"][2]:  # can walk while guarding
+                self.guard_move = True
+            if self.common_skill["Combat Contest"][3]:  # guard cost half by default
+                self.base_guard_cost_modifier -= 0.5
+            if self.common_skill["Combat Contest"][4]:  # crash now give haste status
+                self.crash_haste = True
+            if self.common_skill["Combat Contest"][5]:  # can slide attack
+                pass
+
         self.command_key_input = []
         self.command_key_hold = None
         self.last_command_key_input = None
@@ -848,150 +1016,70 @@ class PlayerCharacter(BattleCharacter, Character):
         self.player_key_hold_timer = {}
         self.resurrect_count = 2
 
-        common_skill = ("Ground Movement", "Air Movement", "Tinkerer", "Arm Mastery", "Wealth",
-                        "Immunity", "Resourceful", "Combat Contest")
-
-        self.common_skill = {skill: {1: False, 2: False, 3: False, 4: False, 5: False} for skill in common_skill}
-        for skill in common_skill:
-            if stat["skill allocation"][skill]:
-                for level in range(int(stat["skill allocation"][skill] + 1)):
-                    self.common_skill[skill][level] = True
-
-        self.slide_attack = False
-        self.tackle_attack = False
-        self.dash_move = False
-        self.dodge_move = False
-        if self.common_skill["Ground Movement"][1]:  # can slide attack
-            self.slide_attack = True
-            self.moveset["Stand"] |= {key: value for key, value in
-                                      self.character_data.common_moveset_skill["Stand"].items() if key == "Slide"}
-        if self.common_skill["Ground Movement"][2]:  # can tackle attack
-            self.tackle_attack = True
-            self.moveset["Stand"] |= {key: value for key, value in
-                                      self.character_data.common_moveset_skill["Stand"].items() if key == "Tackle"}
-        if self.common_skill["Ground Movement"][3]:  # can dash after attack
-            self.dash_move = True
-        if self.common_skill["Ground Movement"][4]:  # weight no longer affect movement speed
-            self.base_speed += self.weight
-        if self.common_skill["Ground Movement"][5]:  # can perform dodge move while moving
-            self.dodge_move = True
-
-        self.can_double_jump = False
-        self.air_dash_move = False
-        self.unlimited_jump = False
-        self.double_jump = False
-        self.double_air_impact_resistance = False
-        self.hover = False
-
-        if self.common_skill["Air Movement"][1]:  # can double jump
-            self.double_jump = True
-        if self.common_skill["Air Movement"][2]:  # can dash midair
-            self.air_dash_move = True
-        if self.common_skill["Air Movement"][3]:  # weight no longer affect jump power
-            self.jump_power = 200
-        if self.common_skill["Air Movement"][4]:  # increase impact resistant while in air position
-            self.double_air_impact_resistance = True
-        if self.common_skill["Air Movement"][1]:  # can hover in air
-            self.hover = True
-
-        self.item_free_use_chance = False
-        self.unlock_secret_food_effect = False
-        self.free_first_item_use = False
-        if self.common_skill["Tinkerer"][1]:  # item may have a chance to be used for free
-            self.item_free_use_chance = True
-        if self.common_skill["Tinkerer"][2]:  # first item use is 100% free
-            self.free_first_item_use = True
-        if self.common_skill["Tinkerer"][3]:  # item has double effect
-            self.item_effect_modifier = 2
-        if self.common_skill["Tinkerer"][4]:  # food provide more effects
-            self.unlock_secret_food_effect = True
-        if self.common_skill["Tinkerer"][5]:  # can use summon drop skill
-            pass
-
-        self.double_pickup_usage = False
-        if self.common_skill["Arm Mastery"][1]:  # pick-up weapon has double usage
-            pass
-        if self.common_skill["Arm Mastery"][2]:  # increase more pick-up weapon usage
-            self.double_pickup_usage = True
-        if self.common_skill["Arm Mastery"][3]:  # food has double effect
-            pass
-        if self.common_skill["Arm Mastery"][4]:  # can slide attack
-            pass
-        if self.common_skill["Arm Mastery"][5]:  # can slide attack
-            pass
-
-        self.money_score = False
-        self.money_resource = False
-        if self.common_skill["Wealth"][1]:  # money drop also increase mission score
-            self.money_score = True
-        if self.common_skill["Wealth"][2]:  # money drop also increase resource
-            self.money_resource = True
-        if self.common_skill["Wealth"][3]:  # increase gold from drop by 100%
-            self.gold_drop_modifier += 1
-        if self.common_skill["Wealth"][4]:  #
-            pass
-        if self.common_skill["Wealth"][5]:  #
-            pass
-
-        self.knock_recover = False
-        self.immune_weather = False
-        if self.common_skill["Immunity"][1]:  # can recover from knockdown with guard action
-            self.knock_recover = True
-        if self.common_skill["Immunity"][2]:  # shorten all debuff duration by half
-            self.debuff_duration_modifier -= 0.5
-        if self.common_skill["Immunity"][3]:  # increase resurrection count by 2
-            self.resurrect_count += 2
-        if self.common_skill["Immunity"][4]:  # immune to weather effect
-            self.immune_weather = True
-        if self.common_skill["Immunity"][5]:  # unlock immune barrier skill
-            pass
-
-        self.hit_resource_regen = False
-        self.crash_guard_resource_regen = False
-        if self.common_skill["Resourceful"][1]:  # add resource regen
-            self.base_resource_regen += self.base_resource * 0.01
-        if self.common_skill["Resourceful"][2]:  # resource regen when hit enemy
-            self.hit_resource_regen = True
-        if self.common_skill["Resourceful"][3]:  # resource regen when crash and guard
-            self.crash_guard_resource_regen = True
-        if self.common_skill["Resourceful"][4]:  # double max resource, and auto regen
-            self.base_resource += self.base_resource
-            self.resource1 = self.base_resource * 0.01
-            self.resource2 = self.base_resource * 0.02
-            self.resource10 = self.base_resource * 0.10
-            self.resource25 = self.base_resource * 0.25
-            self.resource50 = self.base_resource * 0.5
-            self.resource75 = self.base_resource * 0.75
-            self.base_resource_regen += self.base_resource * 0.02
-        if self.common_skill["Resourceful"][5]:
-            pass
-
-        self.guard_move = False
-        self.crash_haste = False
-        if self.common_skill["Combat Contest"][1]:  # increase max guard
-            self.guard_meter = int(self.base_guard * 1.5)
-            self.max_guard = self.guard_meter
-            self.guard_meter20 = self.guard_meter * 0.2
-            self.guard_meter5 = self.guard_meter * 0.05
-        if self.common_skill["Combat Contest"][2]:  # can walk while guarding
-            self.guard_move = True
-        if self.common_skill["Combat Contest"][3]:  # guard cost half by default
-            self.base_guard_cost_modifier -= 0.5
-        if self.common_skill["Combat Contest"][4]:  # crash now give haste status
-            self.crash_haste = True
-        if self.common_skill["Combat Contest"][5]:  # can slide attack
-            pass
-
         self.enter_stage(self.battle.character_animation_data)
 
 
 class AICharacter(BattleCharacter, Character):
-    def __init__(self, game_id, layer_id, stat, leader=None, specific_behaviour=None, health_scaling=1):
+    def __init__(self, game_id, layer_id, stat, leader=None, health_scaling=1, specific_behaviour=None):
         if self.battle.city_mode:
             Character.__init__(self, game_id, layer_id, stat)
             self.update = types.MethodType(Character.update, self)
+            ai_behaviour = "idle_city_npc"
+            if specific_behaviour:
+                ai_behaviour = specific_behaviour
+
+            self.ai_move = ai_move_dict["default"]
+            if ai_behaviour in ai_move_dict:
+                self.ai_move = ai_move_dict[ai_behaviour]
+
+            self.ai_combat = ai_combat_dict["default"]
+            if ai_behaviour in ai_combat_dict:
+                self.ai_combat = ai_combat_dict[ai_behaviour]
         else:
             BattleCharacter.__init__(self, game_id, layer_id, stat, leader=leader, health_scaling=health_scaling)
+
+        if "Ground Y POS" in stat and stat["Ground Y POS"]:  # replace ground pos based on data in stage
+            self.ground_pos = stat["Ground Y POS"]
+
+        char_property = {}
+        if "Property" in stat:
+            char_property = {key: True for key in stat["Property"]}  # convert to dict first to combine with stage prop
+        if "Stage Property" in stat:
+            char_property |= stat["Stage Property"]
+        for stuff in char_property:  # set attribute from property
+            if stuff == "target":
+                if type(char_property["target"]) is int:  # target is AI
+                    target = char_property["target"]
+                else:  # target is player
+                    target = char_property["target"][-1]
+
+                for this_char in self.battle.all_chars:
+                    if target == this_char.game_id:  # find target char object
+                        self.target = this_char
+                        break
+            elif stuff == "idle":  # replace idle animation
+                self.replace_idle_animation = char_property[stuff]
+            else:
+                self.__setattr__(stuff, True)
+
+        self.ai_timer = 0  # for whatever timer require for AI action
+        self.ai_movement_timer = 0  # timer to move for AI
+        self.end_ai_movement_timer = randint(2, 6)
+
+        self.enter_stage(self.battle.character_animation_data)
+
+    def ai_update(self, dt):
+        if self.ai_timer:
+            self.ai_timer += dt
+        if self.ai_movement_timer:
+            self.ai_movement_timer += dt
+        self.ai_combat(self)
+        self.ai_move(self)
+
+
+class BattleAICharacter(AICharacter):
+    def __init__(self, game_id, layer_id, stat, leader=None, specific_behaviour=None, health_scaling=1):
+        AICharacter.__init__(self, game_id, layer_id, stat, leader=leader, health_scaling=health_scaling)
 
         self.old_cursor_pos = None
         self.is_boss = stat["Boss"]
@@ -1002,13 +1090,13 @@ class AICharacter(BattleCharacter, Character):
             self.stun_threshold = self.base_health
         if self.is_summon:
             self.health_as_resource = True  # each time summon use resource it uses health instead
-        if self.leader:
+        if leader:
             self.follow_command = "Follow"
-            if self.leader.player_control:  # only add indicator for player's follower
+            if leader.player_control:  # only add indicator for player's follower
                 self.indicator = CharacterIndicator(self)
-            self.leader.followers.append(self)
-            self.item_effect_modifier = self.leader.item_effect_modifier  # use leader item effect modifier
-            self.gold_pickup_modifier = self.leader.gold_drop_modifier
+            leader.followers.append(self)
+            self.item_effect_modifier = leader.item_effect_modifier  # use leader item effect modifier
+            self.gold_pickup_modifier = leader.gold_drop_modifier
         if "Ground Y POS" in stat and stat["Ground Y POS"]:  # replace ground pos based on data in stage
             self.ground_pos = stat["Ground Y POS"]
 
@@ -1017,7 +1105,7 @@ class AICharacter(BattleCharacter, Character):
             ai_behaviour = specific_behaviour
 
         self.ai_move = types.MethodType(ai_move_dict["default"], self)
-        if self.leader:
+        if leader and not self.is_summon:  # summon use assigned behaviour in data instead of follower by default
             self.ai_move = types.MethodType(ai_move_dict["follower"], self)
         elif ai_behaviour in ai_move_dict:
             self.ai_move = types.MethodType(ai_move_dict[ai_behaviour], self)
@@ -1030,8 +1118,6 @@ class AICharacter(BattleCharacter, Character):
         if ai_behaviour in ai_retreat_dict:
             self.ai_retreat = types.MethodType(ai_retreat_dict[ai_behaviour], self)
 
-        for item in stat["Property"]:  # set attribute from property
-            self.__setattr__(item, True)
         self.ai_max_attack_range = 0
         self.ai_timer = 0  # for whatever timer require for AI action
         self.ai_movement_timer = 0  # timer to move for AI
@@ -1039,26 +1125,8 @@ class AICharacter(BattleCharacter, Character):
             for move in position.values():
                 if "no max ai range" not in move["Property"] and self.ai_max_attack_range < move["AI Range"]:
                     self.ai_max_attack_range = move["AI Range"]
-        if "Stage Property" in stat:
-            for stuff in stat["Stage Property"]:
-                if stuff == "target":
-                    if type(stat["Stage Property"]["target"]) is int:  # target is AI
-                        target = stat["Stage Property"]["target"]
-                    else:  # target is player
-                        target = stat["Stage Property"]["target"][-1]
-
-                    for this_char in self.battle.all_chars:
-                        if target == this_char.game_id:  # find target char object
-                            self.target = this_char
-                            break
-                elif stuff == "idle":  # replace idle animation
-                    self.replace_idle_animation = stat["Stage Property"][stuff]
-                else:
-                    self.__setattr__(stuff, True)
 
         self.resurrect_count = 0
-
-        self.enter_stage(self.battle.character_animation_data)
 
     def ai_update(self, dt):
         if self.ai_lock and self.battle.base_stage_end >= self.base_pos[0] >= self.battle.base_stage_start:
@@ -1077,64 +1145,6 @@ class AICharacter(BattleCharacter, Character):
             else:
                 self.ai_retreat()
 
-
-class CityAICharacter(Character):
-    def __init__(self, game_id, layer_id, stat, leader=None, specific_behaviour=None):
-        Character.__init__(self, game_id, layer_id, stat)
-
-        if "Ground Y POS" in stat and stat["Ground Y POS"]:  # replace ground pos based on data in stage
-            self.ground_pos = stat["Ground Y POS"]
-
-        ai_behaviour = "idle_city_npc"
-        if specific_behaviour:
-            ai_behaviour = specific_behaviour
-
-        self.ai_move = ai_move_dict["default"]
-        if ai_behaviour in ai_move_dict:
-            self.ai_move = ai_move_dict[ai_behaviour]
-
-        self.ai_combat = ai_combat_dict["default"]
-        if ai_behaviour in ai_combat_dict:
-            self.ai_combat = ai_combat_dict[ai_behaviour]
-
-        if "Stage Property" in stat:
-            for stuff in stat["Stage Property"]:
-                if stuff == "target":
-                    if type(stat["Stage Property"]["target"]) is int:  # target is AI
-                        target = stat["Stage Property"]["target"]
-                    else:  # target is player
-                        target = stat["Stage Property"]["target"][-1]
-
-                    for this_char in self.battle.all_chars:
-                        if target == this_char.game_id:  # find target char object
-                            self.target = this_char
-                            break
-                elif stuff == "idle":  # replace idle animation
-                    self.replace_idle_animation = stat["Stage Property"][stuff]
-                else:
-                    self.__setattr__(stuff, True)
-
-        self.ai_timer = 0  # for whatever timer require for AI action
-        self.ai_movement_timer = 0  # timer to move for AI
-        self.end_ai_movement_timer = randint(2, 6)
-
-        self.enter_stage(self.battle.character_animation_data)
-
-    def ai_update(self, dt):
-        if self.ai_timer:
-            self.ai_timer += dt
-        if self.ai_movement_timer:
-            self.ai_movement_timer += dt
-        self.ai_combat(self)
-        self.ai_move(self)
-
-
-#
-# class CutsceneCharacter:
-#     def __init__(self, game_id, layer_id):
-#
-#
-#     def update(self, dt):
 
 class BodyPart(sprite.Sprite):
     battle = None
@@ -1274,8 +1284,6 @@ class BodyPart(sprite.Sprite):
 
 
 def find_damage(self):
-    # if not self.owner.current_moveset:  # TODO remove later
-    #     (self.owner.name, self.owner.current_action, self.owner.show_frame)
     self.dmg = self.owner.current_moveset["Power"] + self.owner.power_bonus * self.owner.hold_power_bonus
     self.element = self.owner.current_moveset["Element"]
     self.impact = ((self.owner.current_moveset["Push Impact"] - self.owner.current_moveset["Pull Impact"]) *

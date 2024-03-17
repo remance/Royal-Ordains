@@ -333,9 +333,12 @@ def stat_convert(row, n, i, percent_column=(), mod_column=(), list_column=(), tu
                 if ":" in item:
                     new_i2 = item.split(":")
                     result_i[new_i2[0]] = new_i2[1]
-                    if "(" in new_i2[1]:
-                        new_i2[1] = new_i2[1].replace("(", "").replace(")", "")
+                    if "(" in new_i2[1]:  # tuple value
+                        new_i2[1] = new_i2[1].replace("(", "").replace(")", "")  # item with item1;item2 instead of ,
                         result_i[new_i2[0]] = tuple([item_conversion(item2) for item2 in new_i2[1].split(";")])
+                    elif "{" in new_i2[1]:  # dict value with key=value instead of key:value
+                        new_i2[1] = new_i2[1].replace("{", "").replace("}", "")
+                        result_i[new_i2[0]] = {new_i2[1].split("=")[0]: item_conversion(new_i2[1].split("=")[1])}
                     else:
                         result_i[new_i2[0]] = item_conversion(result_i[new_i2[0]])
                 else:

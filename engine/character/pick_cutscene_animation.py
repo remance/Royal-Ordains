@@ -4,6 +4,8 @@ def pick_cutscene_animation(self, action):
     self.stoppable_frame = False
     self.hit_enemy = False
     self.interrupt_animation = False
+    self.show_frame = 0
+    self.frame_timer = 0
     self.release_timer = 0
     self.x_momentum = 0
     self.y_momentum = 0
@@ -11,9 +13,6 @@ def pick_cutscene_animation(self, action):
     self.continue_moveset = None
     if self.special_combat_state:
         self.special_combat_state = 0
-
-    self.show_frame = 0
-    self.frame_timer = 0
     self.move_speed = 0
     self.freeze_timer = 0
 

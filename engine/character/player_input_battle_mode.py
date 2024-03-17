@@ -23,18 +23,16 @@ def player_input_battle_mode(self, player_index, dt):
                                 tuple(self.items.values()), item_wheel=True)
                     else:
                         if key in ("Left", "Right"):  # replace left right input with forward one for moveset check
-                            if not self.stoppable_frame:
-                                if key == "Left":
-                                    self.new_angle = 90
-                                else:
-                                    self.new_angle = -90
                             if rotation_dict[key] == self.angle:
                                 new_key = "Forward"
                             else:
                                 new_key = "Backward"
+                        if key in ("Left", "Right", "Down", "Up"):
+                            self.player_key_input_timer.append(0.5)
+                        else:
+                            self.player_key_input_timer.append(0.3)
                         self.player_command_key_input.append(key)
                         self.command_key_input.append(new_key)
-                        self.player_key_input_timer.append(0.5)
                         self.last_command_key_input = key
 
             for key, pressed in self.battle.player_key_hold[player_index].items():
@@ -59,7 +57,7 @@ def player_input_battle_mode(self, player_index, dt):
                         self.command_key_input.pop(index)
                         self.player_key_input_timer.pop(index)
 
-            if (self.command_key_input and 0.2 <= self.player_key_input_timer[-1] <= 0.4) or self.command_key_hold:
+            if (self.command_key_input and 0.1 <= self.player_key_input_timer[-1] <= 0.3) or self.command_key_hold:
                 # delay input a bit so a bit of time pass before taking action
                 if "knockdown" in self.current_action:
                     if self.knock_recover and self.last_command_key_input == "Guard":

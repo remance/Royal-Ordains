@@ -4,31 +4,17 @@ from pathlib import Path
 
 from engine.data.datastat import GameData
 
-empty_character_save = {"chapter": 1, "mission": 1, "playtime": 0, "total scores": 0, "total kills": 0,
-                        "total golds": 0, "boss kills": 0, "total damages": 0, "last save": "Not Saved",
+empty_character_save = {"chapter": "1", "mission": "1", "playtime": 0, "total scores": 0, "total kills": 0,
+                        "total golds": 500, "boss kills": 0, "total damages": 0, "last save": "Not Saved",
                         "character": {},
                         "equipment": {"head": None, "body": None, "arm": None, "leg": None,
                                       "weapon 1": None, "weapon 2": None, "accessory 1": None, "accessory 2": None,
                                       "accessory 3": None, "accessory 4": None,
-                                      "item": {"Down": None, "Left": None, "Up": None, "Right": None}},
-                        "storage": {}, "story event": {}, "story choice": {}, "selected follower preset": 0,
+                                      "item": {"Down": None, "Left": None, "Up": None, "Right": "Small Healing Kit"}},
+                        "storage": {"Small Healing Kit": 5}, "story event": {},
+                        "story choice": {}, "selected follower preset": 0,
                         "follower preset": {0: {}, 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {}, 8: {},
-                                      9: {}, 10: {}, 11: {}}, "follower list": [], "dialogue log": {},
-                        "save state": {"1.0": {}}}
-
-empty_character_save = {"chapter": 1, "mission": 1, "playtime": 0, "total scores": 0, "total kills": 0,
-                        "total golds": 0, "boss kills": 0, "total damages": 0, "last save": "Not Saved",
-                        "character": {},
-                        "equipment": {"head": None, "body": None, "arm": None, "leg": None,
-                                      "weapon 1": None, "weapon 2": None, "accessory 1": "Great Mini Shield",
-                                      "accessory 2": None, "accessory 3": None, "accessory 4": None,
-                                      "item": {"Down": "Small Healing Kit", "Left": None, "Up": None, "Right": None}},
-                        "storage": {"Small Healing Kit": 5, "Medium Healing Kit": 1,
-                                    "Great Mini Shield": 1}, "story event": {}, "story choice": {},
-                        "selected follower preset": 0,
-                        "follower preset": {0: {}, 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {}, 8: {},
-                                            9: {}, 10: {}, 11: {}}, "follower list": ["Rban1", "Rban2", "Rban5",
-                                                                                      "Bigta", "Animal1"], "dialogue log": {},
+                                            9: {}, 10: {}, 11: {}}, "follower list": [], "dialogue log": [],
                         "save state": {"1.0": {}}}
 
 
@@ -49,7 +35,8 @@ class SaveData(GameData):
         sub1_directories = [x for x in read_folder.iterdir() if x.is_file()]
         if "game.dat" not in [os.sep.join(os.path.normpath(item).split(os.sep)[-1:]) for
                               item in sub1_directories]:  # make common game save data
-            self.make_save_file(os.path.join(self.main_dir, "save", "game.dat"), {"chapter": 1, "mission": 1})
+            self.make_save_file(os.path.join(self.main_dir, "save", "game.dat"),
+                                {"chapter": 1, "mission": 1, "unlock": {"character": []}})
 
         sub1_directories = [x for x in read_folder.iterdir() if x.is_file()]  # to include new game.dat save
         for save_file in sub1_directories:

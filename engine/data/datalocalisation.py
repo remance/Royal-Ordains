@@ -24,9 +24,10 @@ class Localisation:
 
         self.read_localisation("history")
         self.read_localisation("character")
-        self.read_localisation("enemy")
         self.read_localisation("gear")
         self.read_localisation("gear_mod")
+        self.read_localisation("gear_preset")
+        self.read_localisation("gear_rarity")
         self.read_localisation("item")
         self.read_localisation("status")
         self.read_localisation("event")
@@ -46,7 +47,6 @@ class Localisation:
                 rd = csv.reader(edit_file, quoting=csv.QUOTE_ALL)
                 rd = [row for row in rd]
                 for index, row in enumerate(rd[1:]):
-                    row = [int(item) if item.isdigit() else item for item in row]
                     if row[0]:  # chapter, no need for else since must have chapter
                         if row[0] not in self.text[language]["map"]:
                             self.text[language]["map"][row[0]] = {}

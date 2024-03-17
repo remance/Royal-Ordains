@@ -6,9 +6,9 @@ def find_move_to_attack(self):
                 # blind (7) cause random attack
                 self.engage_combat()
                 self.moveset_command_key_input = move
-                self.check_move_existence()
-                self.command_action = self.attack_command_actions[move[-1]]
-                break
+                if self.check_move_existence():
+                    self.command_action = self.attack_command_actions[move[-1]]
+                    break
 
 
 def training_ai(self):
