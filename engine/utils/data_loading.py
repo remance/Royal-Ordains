@@ -105,8 +105,7 @@ def recursive_image_load(save_dict, screen_scale, part_folder, key_file_name_rea
         if add_flip:
             for key, value in imgs.items():
                 if part_scaling:
-                    imgs[key] = {1.0: {0: value, 1: flip(value, True, False), 2: flip(value, False, True),
-                                       3: flip(value, True, True)}}
+                    imgs[key] = {1.0: {0: value, 1: flip(value, True, False)}}
                     part_type = os.path.normpath(part_folder).split(os.sep)[-4]
                     part_name = os.path.normpath(part_folder).split(os.sep)[-3]
                     if part_type != "weapon":
@@ -123,14 +122,9 @@ def recursive_image_load(save_dict, screen_scale, part_folder, key_file_name_rea
                                         {0: smoothscale(imgs[key][1][0], (imgs[key][1][0].get_width() * scale,
                                                                           imgs[key][1][0].get_height() * scale)),
                                          1: smoothscale(imgs[key][1][1], (imgs[key][1][1].get_width() * scale,
-                                                                          imgs[key][1][1].get_height() * scale)),
-                                         2: smoothscale(imgs[key][1][2], (imgs[key][1][2].get_width() * scale,
-                                                                          imgs[key][1][2].get_height() * scale)),
-                                         3: smoothscale(imgs[key][1][3], (imgs[key][1][3].get_width() * scale,
-                                                                          imgs[key][1][3].get_height() * scale))}
+                                                                          imgs[key][1][1].get_height() * scale))}
                 else:
-                    imgs[key] = {0: value, 1: flip(value, True, False), 2: flip(value, False, True),
-                                 3: flip(value, True, True)}
+                    imgs[key] = {0: value, 1: flip(value, True, False)}
 
         save_dict |= imgs
 

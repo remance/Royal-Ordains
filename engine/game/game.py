@@ -195,7 +195,7 @@ class Game:
             if self.game_version != self.config["VERSION"]["ver"]:  # remake config as game version change
                 raise KeyError  # cause KeyError to reset config file
         except (KeyError, TypeError, NameError) as b:  # config error will make the game recreate config with default
-            self.error_log.write(b)
+            self.error_log.write(str(b))
             config = self.create_config()
             self.config = config
             self.show_fps = int(self.config["USER"]["fps"])
