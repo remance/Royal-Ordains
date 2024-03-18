@@ -22,13 +22,18 @@ def player_input_battle_mode(self, player_index, dt):
                             self.battle.player_wheel_uis[player_index].change_text_icon(
                                 tuple(self.items.values()), item_wheel=True)
                     else:
-                        if key in ("Left", "Right"):  # replace left right input with forward one for moveset check
-                            if rotation_dict[key] == self.angle:
-                                new_key = "Forward"
-                            else:
-                                new_key = "Backward"
                         if key in ("Left", "Right", "Down", "Up"):
                             self.player_key_input_timer.append(0.5)
+                            if key in ("Left", "Right"):  # replace left right input with forward one for moveset check
+                                if not self.current_action:
+                                    if key == "Left":
+                                        self.new_angle = 90
+                                    else:
+                                        self.new_angle = -90
+                                if rotation_dict[key] == self.angle:
+                                    new_key = "Forward"
+                                else:
+                                    new_key = "Backward"
                         else:
                             self.player_key_input_timer.append(0.3)
                         self.player_command_key_input.append(key)
@@ -163,8 +168,7 @@ def player_input_battle_mode(self, player_index, dt):
                             elif "Right" in self.command_key_hold:
                                 self.x_momentum = self.jump_power
 
-                        elif self.last_command_key_input == "Left" or \
-                                (self.command_key_hold and self.command_key_hold[-1] == "Left"):
+                        elif self.command_key_hold and self.command_key_hold[-1] == "Left":
                             if len(self.command_key_input) > 1:  # check for run input with double press
                                 if self.player_command_key_input[-1] == "Left" and \
                                         self.player_command_key_input[-2] == "Left":
@@ -189,8 +193,7 @@ def player_input_battle_mode(self, player_index, dt):
                                                                not self.current_moveset):
                                     self.x_momentum = -self.walk_speed / 10
 
-                        elif self.last_command_key_input == "Right" or \
-                                (self.command_key_hold and self.command_key_hold[-1] == "Right"):
+                        elif self.command_key_hold and self.command_key_hold[-1] == "Right":
                             if len(self.command_key_input) > 1:  # check for run input with double press
                                 if self.player_command_key_input[-1] == "Right" and \
                                         self.player_command_key_input[-2] == "Right":
