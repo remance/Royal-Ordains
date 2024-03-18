@@ -1,7 +1,6 @@
 from pygame.mixer import Channel
 
 from engine.uimenu.uimenu import ListAdapter
-
 from engine.utils.common import edit_config
 
 
@@ -49,7 +48,8 @@ def escmenu_process(self, esc_press: bool):
                                            self.stage_translation_text_popup)  # remove start_set esc menu button
                     self.dialogue_box.__init__(self.dialogue_box.origin, self.dialogue_box.pivot,
                                                self.dialogue_box.relative_size_inside_container,
-                                               ListAdapter([" ".join(item) for item in self.main_story_profile["dialogue log"]]),
+                                               ListAdapter([" ".join(item) for item in
+                                                            self.main_story_profile["dialogue log"]]),
                                                self.dialogue_box.parent,
                                                self.dialogue_box.visible_list_capacity,
                                                layer=self.dialogue_box._layer)

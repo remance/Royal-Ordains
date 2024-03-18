@@ -3,7 +3,7 @@ from datetime import datetime
 from os.path import join as path_join
 from random import choices
 
-from pygame.mixer import Channel
+from pygame.mixer import music
 
 gear_reward_quantity_list = (1, 2, 3, 4, 5)
 gear_reward_quantity_score = (50, 30, 20, 7, 3)
@@ -14,14 +14,13 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
     # self.error_log.write("\n Map: " + str(self.map_selected) + "\n")
     self.loading_screen("start")
 
-    Channel(0).stop()
+    music.stop()
     self.battle.prepare_new_stage(chapter, mission, stage, players, scene=scene)
     next_battle = self.battle.run_game()  # run next stage
     self.battle.exit_battle()  # run exit battle for previous one
 
     # Finish battle, check for next one
-    Channel(0).play(self.music_pool["menu"])
-    Channel(0).set_volume(self.play_music_volume)
+    music.play()
     gc.collect()  # collect no longer used object in previous battle from memory
 
     save_profile = self.save_data.save_profile
@@ -93,7 +92,8 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
                                 save_profile["character"][slot]["storage"][item] = item_num
                             reward_list["choice"][item] = item_num
 
-                        reward_list["choice"]["gold"] = self.choice_stage_reward[choice][chapter][mission][stage]["Gold Reward"]
+                        reward_list["choice"]["gold"] = self.choice_stage_reward[choice][chapter][mission][stage][
+                            "Gold Reward"]
                         save_profile["character"][slot]["total golds"] += \
                             self.choice_stage_reward[choice][chapter][mission][stage]["Gold Reward"]
 
@@ -148,9 +148,9 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
 
     elif next_battle == "training":
         self.start_battle(chapter, mission, "training", players=players)
-    elif type(next_battle) is str:  # city stage go to specific scene
+    elif not any(i.isdigit() for i in next_battle):  # city stage go to specific scene
         self.start_battle(chapter, mission, "0", players=players, scene=next_battle)
-    elif next_battle is not False:  # start specific mission
+    elif next_battle is not False:  # start specific mission need to contain number
         self.start_battle(chapter, next_battle, "1", players=players)
 
     # for when memory leak checking
@@ -178,6 +178,3 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
     # except:
     #     pass
     # print(gc.get_referrers(self.unit_animation_pool))
-
-
-

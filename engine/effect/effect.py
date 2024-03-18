@@ -1,4 +1,4 @@
-from math import cos, sin, radians
+from math import radians
 from random import uniform, randint, choice
 
 from pygame import sprite, Vector2
@@ -183,7 +183,8 @@ class Effect(sprite.Sprite):
             for _ in range(spawn_number):
                 new_pos = self.pos
                 stat = [self.reach_effect, "Base", new_pos[0], new_pos[1], 0, 0, 0, 1]
-                if "reach spawn ground" in self.effect_stat["Property"]:  # reach effect spawn with rect bottom on ground
+                if "reach spawn ground" in self.effect_stat[
+                    "Property"]:  # reach effect spawn with rect bottom on ground
                     height = self.effect_animation_pool[self.reach_effect][self.sprite_ver]["Base"][self.scale][0][
                                  self.flip].get_height() / 4
                     stat[3] = self.pos[1] - height
@@ -198,6 +199,7 @@ class Effect(sprite.Sprite):
                     DamageEffect(self.owner, stat, layer, moveset=self.moveset, from_owner=False)
 
         if self.other_property:
+            print(self.other_property)
             if "spawn" in self.other_property and "spawn after" in self.other_property and how == "border":
                 if "spawn same" in self.other_property:  # spawn same effect
                     spawn_number = 1

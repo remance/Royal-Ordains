@@ -1,7 +1,7 @@
 import copy
 import types
 from math import radians
-from random import randint, random, uniform
+from random import randint, uniform
 
 import pygame
 from pygame import sprite, Vector2
@@ -590,7 +590,8 @@ class BattleCharacter(Character):
                 self.moveset[position] = button_key_skill_dict | self.moveset[position]
             already_check = []
             if position in self.moveset:
-                for move in self.moveset[position]:  # final rearrange of moveset to make complex button move first in listd
+                for move in self.moveset[
+                    position]:  # final rearrange of moveset to make complex button move first in listd
                     recursive_rearrange_moveset(self.moveset[position][move], already_check)
 
         self.max_physical = 1 + (self.strength / 50) + (self.wisdom / 200)

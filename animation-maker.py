@@ -1277,18 +1277,18 @@ class Model:
                             elif current_flip == 1:  # current horizon flip
                                 if flip_type == 1:
                                     self.animation_part_list[edit_frame][part_index][4] = 0
-                                else:
-                                    self.animation_part_list[edit_frame][part_index][4] = 3
-                            elif current_flip == 2:  # current vertical flip
-                                if flip_type == 1:
-                                    self.animation_part_list[edit_frame][part_index][4] = 3
-                                else:
-                                    self.animation_part_list[edit_frame][part_index][4] = 0
-                            elif current_flip == 3:  # current both hori and vert flip
-                                if flip_type == 1:
-                                    self.animation_part_list[edit_frame][part_index][4] = 2
-                                else:
-                                    self.animation_part_list[edit_frame][part_index][4] = 1
+                                # else:
+                                #     self.animation_part_list[edit_frame][part_index][4] = 3
+                            # elif current_flip == 2:  # current vertical flip
+                            #     if flip_type == 1:
+                            #         self.animation_part_list[edit_frame][part_index][4] = 3
+                            #     else:
+                            #         self.animation_part_list[edit_frame][part_index][4] = 0
+                            # elif current_flip == 3:  # current both hori and vert flip
+                            #     if flip_type == 1:
+                            #         self.animation_part_list[edit_frame][part_index][4] = 2
+                            #     else:
+                            #         self.animation_part_list[edit_frame][part_index][4] = 1
 
                         elif "DMG" in edit_type:
                             if self.animation_part_list[edit_frame][part_index][7]:
@@ -1365,14 +1365,14 @@ class Model:
         if scale != 1:
             part_rotated = pygame.transform.smoothscale(part_rotated, (part_rotated.get_width() * scale,
                                                                        part_rotated.get_height() * scale))
-        if flip != 0:
+        if flip:
             if flip == 1:  # horizontal only
                 part_rotated = pygame.transform.flip(part_rotated, True, False)
-            elif flip == 2:  # vertical only
-                part_rotated = pygame.transform.flip(part_rotated, False, True)
-            elif flip == 3:  # flip both direction
-                part_rotated = pygame.transform.flip(part_rotated, True, True)
-        if angle != 0:
+            # elif flip == 2:  # vertical only
+            #     part_rotated = pygame.transform.flip(part_rotated, False, True)
+            # elif flip == 3:  # flip both direction
+            #     part_rotated = pygame.transform.flip(part_rotated, True, True)
+        if angle:
             part_rotated = pygame.transform.rotate(part_rotated, angle)  # rotate part sprite
 
         new_target = (target[0] + showroom_base_point[0], target[1] + showroom_base_point[1])
@@ -1630,9 +1630,9 @@ reset_button = Button("Reset", image, (screen_size[0] / 1.35, p_body_helper.rect
 flip_hori_button = Button("Flip H", image, (reset_button.pos[0] + reset_button.image.get_width(),
                                             p_body_helper.rect.midtop[1] - (image.get_height() / 2)),
                           description=("Horizontal Flip part", "Flip the selected part horizontally."))
-flip_vert_button = Button("Flip V", image, (reset_button.pos[0] + (reset_button.image.get_width() * 2),
-                                            p_body_helper.rect.midtop[1] - (image.get_height() / 2)),
-                          description=("Vertical Flip part", "Flip the selected part vertically."))
+# flip_vert_button = Button("Flip V", image, (reset_button.pos[0] + (reset_button.image.get_width() * 2),
+#                                             p_body_helper.rect.midtop[1] - (image.get_height() / 2)),
+#                           description=("Vertical Flip part", "Flip the selected part vertically."))
 damage_button = Button("Do DMG", image, (reset_button.pos[0] + (reset_button.image.get_width() * 3),
                                             p_body_helper.rect.midtop[1] - (image.get_height() / 2)),
                           description=("Part do damage", "Add indication that the selected parts deal damage in this frame."))
@@ -2375,8 +2375,8 @@ while True:
                     elif flip_hori_button.rect.collidepoint(mouse_pos):
                         model.edit_part(mouse_pos, "flip1")
 
-                    elif flip_vert_button.rect.collidepoint(mouse_pos):
-                        model.edit_part(mouse_pos, "flip2")
+                    # elif flip_vert_button.rect.collidepoint(mouse_pos):
+                    #     model.edit_part(mouse_pos, "flip2")
 
                     elif damage_button.rect.collidepoint(mouse_pos):
                         model.edit_part(mouse_pos, "DMG")

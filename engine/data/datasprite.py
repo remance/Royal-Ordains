@@ -173,14 +173,12 @@ class AnimationData(GameData):
                             final_name = true_name[:-1]
                             animation_list = [value for key, value in images.items() if final_name ==
                                               " ".join([string for string in key.split(" ")[:-1]])]
-                            animation_list = {1.0: [{0: value, 1: flip(value, True, False),
-                                                     2: flip(value, False, True),
-                                                     3: flip(value, True, True)} for value in animation_list]}
+                            animation_list = {
+                                1.0: [{0: value, 1: flip(value, True, False)} for value in animation_list]}
                         else:  # single frame effect
-                            animation_list = {1.0: [{0: value, 1: flip(value, True, False),
-                                                     2: flip(value, False, True),
-                                                     3: flip(value, True, True)} for key, value in images.items() if
-                                                    true_name == key]}
+                            animation_list = {
+                                1.0: [{0: value, 1: flip(value, True, False)} for key, value in images.items() if
+                                      true_name == key]}
 
                         if "effect" in part_size_scaling:  # effect with sprite scaling
                             if fcv(folder[-1]) in part_size_scaling["effect"]:
@@ -191,11 +189,7 @@ class AnimationData(GameData):
                                             [{0: smoothscale(value[0], (value[0].get_width() * scale,
                                                                         value[0].get_height() * scale)),
                                               1: smoothscale(value[1], (value[1].get_width() * scale,
-                                                                        value[1].get_height() * scale)),
-                                              2: smoothscale(value[2], (value[2].get_width() * scale,
-                                                                        value[2].get_height() * scale)),
-                                              3: smoothscale(value[3], (value[3].get_width() * scale,
-                                                                        value[3].get_height() * scale))} for value in
+                                                                        value[1].get_height() * scale))} for value in
                                              animation_list[1]]
                         self.effect_animation_pool[folder_data_name][folder_data_name2][final_name] = animation_list
 

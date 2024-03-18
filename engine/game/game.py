@@ -1,41 +1,38 @@
 import ast
 import configparser
-import glob
 import os.path
 import sys
 import types
 from math import sin, cos, radians
 
 import pygame
+from pygame import sprite, Vector2
 from pygame.locals import *
+from pygame.mixer import music
 
 from engine.battle.battle import Battle
 from engine.character.character import Character, BodyPart
 from engine.data.datalocalisation import Localisation
 from engine.data.datamap import BattleMapData
 from engine.data.datasave import SaveData
+from engine.data.datasound import SoundData
 from engine.data.datasprite import AnimationData
 from engine.data.datastat import CharacterData
 from engine.drop.drop import Drop
 from engine.effect.effect import Effect, DamageEffect
-# Method in game.setup
-from engine.game.setup.create_sound_effect_pool import create_sound_effect_pool
-from engine.game.setup.make_input_box import make_input_box
-from engine.game.setup.make_lorebook import make_lorebook
-from engine.game.setup.make_option_menu import make_option_menu
 from engine.lorebook.lorebook import Lorebook, SubsectionName, lorebook_process
 from engine.menubackground.menubackground import MenuActor, MenuRotate, StaticImage
 from engine.stageobject.stageobject import StageObject
 from engine.uibattle.uibattle import Profiler, FPSCount, DamageNumber, CharacterSpeechBox, \
     CharacterIndicator, WheelUI
 from engine.uimenu.uimenu import OptionMenuText, SliderMenu, MenuCursor, BoxUI, BrownMenuButton, \
-    URLIconLink, MenuButton, TextPopup, MapTitle, CharacterSelector, CharacterInterface, CharacterProfileBox, \
+    URLIconLink, MenuButton, TextPopup, MapTitle, CharacterInterface, CharacterProfileBox, \
     NameTextBox
 from engine.updater.updater import ReversedLayeredUpdates
 from engine.utils.common import edit_config, cutscene_update
 from engine.utils.data_loading import load_image, load_images, csv_read, load_base_button
 from engine.utils.text_making import number_to_minus_or_plus
-from engine.weather.weather import MatterSprite, SpecialWeatherEffect, Weather
+from engine.weather.weather import MatterSprite, SpecialWeatherEffect
 
 game_name = "Royal Ordains"  # Game name that will appear as game name at the windows bar
 
@@ -124,6 +121,18 @@ class Game:
     from engine.game.loading_screen import loading_screen
     loading_screen = loading_screen
 
+    from engine.game.make_character_interfaces import make_character_interfaces
+    make_character_interfaces = make_character_interfaces
+
+    from engine.game.make_input_box import make_input_box
+    make_input_box = make_input_box
+
+    from engine.game.make_lorebook import make_lorebook
+    make_lorebook = make_lorebook
+
+    from engine.game.make_option_menu import make_option_menu
+    make_option_menu = make_option_menu
+
     from engine.game.menu_char import menu_char
     menu_char = menu_char
 
@@ -195,7 +204,7 @@ class Game:
             if self.game_version != self.config["VERSION"]["ver"]:  # remake config as game version change
                 raise KeyError  # cause KeyError to reset config file
         except (KeyError, TypeError, NameError) as b:  # config error will make the game recreate config with default
-            self.error_log.write(b)
+            self.error_log.write(str(b))
             config = self.create_config()
             self.config = config
             self.show_fps = int(self.config["USER"]["fps"])
@@ -277,40 +286,40 @@ class Game:
 
         # Initialise groups
         Game.ui_updater = ReversedLayeredUpdates()  # main drawer for ui in main menu
-        Game.ui_drawer = pygame.sprite.LayeredUpdates()
+        Game.ui_drawer = sprite.LayeredUpdates()
 
         # game start menu group
-        self.menu_icon = pygame.sprite.Group()  # mostly for option icon like volume or screen resolution
-        self.menu_slider = pygame.sprite.Group()
+        self.menu_icon = sprite.Group()  # mostly for option icon like volume or screen resolution
+        self.menu_slider = sprite.Group()
 
         # lorebook group
-        self.subsection_name = pygame.sprite.Group()  # subsection name objects group in lorebook blit on lore_name_list
-        self.tag_filter_name = pygame.sprite.Group()  # tag filter objects group in lorebook blit on filter_name_list
+        self.subsection_name = sprite.Group()  # subsection name objects group in lorebook blit on lore_name_list
+        self.tag_filter_name = sprite.Group()  # tag filter objects group in lorebook blit on filter_name_list
 
         # battle object group
-        Game.battle_camera = pygame.sprite.LayeredUpdates()  # layer drawer battle camera, all image pos should be based on the map not screen
+        Game.battle_camera = sprite.LayeredUpdates()  # layer drawer battle camera, all image pos should be based on the map not screen
         self.battle_ui_updater = ReversedLayeredUpdates()  # this is updater and drawer for ui, all image pos should be based on the screen
-        self.battle_ui_drawer = pygame.sprite.LayeredUpdates()
-        self.battle_cursor_drawer = pygame.sprite.LayeredUpdates()
+        self.battle_ui_drawer = sprite.LayeredUpdates()
+        self.battle_cursor_drawer = sprite.LayeredUpdates()
 
-        self.character_updater = pygame.sprite.Group()  # updater for character objects
+        self.character_updater = sprite.Group()  # updater for character objects
         self.character_updater.cutscene_update = types.MethodType(cutscene_update, self.character_updater)
-        self.realtime_ui_updater = pygame.sprite.Group()  # for UI stuff that need to be updated in real time like drama and weather objects, also used as drawer
-        self.effect_updater = pygame.sprite.Group()  # updater for effect objects (e.g. range attack sprite)
+        self.realtime_ui_updater = sprite.Group()  # for UI stuff that need to be updated in real time like drama and weather objects, also used as drawer
+        self.effect_updater = sprite.Group()  # updater for effect objects (e.g. range attack sprite)
         self.effect_updater.cutscene_update = types.MethodType(cutscene_update, self.effect_updater)
 
-        self.all_chars = pygame.sprite.Group()  # group to keep all character objects for cleaning
-        self.all_damage_effects = pygame.sprite.Group()  # group to keep all damage objects for collision check
+        self.all_chars = sprite.Group()  # group to keep all character objects for cleaning
+        self.all_damage_effects = sprite.Group()  # group to keep all damage objects for collision check
 
-        self.button_ui = pygame.sprite.Group()  # ui button group in battle
+        self.button_ui = sprite.Group()  # ui button group in battle
 
-        self.speech_boxes = pygame.sprite.Group()
-        self.ui_boxes = pygame.sprite.Group()
+        self.speech_boxes = sprite.Group()
+        self.ui_boxes = sprite.Group()
 
-        self.slider_menu = pygame.sprite.Group()  # volume slider in esc option menu
+        self.slider_menu = sprite.Group()  # volume slider in esc option menu
 
-        self.weather_matters = pygame.sprite.Group()  # sprite of weather effect group such as rain sprite
-        self.weather_effect = pygame.sprite.Group()  # sprite of special weather effect group such as fog that cover whole screen
+        self.weather_matters = sprite.Group()  # sprite of weather effect group such as rain sprite
+        self.weather_effect = sprite.Group()  # sprite of special weather effect group such as fog that cover whole screen
 
         # Assign containers
         OptionMenuText.containers = self.menu_icon
@@ -338,21 +347,21 @@ class Game:
 
         Character.containers = self.character_updater, self.all_chars
 
+        self.game_intro(False)  # run intro
+
+        # Load game localisation data
+        self.localisation = Localisation()
+        Game.localisation = self.localisation
+
         # Create game cursor, make sure it is the first object in ui to be created, so it is always update first
         cursor_images = load_images(self.data_dir, subfolder=("ui", "cursor_menu"))  # no need to scale cursor
         self.cursor = MenuCursor(cursor_images)
         Game.cursor = self.cursor
 
-        self.game_intro(False)  # run intro
-
-        # Load game localisation data
-
-        self.localisation = Localisation()
-        Game.localisation = self.localisation
-
         # Battle related data
         self.character_data = CharacterData()
         self.battle_map_data = BattleMapData()
+        self.sound_data = SoundData()
 
         self.preset_map_folder = self.battle_map_data.preset_map_folder
         self.preset_map_data = self.battle_map_data.preset_map_data
@@ -381,18 +390,13 @@ class Game:
         StageObject.stage_object_animation_pool = self.stage_object_animation_pool
 
         # Load sound effect
-        self.sound_effect_pool = create_sound_effect_pool(self.data_dir)
+        self.sound_effect_pool = self.sound_data.sound_effect_pool
+        self.music_pool = self.sound_data.music_pool
 
         # Music player
-        if pygame.mixer and not pygame.mixer.get_init():
-            pygame.mixer = None
-        if pygame.mixer:
-            pygame.mixer.set_num_channels(1000)
-            self.music_pool = glob.glob(os.path.join(self.data_dir, "sound", "music", "*.ogg"))
-            self.music_pool = {item.split("\\")[-1].replace(".ogg", ""): pygame.mixer.Sound(item) for
-                               item in self.music_pool}
-            pygame.mixer.Channel(0).play(self.music_pool["menu"])
-            pygame.mixer.Channel(0).set_volume(self.play_music_volume)
+        pygame.mixer.set_num_channels(1000)
+        music.load(self.music_pool["menu"])
+        music.set_volume(self.play_music_volume)
 
         # Load UI images
         self.battle_ui_images = load_images(self.data_dir, screen_scale=self.screen_scale,
@@ -447,9 +451,7 @@ class Game:
                                         key_name="select_button")
 
         # Option menu button
-        option_menu_dict = make_option_menu(self.option_menu_images, self.battle_ui_images,
-                                            base_button_image_list, self.config["USER"],
-                                            self.player_key_bind_list[1])
+        option_menu_dict = self.make_option_menu(base_button_image_list)
         self.back_button = option_menu_dict["back_button"]
         self.keybind_button = option_menu_dict["keybind_button"]
         self.default_button = option_menu_dict["default_button"]
@@ -486,44 +488,19 @@ class Game:
                                            (self.screen_rect.width / 4, self.screen_rect.height / 1.05),
                                            key_name="back_button")
 
-        self.player1_text_popup = TextPopup()  # popup box that show text for player 1 interface
-        self.player2_text_popup = TextPopup()  # popup box that show text for player 2 interface
-        self.player3_text_popup = TextPopup()  # popup box that show text for player 3 interface
-        self.player4_text_popup = TextPopup()  # popup box that show text for player 4 interface
+        self.char_interface_text_popup = {index: TextPopup() for index in range(1, 5)}
 
-        self.player1_char_selector = CharacterSelector((self.screen_width / 8, self.screen_height / 2.4),
-                                                       self.char_selector_images)
-        self.player1_char_interface = CharacterInterface(self.player1_char_selector.rect.topleft, 1,
-                                                         self.player1_text_popup, self.char_selector_images,
-                                                         self.battle_ui_images)
-        self.player2_char_selector = CharacterSelector((self.screen_width / 2.7, self.screen_height / 2.4),
-                                                       self.char_selector_images)
-        self.player2_char_interface = CharacterInterface(self.player2_char_selector.rect.topleft, 2,
-                                                         self.player2_text_popup, self.char_selector_images,
-                                                         self.battle_ui_images)
-        self.player3_char_selector = CharacterSelector((self.screen_width / 1.6, self.screen_height / 2.4),
-                                                       self.char_selector_images)
-        self.player3_char_interface = CharacterInterface(self.player3_char_selector.rect.topleft, 3,
-                                                         self.player3_text_popup, self.char_selector_images,
-                                                         self.battle_ui_images)
-        self.player4_char_selector = CharacterSelector((self.screen_width / 1.15, self.screen_height / 2.4),
-                                                       self.char_selector_images)
-        self.player4_char_interface = CharacterInterface(self.player4_char_selector.rect.topleft, 4,
-                                                         self.player4_text_popup, self.char_selector_images,
-                                                         self.battle_ui_images)
-        self.player_char_selectors = {1: self.player1_char_selector, 2: self.player2_char_selector,
-                                      3: self.player3_char_selector, 4: self.player4_char_selector}
-        self.player_char_interfaces = {1: self.player1_char_interface, 2: self.player2_char_interface,
-                                       3: self.player3_char_interface, 4: self.player4_char_interface}
-        self.char_menu_buttons = (self.player1_char_selector, self.player2_char_selector, self.player3_char_selector,
-                                  self.player4_char_selector, self.char_back_button, self.start_button)
+        self.player_char_selectors, self.player_char_interfaces = self.make_character_interfaces()
+        self.char_menu_buttons = (self.player_char_selectors[1], self.player_char_selectors[2],
+                                  self.player_char_selectors[3], self.player_char_selectors[4],
+                                  self.char_back_button, self.start_button)
         CharacterProfileBox.image = self.char_selector_images["Charsheet"]
         self.char_profile_boxes = {
             key + 1: {key2 + 1: CharacterProfileBox((self.player_char_selectors[key + 1].rect.topleft[0],
                                                      self.player_char_selectors[key + 1].rect.topleft[1] +
                                                      (key2 * (210 * self.screen_scale[1])))) for
                       key2 in range(4)} for key in range(4)}
-        self.char_profile_page_text = {key + 1: NameTextBox((self.player1_char_selector.image.get_width() / 1.5,
+        self.char_profile_page_text = {key + 1: NameTextBox((self.player_char_selectors[1].image.get_width() / 1.5,
                                                              42 * self.screen_scale[1]),
                                                             (self.player_char_selectors[key + 1].rect.center[0],
                                                              self.player_char_selectors[key + 1].rect.midbottom[1] -
@@ -534,8 +511,7 @@ class Game:
         self.profile_index = {1: 1, 2: 1, 3: 1, 4: 1}
 
         # User input popup ui
-        input_ui_dict = make_input_box(self.data_dir, self.screen_scale, self.screen_rect,
-                                       load_base_button(self.data_dir, self.screen_scale))
+        input_ui_dict = self.make_input_box(base_button_image_list)
         self.input_ui = input_ui_dict["input_ui"]
         self.input_ok_button = input_ui_dict["input_ok_button"]
         self.input_close_button = input_ui_dict["input_close_button"]
@@ -555,7 +531,7 @@ class Game:
 
         Lorebook.character_data = self.character_data
 
-        self.lorebook, self.lore_name_list, self.filter_tag_list, self.lore_buttons = make_lorebook(self)
+        self.lorebook, self.lore_name_list, self.filter_tag_list, self.lore_buttons = self.make_lorebook()
 
         self.lorebook_stuff = (self.lorebook, self.lore_name_list, self.filter_tag_list,
                                self.lore_name_list.scroll, self.filter_tag_list.scroll, self.lore_buttons.values())
@@ -611,7 +587,7 @@ class Game:
                     intro = False
                 if event.type == pygame.QUIT:
                     pygame.quit()
-                    quit()
+                    sys.exit()
             pygame.display.update()
             self.clock.tick(1000)
             timer += 1
@@ -650,9 +626,8 @@ class Game:
 
             key_press = pygame.key.get_pressed()
 
-            if not pygame.mixer.Channel(0).get_busy():  # replay menu song when not playing anything
-                pygame.mixer.Channel(0).play(self.music_pool["menu"])
-                pygame.mixer.Channel(0).set_volume(self.play_music_volume)
+            if not music.get_busy():  # replay menu song when not playing anything
+                music.play()
 
             if self.url_delay:
                 self.url_delay -= self.dt
@@ -672,10 +647,10 @@ class Game:
                             for i in range(joystick.get_numaxes()):
                                 if joystick.get_axis(i) > 0.5 or joystick.get_axis(i) < -0.5:
                                     if i in (2, 3) and player == 1:  # right axis only for cursor (player 1 only)
-                                        vec = pygame.math.Vector2(joystick.get_axis(2), joystick.get_axis(3))
+                                        vec = Vector2(joystick.get_axis(2), joystick.get_axis(3))
                                         radius, angle = vec.as_polar()
                                         adjusted_angle = (angle + 90) % 360
-                                        new_pos = pygame.Vector2(
+                                        new_pos = Vector2(
                                             self.cursor.pos[0] + (self.dt * 1000 * sin(radians(adjusted_angle))),
                                             self.cursor.pos[1] - (self.dt * 1000 * cos(radians(adjusted_angle))))
                                         if new_pos[0] < 0:

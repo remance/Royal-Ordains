@@ -19,7 +19,7 @@ def cutscene_player_input(self):
                 elif "player_interact" in child_event["Property"]:
                     self.end_cutscene_event(child_event)
                     if "start mission" in child_event["Property"]:  # start new mission after interact
-                        if child_event["Property"]["start mission"] in self.game.preset_map_data[self.chapter]:
+                        if str(child_event["Property"]["start mission"]) in self.game.preset_map_data[self.chapter]:
                             # go to assigned mission
-                            return child_event["Property"]["start mission"]
+                            return str(child_event["Property"]["start mission"])
                     break  # only one player interact event can be played at a time
