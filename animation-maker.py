@@ -13,8 +13,8 @@ from PIL import Image, ImageFilter, ImageEnhance, ImageOps
 from engine.uimenu.uimenu import MenuCursor, NameList, MenuButton, TextPopup, InputUI, InputBox, ListBox
 from engine.uibattle.uibattle import UIScroll
 from engine.game.game import Game
-from engine.game.setup.create_sound_effect_pool import create_sound_effect_pool
 from engine.data.datalocalisation import Localisation
+from engine.data.datasound import SoundData
 from engine.utils.data_loading import csv_read, load_image, load_images, load_base_button, recursive_image_load, \
     filename_convert_readable as fcv
 
@@ -52,11 +52,6 @@ default_sprite_size = (600, 600)
 ui = pygame.sprite.LayeredUpdates()
 fake_group = pygame.sprite.LayeredUpdates()  # just fake group to add for container and not get auto update
 
-MenuCursor.containers = ui
-
-cursor_images = load_images(data_dir, subfolder=("ui", "cursor_menu"))  # no need to scale cursor
-cursor = MenuCursor(cursor_images)
-Game.cursor = cursor
 
 Game.main_dir = main_dir
 Game.data_dir = data_dir
@@ -71,6 +66,11 @@ localisation = Localisation()
 Game.localisation = localisation
 for item in Game.ui_font:  # add ttf file extension for font data reading.
     Game.ui_font[item] = os.path.join(Game.font_dir, Game.ui_font[item]["Font"] + ".ttf")
+
+MenuCursor.containers = ui
+cursor_images = load_images(data_dir, subfolder=("ui", "cursor_menu"))  # no need to scale cursor
+cursor = MenuCursor(cursor_images)
+Game.cursor = cursor
 
 max_person = 4
 max_frame = 26
@@ -323,7 +323,7 @@ for folder in sub1_directories:
     sub_part_folder = Path(os.path.join(animation_dir, "sprite", "effect", folder[-1]))
     recursive_image_load(effect_sprite_pool[fcv(folder[-1])], screen_scale, sub_part_folder)
 
-sound_effect_pool = create_sound_effect_pool(data_dir)
+sound_effect_pool = SoundData().sound_effect_pool
 
 
 class Filmstrip(pygame.sprite.Sprite):

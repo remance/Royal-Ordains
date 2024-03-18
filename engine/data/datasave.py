@@ -17,6 +17,8 @@ empty_character_save = {"chapter": "1", "mission": "1", "playtime": 0, "total sc
                                             9: {}, 10: {}, 11: {}}, "follower list": [], "dialogue log": [],
                         "save state": {"1.0": {}}}
 
+empty_game_save = {"chapter": 1, "mission": 1, "unlock": {"character": []}}
+
 
 class SaveData(GameData):
     def __init__(self):
@@ -35,8 +37,7 @@ class SaveData(GameData):
         sub1_directories = [x for x in read_folder.iterdir() if x.is_file()]
         if "game.dat" not in [os.sep.join(os.path.normpath(item).split(os.sep)[-1:]) for
                               item in sub1_directories]:  # make common game save data
-            self.make_save_file(os.path.join(self.main_dir, "save", "game.dat"),
-                                {"chapter": 1, "mission": 1, "unlock": {"character": []}})
+            self.make_save_file(os.path.join(self.main_dir, "save", "game.dat"), empty_game_save)
 
         sub1_directories = [x for x in read_folder.iterdir() if x.is_file()]  # to include new game.dat save
         for save_file in sub1_directories:

@@ -32,8 +32,6 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
             save_profile["game"]["mission"] = mission
         elif save_profile["game"]["mission"] < mission:
             save_profile["game"]["mission"] = mission
-        self.save_data.make_save_file(path_join(self.main_dir, "save", "game.dat"),
-                                      save_profile["game"])
 
         for player, slot in self.profile_index.items():  # check for update for all active players to update state
             if self.player_char_selectors[player].mode != "empty":
@@ -65,6 +63,8 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
                         reward_list["one"][follower] = "Recruitable"
                         if follower not in save_profile["character"][slot]["follower list"]:
                             save_profile["character"][slot]["follower list"].append(follower)
+                        if follower not in save_profile["game"]["unlock"]["character"]:
+                            save_profile["game"]["unlock"]["character"].append(follower)
 
                     # Choice reward
                     if self.battle.decision_select.selected:
@@ -76,6 +76,8 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
                             reward_list["choice"][follower] = "Recruitable"
                             if follower not in save_profile["character"][slot]["follower list"]:
                                 save_profile["character"][slot]["follower list"].append(follower)
+                            if follower not in save_profile["game"]["unlock"]["character"]:
+                                save_profile["game"]["unlock"]["character"].append(follower)
                         for item in self.choice_stage_reward[choice][chapter][mission][stage]["Item Reward"]:
                             item_num = self.choice_stage_reward[choice][chapter][mission][stage]["Item Reward"][item]
                             if item in save_profile["character"][slot]["storage"]:
@@ -129,6 +131,9 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
                 "%d/%m/%Y %H:%M:%S")
 
     self.write_all_player_save()
+
+    self.save_data.make_save_file(path_join(self.main_dir, "save", "game.dat"),
+                                  save_profile["game"])
 
     players = {key: save_profile["character"][self.profile_index[key]]["character"] for key, value in
                self.player_char_select.items() if value}

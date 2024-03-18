@@ -199,7 +199,6 @@ class Effect(sprite.Sprite):
                     DamageEffect(self.owner, stat, layer, moveset=self.moveset, from_owner=False)
 
         if self.other_property:
-            print(self.other_property)
             if "spawn" in self.other_property and "spawn after" in self.other_property and how == "border":
                 if "spawn same" in self.other_property:  # spawn same effect
                     spawn_number = 1
