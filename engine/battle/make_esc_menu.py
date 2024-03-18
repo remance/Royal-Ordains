@@ -21,19 +21,26 @@ def make_esc_menu(self):
     esc_button_text_size = int(22 * self.screen_scale[1])
 
     battle_menu_button = [
-        EscButton(self.game.button_images, (self.screen_rect.center[0] / 7, self.screen_rect.height - (20 * self.screen_scale[1])),
+        EscButton(self.game.button_images,
+                  (self.screen_rect.center[0] / 7, self.screen_rect.height - (20 * self.screen_scale[1])),
                   text="Resume", text_size=esc_button_text_size),
-        EscButton(self.game.button_images, (self.screen_rect.center[0] / 2.55, self.screen_rect.height - (20 * self.screen_scale[1])),
+        EscButton(self.game.button_images,
+                  (self.screen_rect.center[0] / 2.55, self.screen_rect.height - (20 * self.screen_scale[1])),
                   text="Encyclopedia", text_size=esc_button_text_size),
-        EscButton(self.game.button_images, (self.screen_rect.center[0] / 1.55, self.screen_rect.height - (20 * self.screen_scale[1])),
+        EscButton(self.game.button_images,
+                  (self.screen_rect.center[0] / 1.55, self.screen_rect.height - (20 * self.screen_scale[1])),
                   text="Dialogue Log", text_size=esc_button_text_size),
-        EscButton(self.game.button_images, (self.screen_rect.center[0], self.screen_rect.height - (20 * self.screen_scale[1])),
+        EscButton(self.game.button_images,
+                  (self.screen_rect.center[0], self.screen_rect.height - (20 * self.screen_scale[1])),
                   text="Option", text_size=esc_button_text_size),
-        EscButton(self.game.button_images, (self.screen_rect.center[0] * 1.35, self.screen_rect.height - (20 * self.screen_scale[1])),
+        EscButton(self.game.button_images,
+                  (self.screen_rect.center[0] * 1.35, self.screen_rect.height - (20 * self.screen_scale[1])),
                   text="End Battle", text_size=esc_button_text_size),
-        EscButton(self.game.button_images, (self.screen_rect.center[0] * 1.6, self.screen_rect.height - (20 * self.screen_scale[1])),
+        EscButton(self.game.button_images,
+                  (self.screen_rect.center[0] * 1.6, self.screen_rect.height - (20 * self.screen_scale[1])),
                   text="Main Menu", text_size=esc_button_text_size),
-        EscButton(self.game.button_images, (self.screen_rect.center[0] * 1.85, self.screen_rect.height - (20 * self.screen_scale[1])),
+        EscButton(self.game.button_images,
+                  (self.screen_rect.center[0] * 1.85, self.screen_rect.height - (20 * self.screen_scale[1])),
                   text="Desktop", text_size=esc_button_text_size)]
 
     dialogue_box = ListUI(pivot=(-0.9, -0.9), origin=(-1, -1), size=(.9, .8),
@@ -51,7 +58,8 @@ def make_esc_menu(self):
     # Volume change scroll bar
 
     scroller_images = (self.game.option_menu_images["scroller_box"], self.game.option_menu_images["scroller"])
-    scroll_button_images = (self.game.option_menu_images["scroll_button_normal"], self.game.option_menu_images["scroll_button_click"])
+    scroll_button_images = (
+    self.game.option_menu_images["scroll_button_normal"], self.game.option_menu_images["scroll_button_click"])
     volume_slider = {"master": SliderMenu(scroller_images, scroll_button_images,
                                           (self.screen_rect.width / 2, self.screen_rect.height / 4),
                                           self.master_volume),

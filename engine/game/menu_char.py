@@ -1,5 +1,4 @@
 import copy
-import os
 from datetime import datetime
 from os.path import join as path_join
 
@@ -20,12 +19,11 @@ def menu_char(self, esc_press):
         self.profile_index = {1: 1, 2: 1, 3: 1, 4: 1}
         for selector in self.player_char_selectors.values():
             selector.change_mode("empty")
-        self.remove_ui_updater(self.char_menu_buttons, self.player1_char_selector, self.player2_char_selector,
-                               self.player3_char_selector, self.player4_char_selector, self.player1_char_interface,
-                               self.player2_char_interface, self.player3_char_interface, self.player4_char_interface,
+        self.remove_ui_updater(self.char_menu_buttons, self.player_char_selectors.values(),
+                               self.player_char_interfaces.values(),
                                [item2 for item in self.char_profile_boxes.values() for item2 in item.values()],
-                               [item for item in self.char_profile_page_text.values()], self.player1_text_popup,
-                               self.player2_text_popup, self.player3_text_popup, self.player4_text_popup)
+                               self.char_profile_page_text.values(),
+                               self.char_interface_text_popup.values())
         self.back_mainmenu()
 
     elif self.start_button.event:
@@ -56,8 +54,9 @@ def menu_char(self, esc_press):
             self.battle.main_story_profile = self.save_data.save_profile["character"][
                 self.profile_index[main_story_player]]
             self.battle.main_player = main_story_player
-            players = {key: self.save_data.save_profile["character"][self.profile_index[key]]["character"] for key, value in
-                              self.player_char_select.items() if value}
+            players = {key: self.save_data.save_profile["character"][self.profile_index[key]]["character"] for
+                       key, value in
+                       self.player_char_select.items() if value}
             #
             # self.start_battle("1", "1", "3", players=players)
             # start in throne room of current chapter and mission of the lowest progress player
@@ -246,9 +245,9 @@ def menu_char(self, esc_press):
                             for key, selector in self.player_char_selectors.items():
                                 if selector.mode in ("ready", "readymain"):
                                     progress = (int(self.save_data.save_profile["character"][self.profile_index[key]][
-                                                    "chapter"]) * 100) + \
+                                                        "chapter"]) * 100) + \
                                                int(self.save_data.save_profile["character"][self.profile_index[key]][
-                                                   "mission"])
+                                                       "mission"])
                                     if progress < last_check_progress:  # found player with lower progress
                                         main_story_player = key
                                         last_check_progress = progress

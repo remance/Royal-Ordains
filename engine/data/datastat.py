@@ -196,7 +196,8 @@ class CharacterData(GameData):
                                 encoding="utf-8", mode="r") as edit_file2:
                             rd = tuple(csv.reader(edit_file2, quoting=csv.QUOTE_ALL))
                             header2 = rd[0]
-                            tuple_column = ("Buttons", "Requirement Move", "Status", "Enemy Status")  # value in tuple only
+                            tuple_column = (
+                            "Buttons", "Requirement Move", "Status", "Enemy Status")  # value in tuple only
                             dict_column = ("Prepare Animation", "Property",)
                             tuple_column = [index for index, item in enumerate(header2) if item in tuple_column]
                             dict_column = [index for index, item in enumerate(header2) if item in dict_column]

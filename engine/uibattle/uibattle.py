@@ -193,16 +193,16 @@ class PlayerPortrait(UIBattle):
         portrait_rect = portrait.get_rect(topleft=(0, 0))
         self.image.blit(portrait, portrait_rect)
         if self.battle.city_mode and self.player == self.battle.main_player:  # add helper text for main player
-            text_surface = self.font.render(self.localisation.grab_text(("ui", "press")) + " " +
+            text_surface = self.font.render(self.grab_text(("ui", "press")) + " " +
                                             self.game.player_key_bind_button_name[self.player]["Special"] +
-                                            self.localisation.grab_text(("ui", "open_map")), True, (30, 30, 30),
+                                            self.grab_text(("ui", "open_map")), True, (30, 30, 30),
                                             (220, 220, 220))
             text_rect = text_surface.get_rect(topleft=(110 * self.screen_scale[0], 30 * self.screen_scale[1]))
             self.image.blit(text_surface, text_rect)
 
-            text_surface = self.font.render(self.localisation.grab_text(("ui", "press")) + " " +
+            text_surface = self.font.render(self.grab_text(("ui", "press")) + " " +
                                             self.game.player_key_bind_button_name[self.player]["Guard"] +
-                                            self.localisation.grab_text(("ui", "open_mission")), True, (30, 30, 30),
+                                            self.grab_text(("ui", "open_mission")), True, (30, 30, 30),
                                             (220, 220, 220))
             text_rect = text_surface.get_rect(topleft=(110 * self.screen_scale[0], 60 * self.screen_scale[1]))
             self.image.blit(text_surface, text_rect)
@@ -284,7 +284,8 @@ class TrainingHelper(UIBattle):
                 for index2, button in enumerate(item[0]["Buttons"]):
                     if index2 != 0:
                         button_surface.blit(self.images["button_" + button.lower()],
-                                            self.images["button_" + button.lower()].get_rect(topleft=((index2 * 50 * self.screen_scale[0], 0))))
+                                            self.images["button_" + button.lower()].get_rect(
+                                                topleft=((index2 * 50 * self.screen_scale[0], 0))))
                     else:
                         button_surface.blit(self.images["button_" + button.lower()],
                                             self.images["button_" + button.lower()].get_rect(topleft=(0, 0)))
@@ -779,8 +780,8 @@ class CharacterSpeechBox(UIBattle):
         for profile in self.battle.all_story_profiles.values():  # add speech text to dialogue log for all save
             if profile:
                 profile["dialogue log"].append("(" + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + ")" +
-                                                " ch." + self.battle.chapter + "." + self.battle.mission + "." +
-                                                self.battle.stage + " " + self.character.show_name + ": " + text)
+                                               " ch." + self.battle.chapter + "." + self.battle.mission + "." +
+                                               self.battle.stage + " " + self.character.show_name + ": " + text)
                 if len(profile["dialogue log"]) > 200:
                     profile["dialogue log"] = profile["dialogue log"][1:]
 
@@ -920,8 +921,8 @@ class WheelUI(UIBattle):
                 self.image.blit(self.wheel_image_with_stuff[index], rect)
             if self.choice_list[index]:
                 text_image = self.wheel_text_image.copy()  # blit text again to avoid wheel overlap old text
-                if self.choice_list[index] in self.command_list.values():   # command
-                    text_surface = self.small_font.render(self.localisation.grab_text(("ui", self.choice_list[index])),
+                if self.choice_list[index] in self.command_list.values():  # command
+                    text_surface = self.small_font.render(self.grab_text(("ui", self.choice_list[index])),
                                                           True,
                                                           (20, 20, 20))
                 else:
@@ -933,7 +934,7 @@ class WheelUI(UIBattle):
                     self.wheel_selected_image_with_stuff[index].blit(text_surface,
                                                                      text_surface.get_rect(topright=rect.topright))
 
-                    text_surface = self.small_font.render(self.localisation.grab_text(("item", self.choice_list[index],
+                    text_surface = self.small_font.render(self.grab_text(("item", self.choice_list[index],
                                                                                        "Name")), True, (20, 20, 20))
 
                 text_image.blit(text_surface, text_surface.get_rect(center=(text_image.get_width() / 2,
@@ -964,10 +965,10 @@ class WheelUI(UIBattle):
                     self.wheel_selected_image_with_stuff[index].blit(text_surface,
                                                                      text_surface.get_rect(topright=rect.topright))
 
-                    text_surface = self.small_font.render(self.localisation.grab_text(("item", value, "Name")), True,
+                    text_surface = self.small_font.render(self.grab_text(("item", value, "Name")), True,
                                                           (20, 20, 20))
                 else:
-                    text_surface = self.small_font.render(self.localisation.grab_text(("ui", value)), True,
+                    text_surface = self.small_font.render(self.grab_text(("ui", value)), True,
                                                           (20, 20, 20))
 
                 if self.selected == self.choice_key[index]:

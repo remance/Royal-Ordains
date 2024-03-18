@@ -7,8 +7,9 @@ from math import sin, cos, radians
 from random import uniform, randint
 
 import pygame
-from pygame import Vector2, display, mouse
+from pygame import Vector2, display, mouse, sprite, Surface
 from pygame.locals import *
+from pygame.mixer import Sound, Channel
 
 from engine.camera.camera import Camera
 from engine.character.character import Character, AICharacter
@@ -16,9 +17,9 @@ from engine.drama.drama import TextDrama
 from engine.effect.effect import Effect
 from engine.stage.stage import Stage
 from engine.stageobject.stageobject import StageObject
-from engine.uimenu.uimenu import TextPopup
 from engine.uibattle.uibattle import FPSCount, BattleCursor, YesNo, CharacterSpeechBox, CharacterInteractPrompt, \
     CityMap, CityMission, ScreenFade
+from engine.uimenu.uimenu import TextPopup
 from engine.utils.common import clean_object, clean_group_object
 from engine.utils.data_loading import load_image, load_images
 from engine.utils.text_making import number_to_minus_or_plus
@@ -226,14 +227,14 @@ class Battle:
         self.player_char_interfaces = game.player_char_interfaces
 
         self.game_speed = 1
-        self.all_team_character = {1: pygame.sprite.Group(), 2: pygame.sprite.Group(),
-                                   3: pygame.sprite.Group(), 4: pygame.sprite.Group(), 5: pygame.sprite.Group()}
-        self.all_team_enemy = {1: pygame.sprite.Group(), 2: pygame.sprite.Group(),
-                               3: pygame.sprite.Group(), 4: pygame.sprite.Group(), 5: pygame.sprite.Group()}
-        self.all_team_enemy_part = {1: pygame.sprite.Group(), 2: pygame.sprite.Group(),
-                                    3: pygame.sprite.Group(), 4: pygame.sprite.Group(), 5: pygame.sprite.Group()}
-        self.all_team_drop = {1: pygame.sprite.Group(), 2: pygame.sprite.Group(),
-                              3: pygame.sprite.Group(), 4: pygame.sprite.Group(), 5: pygame.sprite.Group()}
+        self.all_team_character = {1: sprite.Group(), 2: sprite.Group(),
+                                   3: sprite.Group(), 4: sprite.Group(), 5: sprite.Group()}
+        self.all_team_enemy = {1: sprite.Group(), 2: sprite.Group(),
+                               3: sprite.Group(), 4: sprite.Group(), 5: sprite.Group()}
+        self.all_team_enemy_part = {1: sprite.Group(), 2: sprite.Group(),
+                                    3: sprite.Group(), 4: sprite.Group(), 5: sprite.Group()}
+        self.all_team_drop = {1: sprite.Group(), 2: sprite.Group(),
+                              3: sprite.Group(), 4: sprite.Group(), 5: sprite.Group()}
         self.player_damage = {1: 0, 2: 0, 3: 0, 4: 0}
         self.player_kill = {1: 0, 2: 0, 3: 0, 4: 0}
         self.player_boss_kill = {1: 0, 2: 0, 3: 0, 4: 0}
@@ -254,10 +255,10 @@ class Battle:
         self.helper = None  # helper character that can be moved via cursor
         self.score_board = None
 
-        self.best_depth = pygame.display.mode_ok(self.screen_rect.size, self.game.window_style,
-                                                 32)  # Set the display mode
-        Battle.screen = pygame.display.set_mode(self.screen_rect.size, self.game.window_style,
-                                                self.best_depth)  # set up self screen
+        self.best_depth = display.mode_ok(self.screen_rect.size, self.game.window_style,
+                                          32)  # Set the display mode
+        Battle.screen = display.set_mode(self.screen_rect.size, self.game.window_style,
+                                         self.best_depth)  # set up self screen
 
         # Assign battle variable to some classes
         Character.sound_effect_pool = self.sound_effect_pool
@@ -331,15 +332,14 @@ class Battle:
 
         # music player
         self.current_music = None
-        self.music_left = pygame.mixer.Channel(1)
+        self.music_left = Channel(1)
         self.music_left.set_volume(self.play_music_volume, 0)
-        self.music_right = pygame.mixer.Channel(2)
+        self.music_right = Channel(2)
         self.music_right.set_volume(0, self.play_music_volume)
 
         # Battle map object
-        Stage.image = pygame.Surface.subsurface(self.camera.image,
-                                                (0, 0, self.camera.image.get_width(),
-                                                 self.camera.image.get_height()))
+        Stage.image = Surface.subsurface(self.camera.image, (0, 0, self.camera.image.get_width(),
+                                                             self.camera.image.get_height()))
         Stage.camera_center_y = self.battle_camera_center[1]
         self.battle_stage = Stage(1)
         self.frontground_stage = Stage(100000000000000000000000000000000000000000000000)
@@ -546,8 +546,9 @@ class Battle:
                                     char_found = char
                                     break
                             for key3, value3 in value2.items():
-                                if "/Any/" in value3[0]["ID"] or "/" + self.main_player_object.char_id + "/" in value3[0][
-                                    "ID"]:
+                                if "/Any/" in value3[0]["ID"] or "/" + self.main_player_object.char_id + "/" in \
+                                        value3[0][
+                                            "ID"]:
                                     # only add event involving the character of first player
                                     if value3[0]["Type"] == "char":
                                         # must always have char id as second item in trigger
@@ -573,10 +574,11 @@ class Battle:
                                         weather_strength = 0
                                         if "strength" in value3[0]["Property"]:
                                             weather_strength = value3[0]["Property"]["strength"]
-                                        self.reach_scene_event_list[key]["weather"] = (value3[0]["Object"], weather_strength)
+                                        self.reach_scene_event_list[key]["weather"] = (
+                                        value3[0]["Object"], weather_strength)
                                     elif value3[0]["Type"] == "music":
-                                        self.reach_scene_event_list[key]["music"] = self.music_pool[
-                                            str(value3[0]["Object"])]
+                                        self.reach_scene_event_list[key]["music"] = Sound(self.music_pool[
+                                                                                              str(value3[0]["Object"])])
                                     elif value3[0]["Type"] == "sound":
                                         if "sound" not in self.reach_scene_event_list[key]:
                                             self.reach_scene_event_list[key]["sound"] = []
@@ -643,9 +645,6 @@ class Battle:
         self.screen.fill((0, 0, 0))
         self.realtime_ui_updater.add(self.main_player_battle_cursor)
         self.remove_ui_updater(self.cursor)
-        # self.map_def_array = []
-        # self.mapunitarray = [[x[random.randint(0, 1)] if i != j else 0 for i in range(1000)] for j in range(1000)]
-        # pygame.mixer.music.set_endevent(self.SONG_END)  # End current music before battle start
 
         if self.start_cutscene:
             # play start cutscene
@@ -701,17 +700,17 @@ class Battle:
                             for i in range(joystick.get_numaxes()):
                                 if joystick.get_axis(i) > 0.5 or joystick.get_axis(i) < -0.5:
                                     if i in (2, 3) and player == 1:  # right axis only for cursor (player 1 only)
-                                        vec = pygame.math.Vector2(joystick.get_axis(2), joystick.get_axis(3))
+                                        vec = Vector2(joystick.get_axis(2), joystick.get_axis(3))
                                         radius, angle = vec.as_polar()
                                         adjusted_angle = (angle + 90) % 360
                                         if self.game_state == "battle":
-                                            new_pos = pygame.Vector2(
+                                            new_pos = Vector2(
                                                 self.main_player_battle_cursor.pos[0] + (
                                                         self.true_dt * 1000 * sin(radians(adjusted_angle))),
                                                 self.main_player_battle_cursor.pos[1] - (
                                                         self.true_dt * 1000 * cos(radians(adjusted_angle))))
                                         else:
-                                            new_pos = pygame.Vector2(
+                                            new_pos = Vector2(
                                                 self.cursor.pos[0] + (
                                                         self.true_dt * 1000 * sin(radians(adjusted_angle))),
                                                 self.cursor.pos[1] - (
@@ -724,7 +723,7 @@ class Battle:
                                             new_pos[1] = 0
                                         elif new_pos[1] > self.corner_screen_height:
                                             new_pos[1] = self.corner_screen_height
-                                        pygame.mouse.set_pos(new_pos)
+                                        mouse.set_pos(new_pos)
                                     else:
                                         axis_name = "axis" + number_to_minus_or_plus(joystick.get_axis(i)) + str(i)
                                         if axis_name in player_key_bind_name:
@@ -846,8 +845,8 @@ class Battle:
             if self.game_state == "battle":  # game in battle state
                 if esc_press:  # pause game and open menu
                     for sound_ch in range(0, 1000):
-                        if pygame.mixer.Channel(sound_ch).get_busy():  # pause all sound playing
-                            pygame.mixer.Channel(sound_ch).pause()
+                        if Channel(sound_ch).get_busy():  # pause all sound playing
+                            Channel(sound_ch).pause()
                     if self.city_mode:  # add character setup UI for city mode when pause game
                         for player in self.player_objects:
                             self.add_ui_updater(self.player_char_base_interfaces[player],
@@ -1006,10 +1005,10 @@ class Battle:
                                     self.reach_scene_event_list[self.battle_stage.reach_scene]["weather"][1],
                                     self.weather_data)
                                 self.reach_scene_event_list[self.battle_stage.reach_scene].pop("weather")
-                            if "music" in self.reach_scene_event_list[self.battle_stage.reach_scene]:  # change weather
+                            if "music" in self.reach_scene_event_list[self.battle_stage.reach_scene]:  # change music
                                 self.current_music = self.reach_scene_event_list[self.battle_stage.reach_scene]["music"]
                                 self.reach_scene_event_list[self.battle_stage.reach_scene].pop("music")
-                            if "sound" in self.reach_scene_event_list[self.battle_stage.reach_scene]:  # change weather
+                            if "sound" in self.reach_scene_event_list[self.battle_stage.reach_scene]:  # play sound
                                 for sound_effect in self.reach_scene_event_list[self.battle_stage.reach_scene]:
                                     self.add_sound_effect_queue(self.sound_effect_pool[sound_effect[0]],
                                                                 self.camera_pos, sound_effect[1], sound_effect[2])
@@ -1055,7 +1054,8 @@ class Battle:
 
                                     if "replayable" not in self.player_interact_event_list[item[0]][0][0]["Property"]:
                                         self.cutscene_playing = self.player_interact_event_list[item[0]][0]
-                                        self.cutscene_playing_data = copy.deepcopy(self.player_interact_event_list[item[0]][0])
+                                        self.cutscene_playing_data = copy.deepcopy(
+                                            self.player_interact_event_list[item[0]][0])
                                         self.player_interact_event_list[item[0]].remove(self.cutscene_playing)
                                         if not self.player_interact_event_list[item[0]]:
                                             self.player_interact_event_list.pop(item[0])
@@ -1091,7 +1091,8 @@ class Battle:
                                         self.cutscene_timer = 1
                                         text = None
                                         if child_event["Text ID"]:
-                                            text = self.localisation.grab_text(("event", child_event["Text ID"], "Text"))
+                                            text = self.localisation.grab_text(
+                                                ("event", child_event["Text ID"], "Text"))
                                         self.screen_fade.reset(1, text=text)
                                         self.realtime_ui_updater.add(self.screen_fade)
                                         if "timer" in child_event["Property"]:
@@ -1109,8 +1110,10 @@ class Battle:
                             event_character = None
                             if child_event["Type"] == "create":  # add character for cutscene
                                 AICharacter(child_event["Object"], event_index,
-                                            child_event["Property"] | self.character_data.character_list[child_event["Object"]] |
-                                            {"ID": child_event["Object"], "Ground Y POS": child_event["Property"]["POS"][1],
+                                            child_event["Property"] | self.character_data.character_list[
+                                                child_event["Object"]] |
+                                            {"ID": child_event["Object"],
+                                             "Ground Y POS": child_event["Property"]["POS"][1],
                                              "Scene": 1, "Team": 1, "Arrive Condition": {}, "Sprite Ver": self.chapter})
                                 self.cutscene_playing.remove(child_event)
                             else:
@@ -1175,13 +1178,15 @@ class Battle:
                                                     child_event["Property"]["POS"][1])
                                         elif "target" in child_event["Property"]:
                                             for character2 in self.all_chars:
-                                                if character2.game_id == child_event["Property"]["target"]:  # go to target pos
+                                                if character2.game_id == child_event["Property"][
+                                                    "target"]:  # go to target pos
                                                     event_character.cutscene_target_pos = character2.base_pos
                                                     break
                                         if "angle" in child_event["Property"]:
                                             if child_event["Property"]["angle"] == "target":
                                                 # facing target must have cutscene_target_pos
-                                                if event_character.cutscene_target_pos[0] >= event_character.base_pos[0]:
+                                                if event_character.cutscene_target_pos[0] >= event_character.base_pos[
+                                                    0]:
                                                     event_character.new_angle = -90
                                                 else:
                                                     event_character.new_angle = 90
@@ -1234,7 +1239,7 @@ class Battle:
                                      value["Shop"] == shop_npc.char_id and
                                      (int(self.main_story_profile["chapter"]) > value["Chapter"] or
                                       (int(self.main_story_profile["chapter"]) == value["Chapter"] and
-                                      int(self.main_story_profile["mission"]) >= value["Mission"]))]
+                                       int(self.main_story_profile["mission"]) >= value["Mission"]))]
                                 self.player_char_interfaces[player].purchase_list = {}
                                 self.player_char_interfaces[player].change_mode("shop")
                                 self.player_char_interfaces[player].input_delay = 0.1
