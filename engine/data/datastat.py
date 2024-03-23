@@ -139,18 +139,20 @@ class CharacterData(GameData):
                                 for n2, i2 in enumerate(row2):
                                     row2 = stat_convert(row2, n2, i2, tuple_column=tuple_column,
                                                         dict_column=dict_column)
-                                # restructure moveset so move that continue from another is in its parent move
+
                                 move_data = {header2[index]: stuff for index, stuff in enumerate(row2)}
                                 if row2[header2.index("Position")] not in moveset_dict:
                                     # keep moveset in each position dict for easier access
                                     moveset_dict[row2[header2.index("Position")]] = {}
 
+                                if not row2[header2.index("Requirement Move")]:
+                                    # parent move
+                                    moveset_dict[row2[header2.index("Position")]][row2[0]] = move_data
+
+                                # restructure moveset so move that continue from another is in its parent move
                                 parent_move_list = row2[header2.index("Requirement Move")]
                                 if "all child moveset" in move_data["Property"]:
                                     parent_move_list = [row3[header2.index("Move")] for row3 in rd2][1:]
-                                if not row2[header2.index("Requirement Move")]:
-                                    # parent move, must also always at row above any child move in csv file
-                                    moveset_dict[row2[header2.index("Position")]][row2[0]] = move_data
                                 if row2[header2.index("Requirement Move")] or "all child moveset" in move_data[
                                     "Property"]:
                                     found = None

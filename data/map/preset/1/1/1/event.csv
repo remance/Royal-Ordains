@@ -1,4 +1,4 @@
 "ID","Text ID","Object","Animation","Type","Trigger","Property"
 "music/scene1",,1,,"music","camera_reach_scene,1",
-"event/scene1.1","event1/stage1_craven1_speak",1,,"speak","char_in_camera,1","timer:5"
-"event/scene1.2","event1/stage1_craven2_speak",2,,"speak","char_in_camera,2","timer:5"
+"event/scene1.1","event/1_1_1_craven1_talk",1,,"speak","char_in_camera,1","timer:5"
+"event/scene1.2","event/1_1_1_craven2_talk",2,,"speak","char_in_camera,2","timer:5"

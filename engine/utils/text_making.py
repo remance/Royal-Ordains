@@ -47,15 +47,17 @@ def make_long_text(surface, text, pos, font, color=Color("black"), with_texture=
     :param specific_width: Specific width size of text
     """
     # TODO Add sizing and colouring for highlight and maybe URL system
-    if type(text) != list:
+    if type(text) is not list:
         text = [text]
     x, y = pos
+    word_height = font.size(" ")[1]
+    max_width = surface.get_width()
+    if specific_width:
+        max_width = specific_width
+    space = font.size(" ")[0]  # the width of a space
+
     for this_text in text:
         words = [word.split(" ") for word in str(this_text).splitlines()]  # 2D array where each row is a list of words
-        space = font.size(" ")[0]  # the width of a space
-        max_width = surface.get_width()
-        if specific_width:
-            max_width = specific_width
         for line in words:
             for word in line:
                 if not with_texture:
@@ -63,14 +65,14 @@ def make_long_text(surface, text, pos, font, color=Color("black"), with_texture=
                 else:
                     word_surface = text_render_with_texture(text, font, with_texture[0], with_bg=with_texture[1])
 
-                word_width, word_height = word_surface.get_size()
+                word_width = word_surface.get_width()
                 if x + word_width >= max_width:
                     x = pos[0]  # reset x
                     y += word_height  # start on new line.
                 surface.blit(word_surface, (x, y))
                 x += word_width + space
             x = pos[0]  # reset x
-            y += word_height  # start on new line
+        y += word_height  # start on new line
 
 
 def text_render_with_texture(text, font, texture, with_bg=None):

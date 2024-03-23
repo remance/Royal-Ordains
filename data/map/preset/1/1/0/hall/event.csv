@@ -1,1 +1,5 @@
-"ID","Text ID","Object","Animation","Type","Property"
+"ID","Text ID","Object","Animation","Type","Trigger","Property"
+"Maelsen/Any/1_1_city_hall_talk1","Maelsen/Any/1_1_city_hall_talk1.1",1,"Talk","char","interact,1","interact,hold"
+"Kapuni/Any/1_1_city_hall_talk1","Kapuni/Any/1_1_city_hall_talk1.1",2,"Talk","char","interact,2","interact,hold"
+"Aerlnarn/Any/1_1_city_hall_talk1","Aerlnarn/Any/1_1_city_hall_talk1.1",3,"Talk","char","interact,3","interact,hold"
+"Bauqah/Any/1_1_city_hall_talk1","Bauqah/Any/1_1_city_hall_talk1.1",4,"Talk","char","interact,4","interact,hold"

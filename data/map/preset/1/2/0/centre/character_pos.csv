@@ -1,5 +1,0 @@
-"Object ID","ID","Scene","POS","Ground Y POS","Angle","Start Health","Team","Arrive Condition"
-1,"King",1,"350,800",800,90,100,1,
-2,"Nayedien",1,"600,700",700,90,100,1,"no_player_pick"
-3,"Vurus",1,"500,900",900,90,100,1,
-4,"Harneros",1,,900,-90,100,1,

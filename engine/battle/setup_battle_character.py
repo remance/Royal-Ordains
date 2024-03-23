@@ -25,23 +25,30 @@ def setup_battle_character(self, player_list, stage_char_list, add_helper=True):
             if team != player.team:
                 player_team[team] += 1
 
+    mission_str = self.chapter + "." + self.mission + "." + self.stage
+
     for data in stage_char_list:
         if type(data["Object ID"]) is not str:  # only data with int object id created as AI
-            if "no_player_pick" not in data["Stage Property"] or \
-                    data["ID"] not in [player.char_id for player in self.player_objects.values()]:
+            if "story choice" in data["Stage Property"]:
+                mission_choice_appear = data["Stage Property"]["story choice"].split("_")[0]
+            if ("no player pick" not in data["Stage Property"] or \
+                    data["ID"] not in [player.char_id for player in self.player_objects.values()]) and \
+                ("story choice" not in data["Stage Property"] or
+                 data["Stage Property"]["story choice"] ==
+                 mission_choice_appear + "_" + self.main_story_profile["story choice"][mission_choice_appear]):
                 # check if no_player_pick and player with same character exist
-                health_scaling = player_team[data["Team"]] * 2
-                if not player_team[data["Team"]] or player_team[data["Team"]] == 1:
-                    # 0 player is considered x1 same as 1 player
-                    health_scaling = 1
-                if "city_npc" in data["Stage Property"]:  # city AI, has different combat update
+                if "city npc" in data["Stage Property"]:  # city AI, has different combat update
                     specific_behaviour = None
-                    if "specific_behaviour" in data["Stage Property"]:
+                    if "specific behaviour" in data["Stage Property"]:
                         specific_behaviour = data["Stage Property"]["specific_behaviour"]
                     AICharacter(data["Object ID"], data["Object ID"],
                                 data | self.character_data.character_list[data["ID"]] |
                                 {"Sprite Ver": self.chapter}, specific_behaviour=specific_behaviour)
                 else:
+                    health_scaling = player_team[data["Team"]] * 2
+                    if not player_team[data["Team"]] or player_team[data["Team"]] == 1:
+                        # 0 player is considered x1 same as 1 player
+                        health_scaling = 1
                     BattleAICharacter(data["Object ID"], data["Object ID"],
                                       data | self.character_data.character_list[data["ID"]] |
                                       {"Sprite Ver": self.chapter}, health_scaling=health_scaling)

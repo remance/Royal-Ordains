@@ -1,2 +1,5 @@
 "ID","Text ID","Object","Animation","Type","Trigger","Property"
 "music/scene1",,"council",,"music","camera_reach_scene,1",
+"Solhatar/Any/1_1_city_council_talk1","Solhatar/Any/1_1_city_council_talk1.1",1,"Talk","char","interact,1","interact,hold"
+"Serlon/Any/1_1_city_council_talk1","Serlon/Any/1_1_city_council_talk1.1",2,"Talk","char","interact,2","interact,hold"
+"Elghest/Any/1_1_city_council_talk1","Elghest/Any/1_1_city_council_talk1.1",3,"Talk","char","interact,3","interact,hold"

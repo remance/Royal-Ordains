@@ -118,9 +118,7 @@ class Battle:
         # add one more playable char
         # add online/lan multiplayer?
         # church add start event with blessing peasant
-        # add enchant, add victory interface that show reward from finished mission
-        # rework skill help to use from data instead of localise
-        # add side mission system
+        # court structure interface, mission select, side mission system
         # add ranking record system
         # add pvp mode, follower recruit unlock with all save story progress
         # finish main menu
@@ -250,6 +248,7 @@ class Battle:
         self.existing_playable_characters = []
         self.later_enemy = {}
         self.city_mode = False
+        self.game_state = "battle"
         self.esc_menu_mode = "menu"
 
         self.helper = None  # helper character that can be moved via cursor
@@ -592,7 +591,6 @@ class Battle:
 
     def run_game(self):
         # Create Starting Values
-        self.game_state = "battle"  # battle mode
         self.input_popup = None  # no popup asking for user text input state
         self.drama_text.queue = []  # reset drama text popup queue
 
@@ -1201,7 +1199,7 @@ class Battle:
                                         if child_event["Text ID"]:
                                             specific_timer = None
                                             player_input_indicator = None
-                                            if "player_interact" in child_event["Property"]:
+                                            if "interact" in child_event["Property"]:
                                                 specific_timer = infinity
                                                 player_input_indicator = True
                                             elif "timer" in child_event["Property"]:
@@ -1247,7 +1245,20 @@ class Battle:
                                                     self.player_char_interfaces[player])
                             self.end_cutscene_event(child_event)
 
-                        if "wait_done" in child_event["Property"] or "player_interact" in child_event["Property"] or \
+                        elif "enchant" in child_event["Property"]:  # open shop interface
+                            self.game_state = "enchant"
+
+                            for player in self.player_objects:
+                                self.player_char_interfaces[player].all_custom_item = \
+                                    [item for item in self.player_char_interfaces[player].profile["storage"] if
+                                     type(item) is tuple]
+                                self.player_char_interfaces[player].change_mode("enchant")
+                                self.player_char_interfaces[player].input_delay = 0.1
+                                self.add_ui_updater(self.player_char_base_interfaces[player],
+                                                    self.player_char_interfaces[player])
+                            self.end_cutscene_event(child_event)
+
+                        if "wait" in child_event["Property"] or "interact" in child_event["Property"] or \
                                 "select" in child_event["Property"]:
                             break
 
@@ -1307,8 +1318,8 @@ class Battle:
                         if self.end_delay >= 5:  # end battle
                             self.end_delay = 0
 
-                            if int(self.stage) + 1 in self.game.preset_map_data[self.chapter][self.mission] or \
-                                    int(self.mission) + 1 in self.game.preset_map_data[self.chapter]:
+                            if str(int(self.stage) + 1) in self.game.preset_map_data[self.chapter][self.mission] or \
+                                    str(int(self.mission) + 1) in self.game.preset_map_data[self.chapter]:
                                 # has next stage or mission
                                 return True
                             else:
@@ -1326,13 +1337,6 @@ class Battle:
                         if self.input_popup[1] == "quit":  # quit game
                             pygame.quit()
                             sys.exit()
-
-                        elif self.input_popup[1] == "reward":
-                            for interface in self.player_char_interfaces.values():
-                                interface.reward_list = {}
-                                interface.change_mode("stat")
-                            self.remove_ui_updater(self.player_char_base_interfaces.values(),
-                                                   self.player_char_interfaces.values())
 
                         self.input_box.text_start("")
                         self.input_popup = None
@@ -1358,10 +1362,39 @@ class Battle:
                 self.camera.update(self.shown_camera_pos, self.battle_camera, self.realtime_ui_updater)
                 # self.frontground_stage.update(self.shown_camera_pos)  # update frontground stage last
                 self.ui_drawer.draw(self.screen)  # draw the UI
-                if esc_press:  # close and accept reward
-                    self.activate_input_popup(("confirm_input", "reward"), "Confirm Reward?", self.confirm_ui_popup)
+                if self.input_popup:  # currently, have input text pop up on screen, stop everything else until done
+                    if self.input_ok_button.event_press:
+                        for interface in self.player_char_interfaces.values():
+                            interface.reward_list = {}
+                            interface.change_mode("stat")
+                        self.game_state = "battle"
+                        self.remove_ui_updater(self.cursor, self.player_char_base_interfaces.values(),
+                                               self.player_char_interfaces.values(), self.input_ui_popup,
+                                               self.confirm_ui_popup)
 
-            elif self.game_state == "shop":
+                        self.input_box.text_start("")
+                        self.input_popup = None
+
+                    elif self.input_cancel_button.event_press or esc_press:
+                        self.change_pause_update(False)
+                        self.input_box.text_start("")
+                        self.input_popup = None
+                        self.remove_ui_updater(self.cursor, self.input_ui_popup, self.confirm_ui_popup)
+
+                else:
+                    if esc_press:  # close and accept reward
+                        self.activate_input_popup(("confirm_input", "reward"), "Confirm Reward?", self.confirm_ui_popup)
+                        self.add_ui_updater(self.cursor)
+                    else:
+                        for key_list in (self.player_key_press, self.player_key_hold):
+                            # check key holding for stat mode as well
+                            for player in key_list:
+                                if player in self.player_objects:
+                                    for key, pressed in key_list[player].items():
+                                        if pressed:
+                                            self.player_char_interfaces[player].player_input(key)
+
+            elif self.game_state in ("shop", "enchant"):
                 self.battle_stage.update(self.shown_camera_pos)  # update stage first
                 self.camera.update(self.shown_camera_pos, self.battle_camera, self.realtime_ui_updater)
                 # self.frontground_stage.update(self.shown_camera_pos)  # update frontground stage last

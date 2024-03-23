@@ -1,2 +1,5 @@
 "ID","Text ID","Object","Animation","Type","Trigger","Property"
 "music/scene1",,"garden",,"music","camera_reach_scene,1",
+"Rudehst/Any/1_1_city_garden_talk1","Rudehst/Any/1_1_city_garden_talk1.1",1,"Talk","char","interact,1","interact,hold"
+"Viskes/Any/1_1_city_garden_talk1","Viskes/Any/1_1_city_garden_talk1.1",2,"Talk","char","interact,2","interact,hold"
+"Yuawies/Any/1_1_city_garden_talk1","Yuawies/Any/1_1_city_garden_talk1.1",3,"Talk","char","interact,3","interact,hold"

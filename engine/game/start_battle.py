@@ -1,4 +1,5 @@
 import gc
+import random
 from datetime import datetime
 from os.path import join as path_join
 from random import choices
@@ -15,28 +16,32 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
     self.loading_screen("start")
 
     music.stop()
+    for _ in range(100):
+        new_custom_equip = tuple(self.generate_custom_equipment((gear_type_list)[random.randint(0, 6)], "Standard").items())
+        self.save_data.save_profile["character"][1]["storage"][new_custom_equip] = 1
     self.battle.prepare_new_stage(chapter, mission, stage, players, scene=scene)
     next_battle = self.battle.run_game()  # run next stage
     self.battle.exit_battle()  # run exit battle for previous one
 
-    # Finish battle, check for next one
     music.play()
     gc.collect()  # collect no longer used object in previous battle from memory
+
+    # Finish battle, check for next one
+    self.battle.game_state = "battle"  # reset battle game state when end
 
     save_profile = self.save_data.save_profile
 
     if next_battle is True and str(int(stage) + 1) not in self.preset_map_data[chapter][mission]:  # need to use is True
         # finish mission, update save data of the game first before individual save
-        if save_profile["game"]["chapter"] < chapter:
+        if int(save_profile["game"]["chapter"]) < int(chapter):
             save_profile["game"]["chapter"] = chapter
             save_profile["game"]["mission"] = mission
-        elif save_profile["game"]["mission"] < mission:
+        elif int(save_profile["game"]["mission"]) < int(mission):
             save_profile["game"]["mission"] = mission
 
         for player, slot in self.profile_index.items():  # check for update for all active players to update state
             if self.player_char_selectors[player].mode != "empty":
                 reward_list = {"one": {}, "multi": {}, "choice": {}}
-
                 # check for update for all active players to level up
                 if save_profile["character"][slot]["chapter"] == chapter and \
                         save_profile["character"][slot]["mission"] == mission:
@@ -60,40 +65,42 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
                         reward_list["one"]["skill"] = self.stage_reward[chapter][mission]["Skill"]
 
                     for follower in self.stage_reward[chapter][mission]["Follower Reward"]:
-                        reward_list["one"][follower] = "Recruitable"
+                        reward_list["one"][follower] = 1
                         if follower not in save_profile["character"][slot]["follower list"]:
                             save_profile["character"][slot]["follower list"].append(follower)
                         if follower not in save_profile["game"]["unlock"]["character"]:
                             save_profile["game"]["unlock"]["character"].append(follower)
 
-                    # Choice reward
-                    if self.battle.decision_select.selected:
-                        mission_str = chapter + "." + mission + "." + stage
-                        choice = self.battle.decision_select.selected
-                        save_profile["character"][slot]["story choice"][
-                            mission_str] = choice
-                        for follower in self.choice_stage_reward[choice][chapter][mission][stage]["Follower Reward"]:
-                            reward_list["choice"][follower] = "Recruitable"
-                            if follower not in save_profile["character"][slot]["follower list"]:
-                                save_profile["character"][slot]["follower list"].append(follower)
-                            if follower not in save_profile["game"]["unlock"]["character"]:
-                                save_profile["game"]["unlock"]["character"].append(follower)
-                        for item in self.choice_stage_reward[choice][chapter][mission][stage]["Item Reward"]:
-                            item_num = self.choice_stage_reward[choice][chapter][mission][stage]["Item Reward"][item]
-                            if item in save_profile["character"][slot]["storage"]:
-                                save_profile["character"][slot]["storage"][item] += item_num
-                            else:
-                                save_profile["character"][slot]["storage"][item] = item_num
-                            reward_list["choice"][item] = item_num
+                # Choice reward, can be obtained multiple time for gold and items
+                if self.battle.decision_select.selected:
+                    mission_str = chapter + "." + mission + "." + stage
+                    choice = self.battle.decision_select.selected
+                    if mission_str not in save_profile["character"][slot]["story choice"]:
+                        save_profile["character"][slot]["story choice"][mission_str] = choice
+                    else:  # get previous choice instead regardless of main profile choice here
+                        choice = save_profile["character"][slot]["story choice"][mission_str]
+                    for follower in self.choice_stage_reward[choice][chapter][mission][stage]["Follower Reward"]:
+                        reward_list["choice"][follower] = 1
+                        if follower not in save_profile["character"][slot]["follower list"]:
+                            save_profile["character"][slot]["follower list"].append(follower)
+                        if follower not in save_profile["game"]["unlock"]["character"]:
+                            save_profile["game"]["unlock"]["character"].append(follower)
+                    for item in self.choice_stage_reward[choice][chapter][mission][stage]["Item Reward"]:
+                        item_num = self.choice_stage_reward[choice][chapter][mission][stage]["Item Reward"][item]
+                        if item in save_profile["character"][slot]["storage"]:
+                            save_profile["character"][slot]["storage"][item] += item_num
+                        else:
+                            save_profile["character"][slot]["storage"][item] = item_num
+                        reward_list["choice"][item] = item_num
 
-                        for item in self.choice_stage_reward[choice][chapter][mission][stage]["Gear Reward"]:
-                            item_num = self.choice_stage_reward[choice][chapter][mission][stage]["Gear Reward"][item]
-                            if item in save_profile["character"][slot]["storage"][item]:
-                                save_profile["character"][slot]["storage"][item] += item_num
-                            else:
-                                save_profile["character"][slot]["storage"][item] = item_num
-                            reward_list["choice"][item] = item_num
+                    for item in self.choice_stage_reward[choice][chapter][mission][stage]["Unique Gear Reward"]:
+                        # unique gear that only gave out once in first win
+                        item_num = self.choice_stage_reward[choice][chapter][mission][stage]["Unique Gear Reward"][item]
+                        if item not in save_profile["character"][slot]["storage"][item]:
+                            save_profile["character"][slot]["storage"][item] = 1
+                        reward_list["choice"][item] = item_num
 
+                    if self.choice_stage_reward[choice][chapter][mission][stage]["Gold Reward"]:
                         reward_list["choice"]["gold"] = self.choice_stage_reward[choice][chapter][mission][stage][
                             "Gold Reward"]
                         save_profile["character"][slot]["total golds"] += \
@@ -117,18 +124,19 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
                                      tuple(
                                          self.battle_map_data.stage_reward[chapter][mission]["Gear Reward"].values()))[
                         0]
-                    save_profile["storage"][self.generate_custom_equipment(gear_type, rarity)] = 1
-                    reward_list["multi"][self.generate_custom_equipment(gear_type, rarity)] = 1
+                    new_custom_equip = tuple(self.generate_custom_equipment(gear_type, rarity).items())
+                    save_profile["character"][slot]["storage"][new_custom_equip] = 1
+                    reward_list["multi"][new_custom_equip] = 1
 
                 self.player_char_interfaces[player].reward_list = reward_list
                 self.player_char_interfaces[player].change_mode("reward")
                 self.battle.game_state = "reward"
+                self.battle.add_ui_updater(self.battle.player_char_base_interfaces[player],
+                                           self.battle.player_char_interfaces[player])
 
     for player, slot in self.profile_index.items():
-        if self.player_char_selectors[player].mode != "empty":
-            self.player_char_interfaces[player].add_profile(save_profile["character"][slot])
-            save_profile["character"][slot]["last save"] = datetime.now().strftime(
-                "%d/%m/%Y %H:%M:%S")
+        save_profile["character"][slot]["last save"] = datetime.now().strftime(
+            "%d/%m/%Y %H:%M:%S")
 
     self.write_all_player_save()
 
@@ -140,20 +148,19 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
 
     self.battle.decision_select.selected = None  # reset decision here instead of in battle method
     self.battle.city_mode = False  # reset battle city mode so char interface not allow switching other modes when quit
-
     if next_battle is True:  # finish stage, continue to next one
-        if stage + 1 in self.preset_map_data[chapter][mission]:  # has next stage
+        if int(stage) + 1 in self.preset_map_data[chapter][mission]:  # has next stage
             self.start_battle(chapter, mission, str(int(stage) + 1), players=players)
-        elif mission + 1 in self.preset_map_data[chapter]:  # proceed next mission, go to city throne map
+        elif int(mission) + 1 in self.preset_map_data[chapter]:  # proceed next mission, go to city throne map
             self.start_battle(chapter, str(int(mission) + 1), "0", players=players, scene="throne")
-        elif chapter + 1 in self.preset_map_data[chapter]:  # complete all chapter stage, go to next chapter
+        elif int(chapter) + 1 in self.preset_map_data[chapter]:  # complete all chapter stage, go to next chapter
             self.start_battle(str(int(chapter + 1)), "1", "0", players=players, scene="throne")
         else:
             self.start_battle(chapter, mission, "0", players=players, scene="throne")
 
     elif next_battle == "training":
         self.start_battle(chapter, mission, "training", players=players)
-    elif not any(i.isdigit() for i in next_battle):  # city stage go to specific scene
+    elif next_battle and not any(i.isdigit() for i in next_battle):  # city stage go to specific scene
         self.start_battle(chapter, mission, "0", players=players, scene=next_battle)
     elif next_battle is not False:  # start specific mission need to contain number
         self.start_battle(chapter, next_battle, "1", players=players)

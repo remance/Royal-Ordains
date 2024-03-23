@@ -56,11 +56,14 @@ class BattleMapData(GameData):
             header = rd[0]
             str_column = ("Chapter", "Mission", "Stage")
             str_column = [index for index, item in enumerate(header) if item in str_column]
-            tuple_column = ("Follower Reward", "Item Reward", "Gear Reward")
+            tuple_column = ("Follower Reward", "Unique Gear Reward")
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
+            dict_column = ("Item Reward",)
+            dict_column = [index for index, item in enumerate(header) if item in dict_column]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
-                    row = stat_convert(row, n, i, tuple_column=tuple_column, str_column=str_column)
+                    row = stat_convert(row, n, i, tuple_column=tuple_column, str_column=str_column,
+                                       dict_column=dict_column)
                 if row[0] not in self.choice_stage_reward:  # choice
                     self.choice_stage_reward[row[0]] = {}
                 if row[1] not in self.choice_stage_reward[row[0]]:  # chapter
@@ -71,7 +74,7 @@ class BattleMapData(GameData):
                     self.choice_stage_reward[row[0]][row[1]][row[2]][row[3]] = {}
                 self.choice_stage_reward[row[0]][row[1]][row[2]][row[3]] = {"Follower Reward": row[4],
                                                                             "Item Reward": row[5],
-                                                                            "Gear Reward": row[6],
+                                                                            "Unique Gear Reward": row[6],
                                                                             "Gold Reward": row[7]}
         edit_file.close()
 

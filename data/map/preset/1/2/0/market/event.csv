@@ -1,1 +1,6 @@
-"ID","Text ID","Object","Animation","Type","Property"
+"ID","Text ID","Object","Animation","Type","Trigger","Property"
+"music/scene1",,"market",,"music","camera_reach_scene,1",
+"Tanrsakt/Any/1_1_city_market_talk1","Tanrsakt/Any/1_1_city_market_talk1.1",1,"Talk","char","interact,1","interact,hold"
+"Rodhinbar/Any/1_1_city_market_talk1","Rodhinbar/Any/1_1_city_market_talk1.1",2,"Talk","char","interact,2","interact,hold"
+"Elmaliern/Any/1_1_city_market_talk1","Elmaliern/Any/1_1_city_market_talk1.1",3,"Talk","char","interact,3","interact,hold"
+"Shopper1/Any/1_1_city_market_talk1","Shopper1/Any/1_1_city_market_talk1.1",4,,"char","interact,4","interact,hold"

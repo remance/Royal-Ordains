@@ -8,7 +8,7 @@ from engine.utils.text_making import text_render_with_bg
 
 def make_character_interfaces(self):
     header_font = Font(self.ui_font["main_button"], int(36 * self.screen_scale[1]))
-    font = Font(self.ui_font["main_button"], int(24 * self.screen_scale[1]))
+    font = Font(self.ui_font["main_button"], int(22 * self.screen_scale[1]))
     small_font = Font(self.ui_font["main_button"], int(18 * self.screen_scale[1]))
     stat_base_image = Surface((400 * self.screen_scale[0], 950 * self.screen_scale[1]), SRCALPHA)
     text = small_font.render(self.localisation.grab_text(("ui", "Status (Cost)")), True, (30, 30, 30))
@@ -71,7 +71,7 @@ def make_character_interfaces(self):
                                                                       550 * self.screen_scale[1])),
                            "head": slot_image.get_rect(topleft=(230 * self.screen_scale[0],
                                                                 10 * self.screen_scale[1])),
-                           "body": slot_image.get_rect(topleft=(230 * self.screen_scale[0],
+                           "chest": slot_image.get_rect(topleft=(230 * self.screen_scale[0],
                                                                 100 * self.screen_scale[1])),
                            "arm": slot_image.get_rect(topleft=(230 * self.screen_scale[0],
                                                                190 * self.screen_scale[1])),
@@ -97,8 +97,12 @@ def make_character_interfaces(self):
 
     # Equipment list interface
     equipment_list_base_image = Surface((400 * self.screen_scale[0], 950 * self.screen_scale[1]), SRCALPHA)
-    equip_list_image_rect = self.char_selector_images["Equip_list"].get_rect(topleft=(0, 0))
-    equipment_list_base_image.blit(self.char_selector_images["Equip_list"], equip_list_image_rect)
+    draw.line(equipment_list_base_image, (30, 30, 30), (int(equipment_list_base_image.get_width() / 2), 0),
+              (int(equipment_list_base_image.get_width() / 2), int(400 * self.screen_scale[1])),
+              width=int(4 * self.screen_scale[0]))
+    draw.line(equipment_list_base_image, (30, 30, 30), (0, int(400 * self.screen_scale[1])),
+              (equipment_list_base_image.get_width(), int(400 * self.screen_scale[1])),
+              width=int(4 * self.screen_scale[0]))
 
     text_surface = header_font.render(self.localisation.grab_text(("ui", "Equipped")), True, (30, 30, 30))
     text_rect = text_surface.get_rect(topleft=(30 * self.screen_scale[0], 10 * self.screen_scale[1]))
@@ -145,7 +149,7 @@ def make_character_interfaces(self):
                              "head": smoothscale(self.char_selector_images["Box_head"],
                                                  (50 * self.screen_scale[0],
                                                   50 * self.screen_scale[1])),
-                             "body": smoothscale(self.char_selector_images["Box_body"],
+                             "chest": smoothscale(self.char_selector_images["Box_chest"],
                                                  (50 * self.screen_scale[0],
                                                   50 * self.screen_scale[1])),
                              "arm": smoothscale(self.char_selector_images["Box_arm"],
@@ -177,16 +181,14 @@ def make_character_interfaces(self):
 
     # Enchant interface
     enchant_base_image = Surface((400 * self.screen_scale[0], 950 * self.screen_scale[1]), SRCALPHA)
-    equip_list_image_rect = self.char_selector_images["Equip_list"].get_rect(topleft=(0, 0))
-    enchant_base_image.blit(self.char_selector_images["Equip_list"], equip_list_image_rect)
+    draw.line(enchant_base_image, (30, 30, 30), (0, int(400 * self.screen_scale[1])),
+              (enchant_base_image.get_width(), int(400 * self.screen_scale[1])),
+              width=int(4 * self.screen_scale[0]))
 
     text_surface = header_font.render(self.localisation.grab_text(("ui", "Selected")), True, (30, 30, 30))
-    text_rect = text_surface.get_rect(topleft=(100 * self.screen_scale[0], 10 * self.screen_scale[1]))
+    text_rect = text_surface.get_rect(center=(200 * self.screen_scale[0], 20 * self.screen_scale[1]))
     enchant_base_image.blit(text_surface, text_rect)
 
-    slot_image = self.char_selector_images["Box_empty"]
-    enchant_base_image.blit(slot_image, slot_image.get_rect(topleft=(100 * self.screen_scale[0],
-                                                                     60 * self.screen_scale[1])))
     enchant_base_image.blit(helper_image, helper_image_rect)
 
     CharacterInterface.stat_base_image = stat_base_image
@@ -197,6 +199,7 @@ def make_character_interfaces(self):
     CharacterInterface.storage_base_image = storage_base_image
     CharacterInterface.shop_base_image = big_list_base_image
     CharacterInterface.reward_base_image = big_list_base_image
+    CharacterInterface.enchant_base_image = enchant_base_image
     CharacterInterface.equipment_slot_rect = equipment_slot_rect
     CharacterInterface.equipment_list_slot_rect = equipment_list_slot_rect
     CharacterInterface.storage_box_rects = storage_box_rects

@@ -603,7 +603,7 @@ class CityMap(UIBattle):
                                          self.images[image].get_height() * zoom_animation_timer))
                 self.image.blit(new_image, new_image.get_rect(center=rect.center))
 
-                if self.battle.player_key_press[self.battle.main_player]["Weak"]:
+                if self.battle.player_key_press[self.battle.main_player]["Weak"] or self.battle.cursor.is_select_just_up:
                     self.selected_map = image
                 break
 
@@ -681,7 +681,7 @@ class CityMission(UIBattle):
                                          self.images[image].get_height() * zoom_animation_timer))
                 self.image.blit(new_image, new_image.get_rect(center=rect.center))
 
-                if self.battle.player_key_press[self.battle.main_player]["Weak"]:
+                if self.battle.player_key_press[self.battle.main_player]["Weak"] or self.battle.cursor.is_select_just_up:
                     self.selected_map = image
                 break
 

@@ -1,6 +1,6 @@
-"ID","weapon 1","weapon 2","head","body","arm","leg","accessory"
+"ID","weapon 1","weapon 2","head","chest","arm","leg","accessory"
 "Vraesier","Greatsword","Sword","Cloth","Breastplate","Gauntlet","Greaves","Medal"
-"Orsanoas",,,,,,,"Amulet"
+"Orsanoas","Carnyx Head","Carnyx Body",,,,,"Amulet"
 "Minara","Arbalest","Bayonet",,,,,"Jewel"
 "Rodhinbar","Bow","Scimitar","Turban","Vest","Bracelets","Boots","Ring"
 "Iri","Shortsword","Trap Tool","Earrings","Jacket","Gloves","Boots","Brooch"

@@ -1,1 +1,9 @@
-"ID","Text ID","Object","Animation","Type","Property"
+"ID","Text ID","Object","Animation","Type","Trigger","Property"
+"music/scene1",,"scriptorium",,"music","camera_reach_scene,1",
+"Micorte/Any/1_1_city_scriptorium_talk1","Micorte/Any/1_1_city_scriptorium_talk1.1",1,"Talk","char","interact,1","interact,hold"
+"Vigumatik/Any/1_1_city_scriptorium_talk1","Vigumatik/Any/1_1_city_scriptorium_talk1.1",2,"Talk","char","interact,2","interact,hold"
+"Quivenly/Any/1_1_city_scriptorium_talk1","Quivenly/Any/1_1_city_scriptorium_talk1",3,"Talk","char","interact,3","interact,hold"
+"Wigorsein/Any/1_1_city_scriptorium_talk1","Wigorsein/Any/1_1_city_scriptorium_talk1.1",4,"Talk","char","interact,4","interact,hold"
+"Jurmon/Any/1_1_city_scriptorium_talk1","Jurmon/Any/1_1_city_scriptorium_talk1.1",5,"Talk","char","interact,5","interact,hold"
+"Orgatonion/Any/1_1_city_scriptorium_talk1","Orgatonion/Any/1_1_city_scriptorium_talk1",6,"Talk","char","interact,6","interact,hold"
+"Roeveo/Any/1_1_city_scriptorium_talk1","Roeveo/Any/1_1_city_scriptorium_talk1.1",7,"Talk","char","interact,7","interact,hold"

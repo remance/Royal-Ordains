@@ -1,9 +1,14 @@
 "ID","Text ID","Object","Animation","Type","Trigger","Property"
-"Vraesier/Nayedien/1_1_city_tavern_talk1","Vraesier/Nayedien/1_1_city_tavern_talk1.1",,"Talk","char","interact,1",
-,"Vraesier/Nayedien/1_1_city_tavern_talk1.2",,"Talk",,,
-,"Vraesier/Nayedien/1_1_city_tavern_talk1.3",,"Idle",,,
+"music/scene1",,"tavern",,"music","camera_reach_scene,1",
+"Duhon/Any/1_1_city_tavern_talk1","Duhon/Any/1_1_city_tavern_talk1.1",1,"Talk","char","interact,1","interact,hold"
+"Vraesier/Nayedien/1_1_city_tavern_talk1","Vraesier/Nayedien/1_1_city_tavern_talk1.1",2,"Talk","char","interact,2","interact,hold"
+,"Vraesier/Nayedien/1_1_city_tavern_talk1.2",,"Talk",,,"interact,hold"
+,"Vraesier/Nayedien/1_1_city_tavern_talk1.3",,"Idle",,,"interact"
 ,"Vraesier/Nayedien/1_1_city_tavern_talk1.4",,"Idle",,,
 ,"Vraesier/Nayedien/1_1_city_tavern_talk1.5",,"Idle",,,
 ,"Vraesier/Nayedien/1_1_city_tavern_talk1.6",,"Idle",,,
-,"Vraesier/Nayedien/1_1_city_tavern_talk1.7",,"Fig",,,
-"Vraesier/Nayedien/1_1_city_tavern_talk2","Vraesier/Nayedien/1_1_city_tavern_talk2.1",,"Idle","char","interact,1",
+,"Vraesier/Nayedien/1_1_city_tavern_talk1.7",,"Idle",,,
+"Vraesier/Nayedien/1_1_city_tavern_talk2","Vraesier/Nayedien/1_1_city_tavern_talk2.1",2,"Idle","char","interact,2",
+"Nraesier/Any/1_1_city_tavern_talk1","Nraesier/Any/1_1_city_tavern_talk1.1",3,"Talk","char","interact,3","interact,hold"
+"Board/Any/1_1_city_tavern_talk1","Board/Any/1_1_city_tavern_talk1.1",4,"Talk","char","interact,4","interact,hold"
+"Barman1/Any/1_1_city_tavern_talk1","Barman1/Any/1_1_city_tavern_talk1.1",7,"Talk","char","interact,7","interact,hold"

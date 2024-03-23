@@ -1,0 +1,4 @@
+"ID","Text ID","Object","Animation","Type","Trigger","Property"
+"music/scene1",,"plaza",,"music","camera_reach_scene,1",
+"Iri/Any/1_1_city_plaza_talk1","Iri/Any/1_1_city_plaza_talk1.1",1,"Talk","char","interact,1","interact,hold"
+"Towncrier/Any/1_1_city_plaza_talk1","Towncrier/Any/1_1_city_plaza_talk1.1",2,"Talk","char","interact,2","interact,hold"

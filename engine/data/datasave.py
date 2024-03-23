@@ -7,7 +7,7 @@ from engine.data.datastat import GameData
 empty_character_save = {"chapter": "1", "mission": "1", "playtime": 0, "total scores": 0, "total kills": 0,
                         "total golds": 500, "boss kills": 0, "total damages": 0, "last save": "Not Saved",
                         "character": {},
-                        "equipment": {"head": None, "body": None, "arm": None, "leg": None,
+                        "equipment": {"head": None, "chest": None, "arm": None, "leg": None,
                                       "weapon 1": None, "weapon 2": None, "accessory 1": None, "accessory 2": None,
                                       "accessory 3": None, "accessory 4": None,
                                       "item": {"Down": None, "Left": None, "Up": None, "Right": "Small Healing Kit"}},

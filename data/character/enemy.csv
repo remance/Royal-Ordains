@@ -1,7 +1,8 @@
 "ID","Name","Base Health","Max Resource","Start Resource","Strength","Dexterity","Agility","Constitution","Intelligence","Wisdom","Charisma","Physical Resistance","Fire Resistance","Water Resistance","Air Resistance","Earth Resistance","Magic Resistance","Poison Resistance","Items","Drops","Score","Size","Only Sprite Version","Summon","Boss","Follower Cost","Type","AI Behaviour","Property"
 "King","Lestrius Maeranos",1000,,,20,20,20,30,40,40,30,,,,,,,,,,,10,,,,,,"idle","invincible"
 "Vurus","Vurus Akamanes",50000,,,32,51,46,37,97,98,82,,,,,,,,,,,10,,,,,,"full_melee",
-"Hermanos","Hermanos Vorehmus",24000,,,48,62,33,35,40,40,56,,,,,,,,,,,,,,,,,"idle",
+"Hermanos","Hermanos Vorehmus",24000,,,48,62,33,35,40,40,56,,,,,,,,,,,10,,,,,,"idle",
+"Champion","Champion",580000,,,70,70,70,70,40,40,30,30,30,30,30,30,30,30,,,,10,,,,,,,
 "Solhatar","Solhatar Volus",,,,,,,,,,,,,,,,,,,,,,,,,,,"full_melee",
 "Serlon","Serlon Masrtos",,,,,,,,,,,,,,,,,,,,,,,,,,,"full_melee",
 "Elghest","Elghest Lostrer",,,,,,,,,,,,,,,,,,,,,,,,,,,"full_melee",
@@ -41,7 +42,7 @@
 "Rudehst","Rudehst Nocvius",,,,,,,,,,,,,,,,,,,,,,,,,,,,
 "Viskes","Viskes Lodehes",,,,,,,,,,,,,,,,,,,,,,,,,,,,
 "Kids","Kids",,,,,,,,,,,,,,,,,,,,,,,,,,,"idle",
-"Crier","Town Crier",,,,,,,,,,,,,,,,,,,,,,,,,,,"idle",
+"Towncrier","Town Crier",,,,,,,,,,,,,,,,,,,,,,,,,,,"idle",
 "Severn","Severn Turneose",,,,,,,,,,,,,,,,,,,,,,,,,,,,
 "Merlaros","Merlaros Vorehmus",,,,,,,,,,,,,,,,,,,,,,,,,,,,
 "Mannequin","Mannequin",10000000000,,,0,0,0,100,0,0,0,0,0,0,0,0,0,0,,,,10,1,,,,,"training","no_forced_move"

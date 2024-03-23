@@ -16,7 +16,7 @@ def cutscene_player_input(self):
                             self.realtime_ui_updater.remove(self.decision_select)
                     break  # only one select event can be played at a time
 
-                elif "player_interact" in child_event["Property"]:
+                elif "interact" in child_event["Property"]:
                     self.end_cutscene_event(child_event)
                     if "start mission" in child_event["Property"]:  # start new mission after interact
                         if str(child_event["Property"]["start mission"]) in self.game.preset_map_data[self.chapter]:

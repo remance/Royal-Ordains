@@ -418,7 +418,7 @@ class Character(sprite.Sprite):
                 self.current_action = {}
                 self.pick_cutscene_animation({})
             if self.cutscene_event and "repeat" not in self.cutscene_event["Property"] and \
-                    "player_interact" not in self.cutscene_event["Property"] and \
+                    "interact" not in self.cutscene_event["Property"] and \
                     (not self.cutscene_target_pos or self.cutscene_target_pos == self.base_pos):
                 # finish animation, consider event done unless event require player interaction first or in repeat
                 self.cutscene_target_pos = None
@@ -652,7 +652,7 @@ class BattleCharacter(Character):
                     else:
                         equip_stat = equipment[equip_slot]
                     if equip_stat:
-                        for mod, value in equip_stat["Modifier"].items():
+                        for mod, value in dict(equip_stat["Modifier"]).items():
                             if "_resist" in mod:
                                 self.base_element_resistance[mod.split("_")[0].capitalize()] += value
                             elif "_chance" in mod:
@@ -803,6 +803,7 @@ class BattleCharacter(Character):
                     raise Exception()
 
                 hold_check = self.check_action_hold(dt)
+
                 done = self.play_animation(dt, hold_check)
                 self.check_new_animation(done)
 

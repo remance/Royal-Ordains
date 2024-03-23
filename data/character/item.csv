@@ -34,10 +34,11 @@
 "Chaos Winter Idol",,,,,,1500,1,3,1,"Tanrsakt","Weather",,"weather:13"
 "Blood Winter Idol",,,,,,1500,1,3,1,"Tanrsakt","Weather",,"weather:14"
 "Dark Winter Idol",,,,,,1500,1,3,1,"Tanrsakt","Weather",,"weather:15"
-"Lucky Charm",,,,,,,1,,,"Tanrsakt",,,
-"Monster Caller",,,,,,,4,2,1,"Tanrsakt",,,
-"Stampede Caller",,,,,,,2,3,1,"Tanrsakt",,,
-"Invasion Caller",,,,,,,1,4,1,"Tanrsakt",,,
+"Lucky Charm",,,,,,,1,,,"Tanrsakt","Summon",,
+"Monster Caller",,,,,,,4,2,1,"Tanrsakt","Summon",,
+"Stampede Caller",,,,,,,2,3,1,"Tanrsakt","Summon",,
+"Invasion Caller",,,,,,,1,4,1,"Tanrsakt","Summon",,
+"Devil Charm",,,,,,,5,1,1,"Tanrsakt","Summon",,
 "Fireball Scroll",,,,,,,3,,,"Tanrsakt","Magic",,
 "Lightning Bolt Scroll",,,,,,,3,,,"Tanrsakt","Magic",,
 "Ice Shards Scroll",,,,,,,3,,,"Tanrsakt","Magic",,
