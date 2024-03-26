@@ -76,7 +76,7 @@ def cal_loss(self, attacker, final_dmg, impact, hit_angle, dmg_text_pos, critica
                 self.stun_value += impact_check
                 if self.stun_value >= self.stun_threshold:
                     self.interrupt_animation = True
-                    self.command_action = self.stun_action
+                    self.command_action = self.stun_command_action
                     self.stun_value = 0
                     self.stun_threshold *= 2
             self.battle.add_sound_effect_queue(self.sound_effect_pool["Damaged"][0], self.pos,
