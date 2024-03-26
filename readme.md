@@ -34,14 +34,19 @@ For game update showcase video: [![github](https://github.com/remance/preview/bl
 
 All helps, suggestions, and issue reports are appreciated.
 
-If you would like to help the project, feel free to join discord for a chat, open issues, commit the codes and do pull requests
+[//]: # (If you would like to help the project, feel free to join discord for a chat, open issues, commit the codes and do pull requests)
 
-Some non-specific suggestions and examples of helps, including but not limited to:
+[//]: # ()
+[//]: # (Some non-specific suggestions and examples of helps, including but not limited to:)
 
-- **Programming**: New features, improve current ones, code optimisation/improvement
-- **Asset Creation**: UI, character, effect art, sound effect, music
-- **Historical stuffs and Ideas**: Medieval art reference, writing, improvements, and other ideas
-- **Quality Assurance**: Code documentation, game balancing, bugs fix, feedbacks
+[//]: # ()
+[//]: # (- **Programming**: New features, improve current ones, code optimisation/improvement)
+
+[//]: # (- **Asset Creation**: UI, character, effect art, sound effect, music)
+
+[//]: # (- **Historical stuffs and Ideas**: Medieval art reference, writing, improvements, and other ideas)
+
+[//]: # (- **Quality Assurance**: Code documentation, game balancing, bugs fix, feedbacks)
 
 Note: All the new and current untested development are done on "dev" branch. The main branch is for a somewhat stable version of the game.
 
@@ -52,6 +57,7 @@ Note: All the new and current untested development are done on "dev" branch. The
 - [How to run/compile](#how-to-runcompile)
     - [Run](#run)
     - [Compile](#compile)
+- [Game Features](#game-features)
 - [Latest Update](#latest-update)
 - [Future Plan](#future-plan)
 
@@ -68,9 +74,28 @@ download**](https://github.com/remance/Royal-Ordains/releases/download/0.1/royal
 To start testing the game run `main.py` via Python interpreter for the source code or `main` file directly for the
 release version. <br>
 
-## System Requirements
+## Compile
 
-### MINIMUM:
+To compile the source code into an executable program, recommend using pyinstaller and `main.spec`. <br>
+
+Check the [`requirements.txt`](requirements.txt) file for dependency requirements if running with the python source
+code.<br>
+
+Also, the game is currently written based on the pygame 2.5.2 module and python 3.11. Using older versions of the two likely will cause error.
+
+
+# Game Features
+
+- Play solo, with AI followers, and/or with 3 other players (Local multiplayer only for now)
+- Choices matter. Players will encounter many but simple choices (Yes/No) throughout the game, which can alter the story and gameplay in different ways.
+- Medieval art style that will change along with the progress of the story. 
+
+<img src="https://github.com/remance/preview2/blob/main/decision.png?raw=true"></a> 
+
+
+# System Requirements
+
+## MINIMUM:
 
 Something that can run pygame should be able to run this game.
 
@@ -106,15 +131,6 @@ Something that can run pygame should be able to run this game.
 
 [//]: # ()
 [//]: # (Storage: 1GB available space)
-
-## Compile
-
-To compile the source code into an executable program, recommend using pyinstaller and `main.spec`. <br>
-
-Check the [`requirements.txt`](requirements.txt) file for dependency requirements if running with the python source
-code.<br>
-
-Also, the game is currently optimised based on the pygame 2.5.1 module and python 3.11.
 
 ---------------
 

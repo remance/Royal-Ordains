@@ -27,7 +27,7 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
     gc.collect()  # collect no longer used object in previous battle from memory
 
     # Finish battle, check for next one
-    self.battle.game_state = "battle"  # reset battle game state when end
+    self.battle.change_game_state("battle")  # reset battle game state when end
 
     save_profile = self.save_data.save_profile
 
@@ -130,7 +130,7 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
 
                 self.player_char_interfaces[player].reward_list = reward_list
                 self.player_char_interfaces[player].change_mode("reward")
-                self.battle.game_state = "reward"
+                self.battle.change_game_state("reward")
                 self.battle.add_ui_updater(self.battle.player_char_base_interfaces[player],
                                            self.battle.player_char_interfaces[player])
 
@@ -149,11 +149,11 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
     self.battle.decision_select.selected = None  # reset decision here instead of in battle method
     self.battle.city_mode = False  # reset battle city mode so char interface not allow switching other modes when quit
     if next_battle is True:  # finish stage, continue to next one
-        if int(stage) + 1 in self.preset_map_data[chapter][mission]:  # has next stage
+        if str(int(stage) + 1) in self.preset_map_data[chapter][mission]:  # has next stage
             self.start_battle(chapter, mission, str(int(stage) + 1), players=players)
-        elif int(mission) + 1 in self.preset_map_data[chapter]:  # proceed next mission, go to city throne map
+        elif str(int(mission) + 1) in self.preset_map_data[chapter]:  # proceed next mission, go to city throne map
             self.start_battle(chapter, str(int(mission) + 1), "0", players=players, scene="throne")
-        elif int(chapter) + 1 in self.preset_map_data[chapter]:  # complete all chapter stage, go to next chapter
+        elif str(int(chapter) + 1) in self.preset_map_data[chapter]:  # complete all chapter stage, go to next chapter
             self.start_battle(str(int(chapter + 1)), "1", "0", players=players, scene="throne")
         else:
             self.start_battle(chapter, mission, "0", players=players, scene="throne")

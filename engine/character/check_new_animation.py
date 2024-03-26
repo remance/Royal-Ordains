@@ -24,10 +24,14 @@ def check_new_animation(self, done):
 
                 if "helper" in self.current_moveset["Property"]:
                     for key, value in self.current_moveset["Property"].items():
-                        if key == "drop_item":
+                        if key == "helper drop item":
                             self.battle.helper.interrupt_animation = True
                             self.battle.helper.command_action = {"name": "special",
                                                                  "drop": value}
+                        # elif key == "helper use item":
+                        #     self.battle.helper.interrupt_animation = True
+                        #     self.battle.helper.command_action = {"name": "special",
+                        #                                          "drop": value, "player": self.game_id[-1]}
             if "item" in self.current_action:  # action use equipped item
                 item_stat = self.character_data.equip_item_list[self.current_action["item"]]
                 if item_stat["Health"]:

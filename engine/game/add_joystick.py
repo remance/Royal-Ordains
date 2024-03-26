@@ -14,6 +14,7 @@ def add_joystick(self, event):
     for player in self.player_key_control:  # check for player with joystick control but no assigned yet
         if self.player_key_control[player] == "joystick" and player not in self.player_joystick:
             # assign new joystick to player with joystick control setting
+            self.player_joystick_object = joy
             self.player_joystick[player] = joy.get_instance_id()
             self.joystick_player[joy.get_instance_id()] = player
 

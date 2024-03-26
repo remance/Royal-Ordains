@@ -1,5 +1,5 @@
-import copy
-import types
+from copy import deepcopy
+from types import MethodType
 from math import radians
 from random import randint, uniform
 
@@ -413,7 +413,8 @@ class Character(sprite.Sprite):
                     return
             if (self.cutscene_target_pos and self.cutscene_target_pos == self.base_pos) or \
                     (not self.cutscene_target_pos and
-                     (not self.cutscene_event or "repeat" not in self.cutscene_event["Property"])):
+                     (not self.cutscene_event or ("repeat" not in self.cutscene_event["Property"] and
+                                                  "repeat after" not in self.cutscene_event["Property"]))):
                 # animation consider finish when reach target or finish animation with no repeat, pick idle animation
                 self.current_action = {}
                 self.pick_cutscene_animation({})
@@ -422,11 +423,16 @@ class Character(sprite.Sprite):
                     (not self.cutscene_target_pos or self.cutscene_target_pos == self.base_pos):
                 # finish animation, consider event done unless event require player interaction first or in repeat
                 self.cutscene_target_pos = None
-                self.current_action = {}
-                self.command_action = {}
+                if "repeat after" not in self.cutscene_event["Property"]:
+                    self.current_action = {}
+                    self.command_action = {}
+                    self.pick_cutscene_animation({})
+                else:  # event indicate repeat animation after event end
+                    self.current_action["repeat"] = True
+                    if not self.alive:
+                        self.current_action["die"] = True
                 self.battle.cutscene_playing.remove(self.cutscene_event)
                 self.cutscene_event = None
-                self.pick_cutscene_animation({})
 
     def ai_update(self, dt):
         pass
@@ -496,15 +502,15 @@ class BattleCharacter(Character):
         if self.char_id in initiate_dict:
             initiate_dict[self.char_id](self)
         if self.char_id in animation_start_dict:
-            self.specific_animation_done = types.MethodType(animation_start_dict[self.char_id], self)
+            self.specific_animation_done = MethodType(animation_start_dict[self.char_id], self)
         if self.char_id in special_dict:
-            self.specific_special_check = types.MethodType(special_dict[self.char_id], self)
+            self.specific_special_check = MethodType(special_dict[self.char_id], self)
         if self.char_id in update_dict:
-            self.specific_update = types.MethodType(update_dict[self.char_id], self)
+            self.specific_update = MethodType(update_dict[self.char_id], self)
         if self.char_id in status_update_dict:
-            self.specific_status_update = types.MethodType(status_update_dict[self.char_id], self)
+            self.specific_status_update = MethodType(status_update_dict[self.char_id], self)
         if self.char_id in damage_dict:
-            self.special_damage = types.MethodType(damage_dict[self.char_id], self)
+            self.special_damage = MethodType(damage_dict[self.char_id], self)
 
         if self.battle.stage == "training":  # replace moveset check with training one
             self.battle_check_move_existence = self.check_move_existence
@@ -524,7 +530,7 @@ class BattleCharacter(Character):
         self.wisdom = stat["Wisdom"] + (stat["Wisdom"] * (leader_charisma / 200)) + stat_boost
         self.charisma = stat["Charisma"] + (stat["Charisma"] * (leader_charisma / 200)) + stat_boost
 
-        self.moveset = copy.deepcopy(stat["Move"])
+        self.moveset = deepcopy(stat["Move"])
         self.skill = stat["Skill"].copy()
         self.available_skill = {"Couch": {}, "Stand": {}, "Air": {}}
         self.drops = {}
@@ -867,7 +873,7 @@ class PlayerCharacter(BattleCharacter, Character):
     def __init__(self, game_id, layer_id, stat):
         if self.battle.city_mode:
             Character.__init__(self, game_id, layer_id, stat, player_control=True)
-            self.update = types.MethodType(Character.update, self)
+            self.update = MethodType(Character.update, self)
             self.player_input = self.player_input_city_mode
         else:
             BattleCharacter.__init__(self, game_id, layer_id, stat, player_control=True)
@@ -1025,7 +1031,7 @@ class AICharacter(BattleCharacter, Character):
     def __init__(self, game_id, layer_id, stat, leader=None, health_scaling=1, specific_behaviour=None):
         if self.battle.city_mode:
             Character.__init__(self, game_id, layer_id, stat)
-            self.update = types.MethodType(Character.update, self)
+            self.update = MethodType(Character.update, self)
             ai_behaviour = "idle_city_npc"
             if specific_behaviour:
                 ai_behaviour = specific_behaviour
@@ -1106,19 +1112,19 @@ class BattleAICharacter(AICharacter):
         if specific_behaviour:
             ai_behaviour = specific_behaviour
 
-        self.ai_move = types.MethodType(ai_move_dict["default"], self)
+        self.ai_move = MethodType(ai_move_dict["default"], self)
         if leader and not self.is_summon:  # summon use assigned behaviour in data instead of follower by default
-            self.ai_move = types.MethodType(ai_move_dict["follower"], self)
+            self.ai_move = MethodType(ai_move_dict["follower"], self)
         elif ai_behaviour in ai_move_dict:
-            self.ai_move = types.MethodType(ai_move_dict[ai_behaviour], self)
+            self.ai_move = MethodType(ai_move_dict[ai_behaviour], self)
 
-        self.ai_combat = types.MethodType(ai_combat_dict["default"], self)
+        self.ai_combat = MethodType(ai_combat_dict["default"], self)
         if ai_behaviour in ai_combat_dict:
-            self.ai_combat = types.MethodType(ai_combat_dict[ai_behaviour], self)
+            self.ai_combat = MethodType(ai_combat_dict[ai_behaviour], self)
 
-        self.ai_retreat = types.MethodType(ai_retreat_dict["default"], self)
+        self.ai_retreat = MethodType(ai_retreat_dict["default"], self)
         if ai_behaviour in ai_retreat_dict:
-            self.ai_retreat = types.MethodType(ai_retreat_dict[ai_behaviour], self)
+            self.ai_retreat = MethodType(ai_retreat_dict[ai_behaviour], self)
 
         self.ai_max_attack_range = 0
         self.ai_timer = 0  # for whatever timer require for AI action

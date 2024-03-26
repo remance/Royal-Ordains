@@ -6,7 +6,7 @@ import types
 from math import sin, cos, radians
 
 import pygame
-from pygame import sprite, Vector2
+from pygame import sprite, Vector2, JOYDEVICEADDED, JOYDEVICEREMOVED, display, mouse
 from pygame.locals import *
 from pygame.mixer import music
 
@@ -170,7 +170,7 @@ class Game:
 
         pygame.init()  # Initialize pygame
 
-        pygame.mouse.set_visible(False)  # set mouse as not visible, use in-game mouse sprite
+        mouse.set_visible(False)  # set mouse as not visible, use in-game mouse sprite
 
         self.error_log = error_log
         self.error_log.write("Game Version: " + self.game_version)
@@ -242,7 +242,7 @@ class Game:
         self.window_style = 0
         if self.full_screen == 1:
             self.window_style = pygame.FULLSCREEN
-        self.screen = pygame.display.set_mode(self.screen_size, self.window_style)
+        self.screen = display.set_mode(self.screen_size, self.window_style)
         Game.screen_rect = self.screen.get_rect()
 
         Character.screen_scale = self.screen_scale
@@ -282,7 +282,7 @@ class Game:
         # Decorate game icon window
         # icon = load_image(self.data_dir, "sword.jpg")
         # icon = pygame.transform.scale(icon, (32, 32))
-        # pygame.display.set_icon(icon)
+        # display.set_icon(icon)
 
         # Initialise groups
         Game.ui_updater = ReversedLayeredUpdates()  # main drawer for ui in main menu
@@ -556,7 +556,7 @@ class Game:
 
         # Starting script
         for event in pygame.event.get():
-            if event.type == pygame.JOYDEVICEADDED:  # search for joystick plugin before game start
+            if event.type == JOYDEVICEADDED:  # search for joystick plugin before game start
                 self.add_joystick(event)
 
         for player in self.player_key_control:
@@ -588,7 +588,7 @@ class Game:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
-            pygame.display.update()
+            display.update()
             self.clock.tick(1000)
             timer += 1
             if timer == 1000:
@@ -596,7 +596,7 @@ class Game:
 
         self.loading_screen("start")
 
-        pygame.display.set_caption(game_name)  # set the self name on program border/tab
+        display.set_caption(game_name)  # set the self name on program border/tab
 
     def add_ui_updater(self, *args):
         self.ui_updater.add(*args)
@@ -661,7 +661,7 @@ class Game:
                                             new_pos[1] = 0
                                         elif new_pos[1] > self.corner_screen_height:
                                             new_pos[1] = self.corner_screen_height
-                                        pygame.mouse.set_pos(new_pos)
+                                        mouse.set_pos(new_pos)
                                     else:
                                         axis_name = "axis" + number_to_minus_or_plus(joystick.get_axis(i)) + str(i)
                                         if axis_name in player_key_bind_name:
@@ -727,11 +727,11 @@ class Game:
                         if event.key == pygame.K_ESCAPE:
                             esc_press = True
 
-                elif event.type == pygame.JOYDEVICEADDED:
+                elif event.type == JOYDEVICEADDED:
                     # Player add new joystick by plug in
                     self.add_joystick(event)
 
-                elif event.type == pygame.JOYDEVICEREMOVED:
+                elif event.type == JOYDEVICEREMOVED:
                     # Player unplug joystick
                     del self.joysticks[event.instance_id]
                     del self.joystick_name[event.instance_id]
@@ -868,5 +868,5 @@ class Game:
                         self.menu_state = "main_menu"  # change menu back to default 0
 
             self.ui_drawer.draw(self.screen)
-            pygame.display.update()
+            display.update()
             self.clock.tick(300)

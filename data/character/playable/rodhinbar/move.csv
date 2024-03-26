@@ -28,6 +28,6 @@
 "Strong","astrong1","Sword Slash","Air",,,,,200,,,,28,60,,,48,,"Physical",,,,
 "Strong","astrong2","Sword Slash Down","Air",,"astrong1",,,200,,,,38,96,,,48,,"Physical",,,,
 "Special","cspecial","Craft Ammo","Couch",,,,,350,,,-2,,,,,,,"Physical",,,,
-"Special","cspecial2","Fast Craft Ammo","Couch","Wisdom:50","cspecial",,,350,,,-6,,,,,,,,,,,
-"Special","sspecial","Call For Ammo","Stand",,,,,350,,7,,,,,,,,"Physical",,,,"helper,drop_item:Rodhinbar Arrow"
-"Special","aspecial","Call For Ammo","Air",,,,,350,,7,,,,,,,,"Physical",,,,"helper,drop_item:Rodhinbar Arrow"
+"Special","cspecial2","Fast Craft Ammo","Couch","Wisdom:50","cspecial",,,350,,,-6,,,,,,,"Physical",,,,
+"Special","sspecial","Call For Ammo","Stand",,,,,350,,7,,,,,,,,"Physical",,,,"helper,helper drop item:Rodhinbar Arrow"
+"Special","aspecial","Call For Ammo","Air",,,,,350,,7,,,,,,,,"Physical",,,,"helper,helper drop item:Rodhinbar Arrow"

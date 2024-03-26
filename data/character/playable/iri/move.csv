@@ -31,3 +31,4 @@
 "Weak","aweak2","Air Stab","Air",,"aweak1",,,250,,,,12,,,,,,"Physical",,,,
 "Strong","astrong1","Air Slash Down","Air",,,,,250,,,,46,,,,150,,"Physical",,,,
 "Special","cspecial","Salvage Scrap","Couch",,,,,,,,-10,,,,,,,"Physical",,,,
+"Forward,Special","cfspecial","Callin Care Package","Couch","Wisdom:65",,,,350,,11,,,,,,,,"Physical",,,,"helper,helper drop item:Trap Pack"

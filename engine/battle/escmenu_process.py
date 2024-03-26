@@ -11,9 +11,8 @@ def escmenu_process(self, esc_press: bool):
     :param esc_press: esc button
     :return: special command that process in battle loop
     """
-    command = None
     if esc_press and self.esc_menu_mode == "menu":  # in menu or option
-        back_to_battle_state(self)
+        self.back_to_battle_state()
 
     elif self.esc_menu_mode == "menu":  # esc menu
         if self.city_mode:  # check for keyboard input with char stat
@@ -28,7 +27,7 @@ def escmenu_process(self, esc_press: bool):
         for button in self.battle_menu_button:
             if button.event_press:
                 if button.text == "Resume":  # resume battle
-                    back_to_battle_state(self)
+                    self.back_to_battle_state()
 
                 elif button.text == "Encyclopedia":  # open lorebook
                     self.esc_menu_mode = "lorebook"  # change to enclycopedia mode
@@ -63,12 +62,10 @@ def escmenu_process(self, esc_press: bool):
                                         self.esc_value_boxes.values(), self.esc_option_text.values())
 
                 elif button.text == "End Battle":  # back to city
-                    command = "end_battle"
-                    back_to_battle_state(self)
+                    self.activate_input_popup(("confirm_input", "end_battle"), "Leave Battle?", self.confirm_ui_popup)
 
                 elif button.text == "Main Menu":  # back to start_set menu
-                    command = "main_menu"
-                    back_to_battle_state(self)
+                    self.activate_input_popup(("confirm_input", "main_menu"), "To Main Menu?", self.confirm_ui_popup)
 
                 elif button.text == "Desktop":  # quit self
                     self.activate_input_popup(("confirm_input", "quit"), "Quit Game?", self.confirm_ui_popup)
@@ -106,8 +103,6 @@ def escmenu_process(self, esc_press: bool):
             self.add_ui_updater(self.battle_menu_button,
                                 self.stage_translation_text_popup)  # add start_set esc menu buttons back
 
-    return command
-
 
 def back_to_battle_state(self):
     for interface in self.player_char_interfaces.values():
@@ -122,7 +117,7 @@ def back_to_battle_state(self):
     for sound_ch in range(0, 1000):
         if Channel(sound_ch).get_busy():  # pause all sound playing
             Channel(sound_ch).unpause()
-    self.game_state = "battle"
+    self.change_game_state("battle")
 
 
 def popout_encyclopedia(self, section, subsection):

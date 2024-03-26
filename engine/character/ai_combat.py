@@ -20,11 +20,12 @@ def cheer_ai(self):
     if "moveset" in self.target.current_action or "submit" in self.target.current_action or \
             "taunt" in self.target.current_action:
         # Cheer when target attack or spared in decision
-        if "cheer" not in self.current_action:
+        if "cheer" not in self.current_action:  # start cheering
             self.interrupt_animation = True
-        if "special" in self.target.current_action:  # cheer harder for special move
+        if "special" in self.target.current_action or "submit" in self.target.current_action:
+            # cheer harder for special occasion
             self.command_action = self.cheer_fast_action
-        else:
+        else:  # normal cheer
             self.command_action = self.cheer_action
     elif "die" in self.target.current_action or "execute" in self.target.current_action:
         # Play execute animation when target is executed in decision

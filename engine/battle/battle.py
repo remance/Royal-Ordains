@@ -1,18 +1,16 @@
-import copy
 import os
 import sys
 import time
-import types
+from copy import deepcopy
 from math import sin, cos, radians
-from random import uniform, randint
 
 import pygame
-from pygame import Vector2, display, mouse, sprite, Surface
+from pygame import Vector2, display, mouse, sprite, Surface, JOYDEVICEADDED, JOYDEVICEREMOVED
 from pygame.locals import *
 from pygame.mixer import Sound, Channel
 
 from engine.camera.camera import Camera
-from engine.character.character import Character, AICharacter
+from engine.character.character import Character
 from engine.drama.drama import TextDrama
 from engine.effect.effect import Effect
 from engine.stage.stage import Stage
@@ -26,8 +24,6 @@ from engine.utils.text_making import number_to_minus_or_plus
 from engine.weather.weather import Weather
 
 script_dir = os.path.split(os.path.abspath(__file__))[0] + "/"
-
-infinity = float("inf")
 
 decision_route = {"yes": "a", "no": "b"}
 
@@ -50,11 +46,17 @@ class Battle:
     from engine.battle.add_sound_effect_queue import add_sound_effect_queue
     add_sound_effect_queue = add_sound_effect_queue
 
+    from engine.battle.check_event import check_event
+    check_event = check_event
+
     from engine.battle.cal_shake_value import cal_shake_value
     cal_shake_value = cal_shake_value
 
     from engine.battle.camera_process import camera_process
     camera_process = camera_process
+
+    from engine.battle.change_game_state import change_game_state
+    change_game_state = change_game_state
 
     from engine.game.change_pause_update import change_pause_update
     change_pause_update = change_pause_update
@@ -64,6 +66,10 @@ class Battle:
 
     from engine.battle.end_cutscene_event import end_cutscene_event
     end_cutscene_event = end_cutscene_event
+
+    from engine.battle.escmenu_process import escmenu_process, back_to_battle_state
+    back_to_battle_state = back_to_battle_state
+    escmenu_process = escmenu_process
 
     from engine.battle.fix_camera import fix_camera
     fix_camera = fix_camera
@@ -83,14 +89,30 @@ class Battle:
     from engine.battle.setup_battle_character import setup_battle_character
     setup_battle_character = setup_battle_character
 
+    from engine.battle.state_battle_process import state_battle_process
+    state_battle_process = state_battle_process
+    state_process = state_battle_process
+
+    from engine.battle.state_map_process import state_map_process
+    state_map_process = state_map_process
+
+    from engine.battle.state_menu_process import state_menu_process
+    state_menu_process = state_menu_process
+
+    from engine.battle.state_reward_process import state_reward_process
+    state_reward_process = state_reward_process
+
+    from engine.battle.state_shop_process import state_shop_process
+    state_shop_process = state_shop_process
+
     from engine.battle.shake_camera import shake_camera
     shake_camera = shake_camera
 
     from engine.battle.spawn_weather_matter import spawn_weather_matter
     spawn_weather_matter = spawn_weather_matter
 
-    from engine.battle.escmenu_process import escmenu_process
-    escmenu_process = escmenu_process
+    from engine.battle.event_process import event_process
+    event_process = event_process
 
     from engine.lorebook.lorebook import lorebook_process
     lorebook_process = lorebook_process
@@ -107,6 +129,9 @@ class Battle:
 
     base_fall_gravity = 900
 
+    process_list = {"battle": state_battle_process, "menu": state_menu_process, "map": state_map_process,
+                    "reward": state_reward_process, "shop": state_shop_process, "enchant": state_shop_process}
+
     def __init__(self, game):
         self.game = game
         Battle.battle = self
@@ -117,7 +142,6 @@ class Battle:
         # add enemy trap with delay and cycle
         # add one more playable char
         # add online/lan multiplayer?
-        # church add start event with blessing peasant
         # court structure interface, mission select, side mission system
         # add ranking record system
         # add pvp mode, follower recruit unlock with all save story progress
@@ -266,6 +290,7 @@ class Battle:
         # Create battle ui
         cursor_images = load_images(self.data_dir, subfolder=("ui", "cursor_battle"))  # no need to scale cursor
         self.main_player_battle_cursor = BattleCursor(cursor_images, self.player_key_control[1])
+        self.current_cursor = self.main_player_battle_cursor
 
         self.fps_count = FPSCount(self)  # FPS number counter
         if self.game.show_fps:
@@ -318,6 +343,8 @@ class Battle:
 
         self.shown_camera_pos = self.camera_pos  # pos of camera shown to player, in case of screen shaking or other effects
 
+        self.clock_time = 0
+        self.true_dt = 0
         self.dt = 0  # Realtime used for time calculation
         self.ui_dt = 0  # Realtime used for ui timer
         self.screen_shake_value = 0  # count for how long to shake camera
@@ -325,7 +352,6 @@ class Battle:
         Battle.camera = Camera(self.screen, self.battle_camera_size)
 
         self.base_cursor_pos = [0, 0]  # mouse pos on the map based on camera position
-        self.command_cursor_pos = [0, 0]  # with zoom and screen scale for character command
 
         self.show_cursor_timer = 0
 
@@ -350,6 +376,7 @@ class Battle:
         self.base_stage_end = 0
         self.stage_end = 0
         self.execute_cutscene = None
+        self.submit_cutscene = None
         self.start_cutscene = []
         self.reach_scene_event_list = {}  # cutscene that play when camera reach scene
         self.player_interact_event_list = {}
@@ -367,7 +394,6 @@ class Battle:
         self.cutscene_playing_data = None
 
     def prepare_new_stage(self, chapter, mission, stage, players, scene):
-
         for message in self.inner_prepare_new_stage(chapter, mission, stage, players, scene):
             self.game.error_log.write("Start Stage:" + str(chapter) + "." + str(mission) + "." + str(stage))
             print(message, end="")
@@ -398,7 +424,7 @@ class Battle:
             stage_data = stage_data[scene]
             self.city_mode = True
         stage_object_data = stage_data["data"]
-        stage_event_data = copy.deepcopy(stage_data["event"])
+        stage_event_data = deepcopy(stage_data["event"])
         loaded_item = []
         later_enemy = {}
         self.stage_scene_lock = {}
@@ -412,6 +438,7 @@ class Battle:
         self.stage_start = self.battle_camera_center[0]
         self.stage_end = -self.battle_camera_center[0]
         self.execute_cutscene = None
+        self.submit_cutscene = None
         self.decision_select.selected = None
         self.end_delay = 0
         self.start_cutscene = []
@@ -587,6 +614,9 @@ class Battle:
                     elif "execute" in trigger:
                         for key, value2 in value.items():
                             self.execute_cutscene = value2
+                    elif "submit" in trigger:
+                        for key, value2 in value.items():
+                            self.submit_cutscene = value2
         yield set_done_load()
 
     def run_game(self):
@@ -596,10 +626,6 @@ class Battle:
 
         self.camera_mode = self.start_camera_mode
 
-        # portrait = transform.smoothscale(this_unit.portrait, (150 * self.screen_scale[0],
-        #                                                       150 * self.screen_scale[1]))
-        # self.portrait_rect = portrait.get_rect(center=(portrait.get_width() / 1.6,
-        #                                                portrait.get_height() * 0.95))
         self.camera_pos = Vector2(500, self.battle_camera_center[1])
         self.fix_camera()
 
@@ -624,11 +650,12 @@ class Battle:
         self.reserve_resurrect_stage_score = 0
 
         self.base_cursor_pos = [0, 0]  # mouse pos on the map based on camera position
-        self.command_cursor_pos = [0, 0]  # with zoom and screen scale for character command
         mouse.set_pos(Vector2(self.camera_pos[0], 140 * self.screen_scale[1]))  # set cursor to midtop screen
 
         self.player_key_control = {player: self.config["USER"]["control player " + str(player)] for player in
                                    self.game.player_list}
+        self.player_control_keyboard = {player: True for player in self.player_key_control if
+                                        self.player_key_control[player] == "keyboard"}
         self.player_key_bind = {player: self.game.player_key_bind_list[player][self.player_key_control[player]] for
                                 player in self.game.player_list}
         self.player_key_bind_name = {player: {value: key for key, value in self.player_key_bind[player].items()} for
@@ -646,7 +673,7 @@ class Battle:
 
         if self.start_cutscene:
             # play start cutscene
-            self.cutscene_playing = copy.deepcopy(self.start_cutscene)
+            self.cutscene_playing = deepcopy(self.start_cutscene)
             self.cutscene_playing_data = self.start_cutscene
             self.start_cutscene = []
 
@@ -668,17 +695,19 @@ class Battle:
             self.player_key_hold = {key: dict.fromkeys(self.player_key_hold[key], False) for key in
                                     self.player_key_hold}
 
-            self.true_dt = self.clock.get_time() / 1000  # dt before game_speed
+            self.clock_time = self.clock.get_time()
+            self.true_dt = self.clock_time / 1000  # dt before game_speed
             self.play_time += self.true_dt
 
-            for player, key_set in self.player_key_press.items():
+            for player in self.player_objects:  # only check for active player
                 if self.player_key_control[player] == "keyboard":
-                    for key in key_set:  # check for key holding
-                        if type(self.player_key_bind[player][key]) == int and key_state[
-                            self.player_key_bind[player][key]]:
+                    for key in self.player_key_press[player]:  # check for key holding
+                        if type(self.player_key_bind[player][key]) == int and \
+                                key_state[self.player_key_bind[player][key]]:
                             self.player_key_hold[player][key] = True
                 else:
                     player_key_bind_name = self.player_key_bind_name[player]
+                    # joystick = self.player_joystick[player]  # TODO rework this later, change id to object
                     for joystick_id, joystick in self.joysticks.items():
                         if self.player_joystick[player] == joystick_id:
                             for i in range(joystick.get_numbuttons()):
@@ -701,18 +730,10 @@ class Battle:
                                         vec = Vector2(joystick.get_axis(2), joystick.get_axis(3))
                                         radius, angle = vec.as_polar()
                                         adjusted_angle = (angle + 90) % 360
-                                        if self.game_state == "battle":
-                                            new_pos = Vector2(
-                                                self.main_player_battle_cursor.pos[0] + (
-                                                        self.true_dt * 1000 * sin(radians(adjusted_angle))),
-                                                self.main_player_battle_cursor.pos[1] - (
-                                                        self.true_dt * 1000 * cos(radians(adjusted_angle))))
-                                        else:
-                                            new_pos = Vector2(
-                                                self.cursor.pos[0] + (
-                                                        self.true_dt * 1000 * sin(radians(adjusted_angle))),
-                                                self.cursor.pos[1] - (
-                                                        self.true_dt * 1000 * cos(radians(adjusted_angle))))
+                                        new_pos = Vector2(self.current_cursor.pos[0] +
+                                                          (self.clock_time * sin(radians(adjusted_angle))),
+                                                          self.current_cursor.pos[1] -
+                                                          (self.clock_time * cos(radians(adjusted_angle))))
                                         if new_pos[0] < 0:
                                             new_pos[0] = 0
                                         elif new_pos[0] > self.corner_screen_width:
@@ -738,8 +759,6 @@ class Battle:
                 (self.main_player_battle_cursor.pos[0] - self.battle_camera_center[0] + self.camera_pos[0]),
                 (self.main_player_battle_cursor.pos[1] - self.battle_camera_center[1] + self.camera_pos[
                     1]))  # mouse pos on the map based on camera position
-            self.command_cursor_pos = Vector2(self.base_cursor_pos[0] / self.screen_scale[0],
-                                              self.base_cursor_pos[1] / self.screen_scale[1])  # with screen scale
 
             for event in pygame.event.get():  # get event that happen
                 if event.type == pygame.MOUSEBUTTONUP:
@@ -764,9 +783,8 @@ class Battle:
                     event_key_press = event.key
                     if event_key_press == K_ESCAPE:  # accept esc button always
                         esc_press = True
-                    for player in self.player_key_control:
-                        if self.player_key_control[player] == "keyboard" and \
-                                event_key_press in self.player_key_bind_name[player]:  # check for key press
+                    for player in self.player_control_keyboard:
+                        if event_key_press in self.player_key_bind_name[player]:  # check for key press
                             self.player_key_press[player][self.player_key_bind_name[player][event_key_press]] = True
 
                     # FOR DEVELOPMENT
@@ -801,7 +819,7 @@ class Battle:
                     #             unit.health -= unit.health
                     # self.players.health = 0
 
-                elif event.type == pygame.JOYDEVICEADDED:
+                elif event.type == JOYDEVICEADDED:
                     # Player add new joystick by plug in
                     joy = pygame.joystick.Joystick(event.device_index)
                     self.joysticks[joy.get_instance_id()] = joy
@@ -819,7 +837,7 @@ class Battle:
                             self.joystick_player[joy.get_instance_id()] = player
                             break  # only one player get assigned
 
-                elif event.type == pygame.JOYDEVICEREMOVED:
+                elif event.type == JOYDEVICEREMOVED:
                     # Player unplug joystick
                     del self.joysticks[event.instance_id]
                     del self.joystick_name[event.instance_id]
@@ -840,596 +858,9 @@ class Battle:
 
             self.ui_updater.update()  # update ui before more specific update
 
-            if self.game_state == "battle":  # game in battle state
-                if esc_press:  # pause game and open menu
-                    for sound_ch in range(0, 1000):
-                        if Channel(sound_ch).get_busy():  # pause all sound playing
-                            Channel(sound_ch).pause()
-                    if self.city_mode:  # add character setup UI for city mode when pause game
-                        for player in self.player_objects:
-                            self.add_ui_updater(self.player_char_base_interfaces[player],
-                                                self.player_char_interfaces[player])
-                    self.game_state = "menu"  # open menu
-                    scene = self.battle_stage.current_scene
-                    if self.scene:  # use city scene
-                        scene = self.scene
-                    self.stage_translation_text_popup.popup(
-                        (self.screen_rect.midleft[0], self.screen_height * 0.88),
-                        self.game.localisation.grab_text(
-                            ("map", self.chapter, self.mission, self.stage, str(scene), "Text")),
-                        width_text_wrapper=self.screen_width)
-                    self.add_ui_updater(self.cursor, self.battle_menu_button,
-                                        self.stage_translation_text_popup)  # add menu and its buttons to drawer
-                    self.realtime_ui_updater.remove(self.main_player_battle_cursor)
-                elif self.city_mode and self.game_state != "map" and not self.cutscene_playing and \
-                        self.player_key_press[self.main_player]["Special"]:
-                    # open city map
-                    self.add_ui_updater(self.cursor, self.city_map)
-                    self.game_state = "map"
-
-                self.camera_process()
-
-                # Update game time
-                self.dt = self.true_dt * self.game_speed  # apply dt with game_speed for calculation
-                if self.dt > 0.1:  # one frame update should not be longer than 0.1 second for calculation
-                    self.dt = 0.1  # make it so stutter and lag does not cause overtime issue
-
-                self.ui_timer += self.dt  # ui update by real time instead of self time to reduce workload
-                self.ui_dt = self.dt  # get ui timer before apply
-
-                if self.main_player_battle_cursor.pos_change:  # display cursor when have movement
-                    self.show_cursor_timer = 0.1
-                    self.main_player_battle_cursor.shown = True
-
-                if self.show_cursor_timer:
-                    self.show_cursor_timer += self.dt
-                    if self.show_cursor_timer > 3:
-                        self.show_cursor_timer = 0
-                        self.main_player_battle_cursor.shown = False
-                        self.main_player_battle_cursor.rect.topleft = (-100, -100)
-
-                # Drama text function
-                if not self.drama_timer and self.drama_text.queue:  # Start timer and draw if there is event queue
-                    self.realtime_ui_updater.add(self.drama_text)
-                    self.drama_text.process_queue()
-                    self.drama_timer = 0.1
-                elif self.drama_timer:
-                    self.drama_text.play_animation()
-                    self.drama_timer += self.ui_dt
-                    if self.drama_timer > 5:  # drama popup last for 5 seconds
-                        self.drama_timer = 0
-                        self.realtime_ui_updater.remove(self.drama_text)
-
-                # Weather system
-                if self.current_weather.spawn_rate:
-                    self.weather_spawn_timer += self.dt
-                    if self.weather_spawn_timer >= self.current_weather.spawn_rate:
-                        self.weather_spawn_timer = 0
-                        self.spawn_weather_matter()
-
-                # Screen shaking
-                self.shown_camera_pos = self.camera_pos.copy()  # reset camera pos first
-                if self.screen_shake_value:
-                    self.screen_shake_value -= (self.dt * 100)
-                    self.shake_camera()
-                    if self.screen_shake_value < 0:
-                        self.screen_shake_value = 0
-
-                # Battle related updater
-                self.battle_stage.update(self.shown_camera_pos)  # update stage first
-                if not self.cutscene_playing:
-                    self.character_updater.update(self.dt)
-                    self.effect_updater.update(self.dt)
-                else:
-                    self.character_updater.cutscene_update(self.dt)
-                    self.effect_updater.cutscene_update(self.dt)
-                self.realtime_ui_updater.update()  # update UI
-                self.camera.update(self.shown_camera_pos, self.battle_camera, self.realtime_ui_updater)
-                # self.frontground_stage.update(self.shown_camera_pos[0])  # update frontground stage last
-
-                for key, value in self.sound_effect_queue.items():  # play each sound effect initiate in this loop
-                    self.play_sound_effect(key, value)
-                self.sound_effect_queue = {}
-
-                if self.ui_timer >= 0.1 and not self.city_mode:
-                    for key, value in self.player_objects.items():
-                        self.player_portraits[key].value_input(value)
-
-                    self.ui_drawer.draw(self.screen)  # draw the UI
-                    self.ui_timer -= 0.1
-
-                if not self.cutscene_playing:  # no current cutscene check for one
-                    if self.next_lock:  # stage has lock, check if player reach next lock or unlock it
-                        if self.lock_objective:  # player in locked stage, check if pass yet
-                            pass_objective = False  # check for passing lock objective
-                            if self.lock_objective == "clear":
-                                if not len([enemy for enemy in self.all_team_enemy[1] if
-                                            self.base_stage_start <= enemy.base_pos[0] <= self.base_stage_end]):
-                                    pass_objective = True
-                            elif self.lock_objective == "survive":
-                                self.survive_timer -= self.dt
-                                if self.survive_timer < 0:
-                                    self.survive_timer = 0
-                                    pass_objective = True
-
-                            if pass_objective:  # can reach next scene, check for possible scene lock
-                                self.lock_objective = None
-                                if self.stage_scene_lock:
-                                    self.next_lock = tuple(self.stage_scene_lock.keys())[0]
-                                    self.base_stage_end = self.base_stage_end_list[self.next_lock[-1]]
-                                    self.stage_end = self.stage_end_list[self.next_lock[-1]]
-                                else:  # no more lock, make the stage_end the final stage position
-                                    self.next_lock = None  # assign None so no need to do below code in later update
-                                    self.base_stage_end = self.base_stage_end_list[
-                                        tuple(self.base_stage_end_list.keys())[-1]]
-                                    self.stage_end = self.stage_end_list[tuple(self.stage_end_list.keys())[-1]]
-
-                        elif self.battle_stage.current_scene >= self.next_lock[0]:
-                            # player (camera) reach next lock
-                            self.base_stage_start = self.base_stage_end_list[self.next_lock[0]] - 1920
-                            self.stage_start = self.stage_end_list[self.next_lock[0]]
-                            self.base_stage_end = self.base_stage_end_list[self.next_lock[-1]]
-                            self.stage_end = self.stage_end_list[self.next_lock[-1]]
-
-                            self.lock_objective = self.stage_scene_lock[self.next_lock]
-                            if "survive" in self.lock_objective:
-                                self.survive_timer = float(self.lock_objective.split("_")[-1])
-                                self.lock_objective = "survive"
-
-                            self.stage_scene_lock.pop(self.next_lock)
-
-                    if self.later_enemy[self.battle_stage.spawn_check_scene]:
-                        # check for enemy arriving based on camera pos
-                        self.spawn_delay_timer[self.battle_stage.spawn_check_scene] += self.dt
-                        first_delay = tuple(self.later_enemy[self.battle_stage.spawn_check_scene].keys())[0]
-                        if self.spawn_delay_timer[self.battle_stage.spawn_check_scene] >= first_delay:
-                            # spawn based on delay timer
-                            self.setup_battle_character((), self.later_enemy[self.battle_stage.spawn_check_scene][
-                                first_delay],
-                                                        add_helper=False)
-                            self.later_enemy[self.battle_stage.spawn_check_scene].pop(first_delay)
-
-                    for player_index, player_object in self.player_objects.items():
-                        player_object.player_input(player_index, self.dt)
-
-                    if self.reach_scene_event_list:
-                        # check for event with camera reaching
-                        if self.battle_stage.reach_scene in self.reach_scene_event_list:
-                            if "weather" in self.reach_scene_event_list[self.battle_stage.reach_scene]:
-                                # change weather
-                                self.current_weather.__init__(
-                                    self.reach_scene_event_list[self.battle_stage.reach_scene]["weather"][0],
-                                    randint(0, 359),
-                                    self.reach_scene_event_list[self.battle_stage.reach_scene]["weather"][1],
-                                    self.weather_data)
-                                self.reach_scene_event_list[self.battle_stage.reach_scene].pop("weather")
-                            if "music" in self.reach_scene_event_list[self.battle_stage.reach_scene]:  # change music
-                                self.current_music = self.reach_scene_event_list[self.battle_stage.reach_scene]["music"]
-                                self.reach_scene_event_list[self.battle_stage.reach_scene].pop("music")
-                            if "sound" in self.reach_scene_event_list[self.battle_stage.reach_scene]:  # play sound
-                                for sound_effect in self.reach_scene_event_list[self.battle_stage.reach_scene]:
-                                    self.add_sound_effect_queue(self.sound_effect_pool[sound_effect[0]],
-                                                                self.camera_pos, sound_effect[1], sound_effect[2])
-                                self.reach_scene_event_list[self.battle_stage.reach_scene].pop("sound")
-                            if "cutscene" in self.reach_scene_event_list[self.battle_stage.reach_scene]:  # cutscene
-                                for parent_event in self.reach_scene_event_list[self.battle_stage.reach_scene][
-                                    "cutscene"]:
-                                    # play one parent at a time
-                                    self.cutscene_playing = parent_event
-                                    self.cutscene_playing_data = copy.deepcopy(parent_event)
-                                    if "replayable" not in parent_event[0]["Property"]:
-                                        self.reach_scene_event_list[self.battle_stage.reach_scene].pop("cutscene")
-                            if not self.reach_scene_event_list[self.battle_stage.reach_scene]:  # no more event left
-                                self.reach_scene_event_list.pop(self.battle_stage.reach_scene)
-
-                    if self.player_interact_event_list:
-                        event_list = sorted({key[0]: self.main_player_object.base_pos.distance_to(key[1]) for key in
-                                             [(item2, item2) if type(item2) is tuple else (item2, item2.base_pos) for
-                                              item2 in
-                                              self.player_interact_event_list]}.items(), key=lambda item: item[1])
-                        for item in event_list:
-                            target_pos = item[0]
-                            if type(item[0]) is not tuple:
-                                target_pos = (item[0].base_pos[0], item[0].base_pos[1] - item[0].sprite_size * 4.5)
-                            if 100 < abs(self.main_player_object.base_pos[0] - target_pos[0]) < 250:
-                                # use player with the lowest number as interactor
-                                self.speech_prompt.add_to_screen(self.main_player_object, item[0], target_pos)
-                                if self.player_key_press[self.main_player]["Weak"]:  # player interact, start event
-                                    self.speech_prompt.clear()  # remove prompt
-                                    if (self.main_player_object.base_pos[0] - target_pos[0] < 0 and
-                                        self.main_player_object.angle != -90) or \
-                                            (self.main_player_object.base_pos[0] - target_pos[0] >= 0 and
-                                             self.main_player_object.angle != 90):  # face target
-                                        self.main_player_object.new_angle *= -1
-                                        self.main_player_object.rotate_logic()
-                                    if type(item[0]) is not tuple:
-                                        if (item[0].base_pos[0] - self.main_player_object.base_pos[0] < 0 and
-                                            item[0].angle != -90) or \
-                                                (item[0].base_pos[0] - self.main_player_object.base_pos[0] >= 0 and
-                                                 item[0].angle != 90):  # face player
-                                            item[0].new_angle *= -1
-                                            item[0].rotate_logic()
-
-                                    if "replayable" not in self.player_interact_event_list[item[0]][0][0]["Property"]:
-                                        self.cutscene_playing = self.player_interact_event_list[item[0]][0]
-                                        self.cutscene_playing_data = copy.deepcopy(
-                                            self.player_interact_event_list[item[0]][0])
-                                        self.player_interact_event_list[item[0]].remove(self.cutscene_playing)
-                                        if not self.player_interact_event_list[item[0]]:
-                                            self.player_interact_event_list.pop(item[0])
-                                    else:  # event can be replayed, use copy instead of original to prevent delete
-                                        self.cutscene_playing = copy.deepcopy(
-                                            self.player_interact_event_list[item[0]][0])
-                                        self.cutscene_playing_data = self.player_interact_event_list[item[0]][0]
-                                break
-
-                else:  # currently in cutscene mode
-                    for event_index, child_event in enumerate(self.cutscene_playing.copy()):
-                        # play child events until found one that need waiting
-                        if child_event["Object"] == "camera":
-                            if child_event["Type"] == "move" and "POS" in child_event["Property"]:
-                                camera_pos_target = self.stage_end_list[child_event["Property"]["POS"]]
-                                camera_speed = 400
-                                if "speed" in child_event["Property"]:
-                                    camera_speed = child_event["Property"]["speed"]
-                                if self.camera_pos[0] != camera_pos_target:
-                                    if self.camera_pos[0] < camera_pos_target:
-                                        self.camera_pos[0] += camera_speed * self.dt
-                                        if self.camera_pos[0] > camera_pos_target:
-                                            self.camera_pos[0] = camera_pos_target
-                                    else:
-                                        self.camera_pos[0] -= camera_speed * self.dt
-                                        if self.camera_pos[0] < camera_pos_target:
-                                            self.camera_pos[0] = camera_pos_target
-                                else:  # reach target
-                                    self.cutscene_playing.remove(child_event)
-                            elif child_event["Type"] == "cutscene":
-                                if child_event["Animation"] == "blackout":
-                                    if not self.cutscene_timer:
-                                        self.cutscene_timer = 1
-                                        text = None
-                                        if child_event["Text ID"]:
-                                            text = self.localisation.grab_text(
-                                                ("event", child_event["Text ID"], "Text"))
-                                        self.screen_fade.reset(1, text=text)
-                                        self.realtime_ui_updater.add(self.screen_fade)
-                                        if "timer" in child_event["Property"]:
-                                            self.cutscene_timer = child_event["Property"]["timer"]
-                                    else:
-                                        if self.cutscene_timer and self.screen_fade.alpha == 255:
-                                            # count down timer after finish fading
-                                            self.cutscene_timer -= self.true_dt
-                                            if self.cutscene_timer < 0:
-                                                self.screen_fade.reset(1)
-                                                self.realtime_ui_updater.remove(self.screen_fade)
-                                                self.cutscene_timer = 0
-                                                self.cutscene_playing.remove(child_event)
-                        else:
-                            event_character = None
-                            if child_event["Type"] == "create":  # add character for cutscene
-                                AICharacter(child_event["Object"], event_index,
-                                            child_event["Property"] | self.character_data.character_list[
-                                                child_event["Object"]] |
-                                            {"ID": child_event["Object"],
-                                             "Ground Y POS": child_event["Property"]["POS"][1],
-                                             "Scene": 1, "Team": 1, "Arrive Condition": {}, "Sprite Ver": self.chapter})
-                                self.cutscene_playing.remove(child_event)
-                            else:
-                                if child_event["Object"] == "pm":  # main player
-                                    event_character = self.main_player_object
-                                else:
-                                    for character in self.all_chars:
-                                        if character.game_id == child_event["Object"]:
-                                            event_character = character
-                                            break
-                                if event_character:
-                                    if child_event["Type"] == "hide":
-                                        self.battle_camera.remove(event_character.body_parts.values())
-                                        if event_character.indicator:  # also hide indicator
-                                            self.battle_camera.remove(event_character.indicator)
-                                        event_character.cutscene_update = types.MethodType(Character.inactive_update,
-                                                                                           event_character)
-                                        self.cutscene_playing.remove(child_event)
-                                    elif child_event["Type"] == "remove":
-                                        event_character.die(delete=True)
-                                        self.cutscene_playing.remove(child_event)
-                                    elif (not event_character.cutscene_event or
-                                          (("hold" in event_character.current_action or
-                                            "repeat" in event_character.current_action) and
-                                           event_character.cutscene_event != child_event)):
-                                        # replace previous event on hold or repeat when there is new one to play next
-                                        if "hold" in event_character.current_action:
-                                            # previous event done
-                                            self.cutscene_playing.remove(event_character.cutscene_event)
-
-                                        event_character.cutscene_event = child_event
-                                        if "POS" in child_event["Property"]:
-                                            if type(child_event["Property"]["POS"]) is str:
-                                                target_scene = self.battle_stage.current_scene
-                                                if "reach_" in child_event["Property"]["POS"]:
-                                                    target_scene = self.battle_stage.reach_scene
-
-                                                if "start" in child_event["Property"]["POS"]:
-                                                    positioning = event_character.layer_id
-                                                    if event_character.layer_id > 4:
-                                                        positioning = uniform(1, 4)
-                                                    ground_pos = event_character.ground_pos
-                                                    if event_character.fly:  # flying character can just move with current y pos
-                                                        ground_pos = event_character.base_pos[1]
-                                                    event_character.cutscene_target_pos = Vector2(
-                                                        (1920 * target_scene) + (100 * positioning), ground_pos)
-                                                elif "middle" in child_event["Property"]["POS"]:
-                                                    ground_pos = event_character.ground_pos
-                                                    if event_character.fly:  # flying character can just move with current y pos
-                                                        ground_pos = event_character.base_pos[1]
-                                                    event_character.cutscene_target_pos = Vector2(
-                                                        (1920 * target_scene) - (self.battle_camera_center[0] * 1.5),
-                                                        ground_pos)
-                                                elif "center" in child_event["Property"]["POS"]:
-                                                    # true center, regardless of flying
-                                                    event_character.cutscene_target_pos = Vector2(
-                                                        (1920 * target_scene) - (self.battle_camera_center[0] * 1.5),
-                                                        self.battle_camera_center[1])
-                                            else:
-                                                event_character.cutscene_target_pos = Vector2(
-                                                    child_event["Property"]["POS"][0],
-                                                    child_event["Property"]["POS"][1])
-                                        elif "target" in child_event["Property"]:
-                                            for character2 in self.all_chars:
-                                                if character2.game_id == child_event["Property"][
-                                                    "target"]:  # go to target pos
-                                                    event_character.cutscene_target_pos = character2.base_pos
-                                                    break
-                                        if "angle" in child_event["Property"]:
-                                            if child_event["Property"]["angle"] == "target":
-                                                # facing target must have cutscene_target_pos
-                                                if event_character.cutscene_target_pos[0] >= event_character.base_pos[
-                                                    0]:
-                                                    event_character.new_angle = -90
-                                                else:
-                                                    event_character.new_angle = 90
-                                            else:
-                                                event_character.new_angle = int(child_event["Property"]["angle"])
-                                            event_character.rotate_logic()
-                                        animation = child_event["Animation"]
-                                        action_dict = {}
-                                        if animation:
-                                            action_dict = {"name": child_event["Animation"]} | child_event["Property"]
-                                        event_character.pick_cutscene_animation(action_dict)
-                                        if child_event["Text ID"]:
-                                            specific_timer = None
-                                            player_input_indicator = None
-                                            if "interact" in child_event["Property"]:
-                                                specific_timer = infinity
-                                                player_input_indicator = True
-                                            elif "timer" in child_event["Property"]:
-                                                specific_timer = child_event["Property"]
-                                            elif "select" in child_event["Property"] or \
-                                                    "hold" in child_event["Property"]:
-                                                # selecting event, also infinite timer but not add player input indication
-                                                specific_timer = infinity
-                                            CharacterSpeechBox(event_character,
-                                                               self.localisation.grab_text(("event",
-                                                                                            child_event["Text ID"],
-                                                                                            "Text")),
-                                                               specific_timer=specific_timer,
-                                                               player_input_indicator=player_input_indicator,
-                                                               cutscene_event=child_event)
-                                else:
-                                    # no character to play for this cutscene, no need to loop this child event further
-                                    self.cutscene_playing.remove(child_event)
-                        if "select" in child_event["Property"]:
-                            if child_event["Property"]["select"] == "yesno":
-                                self.realtime_ui_updater.add(self.decision_select)
-
-                        elif "shop" in child_event["Property"]:  # open shop interface
-                            self.game_state = "shop"
-                            shop_npc = None
-                            for char in self.all_chars:
-                                if char.game_id == child_event["Object"] or \
-                                        (child_event["Object"] == "pm" and char == self.main_player_object):
-                                    shop_npc = char
-                                    break
-
-                            for player in self.player_objects:
-                                self.player_char_interfaces[player].shop_list = \
-                                    [key for key, value in self.character_data.shop_list.items() if
-                                     value["Shop"] == shop_npc.char_id and
-                                     (int(self.main_story_profile["chapter"]) > value["Chapter"] or
-                                      (int(self.main_story_profile["chapter"]) == value["Chapter"] and
-                                       int(self.main_story_profile["mission"]) >= value["Mission"]))]
-                                self.player_char_interfaces[player].purchase_list = {}
-                                self.player_char_interfaces[player].change_mode("shop")
-                                self.player_char_interfaces[player].input_delay = 0.1
-                                self.add_ui_updater(self.player_char_base_interfaces[player],
-                                                    self.player_char_interfaces[player])
-                            self.end_cutscene_event(child_event)
-
-                        elif "enchant" in child_event["Property"]:  # open shop interface
-                            self.game_state = "enchant"
-
-                            for player in self.player_objects:
-                                self.player_char_interfaces[player].all_custom_item = \
-                                    [item for item in self.player_char_interfaces[player].profile["storage"] if
-                                     type(item) is tuple]
-                                self.player_char_interfaces[player].change_mode("enchant")
-                                self.player_char_interfaces[player].input_delay = 0.1
-                                self.add_ui_updater(self.player_char_base_interfaces[player],
-                                                    self.player_char_interfaces[player])
-                            self.end_cutscene_event(child_event)
-
-                        if "wait" in child_event["Property"] or "interact" in child_event["Property"] or \
-                                "select" in child_event["Property"]:
-                            break
-
-                    end_battle_specific_mission = self.cutscene_player_input()
-                    if end_battle_specific_mission:  # event cause the end of mission, go to the output mission next
-                        return end_battle_specific_mission
-
-                    if not self.cutscene_playing:  # finish with current parent cutscene
-                        for char in self.character_updater:  # add back hidden characters
-                            self.battle_camera.add(char.body_parts.values())
-                            if char.indicator:
-                                self.battle_camera.add(char.indicator)
-                            char.cutscene_update = types.MethodType(Character.cutscene_update, char)
-                        if "once" in self.cutscene_playing_data[0]["Trigger"]:
-                            self.main_story_profile["story event"][self.cutscene_playing_data[0]["ID"] +
-                                                                   self.chapter + self.mission + self.stage] = True
-
-                if not self.city_mode and not self.all_team_enemy[1]:  # all enemies dead, end stage process
-                    if not self.end_delay and not self.cutscene_playing:
-                        mission_str = self.chapter + "." + self.mission + "." + self.stage
-                        # not ending stage yet, due to decision waiting or playing cutscene
-                        if self.decision_select not in self.realtime_ui_updater and self.stage_end_choice:
-                            if mission_str not in self.main_story_profile["story choice"]:
-                                if "Victory" not in self.drama_text.queue:
-                                    self.drama_text.queue.append("Victory")
-                                self.realtime_ui_updater.add(self.decision_select)
-                        elif not self.stage_end_choice:
-                            if "Victory" not in self.drama_text.queue:
-                                self.drama_text.queue.append("Victory")
-
-                        if self.decision_select.selected or mission_str in self.main_story_profile["story choice"]:
-                            self.end_delay = 0.1
-                            choice = self.decision_select.selected
-                            if mission_str in self.main_story_profile["story choice"]:
-                                choice = self.main_story_profile["story choice"][mission_str]
-                            if choice == "yes":
-                                for character in self.character_updater:
-                                    if character.is_boss and not character.leader:  # boss char that is not follower
-                                        # start decision animation
-                                        character.engage_combat()
-                                        character.position = "Stand"  # enforce stand position
-                                        character.current_action = character.submit_action
-                                        character.show_frame = 0
-                                        character.frame_timer = 0
-                                        character.pick_animation()
-                            else:  # start execution cutscene
-                                self.cutscene_playing = self.execute_cutscene
-                                self.cutscene_playing_data = copy.deepcopy(self.execute_cutscene)
-
-                            self.realtime_ui_updater.remove(self.decision_select)
-
-                    if not self.cutscene_playing and \
-                            (self.decision_select.selected or self.decision_select not in self.realtime_ui_updater):
-                        #  player select decision or mission has no decision, count end delay
-                        self.end_delay += self.dt
-
-                        if self.end_delay >= 5:  # end battle
-                            self.end_delay = 0
-
-                            if str(int(self.stage) + 1) in self.game.preset_map_data[self.chapter][self.mission] or \
-                                    str(int(self.mission) + 1) in self.game.preset_map_data[self.chapter]:
-                                # has next stage or mission
-                                return True
-                            else:
-                                return False
-
-            elif self.game_state == "menu":  # Complete battle pause when open either esc menu or lorebook
-                self.battle_stage.update(self.shown_camera_pos)  # update stage first
-                # self.realtime_ui_updater.update()  # update UI
-                self.camera.update(self.shown_camera_pos, self.battle_camera, self.realtime_ui_updater)
-                # self.frontground_stage.update(self.shown_camera_pos)  # update frontground stage last
-                self.ui_drawer.draw(self.screen)  # draw the UI
-
-                if self.input_popup:  # currently, have input text pop up on screen, stop everything else until done
-                    if self.input_ok_button.event_press:
-                        if self.input_popup[1] == "quit":  # quit game
-                            pygame.quit()
-                            sys.exit()
-
-                        self.input_box.text_start("")
-                        self.input_popup = None
-                        self.remove_ui_updater(self.input_ui_popup, self.confirm_ui_popup)
-                        if self.game_state == "battle":
-                            self.remove_ui_updater(self.cursor)
-
-                    elif self.input_cancel_button.event_press or esc_press:
-                        self.change_pause_update(False)
-                        self.input_box.text_start("")
-                        self.input_popup = None
-                        self.remove_ui_updater(self.input_ui_popup, self.confirm_ui_popup)
-
-                else:
-                    command = self.escmenu_process(esc_press)
-                    if command == "end_battle":  # return to city if not in city stage
-                        return "throne"
-                    elif command == "main_menu":  # return to main menu
-                        return False
-
-            elif self.game_state == "reward":
-                self.battle_stage.update(self.shown_camera_pos)  # update stage first
-                self.camera.update(self.shown_camera_pos, self.battle_camera, self.realtime_ui_updater)
-                # self.frontground_stage.update(self.shown_camera_pos)  # update frontground stage last
-                self.ui_drawer.draw(self.screen)  # draw the UI
-                if self.input_popup:  # currently, have input text pop up on screen, stop everything else until done
-                    if self.input_ok_button.event_press:
-                        for interface in self.player_char_interfaces.values():
-                            interface.reward_list = {}
-                            interface.change_mode("stat")
-                        self.game_state = "battle"
-                        self.remove_ui_updater(self.cursor, self.player_char_base_interfaces.values(),
-                                               self.player_char_interfaces.values(), self.input_ui_popup,
-                                               self.confirm_ui_popup)
-
-                        self.input_box.text_start("")
-                        self.input_popup = None
-
-                    elif self.input_cancel_button.event_press or esc_press:
-                        self.change_pause_update(False)
-                        self.input_box.text_start("")
-                        self.input_popup = None
-                        self.remove_ui_updater(self.cursor, self.input_ui_popup, self.confirm_ui_popup)
-
-                else:
-                    if esc_press:  # close and accept reward
-                        self.activate_input_popup(("confirm_input", "reward"), "Confirm Reward?", self.confirm_ui_popup)
-                        self.add_ui_updater(self.cursor)
-                    else:
-                        for key_list in (self.player_key_press, self.player_key_hold):
-                            # check key holding for stat mode as well
-                            for player in key_list:
-                                if player in self.player_objects:
-                                    for key, pressed in key_list[player].items():
-                                        if pressed:
-                                            self.player_char_interfaces[player].player_input(key)
-
-            elif self.game_state in ("shop", "enchant"):
-                self.battle_stage.update(self.shown_camera_pos)  # update stage first
-                self.camera.update(self.shown_camera_pos, self.battle_camera, self.realtime_ui_updater)
-                # self.frontground_stage.update(self.shown_camera_pos)  # update frontground stage last
-                self.ui_drawer.draw(self.screen)  # draw the UI
-                if esc_press:  # close shop
-                    for interface in self.player_char_interfaces.values():
-                        interface.shop_list = []
-                        interface.purchase_list = {}
-                        interface.change_mode("stat")
-                    self.remove_ui_updater(self.cursor, self.player_char_base_interfaces.values(),
-                                           self.player_char_interfaces.values())
-                    self.game_state = "battle"
-                else:
-                    for key_list in (self.player_key_press, self.player_key_hold):
-                        # check key holding for stat mode as well
-                        for player in key_list:
-                            if player in self.player_objects:
-                                for key, pressed in key_list[player].items():
-                                    if pressed:
-                                        self.player_char_interfaces[player].player_input(key)
-
-            elif self.game_state == "map":
-                self.camera.update(self.shown_camera_pos, self.battle_camera, self.realtime_ui_updater)
-                # self.frontground_stage.update(self.shown_camera_pos)  # update frontground stage last
-                self.ui_drawer.draw(self.screen)  # draw the UI
-
-                if self.city_map.selected_map:  # player select new map
-                    selected_map = self.city_map.selected_map
-                    self.city_map.selected_map = None
-                    self.remove_ui_updater(self.cursor, self.city_map)
-                    self.game_state = "battle"
-                    return selected_map
-                elif self.player_key_press[self.main_player]["Special"] or esc_press:
-                    self.remove_ui_updater(self.cursor, self.city_map)
-                    self.game_state = "battle"
+            return_state = self.state_process(esc_press)  # run code based on current state
+            if return_state is not None:
+                return return_state
 
             display.update()  # update game display, draw everything
             self.clock.tick(1000)  # clock update even if self pause

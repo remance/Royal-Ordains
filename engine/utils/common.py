@@ -9,7 +9,7 @@ def empty_method(*args):
 
 
 def cutscene_update(self, *args, **kwargs):
-    """call cutscene update method of every member sprite
+    """call cutscene update method of every member sprite instead of update
 
     Group.update(*args, **kwargs): return None
 
@@ -72,7 +72,7 @@ def keyboard_mouse_press_check(button_type, button, is_button_just_down, is_butt
     :return: new state of is_button_just_down, is_button_down, is_button_just_up
     """
     if joystick_check:
-        if type(joystick_check[1]) is str:
+        if type(joystick_check[1]) is str:  # hat and axis input
             if "hat" in joystick_check[1]:
                 button_check = joystick_check[0].get_hat(int(joystick_check[1][-2:]))
             if "axis" in joystick_check[1]:
@@ -81,7 +81,7 @@ def keyboard_mouse_press_check(button_type, button, is_button_just_down, is_butt
                     button_check = 0
                 if int(joystick_check[1][-2:]) < 1 < button_check:
                     button_check = 0
-        else:
+        else:  # other buttons input
             button_check = joystick_check[0].get_button(joystick_check[1])
 
     if button_type.get_pressed()[button] or (joystick_check and button_check):

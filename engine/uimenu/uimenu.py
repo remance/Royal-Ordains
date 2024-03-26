@@ -1214,7 +1214,7 @@ class CharacterInterface(UIMenu):
         pygame.draw.rect(self.image, (200, 100, 100), (self.storage_box_rects[page_current_row].topleft[0],
                                                        self.storage_box_rects[page_current_row].topleft[1],
                                                        50 * self.screen_scale[0],
-                                                       50 * self.screen_scale[1]), width=int(3 * self.screen_scale[0]))
+                                                       50 * self.screen_scale[1]), width=int(5 * self.screen_scale[0]))
 
         text_surface = self.font.render(self.grab_text(("ui", "Gold")) +
                                         ": " + minimise_number_text(str(self.profile["total golds"])),
@@ -1686,7 +1686,7 @@ class CharacterInterface(UIMenu):
         sub_menu_image = Surface((self.image.get_width(), (40 * self.screen_scale[1]) * len(self.sub_menu_button_list)))
         for index, button in enumerate(self.sub_menu_button_list):
             button_image = Surface((self.image.get_width(), (40 * self.screen_scale[1])))
-            button_image.fill((220, 220, 220))
+            button_image.fill((150, 150, 150))
             if index == self.sub_menu_current_row:
                 pygame.draw.rect(button_image, (150, 150, 20),
                                  (0, 0, self.image.get_width(), (40 * self.screen_scale[1])),
