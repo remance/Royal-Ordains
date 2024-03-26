@@ -803,6 +803,8 @@ class Battle:
                             if not enemy.invincible and int(enemy.base_pos[0] / 1920) in \
                                     (self.battle_stage.spawn_check_scene - 1, self.battle_stage.spawn_check_scene):
                                 enemy.health = 0
+                        CharacterSpeechBox(self.player_objects[self.main_player],
+                                           "Die")
                     elif event.key == K_F7:  # clear profiler
                         if hasattr(self.game, "profiler"):
                             self.game.profiler.clear()
