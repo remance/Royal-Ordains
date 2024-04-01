@@ -701,7 +701,7 @@ class CharacterInteractPrompt(UIBattle):
         self.button_image = image
         font = Font(self.ui_font["manuscript_font"], int(40 * self.screen_scale[1]))
         text_surface = text_render_with_bg("Talk", font)
-        self.image = Surface((150 * self.screen_scale[0], 50 * self.screen_scale[1]), SRCALPHA)
+        self.image = Surface((150 * self.screen_scale[0], 55 * self.screen_scale[1]), SRCALPHA)
         text_rect = text_surface.get_rect(midright=self.image.get_rect().midright)
         self.image.blit(text_surface, text_rect)
         self.image.blit(image, image.get_rect(midleft=self.image.get_rect().midleft))
@@ -715,7 +715,7 @@ class CharacterInteractPrompt(UIBattle):
         font = Font(self.ui_font[chapter_font_name[self.battle.chapter]], int(40 * self.screen_scale[1]))
         text_surface = text_render_with_bg(target.show_name, font)
         self.image = Surface((text_surface.get_width() + self.button_image.get_width() +
-                              (10 * self.screen_scale[0]), 50 * self.screen_scale[1]), SRCALPHA)
+                              (10 * self.screen_scale[0]), 55 * self.screen_scale[1]), SRCALPHA)
         text_rect = text_surface.get_rect(midright=self.image.get_rect().midright)
         self.image.blit(text_surface, text_rect)
         self.image.blit(self.button_image, self.button_image.get_rect(midleft=self.image.get_rect().midleft))

@@ -1,4 +1,5 @@
 "ID","Text ID","Object","Animation","Type","Trigger","Property"
+"music/scene1",,"hall",,"music","camera_reach_scene,1",
 "Maelsen/Bauqah/1_1_city_hall_talk1","Maelsen/Rude/1_1_city_hall_talk1.1",1,,"char","interact,1","interact,hold,replayable"
 "Maelsen/Vraesier/1_1_city_hall_talk1","Maelsen/Rude/1_1_city_hall_talk1.1",1,,"char","interact,1","interact,hold,replayable"
 "Maelsen/Orsanoas/1_1_city_hall_talk1","Maelsen/Rude/1_1_city_hall_talk1.1",1,,"char","interact,1","interact,hold,replayable"

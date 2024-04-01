@@ -1,5 +1,5 @@
 from math import radians
-from random import uniform, randint, choice
+from random import uniform, choice
 
 from pygame import sprite, Vector2
 from pygame.sprite import spritecollide, collide_mask
@@ -189,9 +189,9 @@ class Effect(sprite.Sprite):
                                  self.flip].get_height() / 4
                     stat[3] = self.pos[1] - height
                 if "spawn all angle" in self.effect_stat["Property"]:
-                    stat[4] = randint(0, 359)
+                    stat[4] = uniform(0, 359)
                 if "spawn same angle" in self.effect_stat["Property"]:
-                    stat[4] = self.angle + randint(-10, 10)
+                    stat[4] = self.angle + uniform(-10, 10)
                 layer = 0
                 if "no dmg" in self.effect_stat["Property"]:
                     Effect(self.owner, stat, layer, moveset=self.moveset, from_owner=False)
@@ -241,9 +241,9 @@ class Effect(sprite.Sprite):
                             stat[2] = uniform(self.pos[0] - (self.travel_distance * self.screen_scale[0]),
                                               self.pos[0] + (self.travel_distance * self.screen_scale[0]))
                             if self.owner.angle == 90:
-                                stat[4] = randint(160, 180)
+                                stat[4] = uniform(160, 180)
                             else:
-                                stat[4] = randint(-180, -160)
+                                stat[4] = uniform(-180, -160)
 
                         moveset = self.moveset.copy()
                         moveset["Property"] = [item for item in moveset["Property"] if

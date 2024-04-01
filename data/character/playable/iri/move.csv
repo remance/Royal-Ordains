@@ -23,8 +23,8 @@
 "Weak","sweak2","Stab ","Stand",,"sweak1",,,250,,,,16,35,,,,,"Physical",,,,
 "Weak","sweak3","Stab Up","Stand",,"sweak2",,,250,,,,18,,,35,,,"Physical",,,,
 "Weak","sweak4","Stab Down","Stand",,"sweak3",,,250,,,,14,,,,25,,"Physical",,,,
-"Strong","sweak1strong","Slash Down","Stand",,"sweak2",,,250,,,,31,,,,110,,"Physical",,,,
-"Strong","sweak2strong","Slash Up","Stand",,"sweak1",,,250,,,,26,,,80,,,"Physical",,,,
+"Strong","sweak1strong","Slash Down","Stand",,"sweak1",,,250,,,,31,,,,110,,"Physical",,,,
+"Strong","sweak2strong","Slash Up","Stand",,"sweak2",,,250,,,,26,,,80,,,"Physical",,,,
 "Strong","sstrong1","Throw Shrapnel Bomb","Stand","Intelligence:48",,,,300,250,,21,24,112,,,,0.1,"Physical",,,,"no hit combo,penetrate"
 "Strong","sstrong2","Throw Small Bomb","Stand","Intelligence:65","sstrong1",,,300,250,,28,200,175,,,150,0.05,"Fire",,,,"penetrate"
 "Weak","aweak1","Air Stab","Air",,,,,250,,,,10,,,,,,"Physical",,,,

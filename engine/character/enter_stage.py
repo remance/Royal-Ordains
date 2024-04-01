@@ -1,4 +1,4 @@
-from random import randint
+from random import uniform
 
 
 def enter_stage(self, animation_data_pool):
@@ -58,7 +58,7 @@ def enter_stage(self, animation_data_pool):
             if self.nearest_enemy:
                 self.x_momentum = self.nearest_enemy[0].base_pos[0] - self.base_pos[0]
             else:
-                self.x_momentum = randint(-1000, 1000)
+                self.x_momentum = uniform(-1000, 1000)
             self.current_action = self.arrive_command_action
             if "fly" in self.arrive_condition:
                 self.current_action = self.arrive_fly_command_action

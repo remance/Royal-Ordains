@@ -1,4 +1,4 @@
-from random import randint
+from random import uniform
 
 from pygame import Vector2
 
@@ -8,6 +8,8 @@ from engine.utils.common import clean_group_object, clean_object
 
 def die(self, delete=False):
     """Character left battle, either dead or flee"""
+    from engine.character.character import BattleAICharacter
+
     # remove from updater
     self.battle.all_team_character[self.team].remove(self)
     for team in self.battle.all_team_enemy_part:
@@ -35,23 +37,51 @@ def die(self, delete=False):
         self.leader.followers.remove(self)
 
     if delete:
-        clean_group_object((self.body_parts,))
-        clean_object(self)
-    else:
-        if self.team != 1:
-            self.battle.increase_player_score(self.score)
-            # self.battle.player_kill
-        if self.drops:  # only drop items if dead
-            for drop, chance in self.drops.items():
-                drop_name = drop
-                if "+" in drop_name:  # + indicate number of possible drop
-                    drop_num = int(drop_name.split("+")[1])
-                    drop_name = drop_name.split("+")[0]
-                    for _ in range(drop_num):
-                        if chance >= randint(0, 100):
-                            Drop(Vector2(self.base_pos[0], self.base_pos[1] - (self.sprite_size * 2)), drop_name, 1,
-                                 momentum=(randint(-200, 200), (randint(50, 150))))
-                else:
-                    if chance >= randint(0, 100):  # TODO change team later when add pvp mode or something
-                        Drop(Vector2(self.base_pos[0], self.base_pos[1] - (self.sprite_size * 2)), drop, 1,
-                             momentum=(randint(-200, 200), (randint(50, 150))))
+        clean_group_object((self.body_parts,))  # remove only body parts, self will be deleted later
+        self.battle.character_updater.remove(self)
+
+    if self.team != 1:
+        self.battle.increase_player_score(self.score)
+        # self.battle.player_kill
+    if self.drops:  # only drop items if dead
+        for drop, chance in self.drops.items():
+            drop_name = drop
+            if "+" in drop_name:  # + indicate number of possible drop
+                drop_num = int(drop_name.split("+")[1])
+                drop_name = drop_name.split("+")[0]
+                for _ in range(drop_num):
+                    if chance >= uniform(0, 100):
+                        Drop(Vector2(self.base_pos[0], self.base_pos[1] - (self.sprite_size * 2)), drop_name, 1,
+                             momentum=(uniform(-200, 200), (uniform(50, 150))))
+            else:
+                if chance >= uniform(0, 100):  # TODO change team later when add pvp mode or something
+                    Drop(Vector2(self.base_pos[0], self.base_pos[1] - (self.sprite_size * 2)), drop, 1,
+                         momentum=(uniform(-200, 200), (uniform(50, 150))))
+    if self.spawns:
+        for spawn, chance in self.spawns.items():
+            spawn_name = spawn
+            if "+" in spawn_name:  # + indicate number of possible drop
+                spawn_num = int(spawn_name.split("+")[1])
+                spawn_name = spawn_name.split("+")[0]
+                for _ in range(spawn_num):
+                    self.battle.last_char_id += 1  # id continue from last chars
+                    if chance >= uniform(0, 100):
+                        start_pos = (self.base_pos[0] + uniform(-200, 200),
+                                     self.base_pos[1])
+                        BattleAICharacter(self.battle.last_char_id, self.battle.last_char_id,
+                                          self.character_data.character_list[spawn_name] |
+                                          {"ID": spawn_name,
+                                           "Sprite Ver": self.sprite_ver, "Angle": self.angle,
+                                           "Team": self.team, "POS": start_pos,
+                                           "Arrive Condition": ()})
+            else:
+                if chance >= uniform(0, 100):
+                    self.battle.last_char_id += 1  # id continue from last chars
+                    start_pos = (self.base_pos[0] + uniform(-200, 200),
+                                 self.base_pos[1])
+                    BattleAICharacter(self.battle.last_char_id, self.battle.last_char_id,
+                                      self.character_data.character_list[spawn_name] |
+                                      {"ID": spawn_name,
+                                       "Sprite Ver": self.sprite_ver, "Angle": self.angle,
+                                       "Team": self.team, "POS": start_pos,
+                                       "Arrive Condition": ()})

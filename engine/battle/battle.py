@@ -137,12 +137,11 @@ class Battle:
         Battle.battle = self
 
         # TODO LIST for full chapter 1
-        # finish city stage
         # add skill/moveset unlockable for enemy (charisma)
         # add enemy trap with delay and cycle
         # add one more playable char
         # add online/lan multiplayer?
-        # court structure interface, mission select, side mission system
+        # court structure interface, mission select, side mission, feast system
         # add ranking record system
         # add pvp mode, follower recruit unlock with all save story progress
         # finish main menu
@@ -538,6 +537,7 @@ class Battle:
         add_helper = True
         if self.stage == "0":  # city stage not add helper
             add_helper = False
+        self.last_char_id = 0
         self.setup_battle_character(self.players, start_enemy, add_helper=add_helper)
 
         for player in self.player_objects:
@@ -549,9 +549,12 @@ class Battle:
         self.main_player_object = self.player_objects[self.main_player]
         if stage_event_data:
             for trigger, value in stage_event_data.items():
-                if ("once" in value and tuple(value["once"].keys())[0] + self.chapter + self.mission + self.stage
-                    not in self.main_story_profile["story event"]) or "once" not in value:
+                if ("once" not in value or tuple(value["once"].keys())[0] + self.chapter + self.mission + self.stage
+                    not in self.main_story_profile["story event"]) and \
+                        ("story choice" not in value or
+                         (value["story choice"] == value["story choice"].split("_")[0] + "_" + self.main_story_profile["story choice"][value["story choice"].split("_")[0]])):
                     # event with once condition will not be played again if already play once for the save profile
+                    # also check parent event that depend on story choice
                     if "char" in trigger:  # trigger depend on character
                         for key, value2 in value.items():
                             for this_char in self.all_chars:

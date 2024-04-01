@@ -1,4 +1,4 @@
-from random import choice, randint
+from random import choice, uniform
 
 from pygame.sprite import spritecollide
 
@@ -45,9 +45,9 @@ def drop_collide_check(self):
                         if "+" in item2:  # multiple item
                             for item3 in range(int(item2.split("+")[-1])):
                                 Drop(item.base_pos, choice(drop_list), self.owner.team,
-                                     momentum=(randint(-200, 200), (randint(150, 350))))
+                                     momentum=(uniform(-200, 200), (uniform(150, 350))))
                         else:
                             Drop(item.base_pos, choice(drop_list), self.owner.team,
-                                 momentum=(randint(-200, 200), (randint(150, 350))))
+                                 momentum=(uniform(-200, 200), (uniform(150, 350))))
 
             item.picked()

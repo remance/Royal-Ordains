@@ -10,14 +10,12 @@ def start_animation_body_part(self, new_animation=False):
                         # summon AI character, using effect with damage does not create Effect
                         start_pos = (self.base_pos[0] + (part_data[2]),
                                      self.base_pos[1] + (part_data[3]))
-                        summon = BattleAICharacter("summon", -1, self.character_data.character_list[
+                        BattleAICharacter("summon", -1, self.character_data.character_list[
                             self.current_moveset["Property"]["summon"]] |
                                                    {"ID": self.current_moveset["Property"]["summon"],
-                                                    "Sprite Ver": self.sprite_ver,
+                                                    "Sprite Ver": self.sprite_ver, "Angle": self.angle,
                                                     "Team": self.team, "POS": start_pos,
                                                     "Arrive Condition": ()}, leader=self)
-                        summon.angle = self.angle
-                        summon.sprite_direction = self.sprite_direction
 
                     elif "trap" in self.effect_list[part_data[0]]["Property"]:
                         TrapEffect(self, part_data, part_data[6], self.current_moveset)
@@ -29,7 +27,7 @@ def start_animation_body_part(self, new_animation=False):
                 if key in self.body_parts:
                     # only change part if data not same as previous one
                     self.body_parts[key].get_part(part_data, new_animation)
-        elif key in self.body_parts:
-            self.body_parts[key].data = []
+        elif key in self.body_parts:  # only reset for body part, not effect part
+            self.body_parts[key].data = ()
             self.body_parts[key].re_rect()
             self.body_parts[key].already_hit = []

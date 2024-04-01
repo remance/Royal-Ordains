@@ -1,5 +1,5 @@
 import copy
-from random import randint
+from random import uniform
 
 from engine.character.character import Character, AICharacter, PlayerCharacter, BattleAICharacter
 from engine.uibattle.uibattle import ScoreBoard
@@ -24,8 +24,6 @@ def setup_battle_character(self, player_list, stage_char_list, add_helper=True):
         for team in player_team:
             if team != player.team:
                 player_team[team] += 1
-
-    mission_str = self.chapter + "." + self.mission + "." + self.stage
 
     for data in stage_char_list:
         if type(data["Object ID"]) is not str:  # only data with int object id created as AI
@@ -66,8 +64,10 @@ def setup_battle_character(self, player_list, stage_char_list, add_helper=True):
                         last_id += 1
                         BattleAICharacter(last_id, last_id, self.character_data.character_list[key] |
                                           {"ID": key, "Sprite Ver": self.chapter, "Team": 1, "Start Health": 1,
-                                           "POS": (randint(100, 400), Character.base_ground_pos), "Scene": 1,
+                                           "POS": (uniform(100, 400), Character.base_ground_pos), "Scene": 1,
                                            "Arrive Condition": ()}, leader=self.players[player]["Object"])
+
+    self.last_char_id = max([this_char.layer_id for this_char in self.all_chars if this_char.layer_id != 99999999])
 
     if add_helper:
         self.helper = BattleAICharacter("helper", 99999999, self.character_data.character_list["Dashisi"] |

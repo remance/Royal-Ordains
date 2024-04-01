@@ -93,9 +93,13 @@ def check_event(self):
         for item in event_list:
             target_pos = item[0]
             if type(item[0]) is not tuple:
-                target_pos = (item[0].base_pos[0], item[0].base_pos[1] - item[0].sprite_size * 4.5)
-            distance = abs(self.main_player_object.base_pos[0] - target_pos[0])
-            if 100 < distance < 250:
+                target_pos = (item[0].base_pos[0], item[0].base_pos[1] - (item[0].sprite_size * 4.5))
+            distance = self.main_player_object.base_pos[0] - target_pos[0]
+            angle_check = 1
+            if distance < 0:  # target at leftside
+                angle_check = -1
+            if 100 < abs(distance) < 250 and \
+                    ((self.main_player_object.angle == 90 and angle_check == 1) or self.main_player_object.angle == -90):
                 # use player with the lowest number as interactor
                 self.speech_prompt.add_to_screen(self.main_player_object, item[0], target_pos)
                 if self.player_key_press[self.main_player]["Weak"]:  # player interact, start event

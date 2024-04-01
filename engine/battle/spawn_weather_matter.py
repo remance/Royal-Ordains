@@ -1,5 +1,5 @@
 from math import cos, sin, radians
-from random import randint
+from random import uniform, randint
 
 from pygame import Vector2
 
@@ -7,7 +7,7 @@ from engine.weather.weather import MatterSprite
 
 
 def spawn_weather_matter(self):
-    travel_angle = randint(self.current_weather.travel_angle[0], self.current_weather.travel_angle[1])
+    travel_angle = uniform(self.current_weather.travel_angle[0], self.current_weather.travel_angle[1])
 
     screen_rect_width = self.screen_rect.width
     screen_rect_height = self.screen_rect.height
@@ -23,19 +23,19 @@ def spawn_weather_matter(self):
         height_cal = spawn_angle / 360
 
     if height_cal != 1:  # matter travel not from direct straight top to bottom angle
-        start_width = randint(0, int(screen_rect_width * (2 / (screen_rect_width / screen_rect_height))))
+        start_width = uniform(0, int(screen_rect_width * (2 / (screen_rect_width / screen_rect_height))))
         if start_width > screen_rect_width:  # matter must reach width screen border but not height
             start_point = int(screen_rect_height * height_cal)
             if start_point >= screen_rect_height:
                 start_point = screen_rect_height - 1
             if spawn_angle < 180:  # spawn from right screen, target must reach left border of screen
-                target = (0, randint(start_point, screen_rect_height))
+                target = (0, uniform(start_point, screen_rect_height))
             else:  # spawn from left screen, target must reach right border of screen
-                target = (self.screen_rect.width, randint(start_point, screen_rect_height))
+                target = (self.screen_rect.width, uniform(start_point, screen_rect_height))
         else:
             target = (start_width, screen_rect_height)
     else:
-        target = (randint(0, screen_rect_width), screen_rect_height)
+        target = (uniform(0, screen_rect_width), screen_rect_height)
 
     start_pos = Vector2(target[0] + (screen_rect_width * sin(radians(spawn_angle))),
                         target[1] - (screen_rect_height * cos(radians(spawn_angle))))

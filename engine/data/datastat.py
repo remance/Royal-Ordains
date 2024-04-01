@@ -113,7 +113,7 @@ class CharacterData(GameData):
                     int_column = [index for index, item in enumerate(header) if item in int_column]
                     tuple_column = ("Property",)  # value in tuple only
                     tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
-                    dict_column = ("Drops", "Items")
+                    dict_column = ("Drops", "Spawns", "Items")
                     dict_column = [index for index, item in enumerate(header) if item in dict_column]
                     for n, i in enumerate(row):
                         row = stat_convert(row, n, i, int_column=int_column, tuple_column=tuple_column,

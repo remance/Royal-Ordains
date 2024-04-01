@@ -266,7 +266,12 @@ Animation maker for the Vector-based character animation in game. The tool is ma
 - Scriptorium music "Arnor" by Alex-Productions (https://www.chosic.com/free-music/all/?keyword=Alex-Productions&artist)
 - Garden music "Nature" by Alex-Productions (https://www.chosic.com/free-music/all/?keyword=Alex-Productions&artist)
 - Market music "Fireside Tales" by Darren Curtis (https://www.chosic.com/free-music/all/?keyword=Darren%20Curtis&artist)
-
+- Herbalist music "Floralia" by theromancrow (https://pixabay.com/users/theromancrow-42411874/)
+- Training ground music "Sword-19" by its_tigri (https://pixabay.com/users/42054041/?tab=music&order=latest&pagi=1)
+- Castle hall music "Royal Coupling" by kmacleod (https://archive.org/details/medieval-instrumental-background-music)
+- Artificer music "Medieval" by thematic_stock_music (https://pixabay.com/users/thematic_stock_music-35174846/)
+- Blacksmith music "Musik Hintergrund" by (https://pixabay.com/users/dueg-oth-34165349/)
+- Barrack music "Forge" by Ehved (https://pixabay.com/users/ehved-42712802/)
 
 [//]: # (## Translation)
 

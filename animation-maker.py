@@ -2016,7 +2016,7 @@ while True:
                                     ui.add(input_ui_popup)
                                 elif animation_race != name.name:
                                     text_input_popup = ("confirm_input", "save_first", name.name)
-                                    input_ui.change_instruction("Save This Race Data First?")
+                                    input_ui.change_instruction("Save Data First?")
                                     ui.add(input_ui_popup)
                             elif popup_list_box.action == "animation_select":
                                 if animation_name != name.name:
@@ -2464,7 +2464,7 @@ while True:
 
                     elif save_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("confirm_input", "save_animation")
-                        input_ui.change_instruction("Save This Race Data?")
+                        input_ui.change_instruction("Save Data?")
                         ui.add(input_ui_popup)
 
                     elif delete_button.rect.collidepoint(mouse_pos):

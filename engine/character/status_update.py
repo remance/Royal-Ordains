@@ -1,4 +1,4 @@
-from random import randint
+from random import uniform
 
 infinity = float("inf")
 
@@ -27,7 +27,7 @@ def status_update(self):
             if abs(self.x_momentum) < 50:
                 self.x_momentum = 0
         else:
-            self.x_momentum = randint(-1000, 1000)
+            self.x_momentum = uniform(-1000, 1000)
 
     for key in tuple(self.status_duration.keys()):  # loop seem to be faster than comprehension
         self.status_duration[key] -= 0.1

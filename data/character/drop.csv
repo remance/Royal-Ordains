@@ -24,6 +24,7 @@
 "Great Meat",320,7,,,,,
 "Scrap",,5,,,,"Iri",
 "Trap Remain",,15,,,,"Iri",
+"Trap Pack",,50,,,,"Iri",
 "Speed Potion",,,,,,,
 "Reviving Seed",,,,1,,,
 "Reviving Fruit",,,,3,,,
@@ -32,15 +33,10 @@
 "Bolts",,,,,,,
 "Great Bolts",,,,,,,
 "Magic Scroll",,,,,,,
-"Mystery Box",,,,,,,"random+5"
 "Bronze Coin",,,5,,,,
 "Silver Coin",,,50,,,,
 "Gold Coin",,,100,,,,
-"Small Chest",,,300,,,,
 "Jewellery",,,80,,,,
-"Medium Chest",,,1250,,,,"random"
-"Large Chest",,,4000,,,,"random+2"
-"Giant Chest",,,10000,,,,"random+3"
 "Diamond",,,1000,,,,
 "Lute",,,30,,,,
 "Harp",,,42,,,,

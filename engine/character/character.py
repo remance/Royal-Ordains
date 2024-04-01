@@ -1,7 +1,7 @@
 from copy import deepcopy
 from types import MethodType
 from math import radians
-from random import randint, uniform
+from random import uniform
 
 import pygame
 from pygame import sprite, Vector2
@@ -207,9 +207,9 @@ class Character(sprite.Sprite):
     cheer_action = {"name": "Cheer", "cheer": True}
     cheer_fast_action = {"name": "CheerFast", "cheer": True}
 
-    default_item_drop_table = {"Mystery Box": 0.5, "Speed Potion": 10, "Stone Potion": 10, "Reviving Seed": 1,
+    default_item_drop_table = {"Speed Potion": 10, "Stone Potion": 10, "Reviving Seed": 1,
                                "Health Potion": 3, "Resource Potion": 2, "Bronze Coin": 30, "Silver Coin": 15,
-                               "Gold Coin": 7, "Small Chest": 2, "Jewellery": 6, "Medium Chest": 0.7, "Diamond": 0.3,
+                               "Gold Coin": 7, "Jewellery": 6, "Diamond": 0.3,
                                "Lute": 3, "Harp": 3, "Jar": 3, "Whetstone": 2, "Goblet": 3, "Beer Mug": 4, "Teapot": 3,
                                "Yarn": 4, "Horseshoe": 3, "Board Game": 2, "Saint Figurine": 1, "Ball": 2,
                                "Trumpet": 3, "Golden Goblet": 1, "Ruby": 0.8, "Ring": 1,
@@ -244,6 +244,8 @@ class Character(sprite.Sprite):
         self.cutscene_event = None
         self.followers = []
         self.leader = None
+        self.drops = {}
+        self.spawns = {}
 
         self.current_action = {}  # action being performed
         self.command_action = {}  # next action to be performed
@@ -296,7 +298,7 @@ class Character(sprite.Sprite):
         self.body_size = int(stat["Size"] / 10)
         if self.body_size < 1:
             self.body_size = 1
-        self.sprite_size = self.body_size * 100 * self.screen_scale[
+        self.sprite_size = stat["Size"] / 10 * 100 * self.screen_scale[
             1]  # use for pseudo sprite size of character for positioning of effect
         self.arrive_condition = stat["Arrive Condition"]
 
@@ -412,9 +414,8 @@ class Character(sprite.Sprite):
                     self.start_animation_body_part()  # revert previous show_frame 0 animation start
                     return
             if (self.cutscene_target_pos and self.cutscene_target_pos == self.base_pos) or \
-                    (not self.cutscene_target_pos and
-                     (not self.cutscene_event or ("repeat" not in self.cutscene_event["Property"] and
-                                                  "repeat after" not in self.cutscene_event["Property"]))):
+                    (not self.cutscene_target_pos and "repeat" not in self.current_action and
+                     "repeat after" not in self.current_action):
                 # animation consider finish when reach target or finish animation with no repeat, pick idle animation
                 self.current_action = {}
                 self.pick_cutscene_animation({})
@@ -471,6 +472,7 @@ class BattleCharacter(Character):
 
         self.broken = False
         self.no_forced_move = False
+        self.delete_death = False
         self.immune_weather = False
         self.hit_resource_regen = False
         self.crash_guard_resource_regen = False
@@ -533,7 +535,6 @@ class BattleCharacter(Character):
         self.moveset = deepcopy(stat["Move"])
         self.skill = stat["Skill"].copy()
         self.available_skill = {"Couch": {}, "Stand": {}, "Air": {}}
-        self.drops = {}
         if "Drops" in stat and stat["Drops"]:  # add item drops when die, only add for character with drops data
             self.drops = stat["Drops"]
 
@@ -551,6 +552,8 @@ class BattleCharacter(Character):
                             self.drops[key2] += value2
                         else:
                             self.drops[key2] = value2
+        if "Spawns" in stat:  # add item drops when die, only add for character with drops data
+            self.spawns = stat["Spawns"]
 
         self.score = 0  # character score for team when killed
         if "Score" in stat:
@@ -860,7 +863,7 @@ class BattleCharacter(Character):
                         self.command_action = self.standup_command_action
                         self.health = self.base_health
                     else:  # permanent death
-                        if self.is_summon:  # summon character does not leave corpse
+                        if self.is_summon or self.delete_death:  # summon character does not leave corpse
                             self.die(delete=True)
                         else:
                             self.die()
@@ -1072,7 +1075,7 @@ class AICharacter(BattleCharacter, Character):
 
         self.ai_timer = 0  # for whatever timer require for AI action
         self.ai_movement_timer = 0  # timer to move for AI
-        self.end_ai_movement_timer = randint(2, 6)
+        self.end_ai_movement_timer = uniform(2, 6)
 
         self.enter_stage(self.battle.character_animation_data)
 
@@ -1203,7 +1206,7 @@ class BodyPart(sprite.Sprite):
         self.already_hit = []
         self.base_image = self.empty_surface
         self.image = self.empty_surface
-        self.data = []  # index 1=part name, 2and3=pos xy, 4=angle, 5=flip, 6=layer , 7=scale, 8=deal damage or not
+        self.data = ()  # index 1=part name, 2and3=pos xy, 4=angle, 5=flip, 6=layer , 7=scale, 8=deal damage or not
         self.sprite_ver = str(self.owner.sprite_ver)
         self.rect = self.image.get_rect(topleft=(0, 0))
         self.mask = from_surface(self.image)

@@ -1,14 +1,13 @@
 def find_move_to_attack(self):
-    if self.nearest_enemy[1] <= self.ai_max_attack_range:
-        # has enemy to attack and within max range attack
-        for move, value in self.moveset[self.position].items():
-            if value["AI Range"] >= self.nearest_enemy[1] and value["Move"] not in self.attack_cooldown:
-                # blind (7) cause random attack
-                self.engage_combat()
-                self.moveset_command_key_input = move
-                if self.check_move_existence():
-                    self.command_action = self.attack_command_actions[move[-1]]
-                    break
+    # has enemy to attack and within max range attack
+    for move, value in self.moveset[self.position].items():
+        if value["AI Range"] >= self.nearest_enemy[1] and value["Move"] not in self.attack_cooldown:
+            # blind (7) cause random attack
+            self.engage_combat()
+            self.moveset_command_key_input = move
+            if self.check_move_existence():
+                self.command_action = self.attack_command_actions[move[-1]]
+                break
 
 
 def training_ai(self):
@@ -71,7 +70,7 @@ def common_ai(self):
             if self.position in self.moveset:
                 find_move_to_attack(self)
                 if 7 not in self.status_effect:
-                    # blind cause ai to attack in already facing direction and not specifically at enemy
+                    # blind (7) cause random attack
                     if self.nearest_enemy[0].base_pos[0] >= self.base_pos[0]:
                         self.new_angle = -90
                     else:

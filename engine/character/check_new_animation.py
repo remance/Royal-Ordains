@@ -1,10 +1,14 @@
+from random import randint, uniform
 from pygame import Vector2
 
 from engine.drop.drop import Drop
 from engine.uibattle.uibattle import DamageNumber
+from engine.effect.effect import Effect
 
 
 def check_new_animation(self, done):
+    from engine.character.character import BattleAICharacter
+
     # Pick new action and animation, either when animation finish or get interrupt,
     # low level action got replace with more important one, finish playing, skill animation and its effect end
     if (self.interrupt_animation and "uninterruptible" not in self.current_action) or \
@@ -49,6 +53,53 @@ def check_new_animation(self, done):
                 if item_stat["Status"]:
                     for effect in item_stat["Status"]:
                         self.apply_status(effect)
+
+                if item_stat["Property"]:
+                    if "weather" in item_stat["Property"]:  # item that change weather
+                        self.current_weather.__init__(item_stat["Property"]["weather"], randint(0, 359), randint(0, 3),
+                                                      self.weather_data)
+                    for spawn_type in ("chaos summon", "chaos invasion", "summon"):
+                        if spawn_type in item_stat["Property"]:
+                            team = self.team
+                            if "chaos" in spawn_type:  # chaos summon enemy with neutral team
+                                team = 5
+                            for spawn, chance in item_stat["Property"][spawn_type].items():
+                                spawn_name = spawn
+                                if "+" in spawn_name:  # + indicate number of possible drop
+                                    spawn_num = int(spawn_name.split("+")[1])
+                                    spawn_name = spawn_name.split("+")[0]
+                                    for _ in range(spawn_num):
+                                        self.battle.last_char_id += 1  # id continue from last chars
+                                        if chance >= uniform(0, 100):
+                                            if "invasion" in spawn_type:
+                                                start_pos = (self.base_pos[0] + uniform(-2000, 2000),
+                                                             self.base_pos[1])
+                                            else:
+                                                start_pos = (self.base_pos[0] + uniform(-200, 200),
+                                                             self.base_pos[1])
+                                            BattleAICharacter(self.battle.last_char_id, self.battle.last_char_id,
+                                                              self.character_data.character_list[spawn_name] |
+                                                              {"ID": spawn_name,
+                                                               "Sprite Ver": self.sprite_ver, "Angle": self.angle,
+                                                               "Team": team, "POS": start_pos,
+                                                               "Arrive Condition": ()})
+                                            Effect(None, ("Movement", "Summon", start_pos[0],
+                                                          start_pos[1], -self.angle, 1, 0, 1), 0)
+                                else:
+                                    if chance >= uniform(0, 100):
+                                        self.battle.last_char_id += 1  # id continue from last chars
+                                        if "invasion" in spawn_type:
+                                            start_pos = (self.base_pos[0] + uniform(-2000, 2000),
+                                                         self.base_pos[1])
+                                        else:
+                                            start_pos = (self.base_pos[0] + uniform(-200, 200),
+                                                         self.base_pos[1])
+                                        BattleAICharacter(self.battle.last_char_id, self.battle.last_char_id,
+                                                          self.character_data.character_list[spawn_name] |
+                                                          {"ID": spawn_name,
+                                                           "Sprite Ver": self.sprite_ver, "Angle": self.angle,
+                                                           "Team": team, "POS": start_pos,
+                                                           "Arrive Condition": ()})
 
                 for ally in self.near_ally:
                     if ally[1] <= item_stat["Range"]:  # apply status based on range
