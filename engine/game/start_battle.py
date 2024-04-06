@@ -92,12 +92,14 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
                         if save_profile["character"][slot] == self.battle.main_story_profile:
                             event_queue_data = save_profile["character"][slot]["interface event queue"]
                             if int(chapter) < 3:  # civil war level
-                                change = "(+ 1)"
+                                change = str(self.battle.cal_civil_war())
+                                sound_name = "War+1"
                                 if choice == "yes":
-                                    change = "(- 1)"
-                                war_level = self.localisation.grab_text(("ui", "civilwar" + str(self.battle.cal_civil_war)))
-                                event_queue_data["inform"] = self.localisation.grab_text(("ui", "civil_war_level")) + ": " + war_level + change
-                            if choice_reward["Court Change"]:
+                                    sound_name = "War-1"
+                                war_level = self.localisation.grab_text(("ui", "civilwar" + change))
+                                event_queue_data["inform"].append((self.localisation.grab_text(("ui", "civil_war_level")) + ": " + war_level +
+                                                                   "(" + change + ")", sound_name))
+                            if "Court Change" in choice_reward and choice_reward["Court Change"]:
                                 event_queue_data["court"] |= choice_reward["Court Change"]
                             event_queue_data["mission"].append((chapter, mission))
 

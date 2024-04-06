@@ -2202,7 +2202,7 @@ while True:
 
                     elif all_frame_part_paste_button.rect.collidepoint(mouse_pos):
                         if all_copy_part:
-                            model.edit_part(mouse_pos, "all frame selected part paste", specific_frame=current_frame)
+                            model.edit_part(mouse_pos, "all frame selected part paste")
 
                     elif reverse_frame_button.rect.collidepoint(mouse_pos):
                         model.add_history()

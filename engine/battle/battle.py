@@ -634,8 +634,10 @@ class Battle:
         self.drama_text.queue = []  # reset drama text popup queue
 
         if self.main_story_profile["interface event queue"]["inform"]:
-            for item in self.main_story_profile["interface event queue"]["inform"]:
+            for item in self.main_story_profile["interface event queue"]["inform"].copy():
+                print(item)
                 self.drama_text.queue.append(item)
+                self.main_story_profile["interface event queue"]["inform"].remove(item)
 
         self.camera_mode = self.start_camera_mode
 
