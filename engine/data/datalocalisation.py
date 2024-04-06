@@ -7,6 +7,7 @@ from engine.utils.data_loading import csv_read, lore_csv_read
 class Localisation:
     def __init__(self, debug=False):
         from engine.game.game import Game
+        self.game = Game.game
         self.main_dir = Game.main_dir
         self.data_dir = Game.data_dir
         self.language = Game.language
@@ -91,6 +92,13 @@ class Localisation:
             except FileNotFoundError:
                 pass
 
+    def create_lore_data(self, key_type):
+        lore_data = self.text["en"][key_type]
+        if key_type in self.text[self.language]:  # replace english with available localisation of selected language
+            for key in self.text[self.language][key_type]:
+                lore_data[key] = self.text[self.language][key_type][key]
+        return lore_data
+
     def grab_text(self, key, alternative_text_data=None):
         """
         Find localisation of provided object key name list,
@@ -106,21 +114,13 @@ class Localisation:
             else:
                 return self.inner_grab_text(key, "en", text_data)
         except KeyError:  # no translation found
-            if self.debug:
-                raise LookupError(self.language, key, "This key list is not found in " + self.language, " data")
-            try:  # key in language not found now search english
-                return self.inner_grab_text(key, "en", text_data)
-            except KeyError:
-                if self.debug:
-                    raise LookupError(self.language, key, "This key list is not found anywhere")
-                return str(key)
-
-    def create_lore_data(self, key_type):
-        lore_data = self.text["en"][key_type]
-        if key_type in self.text[self.language]:  # replace english with available localisation of selected language
-            for key in self.text[self.language][key_type]:
-                lore_data[key] = self.text[self.language][key_type][key]
-        return lore_data
+            print(str(key) + " This key list is not found in " + self.language + " data")
+            self.game.error_log.write(str(key) + " This key list is not found in " + self.language + " data")
+            return str(key)
+            # try:  # key in language not found now search english
+            #     return self.inner_grab_text(key, "en", text_data)
+            # except KeyError:
+            #     return str(key)
 
     def inner_grab_text(self, key, language, text_data):
         next_level = text_data[language]

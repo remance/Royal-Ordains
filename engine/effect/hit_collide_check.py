@@ -59,15 +59,15 @@ def dmg_crash_check(self, crashed_part):
             self.owner.resource = self.owner.base_resource
 
     if self.owner.crash_haste:
-        self.owner.apply_status(45)  # get haste buff
-    dmg = 0
-    if self.dmg:
-        dmg = log2(self.dmg)
-    enemy_dmg = 0
-    if crashed_part.dmg:
-        enemy_dmg = log2(crashed_part.dmg)
-    dmg_diff = dmg - enemy_dmg
-    if -1 < dmg_diff < 1:  # both dmg quite near in power
+        self.owner.apply_status(self.owner, 45)  # get haste buff
+    impact = 0
+    if self.impact_sum:
+        impact = log2(self.impact_sum)
+    enemy_impact = 0
+    if crashed_part.impact_sum:
+        enemy_impact = log2(crashed_part.impact_sum)
+    impact_diff = impact - enemy_impact
+    if -1 < impact_diff < 1:  # both dmg quite near in power
         self.can_deal_dmg = False
         crashed_part.can_deal_dmg = False
         crashed_part.already_hit.append(self.owner)
@@ -87,7 +87,7 @@ def dmg_crash_check(self, crashed_part):
             else:
                 self.reach_target()
                 return True
-    elif dmg_diff > 1:  # collided enemy damage is much lower than this object, enemy lose
+    elif impact_diff > 1:  # collided enemy damage is much lower than this object, enemy lose
         crashed_part.can_deal_dmg = False
         if self.owner.player_control:
             Effect(None, ("Crash Player", "Base", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)

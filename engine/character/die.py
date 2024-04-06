@@ -40,9 +40,19 @@ def die(self, delete=False):
         clean_group_object((self.body_parts,))  # remove only body parts, self will be deleted later
         self.battle.character_updater.remove(self)
 
-    if self.team != 1:
-        self.battle.increase_player_score(self.score)
-        # self.battle.player_kill
+    if self.killer:
+        self.battle.increase_team_score(self.killer.team, self.score)
+        if self.killer.player_control:
+            # target die, add kill stat if attacker is player
+            self.battle.player_kill[int(self.killer.game_id[-1])] += 1
+            if self.is_boss:
+                self.battle.player_boss_kill[int(self.killer.game_id[-1])] += 1
+        self.killer = None
+
+    self.status_effect = {}
+    self.status_duration = {}
+    self.status_applier = {}
+
     if self.drops:  # only drop items if dead
         for drop, chance in self.drops.items():
             drop_name = drop

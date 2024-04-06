@@ -23,10 +23,10 @@ def check_action_hold(self, dt):
 
                 if self.current_moveset["Status"]:  # apply status when auto trigger
                     for effect in self.current_moveset["Status"]:
-                        self.apply_status(effect)
+                        self.apply_status(self, effect)
                         for ally in self.near_ally:
                             if ally[1] <= self.current_moveset["Range"]:
-                                ally[0].apply_status(effect)
+                                ally[0].apply_status(self, effect)
                             else:
                                 break
         return True

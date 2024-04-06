@@ -1123,7 +1123,7 @@ class CharacterInterface(UIMenu):
 
         row_index = 0
         for index, item in enumerate(self.show_equip_list):  # add list of possible item to equip
-            if (index >= self.current_row or len(self.show_equip_list) < 11) and row_index < 12:
+            if (index >= self.current_row or len(self.show_equip_list) < 11) and row_index < 11:
                 button_image = Surface((self.image.get_width(), (50 * self.screen_scale[1])))
                 button_image.fill((220, 220, 220))
                 if self.current_row == index:
@@ -1323,22 +1323,23 @@ class CharacterInterface(UIMenu):
         text_rect = text_surface.get_rect(topleft=(20 * self.screen_scale[0], 70 * self.screen_scale[1]))
         self.image.blit(text_surface, text_rect)
 
+        row_index = 0
         for index, follower in enumerate(self.profile["follower list"]):
-            if index >= self.current_row or len(self.profile["follower list"]) < 9:
+            if (index >= self.current_row or len(self.profile["follower list"]) < 9) and row_index < 8:
                 if self.current_row == index:  # current preset row
                     draw.rect(self.image, (220, 220, 220),
-                              (0, ((index + 1) * 100) * self.screen_scale[1], 400 * self.screen_scale[0],
+                              (0, ((row_index + 1) * 100) * self.screen_scale[1], 400 * self.screen_scale[0],
                                100 * self.screen_scale[1]),
                               width=int(3 * self.screen_scale[0]))
 
                 portrait = self.game.character_data.character_portraits[follower]
-                rect = portrait.get_rect(topleft=(0, (index + 1) * 100 * self.screen_scale[1]))
+                rect = portrait.get_rect(topleft=(0, (row_index + 1) * 100 * self.screen_scale[1]))
                 self.image.blit(portrait, rect)
 
                 text_surface = self.small_font.render(self.grab_text(("character", follower, "Name")),
                                                       True, (30, 30, 30))
                 text_rect = text_surface.get_rect(topleft=(110 * self.screen_scale[0],
-                                                           (index + 1) * 100 * self.screen_scale[1]))
+                                                           (row_index + 1) * 100 * self.screen_scale[1]))
                 self.image.blit(text_surface, text_rect)
                 follower_num = 0
                 if follower in self.current_follower_preset:
@@ -1346,26 +1347,25 @@ class CharacterInterface(UIMenu):
                 text_surface = self.font.render("x" + str(follower_num),
                                                 True, (30, 30, 30))
                 text_rect = text_surface.get_rect(topleft=(110 * self.screen_scale[0],
-                                                           (((index + 1) * 100) + 20) * self.screen_scale[1]))
+                                                           (((row_index + 1) * 100) + 20) * self.screen_scale[1]))
                 self.image.blit(text_surface, text_rect)
 
                 text_surface = self.small_font.render(
                     str(self.game.character_data.character_list[follower]["Follower Cost"]) + " Cost",
                     True, (30, 30, 30))
                 text_rect = text_surface.get_rect(topright=(400 * self.screen_scale[0],
-                                                            (((index + 1) * 100) + 20) * self.screen_scale[1]))
+                                                            (((row_index + 1) * 100) + 20) * self.screen_scale[1]))
                 self.image.blit(text_surface, text_rect)
 
                 text = str(self.game.character_data.character_list[follower]["Type"])
                 if self.game.character_data.character_list[follower]["Boss"]:
-                    text += " Only One"
+                    text += " " + self.grab_text(("ui", "only_one"))
                 text_surface = self.small_font.render(text, True, (30, 30, 30))
                 text_rect = text_surface.get_rect(topleft=(110 * self.screen_scale[0],
-                                                           (((index + 1) * 100) + 50) * self.screen_scale[1]))
+                                                           (((row_index + 1) * 100) + 50) * self.screen_scale[1]))
 
                 self.image.blit(text_surface, text_rect)
-                if index - self.current_row > 7:
-                    break
+                row_index += 1
 
     def calculate_shop_cost(self):
         total_cost = 0
@@ -1389,8 +1389,9 @@ class CharacterInterface(UIMenu):
         text_rect = text_surface.get_rect(topleft=(20 * self.screen_scale[0], 50 * self.screen_scale[1]))
         self.image.blit(text_surface, text_rect)
 
+        row_index = 0
         for index, item in enumerate(self.shop_list):
-            if index >= self.current_row or len(self.shop_list) < 9:
+            if (index >= self.current_row or len(self.shop_list) < 9) and row_index < 9:
                 if self.current_row == index:  # current preset row
                     draw.rect(self.image, (220, 220, 220),
                               (0, ((index + 1) * 100) * self.screen_scale[1], 400 * self.screen_scale[0],
@@ -1434,9 +1435,7 @@ class CharacterInterface(UIMenu):
                 text_rect = text_surface.get_rect(topright=(400 * self.screen_scale[0],
                                                             (((index + 1) * 100) + 50) * self.screen_scale[1]))
                 self.image.blit(text_surface, text_rect)
-
-                if index - self.current_row > 7:
-                    break
+                row_index += 1
 
     def add_reward_list(self):
         self.image = self.reward_base_image.copy()
@@ -1852,7 +1851,7 @@ class CharacterInterface(UIMenu):
                                     self.profile["storage"][new_gear] = self.profile["storage"].pop(item)  # replace in storage
                                     break
                             self.add_enchant_list()
-                            self.game.save_data.save_profile["character"][self.game.profile_index[self.player]]["last save"] = \
+                            self.game.save_data.add_profilesave_profile["character"][self.game.profile_index[self.player]]["last save"] = \
                                 datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")  # save after enchant
                             self.game.write_all_player_save()
 
@@ -1957,7 +1956,7 @@ class CharacterInterface(UIMenu):
                             if skill_index <= 6:
                                 skill_id = "C" + str(skill_index) + "." + str(skill_level)
                             buttons = self.game.character_data.character_list[self.profile["character"]["ID"]]["Skill UI"][skill_id]["Buttons"]
-                            buttons = "(" + self.game.character_data.character_list[self.profile["character"]["ID"]]["Skill UI"][skill_id]["Position"] + ") " + ", ".join(buttons)
+                            buttons = "(" + self.game.character_data.character_list[self.profile["character"]["ID"]]["Skill UI"][skill_id]["Position"] + ") " + "+ ".join(buttons)
                             text = (self.grab_text(("help", new_key, "Name")),
                                     self.grab_text(("help", new_key, "Description")),
                                     self.grab_text(("ui", "Buttons")) + ":" + buttons,

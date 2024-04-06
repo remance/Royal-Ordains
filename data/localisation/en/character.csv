@@ -139,13 +139,18 @@
 "Animal8","Turtle Frogs Tower",,"Animal"
 "Animal9","Flying Pig",,"Animal"
 "Animal10","Great Snail",,"Animal"
-"King","King",,"Test"
-"King4b","Emperor Consort",,"Test"
-"King5a","King",,"Test"
-"King5b","Emperor Regent",,"Test"
+"King1","King",,"Test"
+"King2","King",,
+"King3a",,,
+"King3b",,,
+"King4a",,,
+"King4b",,,"Test"
+"King5a",,,"Test"
+"King5b",,,"Test"
 "King6","Lestrius Maeranos",,"Test"
 "King7","Vars Karsiladan",,"Test"
-"Vurus","Lord Commander",,"Test"
+"Vurus1","Lord Commander",,"Test"
+"Vurus2",,,
 "Vurus3a","Lord Protector",,"Test"
 "Vurus3b","Lord Protector",,"Test"
 "Vurus4a","Brilliant Strategist",,"Test"
@@ -153,10 +158,9 @@
 "Vurus5a","Brilliant Strategist",,"Test"
 "Vurus5b","Brilliant Strategist",,"Test"
 "Vurus6","Vurus Akamanes",,"Test"
-"Dashisi","Court Jester",,"Test"
-"Dasihsi1","Court Jester",,"Test"
-"Dashisi2","Royal Jester",,"Test"
-"Dashisi3a",,,"Test"
+"Dashisi1","Court Jester",,"Test"
+"Dashisi2","Court Jester",,"Test"
+"Dashisi3a","Royal Jester",,"Test"
 "Dashisi3b",,,"Test"
 "Dashisi4a",,,"Test"
 "Dashisi4b",,,"Test"

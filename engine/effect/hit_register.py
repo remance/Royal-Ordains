@@ -16,7 +16,7 @@ def hit_register(self, target, body_part):
             target.interrupt_animation = True
             target.command_action = target.current_action["next action"]
             if target.crash_haste:
-                target.apply_status(45)  # get haste buff
+                target.apply_status(target, 45)  # get haste buff
             if self.owner.player_control:
                 Effect(None, ("Crash Player", "Base", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)
             else:
@@ -62,7 +62,7 @@ def hit_register(self, target, body_part):
                             self.stick_timer = 5
                     if self.enemy_status_effect:
                         for effect in self.enemy_status_effect:
-                            target.apply_status(effect)
+                            target.apply_status(self.owner, effect)
 
                 else:  # guarded hit, reduce meter
                     if self.owner.player_control:  # player hit enemy guard

@@ -88,7 +88,8 @@ def event_process(self):
                                 "repeat" in event_character.current_action) and
                                event_character.cutscene_event != child_event)):
                             # replace previous event on hold or repeat when there is new one to play next
-                            if "hold" in event_character.current_action:
+                            if "hold" in event_character.current_action and \
+                                    event_character.cutscene_event in self.cutscene_playing:
                                 # previous event done
                                 self.cutscene_playing.remove(event_character.cutscene_event)
 
@@ -145,7 +146,8 @@ def event_process(self):
                             action_dict = {}
                             if animation:
                                 action_dict = {"name": child_event["Animation"]} | event_property
-                            event_character.pick_cutscene_animation(action_dict)
+                            if action_dict and action_dict != event_character.current_action:  # start new action
+                                event_character.pick_cutscene_animation(action_dict)
                             if child_event["Text ID"]:
                                 specific_timer = None
                                 player_input_indicator = None

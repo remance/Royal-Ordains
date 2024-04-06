@@ -37,6 +37,7 @@ def status_update(self):
     # Remove status that reach 0 duration or status with conflict to the other status before apply effect
     self.status_effect = {key: val for key, val in self.status_effect.items() if key in self.status_duration and
                           not any(ext in self.status_effect for ext in val["Status Conflict"])}
+    self.status_applier = {key: val for key, val in self.status_applier.items() if key in self.status_effect}
 
     # Apply effect and modifier from status effect
     if self.status_effect:

@@ -25,11 +25,11 @@ def drop_collide_check(self):
                 DamageNumber(str(int(item.stat["Resource"])), self.rect.midbottom, False, "resource")
             if item.stat["Status"]:
                 for effect in item.stat["Status"]:
-                    self.owner.apply_status(effect)
+                    self.owner.apply_status(self.owner, effect)
             if item.stat["Gold"]:
-                self.battle.stage_gold += item.stat["Gold"] * self.owner.gold_drop_modifier
+                self.battle.stage_gold[self.owner.team] += item.stat["Gold"] * self.owner.gold_drop_modifier
                 if self.owner.money_score:
-                    self.battle.increase_player_score(item.stat["Gold"])
+                    self.battle.increase_team_score(self.owner.team, item.stat["Gold"])
                 if self.owner.money_resource:
                     self.owner.resource += item.stat["Gold"] / 100
                     if self.owner.resource > self.owner.base_resource:

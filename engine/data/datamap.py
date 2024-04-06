@@ -58,7 +58,7 @@ class BattleMapData(GameData):
             str_column = [index for index, item in enumerate(header) if item in str_column]
             tuple_column = ("Follower Reward", "Unique Gear Reward")
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
-            dict_column = ("Item Reward",)
+            dict_column = ("Item Reward", "Court Change")
             dict_column = [index for index, item in enumerate(header) if item in dict_column]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
@@ -101,7 +101,6 @@ class BattleMapData(GameData):
                                                      header[5]: row[5], header[6]: row[6], header[7]: row[7]}
         edit_file.close()
 
-        preset_map_list = []
         self.preset_map_folder = []  # folder for reading later
         self.preset_map_data = {}
 
@@ -114,8 +113,6 @@ class BattleMapData(GameData):
             for file_map in sub2_directories:
                 map_file_name = os.sep.join(os.path.normpath(file_map).split(os.sep)[-1:])
                 self.preset_map_folder.append(map_file_name)
-                map_name = self.localisation.grab_text(key=("map", int(chapter_file_name), int(map_file_name), "Text"))
-                preset_map_list.append(map_name)
                 self.preset_map_data[chapter_file_name][map_file_name] = {}
 
                 read_folder = Path(os.path.join(self.data_dir, "map", "preset", file_chapter, file_map))

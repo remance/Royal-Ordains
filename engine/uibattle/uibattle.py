@@ -500,16 +500,17 @@ class CharacterBaseInterface(UIBattle):
 
 
 class ScoreBoard(UIBattle):
-    def __init__(self, body_part):
+    def __init__(self, team, body_part):
         UIBattle.__init__(self, player_cursor_interact=False)
         self.body_part = body_part
+        self.team = team
         self.font = Font(self.ui_font["main_button"], int(20 * self.screen_scale[1]))
 
     def update(self):
         """Add score and gold to scoreboard image"""
-        score_text = self.font.render(minimise_number_text(self.battle.stage_score) + "/" +
-                                      str(self.battle.reserve_resurrect_stage_score), True, (20, 20, 20))
-        gold_text = self.font.render(minimise_number_text(self.battle.stage_gold), True, (20, 20, 20))
+        score_text = self.font.render(minimise_number_text(self.battle.stage_score[self.team]) + "/" +
+                                      str(self.battle.reserve_resurrect_stage_score[self.team]), True, (20, 20, 20))
+        gold_text = self.font.render(minimise_number_text(self.battle.stage_gold[self.team]), True, (20, 20, 20))
 
         if self.body_part.owner.angle == 90:
             score_rect = score_text.get_rect(center=(self.body_part.base_image.get_width() / 3,

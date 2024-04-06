@@ -244,6 +244,7 @@ class Character(sprite.Sprite):
         self.cutscene_event = None
         self.followers = []
         self.leader = None
+        self.killer = None  # object that kill this character, for adding gold, score, and kill stat
         self.drops = {}
         self.spawns = {}
 
@@ -413,9 +414,9 @@ class Character(sprite.Sprite):
                     self.max_show_frame = 0  # reset max_show_frame to 0 to prevent restarting animation
                     self.start_animation_body_part()  # revert previous show_frame 0 animation start
                     return
-            if (self.cutscene_target_pos and self.cutscene_target_pos == self.base_pos) or \
+            if self.current_action and ((self.cutscene_target_pos and self.cutscene_target_pos == self.base_pos) or \
                     (not self.cutscene_target_pos and "repeat" not in self.current_action and
-                     "repeat after" not in self.current_action):
+                     "repeat after" not in self.current_action)):
                 # animation consider finish when reach target or finish animation with no repeat, pick idle animation
                 self.current_action = {}
                 self.pick_cutscene_animation({})
@@ -425,9 +426,10 @@ class Character(sprite.Sprite):
                 # finish animation, consider event done unless event require player interaction first or in repeat
                 self.cutscene_target_pos = None
                 if "repeat after" not in self.cutscene_event["Property"]:
-                    self.current_action = {}
+                    if self.current_action:
+                        self.current_action = {}
+                        self.pick_cutscene_animation({})
                     self.command_action = {}
-                    self.pick_cutscene_animation({})
                 else:  # event indicate repeat animation after event end
                     self.current_action["repeat"] = True
                     if not self.alive:
@@ -498,6 +500,7 @@ class BattleCharacter(Character):
         self.attack_cooldown = {}  # character can attack with weapon only when cooldown reach attack speed
         self.gold_drop_modifier = 1
         self.status_effect = {}  # current status effect
+        self.status_applier = {}
         self.status_duration = {}  # current status duration
 
         # find and set method specific to character
@@ -1193,6 +1196,7 @@ class BodyPart(sprite.Sprite):
         self.can_hurt = can_hurt
         self.can_deal_dmg = False
         self.dmg = None
+        self.impact_sum = 0
         self.object_type = "body"
         self.no_dodge = False
         self.no_defence = False
@@ -1220,6 +1224,7 @@ class BodyPart(sprite.Sprite):
 
     def get_part(self, data, new_animation):
         self.dmg = 0
+        self.impact_sum = 0
         self.can_deal_dmg = False
         self.angle = self.owner.angle
         self.mode = self.owner.mode_list[self.owner.mode][self.part]
@@ -1301,6 +1306,7 @@ def find_damage(self):
                    self.owner.impact_modifier,
                    (self.owner.current_moveset["Down Impact"] - self.owner.current_moveset["Up Impact"]) *
                    self.owner.impact_modifier)
+    self.impact_sum = abs(self.impact[0]) + abs(self.impact[1])
     if self.element == "Physical":
         max_dmg = self.dmg * self.owner.max_physical
         self.dmg = uniform(max_dmg * self.owner.min_physical, max_dmg)

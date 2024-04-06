@@ -19,6 +19,7 @@ def setup_battle_character(self, player_list, stage_char_list, add_helper=True):
                                                           data | additional_data)
 
     self.player_objects = {key: value["Object"] for key, value in self.players.items()}
+    self.player_team = {key: value["Object"].team for key, value in self.players.items()}
     player_team = {1: 0, 2: 0, 3: 0, 4: 0}
     for player in self.player_objects.values():  # increase AI health of opposite player team depending on player number
         for team in player_team:
@@ -75,5 +76,5 @@ def setup_battle_character(self, player_list, stage_char_list, add_helper=True):
                                          "Team": 1, "Sprite Ver": self.chapter,
                                          "Arrive Condition": (), "Start Health": 1})  # add pixie helper character
         # Score board in animation must always be p1_special_10 part
-        self.score_board = ScoreBoard(self.helper.body_parts["p1_special_10"])
+        self.score_board = ScoreBoard(self.helper.team, self.helper.body_parts["p1_special_10"])
         self.helper.body_parts["p1_special_10"].base_image_update_contains.append(self.score_board)

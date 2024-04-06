@@ -4,13 +4,19 @@ infinity = float("inf")
 def health_resource_logic(self, dt):
     """Health and resource calculation"""
     if self.health != infinity:
-        if self.health < self.base_health and self.hp_regen:
+        if self.hp_regen and self.health < self.base_health:
             self.health += self.hp_regen * dt  # use the same as positive regen (negative regen number * dt will reduce hp)
 
-        if self.health < 0:
-            self.health = 0  # can't have negative hp
-        elif self.health > self.base_health:
-            self.health = self.base_health  # hp can't exceed max hp
+            if self.health < 0:
+                self.health = 0  # can't have negative hp
+                for status, status_effect in reversed(self.status_effect.items()):
+                    if status_effect["HP Regeneration Bonus"] < 0:
+                        if self.status_applier[status].team != self.team:  # not count from same team
+                            self.killer = self.status_applier[status]  # killer is last that apply dot status
+                            break
+
+            elif self.health > self.base_health:
+                self.health = self.base_health  # hp can't exceed max hp
 
     if self.resource != infinity:
         if self.resource < self.base_resource:

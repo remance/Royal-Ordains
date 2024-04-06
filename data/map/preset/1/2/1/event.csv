@@ -1,3 +1,1 @@
 "ID","Text ID","Object","Animation","Type","Trigger","Property"
-"event1/stage1","event1/stage1_craven1_speak",1,,"speak","char_in_camera,1","timer:5"
-"event1/stage2","event1/stage1_craven2_speak",2,,"speak","char_in_camera,2","timer:5"

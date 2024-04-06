@@ -177,7 +177,7 @@ The current game version consists of 5 playable characters and first mission for
 
 <img src="https://github.com/remance/preview2/blob/main/elmaliern1.png?raw=true" width="100" height="100"></a> Desperate Widow
 
-Mage of Season
+<img src="https://github.com/remance/preview2/blob/main/pasgelo1.png?raw=true" width="100" height="100"></a> Mage of Season
 
 ### Support type
 
@@ -185,7 +185,7 @@ Mage of Season
 
 ### Special type
 
-Sweeper
+<img src="https://github.com/remance/preview2/blob/main/laguasangte1.png?raw=true" width="100" height="100"></a> Sweeper
 
 ---------------
 

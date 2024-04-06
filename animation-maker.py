@@ -1317,7 +1317,7 @@ class Model:
 
         # recreate frame image
         for frame_num, _ in enumerate(self.animation_list):
-            if not specific_frame or (frame_num == specific_frame):
+            if specific_frame is None or (frame_num == specific_frame):
                 pose_layer_list = self.make_layer_list(self.animation_part_list[frame_num])
                 surface = self.create_animation_film(pose_layer_list, frame_num)
                 self.animation_list[frame_num] = surface
@@ -1606,6 +1606,10 @@ all_frame_part_copy_button = Button("Copy PA", image, (play_animation_button.pos
 all_frame_part_paste_button = Button("Paste PA", image, (play_animation_button.pos[0] + play_animation_button.image.get_width() * 7,
                                            filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
                                      description=("Paste parts in all frame", "Only copied from all frame part copy."))
+reverse_frame_button = Button("Reverse F", image,
+                              (play_animation_button.pos[0] + play_animation_button.image.get_width() * 8,
+                               filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
+                              description=("Reverse animation", ))
 
 clear_button = Button("Clear", image, (play_animation_button.pos[0] - play_animation_button.image.get_width() * 4,
                                        filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
@@ -1848,9 +1852,9 @@ while True:
                                                     popup_namegroup, ui, screen_scale)
                 elif model.part_selected != [] and showroom.rect.collidepoint(mouse_pos):
                     if event.button == 4:  # Mouse scroll up
-                        model.edit_part(mouse_pos, "scale_up")
+                        model.edit_part(mouse_pos, "scale_up", specific_frame=current_frame)
                     else:  # Mouse scroll down
-                        model.edit_part(mouse_pos, "scale_down")
+                        model.edit_part(mouse_pos, "scale_down", specific_frame=current_frame)
                 elif anim_prop_list_box.rect.collidepoint(mouse_pos) or anim_prop_list_box.scroll.rect.collidepoint(
                         mouse_pos):
                     current_anim_row = list_scroll(mouse_scroll_up, mouse_scroll_down,
@@ -1916,29 +1920,29 @@ while True:
             elif key_press[pygame.K_LSHIFT] or key_press[pygame.K_RSHIFT]:
                 shift_press = True
             elif key_press[pygame.K_w]:
-                model.edit_part(mouse_pos, "move_w")
+                model.edit_part(mouse_pos, "move_w", specific_frame=current_frame)
             elif key_press[pygame.K_s]:
-                model.edit_part(mouse_pos, "move_s")
+                model.edit_part(mouse_pos, "move_s", specific_frame=current_frame)
             elif key_press[pygame.K_a]:
-                model.edit_part(mouse_pos, "move_a")
+                model.edit_part(mouse_pos, "move_a", specific_frame=current_frame)
             elif key_press[pygame.K_d]:
-                model.edit_part(mouse_pos, "move_d")
+                model.edit_part(mouse_pos, "move_d", specific_frame=current_frame)
             elif key_press[pygame.K_q]:
-                model.edit_part(mouse_pos, "tilt_q")
+                model.edit_part(mouse_pos, "tilt_q", specific_frame=current_frame)
             elif key_press[pygame.K_e]:
-                model.edit_part(mouse_pos, "tilt_e")
+                model.edit_part(mouse_pos, "tilt_e", specific_frame=current_frame)
             elif key_press[pygame.K_DELETE]:
                 keypress_delay = 0.1
                 if model.part_selected:
-                    model.edit_part(mouse_pos, "delete")
+                    model.edit_part(mouse_pos, "delete", specific_frame=current_frame)
             elif key_press[pygame.K_PAGEUP] or key_press[pygame.K_KP_PLUS]:
                 keypress_delay = 0.1
                 if model.part_selected:
-                    model.edit_part(mouse_pos, "layer_up")
+                    model.edit_part(mouse_pos, "layer_up", specific_frame=current_frame)
             elif key_press[pygame.K_PAGEDOWN] or key_press[pygame.K_KP_MINUS]:
                 keypress_delay = 0.1
                 if model.part_selected:
-                    model.edit_part(mouse_pos, "layer_down")
+                    model.edit_part(mouse_pos, "layer_down", specific_frame=current_frame)
             elif key_press[pygame.K_LEFTBRACKET] or key_press[pygame.K_RIGHTBRACKET]:
                 if keypress_delay == 0:
                     keypress_delay = 0.1
@@ -1990,9 +1994,9 @@ while True:
                     for index, name in enumerate(popup_namegroup):  # click on popup list
                         if name.rect.collidepoint(mouse_pos):
                             if popup_list_box.action == "part_select":
-                                model.edit_part(mouse_pos, "part_" + name.name)
+                                model.edit_part(mouse_pos, "part_" + name.name, specific_frame=current_frame)
                             elif popup_list_box.action == "race_select":
-                                model.edit_part(mouse_pos, "race_" + name.name)
+                                model.edit_part(mouse_pos, "race_" + name.name, specific_frame=current_frame)
                             elif "person" in popup_list_box.action:
                                 p_body_helper.change_p_type(name.name, player_change=True)
                                 effect_helper.change_p_type(name.name + "_effect", player_change=True)
@@ -2000,7 +2004,7 @@ while True:
                                 sprite_mode_selector.change_name(model.sprite_mode[int(name.name[-1])])
                                 # sprite_ver_selector.change_name(model.sprite_version[int(name.name[-1])])
                             elif "sound" in popup_list_box.action:
-                                model.edit_part(mouse_pos, "sound_select:" + name.name)
+                                model.edit_part(mouse_pos, "sound_select:" + name.name, specific_frame=current_frame)
                                 sound_selector.change_name(name.name)
                             elif "_ver_select" in popup_list_box.action:
                                 model.edit_part(mouse_pos, popup_list_box.action[0:3] + "_ver_select" + name.name)
@@ -2184,7 +2188,6 @@ while True:
                                 all_copy_name[frame] = {key: (value[:].copy() if value is not None else value) for
                                                         key, value in
                                                         model.part_name_list[frame].items()}
-
                                 # keep only selected one
                                 all_copy_part[frame] = {item: all_copy_part[frame][item] for item in all_copy_part[frame] if
                                      item in model.mask_part_list and list(model.mask_part_list.keys()).index(
@@ -2199,7 +2202,29 @@ while True:
 
                     elif all_frame_part_paste_button.rect.collidepoint(mouse_pos):
                         if all_copy_part:
-                            model.edit_part(mouse_pos, "all frame selected part paste")
+                            model.edit_part(mouse_pos, "all frame selected part paste", specific_frame=current_frame)
+
+                    elif reverse_frame_button.rect.collidepoint(mouse_pos):
+                        model.add_history()
+                        model.frame_list = [item for item in model.frame_list if item and
+                                            True in [True for item2 in item.values() if len(item2) and
+                                                     item2]]  # remove empty frame first
+                        model.frame_list.reverse()
+                        while len(model.frame_list) < max_frame:
+                            model.frame_list.append({})
+                        frame_property_select = [[] for _ in range(max_frame)]
+                        model.read_animation(animation_name, old=True)
+                        model.edit_part(mouse_pos, "change")
+                        reload_animation(anim, model)
+                        change_frame_process()
+
+                        for strip_index, strip in enumerate(filmstrips):  # enable frame that not empty
+                            for stuff in model.animation_part_list[strip_index].values():
+                                if stuff:
+                                    strip.activate = True
+                                    activate_list[strip_index] = True
+                                    strip.add_strip(change=False)
+                                    break
 
                     elif add_frame_button.rect.collidepoint(mouse_pos):
                         model.add_history()
@@ -2277,7 +2302,7 @@ while True:
 
                     elif part_stat_paste_button.rect.collidepoint(mouse_pos):
                         if copy_animation_stat is not None:
-                            model.edit_part(mouse_pos, "paste part stat")
+                            model.edit_part(mouse_pos, "paste part stat", specific_frame=current_frame)
 
                     elif p_all_button.rect.collidepoint(mouse_pos):
                         part_change = p_body_helper.ui_type + "_"
@@ -2341,7 +2366,7 @@ while True:
 
                     elif duplicate_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("text_input", "duplicate_animation")
-                        input_ui.change_instruction("Duplicate Current Animation?")
+                        input_ui.change_instruction("Duplicate This Animation?")
                         last_char = str(1)
                         if animation_name + "(copy" + last_char + ")" in current_pool[animation_race]:  # copy exist
                             while animation_name + "(copy" + last_char + ")" in current_pool[animation_race]:
@@ -2373,16 +2398,16 @@ while True:
                         ui.add(input_ui_popup)
 
                     elif flip_hori_button.rect.collidepoint(mouse_pos):
-                        model.edit_part(mouse_pos, "flip1")
+                        model.edit_part(mouse_pos, "flip1", specific_frame=current_frame)
 
                     # elif flip_vert_button.rect.collidepoint(mouse_pos):
-                    #     model.edit_part(mouse_pos, "flip2")
+                    #     model.edit_part(mouse_pos, "flip2", specific_frame=current_frame)
 
                     elif damage_button.rect.collidepoint(mouse_pos):
-                        model.edit_part(mouse_pos, "DMG")
+                        model.edit_part(mouse_pos, "DMG", specific_frame=current_frame)
 
                     elif reset_button.rect.collidepoint(mouse_pos):
-                        model.edit_part(mouse_pos, "reset")
+                        model.edit_part(mouse_pos, "reset", specific_frame=current_frame)
 
                     elif part_selector.rect.collidepoint(mouse_pos):
                         if race_part_button.text != "":
@@ -2573,7 +2598,7 @@ while True:
 
                 elif part_paste_press:
                     if copy_part is not None:
-                        model.edit_part(mouse_pos, "paste")
+                        model.edit_part(mouse_pos, "paste", specific_frame=current_frame)
 
                 elif undo_press:
                     if model.current_history > 0:
@@ -2600,14 +2625,14 @@ while True:
                                                            specific_part=list(model.mask_part_list.keys())[part])
                             helper.blit_part()
                     if mouse_wheel_up or mouse_wheel_down:
-                        model.edit_part(new_mouse_pos, "rotate")
+                        model.edit_part(new_mouse_pos, "rotate", specific_frame=current_frame)
                     elif mouse_right_up or mouse_right_down:
                         if mouse_right_down:
                             if keypress_delay == 0:
-                                model.edit_part(new_mouse_pos, "place")
+                                model.edit_part(new_mouse_pos, "place", specific_frame=current_frame)
                                 keypress_delay = 0.1
                         else:
-                            model.edit_part(new_mouse_pos, "place")
+                            model.edit_part(new_mouse_pos, "place", specific_frame=current_frame)
 
             if model.part_selected:
                 part = model.part_selected[-1]

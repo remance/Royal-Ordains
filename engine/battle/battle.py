@@ -49,6 +49,9 @@ class Battle:
     from engine.battle.check_event import check_event
     check_event = check_event
 
+    from engine.battle.cal_civil_war import cal_civil_war
+    cal_civil_war = cal_civil_war
+
     from engine.battle.cal_shake_value import cal_shake_value
     cal_shake_value = cal_shake_value
 
@@ -74,8 +77,8 @@ class Battle:
     from engine.battle.fix_camera import fix_camera
     fix_camera = fix_camera
 
-    from engine.battle.increase_player_score import increase_player_score
-    increase_player_score = increase_player_score
+    from engine.battle.increase_team_score import increase_team_score
+    increase_team_score = increase_team_score
 
     from engine.battle.make_battle_ui import make_battle_ui
     make_battle_ui = make_battle_ui
@@ -260,13 +263,14 @@ class Battle:
         self.player_kill = {1: 0, 2: 0, 3: 0, 4: 0}
         self.player_boss_kill = {1: 0, 2: 0, 3: 0, 4: 0}
         self.play_time = 0
-        self.stage_gold = 0
-        self.stage_score = 0
-        self.last_resurrect_stage_score = 5000
-        self.reserve_resurrect_stage_score = 0
+        self.stage_gold = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+        self.stage_score = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+        self.last_resurrect_stage_score = {1: 5000, 2: 5000, 3: 5000, 4: 5000, 5: 5000}
+        self.reserve_resurrect_stage_score = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
 
         self.players = {}  # player
         self.player_objects = {}
+        self.player_team = {}
         self.players_control_input = {1: None, 2: None, 3: None, 4: None}
         self.existing_playable_characters = []
         self.later_enemy = {}
@@ -317,8 +321,7 @@ class Battle:
 
         TextDrama.images = load_images(self.data_dir, screen_scale=self.screen_scale,
                                        subfolder=("ui", "popup_ui", "drama_text"))
-        self.drama_text = TextDrama(
-            self.battle_camera_size)  # message at the top of screen that show up for important event
+        self.drama_text = TextDrama(self)  # message at the top of screen that show up for important event
 
         # Battle ESC menu
         esc_menu_dict = self.make_esc_menu()
@@ -606,8 +609,11 @@ class Battle:
                                         self.reach_scene_event_list[key]["weather"] = (
                                         value3[0]["Object"], weather_strength)
                                     elif value3[0]["Type"] == "music":
-                                        self.reach_scene_event_list[key]["music"] = Sound(self.music_pool[
-                                                                                              str(value3[0]["Object"])])
+                                        if value3[0]["Object"] != "stop":
+                                            self.reach_scene_event_list[key]["music"] = Sound(self.music_pool[
+                                                                                                  str(value3[0]["Object"])])
+                                        else:
+                                            self.reach_scene_event_list[key]["music"] = None
                                     elif value3[0]["Type"] == "sound":
                                         if "sound" not in self.reach_scene_event_list[key]:
                                             self.reach_scene_event_list[key]["sound"] = []
@@ -626,6 +632,10 @@ class Battle:
         # Create Starting Values
         self.input_popup = None  # no popup asking for user text input state
         self.drama_text.queue = []  # reset drama text popup queue
+
+        if self.main_story_profile["interface event queue"]["inform"]:
+            for item in self.main_story_profile["interface event queue"]["inform"]:
+                self.drama_text.queue.append(item)
 
         self.camera_mode = self.start_camera_mode
 
@@ -647,10 +657,10 @@ class Battle:
         self.player_kill = {1: 0, 2: 0, 3: 0, 4: 0}
         self.player_boss_kill = {1: 0, 2: 0, 3: 0, 4: 0}
         self.play_time = 0
-        self.stage_gold = 0
-        self.stage_score = 0
-        self.last_resurrect_stage_score = 5000  # start at 5000 to get next resurrect reserve
-        self.reserve_resurrect_stage_score = 0
+        self.stage_gold = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+        self.stage_score = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+        self.last_resurrect_stage_score = {1: 5000, 2: 5000, 3: 5000, 4: 5000, 5: 5000}  # start at 5000 to get next resurrect reserve
+        self.reserve_resurrect_stage_score = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
 
         self.base_cursor_pos = [0, 0]  # mouse pos on the map based on camera position
         mouse.set_pos(Vector2(self.camera_pos[0], 140 * self.screen_scale[1]))  # set cursor to midtop screen
@@ -792,16 +802,10 @@ class Battle:
 
                     # FOR DEVELOPMENT
                     if event.key == K_F1:
-                        self.drama_text.queue.append("Hello and welcome to showcase video")
-                    elif event.key == K_F2:
-                        CharacterSpeechBox(self.main_player_object, "Hello and welcome to showcase video.")
-                    # elif event.key == K_F3:
-                    #     self.drama_text.queue.append("New Medieval art style as shown in previous videos")
-                    # elif event.key == K_F4:
-                    #     self.drama_text.queue.append("Few more updates until demo release")
-                    # elif event.key == K_F5:
-                    #     self.drama_text.queue.append("Rushed to the English line, he fought valiantly alone")
-                    elif event.key == K_F6:
+                        self.drama_text.queue.append(("Hello and welcome to showcase video", "Cannon Shot Medium"))
+                    # if event.key == K_F2:
+                    #     CharacterSpeechBox(self.main_player_object, "Hello and welcome to showcase video.")
+                    if event.key == K_F6:
                         for enemy in self.all_team_enemy[1]:
                             if not enemy.invincible and int(enemy.base_pos[0] / 1920) in \
                                     (self.battle_stage.spawn_check_scene - 1, self.battle_stage.spawn_check_scene):
@@ -917,11 +921,3 @@ class Battle:
 
         self.drama_timer = 0  # reset drama text popup
         self.realtime_ui_updater.remove(self.drama_text)
-
-        for profile_num, profile in self.all_story_profiles.items():  # update each active player's profile stat
-            if profile:
-                profile["playtime"] += self.play_time
-                profile["total scores"] += self.stage_score
-                profile["total golds"] += self.stage_gold
-                profile["total kills"] += self.player_kill[profile_num]
-                profile["boss kills"] += self.player_boss_kill[profile_num]

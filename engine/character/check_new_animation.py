@@ -19,10 +19,10 @@ def check_new_animation(self, done):
             if self.current_moveset:
                 if self.current_moveset["Status"]:  # moveset apply status effect
                     for effect in self.current_moveset["Status"]:
-                        self.apply_status(effect)
+                        self.apply_status(self, effect)
                         for ally in self.near_ally:
                             if ally[1] <= self.current_moveset["Range"]:  # apply status based on range
-                                ally[0].apply_status(effect)
+                                ally[0].apply_status(self, effect)
                             else:
                                 break
 
@@ -52,7 +52,7 @@ def check_new_animation(self, done):
                                  (self.pos[0], (self.pos[1] - self.sprite_size * 2)), False, "resource")
                 if item_stat["Status"]:
                     for effect in item_stat["Status"]:
-                        self.apply_status(effect)
+                        self.apply_status(self, effect)
 
                 if item_stat["Property"]:
                     if "weather" in item_stat["Property"]:  # item that change weather
@@ -117,14 +117,14 @@ def check_new_animation(self, done):
                                          (ally[0].pos[0], ally[0].pos[1] - ally[0].sprite_size * 2), False, "resource")
                         if item_stat["Status"]:
                             for effect in item_stat["Status"]:
-                                ally[0].apply_status(effect)
+                                ally[0].apply_status(self, effect)
                     else:
                         break
                 for enemy in self.near_enemy:
                     if enemy[1] <= item_stat["Range"]:  # apply status based on range
                         if item_stat["Enemy Status"]:
                             for effect in item_stat["Enemy Status"]:
-                                enemy[0].apply_status(effect)
+                                enemy[0].apply_status(self, effect)
                     else:
                         break
                 self.item_usage[self.current_action["item"]] -= 1

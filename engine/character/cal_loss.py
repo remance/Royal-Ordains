@@ -83,16 +83,7 @@ def cal_loss(self, attacker, final_dmg, impact, hit_angle, dmg_text_pos, critica
                                                self.dmg_sound_distance,
                                                self.dmg_screen_shake,
                                                volume_mod=self.hit_volume_mod)
-        # if self.current_effect != "Hurt":
-        #     self.current_effect = "Hurt"
-        #     self.max_effect_frame = self.status_animation_pool[self.current_effect]["frame_number"]
-        #     if self.effectbox not in self.battle.battle_camera:
-        #         self.battle.battle_camera.add(self.effectbox)
 
         self.health -= final_dmg
-        if not self.health and attacker and attacker.player_control:
-            # target die, add kill stat if attacker is player
-            self.battle.player_kill[int(attacker.game_id[-1])] += 1
-            if self.is_boss:
-                self.battle.player_boss_kill[int(attacker.game_id[-1])] += 1
-        # self.resource -= self.stamina_dmg_bonus
+        if not self.health and attacker:
+            self.killer = attacker

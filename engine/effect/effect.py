@@ -297,6 +297,7 @@ class DamageEffect(Effect):
                        self.owner.impact_modifier,
                        (moveset["Down Impact"] - moveset["Up Impact"]) *
                        self.owner.impact_modifier)
+        self.impact_sum = abs(self.impact[0]) + abs(self.impact[1])
         if self.element == "Physical":
             self.dmg = uniform(self.dmg * self.owner.min_physical, self.dmg * self.owner.max_physical)
         else:

@@ -126,15 +126,16 @@ def state_battle_process(self, esc_press):
         if not self.end_delay and not self.cutscene_playing:
             mission_str = self.chapter + "." + self.mission + "." + self.stage
             # not ending stage yet, due to decision waiting or playing cutscene
+            victory_drama = ("Victory", None)
             if self.decision_select not in self.realtime_ui_updater and self.stage_end_choice:
                 if mission_str not in self.main_story_profile["story choice"]:
-                    if "Victory" not in self.drama_text.queue:
-                        self.drama_text.queue.append("Victory")
+                    if victory_drama not in self.drama_text.queue:
+                        self.drama_text.queue.append(victory_drama)
                     self.realtime_ui_updater.add(self.decision_select)
             elif not self.stage_end_choice:
-                if "Victory" not in self.drama_text.queue:
+                if victory_drama not in self.drama_text.queue:
                     self.end_delay = 0.1
-                    self.drama_text.queue.append("Victory")
+                    self.drama_text.queue.append(victory_drama)
 
             if self.decision_select.selected or mission_str in self.main_story_profile["story choice"]:
                 self.end_delay = 0.1

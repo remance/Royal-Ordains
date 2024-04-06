@@ -5,4 +5,4 @@
 "p4",,1,"1800,1000",1000,90,1,1,,
 1,"Rudehst",1,"200,1000",1000,-90,1,1,,"city npc"
 2,"Viskes",1,"600,1000",1000,90,1,1,,"city npc"
-3,"Yuawies",1,"1700,1000",1000,90,1,1,,"city npc,no player pick,idle:Idle"
+3,"Yuawies",1,"1700,1000",1000,90,1,1,,"city npc,no player pick,idle:CityIdle"
