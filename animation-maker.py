@@ -2166,6 +2166,7 @@ while True:
 
                     elif all_paste_button.rect.collidepoint(mouse_pos):
                         if copy_list:
+                            model.add_history()
                             frame_property_select = [[] for _ in range(max_frame)]
                             anim_property_select = []
                             for frame_index, frame in enumerate(copy_list):

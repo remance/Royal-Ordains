@@ -22,18 +22,22 @@ def player_input_battle_mode(self, player_index, dt):
                             self.battle.player_wheel_uis[player_index].change_text_icon(
                                 tuple(self.items.values()), item_wheel=True)
                     else:
-                        if key in ("Left", "Right", "Down", "Up"):
-                            self.player_key_input_timer.append(0.5)
-                            if key in ("Left", "Right"):  # replace left right input with forward one for moveset check
-                                if not self.current_action:
-                                    if key == "Left":
-                                        self.new_angle = 90
-                                    else:
-                                        self.new_angle = -90
-                                if rotation_dict[key] == self.angle:
-                                    new_key = "Forward"
+                        if key in ("Left", "Right"):  # replace left right input with forward one for moveset check
+                            if not self.current_moveset:
+                                self.player_key_input_timer.append(0.4)
+                            else:
+                                self.player_key_input_timer.append(0.5)
+                            if not self.current_action:
+                                if key == "Left":
+                                    self.new_angle = 90
                                 else:
-                                    new_key = "Backward"
+                                    self.new_angle = -90
+                            if rotation_dict[key] == self.angle:
+                                new_key = "Forward"
+                            else:
+                                new_key = "Backward"
+                        elif key in ("Down", "Up"):
+                            self.player_key_input_timer.append(0.6)
                         else:
                             self.player_key_input_timer.append(0.3)
                         self.player_command_key_input.append(key)

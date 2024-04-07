@@ -21,6 +21,7 @@ def vraesier_update(self, dt, *args):
             self.resource = 0
             if "uninterruptible" not in self.command_action:  # revert to normal
                 self.interrupt_animation = True
+                self.engage_combat()
                 self.mode_timer = 0
                 self.command_action = self.deactivate_command_action
                 self.mode = "Normal"

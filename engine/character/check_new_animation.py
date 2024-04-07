@@ -127,9 +127,13 @@ def check_new_animation(self, done):
                                 enemy[0].apply_status(self, effect)
                     else:
                         break
-                self.item_usage[self.current_action["item"]] -= 1
-                if self.player_control:  # subtract from in storage
-                    self.battle.all_story_profiles[int(self.game_id[-1])]["storage"][self.current_action["item"]] -= 1
+
+                if not self.free_first_item_use or (self.item_free_use_chance and uniform(1, 10) > 7):
+                    self.item_usage[self.current_action["item"]] -= 1
+                    if self.player_control:  # subtract from in storage
+                        self.battle.all_story_profiles[int(self.game_id[-1])]["storage"][self.current_action["item"]] -= 1
+                elif self.free_first_item_use:
+                    self.free_first_item_use = False
 
             if "drop" in self.current_action:
                 Drop(Vector2(self.base_pos), self.current_action["drop"], self.team)

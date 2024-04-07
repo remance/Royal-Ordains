@@ -1,5 +1,5 @@
 def engage_combat(self):
-    self.in_combat_timer = 2
+    self.in_combat_timer = 3
     self.combat_state = "Combat"
 
 

@@ -299,7 +299,7 @@ class Character(sprite.Sprite):
         self.body_size = int(stat["Size"] / 10)
         if self.body_size < 1:
             self.body_size = 1
-        self.sprite_size = stat["Size"] / 10 * 100 * self.screen_scale[
+        self.sprite_size = stat["Size"] * 10 * self.screen_scale[
             1]  # use for pseudo sprite size of character for positioning of effect
         self.arrive_condition = stat["Arrive Condition"]
 
@@ -485,6 +485,8 @@ class BattleCharacter(Character):
         self.moveset_reset_when_relax_only = False
         self.money_score = False
         self.money_resource = False
+        self.item_free_use_chance = False
+        self.free_first_item_use = False
         self.combat_state = "Peace"
         self.mode = "Normal"
         self.stop_fall_duration = 0
@@ -773,7 +775,7 @@ class BattleCharacter(Character):
                 self.move_logic(dt)  # Move function
 
                 if self.timer > 0.1:  # Update status and skill, every 1 second
-                    if self.combat_state == "Combat" and self.position not in ("Air", "Couch"):
+                    if self.combat_state == "Combat" and self.position == "Stand":
                         self.in_combat_timer -= self.timer
                         if self.in_combat_timer <= 0:
                             if not self.current_action and not self.command_action:
@@ -785,7 +787,7 @@ class BattleCharacter(Character):
                                     self.command_action = self.special_relax_command[self.special_combat_state]
                                     self.special_combat_state = 0
                             else:
-                                self.in_combat_timer = 2
+                                self.in_combat_timer = 3
 
                     self.nearest_enemy = None
                     self.nearest_ally = None
@@ -934,13 +936,13 @@ class PlayerCharacter(BattleCharacter, Character):
             self.item_free_use_chance = False
             self.unlock_secret_food_effect = False
             self.free_first_item_use = False
-            if self.common_skill["Tinkerer"][1]:  # item may have a chance to be used for free
+            if self.common_skill["Tinkerer"][1]:  # item have 30% chance to be used for free
                 self.item_free_use_chance = True
             if self.common_skill["Tinkerer"][2]:  # first item use is 100% free
                 self.free_first_item_use = True
             if self.common_skill["Tinkerer"][3]:  # item has double effect
                 self.item_effect_modifier = 2
-            if self.common_skill["Tinkerer"][4]:  # food provide more effects
+            if self.common_skill["Tinkerer"][4]:  # feast provide more effects
                 self.unlock_secret_food_effect = True
             if self.common_skill["Tinkerer"][5]:  # can use summon drop skill
                 pass
