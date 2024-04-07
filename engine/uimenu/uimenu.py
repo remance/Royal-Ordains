@@ -1286,8 +1286,8 @@ class CharacterInterface(UIMenu):
                     self.image.blit(text_surface, text_rect)
             else:
                 text_surface = self.font.render(self.grab_text(("ui", "Empty")), True, (30, 30, 30))
-                text_rect = text_surface.get_rect(topright=(400 * self.screen_scale[0],
-                                                            rect.topright[1] + (20 * self.screen_scale[1])))
+                text_rect = text_surface.get_rect(topleft=(110 * self.screen_scale[0],
+                                                           rect.topright[1] + (20 * self.screen_scale[1])))
                 self.image.blit(text_surface, text_rect)
 
             # Add preset number
