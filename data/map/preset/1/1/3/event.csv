@@ -8,7 +8,7 @@
 ,,21,,"setup",,"POS:(7480;1000),angle:90,speed:2000"
 ,,"camera",,"move",,"POS:4,wait"
 ,,21,"Taunt",,,"angle:90,wait"
-"submit",,21,"Submit","submit","submit","repeat after"
+"submit",,21,"Submit","submit","submit","repeat after,submit"
 "execute",,21,"PresetCombatStandDie","execute","execute","start_frame:-1,hold"
 ,,"helper","PresetPeaceAirWalk",,,"target:21,angle:target,wait"
 ,,"helper","Execute",,,

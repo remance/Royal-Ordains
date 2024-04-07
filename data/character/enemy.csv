@@ -73,17 +73,17 @@
 "Eban2","Elf Rogue Scout",556,,,4,18,20,15,10,10,8,,0.1,,0.1,,,,,,,,8,1,,,"TRUE",5,"Range","common",
 "Eban3","Elf Taint Druid",423,20,,4,20,14,13,20,20,13,,,,,,0.2,,,,,,8,1,,,"TRUE",7,"Range","sentry_range",
 "Adaqua","Adaqua",9500,,,17,25,25,31,18,32,48,,,,0.15,,,0.4,,,,20000,10,1,,"TRUE",,"20","Range","adaqua","no_forced_move"
-"Rban1","Bunny Bandit",80,,,5,4,10,6,2,4,21,,,-0.05,0.05,,,,,"Carrot:25,Health Potion:5","Small Chest:1",15,3,1,,,"TRUE",3,"Melee","common",
-"Rban2","Rabbit Raider",60,,,3,12,12,4,4,4,21,,,-0.05,0.05,,,,,"Carrot:25,Health Potion:5","Small Chest:1",10,3,1,,,"TRUE",3,"Range","common",
-"Rban3","Hare Hooligan",50,,,4,10,15,5,3,4,21,,,-0.05,0.05,,,,,"Carrot:25,Health Potion:5","Small Chest:1",10,3,1,,,"TRUE",3,"Range","common",
+"Rban1","Bunny Bandit",80,,,5,4,10,6,2,4,21,,,-0.05,0.05,,,,,"Carrot:25,Health Potion:5","Small Chest:1",15,6,1,,,"TRUE",3,"Melee","common",
+"Rban2","Rabbit Raider",60,,,3,12,12,4,4,4,21,,,-0.05,0.05,,,,,"Carrot:25,Health Potion:5","Small Chest:1",10,6,1,,,"TRUE",3,"Range","common",
+"Rban3","Hare Hooligan",50,,,4,10,15,5,3,4,21,,,-0.05,0.05,,,,,"Carrot:25,Health Potion:5","Small Chest:1",10,6,1,,,"TRUE",3,"Range","common",
 "Rban4","Fur Shell Companion",300,,,10,15,6,25,7,8,28,,,-0.05,0.05,,,,,"Carrot:25,Health Potion:8","Small Chest:2",22,10,1,,,"TRUE",5,"Melee","common",
-"Rban5","Rabbit Hole",30,,,7,20,3,5,3,3,15,0.1,0.3,,0.5,0.5,,,,"Carrot:35,Health Potion:8",,10,2,1,,,,4,"Melee","trap","no_forced_move"
+"Rban5","Rabbit Hole",30,,,7,20,3,5,3,3,15,0.1,0.3,,0.5,0.5,,,,"Carrot:35,Health Potion:8",,10,3,1,,,,4,"Melee","trap","no_forced_move"
 "Rban6","Woolly Ward",140,,,14,10,4,11,4,2,20,0.05,,,,,,,,"Carrot+3:10,Health Potion:6",,13,9,1,,,"TRUE",4,"Melee","guard_melee",
-"Rban7","Warren Warrior",60,,,12,25,3,15,8,8,14,0.15,0.15,,,0.35,0.15,0.15,,"Carrot+2:50,Health Potion:3","Small Chest:1",20,3,1,,,,,"Melee","trap","no_forced_move"
-"Rban8","Warren Watcher",50,,,2,15,15,7,4,5,10,,,,,,,,,"Carrot:45,Health Potion:2",,15,3,1,,,"TRUE",10,"Range","trap","no_forced_move"
-"Animal1","Snail Defender",200,,,8,3,2,30,1,1,1,0.2,,0.3,,0.15,,0.1,,"Herb:35,Health Potion:10,Resource Potion:10","Small Chest:2",15,2,1,,,"TRUE",3,"Melee","guard_melee",
-"Animal2","Toxic Mollusk",150,,,5,5,2,45,1,1,1,0.15,,0.3,,0.15,,0.2,,"Herb:40,Health Potion:15,Resource Potion+2:10","Small Chest:2",19,2,1,,,"TRUE",4,"Range","common",
-"Animal3","Wolf Guardian",345,,,10,20,25,7,2,3,10,,,,0.05,,,,,"Meat:25,Speed Potion:5",,,5,1,,,"TRUE",5,"Melee","pursue",
+"Rban7","Warren Warrior",60,,,12,25,3,15,8,8,14,0.15,0.15,,,0.35,0.15,0.15,,"Carrot+2:50,Health Potion:3","Small Chest:1",20,6,1,,,,,"Melee","trap","no_forced_move"
+"Rban8","Warren Watcher",50,,,2,15,15,7,4,5,10,,,,,,,,,"Carrot:45,Health Potion:2",,15,6,1,,,"TRUE",10,"Range","trap","no_forced_move"
+"Animal1","Snail Defender",200,,,8,3,2,30,1,1,1,0.2,,0.3,,0.15,,0.1,,"Herb:35,Health Potion:10,Resource Potion:10","Small Chest:2",15,6,1,,,"TRUE",3,"Melee","guard_melee",
+"Animal2","Toxic Mollusk",150,,,5,5,2,45,1,1,1,0.15,,0.3,,0.15,,0.2,,"Herb:40,Health Potion:15,Resource Potion+2:10","Small Chest:2",19,6,1,,,"TRUE",4,"Range","common",
+"Animal3","Wolf Guardian",345,,,10,20,25,7,2,3,10,,,,0.05,,,,,"Meat:25,Speed Potion:5",,,6,1,,,"TRUE",5,"Melee","pursue",
 "Animal4","Bird Lookout",125,,,3,35,30,2,1,2,15,,,,0.1,,,,,"Berry:35",,,2,1,,,"TRUE",,,"fly_range","fly"
 "Animal5","Boar Charger",600,,,25,10,20,20,1,2,5,0.1,0.15,0.1,0.05,0.1,,,,"Meat+5:10",,,8,1,,,"TRUE",7,"Melee","pursue",
 "Animal6","Fox Trickster",555,,,2,24,15,6,25,40,34,,,,,,0.1,,,"Meat:15,Berry:15,Health Potion:15",,,5,1,,,"TRUE",8,"Range","common",

@@ -73,8 +73,8 @@ class BattleMapData(GameData):
                 if row[3] not in self.choice_stage_reward[row[0]][row[1]][row[2]]:  # stage
                     self.choice_stage_reward[row[0]][row[1]][row[2]][row[3]] = {}
                 self.choice_stage_reward[row[0]][row[1]][row[2]][row[3]] = {"Follower Reward": row[4],
-                                                                            "Item Reward": row[5],
-                                                                            "Unique Gear Reward": row[6],
+                                                                            "Unique Gear Reward": row[5],
+                                                                            "Item Reward": row[6],
                                                                             "Gold Reward": row[7]}
         edit_file.close()
 

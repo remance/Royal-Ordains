@@ -2609,10 +2609,10 @@ class CharacterInterface(UIMenu):
                 self.grab_text(("gear", item, "Description")),
                 "Rarity: " + self.grab_text(
                     ("ui", self.game.character_data.gear_list[item]["Rarity"])),
-                self.grab_text(("ui", "Weight")) +": " + item["Weight"]]
+                self.grab_text(("ui", "Weight")) + ": " + str(self.game.character_data.gear_list[item]["Weight"])]
         for key, value in self.game.character_data.gear_list[item]["Modifier"].items():
             stat_str = str(value)
-            if value < 1:  # convert percentage
+            if -1 < value < 1:  # convert percentage
                 stat_str = str(value * 100) + "%"
             if "-" not in stat_str:
                 stat_str = "+" + stat_str

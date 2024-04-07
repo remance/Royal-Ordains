@@ -32,7 +32,7 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
     save_profile = self.save_data.save_profile
 
     if next_battle is True and str(int(stage) + 1) not in self.preset_map_data[chapter][mission]:  # need to use is True
-        # finish mission, update save data of the game first before individual save
+        # finish all stage in the mission, update save data of the game first before individual save
         if int(save_profile["game"]["chapter"]) < int(chapter):
             save_profile["game"]["chapter"] = chapter
             save_profile["game"]["mission"] = mission
@@ -94,7 +94,7 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
                             if int(chapter) < 3:  # civil war level
                                 change = str(self.battle.cal_civil_war())
                                 sound_name = "War+1"
-                                if choice == "yes":
+                                if choice == "no":
                                     sound_name = "War-1"
                                 war_level = self.localisation.grab_text(("ui", "civilwar" + change))
                                 event_queue_data["inform"].append((self.localisation.grab_text(("ui", "civil_war_level")) + ": " + war_level +
@@ -111,13 +111,13 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
                                 save_profile["game"]["unlock"]["character"].append(follower)
 
                         for item in choice_reward["Unique Gear Reward"]:
-                            # unique gear that only gave out once in first win
-                            item_num = choice_reward["Unique Gear Reward"][item]
-                            if item not in save_profile["character"][slot]["storage"][item]:
+                            # unique gear that only gave out once in first win and only one can exist
+                            if item not in save_profile["character"][slot]["storage"]:
                                 save_profile["character"][slot]["storage"][item] = 1
-                            reward_list["choice"][item] = item_num
+                            reward_list["choice"][item] = 1
 
                     for item in choice_reward["Item Reward"]:
+                        print(item)
                         item_num = choice_reward["Item Reward"][item]
                         if item in save_profile["character"][slot]["storage"]:
                             save_profile["character"][slot]["storage"][item] += item_num
@@ -168,7 +168,6 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
 
     self.battle.decision_select.selected = None  # reset decision here instead of in battle method
     self.battle.city_mode = False  # reset battle city mode so char interface not allow switching other modes when quit
-    print(self.battle.main_story_profile, next_battle)
     if next_battle is True:  # finish stage, continue to next one
         if str(int(stage) + 1) in self.preset_map_data[chapter][mission]:  # has next stage
             self.start_battle(chapter, mission, str(int(stage) + 1), players=players)

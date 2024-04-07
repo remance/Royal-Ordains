@@ -57,6 +57,10 @@ def common_ai(self):
         # walk randomly when not attack or inside stage lock
         self.ai_movement_timer = uniform(0.1, 3)
         self.x_momentum = uniform(0.1, 1.5) * self.walk_speed * choice((-1, 1))
+        if (self.x_momentum < 0 and abs(self.base_pos[0] - self.battle.base_stage_start) < 50) or \
+                (self.x_momentum > 0 and abs(self.base_pos[0] - self.battle.base_stage_end) < 50):
+            # too close to corner move other way to avoid stuck
+            self.x_momentum *= -1
         self.command_action = self.walk_command_action | {"x_momentum": True}
 
 
