@@ -1,9 +1,11 @@
 from math import log2
+from random import uniform
 
 from pygame.sprite import spritecollide, collide_mask
 
 
 def hit_collide_check(self, check_damage_effect=True):
+    from engine.effect.effect import Effect
     """
     Check for collision with enemy effect and body parts
     @param self: Effect object
@@ -30,6 +32,9 @@ def hit_collide_check(self, check_damage_effect=True):
 
             elif enemy_part.can_hurt and enemy not in self.already_hit and \
                     ("no dmg" not in enemy.current_action or not enemy.player_control):  # collide body part
+                collide_pos = collide_mask(self, enemy_part)
+                Effect(None, ("Damaged", "Base", self.rect.topleft[0] + collide_pos[0], self.rect.topleft[1] + collide_pos[1],
+                              uniform(-360, 360), 1, 0, 1), 0)
                 self.owner.hit_enemy = True
                 self.hit_register(enemy, enemy_part)
                 self.already_hit.append(enemy)

@@ -15,6 +15,7 @@ def cal_loss(self, attacker, final_dmg, impact, hit_angle, dmg_text_pos, critica
     """
     if self.health:  # prevent multiple damage against already dead character in that update
         DamageNumber(final_dmg, dmg_text_pos, critical, self.team)
+
         if final_dmg > self.health:  # dmg cannot be higher than remaining health
             final_dmg = self.health
         super_armour = self.super_armour
