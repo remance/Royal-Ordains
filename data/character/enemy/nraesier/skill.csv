@@ -1,2 +1,2 @@
-"Move","Name","Buttons","Position","Prepare Animation","After Animation","AI Range","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"C1","Double Piercing","Down,Forward,Strong","Stand",,,300,0,4,,65,105,,,45,0.05,"Physical",,,,"multiple hits"
+"Move","Name","Buttons","Position","Prepare Animation","After Animation","AI Range","AI Condition","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"C1","Double Piercing","Down,Forward,Strong","Stand",,,300,,0,4,,65,105,,,45,0.05,"Physical",,,,"multiple hits"

@@ -386,7 +386,7 @@ class DamageEffect(Effect):
                         self.stick_timer = 0  # remove effect
                 self.stick_timer -= dt
                 if self.stick_timer <= 0:
-                    self.reach_target("border")
+                    self.reach_target()
                     return
 
         else:
@@ -402,7 +402,7 @@ class DamageEffect(Effect):
                 if self.duration > 0:  # only clear for sprite with duration
                     self.duration -= dt
                     if self.duration <= 0:
-                        self.reach_target("border")
+                        self.reach_target()
                         return
 
                 done, just_start = self.play_animation(self.animation_speed, dt, False)

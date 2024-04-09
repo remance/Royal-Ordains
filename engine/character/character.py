@@ -72,6 +72,9 @@ class Character(sprite.Sprite):
     from engine.character.add_gear_stat import add_gear_stat
     add_weapon_stat = add_gear_stat
 
+    from engine.character.ai_combat import check_ai_condition
+    check_ai_condition = check_ai_condition
+
     from engine.character.apply_status import apply_status
     apply_status = apply_status
 

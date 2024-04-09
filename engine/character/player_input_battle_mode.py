@@ -77,7 +77,7 @@ def player_input_battle_mode(self, player_index, dt):
                 else:
                     if self.last_command_key_input == "Weak":
                         if "moveset" not in self.current_action or \
-                                ("moveset" not in self.command_action and self.stoppable_frame):
+                                (self.stoppable_frame and "moveset" not in self.command_action):
                             self.moveset_command_key_input = tuple(self.command_key_input)
                             if "run" in self.current_action and self.slide_attack:
                                 self.command_action = self.weak_attack_run_command_action
@@ -88,7 +88,7 @@ def player_input_battle_mode(self, player_index, dt):
 
                     elif self.last_command_key_input == "Strong":
                         if "moveset" not in self.current_action or \
-                                ("moveset" not in self.command_action and self.stoppable_frame):
+                                (self.stoppable_frame and "moveset" not in self.command_action):
                             self.moveset_command_key_input = tuple(self.command_key_input)
                             if "run" in self.current_action and self.tackle_attack:
                                 self.command_action = self.strong_attack_run_command_action
@@ -100,10 +100,10 @@ def player_input_battle_mode(self, player_index, dt):
                     elif self.last_command_key_input == "Guard" or "Guard" in self.command_key_hold:
                         self.engage_combat()
                         if "guard" in self.current_action and "Guard" in self.command_key_hold:
-                            if self.position not in ("Air", "Couch") and \
-                                    self.guard_move and (self.command_key_hold and
-                                                         self.command_key_hold[-1] == "Left" or
-                                                         self.command_key_hold[-1] == "Right"):
+                            if self.guard_move and self.position == "Stand" and \
+                                    (self.command_key_hold and
+                                     self.command_key_hold[-1] == "Left" or
+                                     self.command_key_hold[-1] == "Right"):
                                 # move while guarding, only in standing position
                                 if self.command_key_hold[-1] == "Left":
                                     self.x_momentum = -self.walk_speed / 10
@@ -114,7 +114,7 @@ def player_input_battle_mode(self, player_index, dt):
                             elif "movable" not in self.current_action:
                                 self.current_action = self.guard_hold_command_action
 
-                        elif "run" in self.current_action and self.dash_move:
+                        elif self.dash_move and "run" in self.current_action:
                             self.interrupt_animation = True
                             self.command_action = self.dash_command_action
                             if self.angle == -90:
@@ -223,9 +223,9 @@ def player_input_battle_mode(self, player_index, dt):
                                     self.x_momentum = self.walk_speed / 10
 
                         if self.x_momentum:
-                            if "air" not in self.current_action and "guard" not in self.current_action and \
-                                    self.position != "Air" and "dash" not in self.current_action and \
-                                    not self.current_moveset:
+                            if not self.current_moveset and "air" not in self.current_action and \
+                                    "guard" not in self.current_action and \
+                                    self.position != "Air" and "dash" not in self.current_action:
                                 # movement with air does not use specific command action
                                 if not self.command_action:
                                     self.command_action = self.walk_command_action
