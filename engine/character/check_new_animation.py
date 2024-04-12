@@ -139,7 +139,7 @@ def check_new_animation(self, done):
                 Drop(Vector2(self.base_pos), self.current_action["drop"], self.team)
 
         # Reset action check
-        if "next action" in self.current_action and not self.interrupt_animation and \
+        if "next action" in self.current_action and (not self.interrupt_animation or not self.command_action) and \
                 (not self.current_moveset or "no auto next" not in self.current_moveset["Property"]):
             # play next action from current first instead of command if not finish by interruption
             self.current_action = self.current_action["next action"]

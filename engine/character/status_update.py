@@ -18,6 +18,9 @@ def status_update(self):
     crit_chance_bonus = 0
     animation_speed_modifier = 1
 
+    self.invisible = False
+    self.blind = False
+
     self.resource_cost_modifier = self.base_resource_cost_modifier
     self.guard_cost_modifier = self.base_guard_cost_modifier
 
@@ -38,6 +41,22 @@ def status_update(self):
     self.status_effect = {key: val for key, val in self.status_effect.items() if key in self.status_duration and
                           not any(ext in self.status_effect for ext in val["Status Conflict"])}
     self.status_applier = {key: val for key, val in self.status_applier.items() if key in self.status_effect}
+
+    if 4 in self.status_effect:  # invisible effect
+        self.invisible = True
+        if self.indicator in self.battle.battle_camera:
+            self.battle.battle_camera.remove(self.indicator)
+        for team in self.battle.all_team_enemy:
+            if team != self.team and self in self.battle.all_team_enemy[team]:
+                self.battle.all_team_enemy[team].remove(self)
+    elif self.indicator and self.indicator not in self.battle.battle_camera:  # add back indicator and enemy team for ai
+        self.battle.battle_camera.add(self.indicator)
+        for team in self.battle.all_team_enemy:
+            if team != self.team and self in self.battle.all_team_enemy[team]:
+                self.battle.all_team_enemy[team].remove(self)
+
+    if 7 in self.status_effect:  # blind effect
+        self.blind = True
 
     # Apply effect and modifier from status effect
     if self.status_effect:

@@ -271,6 +271,7 @@ class Character(sprite.Sprite):
 
         self.alive = True
         self.invisible = False
+        self.blind = False
         self.invincible = False
         self.fly = False
         self.no_clip = False
@@ -453,7 +454,7 @@ class BattleCharacter(Character):
     dmg_sound_distance = 80
     dmg_screen_shake = 2
 
-    def __init__(self, game_id, layer_id, stat, player_control=False, leader=None, health_scaling=1):
+    def __init__(self, game_id, layer_id, stat, player_control=False, leader=None, team_scaling=1):
         """
         BattleCharacter object represent a character that take part in the battle in stage
         Character has three different stage of stat;
@@ -541,6 +542,7 @@ class BattleCharacter(Character):
         self.charisma = stat["Charisma"] + (stat["Charisma"] * (leader_charisma / 200)) + stat_boost
 
         self.moveset = deepcopy(stat["Move"])
+        self.moveset_view = ()  # get add later in enter_stage
         self.skill = stat["Skill"].copy()
         self.available_skill = {"Couch": {}, "Stand": {}, "Air": {}}
         if "Drops" in stat and stat["Drops"]:  # add item drops when die, only add for character with drops data
@@ -620,7 +622,7 @@ class BattleCharacter(Character):
         self.item_carry_bonus = (self.strength / 25) + (self.wisdom / 50)
 
         self.base_health = int((stat["Base Health"] + (
-                stat["Base Health"] * (self.constitution / 20))) * health_scaling)  # max health of character
+                stat["Base Health"] * (self.constitution / 20))) * team_scaling)  # max health of character
         self.base_resource = int(stat["Max Resource"] + (stat["Max Resource"] * self.intelligence / 100))
 
         self.base_power_bonus = 0
@@ -851,6 +853,9 @@ class BattleCharacter(Character):
         else:  # die
             if self.alive:  # enter dead state
                 self.attack_cooldown = {}  # remove all cooldown
+                self.status_effect = {}
+                self.status_duration = {}
+                self.status_applier = {}
                 self.alive = False  # enter dead state
                 self.engage_combat()
                 self.current_action = self.die_command_action
@@ -1039,7 +1044,7 @@ class PlayerCharacter(BattleCharacter, Character):
 
 
 class AICharacter(BattleCharacter, Character):
-    def __init__(self, game_id, layer_id, stat, leader=None, health_scaling=1, specific_behaviour=None):
+    def __init__(self, game_id, layer_id, stat, leader=None, team_scaling=1, specific_behaviour=None):
         if self.battle.city_mode:
             Character.__init__(self, game_id, layer_id, stat)
             self.update = MethodType(Character.update, self)
@@ -1055,7 +1060,7 @@ class AICharacter(BattleCharacter, Character):
             if ai_behaviour in ai_combat_dict:
                 self.ai_combat = ai_combat_dict[ai_behaviour]
         else:
-            BattleCharacter.__init__(self, game_id, layer_id, stat, leader=leader, health_scaling=health_scaling)
+            BattleCharacter.__init__(self, game_id, layer_id, stat, leader=leader, team_scaling=team_scaling)
 
         if "Ground Y POS" in stat and stat["Ground Y POS"]:  # replace ground pos based on data in stage
             self.ground_pos = stat["Ground Y POS"]
@@ -1097,8 +1102,8 @@ class AICharacter(BattleCharacter, Character):
 
 
 class BattleAICharacter(AICharacter):
-    def __init__(self, game_id, layer_id, stat, leader=None, specific_behaviour=None, health_scaling=1):
-        AICharacter.__init__(self, game_id, layer_id, stat, leader=leader, health_scaling=health_scaling)
+    def __init__(self, game_id, layer_id, stat, leader=None, specific_behaviour=None, team_scaling=1):
+        AICharacter.__init__(self, game_id, layer_id, stat, leader=leader, team_scaling=team_scaling)
 
         self.old_cursor_pos = None
         self.is_boss = stat["Boss"]
@@ -1273,7 +1278,7 @@ class BodyPart(sprite.Sprite):
                 self.image = pygame.transform.rotate(self.base_image, self.data[4])
 
             self.re_rect()
-            if self._layer != self.owner_layer + 100 - data[6]:
+            if self in self.battle_camera and self._layer != self.owner_layer + 100 - data[6]:
                 self.battle_camera.change_layer(self, self.owner_layer + 100 - data[6])
 
     def re_rect(self):
@@ -1283,8 +1288,10 @@ class BodyPart(sprite.Sprite):
                     for team in self.battle.all_team_enemy_part:
                         if team != self.team:  # add back part to enemy part list of other team
                             self.battle.all_team_enemy_part[team].add(self)
-                self.battle_camera.add(self)
-
+                if not self.owner.invisible:
+                    self.battle_camera.add(self)
+            elif self.owner.invisible:  # remove part from camera for invisible character
+                self.battle_camera.remove(self)
             self.rect = self.image.get_rect(center=((self.owner.pos[0] + (self.data[2] * self.screen_scale[0])),
                                                     (self.owner.pos[1] + (self.data[3] * self.screen_scale[1]))))
             self.mask = from_surface(self.image)
@@ -1294,7 +1301,6 @@ class BodyPart(sprite.Sprite):
                     if team != self.team:  # remove part from enemy part list of other team
                         self.battle.all_team_enemy_part[team].remove(self)
                 self.battle_camera.remove(self)
-            # self.rect = self.image.get_rect(topleft=(0, 0))
 
     def update(self, dt):
         if self.owner.alive and self.data:  # only update if owner alive and part exist (not empty data)

@@ -53,6 +53,8 @@ def enter_stage(self, animation_data_pool):
         if self.near_ally:
             self.nearest_ally = self.near_ally[0]
 
+        self.moveset_view = {key: tuple(value.items()) for key, value in self.moveset.items()}
+
         if "arrive" in self.arrive_condition:  # start with arrive animation
             self.combat_state = "Combat"
             if self.nearest_enemy:

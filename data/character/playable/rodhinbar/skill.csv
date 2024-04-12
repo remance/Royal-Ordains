@@ -9,11 +9,11 @@
 "C2.3","Great Shot","Down,Forward,Strong","Stand",,,5000,5500,6,1,350,400,,50,,0.5,"Physical",,,,"penetrate"
 "C2.4","Power Shot","Down,Forward,Strong","Stand",,,5000,5500,6,1,416,800,,200,,0.5,"Physical",,,,"penetrate"
 "C2.5","Kill Shot","Down,Forward,Strong","Stand",,,6000,6500,6,1,1352,800,,200,,0.5,"Physical",,,,"penetrate,no defence"
-"C3.1","Arrow Shower","Guard,Down,Strong","Stand",,,2000,2200,0,12,44,,,,100,,"Physical",,,,"spawn,spawn after,spawn same,spawn sky,spawn near target,spawn number:3"
-"C3.2","Arrow Swarm","Guard,Down,Strong","Stand",,,2000,2200,0,14,57,,,,100,,"Physical",,,,"spawn,spawn after,spawn same,spawn sky,spawn near target,spawn number:2"
-"C3.3","Arrow Storm","Guard,Down,Strong","Stand",,,2000,2200,0,16,70,,,,100,,"Physical",,35,,"spawn,spawn after,spawn same,spawn sky,spawn near target,spawn number:2"
-"C3.4","Arrow Tempest","Guard,Down,Strong","Stand",,,2000,2200,0,20,95,,,,100,,"Physical",,35,,"spawn,spawn after,spawn same,spawn sky,spawn near target,spawn number:4"
-"C3.5","Blot Out the Sun","Guard,Down,Strong","Stand",,,2000,2200,0,20,120,,,,100,,"Physical",,35,,"spawn,spawn after,spawn same,spawn sky,spawn near target,spawn number:4,no dodge"
+"C3.1","Arrow Shower","Guard,Down,Strong","Stand",,,2000,2200,0,12,44,,,,100,,"Physical",,,,"spawn,spawn after,spawn same,spawn sky,aim:near target,spawn number:3"
+"C3.2","Arrow Swarm","Guard,Down,Strong","Stand",,,2000,2200,0,14,57,,,,100,,"Physical",,,,"spawn,spawn after,spawn same,spawn sky,aim:near target,spawn number:2"
+"C3.3","Arrow Storm","Guard,Down,Strong","Stand",,,2000,2200,0,16,70,,,,100,,"Physical",,35,,"spawn,spawn after,spawn same,spawn sky,aim:near target,spawn number:2"
+"C3.4","Arrow Tempest","Guard,Down,Strong","Stand",,,2000,2200,0,20,95,,,,100,,"Physical",,35,,"spawn,spawn after,spawn same,spawn sky,aim:near target,spawn number:4"
+"C3.5","Blot Out the Sun","Guard,Down,Strong","Stand",,,2000,2200,0,20,120,,,,100,,"Physical",,35,,"spawn,spawn after,spawn same,spawn sky,aim:near target,spawn number:4,no dodge"
 "C4.1","Precision Slash","Guard,Forward,Strong","Stand",,,300,,3,0,100,50,,,65,0.3,"Physical",,,,"all child moveset,no dodge"
 "C4.2","Razor Edge Slash","Guard,Forward,Strong","Stand",,,300,,3,0,121,50,,,65,0.3,"Physical",,33,,"all child moveset,no dodge"
 "C4.3","Penetrating Slash","Guard,Forward,Strong","Stand",,,300,,3,0,138,50,,,65,1,"Physical",,33,,"all child moveset,no dodge"
@@ -24,11 +24,11 @@
 "C5.3","Luring Escape","Down,Backward,Strong","Stand",,,400,2200,10,1,82,35,,,60,,"Physical",,"5,12",,"all child moveset,x_momentum:-500,movable,forced move"
 "C5.4","Ambush Setup","Down,Backward,Strong","Stand",,,400,2200,10,3,64,35,,,60,,"Physical",,"5,12,36",,"all child moveset,x_momentum:-500,movable,forced move"
 "C5.5","Death Trap","Down,Backward,Strong","Stand",,,400,2200,10,3,75,35,,,60,,"Physical",,"5,12,36",,"all child moveset,x_momentum:-500,penetrate,movable,forced move"
-"C6.1","Rapid Draw","Down,Backward,Weak","Stand",,,1000,,60,0,,,,,,,"Physical",,92,,
-"C6.2","Combat Acceleration","Down,Backward,Weak","Stand",,,1000,,60,0,,,,,,,"Physical",,"90,92",,
-"C6.3","Planning Annihilation","Down,Backward,Weak","Stand",,,1000,,60,0,,,,,,,"Physical",,"90,92,93",,
-"C6.4","Overcome the Limit","Down,Backward,Weak","Stand",,,1000,,60,0,,,,,,,"Physical",,"90,92,93,28",,
-"C6.5","Supreme Speed","Down,Backward,Weak","Stand",,,1000,500,60,0,,,,,,,"Physical",,"90,92,93,28",,
+"C6.1","Rapid Draw","Down,Backward,Weak","Stand",,,1000,,60,0,,,,,,,"Physical",92,,,
+"C6.2","Combat Acceleration","Down,Backward,Weak","Stand",,,1000,,60,0,,,,,,,"Physical","90,92",,,
+"C6.3","Planning Annihilation","Down,Backward,Weak","Stand",,,1000,,60,0,,,,,,,"Physical","90,92,93",,,
+"C6.4","Overcome the Limit","Down,Backward,Weak","Stand",,,1000,,60,0,,,,,,,"Physical","90,92,93,28",,,
+"C6.5","Supreme Speed","Down,Backward,Weak","Stand",,,1000,500,60,0,,,,,,,"Physical","90,92,93,28",,,
 "A1.1","Explosive Arrow","Down,Forward,Special","Air",,,,,,3,,,,,,,"Fire",,,,
 "A1.2","Firework Arrow","Down,Forward,Special","Air",,,,,,3,,,,,,,"Fire",,,,
 "A1.3","Force Arrow","Down,Forward,Special","Air",,,,,,3,,,,,,,"Fire",,,,

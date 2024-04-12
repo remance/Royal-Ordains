@@ -723,7 +723,7 @@ class Battle:
                 else:
                     player_key_bind_name = self.player_key_bind_name[player]
                     # joystick = self.player_joystick[player]  # TODO rework this later, change id to object
-                    for joystick_id, joystick in self.joysticks.items():
+                    for joystick_id, joystick in self.joysticks.items():  # TODO find way so no need to loop this
                         if self.player_joystick[player] == joystick_id:
                             for i in range(joystick.get_numbuttons()):
                                 if joystick.get_button(i) and i in player_key_bind_name:
@@ -769,6 +769,7 @@ class Battle:
                                             else:
                                                 self.player_key_hold[player][player_key_bind_name[axis_name]] = True
                                                 self.player_key_press[player][player_key_bind_name[axis_name]] = True
+                            break
 
             self.base_cursor_pos = Vector2(
                 (self.main_player_battle_cursor.pos[0] - self.battle_camera_center[0] + self.camera_pos[0]),
@@ -805,9 +806,21 @@ class Battle:
                     # FOR DEVELOPMENT
                     if event.key == K_F1:
                         self.drama_text.queue.append(("Hello and welcome to showcase video", "Cannon Shot Medium"))
-                    # if event.key == K_F2:
-                    #     CharacterSpeechBox(self.main_player_object, "Hello and welcome to showcase video.")
-                    if event.key == K_F6:
+                    elif event.key == K_F3:
+                        for enemy in self.all_team_enemy[2]:
+                            if not enemy.invincible and int(enemy.base_pos[0] / 1920) in \
+                                    (self.battle_stage.spawn_check_scene - 1, self.battle_stage.spawn_check_scene):
+                                enemy.health = 1
+                    elif event.key == K_F4:
+                        for character in self.player_objects.values():
+                            character.cal_loss(None, 0, (50, -200), character.angle, (0, 0), False)
+                    elif event.key == K_F5:
+                        for enemy in self.all_chars:
+                            if not enemy.invincible and enemy.team == 1:
+                                enemy.health = 0
+                        CharacterSpeechBox(self.player_objects[self.main_player],
+                                           "Die")
+                    elif event.key == K_F6:
                         for enemy in self.all_team_enemy[1]:
                             if not enemy.invincible and int(enemy.base_pos[0] / 1920) in \
                                     (self.battle_stage.spawn_check_scene - 1, self.battle_stage.spawn_check_scene):
@@ -821,9 +834,6 @@ class Battle:
                         if not hasattr(self.game, "profiler"):
                             self.game.setup_profiler()
                         self.game.profiler.switch_show_hide()
-                    elif event.key == pygame.K_1:
-                        for character in self.player_objects.values():
-                            character.cal_loss(None, 0, (50, -200), character.angle, (0, 0), False)
                     # elif event_key_press == pygame.K_k:
                     #     if self.players:
                     #         for unit in self.players.alive_leader_follower:
@@ -856,6 +866,7 @@ class Battle:
                         if value == event.instance_id:
                             self.player_joystick.pop(key)
                             self.joystick_player.pop(value)
+                            break
 
             if not self.music_left.get_busy() and self.current_music:  # change if music finish playing
                 self.music_left.play(self.current_music, fade_ms=100)
@@ -894,7 +905,7 @@ class Battle:
                                self.stage_translation_text_popup, self.player_char_base_interfaces.values(),
                                self.player_char_interfaces.values())
 
-        for key, value in self.player_objects.items():
+        for key in self.player_objects:
             self.player_portraits[key].reset_value()
         self.realtime_ui_updater.remove(self.player_portraits.values(), self.player_wheel_uis.values(),
                                         self.player_trainings.values())

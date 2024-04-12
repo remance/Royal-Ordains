@@ -18,8 +18,9 @@ def setup_battle_character(self, player_list, stage_char_list, add_helper=True):
                                                           self.character_data.character_list[data["ID"]] |
                                                           data | additional_data)
 
-    self.player_objects = {key: value["Object"] for key, value in self.players.items()}
-    self.player_team = {key: value["Object"].team for key, value in self.players.items()}
+        self.player_objects = {key: value["Object"] for key, value in self.players.items()}
+        self.player_team = {key: value["Object"].team for key, value in self.players.items()}
+
     player_team = {1: 0, 2: 0, 3: 0, 4: 0}
     for player in self.player_objects.values():  # increase AI health of opposite player team depending on player number
         for team in player_team:
@@ -44,13 +45,13 @@ def setup_battle_character(self, player_list, stage_char_list, add_helper=True):
                                 data | self.character_data.character_list[data["ID"]] |
                                 {"Sprite Ver": self.chapter}, specific_behaviour=specific_behaviour)
                 else:
-                    health_scaling = player_team[data["Team"]] * 2
+                    team_scaling = player_team[data["Team"]] * 2
                     if not player_team[data["Team"]] or player_team[data["Team"]] == 1:
                         # 0 player is considered x1 same as 1 player
-                        health_scaling = 1
+                        team_scaling = 1
                     BattleAICharacter(data["Object ID"], data["Object ID"],
                                       data | self.character_data.character_list[data["ID"]] |
-                                      {"Sprite Ver": self.chapter}, health_scaling=health_scaling)
+                                      {"Sprite Ver": self.chapter}, team_scaling=team_scaling)
 
     if player_list and not self.city_mode:  # add AI followers for added player in battle
         last_id = stage_char_list[-1]["Object ID"] + 1  # id continue from last stage chars

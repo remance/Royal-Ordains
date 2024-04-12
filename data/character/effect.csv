@@ -4,6 +4,8 @@
 "Blood Pull",,,,,,,,,,,,"no travel"
 "Rodhinbar Arrow",,1200,,,,,"stick",,"Arrow",1000,,
 "Arrow",,1000,,,,,"stick",,"Arrow",1000,,
+"Adaqua Signal Arrow",,1500,,,,,"stick",,"Arrow",1000,,
+"Adaqua Arrow",,1200,,,,,"stick",,"Arrow",1000,,
 "Bolt",,1000,,,,,"stick",,"Bolt",1000,,
 "Nayedien Spear",,3500,,,,,"stick",,"Javelin",2000,,
 "Fast Stone",,1000,,,,,"bounce",,"Stone",1000,,
@@ -49,3 +51,4 @@
 "Shrapnel",,1500,,,,,,,"Shrapnel",1000,10,
 "Small Explosion",,,,,,,,,"Explosion",4000,80,"no travel"
 "Frost Explosion",,,,,,,,,"Frost Explosion",2500,50,"no travel"
+"Golden Day",,,,,,,,,,,,

@@ -63,16 +63,16 @@
 "Hban1","Human Bandit Fighter",526,,,16,7,8,14,3,5,6,,0.05,,,,,,,"Health Potion:15","Small Chest:5",41,10,1,,,"TRUE",4,"Melee","common",
 "Hban2","Human Bandit Archer",355,,,6,12,10,10,9,10,5,,,,0.05,,,,,"Health Potion:3","Small Chest:5",35,10,1,,,"TRUE",4,"Range","common",
 "Hban3","Human Hedge Mage",276,20,,5,10,4,14,15,15,8,,,,,,0.1,,,"Resource Potion:10","Small Chest:5",50,10,1,,,"TRUE",5,"Range","common",
-"Hban4","Bandit Lookout Tower",1000,,,5,10,1,5,5,5,5,0.1,-0.4,,,0.1,0.15,0.5,,,"Small Chest:5",100,30,1,,,,,"Range","sentry_range","no_forced_move"
+"Hban4","Bandit Lookout Tower",1000,,,5,10,1,5,5,5,5,0.1,-0.4,,,0.1,0.15,0.5,,,"Small Chest:5",100,30,1,,,,,"Range","trap","no_forced_move"
 "Hban5","Human Bandit Ranger",418,,,8,14,13,12,7,12,9,,,,,,,,,,"Small Chest:5",,10,1,,,"TRUE",5,"Range","common",
 "Hban6","Human Hound Bandit",135,,,4,8,7,11,10,11,17,,,,,,,,,,"Small Chest:5",,,1,,,"TRUE",10,"Melee","leader",
-"Dban1","Dwarf Bandit Crossbowman",413,,,10,10,5,16,8,8,1,0.05,,,,0.1,,,,"Meat:7",,,12,1,,,"TRUE",5,"Range","trap",
+"Dban1","Dwarf Bandit Crossbowman",413,,,10,10,5,16,8,8,1,0.05,,,,0.1,,,,"Meat:7",,,12,1,,,"TRUE",5,"Range","sentry",
 "Dban2","Dwarf Marauder",956,,,20,4,6,22,3,4,1,0.15,0.1,,,0.1,,,,"Meat:7",,,12,1,,,"TRUE",5,"Melee","common",
 "Dban3","Dwarf Thug",1350,,,21,7,7,25,3,6,3,0.3,0.05,,,0.1,,,,"Meat:15",,,12,1,,,"TRUE",7,"Melee","common",
 "Eban1","Elf Bandit Fighter",675,,,10,15,10,18,7,7,5,,,,,,,,,,,,8,1,,,"TRUE",5,"Melee","common",
 "Eban2","Elf Rogue Scout",556,,,4,18,20,15,10,10,8,,0.1,,0.1,,,,,,,,8,1,,,"TRUE",5,"Range","common",
-"Eban3","Elf Taint Druid",423,20,,4,20,14,13,20,20,13,,,,,,0.2,,,,,,8,1,,,"TRUE",7,"Range","sentry_range",
-"Adaqua","Adaqua",7200,,,17,25,25,31,18,32,48,,,,0.15,,,0.4,,,,20000,10,1,,"TRUE",,"20","Range","adaqua","no_forced_move"
+"Eban3","Elf Taint Druid",423,20,,4,20,14,13,20,20,13,,,,,,0.2,,,,,,8,1,,,"TRUE",7,"Range","sentry",
+"Adaqua","Adaqua",7200,,,17,25,25,31,18,32,48,,,,0.15,,,0.4,,,,20000,10,1,,"TRUE",,"20","Range","common","no_forced_move"
 "Rban1","Bunny Bandit",80,,,5,4,10,6,2,4,21,,,-0.05,0.05,,,,,"Carrot:25,Health Potion:5","Small Chest:1",15,6,1,,,"TRUE",3,"Melee","common",
 "Rban2","Rabbit Raider",60,,,3,12,12,4,4,4,21,,,-0.05,0.05,,,,,"Carrot:25,Health Potion:5","Small Chest:1",10,6,1,,,"TRUE",3,"Range","common",
 "Rban3","Hare Hooligan",50,,,4,10,15,5,3,4,21,,,-0.05,0.05,,,,,"Carrot:25,Health Potion:5","Small Chest:1",10,6,1,,,"TRUE",3,"Range","common",
@@ -92,7 +92,7 @@
 "Animal9","Flying Pig",760,,,15,11,3,18,13,19,3,,,,0.15,,,0.15,,,,,8,1,,,"TRUE",,,,"fly"
 "Animal10","Great Snail",4528,,,30,15,3,50,1,1,1,0.3,,0.3,0.3,,,0.2,,"Herb+3:40,Health Potion+2:10,Resource Potion+2:10",,2000,30,1,,"TRUE","TRUE",18,"Melee","common","no_forced_move"
 "Animal11","Trained Hound",250,,,11,21,23,7,3,2,6,,,,,,,,,,,,,1,,,"TRUE",,"Melee","common",
-"Bigta","Bigta and Sertors",3400,,,10,13,16,25,10,15,30,,-0.05,-0.05,0.05,,,,,"Bronze Coin+10:15,Silver Coin+10:10,Gold Coin+5:5,Carrot+20:50","Medium Chest+5:5",10000,8,1,,"TRUE",,"13","Melee","bigta","no_forced_move"
+"Bigta","Bigta and Sertors",3400,,,10,13,16,25,10,15,30,,-0.05,-0.05,0.05,,,,,"Bronze Coin+10:15,Silver Coin+10:10,Gold Coin+5:5,Carrot+20:50","Medium Chest+5:5",10000,8,1,,"TRUE",,"13","Melee","common","no_forced_move"
 "Summon1","Automated Scorpion",100,,,20,20,5,1,1,1,1,,-0.35,,,,,,,"Scrap:100",,,10,,"TRUE",,,,,"trap","no_forced_move"
 "Summon2","Automated Reinforced Scorpion",300,,,20,20,5,1,1,1,1,0.1,-0.1,,,,,,,"Scrap:100",,,10,,"TRUE",,,,,"trap","no_forced_move"
 "Summon3","Automated Small Ballista",300,,,20,20,5,1,1,1,1,0.1,-0.1,,,,,,,"Scrap:100",,,10,,"TRUE",,,,,"trap","no_forced_move"

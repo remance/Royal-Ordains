@@ -1,12 +1,12 @@
 "Buttons","Move","Name","Position","Stat Requirement","Requirement Move","Prepare Animation","After Animation","AI Range","AI Condition","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"Weak","sweak1","Axe Overhead Slash","Stand",,,,,250,,,5,,30,50,,,,,"Physical",,,,
-"Weak","sweak2","Axe Slash","Stand",,"sweak1",,,250,,,7,,25,60,,,,,"Physical",,,,
-"Weak","sweak3","Axe Slash 2","Stand",,"sweak2",,,250,,,10,,41,,,,100,,"Physical",,,,
-"Weak","sweak4","Axe Massacre","Stand","Strength:30","sweak3",,,250,,,13,,7,80,,,,,"Physical",,,,"multiple hits"
-"Strong","sstrong1","Straight Shot","Stand",,,,,1500,,1800,9,,70,20,,,25,5,"Air",,,,
-"Strong","sstrong2","Tri Shot","Stand","Dexterity:45","sstrong1",,,1500,,1800,15,,55,35,,,20,10,"Air",,,,
-"Strong","sstrong3","Charge Shot","Stand","Dexterity:55","sstrong2",,,3000,,3500,22,,100,50,,,10,20,"Air",,,,"penetrate"
-"Down,Strong","sdstrong","Rain Shots","Stand",,,,,2000,,2000,13,,35,,,,35,,"Air",,,,"spawn,spawn after,spawn same,spawn sky,spawn near target"
+"Weak","sweak1","Axe Overhead Slash","Stand",,,,,250,,,5,,30,50,,,,,"Earth",,,,
+"Weak","sweak2","Axe Slash","Stand",,"sweak1",,,250,,,7,,25,60,,,,,"Earth",,,,
+"Weak","sweak3","Axe Slash 2","Stand",,"sweak2",,,250,,,10,,41,,,,100,,"Earth",,,,
+"Weak","sweak4","Axe Massacre","Stand","Strength:30","sweak3",,,250,,,13,,7,80,,,,,"Earth",,,,"multiple hits"
+"Strong","sstrong1","Straight Shot","Stand",,,,,1500,,1800,9,,70,20,,,25,5,"Physical",,,,
+"Strong","sstrong2","Tri Shot","Stand","Dexterity:45","sstrong1",,,1500,,1800,15,,55,35,,,20,10,"Physical",,,,
+"Strong","sstrong3","Charge Shot","Stand","Dexterity:55","sstrong2",,,3000,,3500,22,,100,50,,,10,20,"Physical",,,,"penetrate"
+"Down,Strong","sdstrong","Rain Shots","Stand",,,,,2000,,2000,13,,35,,,,35,,"Physical",,,,"spawn,spawn after,spawn same,spawn sky,aim:near target"
 "Special","sspecial","Summon Health Potion","Stand",,,,,2000,"leader:{health<=70}",,20,,,,,,,,"Physical",,,,"helper,helper drop item:Health Potion"
 "Down,Special","sdspecial","Summon Large Health Potion","Stand","Wisdom:40",,,,2000,"leader:{health<=50}",,45,,,,,,,,"Physical",,,,"helper,helper drop item:Large Health Potion"
 "Forward,Special","sfspecial","Summon Massive Health Potion","Stand","Intelligence:37",,,,2000,"leader:{health<=30}",,85,,,,,,,,"Physical",,,,"helper,helper drop item:Massive Health Potion"

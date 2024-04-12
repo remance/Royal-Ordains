@@ -1,12 +1,12 @@
 "Buttons","Move","Name","Position","Stat Requirement","Requirement Move","Prepare Animation","After Animation","AI Range","AI Condition","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"Weak","sweak","Fast Step","Stand",,,,,200,,,10,,,,,,,,"Physical",,,,"momentum_x:600"
-"Backward,Weak","sbweak","Quick Retreat","Stand",,,,,200,,,8,,,,,,,,"Physical",,,,"momentum_x:-600"
-"Strong","sstrong1","Straight Shot","Stand",,,,,1500,,1800,5,,70,20,,,25,5,"Physical",,,,"momentum_x:-200"
-"Strong","sstrong2","Double Shots","Stand",,"sstrong1,sbweak",,,1500,,1800,10,,60,35,,,20,10,"Physical",,,,"momentum_x:-300"
-"Strong","sstrong3","Shotgun Shots","Stand","Dexterity:30","sstrong2",,,1000,,1800,18,,42,30,,,30,,"Earth",,,,
-"Forward,Strong","sfstrong","Jump Tri Shot","Stand",,,,,2000,,2500,10,,,,,,,,"Air",,,,
-"Special","sspecial","True Shot","Stand",,,,,4000,,4000,15,,,,,,,,"Air",,,,"penetrate,no dodge,no guard"
-"Backward,Strong","sbstrong","Smoke Bomb","Stand",,,,,1500,,,24,,,,,,,,"Physical",,,,
-"Down,Special","sdspecial","Action Burst","Stand","Dexterity:35",,,,2000,,,200,,,,,,,,"Physical",,,,
-"Forward,Special","sfspecial","Arrows of Day","Stand","Dexterity:45",,,,1500,,2000,38,,100,60,,,60,,"Air",,,,
-"Backward,Special","sbspecial","Golden Day","Stand","Intelligence:45",,,,2000,,500,60,,,,,,,,,,,,
+"Weak","sweak","Fast Step","Stand",,,"name:sweakReady","name:sweakEnd,movable,x_momentum:200,forced move",200,,,10,,,,,,,,"Physical",,,,"movable,x_momentum:300,repeat,forced move"
+"Strong","sstrong1","Straight Shot","Stand",,,,,1500,,1800,5,,50,20,,,25,5,"Physical",,,,"momentum_x:-200"
+"Strong","sstrong2","Double Shots","Stand",,"sstrong1,sbweak",,,1500,,1800,10,,38,35,,,20,10,"Physical",,,,"momentum_x:-300"
+"Strong","sstrong3","Shotgun Shot","Stand","Dexterity:30","sstrong2",,,1000,,1800,21,,42,30,,,30,,"Physical",,,,
+"Forward,Strong","sfstrong","Jump Tri Shot","Stand",,,,,2000,,2500,12,,80,,,,50,,"Physical",,,,
+"Special","sspecial","True Shot","Stand",,,,,4000,,4000,17,,150,100,,,100,,"Physical",,,,"penetrate,no dodge,no guard"
+"Backward,Strong","sbstrong","Smoke Bomb","Stand",,,,,1500,,,65,,,,,,,,"Physical",4,,,
+"Down,Special","sdspecial","Action Burst","Stand","Dexterity:35",,,,2000,,,200,,,,,,,,"Physical",92,,,
+"Forward,Special","sfspecial","Arrows of Day","Stand","Dexterity:45",,"name:C1Ready","name:sfspecialEnd",1500,,2000,42,,75,60,,,60,,"Physical",,,,
+"Backward,Special","sbspecial","Golden Day","Stand","Intelligence:45",,,,2000,,1500,100,,,,,,,,"Magical",98,96,,
+"Backward,Weak","sbweak","Quick Retreat","Stand",,,"name:sbweakReady","name:sbweakEnd,movable,x_momentum:-200,forced move",200,,,7,,,,,,,,"Physical",,,,"movable,x_momentum:-300,repeat,forced move"

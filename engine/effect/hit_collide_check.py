@@ -33,15 +33,16 @@ def hit_collide_check(self, check_damage_effect=True):
             elif enemy_part.can_hurt and enemy not in self.already_hit and \
                     ("no dmg" not in enemy.current_action or not enemy.player_control):  # collide body part
                 collide_pos = collide_mask(self, enemy_part)
-                Effect(None, ("Damaged", "Base", self.rect.topleft[0] + collide_pos[0], self.rect.topleft[1] + collide_pos[1],
-                              uniform(-360, 360), 1, 0, 1), 0)
-                self.owner.hit_enemy = True
-                self.hit_register(enemy, enemy_part)
-                self.already_hit.append(enemy)
+                if collide_pos:  # in case collide change
+                    Effect(None, ("Damaged", "Base", self.rect.topleft[0] + collide_pos[0], self.rect.topleft[1] + collide_pos[1],
+                                  uniform(-360, 360), 1, 0, 1), 0)
+                    self.owner.hit_enemy = True
+                    self.hit_register(enemy, enemy_part)
+                    self.already_hit.append(enemy)
 
-                if not self.penetrate and not self.owner.attack_penetrate and not self.stick_reach:
-                    self.reach_target()
-                    return True
+                    if not self.penetrate and not self.owner.attack_penetrate and not self.stick_reach:
+                        self.reach_target()
+                        return True
 
     if self.stick_timer and not self.stuck_part:  # bounce off after reach if not stuck on enemy part
         if self.angle > 0:

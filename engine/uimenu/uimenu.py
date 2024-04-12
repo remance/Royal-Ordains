@@ -766,6 +766,7 @@ class CharacterInterface(UIMenu):
                          "Rarity Ascending", "Rarity Descending")
     follower_sort_list = ("Name Ascending", "Name Descending", "Type Ascending", "Type Descending", "Cost Ascending",
                           "Cost Descending", "Single Ascending", "Single Descending")
+    follower_clear_list = ("Clear Follower", "Cancel Clear")
     purchase_confirm_list = ("Confirm Purchase", "Cancel Purchase")
     purchase_clear_confirm_list = ("Confirm Clear", "Cancel Clear")
     enchant_confirm_list = ("Confirm Re-enchant", "Cancel Re-enchant")
@@ -1827,6 +1828,11 @@ class CharacterInterface(UIMenu):
                             else:
                                 sort_list = dict(sorted(sort_list.items(), key=lambda item: item[1], reverse=True))
                             self.profile["follower list"] = [key for key in sort_list]
+                    elif self.sub_menu_button_list == self.follower_clear_list:
+                        if self.follower_clear_list[self.sub_menu_current_row] == "Clear Follower":
+                            for key in tuple(self.current_follower_preset.keys()):
+                                self.current_follower_preset.pop(key)
+                            self.add_follower_list()
                     elif self.sub_menu_button_list == self.purchase_confirm_list:
                         if self.purchase_confirm_list[self.sub_menu_current_row] == "Confirm Purchase":
                             total_cost = self.calculate_shop_cost()
@@ -2308,6 +2314,8 @@ class CharacterInterface(UIMenu):
                                                self.grab_text(("ui", "Type")) + ": " + follower_stat[
                                                    "Type"]),
                                               shown_id=stat, width_text_wrapper=400 * self.game.screen_scale[0])
+                    elif key == "Weak":
+                        self.open_sub_menu(self.follower_clear_list)
                     elif key == "Strong":
                         self.open_sub_menu(self.follower_sort_list)
                     elif key == "Order Menu":  # go to previous page (equipment)
@@ -2326,7 +2334,11 @@ class CharacterInterface(UIMenu):
                                                self.grab_text(("ui", "keybind_strong_attack")) + " " +
                                                self.grab_text(("ui", "Button")) + " (" +
                                                self.game.player_key_bind_button_name[self.player]["Strong"] +
-                                               "): " + self.grab_text(("ui", "sort_follower"))),
+                                               "): " + self.grab_text(("ui", "sort_follower")),
+                                               self.grab_text(("ui", "keybind_weak_attack")) + " " +
+                                               self.grab_text(("ui", "Button")) + " (" +
+                                               self.game.player_key_bind_button_name[self.player]["Strong"] +
+                                               "): " + self.grab_text(("ui", "clear_follower"))),
                                               shown_id=key, width_text_wrapper=400 * self.game.screen_scale[0])
 
     def player_input_storage(self, key):

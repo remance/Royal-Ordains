@@ -101,8 +101,18 @@ class AnimationData(GameData):
                                     for item2 in item["property"]:
                                         if "play_time_mod" in item2:
                                             item["play_time_mod"] = float(item2.split("_")[-1])
+                                    item["property"] = tuple(set(item["property"]))
                                     if item["sound_effect"]:
                                         item["sound_effect"].append(item["sound_effect"][1] / 2)
+
+                    # since pool data cannot be changed later, use tuple instead
+                    for key in animation_pool:
+                        for index in range(len(animation_pool[key]["l_side"])):
+                            animation_pool[key]["l_side"][index] = {key: tuple(value) if type(value) is list else value for key, value in
+                                                                          animation_pool[key]["l_side"][index].items()}
+                        for index in range(len(animation_pool[key]["r_side"])):
+                            animation_pool[key]["r_side"][index] = {key: tuple(value) if type(value) is list else value for key, value in
+                                                                          animation_pool[key]["r_side"][index].items()}
 
                     self.character_animation_data[file_data_name] = animation_pool
                 edit_file.close()
@@ -175,22 +185,32 @@ class AnimationData(GameData):
                                               " ".join([string for string in key.split(" ")[:-1]])]
                             animation_list = {
                                 1.0: [{0: value, 1: flip(value, True, False)} for value in animation_list]}
+                            if "effect" in part_size_scaling:  # effect with sprite scaling
+                                if fcv(folder[-1]) in part_size_scaling["effect"]:
+                                    if final_name + " 0" in part_size_scaling["effect"][fcv(folder[-1])]:
+                                        scale_list = part_size_scaling["effect"][fcv(folder[-1])][final_name + " 0"]
+                                        for scale in scale_list:
+                                            animation_list[scale] = \
+                                                [{0: smoothscale(frame[0], (frame[0].get_width() * scale,
+                                                                            frame[0].get_height() * scale)),
+                                                  1: smoothscale(frame[1], (frame[1].get_width() * scale,
+                                                                            frame[1].get_height() * scale))}
+                                                 for frame in animation_list[1]]
                         else:  # single frame effect
                             animation_list = {
                                 1.0: [{0: value, 1: flip(value, True, False)} for key, value in images.items() if
                                       true_name == key]}
-
-                        if "effect" in part_size_scaling:  # effect with sprite scaling
-                            if fcv(folder[-1]) in part_size_scaling["effect"]:
-                                if final_name in part_size_scaling["effect"][fcv(folder[-1])]:
-                                    scale_list = part_size_scaling["effect"][fcv(folder[-1])][final_name]
-                                    for scale in scale_list:
-                                        animation_list[scale] = \
-                                            [{0: smoothscale(value[0], (value[0].get_width() * scale,
-                                                                        value[0].get_height() * scale)),
-                                              1: smoothscale(value[1], (value[1].get_width() * scale,
-                                                                        value[1].get_height() * scale))} for value in
-                                             animation_list[1]]
+                            if "effect" in part_size_scaling:  # effect with sprite scaling
+                                if fcv(folder[-1]) in part_size_scaling["effect"]:
+                                    if final_name in part_size_scaling["effect"][fcv(folder[-1])]:
+                                        scale_list = part_size_scaling["effect"][fcv(folder[-1])][final_name]
+                                        for scale in scale_list:
+                                            animation_list[scale] = \
+                                                [{0: smoothscale(value[0], (value[0].get_width() * scale,
+                                                                            value[0].get_height() * scale)),
+                                                  1: flip(smoothscale(value[1], (value[1].get_width() * scale,
+                                                                            value[1].get_height() * scale)), True, False)} for value in
+                                                 animation_list[1]]
                         self.effect_animation_pool[folder_data_name][folder_data_name2][final_name] = animation_list
 
         self.stage_object_sprite_pool = {}

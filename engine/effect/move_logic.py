@@ -39,7 +39,10 @@ def move_logic(self, dt, done):
                     self.reach_target("border")
                     return True
 
-    if ((self.travel and self.travel_distance <= 0) or (not self.travel and done)) \
+    if self.travel and self.travel_distance <= 0 \
             and not self.stick_timer and not self.max_duration:  # reach max travel distance
         self.reach_target("border")
+        return True
+    elif not self.travel and done:
+        self.reach_target()
         return True

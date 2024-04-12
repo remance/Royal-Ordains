@@ -112,7 +112,7 @@ def move_logic(self, dt):
                 for part in self.body_parts.values():
                     part.re_rect()
 
-        elif "forced move" not in self.current_action and "fly" not in self.current_action:
+        elif "fly" not in self.current_action:
             # reach target, interrupt moving animation
             self.interrupt_animation = True  # in moving animation, interrupt it
 

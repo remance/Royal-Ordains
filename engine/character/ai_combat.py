@@ -45,7 +45,7 @@ def find_move_to_attack(self):
     if self.stoppable_frame and self.continue_moveset:  # continue from previous move
         for move, value in self.continue_moveset.items():
             if value["Move"] not in self.attack_cooldown and \
-                    (value["AI Range"] >= self.nearest_enemy[1] or 7 in self.status_effect) and \
+                    (value["AI Range"] >= self.nearest_enemy[1] or self.blind) and \
                     (not value["AI Condition"] or self.check_ai_condition(value["AI Condition"])):
                 self.moveset_command_key_input = move
                 self.interrupt_animation = True
@@ -57,9 +57,9 @@ def find_move_to_attack(self):
                     self.continue_moveset = None
                 return True
 
-    for move, value in self.moveset[self.position].items():
+    for move, value in self.moveset_view[self.position]:
         if value["Move"] not in self.attack_cooldown and \
-            (value["AI Range"] >= self.nearest_enemy[1] or 7 in self.status_effect) and \
+            (value["AI Range"] >= self.nearest_enemy[1] or self.blind) and \
                 (not value["AI Condition"] or self.check_ai_condition(value["AI Condition"])):
             # blind (7) cause random attack
             self.engage_combat()
@@ -96,7 +96,7 @@ def guard_ai(self):
     """Common combat AI will use only stand position with guard priority and not use combo"""
     if (not self.current_action or "guard" in self.current_action) and not self.command_action and self.nearest_enemy:
         if self.nearest_enemy[1] <= self.ai_max_attack_range and not self.ai_timer:
-            if not self.guarding and self.guard == self.max_guard and 7 not in self.status_effect:
+            if not self.guarding and self.guard == self.max_guard and not self.blind:
                 # always guard first when enemy near and not blind (7)
                 self.guarding = 0.1
                 self.ai_timer = 0.1
@@ -113,7 +113,7 @@ def guard_ai(self):
     elif self.stoppable_frame and "moveset" not in self.command_action:
         if self.nearest_enemy[1] <= self.ai_max_attack_range:
             find_move_to_attack(self)
-            if 7 not in self.status_effect:  # blind (7) cause random attack
+            if not self.blind:  # blind (7) cause random attack
                 if self.nearest_enemy[0].base_pos[0] >= self.base_pos[0]:
                     self.new_angle = -90
                 else:
@@ -137,8 +137,8 @@ def common_ai(self):
         if self.nearest_enemy[1] <= self.ai_max_attack_range:
             if self.position in self.moveset:
                 find_move_to_attack(self)
-                if 7 not in self.status_effect:
-                    # blind (7) cause random attack
+                if not self.blind:
+                    # blind cause random attack
                     if self.nearest_enemy[0].base_pos[0] >= self.base_pos[0]:
                         self.new_angle = -90
                     else:
@@ -146,7 +146,7 @@ def common_ai(self):
     elif self.stoppable_frame and "moveset" not in self.command_action:
         if self.nearest_enemy[1] <= self.ai_max_attack_range:
             find_move_to_attack(self)
-            if 7 not in self.status_effect:  # blind (7) cause random attack
+            if not self.blind:  # blind cause random attack
                 if self.nearest_enemy[0].base_pos[0] >= self.base_pos[0]:
                     self.new_angle = -90
                 else:
@@ -154,5 +154,5 @@ def common_ai(self):
 
 
 ai_combat_dict = {"default": training_ai, "common": common_ai, "sentry": common_ai,
-                  "trap": common_ai, "bigta": common_ai, "guard_melee": guard_ai, "pursue": common_ai,
+                  "trap": common_ai, "guard_melee": guard_ai, "pursue": common_ai,
                   "boss_cheer": cheer_ai}

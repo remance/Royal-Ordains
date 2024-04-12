@@ -16,7 +16,8 @@ def die(self, delete=False):
         if team != self.team:
             for part in self.body_parts.values():
                 self.battle.all_team_enemy_part[team].remove(part)
-            self.battle.all_team_enemy[team].remove(self)
+            if self in self.battle.all_team_enemy[team]:
+                self.battle.all_team_enemy[team].remove(self)
     if self.player_control and int(self.game_id[-1]) in self.battle.player_objects:
         self.battle.player_objects.pop(int(self.game_id[-1]))
 
@@ -39,6 +40,10 @@ def die(self, delete=False):
     if delete:
         clean_group_object((self.body_parts,))  # remove only body parts, self will be deleted later
         self.battle.character_updater.remove(self)
+    elif self.invisible:  # add back sprite for invisible character that die
+        self.invisible = False
+        for part in self.body_parts.values():
+            part.re_rect()
 
     if self.killer:
         self.battle.increase_team_score(self.killer.team, self.score)

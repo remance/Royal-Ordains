@@ -117,4 +117,4 @@ def sentry_ai(self):
 
 ai_move_dict = {"default": stationary_ai, "helper": helper_ai, "common": common_ai,
                 "pursue": pursue_ai, "sentry": sentry_ai, "follower": follower_ai,
-                "trap": stationary_ai, "bigta": common_ai, "guard_melee": common_ai, "boss_cheer": observer_ai}
+                "trap": stationary_ai, "guard_melee": common_ai, "boss_cheer": observer_ai}
