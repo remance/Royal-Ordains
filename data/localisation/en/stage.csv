@@ -34,15 +34,56 @@
 1,1,3,2,"Warren mound is a common type of dwelling for rabbitmen. These mounds are about as tall as a story house and consist of connected tunnel entrances. Sometimes created from an artificially made mound, these tiny labyrinths serve as immaculate protection against invaders."
 1,1,3,3,"The Royal Ordains faced the leaders of the forest kin alliance, Bigta the Dog and Setors the Rabbit. The undefeated champion of probably around ten battles. The rabbit was quick on his feet, and the dog was accurate in her spear thrust. Making them the mightiest of cavalry in the forest."
 1,1,3,4,"The greatest and only jousting arena existed in the Pamat Forest. Built by the Rabbitman tribe roughly ten years ago before this recorded battle, likely an imitation of the Aneosel Jousting Field at Epsla Na Polad City. Any who can prove to be the strongest here becomes the tribe leader."
+1,2,0,"artificer","Artificer guild undertakes in the alteration of god's given gifts. The very act itself is not forbidden if conducted in moderation and compliance with the law of the land. The heroes can purchase magical accessories and alter their equipment's property here, with a suitable amount of payment."
+1,2,0,"barrack","The Royal Barrack in the Dawn Citadel. The Royal Army rest and train here. Due to the potential threat, a contingent of Flower Guard is always on standby here. This citadel is one of the first in the empire designed to defend against sieges from both land and sky."
+1,2,0,"blacksmith","The royalty's commissioned blacksmith shop, Golden Forge. A place of great importance for the Masendor Kingdom for centuries since the Fifth King, Tules the Younger. The forge has been worked by a continuous long line of the legendary Smith family to the latest. The heroes can craft their equipment here for a discounted price."
+1,2,0,"centre","The Capital's centre plaza has accommodated all manners of activity since the founding of the kingdom. Amphitheatre, market fair, ceremonial parade, and public announcement are some of such purposes. Travellers from distant lands also tend to gather here from time to time."
+1,2,0,"cathedral","The Cathedral of Saint Maaeir, named after the Canonical Third Great Saint Maaeir the Fortunas, represents the symbol of True Faith in the furthest west domain of influence established by the first Saint Mother. The heroes can receive a blessing from the saint here to boost their luck in the battle to come."
+1,2,0,"council","The royal council chamber. A place where the kingdom's brightest minds gather to better the lives of all followers of the crown. A principal council is generally convened once a month in peacetime, while a lessor is held every day, usually among the high members of the court."
+1,2,0,"garden","The famed Black Garden of Lasennis, second only to the Dawn Garden in the empire capital, Reskon. The Black Garden is full of the Masendor or Black Masen flowers, a rare hybrid found only in the Fimella region. Legend said that the flowers were dyed black by the blood of the great dragon, Lamorkul, that fell from the sky during the Battle of Arkian Sky."
+1,2,0,"hall","The famed Black Castle. Home of dynasties of kings and queens for four centuries. Newly renovated after its partial destruction thirty years ago by the great dragon Xelanos's attack. People of high birth typically stalk this hall, exchanging court gossip and politic."
+1,2,0,"herbalist","The smith of organic matter is a profession of high standing. Here is one of the few workshops in the capital. The hero can purchase beneficial potions for use in battle. A victory is most ensured for those who prepare."
+1,2,0,"library","All civilisations, like people, grow from knowledge. To know is to ascend. Here, the heroes can learn and understand the inner workings of this world."
+1,2,0,"market","The open market of Larsennis. Merchants, local and foreign, inhabit this most populous part of the capital. The heroes can purchase consumable goods and items for use in combat. Some items can even alter the battle entirely."
+1,2,0,"scriptorium","The Scriptorium of Celan Abbey. Many manuscripts were previously commissioned to be created here by the old Kings and nobles, but the Book of Royal Ordains is no doubt the greatest work of all. Labour of devotion for this book was conducted here in full for all days and nights, as illustrated on this very page."
+1,2,0,"tavern","Old Fakus, the most favoured tavern in the capital. Created by Fakus the Elder. At this time, owned by his great-grandson. Here, the heroes can accept favour quests, listen to low-value lowborn gossip, and order food and drink to improve power in the next mission."
+1,2,0,"throne","The great throne room of the Black Castle, the heart of the Masendor Kingdom. The room was sojourned by many great names, Saint Mother Caemilr the Fifth, Emperor Kihudi of Oimita, High Lord Melkirodieus of Sontriel, Rune Lord Bikillan, and many more. The heroes can start the new mission by talking with the Lord Commander here."
 1,2,1,1,"Deeper into the forest, the Royal Ordains set out to vanquish the bandits. The Pamat forest became a base of operation for outlaw groups of various capabilities. This journey's hunt is for a small yet well-known group that specialises in ambush tactics."
 1,2,1,2,"The Red Leaf, and many other outlaw groups formed during the start of the chaotic decade after the dragon crisis and have eluded the kingdom's forest rangers since. The current leader was allegedly the daughter of the original founder who was captured and executed years prior to this campaign."
 1,2,1,3,"In spite of being small in number, The crimes conducted by this outlaw group are numerous in detail. Theft, robbery, murder, smuggling, trespassing, purpresturing, and assarting to name a few. Although this group is distinct from the others in that their charitable acts toward the less fortunate ones were well-known, making them the locals' cherished."
 1,2,1,4,"A curious change in the method of operation that display an admirable leadership aptitude for a group of unruly pilferers. Necessary action was still required to bring peace and prosperity to the land."
-1,2,2,1,"A successful routing of the bandit patrols aroused the greatest fear in The Red Leaf gang, driving them into hiding. To no avail, the Masendor Kingdom's finest rangers cut off all escape routes. The brave heroes took on the weightiest responsibility to crush them once and for all."
-1,2,2,2,
-1,2,2,3,"A savagery of civilisation and nature in an unbalanced combination led to the invention of deviancy in morality. A glimpse of comfort unattainable amidst the solitude of uncultivated minds corrodes the Lord within. It is the duty of those with higher minds to lead the lost flock back to the Guidance."
-1,2,2,4,"Bringing them to justice will no doubt establish that the high authority of the Kingdom is absolute and the law is just for all lawbreakers regardless of intention. The nobles surely appreciate a king who maintains order and establishes governance of his domain."
-1,2,2,5,"Meanwhile, subduing them and integrating their speciality to use for the land will surely open the possibility of change in social advancement. A choice that conforms with his majesty's declaration of welcoming talents regardless of past misdeeds and sins but still a troubling precedent that can bring jeopardy to the Kingdom."
-1,2,2,6,
+1,2,2,5,"With the first batch crushed, the Red Leaf tried to flee like the cowards they were. To no avail, the Masendor Kingdom's finest rangers cut off all escape routes. The brave heroes took on the weightiest responsibility to crush them once and for all."
+1,2,2,6,"There was no further road left for the Red Leaf. The chopping boxes were ready for heads to pass for them. Or possibly for someone else. An outcome the heroes placed a judgment for the history to come. No matter the choice, heads will roll as surely as the river will always flow. Such is the path of malfeasance."
 1,2,2,7,
 1,2,2,8,
+1,3,1,1,
+1,3,1,2,
+1,3,1,3,
+1,3,1,4,
+1,3,1,5,
+1,3,2,1,
+1,3,2,2,
+1,3,2,3,
+1,3,2,4,
+1,3,2,5,
+1,3,2,6,
+1,4,1,1,
+1,4,1,2,
+1,5,1,1,
+1,5,1,2,"Bringing them to justice will no doubt establish that the high authority of the Kingdom is absolute and the law is just for all lawbreakers regardless of intention. The nobles surely appreciate a king who maintains order and establishes governance of his domain."
+1,5,1,3,"Meanwhile, subduing them and integrating their speciality to use for the land will surely open the possibility of change in social advancement. A choice that conforms with his majesty's declaration of welcoming talents regardless of past misdeeds and sins but still a troubling precedent that can bring jeopardy to the Kingdom."
+1,5,1,4,
+1,5,2,1,
+1,5,2,2,
+1,5,2,3,
+1,5,2,4,"A savagery of civilisation and nature in an unbalanced combination led to the invention of deviancy in morality. A glimpse of comfort unattainable amidst the solitude of uncultivated minds corrodes the Lord within. It is the duty of those with higher minds to lead the lost flock back to the Guidance."
+1,5,3,1,
+1,5,3,2,
+1,5,3,3,
+1,5,3,4,
+1,5,3,5,
+1,5,3,6,
+1,5,4,1,
+1,5,4,2,
+1,5,4,3,
+1,5,4,4,

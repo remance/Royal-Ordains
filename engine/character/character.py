@@ -995,13 +995,13 @@ class PlayerCharacter(BattleCharacter, Character):
 
             self.hit_resource_regen = False
             self.crash_guard_resource_regen = False
-            if self.common_skill["Resourceful"][1]:  # add resource regen 1% per second
-                self.base_resource_regen += self.base_resource * 0.01
+            if self.common_skill["Resourceful"][1]:  # add resource regen 0.5% per second
+                self.base_resource_regen += self.base_resource * 0.005
             if self.common_skill["Resourceful"][2]:  # resource regen when hit enemy
                 self.hit_resource_regen = True
             if self.common_skill["Resourceful"][3]:  # resource regen when crash and guard
                 self.crash_guard_resource_regen = True
-            if self.common_skill["Resourceful"][4]:  # double max resource, and auto regen
+            if self.common_skill["Resourceful"][4]:  # double max resource, and auto regen to 1% per second
                 self.base_resource += self.base_resource
                 self.resource1 = self.base_resource * 0.01
                 self.resource2 = self.base_resource * 0.02
@@ -1009,7 +1009,7 @@ class PlayerCharacter(BattleCharacter, Character):
                 self.resource25 = self.base_resource * 0.25
                 self.resource50 = self.base_resource * 0.5
                 self.resource75 = self.base_resource * 0.75
-                self.base_resource_regen += self.base_resource * 0.02
+                self.base_resource_regen += self.base_resource * 0.01
             if self.common_skill["Resourceful"][5]:
                 pass
 

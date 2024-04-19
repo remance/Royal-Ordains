@@ -1,9 +1,9 @@
 "Buttons","Move","Name","Position","Stat Requirement","Requirement Move","Prepare Animation","After Animation","AI Range","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
 "Strong","astrong","Burst Push","Air",,,,,200,,,15,70,100,,,,,"Physical",,,,"penetrate"
 "Weak","sweak1","Spear Push","Stand",,,,,150,,,25,8,,,,100,,"Physical",,,,
-"Weak","sweak2","Flail Push","Stand",,"sweak1",,,180,,,35,12,50,,150,,,"Physical",,,,
-"Weak","sweak3","Moon Rise Kick","Stand",,"sweak2",,,200,,,45,15,200,,50,,,"Physical",,,,
-"Weak","sweak4","Power Push","Stand","Strength:40,Dexterity:40","sweak3",,,300,450,,55,10,300,,,,0.05,"Physical",,,,
+"Weak","sweak2","Flail Arc","Stand",,"sweak1",,,180,,,50,12,50,,150,,,"Physical",,,,
+"Weak","sweak3","Moon Rise Kick","Stand",,"sweak2",,,200,,,80,15,200,,50,,,"Physical",,,,
+"Weak","sweak4","Power Push","Stand","Strength:40,Dexterity:40","sweak3",,,300,450,,60,10,300,,,,0.05,"Physical",,,,
 "Weak","sweak5","Flurry Blows","Stand","Strength:60,Dexterity:50","sweak4",,,200,,,65,50,,,,350,,"Physical",,,,"multiple hits"
 "Weak","sweak6","Power Burst","Stand","Strength:70,Dexterity:60","sweak5",,,600,700,,75,200,250,,150,,0.25,"Physical",,,,"penetrate"
 "Weak","sweak7","Overload","Stand","Dexterity:70,Wisdom:50","sweak6",,,,,,-1000,,,,,,,"Physical",53,,,"penetrate"
