@@ -1,9 +1,4 @@
-<div align="center">    
-    <img src="https://github.com/remance/preview/blob/main/pygamelogo.gif?raw=true" alt="Pygame Logo">
-</div>
-
-
-# Royal Ordains Chapter 1  <img src="https://github.com/remance/preview2/blob/main/rabbit.png?raw=true">
+# Royal Ordains Book 1  <img src="https://github.com/remance/preview2/blob/main/rabbit.png?raw=true">
 
 ### This is the Book of Royal Ordains. A manuscript that tells the past courageous deeds of the hero group named Royal Ordains, sanctioned by the King of Masendor, so that their history will never be forgotten.
 
@@ -13,6 +8,11 @@
 
 
 Side-scrolling medieval fantasy action game in the art style inspired by Medieval art from various periods and regions (with a sprinkle of education elements for historical medieval period) made with [Pygame](https://github.com/pygame/pygame).
+
+<div align="center">    
+    <img src="https://github.com/remance/preview/blob/main/pygamelogo.gif?raw=true" alt="Pygame Logo">
+</div>
+
 
 For any suggestions or bugs, feel free to report them in the [**Issues**](https://github.com/remance/Royal-Ordains/issues)
 page.
@@ -93,11 +93,13 @@ Also, the game is currently written based on the pygame 2.5.2 module and python 
 <img src="https://github.com/remance/preview2/blob/main/decision.png?raw=true"></a> 
 
 
-# System Requirements
+[//]: # (# System Requirements)
 
-## MINIMUM:
+[//]: # ()
+[//]: # (## MINIMUM:)
 
-Something that can run pygame should be able to run this game.
+[//]: # ()
+[//]: # (Something that can run pygame should be able to run this game.)
 
 [//]: # ()
 [//]: # (OS: Windows 7 &#40;Haven't tested on Windows XP or Vista but may work&#41;, Ubuntu and macOS need further testing)
@@ -134,7 +136,7 @@ Something that can run pygame should be able to run this game.
 
 ---------------
 
-# Current Progress
+# Development Progress
 
 The current game version consists of 5 playable characters and first mission for chapter 1.
 

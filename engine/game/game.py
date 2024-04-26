@@ -160,7 +160,6 @@ class Game:
                        "1280 x 720", "1024 x 576", "960 x 540", "854 x 480")
 
     def __init__(self, main_dir, error_log):
-
         Game.game = self
         Game.main_dir = main_dir
         Game.data_dir = os.path.join(self.main_dir, "data")

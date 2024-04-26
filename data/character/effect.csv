@@ -2,18 +2,18 @@
 "Movement",,,,,,,,,,,,"no travel"
 "Sound Burst Medium",,,,,,,,,,,,"no travel"
 "Blood Pull",,,,,,,,,,,,"no travel"
-"Rodhinbar Arrow",,1200,,,,,"stick",,"Arrow",1000,,
-"Arrow",,1000,,,,,"stick",,"Arrow",1000,,
-"Adaqua Signal Arrow",,1500,,,,,"stick",,"Arrow",1000,,
-"Adaqua Arrow",,1200,,,,,"stick",,"Arrow",1000,,
-"Bolt",,1000,,,,,"stick",,"Bolt",1000,,
-"Nayedien Spear",,3500,,,,,"stick",,"Javelin",2000,,
-"Fast Stone",,1000,,,,,"bounce",,"Stone",1000,,
-"Stone",,600,,,,,"bounce",,"Stone",1000,,
-"Toxic Beard",,700,,,,,"stick",,"Arrow",500,,
-"Small Fire",6,,,,,,,,,600,,"no travel,no effect collision"
-"Small Persist Fire",15,,,24,,,,,,600,,"no travel,no effect collision"
-"Medium Persist Fire",15,,,24,,,,,,800,,"no travel,no effect collision"
+"Rodhinbar Arrow",,1200,,,,,"stick",,"Arrow",100,,
+"Arrow",,1000,,,,,"stick",,"Arrow",100,,
+"Adaqua Signal Arrow",,1500,,,,,"stick",,"Arrow",100,,
+"Adaqua Arrow",,1200,,,,,"stick",,"Arrow",100,,
+"Bolt",,1000,,,,,"stick",,"Bolt",100,,
+"Nayedien Spear",,3500,,,,,"stick",,"Javelin",200,,
+"Fast Stone",,1000,,,,,"bounce",,"Stone",100,,
+"Stone",,600,,,,,"bounce",,"Stone",100,,
+"Toxic Beard",,700,,,,,"stick",,"Arrow",50,,
+"Small Fire",6,,,,,,,,,200,,"no travel,no effect collision"
+"Small Persist Fire",15,,,24,,,,,,200,,"no travel,no effect collision"
+"Medium Persist Fire",15,,,24,,,,,,300,,"no travel,no effect collision"
 "Small Air Burst",,3000,,,,,,,,,2,
 "Large Air Burst",,4000,,,,,,,,,5,
 "Light",,,,7,,,,,,,,"no travel,no effect collision"

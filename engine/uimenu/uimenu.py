@@ -1962,7 +1962,7 @@ class CharacterInterface(UIMenu):
                             if skill_index <= 6:
                                 skill_id = "C" + str(skill_index) + "." + str(skill_level)
                             buttons = self.game.character_data.character_list[self.profile["character"]["ID"]]["Skill UI"][skill_id]["Buttons"]
-                            buttons = "(" + self.game.character_data.character_list[self.profile["character"]["ID"]]["Skill UI"][skill_id]["Position"] + ") " + "+ ".join(buttons)
+                            buttons = "(" + self.game.character_data.character_list[self.profile["character"]["ID"]]["Skill UI"][skill_id]["Position"] + ") " + " + ".join(buttons)
                             text = (self.grab_text(("help", new_key, "Name")),
                                     self.grab_text(("help", new_key, "Description")),
                                     self.grab_text(("ui", "Buttons")) + ":" + buttons,

@@ -1,7 +1,7 @@
-import os
 import sys
 import time
 from copy import deepcopy
+from os import path
 from math import sin, cos, radians
 
 import pygame
@@ -23,7 +23,7 @@ from engine.utils.data_loading import load_image, load_images
 from engine.utils.text_making import number_to_minus_or_plus
 from engine.weather.weather import Weather
 
-script_dir = os.path.split(os.path.abspath(__file__))[0] + "/"
+script_dir = path.split(path.abspath(__file__))[0] + "/"
 
 decision_route = {"yes": "a", "no": "b"}
 
@@ -370,6 +370,8 @@ class Battle:
         Stage.camera_center_y = self.battle_camera_center[1]
         self.battle_stage = Stage(1)
         self.frontground_stage = Stage(100000000000000000000000000000000000000000000000)
+        self.empty_stage_image = load_image(self.data_dir, self.screen_scale, "empty.png",
+                                            ("map", "stage"))  # no scaling yet
 
         Effect.battle_stage = self.battle_stage
         Character.battle_stage = self.battle_stage  # add battle map to character class
@@ -455,8 +457,11 @@ class Battle:
             if value["Object"] not in loaded_item:  # load image
                 if value["Type"] == "stage":  # type of object with image data to load
                     if value["Type"] == "stage":  # load background stage
-                        image = load_image(self.data_dir, self.screen_scale, value["Object"] + ".png",
-                                           ("map", "stage"))  # no scaling yet
+                        image = self.empty_stage_image
+
+                        if path.exists(path.join(self.data_dir, "map", "stage", value["Object"] + ".png")):
+                            image = load_image(self.data_dir, self.screen_scale, value["Object"] + ".png",
+                                               ("map", "stage"))  # no scaling yet
                         if "front" in value["Type"]:
                             self.frontground_stage.images[value["Object"]] = image
                         else:

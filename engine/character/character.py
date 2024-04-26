@@ -1275,7 +1275,8 @@ class BodyPart(sprite.Sprite):
 
             self.image = self.base_image
             if self.data[4]:  # rotation
-                self.image = pygame.transform.rotate(self.base_image, self.data[4])
+                self.angle = self.data[4]
+                self.image = pygame.transform.rotate(self.base_image, self.angle)
 
             self.re_rect()
             if self in self.battle_camera and self._layer != self.owner_layer + 100 - data[6]:

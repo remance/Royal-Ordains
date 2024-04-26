@@ -53,7 +53,7 @@ def status_update(self):
         self.battle.battle_camera.add(self.indicator)
         for team in self.battle.all_team_enemy:
             if team != self.team and self in self.battle.all_team_enemy[team]:
-                self.battle.all_team_enemy[team].remove(self)
+                self.battle.all_team_enemy[team].add(self)
 
     if 7 in self.status_effect:  # blind effect
         self.blind = True

@@ -3,13 +3,13 @@ from random import uniform
 from engine.uibattle.uibattle import DamageNumber
 
 
-def hit_register(self, target, body_part):
+def hit_register(self, target, enemy_part, collide_pos):
     """Calculate whether target dodge hit, then calculate damage"""
     from engine.effect.effect import Effect
     hit_angle = -90
     if self.rect.centerx > target.base_pos[0] * self.screen_scale[0]:
         hit_angle = 90
-    dmg_text_pos = body_part.rect.midtop
+    dmg_text_pos = enemy_part.rect.midtop
     if self.dmg:
         if target.current_action and "parry" in target.current_action:  # target parrying
             # play next action after parry
@@ -46,10 +46,13 @@ def hit_register(self, target, body_part):
                         if self.owner.player_control:  # count dmg from player for data record
                             self.battle.player_damage[self.owner.player_control] += attacker_dmg
                         target.cal_loss(self.owner, attacker_dmg, self.impact, hit_angle, dmg_text_pos, critical)
+                        Effect(None, (
+                        "Damaged", "Base", self.rect.topleft[0] + collide_pos[0], self.rect.topleft[1] + collide_pos[1],
+                        self.angle, 1, 0, 1), 0)
 
                     if not self.penetrate and not self.owner.attack_penetrate:
                         if self.stick_reach == "stick":  # stuck at body part
-                            self.stuck_part = body_part
+                            self.stuck_part = enemy_part
                             self.stick_timer = 3
                             self.travel_distance = 0
                             self.current_animation = self.animation_pool["Base"][self.scale]  # change image to base

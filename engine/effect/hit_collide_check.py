@@ -1,5 +1,4 @@
 from math import log2
-from random import uniform
 
 from pygame.sprite import spritecollide, collide_mask
 
@@ -34,10 +33,8 @@ def hit_collide_check(self, check_damage_effect=True):
                     ("no dmg" not in enemy.current_action or not enemy.player_control):  # collide body part
                 collide_pos = collide_mask(self, enemy_part)
                 if collide_pos:  # in case collide change
-                    Effect(None, ("Damaged", "Base", self.rect.topleft[0] + collide_pos[0], self.rect.topleft[1] + collide_pos[1],
-                                  uniform(-360, 360), 1, 0, 1), 0)
                     self.owner.hit_enemy = True
-                    self.hit_register(enemy, enemy_part)
+                    self.hit_register(enemy, enemy_part, collide_pos)
                     self.already_hit.append(enemy)
 
                     if not self.penetrate and not self.owner.attack_penetrate and not self.stick_reach:
