@@ -147,6 +147,7 @@ class Battle:
         # court structure interface, mission select, side mission, feast system
         # add ranking record system
         # add pvp mode, follower recruit unlock with all save story progress
+        # mission 2: 4 scenes, 4 enemies (hound master, hound, bandit ranger, rabbit killer appear with 1b)
         # finish main menu
 
         self.clock = pygame.time.Clock()  # Game clock to keep track of realtime pass

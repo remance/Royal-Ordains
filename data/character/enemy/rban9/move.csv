@@ -1,0 +1,6 @@
+Buttons,Move,Name,Position,Stat Requirement,Requirement Move,Prepare Animation,After Animation,AI Range,AI Condition,Range,Cooldown,Resource Cost,Power,Push Impact,Pull Impact,Up Impact,Down Impact,Critical Chance Bonus,Element,Status,Enemy Status,Special Effect,Property
+Weak,sweak1,Killing Lunge,Stand,,,name:sweak1Ready,,600,,,3,,50,10,,,10,0.5,Poison,,,,"movable,x_momentum:700,repeat,forced move"
+Strong,sstrong1,Fast Strike,Stand,,,,,150,,,1,,31,6,,,12,0.15,Poison,,,,
+Strong,sstrong2,Fast Strike 2,Stand,,sstrong1,,,150,,,1,,42,7,,,15,0.15,Poison,,,,
+Strong,sstrong3,Fast Strike 3,Stand,,sstrong2,,,150,,,1,,18,8,,,18,0.15,Poison,,,,
+Strong,sstrong4,Fast Strike 4,Stand,,sstrong3,,,150,,,1,,24,10,,,15,0.15,Poison,,,,
