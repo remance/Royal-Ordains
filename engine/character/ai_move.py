@@ -64,6 +64,19 @@ def common_ai(self):
         self.command_action = self.walk_command_action | {"x_momentum": True}
 
 
+def move_city_ai(self):
+    if not self.current_action and not self.command_action and not self.ai_movement_timer:
+        # if not self.nearest_enemy or self.nearest_enemy[1] > self.max_attack_range:
+        # walk randomly when not attack or inside stage lock
+        self.ai_movement_timer = uniform(0.1, 5)
+        self.x_momentum = uniform(0.1, 10) * self.city_walk_speed * choice((-1, 1))
+        if (self.x_momentum < 0 and abs(self.base_pos[0] - self.battle.base_stage_start) < 50) or \
+                (self.x_momentum > 0 and abs(self.base_pos[0] - self.battle.base_stage_end) < 50):
+            # too close to corner move other way to avoid stuck
+            self.x_momentum *= -1
+        self.command_action = self.walk_command_action | {"x_momentum": True}
+
+
 def follower_ai(self):
     if not self.current_action and not self.command_action and not self.ai_movement_timer:
         # if not self.nearest_enemy or self.nearest_enemy[1] > self.max_attack_range:
@@ -117,4 +130,5 @@ def sentry_ai(self):
 
 ai_move_dict = {"default": stationary_ai, "helper": helper_ai, "common": common_ai,
                 "pursue": pursue_ai, "sentry": sentry_ai, "follower": follower_ai,
-                "trap": stationary_ai, "guard_melee": common_ai, "boss_cheer": observer_ai}
+                "trap": stationary_ai, "guard_melee": common_ai, "boss_cheer": observer_ai,
+                "move_city_ai": move_city_ai}

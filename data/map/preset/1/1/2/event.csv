@@ -1,2 +1,3 @@
 "ID","Text ID","Object","Animation","Type","Trigger","Property"
 "music/scene1",,2,,"music","camera_reach_scene,1",
+"sound/scene",,"Eagle",,"sound","camera_reach_scene,3","sound distance:1000,shake value:1"

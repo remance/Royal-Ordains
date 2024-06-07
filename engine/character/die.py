@@ -66,11 +66,11 @@ def die(self, delete=False):
                 drop_name = drop_name.split("+")[0]
                 for _ in range(drop_num):
                     if chance >= uniform(0, 100):
-                        Drop(Vector2(self.base_pos[0], self.base_pos[1] - (self.sprite_size * 2)), drop_name, 1,
+                        Drop(Vector2(self.base_pos[0], self.base_pos[1] - (self.sprite_height * 2)), drop_name, 1,
                              momentum=(uniform(-200, 200), (uniform(50, 150))))
             else:
                 if chance >= uniform(0, 100):  # TODO change team later when add pvp mode or something
-                    Drop(Vector2(self.base_pos[0], self.base_pos[1] - (self.sprite_size * 2)), drop, 1,
+                    Drop(Vector2(self.base_pos[0], self.base_pos[1] - (self.sprite_height * 2)), drop, 1,
                          momentum=(uniform(-200, 200), (uniform(50, 150))))
     if self.spawns:
         for spawn, chance in self.spawns.items():

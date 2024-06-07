@@ -43,13 +43,13 @@ def check_new_animation(self, done):
                     if self.health > self.base_health:
                         self.health = self.base_health
                     DamageNumber(str(int(item_stat["Health"])),
-                                 (self.pos[0], (self.pos[1] - self.sprite_size * 3.5)), False, "health")
+                                 (self.pos[0], (self.pos[1] - self.sprite_height * 3.5)), False, "health")
                 if item_stat["Resource"]:
                     self.resource += item_stat["Resource"] * self.item_effect_modifier
                     if self.resource > self.base_resource:
                         self.resource = self.base_resource
                     DamageNumber(str(int(item_stat["Resource"])),
-                                 (self.pos[0], (self.pos[1] - self.sprite_size * 2)), False, "resource")
+                                 (self.pos[0], (self.pos[1] - self.sprite_height * 2)), False, "resource")
                 if item_stat["Status"]:
                     for effect in item_stat["Status"]:
                         self.apply_status(self, effect)
@@ -108,13 +108,13 @@ def check_new_animation(self, done):
                             if ally[0].health > ally[0].base_health:
                                 ally[0].health = ally[0].base_health
                             DamageNumber(str(int(item_stat["Health"])),
-                                         (ally[0].pos[0], ally[0].pos[1] - ally[0].sprite_size * 3.5), False, "health")
+                                         (ally[0].pos[0], ally[0].pos[1] - ally[0].sprite_height * 3.5), False, "health")
                         if item_stat["Resource"]:
                             ally[0].resource += item_stat["Resource"] * ally[0].item_effect_modifier
                             if ally[0].resource > ally[0].base_resource:
                                 ally[0].resource = ally[0].base_resource
                             DamageNumber(str(int(item_stat["Resource"])),
-                                         (ally[0].pos[0], ally[0].pos[1] - ally[0].sprite_size * 2), False, "resource")
+                                         (ally[0].pos[0], ally[0].pos[1] - ally[0].sprite_height * 2), False, "resource")
                         if item_stat["Status"]:
                             for effect in item_stat["Status"]:
                                 ally[0].apply_status(self, effect)

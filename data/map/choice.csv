@@ -1,11 +1,11 @@
 "Choice","Chapter","Mission","Stage","Follower Reward","Unique Gear Reward","Item Reward","Gold Reward","Court Change"
-"yes",1,1,3,"Bigta,Rban1,Rban2,Rban3,Rban4,Rban6,Animal1,Animal2",,,,"Hound Keeper:Bigta"
+"yes",1,1,3,"Bigta,Rban_spear,Rban_bow,Rban_sling,Rban_cav,Rban_sword,Animal_snail_sword,Animal_snail_old",,,,"Hound Keeper:Bigtahound"
 "no",1,1,3,,"Great Mini Shield",,5000,
-"yes",1,2,2,"Adaqua,Hban1,Hban2",,,,"Master of Hunt:Adaqua"
+"yes",1,2,2,"Adaqua,Hban_club,Hban_bow",,,,"Master of Hunt:Adaqua"
 "no",1,2,2,,"Stealth Mantle",,8200,
-"yes",1,3,3,"Animal4",,,,"Chief Verderer:Armina"
+"yes",1,3,3,"Animal_wolf",,,,"Chief Verderer:Armina"
 "no",1,3,3,,"Green Druid Staff",,10500,
 "yes",1,4,,,,,,
 "no",1,4,,,,,,
-"yes",1,5,10,"Dban1,Dban2,Dban3,Eban1,Eban2,Eban3",,,,
+"yes",1,5,10,"Dban_crossbow,Dban_axe,Dban_hammer,Eban_sword,Eban_bow,Eban_mage",,,,
 "no",1,5,,,,,,

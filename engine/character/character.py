@@ -81,6 +81,9 @@ class Character(sprite.Sprite):
     from engine.character.cal_loss import cal_loss
     cal_loss = cal_loss
 
+    from engine.character.character_event_process import character_event_process
+    character_event_process = character_event_process
+
     from engine.character.check_action_hold import check_action_hold
     check_action_hold = check_action_hold
 
@@ -248,6 +251,7 @@ class Character(sprite.Sprite):
         self.followers = []
         self.leader = None
         self.killer = None  # object that kill this character, for adding gold, score, and kill stat
+        self.broken = False
         self.drops = {}
         self.spawns = {}
 
@@ -305,6 +309,7 @@ class Character(sprite.Sprite):
             self.body_size = 1
         self.sprite_size = stat["Size"] * 10 * self.screen_scale[
             1]  # use for pseudo sprite size of character for positioning of effect
+        self.sprite_height = (100 + stat["Size"]) * self.screen_scale[1]
         self.arrive_condition = stat["Arrive Condition"]
 
         self.city_walk_speed = 500  # movement speed in city, not affected by anything
@@ -438,7 +443,8 @@ class Character(sprite.Sprite):
                     self.current_action["repeat"] = True
                     if not self.alive:
                         self.current_action["die"] = True
-                self.battle.cutscene_playing.remove(self.cutscene_event)
+                if self.cutscene_event in self.battle.cutscene_playing:
+                    self.battle.cutscene_playing.remove(self.cutscene_event)
                 self.cutscene_event = None
 
     def ai_update(self, dt):
@@ -476,7 +482,6 @@ class BattleCharacter(Character):
         self.nearest_enemy = None
         self.nearest_ally = None
 
-        self.broken = False
         self.no_forced_move = False
         self.delete_death = False
         self.immune_weather = False
@@ -729,6 +734,7 @@ class BattleCharacter(Character):
         if "Start Resource" in stat:
             start_resource = stat["Start Resource"]
         self.health = self.base_health * start_health
+        self.resource05 = self.base_resource * 0.005
         self.resource1 = self.base_resource * 0.01
         self.resource2 = self.base_resource * 0.02
         self.resource10 = self.base_resource * 0.10
@@ -831,12 +837,7 @@ class BattleCharacter(Character):
                     # play event related to character reach inside camera
                     for key, value in self.reach_camera_event.items():
                         for item in value:
-                            if item["Type"] == "speak":  # speak something
-                                CharacterSpeechBox(self, self.battle.localisation.grab_text(("event",
-                                                                                             item["Text ID"],
-                                                                                             "Text")))
-                            elif item["Type"] == "animation":  # play specific animation
-                                self.command_action = item["Property"]
+                            self.character_event_process(item, item["Property"])
                             break  # play one child event at a time
                         if "repeat" not in item["Property"]:  # always have item in event data
                             value.remove(item)
@@ -1048,7 +1049,7 @@ class AICharacter(BattleCharacter, Character):
         if self.battle.city_mode:
             Character.__init__(self, game_id, layer_id, stat)
             self.update = MethodType(Character.update, self)
-            ai_behaviour = "idle_city_npc"
+            ai_behaviour = "idle_city_ai"
             if specific_behaviour:
                 ai_behaviour = specific_behaviour
 
@@ -1059,6 +1060,8 @@ class AICharacter(BattleCharacter, Character):
             self.ai_combat = ai_combat_dict["default"]
             if ai_behaviour in ai_combat_dict:
                 self.ai_combat = ai_combat_dict[ai_behaviour]
+
+            self.city_walk_speed = 100
         else:
             BattleCharacter.__init__(self, game_id, layer_id, stat, leader=leader, team_scaling=team_scaling)
 
@@ -1096,7 +1099,9 @@ class AICharacter(BattleCharacter, Character):
         if self.ai_timer:
             self.ai_timer += dt
         if self.ai_movement_timer:
-            self.ai_movement_timer += dt
+            self.ai_movement_timer -= dt
+            if self.ai_movement_timer < 0:
+                self.ai_movement_timer = 0
         self.ai_combat(self)
         self.ai_move(self)
 
@@ -1109,6 +1114,7 @@ class BattleAICharacter(AICharacter):
         self.is_boss = stat["Boss"]
         self.is_summon = stat["Summon"]
         self.ai_lock = True  # lock AI from activity when start battle, and it positions outside of scene lock
+        self.event_ai_lock = False  # lock AI until event unlock it only
         self.follow_command = "Free"
         if self.is_boss:
             self.stun_threshold = self.base_health
@@ -1153,8 +1159,8 @@ class BattleAICharacter(AICharacter):
         self.resurrect_count = 0
 
     def ai_update(self, dt):
-        if self.ai_lock and self.battle.base_stage_end >= self.base_pos[0] >= self.battle.base_stage_start:
-            # unlock once in player scene
+        if self.ai_lock and not self.event_ai_lock and self.battle.base_stage_end >= self.base_pos[0] >= self.battle.base_stage_start:
+            # unlock once in active scene
             self.ai_lock = False
         if not self.ai_lock:
             if self.ai_timer:

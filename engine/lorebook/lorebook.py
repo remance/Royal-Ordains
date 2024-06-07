@@ -54,12 +54,11 @@ class Lorebook(UIMenu):
         self.page = 0
         self.max_page = 0
         self.rect = self.image.get_rect(center=(self.screen_size[0] / 2, self.screen_size[1] / 2))
-        self.tag_list = [{stuff["Tag"]: True for stuff in self.history_lore.values() if stuff["Tag"] != ""},
-                         {stuff["Tag"]: True for stuff in self.character_lore.values() if
-                          stuff["Tag"] != ""},
-                         {stuff["Tag"]: True for stuff in self.item_lore.values() if stuff["Tag"] != ""},
+        self.tag_list = [{stuff["Tag"]: True for stuff in self.history_lore.values() if stuff["Tag"]},
+                         {stuff["Tag"]: True for stuff in self.character_lore.values() if stuff["Tag"]},
+                         {stuff["Tag"]: True for stuff in self.item_lore.values() if stuff["Tag"]},
                          {stuff["Tag"]: True for stuff in self.status_lore.values() if type(stuff) != int
-                          and stuff["Tag"] != ""}]
+                          and stuff["Tag"]}]
         for index, tag_list in enumerate(self.tag_list):
             tag_list["No Tag"] = True
             self.tag_list[index] = {"No Tag": self.tag_list[index].pop("No Tag"), **self.tag_list[index]}

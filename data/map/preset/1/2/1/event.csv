@@ -1,1 +1,45 @@
 "ID","Text ID","Object","Animation","Type","Trigger","Property"
+"music/scene1",,1,,"music","camera_reach_scene,1",
+"2nd_scene_reach",,"p1","PresetCombatStandWalk","cutscene","camera_reach_scene,2","POS:scene_start,angle:target"
+,,"p2","PresetCombatStandWalk",,,"POS:scene_start,angle:target"
+,,"p3","PresetCombatStandWalk",,,"POS:scene_start,angle:target"
+,,"p4","PresetCombatStandWalk",,,"POS:scene_start,angle:target"
+,,"helper","PresetPeaceAirWalk",,,"POS:reach_center,angle:target"
+,,40,,"setup",,"POS:(3600;1000),angle:90,speed:2000"
+,,"camera",,"move",,"POS:4,wait"
+,"event/1_2_1_talk1.1",40,"CombatTalk",,,"interact,hold,repeat after"
+,,40,"CombatStopTalk",,,
+,"event/1_2_1_talk1.2",40,,,,"interact"
+,"event/1_2_1_talk1.3","helper","CombatTalk",,,"interact,hold,repeat after"
+,,"helper","CombatStopTalk",,,
+,"event/1_2_1_talk1.4","helper",,,,"interact"
+,"event/1_2_1_talk1.5",40,,,,"interact"
+,,40,"PresetCombatStandsbstrong",,,"angle:90,wait"
+,,40,,"setup",,"POS:(7480;1000),angle:90,speed:2000"
+,,40,,"lock",,
+,,1,,"unlock",,
+,,2,,"unlock",,
+,,3,,"unlock",,
+,,4,,"unlock",,
+,,5,,"unlock",,
+,,6,,"unlock",,
+"boss_reach",,"p1","PresetCombatStandWalk","cutscene","camera_reach_scene,8","POS:scene_start,angle:target"
+,,"p2","PresetCombatStandWalk",,,"POS:scene_start,angle:target"
+,,"p3","PresetCombatStandWalk",,,"POS:scene_start,angle:target"
+,,"p4","PresetCombatStandWalk",,,"POS:scene_start,angle:target"
+,,"helper","PresetPeaceAirWalk",,,"POS:reach_center,angle:target"
+,"event/1_2_1_talk2.1",40,"CombatTalk",,,"interact,hold,repeat after"
+,,40,"CombatStopTalk",,,"interact"
+,"event/1_2_1_talk2.2",40,,,,"interact"
+,"event/1_2_1_talk2.3",40,"PresetCombatStandsdspecial",,,"interact"
+,"event/1_2_1_talk2.5no",40,,,,"interact,story choice:1.1.3_no"
+,"event/1_2_1_talk2.6no",40,"Taunt",,,"interact,story choice:1.1.3_no"
+,,1,,"music",,"story choice:1.1.3_yes"
+,,2,,"music",,"story choice:1.1.3_no"
+,,40,,"unlock",,
+"submit",,40,"Submit","submit","submit","repeat after,submit"
+"execute",,40,"PresetCombatStandDie","execute","execute","start_frame:-1,hold"
+,,"helper","PresetPeaceAirWalk",,,"target:40,angle:target,wait"
+,,"helper","Execute",,,
+,,40,"Execute",,,"die"
+,,"helper","PresetPeaceAirWalk",,,"POS:scene_center,angle:target"

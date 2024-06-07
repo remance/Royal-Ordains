@@ -1,9 +1,9 @@
 "ID","Text ID","Object","Animation","Type","Trigger","Property"
 "event1/1_1_city_cathedral",,"Monnirl",,"create","start,once","POS:(680;980),Angle:-90"
-,,"Worshipper1",,"create",,"POS:(800;1000),Angle:90"
-,,"Worshipper2",,"create",,"POS:(900;1000),Angle:90"
-,,"Shopper3",,"create",,"POS:(1000;1000),Angle:90,Stage Property:{idle=Worship}"
-,,"Barman2",,"create",,"POS:(1100;1000),Angle:90,Stage Property:{idle=Worship}"
+,,"Worshipper_one",,"create",,"POS:(800;1000),Angle:90"
+,,"Worshipper_two",,"create",,"POS:(900;1000),Angle:90"
+,,"Shopper_three",,"create",,"POS:(1000;1000),Angle:90,Stage Property:{idle=Worship}"
+,,"Barman_two",,"create",,"POS:(1100;1000),Angle:90,Stage Property:{idle=Worship}"
 ,,2,,"hide",,
 ,,3,,"hide",,
 ,,4,,"hide",,
@@ -16,10 +16,10 @@
 ,,"Monnirl","Bless","cutscene",,"wait"
 ,,"camera","blackout","cutscene",,"timer:2"
 ,,"Monnirl",,"remove",,
-,,"Worshipper1",,"remove",,
-,,"Worshipper2",,"remove",,
-,,"Shopper3",,"remove",,
-,,"Barman2",,"remove",,
+,,"Worshipper_one",,"remove",,
+,,"Worshipper_two",,"remove",,
+,,"Shopper_three",,"remove",,
+,,"Barman_two",,"remove",,
 "music/scene1",,"cathedral",,"music","camera_reach_scene,1",
 "Orsanoas/Vraesier/1_1_city_cathedral_talk1","Orsanoas/Vraesier/1_1_city_cathedral_talk1.1",1,"CityTalk","char","interact,1","interact,hold,repeat after"
 ,,1,"StopCityTalk",,,"repeat after"

@@ -1,5 +1,6 @@
 import sys
 import time
+from random import choice
 from copy import deepcopy
 from os import path
 from math import sin, cos, radians
@@ -16,7 +17,7 @@ from engine.effect.effect import Effect
 from engine.stage.stage import Stage
 from engine.stageobject.stageobject import StageObject
 from engine.uibattle.uibattle import FPSCount, BattleCursor, YesNo, CharacterSpeechBox, CharacterInteractPrompt, \
-    CityMap, CityMission, ScreenFade
+    CourtBook, CityMap, CityMission, ScreenFade
 from engine.uimenu.uimenu import TextPopup
 from engine.utils.common import clean_object, clean_group_object
 from engine.utils.data_loading import load_image, load_images
@@ -64,8 +65,14 @@ class Battle:
     from engine.game.change_pause_update import change_pause_update
     change_pause_update = change_pause_update
 
+    from engine.battle.common_process import common_process
+    common_process = common_process
+
     from engine.battle.cutscene_player_input import cutscene_player_input
     cutscene_player_input = cutscene_player_input
+
+    from engine.battle.drama_process import drama_process
+    drama_process = drama_process
 
     from engine.battle.end_cutscene_event import end_cutscene_event
     end_cutscene_event = end_cutscene_event
@@ -89,12 +96,18 @@ class Battle:
     from engine.battle.play_sound_effect import play_sound_effect
     play_sound_effect = play_sound_effect
 
-    from engine.battle.setup_battle_character import setup_battle_character
-    setup_battle_character = setup_battle_character
+    from engine.battle.spawn_character import spawn_character
+    spawn_character = spawn_character
+
+    from engine.battle.spawn_weather_matter import spawn_weather_matter
+    spawn_weather_matter = spawn_weather_matter
 
     from engine.battle.state_battle_process import state_battle_process
     state_battle_process = state_battle_process
     state_process = state_battle_process
+
+    from engine.battle.state_court_process import state_court_process
+    state_court_process = state_court_process
 
     from engine.battle.state_map_process import state_map_process
     state_map_process = state_map_process
@@ -110,9 +123,6 @@ class Battle:
 
     from engine.battle.shake_camera import shake_camera
     shake_camera = shake_camera
-
-    from engine.battle.spawn_weather_matter import spawn_weather_matter
-    spawn_weather_matter = spawn_weather_matter
 
     from engine.battle.event_process import event_process
     event_process = event_process
@@ -133,6 +143,7 @@ class Battle:
     base_fall_gravity = 900
 
     process_list = {"battle": state_battle_process, "menu": state_menu_process, "map": state_map_process,
+                    "court": state_court_process,
                     "reward": state_reward_process, "shop": state_shop_process, "enchant": state_shop_process}
 
     def __init__(self, game):
@@ -148,6 +159,7 @@ class Battle:
         # add ranking record system
         # add pvp mode, follower recruit unlock with all save story progress
         # mission 2: 4 scenes, 4 enemies (hound master, hound, bandit ranger, rabbit killer appear with 1b)
+        # add sound type to skill/move for collide and damage sound check
         # finish main menu
 
         self.clock = pygame.time.Clock()  # Game clock to keep track of realtime pass
@@ -206,6 +218,7 @@ class Battle:
         self.button_ui = game.button_ui
 
         # Text popup
+        self.text_popup = TextPopup()
         self.stage_translation_text_popup = TextPopup()  # popup box for text that translate background script
 
         self.input_box = game.input_box
@@ -231,6 +244,7 @@ class Battle:
         self.music_pool = game.music_pool
         self.sound_effect_pool = game.sound_effect_pool
         self.sound_effect_queue = {}
+        self.stage_music_pool = {}  # pool for music already converted to pygame Sound
 
         self.weather_screen_adjust = self.screen_width / self.screen_height  # for weather sprite spawn position
         self.right_corner = self.screen_width - (5 * self.screen_scale[0])
@@ -305,6 +319,8 @@ class Battle:
 
         self.screen_fade = ScreenFade()
         self.speech_prompt = CharacterInteractPrompt(battle_ui_images["button_weak"])
+        self.court_book = CourtBook(load_images(self.data_dir, screen_scale=self.screen_scale,
+                                                subfolder=("ui", "court_ui"), key_file_name_readable=True))
         self.city_map = CityMap(load_images(self.data_dir, screen_scale=self.screen_scale,
                                             subfolder=("ui", "map_select_ui")))
         self.city_mission = CityMission(load_images(self.data_dir, screen_scale=self.screen_scale,
@@ -451,6 +467,7 @@ class Battle:
         self.player_interact_event_list = {}
         self.base_stage_end_list = {}
         self.stage_end_list = {}
+        self.stage_music_pool = {}
         self.speech_prompt.clear()
 
         first_lock = None
@@ -547,7 +564,7 @@ class Battle:
         if self.stage == "0":  # city stage not add helper
             add_helper = False
         self.last_char_id = 0
-        self.setup_battle_character(self.players, start_enemy, add_helper=add_helper)
+        self.spawn_character(self.players, start_enemy, add_helper=add_helper)
 
         for player in self.player_objects:
             self.realtime_ui_updater.add(self.player_portraits[player])
@@ -557,6 +574,9 @@ class Battle:
 
         self.main_player_object = self.player_objects[self.main_player]
         if stage_event_data:
+            self.stage_music_pool = {key: Sound(self.music_pool[key]) for
+                                     key in stage_event_data["music"]}
+
             for trigger, value in stage_event_data.items():
                 if ("once" not in value or tuple(value["once"].keys())[0] + self.chapter + self.mission + self.stage
                     not in self.main_story_profile["story event"]) and \
@@ -616,15 +636,17 @@ class Battle:
                                         value3[0]["Object"], weather_strength)
                                     elif value3[0]["Type"] == "music":
                                         if value3[0]["Object"] != "stop":
-                                            self.reach_scene_event_list[key]["music"] = Sound(self.music_pool[
-                                                                                                  str(value3[0]["Object"])])
+                                            self.reach_scene_event_list[key]["music"] = str(value3[0]["Object"])
                                         else:
                                             self.reach_scene_event_list[key]["music"] = None
                                     elif value3[0]["Type"] == "sound":
                                         if "sound" not in self.reach_scene_event_list[key]:
                                             self.reach_scene_event_list[key]["sound"] = []
+                                        # sound effect must have sound distance and shake value in property
                                         self.reach_scene_event_list[key]["sound"].append(
-                                            self.sound_effect_pool[str(value3[0]["Object"])])
+                                            (choice(self.sound_effect_pool[str(value3[0]["Object"])]),
+                                             value3[0]["Property"]["sound distance"],
+                                             value3[0]["Property"]["shake value"]))
 
                     elif "execute" in trigger:
                         for key, value2 in value.items():
@@ -918,6 +940,8 @@ class Battle:
 
         self.music_left.stop()
         self.music_right.stop()
+        self.stage_music_pool = {}
+        self.current_music = None
 
         # remove all reference from battle object
         self.players = {}

@@ -28,6 +28,12 @@ def state_battle_process(self, esc_press):
                             self.stage_translation_text_popup)  # add menu and its buttons to drawer
         self.realtime_ui_updater.remove(self.main_player_battle_cursor)
     elif self.city_mode and not self.cutscene_playing and \
+            self.player_key_press[self.main_player]["Inventory Menu"]:
+        # open court book
+        self.court_book.add_portraits(self.main_story_profile["interface event queue"]["courtbook"])
+        self.add_ui_updater(self.cursor, self.court_book)
+        self.change_game_state("court")
+    elif self.city_mode and not self.cutscene_playing and \
             self.player_key_press[self.main_player]["Special"]:
         # open city map
         self.add_ui_updater(self.cursor, self.city_map)
@@ -53,18 +59,6 @@ def state_battle_process(self, esc_press):
             self.show_cursor_timer = 0
             self.main_player_battle_cursor.shown = False
             self.main_player_battle_cursor.rect.topleft = (-100, -100)
-
-    # Drama text function
-    if not self.drama_timer and self.drama_text.queue:  # Start timer and draw if there is event queue
-        self.realtime_ui_updater.add(self.drama_text)
-        self.drama_text.process_queue()
-        self.drama_timer = 0.1
-    elif self.drama_timer:
-        self.drama_text.play_animation()
-        self.drama_timer += self.ui_dt
-        if self.drama_timer > 5:  # drama popup last for 5 seconds
-            self.drama_timer = 0
-            self.realtime_ui_updater.remove(self.drama_text)
 
     # Weather system
     if self.current_weather.spawn_rate:
@@ -93,10 +87,7 @@ def state_battle_process(self, esc_press):
     self.camera.update(self.shown_camera_pos, self.battle_camera, self.realtime_ui_updater)
     # self.frontground_stage.update(self.shown_camera_pos[0])  # update frontground stage last
 
-    if self.sound_effect_queue:
-        for key, value in self.sound_effect_queue.items():  # play each sound effect initiate in this loop
-            self.play_sound_effect(key, value)
-        self.sound_effect_queue = {}
+    self.common_process()
 
     if self.ui_timer >= 0.1 and not self.city_mode:
         for key, value in self.player_objects.items():

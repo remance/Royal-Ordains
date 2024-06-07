@@ -1,7 +1,8 @@
 def state_map_process(self, esc_press):
     self.camera.update(self.shown_camera_pos, self.battle_camera, self.realtime_ui_updater)
-    # self.frontground_stage.update(self.shown_camera_pos)  # update frontground stage last
     self.ui_drawer.draw(self.screen)  # draw the UI
+
+    self.common_process()
 
     if self.city_map.selected_map:  # player select new map
         selected_map = self.city_map.selected_map

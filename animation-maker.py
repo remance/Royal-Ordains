@@ -2208,8 +2208,8 @@ while True:
                     elif reverse_frame_button.rect.collidepoint(mouse_pos):
                         model.add_history()
                         model.frame_list = [item for item in model.frame_list if item and
-                                            True in [True for item2 in item.values() if len(item2) and
-                                                     item2]]  # remove empty frame first
+                                            True in [True for key2, value2 in item.items() if len(value2) and
+                                                     value2 and key2 != "animation_property"]]  # remove empty frame first
                         model.frame_list.reverse()
                         while len(model.frame_list) < max_frame:
                             model.frame_list.append({})

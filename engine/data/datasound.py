@@ -17,8 +17,9 @@ class SoundData(GameData):
         for file in os.listdir(dir_path):
             if file.endswith(".ogg"):  # read ogg file only
                 file_name = file.split(".")[0]
-                if file_name[-1].isdigit() and file_name[-2] == "_":  # variation for same sound effect
-                    file_name = file_name[:-2]
+                if file_name[-1].isdigit() and "_" in file_name and file_name.rfind("_") <= len(file_name) - 2 and \
+                        file_name[file_name.rfind("_") + 1].isdigit():  # variation for same sound effect
+                    file_name = file_name[:file_name.rfind("_")]
 
                 file_name = fcv(file_name)
 
@@ -34,5 +35,3 @@ class SoundData(GameData):
         self.music_pool = glob.glob(os.path.join(self.data_dir, "sound", "music", "*.ogg"))
         self.music_pool = {item.split("\\")[-1].replace(".ogg", ""): item for
                            item in self.music_pool}
-        # self.music_pool = {item.split("\\")[-1].replace(".ogg", ""): Sound(item) for
-        #                    item in self.music_pool}

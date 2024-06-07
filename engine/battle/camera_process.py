@@ -13,9 +13,9 @@ def camera_process(self):
     #
     # elif self.camera_mode == "Follow":
     if not self.cutscene_playing:
-        all_alive = [player.pos[0] for player in self.player_objects.values()]
-        if all_alive:
-            mean_check = mean(all_alive)
+        all_alive_player = [player.pos[0] for player in self.player_objects.values()]
+        if all_alive_player:
+            mean_check = mean(all_alive_player)
             pos_change = (mean_check - self.camera_pos[0]) / 10
             if pos_change != 0:
                 if abs(pos_change) < 10:

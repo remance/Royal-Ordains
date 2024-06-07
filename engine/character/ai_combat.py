@@ -1,3 +1,6 @@
+from engine.uibattle.uibattle import CharacterSpeechBox
+
+
 def check_health_lower(who, value):
     if who.health * who.base_health / 100 <= value:
         return True
@@ -153,6 +156,21 @@ def common_ai(self):
                     self.new_angle = 90
 
 
-ai_combat_dict = {"default": training_ai, "common": common_ai, "sentry": common_ai,
+def common_leader_ai(self):
+    common_ai(self)
+    if self.followers:  # has follower to command
+        if self.near_enemy and self.near_enemy[0][1] < 1500:  # has nearby enemy, order follower to attack
+            if self.followers[0].follow_command != "Attack":  # follower not in attack mode already
+                for follower in self.followers:
+                    follower.follow_command = "Attack"
+                CharacterSpeechBox(self, "Attack")
+        else:
+            if self.followers[0].follow_command != "Follow":  # follower not in follow mode already
+                for follower in self.followers:
+                    follower.follow_command = "Follow"
+                CharacterSpeechBox(self, "Follow")
+
+
+ai_combat_dict = {"default": training_ai, "common": common_ai, "common_leader": common_leader_ai, "sentry": common_ai,
                   "trap": common_ai, "guard_melee": guard_ai, "pursue": common_ai,
                   "boss_cheer": cheer_ai}

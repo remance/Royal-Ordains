@@ -1,0 +1,9 @@
+"ID","Text ID","Object","Animation","Type","Trigger","Property"
+"music/scene1",,"garden",,"music","camera_reach_scene,1",
+"Nayedien/Any/1_1_city_peace_talk1","Nayedien/Any/1_1_city_peace_talk1.1",4,,"char","interact,4","interact"
+,"Nayedien/Any/1_1_city_peace_talk1.2",4,,,,"interact"
+,"Nayedien/Any/1_1_city_peace_talk1.3",4,,,,"interact"
+,"Nayedien/Any/1_1_city_peace_talk1.4",4,,,,"interact"
+,"Nayedien/Any/1_1_city_peace_talk1.5",4,,,,"interact"
+,"Nayedien/Any/1_1_city_peace_talk1.6",4,,,,"interact"
+,"Nayedien/Any/1_1_city_peace_talk1.7",4,,,,"interact"

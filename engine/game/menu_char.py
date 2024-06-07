@@ -6,7 +6,7 @@ from engine.data.datasave import empty_character_save
 
 inf = float("inf")
 
-playable_character = {"Vraesier": 0, "Rodhinbar": 1, "Iri": 2, "Duskuksa": 3, "Nayedien": 4}  # "Orsanoas": 5
+playable_character = {"Vraesier": 0, "Rodhinbar": 1, "Iri": 2, "Duskuksa": 3, "Nayedien": 4}  # , "Orsanoas": 5
 new_start = {"Sprite Ver": 1, "skill allocation": {}}
 
 
@@ -58,12 +58,16 @@ def menu_char(self, esc_press):
                        key, value in
                        self.player_char_select.items() if value}
             #
-            # self.start_battle("1", "1", "3", players=players)
+            # self.start_battle("1", "1", "1", players=players)
             # start in throne room of current chapter and mission of the lowest progress player
             self.start_battle(
                 self.save_data.save_profile["character"][self.profile_index[main_story_player]]["chapter"],
                 self.save_data.save_profile["character"][self.profile_index[main_story_player]]["mission"],
                 "0", players=players, scene="throne")
+            # self.start_battle(
+            #     self.save_data.save_profile["character"][self.profile_index[main_story_player]]["chapter"],
+            #     self.save_data.save_profile["character"][self.profile_index[main_story_player]]["mission"],
+            #     "0", players=players, scene="peace")
             # self.start_battle(
             #     self.save_data.save_profile["character"][self.profile_index[main_story_player]]["chapter"],
             #     self.save_data.save_profile["character"][self.profile_index[main_story_player]]["mission"],

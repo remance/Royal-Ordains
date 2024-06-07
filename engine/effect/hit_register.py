@@ -36,7 +36,7 @@ def hit_register(self, target, enemy_part, collide_pos):
                     target.stop_fall_duration = 0.3
 
                 if self.owner.hit_resource_regen:  # regen resource when hit
-                    self.owner.resource += self.owner.resource1  # regen
+                    self.owner.resource += self.owner.resource05  # regen 0.5% resource per hit
                     if self.owner.resource > self.owner.base_resource:  # resource cannot exceed the max resource
                         self.owner.resource = self.owner.base_resource
 

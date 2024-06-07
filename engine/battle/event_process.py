@@ -1,12 +1,6 @@
-from types import MethodType
-from random import uniform
+from random import choice, randint
 
-from pygame import Vector2
-
-from engine.character.character import Character, AICharacter
-from engine.uibattle.uibattle import CharacterSpeechBox
-
-infinity = float("inf")
+from engine.character.character import AICharacter
 
 
 def event_process(self):
@@ -65,6 +59,28 @@ def event_process(self):
                                  "Ground Y POS": event_property["POS"][1],
                                  "Scene": 1, "Team": 1, "Arrive Condition": {}, "Sprite Ver": self.chapter})
                     self.cutscene_playing.remove(child_event)
+                elif child_event["Type"] == "music":  # play new music
+                    self.current_music = self.stage_music_pool[str(child_event["Object"])]
+                    self.music_left.play(self.current_music, fade_ms=100)
+                    self.music_left.set_volume(self.play_music_volume, 0)
+                    self.music_right.play(self.current_music, fade_ms=100)
+                    self.music_right.set_volume(0, self.play_music_volume)
+                    self.cutscene_playing.remove(child_event)
+                elif child_event["Type"] == "sound":  # play sound
+                    self.add_sound_effect_queue(choice(self.sound_effect_pool[str(child_event["Object"])]),
+                                                self.camera_pos, child_event["Property"]["sound distance"],
+                                                child_event["Property"]["shake value"])
+                    self.cutscene_playing.remove(child_event)
+                elif child_event["Type"] == "weather":  # play weather
+                    # change weather
+                    weather_strength = 0
+                    if "strength" in child_event["Property"]:
+                        weather_strength = child_event["Property"]["strength"]
+                    self.current_weather.__init__(child_event["Object"], randint(0, 359),
+                                                  weather_strength,
+                                                  self.weather_data)
+                    self.cutscene_playing.remove(child_event)
+
                 else:
                     if child_event["Object"] == "pm":  # main player
                         event_character = self.main_player_object
@@ -74,107 +90,8 @@ def event_process(self):
                                 event_character = character
                                 break
                     if event_character:
-                        if child_event["Type"] == "hide":
-                            self.battle_camera.remove(event_character.body_parts.values())
-                            if event_character.indicator:  # also hide indicator
-                                self.battle_camera.remove(event_character.indicator)
-                            event_character.cutscene_update = MethodType(Character.inactive_update, event_character)
-                            self.cutscene_playing.remove(child_event)
-                        elif child_event["Type"] == "remove":
-                            event_character.die(delete=True)
-                            self.cutscene_playing.remove(child_event)
-                        elif (not event_character.cutscene_event or
-                              (("hold" in event_character.current_action or
-                                "repeat" in event_character.current_action) and
-                               event_character.cutscene_event != child_event)):
-                            # replace previous event on hold or repeat when there is new one to play next
-                            if "hold" in event_character.current_action and \
-                                    event_character.cutscene_event in self.cutscene_playing:
-                                # previous event done
-                                self.cutscene_playing.remove(event_character.cutscene_event)
-
-                            event_character.cutscene_event = child_event
-                            if "POS" in event_property:
-                                if type(event_property["POS"]) is str:
-                                    target_scene = self.battle_stage.current_scene
-                                    if "reach_" in event_property["POS"]:
-                                        target_scene = self.battle_stage.reach_scene
-
-                                    if "start" in event_property["POS"]:
-                                        positioning = event_character.layer_id
-                                        if event_character.layer_id > 4:
-                                            positioning = uniform(1, 4)
-                                        ground_pos = event_character.ground_pos
-                                        if event_character.fly:  # flying character can just move with current y pos
-                                            ground_pos = event_character.base_pos[1]
-                                        event_character.cutscene_target_pos = Vector2(
-                                            (1920 * target_scene) + (100 * positioning), ground_pos)
-                                    elif "middle" in event_property["POS"]:
-                                        ground_pos = event_character.ground_pos
-                                        if event_character.fly:  # flying character can just move with current y pos
-                                            ground_pos = event_character.base_pos[1]
-                                        event_character.cutscene_target_pos = Vector2(
-                                            (1920 * target_scene) - (self.battle_camera_center[0] * 1.5),
-                                            ground_pos)
-                                    elif "center" in event_property["POS"]:
-                                        # true center, regardless of flying
-                                        event_character.cutscene_target_pos = Vector2(
-                                            (1920 * target_scene) - (self.battle_camera_center[0] * 1.5),
-                                            self.battle_camera_center[1])
-                                else:
-                                    event_character.cutscene_target_pos = Vector2(
-                                        event_property["POS"][0],
-                                        event_property["POS"][1])
-                            elif "target" in event_property:
-                                for character2 in self.all_chars:
-                                    if character2.game_id == event_property[
-                                        "target"]:  # go to target pos
-                                        event_character.cutscene_target_pos = character2.base_pos
-                                        break
-                            if "angle" in event_property:
-                                if event_property["angle"] == "target":
-                                    # facing target must have cutscene_target_pos
-                                    if event_character.cutscene_target_pos[0] >= event_character.base_pos[
-                                        0]:
-                                        event_character.new_angle = -90
-                                    else:
-                                        event_character.new_angle = 90
-                                else:
-                                    event_character.new_angle = int(event_property["angle"])
-                                event_character.rotate_logic()
-                            animation = child_event["Animation"]
-                            action_dict = {}
-                            if animation:
-                                action_dict = {"name": child_event["Animation"]} | event_property
-                            if action_dict and action_dict != event_character.current_action:  # start new action
-                                event_character.pick_cutscene_animation(action_dict)
-                            if child_event["Text ID"]:
-                                specific_timer = None
-                                player_input_indicator = None
-                                if "interact" in event_property:
-                                    specific_timer = infinity
-                                    player_input_indicator = True
-                                elif "timer" in event_property:
-                                    specific_timer = event_property
-                                elif "select" in event_property or \
-                                        "hold" in event_property:
-                                    # selecting event, also infinite timer but not add player input indication
-                                    specific_timer = infinity
-
-                                if "angle" in event_property:
-                                    if event_character.angle != event_property["angle"]:  # player face target
-                                        event_character.new_angle *= -1
-                                        event_character.rotate_logic()
-
-                                CharacterSpeechBox(event_character,
-                                                   self.localisation.grab_text(("event",
-                                                                                child_event["Text ID"],
-                                                                                "Text")),
-                                                   specific_timer=specific_timer,
-                                                   player_input_indicator=player_input_indicator,
-                                                   cutscene_event=child_event)
-                    else:
-                        # no character to play for this cutscene, no need to loop this child event further
+                        event_character.character_event_process(child_event, event_property)
+                    else:  # no character to play for this cutscene, no need to loop this child event further
                         self.cutscene_playing.remove(child_event)
             if "select" in event_property:
                 if event_property["select"] == "yesno":

@@ -1,6 +1,7 @@
 import cProfile
 from datetime import datetime
 from math import cos, sin, radians
+from random import choice
 
 import pygame.transform
 from pygame import Vector2, Surface, SRCALPHA, Color, Rect, draw, mouse
@@ -156,7 +157,7 @@ class PlayerPortrait(UIBattle):
         self.image = Surface((320 * self.screen_scale[0], 120 * self.screen_scale[1]), SRCALPHA)
         self.rect = self.image.get_rect(midleft=pos)
 
-        self.font = Font(self.ui_font["main_button"], int(20 * self.screen_scale[1]))
+        self.font = Font(self.ui_font["main_button"], int(18 * self.screen_scale[1]))
 
         self.health_bar_image = health_bar_image
         self.base_health_bar_image = health_bar_image.copy()
@@ -197,14 +198,21 @@ class PlayerPortrait(UIBattle):
                                             self.game.player_key_bind_button_name[self.player]["Special"] +
                                             self.grab_text(("ui", "open_map")), True, (30, 30, 30),
                                             (220, 220, 220))
-            text_rect = text_surface.get_rect(topleft=(110 * self.screen_scale[0], 30 * self.screen_scale[1]))
+            text_rect = text_surface.get_rect(topleft=(110 * self.screen_scale[0], 10 * self.screen_scale[1]))
             self.image.blit(text_surface, text_rect)
 
             text_surface = self.font.render(self.grab_text(("ui", "press")) + " " +
                                             self.game.player_key_bind_button_name[self.player]["Guard"] +
                                             self.grab_text(("ui", "open_mission")), True, (30, 30, 30),
                                             (220, 220, 220))
-            text_rect = text_surface.get_rect(topleft=(110 * self.screen_scale[0], 60 * self.screen_scale[1]))
+            text_rect = text_surface.get_rect(topleft=(110 * self.screen_scale[0], 40 * self.screen_scale[1]))
+            self.image.blit(text_surface, text_rect)
+
+            text_surface = self.font.render(self.grab_text(("ui", "press")) + " " +
+                                            self.game.player_key_bind_button_name[self.player]["Inventory Menu"] +
+                                            self.grab_text(("ui", "open_court")), True, (30, 30, 30),
+                                            (220, 220, 220))
+            text_rect = text_surface.get_rect(topleft=(110 * self.screen_scale[0], 70 * self.screen_scale[1]))
             self.image.blit(text_surface, text_rect)
         self.reset_value()
 
@@ -404,14 +412,14 @@ class CharacterIndicator(UIBattle):
         UIBattle.__init__(self, has_containers=True)
         self.font = Font(self.ui_font["main_button"], 42)
         self.character = character
-        self.height_adjust = character.sprite_size * 3.5
-        if character.player_control:
+        self.height_adjust = character.sprite_height * 3.5
+        if character.player_control:  # player indicator
             text = character.game_id
 
             self.image = text_render_with_bg(text,
                                              Font(self.ui_font["manuscript_font"], int(42 * self.screen_scale[1])),
                                              gf_colour=team_colour[self.character.team], o_colour=Color("white"))
-        else:
+        else:  # follower indicator
             text = "F" + str(character.leader.game_id)
 
             self.image = text_render_with_bg(text,
@@ -527,16 +535,180 @@ class ScoreBoard(UIBattle):
         self.body_part.base_image.blit(gold_text, gold_rect)
 
 
+class CourtBook(UIBattle):
+    def __init__(self, images):
+        UIBattle.__init__(self)
+        self._layer = 11
+        self.images = images
+        self.image = self.images["Base"]
+
+        self.event = {}
+        self.event_timer = 0
+
+        self.empty_portrait = Surface((100 * self.screen_scale[0], 100 * self.screen_scale[1]), SRCALPHA)
+        self.portrait_rect = {"King": self.empty_portrait.get_rect(
+                                  center=(835 * self.screen_scale[0], 110 * self.screen_scale[1])),
+                              "Queen": self.empty_portrait.get_rect(
+                                  center=(1085 * self.screen_scale[0], 110 * self.screen_scale[1])),
+                              "Regent": self.empty_portrait.get_rect(
+                                  center=(1600 * self.screen_scale[0], 110 * self.screen_scale[1])),
+                              "Grand Marshal": self.empty_portrait.get_rect(
+                                  center=(195 * self.screen_scale[0], 326 * self.screen_scale[1])),
+                              "Faith Keeper": self.empty_portrait.get_rect(
+                                  center=(450 * self.screen_scale[0], 326 * self.screen_scale[1])),
+                              "Lord Steward": self.empty_portrait.get_rect(
+                                  center=(705 * self.screen_scale[0], 326 * self.screen_scale[1])),
+                              "Lord Chancellor": self.empty_portrait.get_rect(
+                                  center=(960 * self.screen_scale[0], 326 * self.screen_scale[1])),
+                              "Prime Minister": self.empty_portrait.get_rect(
+                                  center=(1215 * self.screen_scale[0], 326 * self.screen_scale[1])),
+                              "Lord Chamberlain": self.empty_portrait.get_rect(
+                                  center=(1470 * self.screen_scale[0], 326 * self.screen_scale[1])),
+                              "Confidant": self.empty_portrait.get_rect(
+                                  center=(1725 * self.screen_scale[0], 326 * self.screen_scale[1])),
+                              "Royal Champion": self.empty_portrait.get_rect(
+                                  center=(195 * self.screen_scale[0], 530 * self.screen_scale[1])),
+                              "Chief Scholar": self.empty_portrait.get_rect(
+                                  center=(450 * self.screen_scale[0], 530 * self.screen_scale[1])),
+                              "Chief Architect": self.empty_portrait.get_rect(
+                                  center=(705 * self.screen_scale[0], 530 * self.screen_scale[1])),
+                              "Lord Judge": self.empty_portrait.get_rect(
+                                  center=(960 * self.screen_scale[0], 530 * self.screen_scale[1])),
+                              "Secret Keeper": self.empty_portrait.get_rect(
+                                center=(1215 * self.screen_scale[0], 530 * self.screen_scale[1])),
+                              "Vice Chamberlain": self.empty_portrait.get_rect(
+                                  center=(1470 * self.screen_scale[0], 530 * self.screen_scale[1])),
+                              "Seneschal": self.empty_portrait.get_rect(
+                                  center=(1725 * self.screen_scale[0], 530 * self.screen_scale[1])),
+                              "King Of Arms": self.empty_portrait.get_rect(
+                                  center=(195 * self.screen_scale[0], 758 * self.screen_scale[1])),
+                              "Vice Marshal": self.empty_portrait.get_rect(
+                                  center=(450 * self.screen_scale[0], 758 * self.screen_scale[1])),
+                              "Court Mage": self.empty_portrait.get_rect(
+                                  center=(705 * self.screen_scale[0], 758 * self.screen_scale[1])),
+                              "Chief Justiciar": self.empty_portrait.get_rect(
+                                  center=(960 * self.screen_scale[0], 758 * self.screen_scale[1])),
+                              "Chief Verderer": self.empty_portrait.get_rect(
+                                  center=(1215 * self.screen_scale[0], 758 * self.screen_scale[1])),
+                              "Master Of Ceremony": self.empty_portrait.get_rect(
+                                  center=(1470 * self.screen_scale[0], 758 * self.screen_scale[1])),
+                              "Health Keeper": self.empty_portrait.get_rect(
+                                  center=(1725 * self.screen_scale[0], 758 * self.screen_scale[1])),
+                              "Provost Marshal": self.empty_portrait.get_rect(
+                                  center=(195 * self.screen_scale[0], 950 * self.screen_scale[1])),
+                              "Hound Keeper": self.empty_portrait.get_rect(
+                                  center=(450 * self.screen_scale[0], 950 * self.screen_scale[1])),
+                              "Master Of Ride": self.empty_portrait.get_rect(
+                                  center=(705 * self.screen_scale[0], 950 * self.screen_scale[1])),
+                              "Flower Keeper": self.empty_portrait.get_rect(
+                                  center=(960 * self.screen_scale[0], 950 * self.screen_scale[1])),
+                              "Master Of Hunt": self.empty_portrait.get_rect(
+                                  center=(1215 * self.screen_scale[0], 950 * self.screen_scale[1])),
+                              "Court Jester": self.empty_portrait.get_rect(
+                                  center=(1470 * self.screen_scale[0], 950 * self.screen_scale[1])),
+                              "Court Herald": self.empty_portrait.get_rect(
+                                  center=(1725 * self.screen_scale[0], 950 * self.screen_scale[1]))}
+
+        self.circle_rect = {key: self.images[key].get_rect(
+            center=(value.centerx, value.centery + (10 * self.screen_scale[1]))) for
+            key, value in self.portrait_rect.items()}
+
+        self.base_image = self.image.copy()  # empty first image
+        self.base_image2 = self.image.copy()  # image after added all portraits except one with event
+
+        self.rect = self.image.get_rect(topleft=(0, 0))
+
+    def check_name(self, who):
+        if who:
+            if who + self.battle.chapter in self.battle.character_data.character_portraits:
+                return self.grab_text(("character", who + self.battle.chapter, "Name"))
+            elif who in self.battle.character_data.character_portraits:
+                return self.grab_text(("character", who, "Name"))
+            elif who + str(self.battle.main_story_profile["character"]["Sprite Ver"]) in self.battle.character_data.character_portraits:
+                return self.grab_text(("character", who + str(self.battle.main_story_profile["character"]["Sprite Ver"]), "Name"))
+        return "Empty"
+
+    def check_portrait(self, who):
+        """Find portrait with appropriate version in data"""
+        if who:
+            if who + self.battle.chapter in self.battle.character_data.character_portraits:
+                return self.battle.character_data.character_portraits[who + self.battle.chapter]
+            elif who in self.battle.character_data.character_portraits:
+                return self.battle.character_data.character_portraits[who]
+            elif who + str(self.battle.main_story_profile["character"]["Sprite Ver"]) in self.battle.character_data.character_portraits:
+                return self.battle.character_data.character_portraits[who + self.battle.main_story_profile["character"]["sprite ver"]]
+        return self.empty_portrait
+
+    def add_portraits(self, event):
+        self.image = self.base_image.copy()
+        self.event = event
+        for portrait, rect in self.portrait_rect.items():
+            if portrait not in event:
+                self.blit_portrait(portrait,
+                                   self.check_portrait(self.battle.main_story_profile["save state"]["court"][portrait]),
+                                   rect)
+            self.image.blit(self.images[portrait], self.circle_rect[portrait])
+        self.base_image2 = self.image.copy()
+
+    def blit_portrait(self, portrait_key, image, rect):
+        if portrait_key in ("Queen", "Regent", "Lord Chancellor", "Prime Minister", "Confidant", "Chief Architect",
+                            "Lord Judge", "Vice Chamberlain", "Vice Marshall", "Chief Verderer", "Health Keeper",
+                            "Master of Ride", "Court Herald"):  # flip portrait to face left for some titles
+            image = pygame.transform.flip(image, True, False)
+        self.image.blit(image, rect)
+
+    def update(self):
+        self.battle.remove_ui_updater(self.battle.text_popup)
+        if self.event:
+            playing_event = tuple(self.event.keys())[0]
+            self.image = self.base_image2.copy()
+            if not self.event_timer:
+                self.battle.drama_text.queue.append((self.grab_text(("ui", playing_event)) + " " +
+                                                     self.grab_text(("ui", "New Holder:")) +
+                                                     self.check_name(self.event[playing_event]), "Parchment_write"))
+                self.event_timer = 1
+            self.event_timer -= self.battle.dt
+            self.image.blit(self.images[playing_event], self.circle_rect[playing_event])
+            if self.battle.main_story_profile["save state"]["court"][playing_event]:  # fade out old portrait
+                old_image = self.check_portrait(self.battle.main_story_profile["save state"]["court"][playing_event]).copy()
+                old_image.set_alpha(255 * self.event_timer)
+                self.blit_portrait(playing_event, old_image, self.portrait_rect[playing_event])
+            old_image = self.check_portrait(self.event[playing_event]).copy()  # fade in new one
+            old_image.set_alpha(255 * (1 - self.event_timer))
+            self.blit_portrait(playing_event, old_image, self.portrait_rect[playing_event])
+            self.image.blit(self.images[playing_event], self.circle_rect[playing_event])
+            if self.event_timer <= 0:  # event end
+                self.event_timer = 0
+                self.battle.main_story_profile["save state"]["court"][playing_event] = self.event[playing_event]
+                self.event.pop(playing_event)
+                self.base_image2 = self.image.copy()
+        else:
+            cursor_pos = (self.battle.cursor.pos[0] - self.rect.topleft[0],
+                          self.battle.cursor.pos[1] - self.rect.topleft[1])
+            for image, rect in self.portrait_rect.items():
+                if rect.collidepoint(cursor_pos):
+                    self.battle.add_ui_updater(self.battle.text_popup)
+                    char_name = self.battle.main_story_profile["save state"]["court"][image]
+                    self.battle.text_popup.popup((0, 0),
+                                                 (self.grab_text(("ui", image)),
+                                                  self.grab_text(("ui", "Role:")) +
+                                                  self.grab_text(("ui", image + "'s Role")),
+                                                  self.grab_text(("ui", "Holder:")) +
+                                                  self.check_name(char_name),
+                                                  self.grab_text(("character", "Description"))),
+                                                 shown_id=image, width_text_wrapper=800 * self.game.screen_scale[0])
+                    break
+
+
 class CityMap(UIBattle):
     def __init__(self, images):
         UIBattle.__init__(self)
-        self._layer = 1
+        self._layer = 11
         self.selected_animation_timer = []
         self.images = images
         self.image = self.images["map"]
         self.base_image = self.image.copy()
 
-        self.base_image2 = self.image.copy()
         self.selected = None
 
         self.rect = self.image.get_rect(topleft=(0, 0))
@@ -616,7 +788,7 @@ class CityMap(UIBattle):
 class CityMission(UIBattle):
     def __init__(self, images):
         UIBattle.__init__(self)
-        self._layer = 1
+        self._layer = 11
         self.selected_animation_timer = []
         self.images = images
         self.image = self.images["map"]
@@ -772,6 +944,9 @@ class CharacterSpeechBox(UIBattle):
         self.base_image.blit(self.left_corner, self.left_corner_rect)  # start animation with the left corner
         self.max_length = self.base_image.get_width()  # max length of the body, not counting the end corner
         self.rect = self.base_image.get_rect(midleft=self.head_part.rect.center)
+
+        self.battle.add_sound_effect_queue(choice(self.battle.sound_effect_pool["Parchment_write"]),
+                                           self.battle.camera_pos, 2000, 0)
         if specific_timer:
             self.timer = specific_timer
         else:
@@ -787,9 +962,9 @@ class CharacterSpeechBox(UIBattle):
                     profile["dialogue log"] = profile["dialogue log"][1:]
 
     def update(self, dt):
-        """Play unfold animation and blit drama text at the end"""
+        """Play unfold animation and blit text at the end"""
         if self.current_length < self.max_length:  # keep unfolding if not yet reach max length
-            body_rect = self.body.get_rect(topleft=(self.current_length, 0))  # body of the drama popup
+            body_rect = self.body.get_rect(topleft=(self.current_length, 0))  # body of the speech popup
             self.base_image.blit(self.body, body_rect)
             self.image = self.base_image.copy()
             self.current_length += self.body.get_width()

@@ -37,7 +37,7 @@ def pick_animation(self):
                     else:  # no resource to do the move, reset to idle
                         if self.current_moveset["Move"] in self.attack_cooldown:  # add cooldown value to screen
                             DamageNumber(str(round(self.attack_cooldown[self.current_moveset["Move"]], 1)),
-                                         (self.pos[0], self.pos[1] - (self.sprite_size * 2)), False, self.team,
+                                         (self.pos[0], self.pos[1] - (self.sprite_height * 2)), False, self.team,
                                          move=False)
                         self.current_moveset = None
                         self.continue_moveset = None

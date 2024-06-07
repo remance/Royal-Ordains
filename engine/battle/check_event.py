@@ -48,9 +48,9 @@ def check_event(self):
         first_delay = tuple(self.later_enemy[self.battle_stage.spawn_check_scene].keys())[0]
         if self.spawn_delay_timer[self.battle_stage.spawn_check_scene] >= first_delay:
             # spawn based on delay timer
-            self.setup_battle_character((), self.later_enemy[self.battle_stage.spawn_check_scene][
+            self.spawn_character((), self.later_enemy[self.battle_stage.spawn_check_scene][
                 first_delay],
-                                        add_helper=False)
+                                 add_helper=False)
             self.later_enemy[self.battle_stage.spawn_check_scene].pop(first_delay)
 
     for player_index, player_object in self.player_objects.items():
@@ -68,11 +68,15 @@ def check_event(self):
                     self.weather_data)
                 self.reach_scene_event_list[self.battle_stage.reach_scene].pop("weather")
             if "music" in self.reach_scene_event_list[self.battle_stage.reach_scene]:  # change music
-                self.current_music = self.reach_scene_event_list[self.battle_stage.reach_scene]["music"]
+                self.current_music = self.stage_music_pool[self.reach_scene_event_list[self.battle_stage.reach_scene]["music"]]
+                self.music_left.play(self.current_music, fade_ms=100)
+                self.music_left.set_volume(self.play_music_volume, 0)
+                self.music_right.play(self.current_music, fade_ms=100)
+                self.music_right.set_volume(0, self.play_music_volume)
                 self.reach_scene_event_list[self.battle_stage.reach_scene].pop("music")
             if "sound" in self.reach_scene_event_list[self.battle_stage.reach_scene]:  # play sound
-                for sound_effect in self.reach_scene_event_list[self.battle_stage.reach_scene]:
-                    self.add_sound_effect_queue(self.sound_effect_pool[sound_effect[0]],
+                for sound_effect in self.reach_scene_event_list[self.battle_stage.reach_scene]["sound"]:
+                    self.add_sound_effect_queue(sound_effect[0],
                                                 self.camera_pos, sound_effect[1], sound_effect[2])
                 self.reach_scene_event_list[self.battle_stage.reach_scene].pop("sound")
             if "cutscene" in self.reach_scene_event_list[self.battle_stage.reach_scene]:  # cutscene

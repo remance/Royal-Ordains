@@ -165,7 +165,7 @@ class UIMenu(Sprite):
 class MenuCursor(UIMenu):
     def __init__(self, images):
         """Game menu cursor"""
-        self._layer = 1000000  # as high as possible, always blit last
+        self._layer = 999999999999  # as high as possible, always blit last
         UIMenu.__init__(self, player_cursor_interact=False, has_containers=True)
         self.images = images
         self.image = images["normal"]

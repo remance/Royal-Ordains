@@ -154,7 +154,7 @@ class BattleMapData(GameData):
             event_data = rd[1:]
             # keep event data in trigger structure for easier check
             if event_data:
-                final_event_data = {}
+                final_event_data = {"music": []}
                 for item in event_data:
                     if item["ID"]:  # item with no parent ID mean it is child of previous found parent
                         next_level = final_event_data
@@ -165,6 +165,8 @@ class BattleMapData(GameData):
                         parent_id = item["ID"]
                         if parent_id not in next_level:
                             next_level[parent_id] = []
+                    if item["Type"] == "music":  # add music to list for loading
+                        final_event_data["music"].append(str(item["Object"]))
                     next_level[parent_id].append(item)
                 unit_file.close()
                 return final_event_data

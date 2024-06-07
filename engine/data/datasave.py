@@ -16,7 +16,21 @@ empty_character_save = {"chapter": "1", "mission": "1", "playtime": 0, "total sc
                         "story choice": {}, "selected follower preset": 0,
                         "follower preset": {0: {}, 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {}, 8: {},
                                             9: {}, 10: {}, 11: {}}, "follower list": [], "dialogue log": [],
-                        "save state": {"1.0": {}}}
+                        "save state": {"court": {"King": "King", "Queen": None, "Regent": None,
+                                                 "Grand Marshal": "Vurus", "Royal Champion": "Vars",
+                                                 "King Of Arms": "Vurus", "Provost Marshal": "Picrieas",
+                                                 "Vice Marshal": "Knedhel", "Hound Keeper": None,
+                                                 "Lord Chamberlain": "Serlon", "Confidant": "Nayedien",
+                                                 "Chief Scholar": "Micorte", "Vice Chamberlain": "Luriel",
+                                                 "Seneschal": "Serlon", "Flower Keeper": "Rudehst",
+                                                 "Court Jester": "Dashisi", "Master Of Ceremony": "Kapuni",
+                                                 "Health Keeper": "Peurrus", "Master Of Ride": "Merlaros",
+                                                 "Court Herald": "Hermanos", "Faith Keeper": "Monnirl",
+                                                 "Lord Chancellor": "Solhatar", "Secret Keeper": "Vurus",
+                                                 "Chief Justiciar": "Severn", "Prime Minister": "Solhatar",
+                                                 "Chief Architect": "Velmidas", "Lord Judge": "Kervos",
+                                                 "Lord Steward": "Elghest", "Chief Verderer": "Merlaros",
+                                                 "Court Mage": "Furlest", "Master Of Hunt": "Viskes"}}}
 
 empty_game_save = {"chapter": 1, "mission": 1, "unlock": {"character": []}}
 
