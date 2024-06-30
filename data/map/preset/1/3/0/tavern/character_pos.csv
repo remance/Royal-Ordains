@@ -1,0 +1,14 @@
+"Object ID","ID","Scene","POS","Ground Y POS","Angle","Start Health","Team","Arrive Condition","Stage Property"
+"p1",,1,"1200,1000",1000,90,1,1,,
+"p2",,1,"1400,1000",1000,90,1,1,,
+"p3",,1,"1600,1000",1000,90,1,1,,
+"p4",,1,"1800,1000",1000,90,1,1,,
+1,"Duhon",1,"160,1000",1000,-90,1,1,,"city npc"
+2,"Vraesier",1,"1515,1000",1000,-90,1,1,,"city npc,no player pick,idle:SitIdle"
+3,"Nraesier",1,"1725,1000",1000,90,1,1,,"city npc"
+4,"Board",1,"840,1000",1000,-90,1,1,,"city npc"
+5,"Tom",1,"1120,1000",1000,-90,1,1,,"city npc"
+6,"Toodles",1,"840,1000",1000,-90,1,1,,"city npc"
+7,"Barman_one",1,"505,1000",1000,-90,1,1,,"city npc"
+8,"Barman_two",1,"675,1000",1000,90,1,1,,"city npc"
+9,"Rban_sword",1,"830,1000",1000,-90,1,1,,"city npc,story choice:1.1.3_yes,idle:Idle"

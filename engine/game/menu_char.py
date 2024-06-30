@@ -57,17 +57,20 @@ def menu_char(self, esc_press):
             players = {key: self.save_data.save_profile["character"][self.profile_index[key]]["character"] for
                        key, value in
                        self.player_char_select.items() if value}
-            #
-            # self.start_battle("1", "1", "1", players=players)
+
+            self.start_battle("1", "1", "1", players=players)
+
             # start in throne room of current chapter and mission of the lowest progress player
-            self.start_battle(
-                self.save_data.save_profile["character"][self.profile_index[main_story_player]]["chapter"],
-                self.save_data.save_profile["character"][self.profile_index[main_story_player]]["mission"],
-                "0", players=players, scene="throne")
+            # self.start_battle(
+            #     self.save_data.save_profile["character"][self.profile_index[main_story_player]]["chapter"],
+            #     self.save_data.save_profile["character"][self.profile_index[main_story_player]]["mission"],
+            #     "0", players=players, scene="throne")
+
             # self.start_battle(
             #     self.save_data.save_profile["character"][self.profile_index[main_story_player]]["chapter"],
             #     self.save_data.save_profile["character"][self.profile_index[main_story_player]]["mission"],
             #     "0", players=players, scene="peace")
+
             # self.start_battle(
             #     self.save_data.save_profile["character"][self.profile_index[main_story_player]]["chapter"],
             #     self.save_data.save_profile["character"][self.profile_index[main_story_player]]["mission"],
@@ -198,6 +201,7 @@ def menu_char(self, esc_press):
                                 self.add_ui_updater(self.player_char_interfaces[player])
                                 self.player_char_interfaces[player].add_profile(save_profile)
                             else:  # start character selection for empty profile slot
+                                self.player_char_interfaces[player].profile = {}
                                 selector.change_mode(tuple(playable_character.keys())[0])
 
                         elif selector.mode not in ("stat", "ready", "readymain"):  # go to stat allocation

@@ -82,8 +82,8 @@ def pick_animation(self):
 
     if animation_name in self.animation_pool:
         self.current_animation = self.animation_pool[animation_name]
-    else:  # animation not found, use default
-        print("notfound", self.name, animation_name, self.current_action, self.command_action)
+    else:  # animation not found, use default  # TODO remove in stable?
+        print("notfound", self.name, animation_name, self.current_action, self.command_action, self.alive)
         animation_name = "Default"
         self.current_animation = self.animation_pool["Default"]
 

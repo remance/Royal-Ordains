@@ -1,81 +1,81 @@
-"Move","Name","Buttons","Position","Prepare Animation","After Animation","AI Range","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"C1.1","Barrage","Down,Forward,Weak","Stand",,,2000,2000,0,3,95,100,,,50,,"Physical",,,,"all child moveset"
-"C1.2","Swift Arrows","Down,Forward,Weak","Stand",,,2000,2000,0,4,121,100,,,50,,"Physical",,,,"all child moveset"
-"C1.3","Rapid Shots","Down,Forward,Weak","Stand",,,2000,2000,0,5,143,100,,,50,0.2,"Physical",,,,"all child moveset"
-"C1.4","Volley","Down,Forward,Weak","Stand",,,2000,2000,0,6,168,150,,,100,0.2,"Physical",,,,"all child moveset"
-"C1.5","Finest Archery","Down,Forward,Weak","Stand",,,3000,3000,0,7,186,150,,,100,0.2,"Physical",94,,,"all child moveset"
-"C2.1","Charged Shot","Down,Forward,Strong","Stand",,,4000,4500,6,1,215,400,,50,,,"Physical",,,,
-"C2.2","Penetrating Shot","Down,Forward,Strong","Stand",,,4000,4500,6,1,275,400,,50,,,"Physical",,,,"penetrate"
-"C2.3","Great Shot","Down,Forward,Strong","Stand",,,5000,5500,6,1,350,400,,50,,0.5,"Physical",,,,"penetrate"
-"C2.4","Power Shot","Down,Forward,Strong","Stand",,,5000,5500,6,1,416,800,,200,,0.5,"Physical",,,,"penetrate"
-"C2.5","Kill Shot","Down,Forward,Strong","Stand",,,6000,6500,6,1,1352,800,,200,,0.5,"Physical",,,,"penetrate,no defence"
-"C3.1","Arrow Shower","Guard,Down,Strong","Stand",,,2000,2200,0,12,44,,,,100,,"Physical",,,,"spawn,spawn after,spawn same,spawn sky,aim:near target,spawn number:3"
-"C3.2","Arrow Swarm","Guard,Down,Strong","Stand",,,2000,2200,0,14,57,,,,100,,"Physical",,,,"spawn,spawn after,spawn same,spawn sky,aim:near target,spawn number:2"
-"C3.3","Arrow Storm","Guard,Down,Strong","Stand",,,2000,2200,0,16,70,,,,100,,"Physical",,35,,"spawn,spawn after,spawn same,spawn sky,aim:near target,spawn number:2"
-"C3.4","Arrow Tempest","Guard,Down,Strong","Stand",,,2000,2200,0,20,95,,,,100,,"Physical",,35,,"spawn,spawn after,spawn same,spawn sky,aim:near target,spawn number:4"
-"C3.5","Blot Out the Sun","Guard,Down,Strong","Stand",,,2000,2200,0,20,120,,,,100,,"Physical",,35,,"spawn,spawn after,spawn same,spawn sky,aim:near target,spawn number:4,no dodge"
-"C4.1","Precision Slash","Guard,Forward,Strong","Stand",,,300,,3,0,100,50,,,65,0.3,"Physical",,,,"all child moveset,no dodge"
-"C4.2","Razor Edge Slash","Guard,Forward,Strong","Stand",,,300,,3,0,121,50,,,65,0.3,"Physical",,33,,"all child moveset,no dodge"
-"C4.3","Penetrating Slash","Guard,Forward,Strong","Stand",,,300,,3,0,138,50,,,65,1,"Physical",,33,,"all child moveset,no dodge"
-"C4.4","Undeniable Attack","Guard,Forward,Strong","Stand",,,300,,3,0,170,50,,,65,1,"Physical",,33,,"all child moveset,no dodge,no defence"
-"C4.5","Fateful Assault","Guard,Forward,Strong","Stand",,,300,,3,0,215,50,,,65,1,"Physical",,33,,"all child moveset,no dodge,no defence,no guard"
-"C5.1","Retreating Shot","Down,Backward,Strong","Stand",,,600,2200,10,1,68,35,,,60,,"Physical",,,,"all child moveset,x_momentum:-500,movable,forced move"
-"C5.2","Tactical Withdrawal","Down,Backward,Strong","Stand",,,400,2200,10,1,73,35,,,60,,"Physical",,5,,"all child moveset,x_momentum:-500,movable,forced move"
-"C5.3","Luring Escape","Down,Backward,Strong","Stand",,,400,2200,10,1,82,35,,,60,,"Physical",,"5,12",,"all child moveset,x_momentum:-500,movable,forced move"
-"C5.4","Ambush Setup","Down,Backward,Strong","Stand",,,400,2200,10,3,64,35,,,60,,"Physical",,"5,12,36",,"all child moveset,x_momentum:-500,movable,forced move"
-"C5.5","Death Trap","Down,Backward,Strong","Stand",,,400,2200,10,3,75,35,,,60,,"Physical",,"5,12,36",,"all child moveset,x_momentum:-500,penetrate,movable,forced move"
-"C6.1","Rapid Draw","Down,Backward,Weak","Stand",,,1000,,60,0,,,,,,,"Physical",92,,,
-"C6.2","Combat Acceleration","Down,Backward,Weak","Stand",,,1000,,60,0,,,,,,,"Physical","90,92",,,
-"C6.3","Planning Annihilation","Down,Backward,Weak","Stand",,,1000,,60,0,,,,,,,"Physical","90,92,93",,,
-"C6.4","Overcome the Limit","Down,Backward,Weak","Stand",,,1000,,60,0,,,,,,,"Physical","90,92,93,28",,,
-"C6.5","Supreme Speed","Down,Backward,Weak","Stand",,,1000,500,60,0,,,,,,,"Physical","90,92,93,28",,,
-"A1.1","Explosive Arrow","Down,Forward,Special","Air",,,,,,3,,,,,,,"Fire",,,,
-"A1.2","Firework Arrow","Down,Forward,Special","Air",,,,,,3,,,,,,,"Fire",,,,
-"A1.3","Force Arrow","Down,Forward,Special","Air",,,,,,3,,,,,,,"Fire",,,,
-"A1.4","Fire Burst Arrow","Down,Forward,Special","Air",,,,,,3,,,,,,,"Fire",,,,
-"A1.5","Volatile Bomb Arrow","Down,Forward,Special","Air",,,,,,3,,,,,,,"Fire",,,,
-"A2.1","Fire Trail Arrow","Guard,Down,Forward,Special","Stand",,,,,,5,,,,,,,"Fire",,,,
-"A2.2","Air Ignition Arrow","Guard,Down,Forward,Special","Stand",,,,,,5,,,,,,,"Fire",,,,
-"A2.3","Infernal Arrow","Guard,Down,Forward,Special","Stand",,,,,,5,,,,,,,"Fire",,,,
-"A2.4","Hellfire Arrow","Guard,Down,Forward,Special","Air",,,,,,5,,,,,,,"Fire",,,,
-"A2.5","Bringer of Underworld","Guard,Down,Forward,Special","Air",,,,,,5,,,,,,,"Fire",,,,
-"A3.1","Wings of War","Guard,Down,Backward,Special","Air",,,,,,,,,,,,,,,,,
-"A3.2","Prelude of the Great War","Guard,Down,Backward,Special","Air",,,,,,,,,,,,,,,,,
-"A3.3","War that Start All Wars","Guard,Down,Backward,Special","Air",,,,,,,,,,,,,,,,,
-"A3.4","Permanent Conflict","Guard,Down,Backward,Special","Air",,,,,,,,,,,,,,,,,
-"A3.5","Age of Chaos","Guard,Down,Backward,Special","Air",,,,,,,,,,,,,,,,,
-"A4.1","Great March","Guard,Down,Down,Special","Air",,,,,,,,,,,,,,,,,
-"A4.2","Masterful Momentum","Guard,Down,Down,Special","Air",,,,,,,,,,,,,,,,,
-"A4.3","Huntfall","Guard,Down,Down,Special","Air",,,,,,,,,,,,,,,,,
-"A4.4","Liberation","Guard,Down,Down,Special","Air",,,,,,,,,,,,,,,,,
-"A4.5","March of the Four Wind","Guard,Down,Down,Special","Air",,,,,,,,,,,,,,,,,
-"A5.1","Casus Belli","Down,Forward,Up,Special","Stand",,,,,,,,,,,,,,,,,
-"A5.2","Great Conquest","Down,Forward,Up,Special","Stand",,,,,,,,,,,,,,,,,
-"A5.3","Manifest Destiny","Down,Forward,Up,Special","Stand",,,,,,,,,,,,,,,,,
-"A5.4","Divine Right","Down,Forward,Up,Special","Stand",,,,,,,,,,,,,,,,,
-"A5.5","Heaven Mandate","Down,Forward,Up,Special","Stand",,,,,,,,,,,,,,,,,
-"B1.1","Imbue Poison","Forward,Special","Couch",,,,,,,,,,,,,"Poison",,,,
-"B1.2","Imbue Toxin","Forward,Special","Couch",,,,,,,,,,,,,"Poison",,,,
-"B1.3","Imbue Numb Poison","Forward,Special","Couch",,,,,,,,,,,,,"Poison",,,,
-"B1.4","Imbue Powder Poison","Forward,Special","Couch",,,,,,,,,,,,,"Poison",,,,
-"B1.5","Imbue Deadly Poison","Forward,Special","Couch",,,,,,,,,,,,,"Poison",,,,
-"B2.1","First Aid","Down,Special","Couch",,,,,,,,,,,,,,,,,
-"B2.2","Field Surgeon","Down,Special","Couch",,,,,,,,,,,,,,,,,
-"B2.3","Battle Medic","Down,Special","Couch",,,,,,,,,,,,,,,,,
-"B2.4","War Doctor","Down,Special","Couch",,,,,,,,,,,,,,,,,
-"B2.5","Conflict Healer","Down,Special","Couch",,,,,,,,,,,,,,,,,
-"B3.1","Careful Shot","Forward,Special","Stand",,,,,,,,,,,,,,,,,
-"B3.2","Sniping Shot","Forward,Special","Stand",,,,,,,,,,,,,,,,,
-"B3.3","Pinpoint Shot","Forward,Special","Stand",,,,,,,,,,,,,,,,,
-"B3.4","True Aim Shot","Forward,Special","Stand",,,,,,,,,,,,,,,,,
-"B3.5","Perfect Shot","Forward,Special","Stand",,,,,,,,,,,,,,,,,
-"B4.1","Free Destiny","Guard,Down,Forward,Special","Air",,,,,,,,,,,,,,,,,
-"B4.2","Tilt the Scale","Guard,Down,Forward,Special","Air",,,,,,,,,,,,,,,,,
-"B4.3","Freedom Before Order","Guard,Down,Forward,Special","Air",,,,,,,,,,,,,,,,,
-"B4.4","Topple Tyranny","Guard,Down,Forward,Special","Air",,,,,,,,,,,,,,,,,
-"B4.5","Anarchic Dream","Guard,Down,Forward,Special","Air",,,,,,,,,,,,,,,,,
-"B5.1","Temporary Truce","Forward,Down,Special","Stand",,,,,,,,,,,,,,,,,
-"B5.2","Peace Adaptation","Forward,Down,Special","Stand",,,,,,,,,,,,,,,,,
-"B5.3","Peace Plan Establishment","Forward,Down,Special","Stand",,,,,,,,,,,,,,,,,
-"B5.4","Armistice","Forward,Down,Special","Stand",,,,,,,,,,,,,,,,,
-"B5.5","Road to Utopia","Forward,Down,Special","Stand",,,,,,,,,,,,,"Physical",,,,
+"Move","Name","Buttons","Position","Prepare Animation","After Animation","AI Range","AI Delay","AI Condition","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"C1.1","Barrage","Down,Forward,Weak","Stand",,,2000,,,2000,0,3,95,100,,,50,,"Physical",,,,"all child moveset"
+"C1.2","Swift Arrows","Down,Forward,Weak","Stand",,,2000,,,2000,0,4,121,100,,,50,,"Physical",,,,"all child moveset"
+"C1.3","Rapid Shots","Down,Forward,Weak","Stand",,,2000,,,2000,0,5,143,100,,,50,0.2,"Physical",,,,"all child moveset"
+"C1.4","Volley","Down,Forward,Weak","Stand",,,2000,,,2000,0,6,168,150,,,100,0.2,"Physical",,,,"all child moveset"
+"C1.5","Finest Archery","Down,Forward,Weak","Stand",,,3000,,,3000,0,7,186,150,,,100,0.2,"Physical",94,,,"all child moveset"
+"C2.1","Charged Shot","Down,Forward,Strong","Stand",,,4000,,,4500,6,1,215,400,,50,,,"Physical",,,,
+"C2.2","Penetrating Shot","Down,Forward,Strong","Stand",,,4000,,,4500,6,1,275,400,,50,,,"Physical",,,,"penetrate"
+"C2.3","Great Shot","Down,Forward,Strong","Stand",,,5000,,,5500,6,1,350,400,,50,,0.5,"Physical",,,,"penetrate"
+"C2.4","Power Shot","Down,Forward,Strong","Stand",,,5000,,,5500,6,1,416,800,,200,,0.5,"Physical",,,,"penetrate"
+"C2.5","Kill Shot","Down,Forward,Strong","Stand",,,6000,,,6500,6,1,1352,800,,200,,0.5,"Physical",,,,"penetrate,no defence"
+"C3.1","Arrow Shower","Guard,Down,Strong","Stand",,,2000,,,2200,0,12,44,,,,100,,"Physical",,,,"spawn,spawn after,spawn same,spawn sky,aim:near target,spawn number:3"
+"C3.2","Arrow Swarm","Guard,Down,Strong","Stand",,,2000,,,2200,0,14,57,,,,100,,"Physical",,,,"spawn,spawn after,spawn same,spawn sky,aim:near target,spawn number:2"
+"C3.3","Arrow Storm","Guard,Down,Strong","Stand",,,2000,,,2200,0,16,70,,,,100,,"Physical",,35,,"spawn,spawn after,spawn same,spawn sky,aim:near target,spawn number:2"
+"C3.4","Arrow Tempest","Guard,Down,Strong","Stand",,,2000,,,2200,0,20,95,,,,100,,"Physical",,35,,"spawn,spawn after,spawn same,spawn sky,aim:near target,spawn number:4"
+"C3.5","Blot Out the Sun","Guard,Down,Strong","Stand",,,2000,,,2200,0,20,120,,,,100,,"Physical",,35,,"spawn,spawn after,spawn same,spawn sky,aim:near target,spawn number:4,no dodge"
+"C4.1","Precision Slash","Guard,Forward,Strong","Stand",,,300,,,,3,0,100,50,,,65,0.3,"Physical",,,,"all child moveset,no dodge"
+"C4.2","Razor Edge Slash","Guard,Forward,Strong","Stand",,,300,,,,3,0,121,50,,,65,0.3,"Physical",,33,,"all child moveset,no dodge"
+"C4.3","Penetrating Slash","Guard,Forward,Strong","Stand",,,300,,,,3,0,138,50,,,65,1,"Physical",,33,,"all child moveset,no dodge"
+"C4.4","Undeniable Attack","Guard,Forward,Strong","Stand",,,300,,,,3,0,170,50,,,65,1,"Physical",,33,,"all child moveset,no dodge,no defence"
+"C4.5","Fateful Assault","Guard,Forward,Strong","Stand",,,300,,,,3,0,215,50,,,65,1,"Physical",,33,,"all child moveset,no dodge,no defence,no guard"
+"C5.1","Retreating Shot","Down,Backward,Strong","Stand",,,600,,,2200,10,1,68,35,,,60,,"Physical",,,,"all child moveset,x_momentum:-500,movable,forced move"
+"C5.2","Tactical Withdrawal","Down,Backward,Strong","Stand",,,400,,,2200,10,1,73,35,,,60,,"Physical",,5,,"all child moveset,x_momentum:-500,movable,forced move"
+"C5.3","Luring Escape","Down,Backward,Strong","Stand",,,400,,,2200,10,1,82,35,,,60,,"Physical",,"5,12",,"all child moveset,x_momentum:-500,movable,forced move"
+"C5.4","Ambush Setup","Down,Backward,Strong","Stand",,,400,,,2200,10,3,64,35,,,60,,"Physical",,"5,12,36",,"all child moveset,x_momentum:-500,movable,forced move"
+"C5.5","Death Trap","Down,Backward,Strong","Stand",,,400,,,2200,10,3,75,35,,,60,,"Physical",,"5,12,36",,"all child moveset,x_momentum:-500,penetrate,movable,forced move"
+"C6.1","Rapid Draw","Down,Backward,Weak","Stand",,,1000,,,,60,0,,,,,,,"Physical",92,,,
+"C6.2","Combat Acceleration","Down,Backward,Weak","Stand",,,1000,,,,60,0,,,,,,,"Physical","90,92",,,
+"C6.3","Planning Annihilation","Down,Backward,Weak","Stand",,,1000,,,,60,0,,,,,,,"Physical","90,92,93",,,
+"C6.4","Overcome the Limit","Down,Backward,Weak","Stand",,,1000,,,,60,0,,,,,,,"Physical","90,92,93,28",,,
+"C6.5","Supreme Speed","Down,Backward,Weak","Stand",,,1000,,,500,60,0,,,,,,,"Physical","90,92,93,28",,,
+"A1.1","Explosive Arrow","Down,Forward,Special","Air",,,,,,,,3,,,,,,,"Fire",,,,
+"A1.2","Firework Arrow","Down,Forward,Special","Air",,,,,,,,3,,,,,,,"Fire",,,,
+"A1.3","Force Arrow","Down,Forward,Special","Air",,,,,,,,3,,,,,,,"Fire",,,,
+"A1.4","Fire Burst Arrow","Down,Forward,Special","Air",,,,,,,,3,,,,,,,"Fire",,,,
+"A1.5","Volatile Bomb Arrow","Down,Forward,Special","Air",,,,,,,,3,,,,,,,"Fire",,,,
+"A2.1","Fire Trail Arrow","Guard,Down,Forward,Special","Stand",,,,,,,,5,,,,,,,"Fire",,,,
+"A2.2","Air Ignition Arrow","Guard,Down,Forward,Special","Stand",,,,,,,,5,,,,,,,"Fire",,,,
+"A2.3","Infernal Arrow","Guard,Down,Forward,Special","Stand",,,,,,,,5,,,,,,,"Fire",,,,
+"A2.4","Hellfire Arrow","Guard,Down,Forward,Special","Air",,,,,,,,5,,,,,,,"Fire",,,,
+"A2.5","Bringer of Underworld","Guard,Down,Forward,Special","Air",,,,,,,,5,,,,,,,"Fire",,,,
+"A3.1","Wings of War","Guard,Down,Backward,Special","Air",,,,,,,,,,,,,,,,,,,
+"A3.2","Prelude of the Great War","Guard,Down,Backward,Special","Air",,,,,,,,,,,,,,,,,,,
+"A3.3","War that Start All Wars","Guard,Down,Backward,Special","Air",,,,,,,,,,,,,,,,,,,
+"A3.4","Permanent Conflict","Guard,Down,Backward,Special","Air",,,,,,,,,,,,,,,,,,,
+"A3.5","Age of Chaos","Guard,Down,Backward,Special","Air",,,,,,,,,,,,,,,,,,,
+"A4.1","Great March","Guard,Down,Down,Special","Air",,,,,,,,,,,,,,,,,,,
+"A4.2","Masterful Momentum","Guard,Down,Down,Special","Air",,,,,,,,,,,,,,,,,,,
+"A4.3","Huntfall","Guard,Down,Down,Special","Air",,,,,,,,,,,,,,,,,,,
+"A4.4","Liberation","Guard,Down,Down,Special","Air",,,,,,,,,,,,,,,,,,,
+"A4.5","March of the Four Wind","Guard,Down,Down,Special","Air",,,,,,,,,,,,,,,,,,,
+"A5.1","Casus Belli","Down,Forward,Up,Special","Stand",,,,,,,,,,,,,,,,,,,
+"A5.2","Great Conquest","Down,Forward,Up,Special","Stand",,,,,,,,,,,,,,,,,,,
+"A5.3","Manifest Destiny","Down,Forward,Up,Special","Stand",,,,,,,,,,,,,,,,,,,
+"A5.4","Divine Right","Down,Forward,Up,Special","Stand",,,,,,,,,,,,,,,,,,,
+"A5.5","Heaven Mandate","Down,Forward,Up,Special","Stand",,,,,,,,,,,,,,,,,,,
+"B1.1","Imbue Poison","Forward,Special","Couch",,,,,,,,,,,,,,,"Poison",,,,
+"B1.2","Imbue Toxin","Forward,Special","Couch",,,,,,,,,,,,,,,"Poison",,,,
+"B1.3","Imbue Numb Poison","Forward,Special","Couch",,,,,,,,,,,,,,,"Poison",,,,
+"B1.4","Imbue Powder Poison","Forward,Special","Couch",,,,,,,,,,,,,,,"Poison",,,,
+"B1.5","Imbue Deadly Poison","Forward,Special","Couch",,,,,,,,,,,,,,,"Poison",,,,
+"B2.1","First Aid","Down,Special","Couch",,,,,,,,,,,,,,,,,,,
+"B2.2","Field Surgeon","Down,Special","Couch",,,,,,,,,,,,,,,,,,,
+"B2.3","Battle Medic","Down,Special","Couch",,,,,,,,,,,,,,,,,,,
+"B2.4","War Doctor","Down,Special","Couch",,,,,,,,,,,,,,,,,,,
+"B2.5","Conflict Healer","Down,Special","Couch",,,,,,,,,,,,,,,,,,,
+"B3.1","Careful Shot","Forward,Special","Stand",,,,,,,,,,,,,,,,,,,
+"B3.2","Sniping Shot","Forward,Special","Stand",,,,,,,,,,,,,,,,,,,
+"B3.3","Pinpoint Shot","Forward,Special","Stand",,,,,,,,,,,,,,,,,,,
+"B3.4","True Aim Shot","Forward,Special","Stand",,,,,,,,,,,,,,,,,,,
+"B3.5","Perfect Shot","Forward,Special","Stand",,,,,,,,,,,,,,,,,,,
+"B4.1","Free Destiny","Guard,Down,Forward,Special","Air",,,,,,,,,,,,,,,,,,,
+"B4.2","Tilt the Scale","Guard,Down,Forward,Special","Air",,,,,,,,,,,,,,,,,,,
+"B4.3","Freedom Before Order","Guard,Down,Forward,Special","Air",,,,,,,,,,,,,,,,,,,
+"B4.4","Topple Tyranny","Guard,Down,Forward,Special","Air",,,,,,,,,,,,,,,,,,,
+"B4.5","Anarchic Dream","Guard,Down,Forward,Special","Air",,,,,,,,,,,,,,,,,,,
+"B5.1","Temporary Truce","Forward,Down,Special","Stand",,,,,,,,,,,,,,,,,,,
+"B5.2","Peace Adaptation","Forward,Down,Special","Stand",,,,,,,,,,,,,,,,,,,
+"B5.3","Peace Plan Establishment","Forward,Down,Special","Stand",,,,,,,,,,,,,,,,,,,
+"B5.4","Armistice","Forward,Down,Special","Stand",,,,,,,,,,,,,,,,,,,
+"B5.5","Road to Utopia","Forward,Down,Special","Stand",,,,,,,,,,,,,,,"Physical",,,,

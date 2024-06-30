@@ -111,13 +111,10 @@ class CharacterData(GameData):
                 for row_index, row in enumerate(rd[1:]):
                     int_column = ("Only Sprite Version",)  # value in tuple only
                     int_column = [index for index, item in enumerate(header) if item in int_column]
-                    tuple_column = ("Property",)  # value in tuple only
-                    tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
-                    dict_column = ("Drops", "Spawns", "Items")
+                    dict_column = ("Drops", "Spawns", "Items", "Property")
                     dict_column = [index for index, item in enumerate(header) if item in dict_column]
                     for n, i in enumerate(row):
-                        row = stat_convert(row, n, i, int_column=int_column, tuple_column=tuple_column,
-                                           dict_column=dict_column)
+                        row = stat_convert(row, n, i, int_column=int_column, dict_column=dict_column)
                     self.character_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
                     self.character_list[row[0]]["Move"] = {}
 
@@ -152,7 +149,8 @@ class CharacterData(GameData):
                                 # restructure moveset so move that continue from another is in its parent move
                                 parent_move_list = row2[header2.index("Requirement Move")]
                                 if "all child moveset" in move_data["Property"]:
-                                    parent_move_list = [row3[header2.index("Move")] for row3 in rd2][1:]
+                                    parent_move_list = [row3[header2.index("Move")] for row3 in rd2 if
+                                                        row3[header2.index("Position")] == move_data["Position"]][1:]
                                 if row2[header2.index("Requirement Move")] or "all child moveset" in move_data[
                                     "Property"]:
                                     found = None

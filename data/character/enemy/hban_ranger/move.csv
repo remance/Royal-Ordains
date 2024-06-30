@@ -1,0 +1,3 @@
+"Buttons","Move","Name","Position","Requirement Move","Prepare Animation","After Animation","AI Range","AI Delay","AI Condition","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Strong","sstrong1","Shoot Arrow","Stand",,,,1200,,,1500,5,,80,10,,,15,,"Physical",,,,
+"Strong","sstrong2","Shoot Arrow Again","Stand","sstrong1",,,1200,,,1500,5,,80,10,,,15,,"Physical",,,,

@@ -23,14 +23,17 @@ def character_event_process(self, event, event_property):
                                                                      "Text")))
     elif event["Type"] == "animation":  # play specific animation
         self.command_action = event_property
-
     elif event["Type"] == "remove":
         self.die(delete=True)
         self.battle.cutscene_playing.remove(event)
     elif event["Type"] == "unlock":  # unlock AI via event
+        self.ai_lock = False
         self.event_ai_lock = False
+        self.battle.cutscene_playing.remove(event)
     elif event["Type"] == "lock":  # lock AI via event
         self.event_ai_lock = True
+        self.ai_lock = True
+        self.battle.cutscene_playing.remove(event)
     elif (not self.cutscene_event or (("hold" in self.current_action or "repeat" in self.current_action) and
                                       self.cutscene_event != event)):
         # replace previous event on hold or repeat when there is new one to play next

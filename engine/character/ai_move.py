@@ -33,7 +33,6 @@ def helper_ai(self):
     elif not self.ai_movement_timer:
         # go back to middle top of screen when idle
         self.command_pos = Vector2(self.battle.camera_pos[0], 140 * self.screen_scale[1])
-        # print(self.battle.camera_pos, self.base_pos, self.ai_movement_timer)
 
     new_distance = self.pos.distance_to(self.command_pos)
     if new_distance > 50:
@@ -81,7 +80,7 @@ def follower_ai(self):
     if not self.current_action and not self.command_action and not self.ai_movement_timer:
         # if not self.nearest_enemy or self.nearest_enemy[1] > self.max_attack_range:
         # walk randomly when not attack or inside stage lock
-        if not self.leader.alive or self.follow_command == "Free":  # random movement
+        if (not self.leader or not self.leader.alive) or self.follow_command == "Free":  # random movement
             self.ai_movement_timer = uniform(0.1, 3)
             self.x_momentum = uniform(1, 50) * self.walk_speed / 20 * choice((-1, 1))
             self.command_action = self.walk_command_action | {"x_momentum": True}
@@ -96,17 +95,17 @@ def follower_ai(self):
                     self.x_momentum = ((self.leader.base_pos[0] - self.base_pos[0]) / 2) + uniform(-30, 30)
                     self.command_action = self.walk_command_action
             elif self.follow_command == "Attack":
-                if self.nearest_enemy and self.nearest_enemy[1] > self.ai_max_attack_range:
-                    self.x_momentum = ((self.nearest_enemy[0].base_pos[0] - self.base_pos[0]) / 2) + uniform(-30, 30)
+                if self.nearest_enemy and self.nearest_enemy_distance > self.ai_max_attack_range:
+                    self.x_momentum = ((self.nearest_enemy.base_pos[0] - self.base_pos[0]) / 2) + uniform(-30, 30)
                     self.command_action = self.walk_command_action
 
 
 def pursue_ai(self):
     if not self.current_action and not self.command_action:
         if self.nearest_enemy:
-            if self.nearest_enemy[1] > self.ai_max_attack_range:
+            if self.nearest_enemy_distance > self.ai_max_attack_range:
                 # run to enemy within attack range
-                angle = self.set_rotate(self.nearest_enemy[0].base_pos)
+                angle = self.set_rotate(self.nearest_enemy.base_pos)
                 if angle > 0:
                     self.x_momentum = self.run_speed / 20
                 else:
@@ -117,7 +116,7 @@ def pursue_ai(self):
 def sentry_ai(self):
     if not self.current_action and not self.command_action:
         if self.nearest_enemy:
-            if self.nearest_enemy[1] > self.ai_max_attack_range and self.base_pos.distance_to(
+            if self.nearest_enemy_distance > self.ai_max_attack_range and self.base_pos.distance_to(
                     self.assign_pos) > follow_distance:
                 # no enemy nearby, run to assigned pos
                 angle = self.set_rotate(self.assign_pos)
@@ -128,7 +127,7 @@ def sentry_ai(self):
                 self.command_action = self.run_command_action
 
 
-ai_move_dict = {"default": stationary_ai, "helper": helper_ai, "common": common_ai,
+ai_move_dict = {"default": stationary_ai, "helper": helper_ai, "common": common_ai, "common_leader": common_ai,
                 "pursue": pursue_ai, "sentry": sentry_ai, "follower": follower_ai,
                 "trap": stationary_ai, "guard_melee": common_ai, "boss_cheer": observer_ai,
                 "move_city_ai": move_city_ai}

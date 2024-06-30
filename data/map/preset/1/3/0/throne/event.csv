@@ -1,0 +1,270 @@
+"ID","Text ID","Object","Animation","Type","Trigger","Property"
+"event1/1_3_city_throne1",,"King",,"create","start,once","POS:(290;950),Angle:-90"
+,,"Vurus",,"create",,"POS:(530;1000),Angle:-90"
+,,"Dashisi",,"create",,"POS:(1400;400),Angle:90,Stage Property:{idle=Idle}"
+,,"Hermanos",,"create",,"POS:(1750;1000),Angle:90"
+,,"Kapuni",,"create",,"POS:(700;400),Angle:-90"
+,,"Adaqua",,"create",,"POS:(950;1000),Angle:90,story choice:1.2.1_yes"
+,,"Viskes",,"create",,"POS:(950;1000),Angle:90,story choice:1.2.1_no"
+,,2,,"hide",,
+,,3,,"hide",,
+,,4,,"hide",,
+,,"Dashisi","CourtStart","cutscene",,
+,,"Kapuni","CourtStart","cutscene",,
+,,"Hermanos","CourtStart","cutscene",,"wait"
+,"event/1_3_city_throne_talk1.1","King","Start",,,"interact,hold,repeat after,story choice:1.2.1_yes"
+,"event/1_3a_city_throne_talk1.2","King","StartTalk",,,"interact,hold,repeat after,story choice:1.2.1_yes"
+,"event/1_3a_city_throne_talk1.3","King","StopTalk",,,"interact,story choice:1.2.1_yes"
+,"event/1_3a_city_throne_talk1.4","Adaqua","StartTalk",,,"interact,hold,repeat after,story choice:1.2.1_yes"
+,"event/1_3a_city_throne_talk1.5","Adaqua","StopTalk",,,"interact,story choice:1.2.1_yes"
+,"event/1_3a_city_throne_talk1.6","King",,,,"interact,story choice:1.2.1_yes"
+,"event/1_3a_city_throne_talk1.7","King",,,,"interact,story choice:1.2.1_yes"
+,"event/1_3a_city_throne_talk1.8","King",,,,"interact,story choice:1.2.1_yes"
+,"event/1_3a_city_throne_talk1.9","Adaqua",,,,"interact,story choice:1.2.1_yes"
+,"event/1_3a_city_throne_talk1.10","King",,,,"interact,story choice:1.2.1_yes"
+,"event/1_3a_city_throne_talk1.11","King",,,,"interact,story choice:1.2.1_yes"
+,"event/1_3a_city_throne_talk1.12","King",,,,"interact,story choice:1.2.1_yes"
+,"event/1_3a_city_throne_talk1.13","King",,,,"interact,story choice:1.2.1_yes"
+,"event/1_3a_city_throne_talk1.14","King",,,,"interact,story choice:1.2.1_yes"
+,"event/1_3a_city_throne_talk1.15","King",,,,"interact,story choice:1.2.1_yes"
+,"event/1_3a_city_throne_talk1.16","King",,,,"interact,story choice:1.2.1_yes"
+,"event/1_3a_city_throne_talk1.17","King",,,,"interact,story choice:1.2.1_yes"
+,"event/1_3a_city_throne_talk1.18","King",,,,"interact,story choice:1.2.1_yes"
+,"event/1_3a_city_throne_talk1.19","Adaqua",,,,"interact,story choice:1.2.1_yes"
+,"event/1_3a_city_throne_talk1.20","Adaqua","Kneel",,,"interact,hold,repeat after,story choice:1.2.1_yes"
+,"event/1_3_city_throne_talk1.1","King","Start",,,"interact,hold,repeat after,story choice:1.2.1_no"
+,"event/1_3b_city_throne_talk1.2","King","StartTalk",,,"interact,hold,repeat after,story choice:1.2.1_no"
+,"event/1_3b_city_throne_talk1.3","King","StopTalk",,,"interact,story choice:1.2.1_no"
+,"event/1_3b_city_throne_talk1.4","King",,,,"interact,story choice:1.2.1_no"
+,"event/1_3b_city_throne_talk1.5","King",,,,"interact,story choice:1.2.1_no"
+,"event/1_3b_city_throne_talk1.6","King",,,,"interact,story choice:1.2.1_no"
+,"event/1_3b_city_throne_talk1.7","King",,,,"interact,story choice:1.2.1_no"
+,"event/1_3b_city_throne_talk1.8","King",,,,"interact,story choice:1.2.1_no"
+,"event/1_3b_city_throne_talk1.9","King",,,,"interact,story choice:1.2.1_no"
+,"event/1_3_city_throne_talk1.10","King",,,,"interact,story choice:1.2.1_no"
+,"event/1_3_city_throne_talk1.11","Viskes","StartTalk",,,"interact,hold,repeat after,story choice:1.2.1_no"
+,"event/1_3_city_throne_talk1.12","Viskes","StopTalk",,,"interact,story choice:1.2.1_no"
+,"event/1_3_city_throne_talk1.13","King",,,,"interact,story choice:1.2.1_no"
+,"event/1_3_city_throne_talk1.14","Viskes",,,,"interact,story choice:1.2.1_no"
+,"event/1_3_city_throne_talk1.19","King",,,,
+,"event/1_3_city_throne_talk1.20","King",,,,
+,"event/1_3_city_throne_talk1.21","King",,,,
+,"event/1_3_city_throne_talk1.22","King",,,,
+,,1,"FullBow","cutscene",,
+,,"Dashisi","CourtEnd","cutscene",,
+,,"Kapuni","CourtEnd","cutscene",,
+,,"Hermanos","CourtEnd","cutscene",,"wait"
+,,"camera","blackout","cutscene",,"timer:2"
+,,"King",,"remove",,
+,,"Vurus",,"remove",,
+,,"Dashisi",,"remove",,
+,,"Kervos",,"remove",,
+,,"Hermanos",,"remove",,
+,,"Kapuni",,"remove",,
+,,"Adaqua",,"remove",,
+,,"Viskes",,"remove",,
+"music/scene1",,"throne",,"music","camera_reach_scene,1",
+"King/Vraesier/1_3_city_throne_talk1","King/Vraesier/1_3_city_throne_talk1.1",2,"Talk","char","interact,2","interact,hold,repeat after"
+,,2,"StopTalk",,,
+,"King/Vraesier/1_3_city_throne_talk1.2",2,,,,"interact"
+,"King/Vraesier/1_3_city_throne_talk1.3",2,,,,"interact"
+,"King/Vraesier/1_3_city_throne_talk1.4","pm","Talk",,,"interact,hold,repeat after"
+,,"pm","StopTalk",,,
+,"King/Vraesier/1_3_city_throne_talk1.5",2,,,,"interact"
+,"King/Vraesier/1_3_city_throne_talk1.6",2,,,,"interact"
+"King/Orsanoas/1_3_city_throne_talk1","King/Orsanoas/1_3_city_throne_talk1.1",2,"Talk","char","interact,2","interact,hold,repeat after"
+,,2,"StopTalk",,,
+,"King/Orsanoas/1_3_city_throne_talk1.2","pm","Talk",,,"interact,hold,repeat after"
+,,"pm","StopTalk",,,
+,"King/Orsanoas/1_3_city_throne_talk1.3",2,,,,"interact"
+,"King/Orsanoas/1_3_city_throne_talk1.4",2,,,,"interact"
+,"King/Orsanoas/1_3_city_throne_talk1.5",2,,,,"interact"
+,"King/Orsanoas/1_3_city_throne_talk1.6","pm","Approve",,,"interact"
+,"King/Orsanoas/1_3_city_throne_talk1.7","pm",,,,"interact"
+"King/Minara/1_3_city_throne_talk1","King/Minara/1_3_city_throne_talk1.1",2,"Talk","char","interact,2","interact,hold,repeat after"
+,,2,"StopTalk",,,
+,"King/Minara/1_3_city_throne_talk1.2",2,,,,"interact"
+,"King/Minara/1_3_city_throne_talk1.3",2,,,,"interact"
+,"King/Minara/1_3_city_throne_talk1.4",2,,,,"interact"
+"King/Rodhinbar/1_3_city_throne_talk1","King/Rodhinbar/1_3_city_throne_talk1.1",2,"Talk","char","interact,2","interact,hold,repeat after"
+,,2,"StopTalk",,,
+,"King/Rodhinbar/1_3_city_throne_talk1.2",2,,,,"interact"
+,"King/Rodhinbar/1_3_city_throne_talk1.3",2,,,,"interact"
+,"King/Rodhinbar/1_3_city_throne_talk1.4","pm","Talk",,,"interact,hold,repeat after"
+,,"pm","StopTalk",,,
+,"King/Rodhinbar/1_3_city_throne_talk1.5",2,,,,"interact"
+,"King/Rodhinbar/1_3_city_throne_talk1.6",2,,,,"interact"
+,"King/Rodhinbar/1_3_city_throne_talk1.7",2,,,,
+,"King/Rodhinbar/1_3_city_throne_talk1.8",2,,,,
+"King/Iri/1_3_city_throne_talk1","King/Iri/1_3_city_throne_talk1.1",2,"Talk","char","interact,2","interact,hold,repeat after"
+,,2,"StopTalk",,,
+,"King/Iri/1_3_city_throne_talk1.2","pm","Talk",,,"interact,hold,repeat after"
+,,"pm","StopTalk",,,
+,"King/Iri/1_3_city_throne_talk1.3",2,,,,"interact"
+,"King/Iri/1_3_city_throne_talk1.4",2,,,,"interact"
+,"King/Iri/1_3_city_throne_talk1.5",2,,,,"interact"
+,"King/Iri/1_3_city_throne_talk1.6","pm",,,,"interact"
+,"King/Iri/1_3_city_throne_talk1.7",2,,,,"interact"
+,"King/Iri/1_3_city_throne_talk1.8","pm",,,,"interact"
+,"King/Iri/1_3_city_throne_talk1.9","pm",,,,"interact"
+,"King/Iri/1_3_city_throne_talk1.10","pm",,,,"interact"
+,"King/Iri/1_3_city_throne_talk1.11",2,,,,"interact"
+,"King/Iri/1_3_city_throne_talk1.12","pm",,,,"interact"
+"King/Laguasangte/1_3_city_throne_talk1","King/Laguasangte/1_3_city_throne_talk1.1",2,"Talk","char","interact,2","interact,hold,repeat after"
+,,2,"StopTalk",,,
+,,"pm","PresetCityStandWalk",,,
+,"King/Laguasangte/1_3_city_throne_talk1.2","pm","Talk",,,"interact,hold"
+,"King/Laguasangte/1_3_city_throne_talk1.3",2,,,,"interact"
+,"King/Laguasangte/1_3_city_throne_talk1.4","pm",,,,"interact"
+,"King/Laguasangte/1_3_city_throne_talk1.5",2,,,,"interact"
+,"King/Laguasangte/1_3_city_throne_talk1.6","pm",,,,"interact"
+,"King/Laguasangte/1_3_city_throne_talk1.7",2,"Nod",,,"interact"
+,"King/Laguasangte/1_3_city_throne_talk1.8",,,,,
+,"King/Laguasangte/1_3_city_throne_talk1.9",,,,,
+,"King/Laguasangte/1_3_city_throne_talk1.10",,,,,
+,"King/Laguasangte/1_3_city_throne_talk1.11",,,,,
+,"King/Laguasangte/1_3_city_throne_talk1.12",,,,,
+,"King/Laguasangte/1_3_city_throne_talk1.13",,,,,
+,"King/Laguasangte/1_3_city_throne_talk1.14",,,,,
+"King/Pasgelo/1_3_city_throne_talk1","King/Pasgelo/1_3_city_throne_talk1.1",2,"Talk","char","interact,2","interact,hold,repeat after"
+,,2,"StopTalk",,,
+,"King/Pasgelo/1_3_city_throne_talk1.2",2,,,,"interact"
+,"King/Pasgelo/1_3_city_throne_talk1.3",2,,,,"interact"
+,"King/Pasgelo/1_3_city_throne_talk1.4",2,,,,"interact"
+"King/Elmaliern/1_3_city_throne_talk1","King/Elmaliern/1_3_city_throne_talk1.1",,,"char","interact,2","interact,hold"
+,,2,,,,
+,"King/Elmaliern/1_3_city_throne_talk1.2",2,,,,"interact"
+,"King/Elmaliern/1_3_city_throne_talk1.3",2,,,,"interact"
+,"King/Elmaliern/1_3_city_throne_talk1.4",2,,,,"interact"
+"King/Bauqah/1_3_city_throne_talk1","King/Bauqah/1_3_city_throne_talk1.1",2,"Talk","char","interact,2","interact,hold,repeat after"
+,,2,"StopTalk",,,
+,"King/Bauqah/1_3_city_throne_talk1.2",2,,,,"interact"
+,"King/Bauqah/1_3_city_throne_talk1.3",2,,,,"interact"
+,"King/Bauqah/1_3_city_throne_talk1.4",2,,,,"interact"
+,"King/Bauqah/1_3_city_throne_talk1.5",2,,,,"interact"
+"King/Yuawies/1_3_city_throne_talk1","King/Yuawies/1_3_city_throne_talk1.1","pm","Bow","char","interact,2","interact,hold,repeat after"
+,,"pm","StopBow",,,
+,"King/Yuawies/1_3_city_throne_talk1.2","pm","Want",,,"interact,hold,repeat after"
+,"King/Yuawies/1_3_city_throne_talk1.3","pm",,,,"interact"
+,"King/Yuawies/1_3_city_throne_talk1.4",2,"Talk",,,"interact,hold,repeat after"
+,,2,"StopTalk",,,
+,"King/Yuawies/1_3_city_throne_talk1.5","pm",,,,"interact"
+,"King/Yuawies/1_3_city_throne_talk1.6",2,,,,"interact"
+"King/Duskuksa/1_3_city_throne_talk1","King/Duskuksa/1_3_city_throne_talk1.1",2,"Talk","char","interact,2","interact,hold,repeat after"
+,,2,"StopTalk",,,
+,"King/Duskuksa/1_3_city_throne_talk1.2",2,,,,"interact"
+,"King/Duskuksa/1_3_city_throne_talk1.3","pm","Talk",,,"interact,hold,repeat after"
+,"King/Duskuksa/1_3_city_throne_talk1.4","pm","StopTalk",,,"interact"
+,"King/Duskuksa/1_3_city_throne_talk1.5","pm",,,,"interact"
+,"King/Duskuksa/1_3_city_throne_talk1.6","pm",,,,"interact"
+,"King/Duskuksa/1_3_city_throne_talk1.7",2,,,,"interact"
+"King/Nayedien/1_3_city_throne_talk1","King/Nayedien/1_3_city_throne_talk1.1",2,"Talk","char","interact,2","interact,hold,repeat after"
+,,2,"StopTalk",,,
+,"King/Nayedien/1_3_city_throne_talk1.2",2,,,,"interact"
+,"King/Nayedien/1_3_city_throne_talk1.3","pm","Talk",,,"interact,hold,repeat after"
+,,,"StopTalk",,,
+,"King/Nayedien/1_3_city_throne_talk1.4",2,,,,
+,"King/Nayedien/1_3_city_throne_talk1.5","pm",,,,"interact,hold,repeat after"
+,"King/Nayedien/1_3_city_throne_talk1.6","pm",,,,"interact"
+,"King/Nayedien/1_3_city_throne_talk1.7","pm",,,,"interact"
+,"King/Nayedien/1_3_city_throne_talk1.8",2,,,,"interact"
+,"King/Nayedien/1_3_city_throne_talk1.9",2,,,,"interact"
+,"King/Nayedien/1_3_city_throne_talk1.10",2,,,,"interact"
+,"King/Nayedien/1_3_city_throne_talk1.11",2,,,,"interact"
+,"King/Nayedien/1_3_city_throne_talk1.12","pm",,,,"interact"
+"King/Any/1_3_city_throne_talk2","King/Any/1_3_city_throne_talk2.1",2,"Talk","char","interact,2","interact,replayable,hold,repeat after"
+,"King/Any/1_3_city_throne_talk2.2",2,"StopTalk",,,
+"Nayedien/Vraesier/1_3_city_throne_talk1","Nayedien/Vraesier/1_3_city_throne_talk1.1",1,"Talk","char","interact,1","interact,hold,repeat after"
+,,,"StopTalk",,,
+,"Nayedien/Vraesier/1_3_city_throne_talk1.2","pm","Talk",,,"interact,hold,repeat after"
+,,,"StopTalk",,,
+,"Nayedien/Vraesier/1_3_city_throne_talk1.3",1,,,,"interact"
+,"Nayedien/Vraesier/1_3_city_throne_talk1.4",1,,,,"interact"
+,"Nayedien/Vraesier/1_3_city_throne_talk1.5",1,,,,"interact"
+,"Nayedien/Vraesier/1_3_city_throne_talk1.6","pm",,,,"interact"
+"Nayedien/Orsanoas/1_3_city_throne_talk1","Nayedien/Orsanoas/1_3_city_throne_talk1.1","pm","Talk","char","interact,1","interact,hold,repeat after"
+,,"pm","StopTalk",,,
+,"Nayedien/Orsanoas/1_3_city_throne_talk1.2",1,"Talk",,,"interact,hold,repeat after"
+,,1,"StopTalk",,,
+,"Nayedien/Orsanoas/1_3_city_throne_talk1.3","pm",,,,"interact"
+,"Nayedien/Orsanoas/1_3_city_throne_talk1.4",1,,,,"interact"
+,"Nayedien/Orsanoas/1_3_city_throne_talk1.5",1,,,,"interact"
+,"Nayedien/Orsanoas/1_3_city_throne_talk1.6","pm",,,,"interact"
+"Nayedien/Minara/1_3_city_throne_talk1","Nayedien/Minara/1_3_city_throne_talk1.1",,,"char","interact,1","interact"
+"Nayedien/Rodhinbar/1_3_city_throne_talk1","Nayedien/Rodhinbar/1_3_city_throne_talk1.1","pm","Talk","char","interact,1","interact,hold,repeat after"
+,,"pm","StopTalk",,,
+,"Nayedien/Rodhinbar/1_3_city_throne_talk1.2","pm",,,,
+,"Nayedien/Rodhinbar/1_3_city_throne_talk1.3",1,"Talk",,,"interact,hold,repeat after"
+,,1,"StopTalk",,,
+,"Nayedien/Rodhinbar/1_3_city_throne_talk1.4",1,,,,"interact"
+,"Nayedien/Rodhinbar/1_3_city_throne_talk1.5",1,,,,"interact"
+,"Nayedien/Rodhinbar/1_3_city_throne_talk1.6","pm",,,,"interact"
+,"Nayedien/Rodhinbar/1_3_city_throne_talk1.7",1,,,,"interact"
+,"Nayedien/Rodhinbar/1_3_city_throne_talk1.8",1,,,,"interact"
+,"Nayedien/Rodhinbar/1_3_city_throne_talk1.9","pm",,,,"interact"
+,"Nayedien/Rodhinbar/1_3_city_throne_talk1.10",1,,,,"interact"
+,"Nayedien/Rodhinbar/1_3_city_throne_talk1.11","pm",,,,"interact"
+"Nayedien/Iri/1_3_city_throne_talk1","Nayedien/Iri/1_3_city_throne_talk1.1","pm","Talk","char","interact,1","interact,hold,repeat after"
+,"Nayedien/Iri/1_3_city_throne_talk1.2","pm","StopTalk",,,"interact"
+,"Nayedien/Iri/1_3_city_throne_talk1.3","pm",,,,"interact"
+,"Nayedien/Iri/1_3_city_throne_talk1.4",1,"Talk",,,"interact,hold,repeat after"
+,,,"StopTalk",,,"interact"
+,"Nayedien/Iri/1_3_city_throne_talk1.5",1,,,,"interact"
+,"Nayedien/Iri/1_3_city_throne_talk1.6",1,,,,"interact"
+,"Nayedien/Iri/1_3_city_throne_talk1.7","pm",,,,"interact"
+"Nayedien/Omshle/1_3_city_throne_talk1","Nayedien/Omshle/1_3_city_throne_talk1.1",,,"char","interact,1","interact"
+"Nayedien/Elmaliern/1_3_city_throne_talk1","Nayedien/Elmaliern/1_3_city_throne_talk1.1",,,"char","interact,1","interact"
+"Nayedien/Bauqah/1_3_city_throne_talk1","Nayedien/Bauqah/1_3_city_throne_talk1.1",,,"char","interact,1","interact"
+"Nayedien/Yuawies/1_3_city_throne_talk1","Nayedien/Yuawies/1_3_city_throne_talk1.1",,,"char","interact,1","interact"
+"Nayedien/Duskuksa/1_3_city_throne_talk1","Nayedien/Duskuksa/1_3_city_throne_talk1.1","pm","Talk","char","interact,1","interact,hold,repeat after"
+,"Nayedien/Duskuksa/1_3_city_throne_talk1.2","pm","StopTalk",,,"interact"
+,"Nayedien/Duskuksa/1_3_city_throne_talk1.3",1,"Talk",,,"interact,hold,repeat after"
+,"Nayedien/Duskuksa/1_3_city_throne_talk1.4",1,"StopTalk",,,"interact"
+,"Nayedien/Duskuksa/1_3_city_throne_talk1.5","pm",,,,"interact"
+"Nayedien/Laguasangte/1_3_city_throne_talk1","Nayedien/Laguasangte/1_3_city_throne_talk1.1",,,"char","interact,1","interact"
+"Nayedien/Any/1_3_city_throne_talk2","Nayedien/Any/1_3_city_throne_talk2.1",1,"Talk","char","interact,1","interact,hold,repeat after,replayable"
+,,1,"StopTalk",,,
+"Vurus/Any/1_3_city_throne_talk1","Vurus/Any/1_3_city_throne_talk1.1",3,"Talk","char","interact,3","interact,hold,repeat after"
+,"Vurus/Any/1_3_city_throne_talk1.2",3,"StopTalk",,,"interact"
+,"Vurus/Any/1_3_city_throne_talk1.3",3,,,,"interact"
+,"Vurus/Any/1_3_city_throne_talk1.4",3,,,,"interact"
+,"Vurus/Any/1_3_city_throne_talk1.5",3,,,,"interact"
+"Vurus/Any/1_3_city_throne_talk2","Vurus/Any/1_3_city_throne_talk2.1",3,"Talk","char","interact,3","select:yesno,replayable,hold,repeat after"
+,,3,"StopTalk",,"yes",
+,"Vurus/Any/1_3_city_throne_talk2.yes1",3,"Nod",,"yes","interact"
+,"Vurus/Any/1_3_city_throne_talk2.yes2",3,,,"yes","interact"
+,"Vurus/Any/1_3_city_throne_talk2.yes3",3,,,"yes","interact"
+,"Vurus/Any/1_3_city_throne_talk2.yes4",3,,,"yes","interact"
+,"Vurus/Any/1_3_city_throne_talk2.yes5",3,,,"yes","interact"
+,"Vurus/Any/1_3_city_throne_talk2.yes6",3,,,"yes","interact"
+,"Vurus/Any/1_3_city_throne_talk2.yes7",3,,,"yes","interact"
+,"Vurus/Any/1_3_city_throne_talk2.yes8",3,,,"yes","interact"
+,"Vurus/Any/1_3_city_throne_talk2.yes9",3,,,"yes","interact"
+,,3,"StopTalk",,"no",
+,"Vurus/Any/1_3_city_throne_talk2.no1",3,"Nod",,"no","interact"
+"Hermanos/Nayedien/1_3_city_throne_talk1","Hermanos/Nayedien/1_3_city_throne_talk1.1",4,"Talk","char","interact,4","interact,hold,repeat after"
+,,4,"StopTalk",,,
+,"Hermanos/Nayedien/1_3_city_throne_talk1.2",4,,,,"interact"
+,"Hermanos/Nayedien/1_3_city_throne_talk1.3","pm","Talk",,,"interact,hold,repeat after"
+,"Hermanos/Nayedien/1_3_city_throne_talk1.4","pm","StopTalk",,,"interact"
+,"Hermanos/Nayedien/1_3_city_throne_talk1.5",4,,,,"interact"
+"Hermanos/Any/1_3_city_throne_talk1","Hermanos/Any/1_3_city_throne_talk1.1",4,"Talk","char","interact,4","interact,hold,replayable,repeat after"
+,"Hermanos/Any/1_3_city_throne_talk1.2",4,"StopTalk",,,"interact"
+,"Hermanos/Any/1_3_city_throne_talk1.3",4,,,,"interact"
+,"Hermanos/Any/1_3_city_throne_talk1.4",4,,,,"interact"
+,"Hermanos/Any/1_3_city_throne_talk1.5",4,,,,"interact"
+,"Hermanos/Any/1_3_city_throne_talk1.6",4,,,,"interact"
+,"Hermanos/Any/1_3_city_throne_talk1.7",4,,,,"interact"
+,"Hermanos/Any/1_3_city_throne_talk1.8",4,,,,"interact"
+"Hermanos/Any/1_3_city_throne_talk2","Hermanos/Any/1_3_city_throne_talk2.1",4,"Talk","char","interact,4","interact,hold,replayable,repeat after"
+,"Hermanos/Any/1_3_city_throne_talk2.2",4,"StopTalk",,,"interact"
+,"Hermanos/Any/1_3_city_throne_talk2.3",4,,,,"interact"
+,"Hermanos/Any/1_3_city_throne_talk2.4",4,,,,"interact"
+,"Hermanos/Any/1_3_city_throne_talk2.5",4,,,,"interact"
+,"Hermanos/Any/1_3_city_throne_talk2.6",4,,,,"interact"
+,"Hermanos/Any/1_3_city_throne_talk2.7",4,,,,"interact"
+,"Hermanos/Any/1_3_city_throne_talk2.8",4,,,,"interact"
+,"Hermanos/Any/1_3_city_throne_talk2.9",4,,,,"interact"
+,"Hermanos/Any/1_3_city_throne_talk2.10",4,,,,"interact"
+"Hermanos/Any/1_3_city_throne_talk3","Hermanos/Any/1_3_city_throne_talk3.1",4,"Talk","char","interact,4","interact,hold,replayable,repeat after"
+,,4,"StopTalk",,,

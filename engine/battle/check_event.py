@@ -7,7 +7,7 @@ def check_event(self):
         if self.lock_objective:  # player in locked stage, check if pass yet
             pass_objective = False  # check for passing lock objective
             if self.lock_objective == "clear":
-                if not len([enemy for enemy in self.all_team_enemy[1] if
+                if not len([enemy for enemy in self.all_team_enemy_check[1] if
                             self.base_stage_start <= enemy.base_pos[0] <= self.base_stage_end]):
                     pass_objective = True
             elif self.lock_objective == "survive":
@@ -49,8 +49,7 @@ def check_event(self):
         if self.spawn_delay_timer[self.battle_stage.spawn_check_scene] >= first_delay:
             # spawn based on delay timer
             self.spawn_character((), self.later_enemy[self.battle_stage.spawn_check_scene][
-                first_delay],
-                                 add_helper=False)
+                first_delay], add_helper=False)
             self.later_enemy[self.battle_stage.spawn_check_scene].pop(first_delay)
 
     for player_index, player_object in self.player_objects.items():
@@ -63,8 +62,8 @@ def check_event(self):
                 # change weather
                 self.current_weather.__init__(
                     self.reach_scene_event_list[self.battle_stage.reach_scene]["weather"][0],
-                    randint(0, 359),
                     self.reach_scene_event_list[self.battle_stage.reach_scene]["weather"][1],
+                    self.reach_scene_event_list[self.battle_stage.reach_scene]["weather"][2],
                     self.weather_data)
                 self.reach_scene_event_list[self.battle_stage.reach_scene].pop("weather")
             if "music" in self.reach_scene_event_list[self.battle_stage.reach_scene]:  # change music
@@ -80,6 +79,7 @@ def check_event(self):
                                                 self.camera_pos, sound_effect[1], sound_effect[2])
                 self.reach_scene_event_list[self.battle_stage.reach_scene].pop("sound")
             if "cutscene" in self.reach_scene_event_list[self.battle_stage.reach_scene]:  # cutscene
+                self.cutscene_finish_camera_delay = 1
                 for parent_event in self.reach_scene_event_list[self.battle_stage.reach_scene]["cutscene"]:
                     # play one parent at a time
                     self.cutscene_playing = parent_event

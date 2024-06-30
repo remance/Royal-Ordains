@@ -1,3 +1,5 @@
+from random import choice
+
 from engine.uibattle.uibattle import CharacterSpeechBox
 
 
@@ -45,31 +47,35 @@ def check_ai_condition(self, condition_dict):
 
 def find_move_to_attack(self):
     # has enemy to attack and within max range attack
+    # blind cause random attack regardless or range
     if self.stoppable_frame and self.continue_moveset:  # continue from previous move
-        for move, value in self.continue_moveset.items():
-            if value["Move"] not in self.attack_cooldown and \
-                    (value["AI Range"] >= self.nearest_enemy[1] or self.blind) and \
-                    (not value["AI Condition"] or self.check_ai_condition(value["AI Condition"])):
-                self.moveset_command_key_input = move
-                self.interrupt_animation = True
-                self.command_moveset = value
-                self.command_action = self.attack_command_actions[move[-1]]
-                if "Next Move" in value:
-                    self.continue_moveset = value["Next Move"]
-                else:
-                    self.continue_moveset = None
-                return True
+        possible_attacks = [(move, value) for move, value in self.continue_moveset.items() if
+                            value["Move"] not in self.attack_cooldown and
+                            (value["AI Range"] >= self.nearest_enemy_distance or self.blind) and
+                            (not value["AI Condition"] or self.check_ai_condition(value["AI Condition"]))]
+        if possible_attacks:
+            move = choice(possible_attacks)  # randomly select move to attack
+            self.moveset_command_key_input = move[0]
+            self.interrupt_animation = True
+            self.command_moveset = move[1]
+            self.command_action = self.attack_command_actions[move[0][-1]]
+            self.continue_moveset = None
+            self.ai_attack_timer = move[1]["AI Delay"]
+            if "Next Move" in move[1]:
+                self.continue_moveset = move[1]["Next Move"]
+            return  # only return if it has possible attack from continue move else just find new one
 
-    for move, value in self.moveset_view[self.position]:
-        if value["Move"] not in self.attack_cooldown and \
-            (value["AI Range"] >= self.nearest_enemy[1] or self.blind) and \
-                (not value["AI Condition"] or self.check_ai_condition(value["AI Condition"])):
-            # blind (7) cause random attack
-            self.engage_combat()
-            self.moveset_command_key_input = move
-            self.command_moveset = value
-            self.command_action = self.attack_command_actions[move[-1]]
-            break
+    possible_attacks = [(move, value) for move, value in self.moveset_view[self.position] if
+                        value["Move"] not in self.attack_cooldown and
+                        (value["AI Range"] >= self.nearest_enemy_distance or self.blind) and
+                        (not value["AI Condition"] or self.check_ai_condition(value["AI Condition"]))]
+    if possible_attacks:
+        move = choice(possible_attacks)  # randomly select move to attack
+        self.engage_combat()
+        self.moveset_command_key_input = move[0]
+        self.command_moveset = move[1]
+        self.command_action = self.attack_command_actions[move[0][-1]]
+        self.ai_attack_timer = move[1]["AI Delay"]
 
 
 def training_ai(self):
@@ -97,30 +103,31 @@ def cheer_ai(self):
 
 def guard_ai(self):
     """Common combat AI will use only stand position with guard priority and not use combo"""
-    if (not self.current_action or "guard" in self.current_action) and not self.command_action and self.nearest_enemy:
-        if self.nearest_enemy[1] <= self.ai_max_attack_range and not self.ai_timer:
-            if not self.guarding and self.guard == self.max_guard and not self.blind:
-                # always guard first when enemy near and not blind (7)
-                self.guarding = 0.1
-                self.ai_timer = 0.1
-                self.engage_combat()
-                self.command_action = self.guard_hold_command_action
-            else:  # attack when cannot guard
-                find_move_to_attack(self)
+    if self.nearest_enemy:
+        if (not self.current_action or self.guarding) and not self.command_action:
+            if self.nearest_enemy_distance <= self.ai_max_attack_range and not self.ai_timer:
+                if not self.guarding and self.guard == self.max_guard and not self.blind:
+                    # always guard first when enemy near and not blind (7)
+                    self.guarding = 0.1
+                    self.ai_timer = 0.1
+                    self.engage_combat()
+                    self.command_action = self.guard_hold_command_action
+                else:  # attack when cannot guard
+                    find_move_to_attack(self)
 
-            if self.nearest_enemy[0].base_pos[0] >= self.base_pos[0]:
-                self.new_angle = -90
-            else:
-                self.new_angle = 90
-
-    elif self.stoppable_frame and "moveset" not in self.command_action:
-        if self.nearest_enemy[1] <= self.ai_max_attack_range:
-            find_move_to_attack(self)
-            if not self.blind:  # blind (7) cause random attack
-                if self.nearest_enemy[0].base_pos[0] >= self.base_pos[0]:
+                if self.nearest_enemy.base_pos[0] >= self.base_pos[0]:
                     self.new_angle = -90
                 else:
                     self.new_angle = 90
+
+        elif self.stoppable_frame and "moveset" not in self.command_action:
+            if self.nearest_enemy_distance <= self.ai_max_attack_range:
+                find_move_to_attack(self)
+                if not self.blind:  # blind cause random attack
+                    if self.nearest_enemy.base_pos[0] >= self.base_pos[0]:
+                        self.new_angle = -90
+                    else:
+                        self.new_angle = 90
 
     if self.guarding and (self.ai_timer > 3 or self.guard < self.guard_meter20):
         # guard only for 3 seconds then attack
@@ -136,21 +143,20 @@ def guard_ai(self):
 
 def common_ai(self):
     """Common combat AI will use only stand position move, combo and skill"""
-    if not self.current_action and not self.command_action and self.nearest_enemy:
-        if self.nearest_enemy[1] <= self.ai_max_attack_range:
+    if not self.ai_attack_timer and self.nearest_enemy and self.nearest_enemy_distance <= self.ai_max_attack_range:
+        if not self.current_action and not self.command_action:
             if self.position in self.moveset:
                 find_move_to_attack(self)
                 if not self.blind:
                     # blind cause random attack
-                    if self.nearest_enemy[0].base_pos[0] >= self.base_pos[0]:
+                    if self.nearest_enemy.base_pos[0] >= self.base_pos[0]:
                         self.new_angle = -90
                     else:
                         self.new_angle = 90
-    elif self.stoppable_frame and "moveset" not in self.command_action:
-        if self.nearest_enemy[1] <= self.ai_max_attack_range:
+        elif self.stoppable_frame and "moveset" not in self.command_action:
             find_move_to_attack(self)
             if not self.blind:  # blind cause random attack
-                if self.nearest_enemy[0].base_pos[0] >= self.base_pos[0]:
+                if self.nearest_enemy.base_pos[0] >= self.base_pos[0]:
                     self.new_angle = -90
                 else:
                     self.new_angle = 90

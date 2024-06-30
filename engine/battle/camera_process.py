@@ -12,7 +12,7 @@ def camera_process(self):
     #         self.fix_camera()
     #
     # elif self.camera_mode == "Follow":
-    if not self.cutscene_playing:
+    if not self.cutscene_playing and not self.cutscene_finish_camera_delay:
         all_alive_player = [player.pos[0] for player in self.player_objects.values()]
         if all_alive_player:
             mean_check = mean(all_alive_player)

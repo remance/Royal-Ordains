@@ -1,0 +1,11 @@
+"Object ID","ID","Scene","POS","Ground Y POS","Angle","Start Health","Team","Arrive Condition","Stage Property"
+"p1",,1,"1000,1000",1000,90,1,1,,
+"p2",,1,"1100,1000",1000,90,1,1,,
+"p3",,1,"1200,1000",1000,90,1,1,,
+"p4",,1,"1300,1000",1000,90,1,1,,
+1,"Tanrsakt",1,"200,1000",1000,-90,1,1,,"city npc"
+2,"Rodhinbar",1,"550,1000",1000,90,1,1,,"city npc,no player pick"
+3,"Elmaliern",1,"900,1000",1000,-90,1,1,,"city npc,no player pick"
+4,"Shopper_one",1,"1700,1000",1000,90,1,1,,"city npc"
+5,"Shopper_two",1,"1440,1000",1000,-90,1,1,,"city npc"
+6,"Shopper_three",1,"1800,1000",1000,90,1,1,,"city npc"

@@ -228,7 +228,7 @@
 ,"Vurus/Any/1_2_city_throne_talk2.yes5",3,,,"yes","interact"
 ,"Vurus/Any/1_2_city_throne_talk2.yes6",3,,,"yes","interact"
 ,"Vurus/Any/1_2_city_throne_talk2.yes7",3,,,"yes","interact"
-,"Vurus/Any/1_2_city_throne_talk2.yes8",3,,,"yes","interact,start mission:1"
+,"Vurus/Any/1_2_city_throne_talk2.yes8",3,,,"yes","interact,start mission:2"
 ,,3,"StopTalk",,"no",
 ,"Vurus/Any/1_2_city_throne_talk2.no1",3,"Nod",,"no","interact"
 "Hermanos/Nayedien/1_2_city_throne_talk1","Hermanos/Nayedien/1_2_city_throne_talk1.1",4,"Talk","char","interact,4","interact,hold,repeat after"

@@ -80,8 +80,6 @@ def menu_keybind(self, esc_press):
                                           "Assign key for " + key, self.inform_ui_popup)
                 current_key = self.player_key_bind_list[self.control_switch.player][
                     self.config["USER"]["control player " + str(self.control_switch.player)]][key]
-                print(current_key)
                 if type(current_key) == int:
                     current_key = pygame.key.name(current_key)
-                print(current_key)
                 self.input_box.text_start("Current Key: " + current_key)

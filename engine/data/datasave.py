@@ -11,7 +11,7 @@ empty_character_save = {"chapter": "1", "mission": "1", "playtime": 0, "total sc
                                       "weapon 1": None, "weapon 2": None, "accessory 1": None, "accessory 2": None,
                                       "accessory 3": None, "accessory 4": None,
                                       "item": {"Down": None, "Left": None, "Up": None, "Right": "Small Healing Kit"}},
-                        "storage": {"Small Healing Kit": 5}, "story event": {},
+                        "storage": {"Small Healing Kit": 5}, "storage_new": ["Small Healing Kit"], "story event": {},
                         "interface event queue": {"courtbook": {}, "mission": [], "inform": []},
                         "story choice": {}, "selected follower preset": 0,
                         "follower preset": {0: {}, 1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {}, 7: {}, 8: {},

@@ -18,6 +18,8 @@ def die(self, delete=False):
                 self.battle.all_team_enemy_part[team].remove(part)
             if self in self.battle.all_team_enemy[team]:
                 self.battle.all_team_enemy[team].remove(self)
+            if self in self.battle.all_team_enemy_check[team]:
+                self.battle.all_team_enemy_check[team].remove(self)
     if self.player_control and int(self.game_id[-1]) in self.battle.player_objects:
         self.battle.player_objects.pop(int(self.game_id[-1]))
 

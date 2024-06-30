@@ -1,0 +1,10 @@
+"Object ID","ID","Scene","POS","Ground Y POS","Angle","Start Health","Team","Arrive Condition","Stage Property"
+"p1",,1,"1200,1000",1000,90,1,1,,
+"p2",,1,"1400,1000",1000,90,1,1,,
+"p3",,1,"1600,1000",1000,90,1,1,,
+"p4",,1,"1800,1000",1000,90,1,1,,
+1,"Rudehst",1,"200,1000",1000,-90,1,1,,"city npc"
+2,"Viskes",1,"600,1000",1000,90,1,1,,"city npc"
+3,"Yuawies",1,"1700,1000",1000,90,1,1,,"city npc,no player pick,idle:CityIdle"
+4,"Rban_spear",1,"1000,1000",1000,-90,1,1,,"city npc,story choice:1.1.3_yes,idle:Idle"
+5,"Rban_cav",1,"1400,1000",1000,90,1,1,,"city npc,story choice:1.1.3_yes,idle:Idle"

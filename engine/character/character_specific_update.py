@@ -9,8 +9,10 @@ def common_update(self, *args):
             self.mode = "Near"
             if self.resource == 0:
                 self.mode = "Empty"
-    else:
+            self.just_change_mode = True
+    elif self.mode != "Normal":
         self.mode = "Normal"
+        self.just_change_mode = True
 
 
 def vraesier_update(self, dt, *args):
@@ -25,11 +27,13 @@ def vraesier_update(self, dt, *args):
                 self.mode_timer = 0
                 self.command_action = self.deactivate_command_action
                 self.mode = "Normal"
+                self.just_change_mode = True
     else:
         if self.resource >= self.resource50:
             self.mode = "Bloody"
             if self.resource >= self.base_resource:
                 self.mode = "Ready"
+            self.just_change_mode = True
 
     if self.resource < self.base_resource:
         for enemy in self.near_enemy:
@@ -52,15 +56,19 @@ def vraesier_update(self, dt, *args):
 def nayedien_update(self, *args):
     # Changes mode depends on percentage of resource left
     if self.special_combat_state == 7:  # overload mode:
-        self.mode = "Overload"
+        if self.mode != "Overload":
+            self.mode = "Overload"
+            self.just_change_mode = True
     elif self.resource <= self.resource50:
         self.mode = "Half"
         if self.resource <= self.resource25:
             self.mode = "Near"
             if self.resource <= self.resource10:
                 self.mode = "Empty"
-    else:
+        self.just_change_mode = True
+    elif self.mode != "Normal":
         self.mode = "Normal"
+        self.just_change_mode = True
 
 
 def dashisi_update(self, *args):

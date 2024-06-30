@@ -3,6 +3,8 @@ def cutscene_player_input(self):
     for key, pressed in self.player_key_press[self.main_player].items():
         if key == "Weak" and pressed:
             for child_event in self.cutscene_playing.copy():
+                if "wait" in child_event["Property"]:  # has event that still requires finishing before events after
+                    break
                 if "select" in child_event["Property"]:
                     if child_event["Property"]["select"] == "yesno":  # only consider choosing if mouse over choice
                         if self.decision_select.selected:

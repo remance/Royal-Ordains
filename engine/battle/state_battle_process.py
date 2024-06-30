@@ -46,6 +46,10 @@ def state_battle_process(self, esc_press):
     if self.dt > 0.1:  # one frame update should not be longer than 0.1 second for calculation
         self.dt = 0.1  # make it so stutter and lag does not cause overtime issue
 
+    if self.cutscene_finish_camera_delay and not self.cutscene_playing:
+        self.cutscene_finish_camera_delay -= self.dt
+        if self.cutscene_finish_camera_delay < 0:
+            self.cutscene_finish_camera_delay = 0
     self.ui_timer += self.dt  # ui update by real time instead of self time to reduce workload
     self.ui_dt = self.dt  # get ui timer before apply
 
@@ -113,7 +117,7 @@ def state_battle_process(self, esc_press):
                 self.main_story_profile["story event"][self.cutscene_playing_data[0]["ID"] +
                                                        self.chapter + self.mission + self.stage] = True
 
-    if not self.city_mode and not self.all_team_enemy[1]:  # all enemies dead, end stage process TODO rework for pvp mode
+    if not self.city_mode and not self.all_team_enemy_check[1] and not self.later_enemy[self.battle_stage.spawn_check_scene]:  # all enemies dead, end stage process TODO rework for pvp mode
         if not self.end_delay and not self.cutscene_playing:
             mission_str = self.chapter + "." + self.mission + "." + self.stage
             # not ending stage yet, due to decision waiting or playing cutscene

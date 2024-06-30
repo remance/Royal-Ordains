@@ -1,6 +1,6 @@
 import sys
 import time
-from random import choice
+from random import choice, randint
 from copy import deepcopy
 from os import path
 from math import sin, cos, radians
@@ -160,6 +160,8 @@ class Battle:
         # add pvp mode, follower recruit unlock with all save story progress
         # mission 2: 4 scenes, 4 enemies (hound master, hound, bandit ranger, rabbit killer appear with 1b)
         # add sound type to skill/move for collide and damage sound check
+        # move loading sprite to when start character based on chapter
+        # find way to increase speech text size
         # finish main menu
 
         self.clock = pygame.time.Clock()  # Game clock to keep track of realtime pass
@@ -266,14 +268,16 @@ class Battle:
         self.player_char_interfaces = game.player_char_interfaces
 
         self.game_speed = 1
-        self.all_team_character = {1: sprite.Group(), 2: sprite.Group(),
-                                   3: sprite.Group(), 4: sprite.Group(), 5: sprite.Group()}
-        self.all_team_enemy = {1: sprite.Group(), 2: sprite.Group(),
-                               3: sprite.Group(), 4: sprite.Group(), 5: sprite.Group()}
-        self.all_team_enemy_part = {1: sprite.Group(), 2: sprite.Group(),
-                                    3: sprite.Group(), 4: sprite.Group(), 5: sprite.Group()}
-        self.all_team_drop = {1: sprite.Group(), 2: sprite.Group(),
-                              3: sprite.Group(), 4: sprite.Group(), 5: sprite.Group()}
+        self.all_team_character = {0: sprite.Group(), 1: sprite.Group(), 2: sprite.Group(),
+                                   3: sprite.Group(), 4: sprite.Group()}
+        self.all_team_enemy = {0: sprite.Group(), 1: sprite.Group(), 2: sprite.Group(),
+                               3: sprite.Group(), 4: sprite.Group()}  # for AI combo check
+        self.all_team_enemy_check = {0: sprite.Group(), 1: sprite.Group(), 2: sprite.Group(),
+                                     3: sprite.Group(), 4: sprite.Group()}  # for victory check
+        self.all_team_enemy_part = {0: sprite.Group(), 1: sprite.Group(), 2: sprite.Group(),
+                                    3: sprite.Group(), 4: sprite.Group()}
+        self.all_team_drop = {0: sprite.Group(), 1: sprite.Group(), 2: sprite.Group(),
+                              3: sprite.Group(), 4: sprite.Group()}
         self.player_damage = {1: 0, 2: 0, 3: 0, 4: 0}
         self.player_kill = {1: 0, 2: 0, 3: 0, 4: 0}
         self.player_boss_kill = {1: 0, 2: 0, 3: 0, 4: 0}
@@ -406,6 +410,7 @@ class Battle:
         self.end_delay = 0  # delay until stage end and continue to next one
         self.spawn_delay_timer = {}
         self.cutscene_timer = 0
+        self.cutscene_finish_camera_delay = 0  # delay before camera can move again after cutscene
         self.survive_timer = 0
         self.stage_end_choice = False
         self.stage_scene_lock = {}
@@ -534,6 +539,8 @@ class Battle:
             this_group.empty()
         for this_group in self.all_team_enemy.values():
             this_group.empty()
+        for this_group in self.all_team_enemy_check.values():
+            this_group.empty()
         for this_group in self.all_team_enemy_part.values():
             this_group.empty()
 
@@ -576,7 +583,6 @@ class Battle:
         if stage_event_data:
             self.stage_music_pool = {key: Sound(self.music_pool[key]) for
                                      key in stage_event_data["music"]}
-
             for trigger, value in stage_event_data.items():
                 if ("once" not in value or tuple(value["once"].keys())[0] + self.chapter + self.mission + self.stage
                     not in self.main_story_profile["story event"]) and \
@@ -630,10 +636,13 @@ class Battle:
                                         self.reach_scene_event_list[key]["cutscene"].append(value3)
                                     elif value3[0]["Type"] == "weather":
                                         weather_strength = 0
+                                        wind_direction = randint(0, 359)
                                         if "strength" in value3[0]["Property"]:
                                             weather_strength = value3[0]["Property"]["strength"]
+                                        if "wind direction" in value3[0]["Property"]:
+                                            wind_direction = value3[0]["Property"]["wind direction"]
                                         self.reach_scene_event_list[key]["weather"] = (
-                                        value3[0]["Object"], weather_strength)
+                                        value3[0]["Object"], wind_direction, weather_strength)
                                     elif value3[0]["Type"] == "music":
                                         if value3[0]["Object"] != "stop":
                                             self.reach_scene_event_list[key]["music"] = str(value3[0]["Object"])
@@ -663,7 +672,6 @@ class Battle:
 
         if self.main_story_profile["interface event queue"]["inform"]:
             for item in self.main_story_profile["interface event queue"]["inform"].copy():
-                print(item)
                 self.drama_text.queue.append(item)
                 self.main_story_profile["interface event queue"]["inform"].remove(item)
 
@@ -676,6 +684,7 @@ class Battle:
 
         self.screen_shake_value = 0
         self.cutscene_timer = 0
+        self.cutscene_finish_camera_delay = 0
         self.ui_timer = 0  # This is timer for ui update function, use realtime
         self.drama_timer = 0  # This is timer for combat related function, use self time (realtime * game_speed)
         self.dt = 0  # Realtime used for time calculation
@@ -938,6 +947,8 @@ class Battle:
         self.realtime_ui_updater.remove(self.player_portraits.values(), self.player_wheel_uis.values(),
                                         self.player_trainings.values())
 
+        for helper in self.player_trainings.values():
+            helper.reset()
         self.music_left.stop()
         self.music_right.stop()
         self.stage_music_pool = {}
@@ -964,3 +975,4 @@ class Battle:
 
         self.drama_timer = 0  # reset drama text popup
         self.realtime_ui_updater.remove(self.drama_text)
+        self.remove_ui_updater(self.drama_text)

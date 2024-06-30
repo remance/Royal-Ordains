@@ -1,52 +1,52 @@
-"Buttons","Move","Name","Position","Stat Requirement","Requirement Move","Prepare Animation","After Animation","AI Range","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"Strong","astrong","Burst Push","Air",,,,,200,,,15,70,100,,,,,"Physical",,,,"penetrate"
-"Weak","sweak1","Spear Push","Stand",,,,,150,,,25,8,,,,100,,"Physical",,,,
-"Weak","sweak2","Flail Arc","Stand",,"sweak1",,,180,,,50,12,50,,150,,,"Physical",,,,
-"Weak","sweak3","Moon Rise Kick","Stand",,"sweak2",,,200,,,80,15,200,,50,,,"Physical",,,,
-"Weak","sweak4","Power Push","Stand","Strength:40,Dexterity:40","sweak3",,,300,450,,60,10,300,,,,0.05,"Physical",,,,
-"Weak","sweak5","Flurry Blows","Stand","Strength:60,Dexterity:50","sweak4",,,200,,,65,50,,,,350,,"Physical",,,,"multiple hits"
-"Weak","sweak6","Power Burst","Stand","Strength:70,Dexterity:60","sweak5",,,600,700,,75,200,250,,150,,0.25,"Physical",,,,"penetrate"
-"Weak","sweak7","Overload","Stand","Dexterity:70,Wisdom:50","sweak6",,,,,,-1000,,,,,,,"Physical",53,,,"penetrate"
-"Strong","sweak1strong","Wind Spear Lift","Stand",,"sweak1",,,250,,,42,125,,,350,,,"Air",,,,
-"Strong","sweak2strong","Flame Flail Crush","Stand",,"sweak2",,,450,,,91,160,350,,,,,"Fire",,15,,
-"Strong","sweak3strong","Frost Sword Slice","Stand",,"sweak3",,,250,,,85,145,,250,,,,"Water",,,,
-"Strong","sweak4strong","Smash of Light","Stand",,"sweak4",,,,,,200,250,,,,400,,"Physical",,,,
-"Strong","sweak5strong","Dark Mace Smash","Stand",,"sweak5",,,,,,200,250,,,400,,,"Physical",,,,
-"Strong","sweak6strong","Earth Piercing","Stand",,"sweak6",,,,,,300,415,,350,,,,"Earth",,,,
-"Strong","sweak7strong","Air Spear Overload","Stand","Strength:70,Dexterity:70","sweak7",,,,,,500,700,,,500,,0.2,"Air",,,,
-"Strong","sweak7strong1","Earth Axe Overload","Stand",,"sweak7strong",,,,,,500,700,,,,500,0.2,"Earth",,,,
-"Strong","sweak7strong2","Flame Flail Overload","Stand",,"sweak7strong1",,,,,,500,700,500,,,,0.2,"Fire",,,,
-"Strong","sweak7strong3","Frost Sword Overload","Stand",,"sweak7strong2",,,,,,500,700,,500,,,0.2,"Water",,,,
-"Strong","sweak7strong4","Light Hammer Overload","Stand",,"sweak7strong3",,,,,,500,700,,,500,,0.2,"Physical",,,,
-"Strong","sweak7strong5","Dark Mace Overload","Stand",,"sweak7strong4",,,,,,500,700,,,,500,0.2,"Physical",,,,
-"Forward,Strong","sweak1strongfstrong","Spear Rush","Stand",,"sweak1strong,sweak1strongspecialstrongstrong,sweak1strongstrong,sweak1strongspecial,sweak1strongspecialstrong",,,600,,,50,60,50,,,10,,"Air",,,,"x_momentum:400,movable,forced move,penetrate"
-"Forward,Strong","sweak2strongfstrong","Flail Sweep","Stand",,"sweak2strong,sweak2strongspecialstrongstrong,sweak2strongstrong,sweak2strongspecial,sweak2strongspecialstrong",,,600,,,50,60,50,,,10,,"Fire",,,,"x_momentum:400,movable,forced move,penetrate"
-"Forward,Strong","sweak3strongfstrong","Sword Rampage","Stand",,"sweak3strong,sweak3strongspecialstrongstrong,sweak3strongstrong,sweak3strongspecial,sweak3strongspecialstrong",,,600,,,50,60,50,,,10,,"Water",,,,"x_momentum:400,movable,forced move,penetrate"
-"Forward,Strong","sweak4strongfstrong","Axe Spin","Stand",,"sweak4strong,sweak4strongspecialstrongstrong,sweak4strongstrong,sweak4strongspecial,sweak4strongspecialstrong",,,600,,,50,60,50,,,10,,"Physical",,,,"x_momentum:400,movable,forced move,penetrate"
-"Forward,Strong","sweak5strongfstrong","Dark Cloud","Stand",,"sweak5strong,sweak5strongspecialstrongstrong,sweak5strongstrong,sweak5strongspecial,sweak5strongspecialstrong",,,600,,,50,60,50,,,10,,"Physical",,,,"x_momentum:400,movable,forced move,penetrate"
-"Forward,Strong","sweak6strongfstrong","Earth Riding","Stand",,"sweak6strong,sweak6strongspecialstrongstrong,sweak6strongstrong,sweak6strongspecial,sweak6strongspecialstrong",,,600,,,50,60,50,,,10,,"Earth",,,,"x_momentum:400,movable,forced move,penetrate"
-"Strong","sweak1strongstrong","Wind Piercer","Stand",,"sweak1strong,sweak1strongfstrong,sweak1strongspecialstrongstrong",,,300,,,24,86,90,,35,,,"Air",,,,
-"Strong","sweak2strongstrong","Fire Splitter","Stand",,"sweak2strong,sweak2strongfstrong,sweak2strongspecialstrongstrong",,,400,,,95,168,400,,,,0.05,"Fire",,,,
-"Strong","sweak3strongstrong","Ice Slash","Stand",,"sweak3strong,sweak3strongfstrong,sweak3strongspecialstrongstrong",,,,,,110,197,120,,,,,"Water",,,,
-"Strong","sweak4strongstrong","Light Hammer Swing","Stand",,"sweak4strong,sweak4strongfstrong,sweak4strongspecialstrongstrong",,,,,,150,274,300,,150,,,"Physical",,,,
-"Strong","sweak5strongstrong","Night Bash","Stand",,"sweak5strong,sweak5strongfstrong,sweak5strongspecialstrongstrong",,,,,,115,235,,,,400,,"Physical",,,,
-"Strong","sweak6strongstrong","Earth Cleave","Stand",,"sweak6strong,sweak6strongfstrong,sweak6strongspecialstrongstrong",,,,,,240,512,150,,,350,0.4,"Earth",,,,
-"Special","sweak1strongspecial","Spear Tornado","Stand",,"sweak1strong,sweak1strongfstrong,sweak1strongspecialstrongstrong",,,300,,,75,25,,,200,,0.25,"Air",,,,"multiple hits"
-"Special","sweak2strongspecial","Fire Spin","Stand",,"sweak2strong,sweak2strongfstrong,sweak2strongspecialstrongstrong",,,,,,172,350,,,,250,0.1,"Fire",,,,
-"Special","sweak3strongspecial","Sword Upper Slash","Stand",,"sweak3strong,sweak3strongfstrong,sweak3strongspecialstrongstrong",,,,,,90,111,,,,,,"Water",,,,
-"Special","sweak4strongspecial","Day Break","Stand",,"sweak4strong,sweak4strongfstrong,sweak4strongspecialstrongstrong",,,,,,250,500,,,700,,0.3,"Physical",,,,
-"Special","sweak5strongspecial","Dark Space","Stand",,"sweak5strong,sweak5strongfstrong,sweak5strongspecialstrongstrong",,,,,,250,500,,,,700,0.3,"Physical",,,,
-"Special","sweak6strongspecial","Stone Barrage","Stand",,"sweak6strong,sweak6strongfstrong,sweak6strongspecialstrongstrong",,,700,800,,300,43,100,,100,,0.2,"Earth",,,,
-"Strong","sweak1strongspecialstrong","Guiding Wind","Stand",,"sweak1strongspecial,sweak1strongstrong",,,,,,67,36,45,,,,,"Air",,,,"multiple hits"
-"Strong","sweak2strongspecialstrong","Fire Maker","Stand",,"sweak2strongspecial,sweak2strongstrong",,,,,,75,7,,,,,,"Fire",,,,"penetrate"
-"Strong","sweak3strongspecialstrong","Clean Slash","Stand",,"sweak3strongspecial,sweak3strongstrong",,,300,,,115,95,80,,50,,0.5,"Water",,,,
-"Strong","sweak4strongspecialstrong","Light Push","Stand",,"sweak4strongspecial,sweak4strongstrong",,,,,,88,110,100,,100,,,"Physical",,,,
-"Strong","sweak5strongspecialstrong","Dark Blow","Stand",,"sweak5strongspecial,sweak5strongstrong",,,,,,169,215,50,,110,,,"Physical",,,,
-"Strong","sweak6strongspecialstrong","Earth Axe Overhead Slam","Stand",,"sweak6strongspecial,sweak6strongstrong",,,,,,324,400,,,,500,,"Earth",,,,
-"Strong","sweak1strongspecialstrongstrong","Down Wind","Stand",,"sweak1strongspecialstrong",,,,,,64,73,,100,,,,"Air",,,,
-"Strong","sweak2strongspecialstrongstrong","Infernal Beholden","Stand",,"sweak2strongspecialstrong",,,,,,88,100,100,,,100,,"Fire",,43,,
-"Strong","sweak3strongspecialstrongstrong","Ice Spear","Stand",,"sweak3strongspecialstrong",,,,,,138,275,185,,,,,"Water",,,,"penetrate"
-"Strong","sweak4strongspecialstrongstrong","Light On","Stand",,"sweak4strongspecialstrong",,,,,,250,350,150,,100,,,"Magic",,47,,"penetrate"
-"Strong","sweak5strongspecialstrongstrong","Light Out","Stand",,"sweak5strongspecialstrong",,,,,,250,350,50,,,550,,"Physical",,5,,
-"Strong","sweak6strongspecialstrongstrong","Earth Spike","Stand",,"sweak6strongspecialstrong",,,,,,410,850,400,,400,,,"Earth",,,,"penetrate"
-"Special","cspecial","Meditation","Couch",,,,,,0,,-25,,,,,,,"Physical",,,,"can_hold:trigger"
+"Buttons","Move","Name","Position","Stat Requirement","Requirement Move","Prepare Animation","After Animation","AI Range","AI Delay","AI Condition","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Strong","astrong","Burst Push","Air",,,,,200,,,,,15,70,100,,,,,"Physical",,,,"penetrate"
+"Weak","sweak1","Spear Push","Stand",,,,,150,,,,,25,8,,,,100,,"Physical",,,,
+"Weak","sweak2","Flail Arc","Stand",,"sweak1",,,180,,,,,50,12,50,,150,,,"Physical",,,,
+"Weak","sweak3","Moon Rise Kick","Stand",,"sweak2",,,200,,,,,80,15,200,,50,,,"Physical",,,,
+"Weak","sweak4","Power Push","Stand","Strength:40,Dexterity:40","sweak3",,,300,,,450,,60,10,300,,,,0.05,"Physical",,,,
+"Weak","sweak5","Flurry Blows","Stand","Strength:60,Dexterity:50","sweak4",,,200,,,,,65,50,,,,350,,"Physical",,,,"multiple hits"
+"Weak","sweak6","Power Burst","Stand","Strength:70,Dexterity:60","sweak5",,,600,,,700,,75,200,250,,150,,0.25,"Physical",,,,"penetrate"
+"Weak","sweak7","Overload","Stand","Dexterity:70,Wisdom:50","sweak6",,,,,,,,-1000,,,,,,,"Physical",53,,,"penetrate"
+"Strong","sweak1strong","Wind Spear Lift","Stand",,"sweak1",,,250,,,,,42,125,,,350,,,"Air",,,,
+"Strong","sweak2strong","Flame Flail Crush","Stand",,"sweak2",,,450,,,,,91,160,350,,,,,"Fire",,15,,
+"Strong","sweak3strong","Frost Sword Slice","Stand",,"sweak3",,,250,,,,,85,145,,250,,,,"Water",,,,
+"Strong","sweak4strong","Smash of Light","Stand",,"sweak4",,,,,,,,200,250,,,,400,,"Physical",,,,
+"Strong","sweak5strong","Dark Mace Smash","Stand",,"sweak5",,,,,,,,200,250,,,400,,,"Physical",,,,
+"Strong","sweak6strong","Earth Piercing","Stand",,"sweak6",,,,,,,,300,415,,350,,,,"Earth",,,,
+"Strong","sweak7strong","Air Spear Overload","Stand","Strength:70,Dexterity:70","sweak7",,,,,,,,500,700,,,500,,0.2,"Air",,,,
+"Strong","sweak7strong1","Earth Axe Overload","Stand",,"sweak7strong",,,,,,,,500,700,,,,500,0.2,"Earth",,,,
+"Strong","sweak7strong2","Flame Flail Overload","Stand",,"sweak7strong1",,,,,,,,500,700,500,,,,0.2,"Fire",,,,
+"Strong","sweak7strong3","Frost Sword Overload","Stand",,"sweak7strong2",,,,,,,,500,700,,500,,,0.2,"Water",,,,
+"Strong","sweak7strong4","Light Hammer Overload","Stand",,"sweak7strong3",,,,,,,,500,700,,,500,,0.2,"Physical",,,,
+"Strong","sweak7strong5","Dark Mace Overload","Stand",,"sweak7strong4",,,,,,,,500,700,,,,500,0.2,"Physical",,,,
+"Forward,Strong","sweak1strongfstrong","Spear Rush","Stand",,"sweak1strong,sweak1strongspecialstrongstrong,sweak1strongstrong,sweak1strongspecial,sweak1strongspecialstrong",,,600,,,,,50,60,50,,,10,,"Air",,,,"x_momentum:400,movable,forced move,penetrate"
+"Forward,Strong","sweak2strongfstrong","Flail Sweep","Stand",,"sweak2strong,sweak2strongspecialstrongstrong,sweak2strongstrong,sweak2strongspecial,sweak2strongspecialstrong",,,600,,,,,50,60,50,,,10,,"Fire",,,,"x_momentum:400,movable,forced move,penetrate"
+"Forward,Strong","sweak3strongfstrong","Sword Rampage","Stand",,"sweak3strong,sweak3strongspecialstrongstrong,sweak3strongstrong,sweak3strongspecial,sweak3strongspecialstrong",,,600,,,,,50,60,50,,,10,,"Water",,,,"x_momentum:400,movable,forced move,penetrate"
+"Forward,Strong","sweak4strongfstrong","Axe Spin","Stand",,"sweak4strong,sweak4strongspecialstrongstrong,sweak4strongstrong,sweak4strongspecial,sweak4strongspecialstrong",,,600,,,,,50,60,50,,,10,,"Physical",,,,"x_momentum:400,movable,forced move,penetrate"
+"Forward,Strong","sweak5strongfstrong","Dark Cloud","Stand",,"sweak5strong,sweak5strongspecialstrongstrong,sweak5strongstrong,sweak5strongspecial,sweak5strongspecialstrong",,,600,,,,,50,60,50,,,10,,"Physical",,,,"x_momentum:400,movable,forced move,penetrate"
+"Forward,Strong","sweak6strongfstrong","Earth Riding","Stand",,"sweak6strong,sweak6strongspecialstrongstrong,sweak6strongstrong,sweak6strongspecial,sweak6strongspecialstrong",,,600,,,,,50,60,50,,,10,,"Earth",,,,"x_momentum:400,movable,forced move,penetrate"
+"Strong","sweak1strongstrong","Wind Piercer","Stand",,"sweak1strong,sweak1strongfstrong,sweak1strongspecialstrongstrong",,,300,,,,,24,86,90,,35,,,"Air",,,,
+"Strong","sweak2strongstrong","Fire Splitter","Stand",,"sweak2strong,sweak2strongfstrong,sweak2strongspecialstrongstrong",,,400,,,,,95,168,400,,,,0.05,"Fire",,,,
+"Strong","sweak3strongstrong","Ice Slash","Stand",,"sweak3strong,sweak3strongfstrong,sweak3strongspecialstrongstrong",,,,,,,,110,197,120,,,,,"Water",,,,
+"Strong","sweak4strongstrong","Light Hammer Swing","Stand",,"sweak4strong,sweak4strongfstrong,sweak4strongspecialstrongstrong",,,,,,,,150,274,300,,150,,,"Physical",,,,
+"Strong","sweak5strongstrong","Night Bash","Stand",,"sweak5strong,sweak5strongfstrong,sweak5strongspecialstrongstrong",,,,,,,,115,235,,,,400,,"Physical",,,,
+"Strong","sweak6strongstrong","Earth Cleave","Stand",,"sweak6strong,sweak6strongfstrong,sweak6strongspecialstrongstrong",,,,,,,,240,512,150,,,350,0.4,"Earth",,,,
+"Special","sweak1strongspecial","Spear Tornado","Stand",,"sweak1strong,sweak1strongfstrong,sweak1strongspecialstrongstrong",,,300,,,,,75,25,,,200,,0.25,"Air",,,,"multiple hits"
+"Special","sweak2strongspecial","Fire Spin","Stand",,"sweak2strong,sweak2strongfstrong,sweak2strongspecialstrongstrong",,,,,,,,172,350,,,,250,0.1,"Fire",,,,
+"Special","sweak3strongspecial","Sword Upper Slash","Stand",,"sweak3strong,sweak3strongfstrong,sweak3strongspecialstrongstrong",,,,,,,,90,111,,,,,,"Water",,,,
+"Special","sweak4strongspecial","Day Break","Stand",,"sweak4strong,sweak4strongfstrong,sweak4strongspecialstrongstrong",,,,,,,,250,500,,,700,,0.3,"Physical",,,,
+"Special","sweak5strongspecial","Dark Space","Stand",,"sweak5strong,sweak5strongfstrong,sweak5strongspecialstrongstrong",,,,,,,,250,500,,,,700,0.3,"Physical",,,,
+"Special","sweak6strongspecial","Stone Barrage","Stand",,"sweak6strong,sweak6strongfstrong,sweak6strongspecialstrongstrong",,,700,,,800,,300,43,100,,100,,0.2,"Earth",,,,
+"Strong","sweak1strongspecialstrong","Guiding Wind","Stand",,"sweak1strongspecial,sweak1strongstrong",,,,,,,,67,36,45,,,,,"Air",,,,"multiple hits"
+"Strong","sweak2strongspecialstrong","Fire Maker","Stand",,"sweak2strongspecial,sweak2strongstrong",,,,,,,,75,7,,,,,,"Fire",,,,"penetrate"
+"Strong","sweak3strongspecialstrong","Clean Slash","Stand",,"sweak3strongspecial,sweak3strongstrong",,,300,,,,,115,95,80,,50,,0.5,"Water",,,,
+"Strong","sweak4strongspecialstrong","Light Push","Stand",,"sweak4strongspecial,sweak4strongstrong",,,,,,,,88,110,100,,100,,,"Physical",,,,
+"Strong","sweak5strongspecialstrong","Dark Blow","Stand",,"sweak5strongspecial,sweak5strongstrong",,,,,,,,169,215,50,,110,,,"Physical",,,,
+"Strong","sweak6strongspecialstrong","Earth Axe Overhead Slam","Stand",,"sweak6strongspecial,sweak6strongstrong",,,,,,,,324,400,,,,500,,"Earth",,,,
+"Strong","sweak1strongspecialstrongstrong","Down Wind","Stand",,"sweak1strongspecialstrong",,,,,,,,64,73,,100,,,,"Air",,,,
+"Strong","sweak2strongspecialstrongstrong","Infernal Beholden","Stand",,"sweak2strongspecialstrong",,,,,,,,88,100,100,,,100,,"Fire",,43,,
+"Strong","sweak3strongspecialstrongstrong","Ice Spear","Stand",,"sweak3strongspecialstrong",,,,,,,,138,275,185,,,,,"Water",,,,"penetrate"
+"Strong","sweak4strongspecialstrongstrong","Light On","Stand",,"sweak4strongspecialstrong",,,,,,,,250,350,150,,100,,,"Magic",,47,,"penetrate"
+"Strong","sweak5strongspecialstrongstrong","Light Out","Stand",,"sweak5strongspecialstrong",,,,,,,,250,350,50,,,550,,"Physical",,5,,
+"Strong","sweak6strongspecialstrongstrong","Earth Spike","Stand",,"sweak6strongspecialstrong",,,,,,,,410,850,400,,400,,,"Earth",,,,"penetrate"
+"Special","cspecial","Meditation","Couch",,,,,,,,0,,-25,,,,,,,"Physical",,,,"can_hold:trigger"

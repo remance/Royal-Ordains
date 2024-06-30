@@ -1,0 +1,9 @@
+"Object ID","ID","Scene","POS","Ground Y POS","Angle","Start Health","Team","Arrive Condition","Stage Property"
+"p1",,1,"1200,1000",1000,90,1,1,,
+"p2",,1,"1400,1000",1000,90,1,1,,
+"p3",,1,"1600,1000",1000,90,1,1,,
+"p4",,1,"1800,1000",1000,90,1,1,,
+1,"Maelsen",1,"150,1000",700,-90,1,1,,"city npc"
+2,"Kapuni",1,"340,800",800,-90,1,1,,"city npc"
+3,"Aerlnarn",1,"1750,1000",1000,90,1,1,,"city npc"
+4,"Bauqah",1,"800,1000",1000,-90,1,1,,"city npc,no player pick"

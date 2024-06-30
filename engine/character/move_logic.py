@@ -45,16 +45,16 @@ def move_logic(self, dt):
 
         if self.y_momentum > 0:  # climbing through air
             self.y_momentum -= dt * 800
-            self.move_speed = 1500 + self.y_momentum
-            if self.y_momentum <= 0:
-                self.y_momentum = -10
-        elif self.position == "Air":  # no more velocity to go up, must go down
+            self.move_speed += self.y_momentum
+            if self.y_momentum <= 0:  # reach highest y momentum now fall down
+                self.y_momentum = -self.fall_gravity
+        if self.y_momentum < 0:  # no more velocity to go up, must go down
             if self.base_pos[1] >= self.ground_pos and not self.no_clip:
-                # air position reach ground, start landing animation
+                # reach ground, start landing animation
                 self.y_momentum = 0
                 self.x_momentum = 0
                 self.base_pos[1] = self.ground_pos
-                if "forced move" not in self.current_action:
+                if "forced move" not in self.current_action:  # only land for non forced move animation
                     self.interrupt_animation = True
                     self.command_action = self.land_command_action
                     self.can_double_jump = True
@@ -62,15 +62,18 @@ def move_logic(self, dt):
             elif (not self.fly and "fly" not in self.current_action) or not self.alive:
                 # falling down if not flying and not in temporary stopping or dead
                 if "dash" in self.current_action:
-                    self.move_speed = 3000
+                    self.move_speed += 2000
                 elif "drop speed" in self.current_action:
                     self.move_speed = self.fall_gravity * self.current_action["drop speed"]
                 elif "moveset" in self.current_action or self.stop_fall_duration:  # delay falling when attack midair
                     self.move_speed = 100
-                elif self.y_momentum > -self.fall_gravity:  # use gravity if existing y momentum is higher
+                elif "die" in self.current_action:
                     self.y_momentum = -self.fall_gravity
-                else:  # fall faster if y momentum lower than gravity
-                    self.move_speed += self.y_momentum + self.fall_gravity
+                    self.move_speed = self.fall_gravity
+                elif self.y_momentum > -self.fall_gravity:  # use gravity if existing -y momentum is higher
+                    self.move_speed = self.fall_gravity
+                else:  # fall faster if -y momentum lower than gravity
+                    self.move_speed = -self.y_momentum + self.fall_gravity
         elif self.y_momentum < 0 and self.base_pos[1] == self.ground_pos:  # reach ground, reset y momentum
             self.y_momentum = 0
 
@@ -91,7 +94,7 @@ def move_logic(self, dt):
                     self.base_pos[1] = -1000
                     self.y_momentum = -self.fall_gravity
 
-                if self.player_control:  # individual player cannot go pass camera
+                if self.player_control:  # player character cannot go pass camera
                     if self.battle.base_camera_begin > self.base_pos[0]:
                         self.base_pos[0] = self.battle.base_camera_begin
                         self.x_momentum = 0

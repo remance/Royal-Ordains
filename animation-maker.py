@@ -1590,9 +1590,9 @@ frame_paste_button = Button("Paste F", image,
                              filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
                             description=("Paste copied frame (CTRL + V)",
                                          "Does not paste frame properties."))
-reload_button = Button("Reload", image, (play_animation_button.pos[0] + play_animation_button.image.get_width() * 3,
-                                         filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
-                       description=("Reload all assets",))
+# reload_button = Button("Reload", image, (play_animation_button.pos[0] + play_animation_button.image.get_width() * 3,
+#                                          filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
+#                        description=("Reload all assets",))
 add_frame_button = Button("Add F", image, (play_animation_button.pos[0] + play_animation_button.image.get_width() * 4,
                                            filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
                           description=("Add empty frame and move the other after frames", "Will remove the last frame."))
@@ -2145,8 +2145,8 @@ while True:
                     if clear_button.rect.collidepoint(mouse_pos):
                         model.edit_part(mouse_pos, "clear")
 
-                    elif reload_button.rect.collidepoint(mouse_pos):
-                        pass
+                    # elif reload_button.rect.collidepoint(mouse_pos):
+                    #     pass
 
                     elif speed_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("text_input", "change_speed")
@@ -2721,8 +2721,8 @@ while True:
                     change_animation(list(current_pool[animation_race].keys())[0])
 
             elif text_input_popup[1] == "change_speed":
-                if input_box.text.isdigit():
-                    new_speed = int(input_box.text)
+                if re.search("[a-zA-Z]", input_box.text) is None:
+                    new_speed = float(input_box.text)
                     speed_button.change_text("Time: " + input_box.text)
                     anim.speed_ms = new_speed
 

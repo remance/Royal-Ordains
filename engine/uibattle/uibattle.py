@@ -274,6 +274,10 @@ class TrainingHelper(UIBattle):
         self.combo_input = []
         self.old_combo_input = []
 
+    def reset(self):
+        self.combo_input = []
+        self.old_combo_input = []
+
     def update(self):
         if self.combo_input:
             self.combo_input = [[item[0], item[1] - self.battle.dt, item[2]] for

@@ -1,8 +1,9 @@
-# Royal Ordains Book 1  <img src="https://github.com/remance/preview2/blob/main/rabbit.png?raw=true">
+# Royal Ordains the First Book  <img src="https://github.com/remance/preview2/blob/main/rabbit.png?raw=true">
 
 ### This is the Book of Royal Ordains. A manuscript that tells the past courageous deeds of the hero group named Royal Ordains, sanctioned by the King of Masendor, so that their history will never be forgotten.
 
 <img src="https://github.com/remance/preview2/blob/main/bg1.1.1.3.png?raw=true">
+<img src="https://github.com/remance/preview2/blob/main/bg1.2.1.8.png?raw=true">
 
 [![](https://markdown-videos-api.jorgenkh.no/youtube/KHejwk4pPUg)](https://youtu.be/KHejwk4pPUg)
 
@@ -138,15 +139,15 @@ Also, the game is currently written based on the pygame 2.5.2 module and python 
 
 # Development Progress
 
-The current game version consists of 5 playable characters and first mission for chapter 1.
+The current game version consists of 5 playable characters and first 2 missions for chapter 1.
 
 ### Warrior type
 
-<img src="https://github.com/remance/preview2/blob/main/vraesier1.png?raw=true" width="100" height="100"></a> Vagrant Marauder
+<img src="https://github.com/remance/preview2/blob/main/vraesier.png?raw=true" ></a>
 
 ### Archer type
 
-<img src="https://github.com/remance/preview2/blob/main/rodhinbar1.png?raw=true" width="100" height="100"></a> Headman
+<img src="https://github.com/remance/preview2/blob/main/rodhinbar.png?raw=true"></a>
 
 ### Support type
 
@@ -158,7 +159,7 @@ The current game version consists of 5 playable characters and first mission for
 
 ### Special type
 
-<img src="https://github.com/remance/preview2/blob/main/nayedien1.png?raw=true" width="100" height="100"></a> King’s Aide
+<img src="https://github.com/remance/preview2/blob/main/nayedien.png?raw=true" ></a>
 
 # Future Playable Characters
 
@@ -248,6 +249,7 @@ Animation maker for the Vector-based character animation in game. The tool is ma
 - Damaged "punch3" by Merrick079 (https://freesound.org/people/Merrick079/)
 - Mechanism sound "Mechanism" by Globofonia (https://freesound.org/people/Globofonia/)
 - Boom, stone hit, puff, clapping, explosion, glass broken, book fall, deep thump, whistling, bell, sword sheath sound by Pixabay (https://pixabay.com/users/pixabay-1/) 
+- Sword sheath and unsheath by SectionSound (https://pixabay.com/users/sectionsound-34536612/)
 - Bell sound "Bell Sound Ring" by Mike Koenig (https://soundbible.com/26-Bell-Sound-Ring.html#)
 - Wind sound "Wind Blow", Blood pull "Breeze Of Blood", Click sound "Reload", Blink sound "Interface" by UNIVERSFIELD (https://pixabay.com/users/universfield-28281460/) 
 - Earth spike sound "Punch a rock" and "Woosh Drum hit" by LordSonny (https://pixabay.com/users/lordsonny-38439655/)

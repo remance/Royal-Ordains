@@ -1,2 +1,2 @@
-"Buttons","Move","Name","Position","Requirement Move","Prepare Animation","After Animation","AI Range","AI Condition","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"Weak","sweak1","Down Stab","Stand",,,,250,,,5,,60,15,,,25,,"Physical",,,,
+"Buttons","Move","Name","Position","Requirement Move","Prepare Animation","After Animation","AI Range","AI Delay","AI Condition","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Weak","sweak1","Down Stab","Stand",,,,250,,,,5,,60,15,,,25,,"Physical",,,,

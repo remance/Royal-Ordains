@@ -114,15 +114,16 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
                             # unique gear that only gave out once in first win and only one can exist
                             if item not in save_profile["character"][slot]["storage"]:
                                 save_profile["character"][slot]["storage"][item] = 1
+                                save_profile["character"][slot]["storage_new"].append(item)
                             reward_list["choice"][item] = 1
 
                     for item in choice_reward["Item Reward"]:
-                        print(item)
                         item_num = choice_reward["Item Reward"][item]
                         if item in save_profile["character"][slot]["storage"]:
                             save_profile["character"][slot]["storage"][item] += item_num
                         else:
                             save_profile["character"][slot]["storage"][item] = item_num
+                            save_profile["character"][slot]["storage_new"].append(item)
                         reward_list["choice"][item] = item_num
 
                     if choice_reward["Gold Reward"]:
@@ -136,6 +137,7 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
                         save_profile["character"][slot]["storage"][item] += item_num
                     else:
                         save_profile["character"][slot]["storage"][item] = item_num
+                        save_profile["character"][slot]["storage_new"].append(item)
                     reward_list["multi"][item] = item_num
                 reward_list["multi"]["gold"] = self.battle_map_data.stage_reward[chapter][mission]["Gold Reward"]
                 save_profile["character"][slot]["total golds"] += \
@@ -149,6 +151,7 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
                         0]
                     new_custom_equip = tuple(self.generate_custom_equipment(gear_type, rarity).items())
                     save_profile["character"][slot]["storage"][new_custom_equip] = 1
+                    save_profile["character"][slot]["storage_new"].append(new_custom_equip)
                     reward_list["multi"][new_custom_equip] = 1
 
                 self.player_char_interfaces[player].add_profile(save_profile["character"][slot])

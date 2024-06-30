@@ -219,30 +219,30 @@ class Effect(sprite.Sprite):
                             # find the nearest enemy to target
                             if self.other_property["aim"] == "target":
                                 if self.owner.angle == 90:
-                                    stat[2] = uniform(self.owner.nearest_enemy[0].pos[0],
-                                                      self.owner.nearest_enemy[0].pos[0] + (200 * self.screen_scale[0]))
+                                    stat[2] = uniform(self.owner.nearest_enemy.pos[0],
+                                                      self.owner.nearest_enemy.pos[0] + (200 * self.screen_scale[0]))
                                 else:
-                                    stat[2] = uniform(self.owner.nearest_enemy[0].pos[0] - (200 * self.screen_scale[0]),
-                                                      self.owner.nearest_enemy[0].pos[0])
+                                    stat[2] = uniform(self.owner.nearest_enemy.pos[0] - (200 * self.screen_scale[0]),
+                                                      self.owner.nearest_enemy.pos[0])
 
                                 self.pos = (stat[2], stat[3])
-                                stat[4] = self.set_rotate(self.owner.nearest_enemy[0].pos, use_pos=True)
+                                stat[4] = self.set_rotate(self.owner.nearest_enemy.pos, use_pos=True)
 
                             elif self.other_property["aim"] == "near target":
                                 if self.owner.nearest_enemy:  # find the nearest enemy to target
                                     if self.owner.angle == 90:
-                                        stat[2] = uniform(self.owner.nearest_enemy[0].pos[0],
-                                                          self.owner.nearest_enemy[0].pos[0] + (
+                                        stat[2] = uniform(self.owner.nearest_enemy.pos[0],
+                                                          self.owner.nearest_enemy.pos[0] + (
                                                                   500 * self.screen_scale[0]))
                                     else:
                                         stat[2] = uniform(
-                                            self.owner.nearest_enemy[0].pos[0] - (500 * self.screen_scale[0]),
-                                            self.owner.nearest_enemy[0].pos[0])
+                                            self.owner.nearest_enemy.pos[0] - (500 * self.screen_scale[0]),
+                                            self.owner.nearest_enemy.pos[0])
 
                                     self.pos = (stat[2], stat[3])
-                                    target_pos = (uniform(self.owner.nearest_enemy[0].pos[0] - 200,
-                                                          self.owner.nearest_enemy[0].pos[0] + 200),
-                                                  self.owner.nearest_enemy[0].pos[1])
+                                    target_pos = (uniform(self.owner.nearest_enemy.pos[0] - 200,
+                                                          self.owner.nearest_enemy.pos[0] + 200),
+                                                  self.owner.nearest_enemy.pos[1])
                                     stat[4] = self.set_rotate(target_pos, use_pos=True)
 
                         else:  # random target instead
@@ -352,6 +352,9 @@ class DamageEffect(Effect):
 
             else:  # no longer bouncing, start countdown stick timer or find new pos for stuck part
                 if self.stuck_part:  # find new pos based on stuck part
+                    if not hasattr(self.stuck_part, "data"):
+                        print(self.stuck_part)
+                        print(self.stuck_part.owner,)
                     if self.stuck_part.data:
                         self.pos = list(self.stuck_part.rect.center)
                         self.angle = self.base_stuck_stat[1]

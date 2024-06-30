@@ -6,41 +6,53 @@ from pygame import Vector2
 from engine.weather.weather import MatterSprite
 
 
+def travel_to_map_border(pos, angle, screen_size):
+    """
+    Find target at border of screen based on angle
+    :param pos: Starting pos
+    :param angle: Angle in radians
+    :param screen_size: Size of screen (width, height)
+    :return: target pos on border
+    """
+    dx = cos(angle)
+    dy = sin(angle)
+
+    if dx < 1.0e-16:  # left border
+        y = (-pos[0]) * dy / dx + pos[1]
+
+        if 0 <= y <= screen_size[1]:
+            return Vector2((0, y))
+
+    if dx > 1.0e-16:  # right border
+        y = (screen_size[0] - pos[0]) * dy / dx + pos[1]
+        if 0 <= y <= screen_size[1]:
+            return Vector2((screen_size[0], y))
+
+    if dy < 1.0e-16:  # top border
+        x = (-pos[1]) * dx / dy + pos[0]
+        if 0 <= x <= screen_size[0]:
+            return Vector2((x, 0))
+
+    if dy > 1.0e-16:  # bottom border
+        x = (screen_size[1] - pos[1]) * dx / dy + pos[0]
+        if 0 <= x <= screen_size[0]:
+            return Vector2((x, screen_size[1]))
+
+
 def spawn_weather_matter(self):
-    travel_angle = uniform(self.current_weather.travel_angle[0], self.current_weather.travel_angle[1])
+    travel_angle = self.current_weather.travel_angle
+    spawn_angle = self.current_weather.spawn_angle
 
-    screen_rect_width = self.screen_rect.width
-    screen_rect_height = self.screen_rect.height
-
-    if travel_angle >= 180:
-        spawn_angle = travel_angle - 180
-        height_cal = spawn_angle / 180
-    elif travel_angle >= 135:
-        spawn_angle = travel_angle * 2
-        height_cal = spawn_angle / 360
+    if travel_angle not in (0, 180):  # matter travel not from direct straight top to bottom angle
+        random_pos = (uniform(0, self.screen_rect.width), uniform(0, self.screen_rect.height))
+        target = travel_to_map_border(random_pos, radians(travel_angle), self.screen_rect.size)
+        start_pos = travel_to_map_border(random_pos, radians(spawn_angle), self.screen_rect.size)
     else:
-        spawn_angle = 450 - travel_angle
-        height_cal = spawn_angle / 360
-
-    if height_cal != 1:  # matter travel not from direct straight top to bottom angle
-        start_width = uniform(0, int(screen_rect_width * (2 / (screen_rect_width / screen_rect_height))))
-        if start_width > screen_rect_width:  # matter must reach width screen border but not height
-            start_point = int(screen_rect_height * height_cal)
-            if start_point >= screen_rect_height:
-                start_point = screen_rect_height - 1
-            if spawn_angle < 180:  # spawn from right screen, target must reach left border of screen
-                target = (0, uniform(start_point, screen_rect_height))
-            else:  # spawn from left screen, target must reach right border of screen
-                target = (self.screen_rect.width, uniform(start_point, screen_rect_height))
-        else:
-            target = (start_width, screen_rect_height)
-    else:
-        target = (uniform(0, screen_rect_width), screen_rect_height)
-
-    start_pos = Vector2(target[0] + (screen_rect_width * sin(radians(spawn_angle))),
-                        target[1] - (screen_rect_height * cos(radians(spawn_angle))))
+        target = (uniform(0, self.screen_rect.width), self.screen_rect.height)
+        start_pos = Vector2(target[0] + (self.screen_rect.width * sin(radians(spawn_angle))),
+                            target[1] - (self.screen_rect.height * cos(radians(spawn_angle))))
 
     random_pic = randint(0, len(self.weather_matter_images[self.current_weather.name]) - 1)
     self.weather_matters.add(MatterSprite(start_pos, target, self.current_weather.speed,
                                           self.weather_matter_images[self.current_weather.name][random_pic],
-                                          self.screen_rect.size))
+                                          self.screen_rect.size, self.current_weather.random_sprite_angle))

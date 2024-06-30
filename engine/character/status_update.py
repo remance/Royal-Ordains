@@ -18,7 +18,6 @@ def status_update(self):
     crit_chance_bonus = 0
     animation_speed_modifier = 1
 
-    self.invisible = False
     self.blind = False
 
     self.resource_cost_modifier = self.base_resource_cost_modifier
@@ -26,8 +25,8 @@ def status_update(self):
 
     if "arrive" in self.current_action:  # update arriving target for ai
         if self.nearest_enemy:
-            self.x_momentum = self.nearest_enemy[0].base_pos[0] - self.base_pos[0]
-            if abs(self.x_momentum) < 50:
+            self.x_momentum = self.nearest_enemy.base_pos[0] - self.base_pos[0]
+            if abs(self.x_momentum) < uniform(100, 500):
                 self.x_momentum = 0
         else:
             self.x_momentum = uniform(-1000, 1000)
@@ -49,10 +48,13 @@ def status_update(self):
         for team in self.battle.all_team_enemy:
             if team != self.team and self in self.battle.all_team_enemy[team]:
                 self.battle.all_team_enemy[team].remove(self)
-    elif self.indicator and self.indicator not in self.battle.battle_camera:  # add back indicator and enemy team for ai
-        self.battle.battle_camera.add(self.indicator)
+    elif self.invisible:  # stop being invisible
+        self.invisible = False
+        if self.indicator and self.indicator not in self.battle.battle_camera:
+            # add back indicator and enemy team for ai
+            self.battle.battle_camera.add(self.indicator)
         for team in self.battle.all_team_enemy:
-            if team != self.team and self in self.battle.all_team_enemy[team]:
+            if team != self.team and self not in self.battle.all_team_enemy[team]:
                 self.battle.all_team_enemy[team].add(self)
 
     if 7 in self.status_effect:  # blind effect

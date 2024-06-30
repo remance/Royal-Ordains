@@ -1107,6 +1107,9 @@ class CharacterInterface(UIMenu):
                     text_rect = text_surface.get_rect(bottomright=item_rect.bottomright)
                     self.image.blit(text_surface, text_rect)
 
+                if item in self.profile["storage_new"]:  # viewed, remove not view state in profile
+                    self.profile["storage_new"].remove(item)
+
                 make_long_text(self.image, name,  # add item name
                                (text_pos[index] * self.screen_scale[0], 130 * self.screen_scale[1]), self.font,
                                specific_width=((self.image.get_width() / 2) +
@@ -1156,9 +1159,23 @@ class CharacterInterface(UIMenu):
                 button_rect = button_image.get_rect(topleft=(0, (400 * self.screen_scale[1]) +
                                                              ((40 * self.screen_scale[1]) * row_index)))
                 self.image.blit(button_image, button_rect)
+
+                if item in self.profile["storage_new"]:  # not yet viewed
+                    text_surface = text_render_with_bg("!", self.font,
+                                                       Color("black"))
+                    text_rect = text_surface.get_rect(topleft=button_rect.topright)
+                    self.image.blit(text_surface, text_rect)
+
                 row_index += 1
 
     def change_storage_list(self):
+        page_current_row = self.current_row - (60 * int(self.current_row / 60))
+
+        if tuple(self.profile["storage"].keys())[page_current_row] in self.profile["storage_new"]:
+            # viewed, remove not view state in profile
+            self.old_storage_list = None   # reset storage
+            self.profile["storage_new"].remove(tuple(self.profile["storage"].keys())[page_current_row])
+
         if not self.base_image or self.profile["storage"] != self.old_storage_list or \
                 tuple(self.profile["storage"].keys()) != tuple(self.old_storage_list.keys()):
             # also check if order change
@@ -1204,6 +1221,12 @@ class CharacterInterface(UIMenu):
                         text_rect = text_surface.get_rect(topleft=rect.topleft)
                         self.image.blit(text_surface, text_rect)
 
+                    if item in self.profile["storage_new"]:  # not yet viewed
+                        text_surface = text_render_with_bg("!", self.font,
+                                                           Color("black"))
+                        text_rect = text_surface.get_rect(topleft=rect.topright)
+                        self.image.blit(text_surface, text_rect)
+
                     page_slot_index += 1
                     slot_index += 1
                 if page_slot_index == 60:
@@ -1211,7 +1234,7 @@ class CharacterInterface(UIMenu):
             self.base_image = self.image.copy()
         else:
             self.image = self.base_image.copy()
-        page_current_row = self.current_row - (60 * int(self.current_row / 60))
+
         pygame.draw.rect(self.image, (200, 100, 100), (self.storage_box_rects[page_current_row].topleft[0],
                                                        self.storage_box_rects[page_current_row].topleft[1],
                                                        50 * self.screen_scale[0],
@@ -1585,6 +1608,9 @@ class CharacterInterface(UIMenu):
                     text_rect = text_surface.get_rect(topleft=(20 * self.screen_scale[0], 380 * self.screen_scale[1]))
                     self.image.blit(text_surface, text_rect)
 
+                    if item in self.profile["storage_new"]:  # viewed, remove not view state in profile
+                        self.profile["storage_new"].remove(item)
+
                     draw.rect(self.image, (220, 220, 220),
                               (0, ((row_index + 4) * 100) * self.screen_scale[1], 400 * self.screen_scale[0],
                                100 * self.screen_scale[1]),
@@ -1608,6 +1634,11 @@ class CharacterInterface(UIMenu):
                     text_surface = text_render_with_bg("E", self.font,
                                                        Color("black"))
                     text_rect = text_surface.get_rect(topleft=rect.topleft)
+                    self.image.blit(text_surface, text_rect)
+                if item in self.profile["storage_new"]:  # not yet viewed
+                    text_surface = text_render_with_bg("!", self.font,
+                                                       Color("black"))
+                    text_rect = text_surface.get_rect(topleft=rect.topright)
                     self.image.blit(text_surface, text_rect)
                 row_index += 1
 

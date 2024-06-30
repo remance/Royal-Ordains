@@ -17,7 +17,7 @@ def hit_collide_check(self, check_damage_effect=True):
         if hit_list:
             for this_effect in hit_list:
                 if this_effect.owner.team != self.owner.team and this_effect.dmg:
-                    if dmg_crash_check(self, this_effect):
+                    if impact_crash_check(self, this_effect):  # lose in crash
                         return True
 
     hit_list = spritecollide(self, self.owner.enemy_part_list, False,
@@ -26,7 +26,7 @@ def hit_collide_check(self, check_damage_effect=True):
         for enemy_part in hit_list:
             enemy = enemy_part.owner
             if enemy_part.dmg and check_damage_effect:  # collide attack parts
-                if dmg_crash_check(self, enemy_part):
+                if impact_crash_check(self, enemy_part):  # lose in crash
                     return True
 
             elif enemy_part.can_hurt and enemy not in self.already_hit and \
@@ -40,20 +40,11 @@ def hit_collide_check(self, check_damage_effect=True):
                     if not self.penetrate and not self.owner.attack_penetrate and not self.stick_reach:
                         self.reach_target()
                         return True
-
     if self.stick_timer and not self.stuck_part:  # bounce off after reach if not stuck on enemy part
-        if self.angle > 0:
-            self.x_momentum = 100
-        else:
-            self.x_momentum = -100
-        self.y_momentum = 100
-        self.current_animation = self.animation_pool["Base"][self.scale]  # change image to base
-        self.base_image = self.current_animation[self.show_frame][self.flip]
-        self.adjust_sprite()
-        self.battle.all_damage_effects.remove(self)
+        sprite_bounce(self)
 
 
-def dmg_crash_check(self, crashed_part):
+def impact_crash_check(self, crashed_part):
     from engine.effect.effect import Effect
 
     if self.owner.crash_guard_resource_regen:  # crash regen resource, 2% instead of normal 1%
@@ -87,9 +78,17 @@ def dmg_crash_check(self, crashed_part):
         if self.object_type == "effect":  # end effect
             if self.stick_reach:  # bounce off
                 self.stick_timer = 5
+                sprite_bounce(self)
+                return True
             else:
                 self.reach_target()
                 return True
+        if crashed_part.object_type == "effect":  # end enemy effect
+            if crashed_part.stick_reach:  # bounce off
+                crashed_part.stick_timer = 5
+                sprite_bounce(crashed_part)
+            else:
+                crashed_part.reach_target()
     elif impact_diff > 1:  # collided enemy damage is much lower than this object, enemy lose
         crashed_part.can_deal_dmg = False
         if self.owner.player_control:
@@ -101,9 +100,10 @@ def dmg_crash_check(self, crashed_part):
             crashed_part.owner.interrupt_animation = True
             if not crashed_part.owner.no_forced_move:
                 crashed_part.owner.command_action = crashed_part.owner.heavy_damaged_command_action
-        elif crashed_part.object_type == "effect":  # end enemy effect if not penetrate
+        elif crashed_part.object_type == "effect":  # end enemy effect
             if crashed_part.stick_reach:  # bounce off
                 crashed_part.stick_timer = 5
+                sprite_bounce(crashed_part)
             else:
                 crashed_part.reach_target()
     else:  # this object dmg is much lower, enemy win
@@ -114,9 +114,23 @@ def dmg_crash_check(self, crashed_part):
             self.owner.interrupt_animation = True
             if not self.owner.no_forced_move:
                 self.owner.command_action = self.owner.heavy_damaged_command_action
-        elif self.object_type == "effect":  # end effect if not penetrate
+        elif self.object_type == "effect":  # end effect
             if self.stick_reach:  # bounce off
                 self.stick_timer = 5
+                sprite_bounce(self)
+                return True
             else:
                 self.reach_target()
                 return True
+
+
+def sprite_bounce(self):
+    if self.angle > 0:
+        self.x_momentum = 100
+    else:
+        self.x_momentum = -100
+    self.y_momentum = 100
+    self.current_animation = self.animation_pool["Base"][self.scale]  # change image to base
+    self.base_image = self.current_animation[self.show_frame][self.flip]
+    self.adjust_sprite()
+    self.battle.all_damage_effects.remove(self)

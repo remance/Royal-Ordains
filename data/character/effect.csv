@@ -2,18 +2,18 @@
 "Movement",,,,,,,,,,,,"no travel"
 "Sound Burst Medium",,,,,,,,,,,,"no travel"
 "Blood Pull",,,,,,,,,,,,"no travel"
-"Rodhinbar Arrow",,1200,,,,,"stick",,"Arrow",100,,
-"Arrow",,1000,,,,,"stick",,"Arrow",100,,
-"Adaqua Signal Arrow",,1500,,,,,"stick",,"Arrow",100,,
-"Adaqua Arrow",,1200,,,,,"stick",,"Arrow",100,,
-"Bolt",,1000,,,,,"stick",,"Bolt",100,,
-"Nayedien Spear",,3500,,,,,"stick",,"Javelin",200,,
-"Fast Stone",,1000,,,,,"bounce",,"Stone",100,,
-"Stone",,600,,,,,"bounce",,"Stone",100,,
-"Toxic Beard",,700,,,,,"stick",,"Arrow",50,,
-"Small Fire",6,,,,,,,,,200,,"no travel,no effect collision"
-"Small Persist Fire",15,,,24,,,,,,200,,"no travel,no effect collision"
-"Medium Persist Fire",15,,,24,,,,,,300,,"no travel,no effect collision"
+"Rodhinbar Arrow",,1200,,,,,"stick",,"Arrow",10,,
+"Arrow",,1000,,,,,"stick",,"Arrow",10,,
+"Adaqua Signal Arrow",,1500,,,,,"stick",,"Arrow",10,,
+"Adaqua Arrow",,1200,,,,,"stick",,"Arrow",10,,
+"Bolt",,1000,,,,,"stick",,"Bolt",10,,
+"Nayedien Spear",,3500,,,,,"stick",,"Javelin",40,,
+"Fast Stone",,1000,,,,,"bounce",,"Stone",10,,
+"Stone",,600,,,,,"bounce",,"Stone",10,,
+"Toxic Beard",,700,,,,,"stick",,"Arrow",5,,
+"Small Fire",6,,,,,,,,,50,,"no travel,no effect collision"
+"Small Persist Fire",15,,,24,,,,,,50,,"no travel,no effect collision"
+"Medium Persist Fire",15,,,24,,,,,,100,,"no travel,no effect collision"
 "Small Air Burst",,3000,,,,,,,,,2,
 "Large Air Burst",,4000,,,,,,,,,5,
 "Light",,,,7,,,,,,,,"no travel,no effect collision"
@@ -28,15 +28,15 @@
 "Stink Cloud.3",3,,,"5,7",,,,,,,,"no travel,no effect collision"
 "Poison Cloud.1",3,,,18,,,,,,,,"no travel,no effect collision"
 "Poison Cloud.2",3,,,"18,27",,,,,,,,"no travel,no effect collision"
-"Firetrap.1",10,,,,,,,"Small Fire","Glass Trap",1000,,"trap,drop:Trap Remain,reach spawn ground"
-"Firetrap.2",10,,,,,,,"Small Persist Fire","Glass Trap",1000,,"trap,drop:Trap Remain,reach spawn ground"
-"Snaretrap.1",10,,,,,,,"Snare Bite.1","Snare Trap",1000,,"trap,drop:Scrap,reach spawn ground"
-"Snaretrap.2",10,,,,,,,"Snare Bite.2","Snare Trap",1000,,"trap,drop:Scrap,reach spawn ground"
-"Snaretrap.3",10,,,,,,,"Snare Bite.3","Snare Trap",1000,,"trap,drop:Scrap,reach spawn ground"
-"Stinktrap.1",10,,,,,,,"Stink Cloud.1","Smoke Puff",1000,,"trap,drop:Scrap,reach spawn ground"
-"Stinktrap.2",10,,,,,,,"Stink Cloud.2","Smoke Puff",1000,,"trap,drop:Scrap,reach spawn ground"
-"Poisontrap.1",10,,,,,,,"Poison Cloud.1","Glass Trap",1000,,"trap,drop:Trap Remain,reach spawn ground"
-"Poisontrap.2",10,,,,,,,"Poison Cloud.2","Glass Trap",1000,,"trap,drop:Trap Remain,reach spawn ground"
+"Firetrap.1",10,,,,,,,"Small Fire","Glass Trap",300,,"trap,drop:Trap Remain,reach spawn ground"
+"Firetrap.2",10,,,,,,,"Small Persist Fire","Glass Trap",300,,"trap,drop:Trap Remain,reach spawn ground"
+"Snaretrap.1",10,,,,,,,"Snare Bite.1","Snare Trap",300,,"trap,drop:Scrap,reach spawn ground"
+"Snaretrap.2",10,,,,,,,"Snare Bite.2","Snare Trap",300,,"trap,drop:Scrap,reach spawn ground"
+"Snaretrap.3",10,,,,,,,"Snare Bite.3","Snare Trap",300,,"trap,drop:Scrap,reach spawn ground"
+"Stinktrap.1",10,,,,,,,"Stink Cloud.1","Smoke Puff",300,,"trap,drop:Scrap,reach spawn ground"
+"Stinktrap.2",10,,,,,,,"Stink Cloud.2","Smoke Puff",300,,"trap,drop:Scrap,reach spawn ground"
+"Poisontrap.1",10,,,,,,,"Poison Cloud.1","Glass Trap",300,,"trap,drop:Trap Remain,reach spawn ground"
+"Poisontrap.2",10,,,,,,,"Poison Cloud.2","Glass Trap",300,,"trap,drop:Trap Remain,reach spawn ground"
 "Sand",,600,,36,,,,,,,,
 "Shock Stone",,500,,22,,,"bounce",,,,,
 "Firework",,500,,,,,,"Firework Explosion",,,,
@@ -47,8 +47,8 @@
 "Bladed Spinner",,1000,,32,,,"stick",,,,,
 "Shrapnel Bomb",,500,,,,,,"Shrapnel",,,,"spawn all angle,spawn number:15"
 "Small Bomb",,500,,,,,,"Small Explosion",,,,
-"Firework Explosion",,,,"20,49",,,,,"Firework Explosion",5000,80,"no travel"
-"Shrapnel",,1500,,,,,,,"Shrapnel",1000,10,
-"Small Explosion",,,,,,,,,"Explosion",4000,80,"no travel"
-"Frost Explosion",,,,,,,,,"Frost Explosion",2500,50,"no travel"
+"Firework Explosion",,,,"20,49",,,,,"Firework Explosion",3500,80,"no travel"
+"Shrapnel",,1500,,,,,,,"Shrapnel",800,10,
+"Small Explosion",,,,,,,,,"Explosion",2000,80,"no travel"
+"Frost Explosion",,,,,,,,,"Frost Explosion",1500,50,"no travel"
 "Golden Day",,,,,,,,,,,,

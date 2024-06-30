@@ -190,22 +190,23 @@ class Character(sprite.Sprite):
 
     useitem_command_action = {"name": "UseItem", "change_sprite": "Item"}
 
-    heavy_damaged_command_action = {"name": "HeavyDamaged", "uncontrollable": True, "movable": True,
-                                    "forced move": True, "heavy damaged": True}
+    heavy_damaged_command_action = {"name": "HeavyDamaged", "uncontrollable": True, "movable": True, "hold": True,
+                                    "x_momentum": True, "y_momentum": True, "forced move": True, "heavy damaged": True}
     damaged_command_action = {"name": "SmallDamaged", "uncontrollable": True, "movable": True, "forced move": True,
-                              "small damaged": True}
+                              "hold": True, "small damaged": True, "x_momentum": True, "y_momentum": True}
     standup_command_action = {"name": "Standup", "uncontrollable": True, "no dmg": True}
     liedown_command_action = {"name": "Liedown", "no dmg": True,
                               "knockdown": True, "freeze": 1, "next action": standup_command_action}
-    knockdown_command_action = {"name": "Knockdown", "movable": True, "forced move": True,
-                                "knockdown": True, "hold": True, "next action": liedown_command_action, "stand": True}
+    knockdown_command_action = {"name": "Knockdown", "movable": True, "uncontrollable": True, "forced move": True,
+                                "knockdown": True, "hold": True, "next action": liedown_command_action, "stand": True,
+                                "x_momentum": True, "y_momentum": True,}
     stun_end_command_action = {"name": "StunEnd"}
-    stun_command_action = {"name": "Stun", "forced move": True,
+    stun_command_action = {"name": "Stun", "forced move": True, "uncontrollable": True,
                            "knockdown": True, "freeze": 5, "hold": True, "next action": stun_end_command_action,
                            "stand": True}
 
     die_command_action = {"name": "Die", "uninterruptible": True, "uncontrollable": True, "stand": True,
-                          "forced move": True, "die": True}
+                          "movable": True, "forced move": True, "die": True}
 
     submit_action = {"name": "Submit", "repeat": True, "die": True, "submit": True}
     execute_action = {"name": "Execute", "hold": True, "execute": True, "die": True}
@@ -241,6 +242,7 @@ class Character(sprite.Sprite):
         self.screen_scale = self.battle.screen_scale
         self.game_id = game_id  # object ID for reference
         self.layer_id = layer_id  # ID for sprite layer calculation
+        self.base_layer = 0
         self.name = stat["Name"]
         self.show_name = self.battle.localisation.grab_text(("character", stat["ID"] + self.battle.chapter, "Name"))
         if "(" in self.show_name and "," in self.show_name:
@@ -298,6 +300,7 @@ class Character(sprite.Sprite):
         self.position = "Stand"
         self.combat_state = "City"
         self.mode = "City"
+        self.just_change_mode = False
         self.equipped_weapon = "Preset"
         self.special_combat_state = 0
         self.mode_list = stat["Mode"]
@@ -405,47 +408,48 @@ class Character(sprite.Sprite):
                 for part in self.body_parts.values():
                     part.re_rect()
 
-        hold_check = False
-        if ("hold" in self.current_animation_direction[self.show_frame][
-            "property"] and "hold" in self.current_action) or \
-                not self.max_show_frame:
-            hold_check = True
-        done = self.play_cutscene_animation(dt, hold_check)
-        if done or (self.cutscene_target_pos and self.cutscene_target_pos == self.base_pos):
-            if done:
-                self.start_animation_body_part()
-                if self.cutscene_event and "die" in self.cutscene_event["Property"]:  # die animation
-                    self.battle.cutscene_playing.remove(self.cutscene_event)
-                    self.cutscene_target_pos = None
-                    self.current_action = {}
-                    self.cutscene_event = None
-                    self.show_frame = self.max_show_frame
-                    self.max_show_frame = 0  # reset max_show_frame to 0 to prevent restarting animation
-                    self.start_animation_body_part()  # revert previous show_frame 0 animation start
-                    return
-            if self.current_action and ((self.cutscene_target_pos and self.cutscene_target_pos == self.base_pos) or \
-                    (not self.cutscene_target_pos and "repeat" not in self.current_action and
-                     "repeat after" not in self.current_action)):
-                # animation consider finish when reach target or finish animation with no repeat, pick idle animation
-                self.current_action = {}
-                self.pick_cutscene_animation({})
-            if self.cutscene_event and "repeat" not in self.cutscene_event["Property"] and \
-                    "interact" not in self.cutscene_event["Property"] and \
-                    (not self.cutscene_target_pos or self.cutscene_target_pos == self.base_pos):
-                # finish animation, consider event done unless event require player interaction first or in repeat
-                self.cutscene_target_pos = None
-                if "repeat after" not in self.cutscene_event["Property"]:
-                    if self.current_action:
+        if self.alive or self.cutscene_event:  # only play animation for alive char or have event
+            hold_check = False
+            if ("hold" in self.current_animation_direction[self.show_frame][
+                "property"] and "hold" in self.current_action) or \
+                    not self.max_show_frame:
+                hold_check = True
+            done = self.play_cutscene_animation(dt, hold_check)
+            if done or (self.cutscene_target_pos and self.cutscene_target_pos == self.base_pos):
+                if done:
+                    self.start_animation_body_part()
+                    if self.cutscene_event and "die" in self.cutscene_event["Property"]:  # die animation
+                        self.battle.cutscene_playing.remove(self.cutscene_event)
+                        self.cutscene_target_pos = None
                         self.current_action = {}
-                        self.pick_cutscene_animation({})
-                    self.command_action = {}
-                else:  # event indicate repeat animation after event end
-                    self.current_action["repeat"] = True
-                    if not self.alive:
-                        self.current_action["die"] = True
-                if self.cutscene_event in self.battle.cutscene_playing:
-                    self.battle.cutscene_playing.remove(self.cutscene_event)
-                self.cutscene_event = None
+                        self.cutscene_event = None
+                        self.show_frame = self.max_show_frame
+                        self.max_show_frame = 0  # reset max_show_frame to 0 to prevent restarting animation
+                        self.start_animation_body_part()  # revert previous show_frame 0 animation start
+                        return
+                if self.current_action and ((self.cutscene_target_pos and self.cutscene_target_pos == self.base_pos) or \
+                        (not self.cutscene_target_pos and "repeat" not in self.current_action and
+                         "repeat after" not in self.current_action)):
+                    # animation consider finish when reach target or finish animation with no repeat, pick idle animation
+                    self.current_action = {}
+                    self.pick_cutscene_animation({})
+                if self.cutscene_event and "repeat" not in self.cutscene_event["Property"] and \
+                        "interact" not in self.cutscene_event["Property"] and \
+                        (not self.cutscene_target_pos or self.cutscene_target_pos == self.base_pos):
+                    # finish animation, consider event done unless event require player interaction first or in repeat
+                    self.cutscene_target_pos = None
+                    if "repeat after" not in self.cutscene_event["Property"]:
+                        if self.current_action:
+                            self.current_action = {}
+                            self.pick_cutscene_animation({})
+                        self.command_action = {}
+                    else:  # event indicate repeat animation after event end
+                        self.current_action["repeat"] = True
+                        if not self.alive:
+                            self.current_action["die"] = True
+                    if self.cutscene_event in self.battle.cutscene_playing:
+                        self.battle.cutscene_playing.remove(self.cutscene_event)
+                    self.cutscene_event = None
 
     def ai_update(self, dt):
         pass
@@ -480,7 +484,9 @@ class BattleCharacter(Character):
         self.near_ally = []
         self.near_enemy = []
         self.nearest_enemy = None
+        self.nearest_enemy_distance = None
         self.nearest_ally = None
+        self.nearest_ally_distance = None
 
         self.no_forced_move = False
         self.delete_death = False
@@ -801,7 +807,9 @@ class BattleCharacter(Character):
                                 self.in_combat_timer = 3
 
                     self.nearest_enemy = None
+                    self.nearest_enemy_distance = None
                     self.nearest_ally = None
+                    self.nearest_ally_distance = None
                     self.near_enemy = sorted({key: key.base_pos.distance_to(self.base_pos) for key in
                                               self.enemy_list}.items(),
                                              key=lambda item: item[1])  # sort the closest enemy
@@ -809,9 +817,11 @@ class BattleCharacter(Character):
                         {key: key.base_pos.distance_to(self.base_pos) for key in self.ally_list}.items(),
                         key=lambda item: item[1])  # sort the closest friend
                     if self.near_enemy:
-                        self.nearest_enemy = self.near_enemy[0]
+                        self.nearest_enemy = self.near_enemy[0][0]
+                        self.nearest_enemy_distance = self.near_enemy[0][1]
                     if self.near_ally:
-                        self.nearest_ally = self.near_ally[0]
+                        self.nearest_ally = self.near_ally[0][0]
+                        self.nearest_ally_distance = self.near_ally[0][1]
 
                     if not self.invincible:
                         self.status_update()
@@ -860,15 +870,19 @@ class BattleCharacter(Character):
                 self.alive = False  # enter dead state
                 self.engage_combat()
                 self.current_action = self.die_command_action
+                self.stop_fall_duration = 0
                 self.show_frame = 0
                 self.frame_timer = 0
                 self.pick_animation()
 
             if "die" in self.current_action:
-                if self.show_frame < self.max_show_frame or self.base_pos[1] < self.ground_pos or \
+                if self.show_frame < self.max_show_frame or self.x_momentum or self.y_momentum or \
                         "repeat" in self.current_action:  # play die animation
                     self.move_logic(dt)
-                    self.play_animation(dt, False)
+                    hold_check = False
+                    if self.x_momentum or self.y_momentum:  # keep holding while moving
+                        hold_check = True
+                    self.play_animation(dt, hold_check)
                 else:  # finish die animation and reach ground
                     if self.resurrect_count:  # resurrect back
                         # self.resurrect_count -= 1
@@ -1027,7 +1041,7 @@ class PlayerCharacter(BattleCharacter, Character):
                 self.base_guard_cost_modifier -= 0.5
             if self.common_skill["Combat Contest"][4]:  # crash now give haste status
                 self.crash_haste = True
-            if self.common_skill["Combat Contest"][5]:  # can slide attack
+            if self.common_skill["Combat Contest"][5]:  #
                 pass
 
         self.command_key_input = []
@@ -1065,6 +1079,9 @@ class AICharacter(BattleCharacter, Character):
         else:
             BattleCharacter.__init__(self, game_id, layer_id, stat, leader=leader, team_scaling=team_scaling)
 
+        self.ai_lock = True  # lock AI from activity when start battle, and it positions outside of scene lock
+        self.event_ai_lock = False  # lock AI until event unlock it only
+
         if "Ground Y POS" in stat and stat["Ground Y POS"]:  # replace ground pos based on data in stage
             self.ground_pos = stat["Ground Y POS"]
 
@@ -1084,13 +1101,20 @@ class AICharacter(BattleCharacter, Character):
                     if target == this_char.game_id:  # find target char object
                         self.target = this_char
                         break
+            elif stuff == "leader":  # find leader
+                for char in self.battle.all_chars:
+                    if char.game_id == char_property["leader"]:
+                        self.leader = char
+                        self.leader.followers.append(self)
+                        break
             elif stuff == "idle":  # replace idle animation
-                self.replace_idle_animation = char_property[stuff]
+                self.replace_idle_animation = char_property["idle"]
             else:
-                self.__setattr__(stuff, True)
+                self.__setattr__(stuff, char_property[stuff])
 
         self.ai_timer = 0  # for whatever timer require for AI action
         self.ai_movement_timer = 0  # timer to move for AI
+        self.ai_attack_timer = 0  # timer to attack for AI
         self.end_ai_movement_timer = uniform(2, 6)
 
         self.enter_stage(self.battle.character_animation_data)
@@ -1113,8 +1137,6 @@ class BattleAICharacter(AICharacter):
         self.old_cursor_pos = None
         self.is_boss = stat["Boss"]
         self.is_summon = stat["Summon"]
-        self.ai_lock = True  # lock AI from activity when start battle, and it positions outside of scene lock
-        self.event_ai_lock = False  # lock AI until event unlock it only
         self.follow_command = "Free"
         if self.is_boss:
             self.stun_threshold = self.base_health
@@ -1135,7 +1157,7 @@ class BattleAICharacter(AICharacter):
             ai_behaviour = specific_behaviour
 
         self.ai_move = MethodType(ai_move_dict["default"], self)
-        if leader and not self.is_summon:  # summon use assigned behaviour in data instead of follower by default
+        if (leader or self.leader) and not self.is_summon:  # summon use assigned behaviour in data instead of follower by default
             self.ai_move = MethodType(ai_move_dict["follower"], self)
         elif ai_behaviour in ai_move_dict:
             self.ai_move = MethodType(ai_move_dict[ai_behaviour], self)
@@ -1163,13 +1185,17 @@ class BattleAICharacter(AICharacter):
             # unlock once in active scene
             self.ai_lock = False
         if not self.ai_lock:
-            if self.ai_timer:
-                self.ai_timer += dt
-            if self.ai_movement_timer:
-                self.ai_movement_timer -= dt
-                if self.ai_movement_timer < 0:
-                    self.ai_movement_timer = 0
             if not self.broken:
+                if self.ai_timer:
+                    self.ai_timer += dt
+                if self.ai_movement_timer:
+                    self.ai_movement_timer -= dt
+                    if self.ai_movement_timer < 0:
+                        self.ai_movement_timer = 0
+                if self.ai_attack_timer:
+                    self.ai_attack_timer -= dt
+                    if self.ai_attack_timer < 0:
+                        self.ai_attack_timer = 0
                 self.ai_combat()
                 self.ai_move()
             else:
@@ -1198,6 +1224,7 @@ class BodyPart(sprite.Sprite):
         self.owner = owner
         self.team = self.owner.team
         self.owner_layer = 0
+        self.dead_layer = 0
         self.angle = self.owner.angle
         self.invincible = self.owner.invincible
         self._layer = 10
@@ -1255,7 +1282,7 @@ class BodyPart(sprite.Sprite):
         if data[8] and not self.battle.cutscene_playing:  # can do dmg, no check while in cutscene mode
             self.can_deal_dmg = True
             find_damage(self)
-        if self.data != data:
+        if self.data != data or self.owner.just_change_mode:
             self.data = data
             sprite_type = self.data[0]
             sprite_name = self.data[1]
@@ -1285,8 +1312,12 @@ class BodyPart(sprite.Sprite):
                 self.image = pygame.transform.rotate(self.base_image, self.angle)
 
             self.re_rect()
-            if self in self.battle_camera and self._layer != self.owner_layer + 100 - data[6]:
-                self.battle_camera.change_layer(self, self.owner_layer + 100 - data[6])
+            if self in self.battle_camera:
+                if not self.alive:
+                    if self._layer != self.dead_layer + 100 - data[6]:
+                        self.battle_camera.change_layer(self, self.dead_layer + 100 - data[6])
+                elif self._layer != self.owner_layer + 100 - data[6]:
+                    self.battle_camera.change_layer(self, self.owner_layer + 100 - data[6])
 
     def re_rect(self):
         if self.data:
@@ -1318,6 +1349,8 @@ class BodyPart(sprite.Sprite):
 
 
 def find_damage(self):
+    # if not self.owner.current_moveset:  # TODO remove when stable
+    #     print(self.name, self.owner.current_action, self.data)
     self.dmg = self.owner.current_moveset["Power"] + self.owner.power_bonus * self.owner.hold_power_bonus
     self.element = self.owner.current_moveset["Element"]
     self.impact = ((self.owner.current_moveset["Push Impact"] - self.owner.current_moveset["Pull Impact"]) *
