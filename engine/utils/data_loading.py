@@ -6,7 +6,7 @@ from pathlib import Path
 from PIL import Image
 from pygame import image
 from pygame.mixer import Sound
-from pygame.transform import smoothscale, flip
+from pygame.transform import smoothscale, flip, rotate
 
 accept_image_types = ("png", "jpg", "jpeg", "svg", "gif", "bmp")
 
@@ -85,8 +85,8 @@ def load_images(directory, screen_scale=(1, 1), subfolder=(), key_file_name_read
         return images
 
 
-def recursive_image_load(save_dict, screen_scale, part_folder, key_file_name_readable=True, add_flip=False,
-                         part_scaling=None):
+def recursive_image_load(save_dict, screen_scale, part_folder, key_file_name_readable=True,
+                         part_sprite_adjust=None):
     next_level = save_dict
     sub_directories = [os.path.split(os.sep.join(os.path.normpath(x).split(os.sep)[-1:]))[-1] for x
                        in part_folder.iterdir() if x.is_dir()]
@@ -96,36 +96,39 @@ def recursive_image_load(save_dict, screen_scale, part_folder, key_file_name_rea
             next_level[folder_name] = {}
             part_subfolder = Path(os.path.join(part_folder, folder))
             recursive_image_load(next_level[folder_name], screen_scale, part_subfolder,
-                                 key_file_name_readable=key_file_name_readable, add_flip=add_flip,
-                                 part_scaling=part_scaling)
+                                 key_file_name_readable=key_file_name_readable, part_sprite_adjust=part_sprite_adjust)
 
     else:
         imgs = load_images(part_folder, screen_scale=screen_scale,
                            key_file_name_readable=key_file_name_readable)
-        if add_flip:
+        if part_sprite_adjust:
+            part_type = os.path.normpath(part_folder).split(os.sep)[-4]
+            part_name = os.path.normpath(part_folder).split(os.sep)[-3]
+
+            if part_type != "weapon":
+                part_type = filename_convert_readable(part_type)
+            else:
+                part_name = filename_convert_readable(part_name)
             for key, value in imgs.items():
-                if part_scaling:
-                    imgs[key] = {1.0: {0: value, 1: flip(value, True, False)}}
-                    part_type = os.path.normpath(part_folder).split(os.sep)[-4]
-                    part_name = os.path.normpath(part_folder).split(os.sep)[-3]
-                    if part_type != "weapon":
-                        part_type = part_type.capitalize()
-                    else:
-                        part_name = filename_convert_readable(part_name)
-
-                    if part_type in part_scaling:
-                        if part_name in part_scaling[part_type]:
-                            if key in part_scaling[part_type][part_name]:
-                                scale_list = part_scaling[part_type][part_name][key]
-                                for scale in scale_list:
-                                    imgs[key][scale] = \
-                                        {0: smoothscale(imgs[key][1][0], (imgs[key][1][0].get_width() * scale,
-                                                                          imgs[key][1][0].get_height() * scale)),
-                                         1: smoothscale(imgs[key][1][1], (imgs[key][1][1].get_width() * scale,
-                                                                          imgs[key][1][1].get_height() * scale))}
-                else:
-                    imgs[key] = {0: value, 1: flip(value, True, False)}
-
+                if part_type in part_sprite_adjust:
+                    if part_name in part_sprite_adjust[part_type]:
+                        if key in part_sprite_adjust[part_type][part_name]:
+                            imgs[key] = {}
+                            for flip_value in part_sprite_adjust[part_type][part_name][key]:
+                                imgs[key][flip_value] = {}
+                                flip_image = value
+                                if flip_value:
+                                    flip_image = flip(flip_image, True, False)
+                                for scale in part_sprite_adjust[part_type][part_name][key][flip_value]:
+                                    imgs[key][flip_value][scale] = {}
+                                    scale_image = flip_image
+                                    if scale != 1:
+                                        scale_image = smoothscale(scale_image, (scale_image.get_width() * scale,
+                                                                                scale_image.get_height() * scale))
+                                    for angle in part_sprite_adjust[part_type][part_name][key][flip_value][scale]:
+                                        imgs[key][flip_value][scale][angle] = scale_image
+                                        if angle:
+                                            imgs[key][flip_value][scale][angle] = rotate(scale_image, angle)
         save_dict |= imgs
 
 

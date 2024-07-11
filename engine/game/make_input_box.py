@@ -13,7 +13,7 @@ def make_input_box(self, button_image_list):
                                  key_name="confirm_button", layer=31)
     input_close_button = MenuButton(button_image_list, (input_ui.rect.centerx,
                                                         input_ui.rect.midleft[1] + (
-                                                                    button_image_list[0].get_height() / 1.3)),
+                                                                button_image_list[0].get_height() / 1.3)),
                                     key_name="close_button", layer=31)
     input_cancel_button = MenuButton(button_image_list,
                                      (input_ui.rect.midright[0] - (button_image_list[0].get_width() / 1.2),

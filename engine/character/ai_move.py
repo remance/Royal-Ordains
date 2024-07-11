@@ -1,4 +1,4 @@
-from random import choice, randint, uniform
+from random import choice, uniform
 
 from pygame import Vector2
 
@@ -42,9 +42,15 @@ def helper_ai(self):
             self.y_momentum = self.pos[1] - self.command_pos[1]
         if not self.current_action and not self.command_action:
             if new_distance > 300:
-                self.command_action = self.run_command_action | {"x_momentum": True}
+                if self.special_combat_state and self.special_run_command:
+                    self.command_action = self.special_run_command[self.special_combat_state] | {"x_momentum": True}
+                else:
+                    self.command_action = self.run_command_action | {"x_momentum": True}
             else:
-                self.command_action = self.walk_command_action
+                if self.special_combat_state and self.special_walk_command:
+                    self.command_action = self.special_walk_command[self.special_combat_state]
+                else:
+                    self.command_action = self.walk_command_action
     else:
         self.x_momentum = 0
         self.y_momentum = 0
@@ -60,7 +66,10 @@ def common_ai(self):
                 (self.x_momentum > 0 and abs(self.base_pos[0] - self.battle.base_stage_end) < 50):
             # too close to corner move other way to avoid stuck
             self.x_momentum *= -1
-        self.command_action = self.walk_command_action | {"x_momentum": True}
+        if self.special_combat_state and self.special_walk_command:
+            self.command_action = self.special_walk_command[self.special_combat_state] | {"x_momentum": True}
+        else:
+            self.command_action = self.walk_command_action | {"x_momentum": True}
 
 
 def move_city_ai(self):
@@ -83,21 +92,33 @@ def follower_ai(self):
         if (not self.leader or not self.leader.alive) or self.follow_command == "Free":  # random movement
             self.ai_movement_timer = uniform(0.1, 3)
             self.x_momentum = uniform(1, 50) * self.walk_speed / 20 * choice((-1, 1))
-            self.command_action = self.walk_command_action | {"x_momentum": True}
+            if self.special_combat_state and self.special_walk_command:
+                self.command_action = self.special_walk_command[self.special_combat_state] | {"x_momentum": True}
+            else:
+                self.command_action = self.walk_command_action | {"x_momentum": True}
         else:  # check for leader pos for follow
             if self.follow_command == "Follow":
                 leader_distance = self.base_pos.distance_to(self.leader.base_pos)
                 if leader_distance < 400:  # not too far from leader, walk randomly
                     self.ai_movement_timer = uniform(0.1, 3)
                     self.x_momentum = uniform(1, 50) * self.walk_speed / 20 * choice((-1, 1))
-                    self.command_action = self.walk_command_action
+                    if self.special_combat_state and self.special_walk_command:
+                        self.command_action = self.special_walk_command[self.special_combat_state]
+                    else:
+                        self.command_action = self.walk_command_action
                 else:  # catch up with leader
                     self.x_momentum = ((self.leader.base_pos[0] - self.base_pos[0]) / 2) + uniform(-30, 30)
-                    self.command_action = self.walk_command_action
+                    if self.special_combat_state and self.special_walk_command:
+                        self.command_action = self.special_walk_command[self.special_combat_state]
+                    else:
+                        self.command_action = self.walk_command_action
             elif self.follow_command == "Attack":
                 if self.nearest_enemy and self.nearest_enemy_distance > self.ai_max_attack_range:
                     self.x_momentum = ((self.nearest_enemy.base_pos[0] - self.base_pos[0]) / 2) + uniform(-30, 30)
-                    self.command_action = self.walk_command_action
+                    if self.special_combat_state and self.special_walk_command:
+                        self.command_action = self.special_walk_command[self.special_combat_state]
+                    else:
+                        self.command_action = self.walk_command_action
 
 
 def pursue_ai(self):
@@ -110,7 +131,10 @@ def pursue_ai(self):
                     self.x_momentum = self.run_speed / 20
                 else:
                     self.x_momentum = -self.run_speed / 20
-                self.command_action = self.walk_command_action
+                if self.special_combat_state and self.special_walk_command:
+                    self.command_action = self.special_walk_command[self.special_combat_state]
+                else:
+                    self.command_action = self.walk_command_action
 
 
 def sentry_ai(self):
@@ -124,7 +148,10 @@ def sentry_ai(self):
                     self.x_momentum = self.run_speed / 20
                 else:
                     self.x_momentum = -self.run_speed / 20
-                self.command_action = self.run_command_action
+                if self.special_combat_state and self.special_walk_command:
+                    self.command_action = self.special_walk_command[self.special_combat_state]
+                else:
+                    self.command_action = self.walk
 
 
 ai_move_dict = {"default": stationary_ai, "helper": helper_ai, "common": common_ai, "common_leader": common_ai,

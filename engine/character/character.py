@@ -1,11 +1,12 @@
 from copy import deepcopy
-from types import MethodType
 from math import radians
 from random import uniform
+from types import MethodType
 
 import pygame
 from pygame import sprite, Vector2
 from pygame.mask import from_surface
+from pygame.transform import flip, smoothscale, rotate
 
 from engine.character.ai_combat import ai_combat_dict
 from engine.character.ai_move import ai_move_dict
@@ -17,7 +18,7 @@ from engine.character.character_specific_start_animation import animation_start_
 from engine.character.character_specific_status_update import status_update_dict
 from engine.character.character_specific_update import update_dict
 from engine.data.datastat import final_parent_moveset, recursive_rearrange_moveset
-from engine.uibattle.uibattle import CharacterIndicator, CharacterSpeechBox
+from engine.uibattle.uibattle import CharacterIndicator
 from engine.utils.common import empty_method
 
 rotation_list = (90, -90)
@@ -106,6 +107,9 @@ class Character(sprite.Sprite):
     from engine.character.enter_stage import enter_stage
     enter_stage = enter_stage
 
+    from engine.character.follower_talk import follower_talk
+    follower_talk = follower_talk
+
     from engine.character.health_resource_logic import health_resource_logic
     health_stamina_logic = health_resource_logic
 
@@ -145,15 +149,18 @@ class Character(sprite.Sprite):
     from engine.character.status_update import status_update
     status_update = status_update
 
-    walk_command_action = {"name": "Walk", "movable": True, "walk": True}
-    run_command_action = {"name": "Run", "movable": True, "run": True}
-    flee_command_action = {"name": "FleeMove", "movable": True, "flee": True}
-    halt_command_action = {"name": "Halt", "movable": True, "walk": True, "halt": True}
+    walk_command_action = {"name": "Walk", "movable": True, "walk": True, "not_reset_special_state": True}
+    run_command_action = {"name": "Run", "movable": True, "run": True, "not_reset_special_state": True}
+    flee_command_action = {"name": "FleeMove", "movable": True, "flee": True, "not_reset_special_state": True}
+    halt_command_action = {"name": "Halt", "movable": True, "walk": True, "halt": True, "not_reset_special_state": True}
     dash_command_action = {"name": "Dash", "uncontrollable": True, "movable": True, "forced move": True, "no dmg": True,
                            "hold": True, "dash": True, "not_reset_special_state": True}
 
     relax_command_action = {"name": "Relax", "low level": True}
     special_relax_command = ()
+    special_walk_command = ()
+    special_run_command = ()
+    special_halt_command = ()
 
     couch_command_action = {"name": "Couch", "couch": True}
     couch_stand_command_action = {"name": "Stand", "uncontrollable": True, "stand": True}
@@ -199,9 +206,9 @@ class Character(sprite.Sprite):
                               "knockdown": True, "freeze": 1, "next action": standup_command_action}
     knockdown_command_action = {"name": "Knockdown", "movable": True, "uncontrollable": True, "forced move": True,
                                 "knockdown": True, "hold": True, "next action": liedown_command_action, "stand": True,
-                                "x_momentum": True, "y_momentum": True,}
+                                "x_momentum": True, "y_momentum": True, }
     stun_end_command_action = {"name": "StunEnd"}
-    stun_command_action = {"name": "Stun", "forced move": True, "uncontrollable": True,
+    stun_command_action = {"name": "Stun", "uncontrollable": True,
                            "knockdown": True, "freeze": 5, "hold": True, "next action": stun_end_command_action,
                            "stand": True}
 
@@ -254,6 +261,7 @@ class Character(sprite.Sprite):
         self.leader = None
         self.killer = None  # object that kill this character, for adding gold, score, and kill stat
         self.broken = False
+        self.ai_lock = False
         self.drops = {}
         self.spawns = {}
 
@@ -336,6 +344,7 @@ class Character(sprite.Sprite):
                                                       x - self.angle))]  # find closest in list of rotation for sprite direction
 
         self.char_id = str(stat["ID"])
+        # self.char_id_event = self.char_id + "_"  # for faster event check instead of having to + "_" every time
         self.sprite_ver = str(stat["Sprite Ver"])
         if "Only Sprite Version" in stat and stat["Only Sprite Version"]:  # data suggest only one sprite version exist
             self.sprite_ver = str(stat["Only Sprite Version"])
@@ -428,8 +437,8 @@ class Character(sprite.Sprite):
                         self.start_animation_body_part()  # revert previous show_frame 0 animation start
                         return
                 if self.current_action and ((self.cutscene_target_pos and self.cutscene_target_pos == self.base_pos) or \
-                        (not self.cutscene_target_pos and "repeat" not in self.current_action and
-                         "repeat after" not in self.current_action)):
+                                            (not self.cutscene_target_pos and "repeat" not in self.current_action and
+                                             "repeat after" not in self.current_action)):
                     # animation consider finish when reach target or finish animation with no repeat, pick idle animation
                     self.current_action = {}
                     self.pick_cutscene_animation({})
@@ -682,25 +691,31 @@ class BattleCharacter(Character):
                     else:
                         equip_stat = equipment[equip_slot]
                     if equip_stat:
-                        for mod, value in dict(equip_stat["Modifier"]).items():
+                        for mod, value in dict(dict(equip_stat)["Modifier"]).items():
                             if "_resist" in mod:
                                 self.base_element_resistance[mod.split("_")[0].capitalize()] += value
                             elif "_chance" in mod:
                                 self.attack_status_chance[status_name[mod.split("_")[0]]] += value
                             elif "attack_element_" in mod:
                                 self.attack_element = mod.split("_")[-1].capitalize()
+                            elif "Weight" == mod:
+                                self.weight += equip_stat["Weight"]
                             elif hasattr(self, mod):
                                 if isinstance(value, (int, float)):
                                     # dynamically add mod value to stat
                                     exec(f"self.{mod} += value")
                                 else:
                                     exec(f"self.{mod} = TRUE")
-                        self.weight += equip_stat["Weight"]
             self.items = self.battle.all_story_profiles[int(self.game_id[1])]["equipment"]["item"]
             self.item_usage = {value: int(self.character_data.equip_item_list[value]["Capacity"] +
                                           (self.character_data.equip_item_list[value][
                                                "Capacity"] * self.item_carry_bonus))
-                               for value in self.items.values() if value}
+                               for value in self.items.values() if value}  # create dict with max capacity first
+            self.item_usage = {key: value if value <
+                                             self.battle.all_story_profiles[int(self.game_id[1])]["storage"][key] else
+            self.battle.all_story_profiles[int(self.game_id[1])]["storage"][key] for key, value in
+                               self.item_usage.items()}
+            self.item_usage = {key: value if value > 0 else 0 for key, value in self.item_usage.items()}
         else:
             self.item_usage = stat["Items"]
 
@@ -736,9 +751,13 @@ class BattleCharacter(Character):
         start_health = 1
         if "Start Health" in stat:
             start_health = stat["Start Health"]
+
         start_resource = 1
         if "Start Resource" in stat:
             start_resource = stat["Start Resource"]
+        self.health1 = self.base_health * 0.01
+        self.health10 = self.base_health * 0.10
+
         self.health = self.base_health * start_health
         self.resource05 = self.base_resource * 0.005
         self.resource1 = self.base_resource * 0.01
@@ -826,18 +845,20 @@ class BattleCharacter(Character):
                     if not self.invincible:
                         self.status_update()
                     self.specific_status_update()
+                    self.health_resource_logic(self.timer)
+                    self.specific_update(self.timer)
                     self.timer -= 0.1
 
-                    self.health_resource_logic(dt)
-                    self.specific_update(dt)
-
                 # Animation and sprite system
-                if self.show_frame >= len(self.current_animation_direction):  # TODO remove when really fixed
-                    print(self.name, self.show_frame, self.max_show_frame, self.current_animation, self.current_action)
-                    print(self.current_animation_direction)
-                    raise Exception()
+                # if self.show_frame >= len(self.current_animation_direction):  # TODO remove when really fixed
+                #     print(self.name, self.show_frame, self.max_show_frame, self.current_animation, self.current_action)
+                #     print(self.current_animation_direction)
+                #     raise Exception()
 
                 hold_check = self.check_action_hold(dt)
+                if self.freeze_timer and "hold" in self.current_animation_direction[self.show_frame]["property"]:
+                    # also hold if in freeze timer with frame that can hold
+                    hold_check = True
 
                 done = self.play_animation(dt, hold_check)
                 self.check_new_animation(done)
@@ -888,6 +909,7 @@ class BattleCharacter(Character):
                         # self.resurrect_count -= 1
                         self.interrupt_animation = True
                         self.alive = True
+                        self.position = "Stand"
                         self.command_action = self.standup_command_action
                         self.health = self.base_health
                     else:  # permanent death
@@ -1010,13 +1032,13 @@ class PlayerCharacter(BattleCharacter, Character):
 
             self.hit_resource_regen = False
             self.crash_guard_resource_regen = False
-            if self.common_skill["Resourceful"][1]:  # add resource regen 0.5% per second
-                self.base_resource_regen += self.base_resource * 0.005
+            if self.common_skill["Resourceful"][1]:  # add resource regen 1% per second
+                self.base_resource_regen += self.base_resource * 0.01
             if self.common_skill["Resourceful"][2]:  # resource regen when hit enemy
                 self.hit_resource_regen = True
             if self.common_skill["Resourceful"][3]:  # resource regen when crash and guard
                 self.crash_guard_resource_regen = True
-            if self.common_skill["Resourceful"][4]:  # double max resource, and auto regen to 1% per second
+            if self.common_skill["Resourceful"][4]:  # double max resource, and auto regen to 2% per second
                 self.base_resource += self.base_resource
                 self.resource1 = self.base_resource * 0.01
                 self.resource2 = self.base_resource * 0.02
@@ -1024,7 +1046,7 @@ class PlayerCharacter(BattleCharacter, Character):
                 self.resource25 = self.base_resource * 0.25
                 self.resource50 = self.base_resource * 0.5
                 self.resource75 = self.base_resource * 0.75
-                self.base_resource_regen += self.base_resource * 0.01
+                self.base_resource_regen += self.base_resource * 0.02
             if self.common_skill["Resourceful"][5]:
                 pass
 
@@ -1087,7 +1109,7 @@ class AICharacter(BattleCharacter, Character):
 
         char_property = {}
         if "Property" in stat:
-            char_property = {key: True for key in stat["Property"]}  # convert to dict first to combine with stage prop
+            char_property = {key: value for key, value in stat["Property"].items()}
         if "Stage Property" in stat:
             char_property |= stat["Stage Property"]
         for stuff in char_property:  # set attribute from property
@@ -1106,6 +1128,8 @@ class AICharacter(BattleCharacter, Character):
                     if char.game_id == char_property["leader"]:
                         self.leader = char
                         self.leader.followers.append(self)
+                        self.item_effect_modifier = self.leader.item_effect_modifier  # use leader item effect modifier
+                        self.gold_pickup_modifier = self.leader.gold_drop_modifier
                         break
             elif stuff == "idle":  # replace idle animation
                 self.replace_idle_animation = char_property["idle"]
@@ -1139,13 +1163,17 @@ class BattleAICharacter(AICharacter):
         self.is_summon = stat["Summon"]
         self.follow_command = "Free"
         if self.is_boss:
-            self.stun_threshold = self.base_health
+            self.stun_threshold = int(self.base_health / 5)
         if self.is_summon:
             self.health_as_resource = True  # each time summon use resource it uses health instead
-        if leader:
+        if leader:  # leader added via player follower or summon
             self.follow_command = "Follow"
             if leader.player_control:  # only add indicator for player's follower
                 self.indicator = CharacterIndicator(self)
+                self.follower_speak = {}
+                follower_speak = self.battle.localisation.grab_text(("follower_speak", self.char_id))
+                if type(follower_speak) is dict:
+                    self.follower_speak = follower_speak
             leader.followers.append(self)
             self.item_effect_modifier = leader.item_effect_modifier  # use leader item effect modifier
             self.gold_pickup_modifier = leader.gold_drop_modifier
@@ -1157,7 +1185,8 @@ class BattleAICharacter(AICharacter):
             ai_behaviour = specific_behaviour
 
         self.ai_move = MethodType(ai_move_dict["default"], self)
-        if (leader or self.leader) and not self.is_summon:  # summon use assigned behaviour in data instead of follower by default
+        if (
+                leader or self.leader) and not self.is_summon:  # summon use assigned behaviour in data instead of follower by default
             self.ai_move = MethodType(ai_move_dict["follower"], self)
         elif ai_behaviour in ai_move_dict:
             self.ai_move = MethodType(ai_move_dict[ai_behaviour], self)
@@ -1181,9 +1210,13 @@ class BattleAICharacter(AICharacter):
         self.resurrect_count = 0
 
     def ai_update(self, dt):
-        if self.ai_lock and not self.event_ai_lock and self.battle.base_stage_end >= self.base_pos[0] >= self.battle.base_stage_start:
+        if self.ai_lock and not self.event_ai_lock and self.battle.base_stage_end >= self.base_pos[
+            0] >= self.battle.base_stage_start:
             # unlock once in active scene
             self.ai_lock = False
+            for team in self.battle.all_team_enemy:
+                if team != self.team and self not in self.battle.all_team_enemy[team]:
+                    self.battle.all_team_enemy[team].add(self)
         if not self.ai_lock:
             if not self.broken:
                 if self.ai_timer:
@@ -1229,13 +1262,14 @@ class BodyPart(sprite.Sprite):
         self.invincible = self.owner.invincible
         self._layer = 10
         sprite.Sprite.__init__(self, self.containers)
-        self.base_image_update_contains = []  # object that need updating when base_image get updated
+        self.image_update_contains = []  # object that need updating when base_image get updated
         self.part = part
         self.part_name = self.part[3:]
         if self.part_name[0:2] == "l_" or self.part_name[0:2] == "r_":
             self.part_name = self.part_name[2:]
         if "special" in self.part:
             self.part = "_".join(self.part.split("_")[:-1])
+        self.stuck_effect = []  # effect that stuck on this body part
         self.can_hurt = can_hurt
         self.can_deal_dmg = False
         self.dmg = None
@@ -1244,7 +1278,6 @@ class BodyPart(sprite.Sprite):
         self.no_dodge = False
         self.no_defence = False
         self.no_guard = False
-        self.friend_status_effect = ()
         self.enemy_status_effect = ()
         self.impact = (0, 0)
         self.element = None
@@ -1265,13 +1298,23 @@ class BodyPart(sprite.Sprite):
         self.stick_timer = 0  # not used but require for checking
         self.penetrate = True  # part always penetrate if doing dmg
 
+    @staticmethod
+    def adjust_image(image, data):
+        # index 1=part name, 2and3=pos xy, 4=angle, 5=flip, 7=scale
+        if data[5]:
+            image = flip(image, True, False)
+        if data[7] != 1:
+            image = smoothscale(image, (image.get_width() * data[7], image.get_height() * data[7]))
+        if data[4]:
+            image = rotate(image, data[4])
+        return image
+
     def get_part(self, data, new_animation):
         self.dmg = 0
         self.impact_sum = 0
         self.can_deal_dmg = False
         self.angle = self.owner.angle
         self.mode = self.owner.mode_list[self.owner.mode][self.part]
-        self.friend_status_effect = ()
         self.enemy_status_effect = ()
         if new_animation:
             self.already_hit = []
@@ -1286,30 +1329,33 @@ class BodyPart(sprite.Sprite):
             self.data = data
             sprite_type = self.data[0]
             sprite_name = self.data[1]
-            if "weapon" in self.part_name:
-                self.base_image = self.body_sprite_pool[self.data[0]][self.sprite_ver][self.mode][self.data[1]][
-                    self.data[7]][self.data[5]]
-            elif "special" in self.part_name:
-                if sprite_name == "Template":  # template sprite that need replace
-                    if "change_sprite" in self.owner.current_action:  # get new sprite type
+            if self.image_update_contains:  # update any object after getting base image
+                # part with update must always have 0 flip 0 angle and 1 scale in animation data to work will apply rotate later
+                self.base_image = \
+                self.body_sprite_pool[sprite_type]["special"][self.sprite_ver][self.mode][self.data[1]][0][1][0]
+                for item in self.image_update_contains:
+                    item.update()
+            else:
+                if "weapon" in self.part_name:
+                    self.image = self.body_sprite_pool[self.data[0]][self.sprite_ver][self.mode][self.data[1]][
+                        self.data[5]][self.data[7]][
+                        self.data[4]]  # index 1=part name, 2and3=pos xy, 4=angle, 5=flip, 7=scale
+                elif "special" in self.part_name:
+                    if sprite_name == "Template" and "change_sprite" in self.owner.current_action:
+                        # template sprite that need replace
                         sprite_type = self.owner.current_action["change_sprite"]
                         if sprite_type == "Item" and "item" in self.owner.current_action:  # change to item using
-                            sprite_name = self.owner.current_action["item"]
-                self.base_image = \
-                    self.body_sprite_pool[sprite_type]["special"][self.sprite_ver][self.mode][sprite_name][
-                        self.data[7]][self.data[5]]
-            else:
-                self.base_image = self.body_sprite_pool[self.data[0]][self.part_name][self.sprite_ver][self.mode][
-                    self.data[1]][self.data[7]][self.data[5]]
-
-            if self.base_image_update_contains:  # update any object after getting base image
-                for item in self.base_image_update_contains:
-                    item.update()
-
-            self.image = self.base_image
-            if self.data[4]:  # rotation
-                self.angle = self.data[4]
-                self.image = pygame.transform.rotate(self.base_image, self.angle)
+                            self.image = \
+                                self.body_sprite_pool[sprite_type]["special"][self.sprite_ver][self.mode][
+                                    self.owner.current_action["item"]]
+                            self.image = self.adjust_image(self.image, self.data)
+                    else:
+                        self.image = \
+                            self.body_sprite_pool[sprite_type]["special"][self.sprite_ver][self.mode][sprite_name][
+                                self.data[5]][self.data[7]][self.data[4]]
+                else:
+                    self.image = self.body_sprite_pool[self.data[0]][self.part_name][self.sprite_ver][self.mode][
+                        self.data[1]][self.data[5]][self.data[7]][self.data[4]]
 
             self.re_rect()
             if self in self.battle_camera:
@@ -1367,7 +1413,6 @@ def find_damage(self):
     if self.dmg < 1:
         self.dmg = 1
     self.critical_chance = self.owner.critical_chance + self.owner.current_moveset["Critical Chance Bonus"]
-    self.friend_status_effect = self.owner.current_moveset["Status"]
     self.enemy_status_effect = self.owner.current_moveset["Enemy Status"]
 
     self.no_dodge = False

@@ -34,12 +34,38 @@ class Localisation:
         self.read_localisation("event")
         self.read_localisation("help")
 
+        self.text["en"]["follower_speak"] = {}
+        self.load_follower_talk_lore("en")
+        if self.language != "en":
+            self.text[self.language]["follower_speak"] = {}
+            self.load_follower_talk_lore(self.language)
+
         # Load map description
         self.text["en"]["map"] = {}
-
         self.load_map_lore("en")
         if self.language != "en":
+            self.text[self.language]["map"] = {}
             self.load_map_lore(self.language)
+
+    def load_follower_talk_lore(self, language):
+        try:
+            with open(os.path.join(self.data_dir, "localisation", language,
+                                   "follower_speak" + ".csv"), encoding="utf-8", mode="r") as edit_file:
+                rd = csv.reader(edit_file, quoting=csv.QUOTE_ALL)
+                rd = [row for row in rd]
+                for index, row in enumerate(rd[1:]):
+                    if row[0] not in self.text[language]["follower_speak"]:
+                        self.text[language]["follower_speak"][row[0]] = {}
+                    if row[1].split("_")[0] not in self.text[language]["follower_speak"][row[0]]:
+                        self.text[language]["follower_speak"][row[0]][row[1].split("_")[0]] = []
+                    self.text[language]["follower_speak"][row[0]][row[1].split("_")[0]].append(row[2])
+            edit_file.close()
+            for key, value in self.text[language]["follower_speak"].items():
+                for key2, value2 in value.items():
+                    self.text[language]["follower_speak"][key][key2] = tuple(value2)
+
+        except FileNotFoundError:
+            pass
 
     def load_map_lore(self, language):
         try:
@@ -114,8 +140,8 @@ class Localisation:
             else:
                 return self.inner_grab_text(key, "en", text_data)
         except KeyError:  # no translation found
-            print(str(key) + " This key list is not found in " + self.language + " data")
-            self.game.error_log.write(str(key) + " This key list is not found in " + self.language + " data")
+            # print(str(key) + " This key list is not found in " + self.language + " data")
+            # self.game.error_log.write(str(key) + " This key list is not found in " + self.language + " data")
             return str(key)
             # try:  # key in language not found now search english
             #     return self.inner_grab_text(key, "en", text_data)

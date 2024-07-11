@@ -12,10 +12,10 @@ def start_animation_body_part(self, new_animation=False):
                                      self.base_pos[1] + (part_data[3]))
                         BattleAICharacter("summon", -1, self.character_data.character_list[
                             self.current_moveset["Property"]["summon"]] |
-                                                   {"ID": self.current_moveset["Property"]["summon"],
-                                                    "Sprite Ver": self.sprite_ver, "Angle": self.angle,
-                                                    "Team": self.team, "POS": start_pos,
-                                                    "Arrive Condition": ()}, leader=self)
+                                          {"ID": self.current_moveset["Property"]["summon"],
+                                           "Sprite Ver": self.sprite_ver, "Angle": self.angle,
+                                           "Team": self.team, "POS": start_pos,
+                                           "Arrive Condition": ()}, leader=self)
 
                     elif "trap" in self.effect_list[part_data[0]]["Property"]:
                         TrapEffect(self, part_data, part_data[6], self.current_moveset)

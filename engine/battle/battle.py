@@ -1,9 +1,9 @@
 import sys
 import time
-from random import choice, randint
 from copy import deepcopy
-from os import path
 from math import sin, cos, radians
+from os import path
+from random import choice, randint
 
 import pygame
 from pygame import Vector2, display, mouse, sprite, Surface, JOYDEVICEADDED, JOYDEVICEREMOVED
@@ -158,10 +158,10 @@ class Battle:
         # court structure interface, mission select, side mission, feast system
         # add ranking record system
         # add pvp mode, follower recruit unlock with all save story progress
-        # mission 2: 4 scenes, 4 enemies (hound master, hound, bandit ranger, rabbit killer appear with 1b)
         # add sound type to skill/move for collide and damage sound check
         # move loading sprite to when start character based on chapter
         # find way to increase speech text size
+        # add no hit for stoppable frame in action property
         # finish main menu
 
         self.clock = pygame.time.Clock()  # Game clock to keep track of realtime pass
@@ -269,23 +269,25 @@ class Battle:
 
         self.game_speed = 1
         self.all_team_character = {0: sprite.Group(), 1: sprite.Group(), 2: sprite.Group(),
-                                   3: sprite.Group(), 4: sprite.Group()}
+                                   3: sprite.Group(), 4: sprite.Group(), 5: sprite.Group(), 6: sprite.Group()}
         self.all_team_enemy = {0: sprite.Group(), 1: sprite.Group(), 2: sprite.Group(),
-                               3: sprite.Group(), 4: sprite.Group()}  # for AI combo check
+                               3: sprite.Group(), 4: sprite.Group(), 5: sprite.Group(),
+                               6: sprite.Group()}  # for AI combo check
         self.all_team_enemy_check = {0: sprite.Group(), 1: sprite.Group(), 2: sprite.Group(),
-                                     3: sprite.Group(), 4: sprite.Group()}  # for victory check
+                                     3: sprite.Group(), 4: sprite.Group(), 5: sprite.Group(),
+                                     6: sprite.Group()}  # for victory check
         self.all_team_enemy_part = {0: sprite.Group(), 1: sprite.Group(), 2: sprite.Group(),
-                                    3: sprite.Group(), 4: sprite.Group()}
+                                    3: sprite.Group(), 4: sprite.Group(), 5: sprite.Group(), 6: sprite.Group()}
         self.all_team_drop = {0: sprite.Group(), 1: sprite.Group(), 2: sprite.Group(),
-                              3: sprite.Group(), 4: sprite.Group()}
+                              3: sprite.Group(), 4: sprite.Group(), 5: sprite.Group(), 6: sprite.Group()}
         self.player_damage = {1: 0, 2: 0, 3: 0, 4: 0}
         self.player_kill = {1: 0, 2: 0, 3: 0, 4: 0}
         self.player_boss_kill = {1: 0, 2: 0, 3: 0, 4: 0}
         self.play_time = 0
         self.stage_gold = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
         self.stage_score = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
-        self.last_resurrect_stage_score = {1: 5000, 2: 5000, 3: 5000, 4: 5000, 5: 5000}
-        self.reserve_resurrect_stage_score = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+        self.last_resurrect_stage_score = {1: 5000, 2: 5000, 3: 5000, 4: 5000, 5: 5000, 6: 5000}
+        self.reserve_resurrect_stage_score = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0}
 
         self.players = {}  # player
         self.player_objects = {}
@@ -372,6 +374,10 @@ class Battle:
         self.ui_dt = 0  # Realtime used for ui timer
         self.screen_shake_value = 0  # count for how long to shake camera
 
+        self.ui_timer = 0  # This is timer for ui update function, use realtime
+        self.drama_timer = 0  # This is timer for combat related function, use self time (realtime * game_speed)
+        self.weather_spawn_timer = 0
+
         Battle.camera = Camera(self.screen, self.battle_camera_size)
 
         self.base_cursor_pos = [0, 0]  # mouse pos on the map based on camera position
@@ -412,6 +418,7 @@ class Battle:
         self.cutscene_timer = 0
         self.cutscene_finish_camera_delay = 0  # delay before camera can move again after cutscene
         self.survive_timer = 0
+        self.follower_talk_timer = 0  # timer for follower talk based on their action
         self.stage_end_choice = False
         self.stage_scene_lock = {}
         self.lock_objective = None
@@ -587,7 +594,8 @@ class Battle:
                 if ("once" not in value or tuple(value["once"].keys())[0] + self.chapter + self.mission + self.stage
                     not in self.main_story_profile["story event"]) and \
                         ("story choice" not in value or
-                         (value["story choice"] == value["story choice"].split("_")[0] + "_" + self.main_story_profile["story choice"][value["story choice"].split("_")[0]])):
+                         (value["story choice"] == value["story choice"].split("_")[0] + "_" +
+                          self.main_story_profile["story choice"][value["story choice"].split("_")[0]])):
                     # event with once condition will not be played again if already play once for the save profile
                     # also check parent event that depend on story choice
                     if "char" in trigger:  # trigger depend on character
@@ -642,7 +650,7 @@ class Battle:
                                         if "wind direction" in value3[0]["Property"]:
                                             wind_direction = value3[0]["Property"]["wind direction"]
                                         self.reach_scene_event_list[key]["weather"] = (
-                                        value3[0]["Object"], wind_direction, weather_strength)
+                                            value3[0]["Object"], wind_direction, weather_strength)
                                     elif value3[0]["Type"] == "music":
                                         if value3[0]["Object"] != "stop":
                                             self.reach_scene_event_list[key]["music"] = str(value3[0]["Object"])
@@ -685,10 +693,11 @@ class Battle:
         self.screen_shake_value = 0
         self.cutscene_timer = 0
         self.cutscene_finish_camera_delay = 0
-        self.ui_timer = 0  # This is timer for ui update function, use realtime
-        self.drama_timer = 0  # This is timer for combat related function, use self time (realtime * game_speed)
-        self.dt = 0  # Realtime used for time calculation
-        self.ui_dt = 0  # Realtime used for ui timer
+        self.follower_talk_timer = 0
+        self.ui_timer = 0
+        self.drama_timer = 0
+        self.dt = 0
+        self.ui_dt = 0
         self.weather_spawn_timer = 0
         self.show_cursor_timer = 0
         self.main_player_battle_cursor.shown = True
@@ -698,7 +707,8 @@ class Battle:
         self.play_time = 0
         self.stage_gold = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
         self.stage_score = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
-        self.last_resurrect_stage_score = {1: 5000, 2: 5000, 3: 5000, 4: 5000, 5: 5000}  # start at 5000 to get next resurrect reserve
+        self.last_resurrect_stage_score = {1: 5000, 2: 5000, 3: 5000, 4: 5000,
+                                           5: 5000}  # start at 5000 to get next resurrect reserve
         self.reserve_resurrect_stage_score = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
 
         self.base_cursor_pos = [0, 0]  # mouse pos on the map based on camera position
@@ -850,13 +860,13 @@ class Battle:
                                 enemy.health = 1
                     elif event.key == K_F4:
                         for character in self.player_objects.values():
-                            character.cal_loss(None, 0, (50, -200), character.angle, (0, 0), False)
+                            for follower in character.followers:
+                                follower.cal_loss(None, 500, (50, -200), character.angle, (0, 0), False)
                     elif event.key == K_F5:
                         for enemy in self.all_chars:
-                            if not enemy.invincible and enemy.team == 1:
-                                enemy.health = 0
-                        CharacterSpeechBox(self.player_objects[self.main_player],
-                                           "Die")
+                            if not enemy.invincible and enemy.is_boss and int(enemy.base_pos[0] / 1920) in \
+                                    (self.battle_stage.spawn_check_scene - 1, self.battle_stage.spawn_check_scene):
+                                enemy.stun_value = enemy.stun_threshold
                     elif event.key == K_F6:
                         for enemy in self.all_team_enemy[1]:
                             if not enemy.invincible and int(enemy.base_pos[0] / 1920) in \
@@ -945,7 +955,7 @@ class Battle:
         for key in self.player_objects:
             self.player_portraits[key].reset_value()
         self.realtime_ui_updater.remove(self.player_portraits.values(), self.player_wheel_uis.values(),
-                                        self.player_trainings.values())
+                                        self.player_trainings.values(), self.decision_select)
 
         for helper in self.player_trainings.values():
             helper.reset()
@@ -974,5 +984,6 @@ class Battle:
         self.frontground_stage.clear_image()
 
         self.drama_timer = 0  # reset drama text popup
+        self.follower_talk_timer = 0
         self.realtime_ui_updater.remove(self.drama_text)
         self.remove_ui_updater(self.drama_text)

@@ -1,7 +1,8 @@
 def check_action_hold(self, dt):
     if "hold" in self.current_animation_direction[self.show_frame]["property"] and \
             "hold" in self.current_action and \
-            ((not self.current_moveset and "forced move" not in self.current_action) or
+            ((
+                     not self.current_moveset and "forced move" not in self.current_action and "freeze" not in self.current_action) or
              ("forced move" in self.current_action and (self.x_momentum or self.y_momentum)) or
              (self.current_moveset and "can_hold" in self.current_moveset["Property"])):
         if self.current_moveset and "can_hold" in self.current_moveset["Property"]:

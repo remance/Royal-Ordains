@@ -1,9 +1,10 @@
 from random import randint, uniform
+
 from pygame import Vector2
 
 from engine.drop.drop import Drop
-from engine.uibattle.uibattle import DamageNumber
 from engine.effect.effect import Effect
+from engine.uibattle.uibattle import DamageNumber
 
 
 def check_new_animation(self, done):
@@ -108,13 +109,15 @@ def check_new_animation(self, done):
                             if ally[0].health > ally[0].base_health:
                                 ally[0].health = ally[0].base_health
                             DamageNumber(str(int(item_stat["Health"])),
-                                         (ally[0].pos[0], ally[0].pos[1] - ally[0].sprite_height * 3.5), False, "health")
+                                         (ally[0].pos[0], ally[0].pos[1] - ally[0].sprite_height * 3.5), False,
+                                         "health")
                         if item_stat["Resource"]:
                             ally[0].resource += item_stat["Resource"] * ally[0].item_effect_modifier
                             if ally[0].resource > ally[0].base_resource:
                                 ally[0].resource = ally[0].base_resource
                             DamageNumber(str(int(item_stat["Resource"])),
-                                         (ally[0].pos[0], ally[0].pos[1] - ally[0].sprite_height * 2), False, "resource")
+                                         (ally[0].pos[0], ally[0].pos[1] - ally[0].sprite_height * 2), False,
+                                         "resource")
                         if item_stat["Status"]:
                             for effect in item_stat["Status"]:
                                 ally[0].apply_status(self, effect)
@@ -131,7 +134,8 @@ def check_new_animation(self, done):
                 if not self.free_first_item_use or (self.item_free_use_chance and uniform(1, 10) > 7):
                     self.item_usage[self.current_action["item"]] -= 1
                     if self.player_control:  # subtract from in storage
-                        self.battle.all_story_profiles[int(self.game_id[-1])]["storage"][self.current_action["item"]] -= 1
+                        self.battle.all_story_profiles[int(self.game_id[-1])]["storage"][
+                            self.current_action["item"]] -= 1
                 elif self.free_first_item_use:
                     self.free_first_item_use = False
 
@@ -155,7 +159,10 @@ def check_new_animation(self, done):
             self.current_action = self.attack_command_actions["Special"] | self.command_moveset["Property"]
 
         elif "run" in self.current_action and not self.command_action:  # stop running, halt
-            self.current_action = self.halt_command_action
+            if self.special_combat_state and self.special_halt_command:
+                self.current_action = self.special_halt_command[self.special_combat_state]
+            else:
+                self.current_action = self.halt_command_action
             if self.angle == -90:
                 self.x_momentum = self.walk_speed
             else:
@@ -186,6 +193,14 @@ def check_new_animation(self, done):
         self.frame_timer = 0
         self.move_speed = 0
 
+        if "skill" in self.current_action:
+            if self.leader and self.leader.player_control and not self.battle.follower_talk_timer and "skill" in self.follower_speak and uniform(
+                    0, 10) > 8:
+                self.follower_talk("skill")
+        elif "moveset" in self.current_action:
+            if self.leader and self.leader.player_control and not self.battle.follower_talk_timer and "hit" in self.follower_speak and uniform(
+                    0, 10) > 8:
+                self.follower_talk("hit")
         # check for new position before picking new animation
         if "couch" in self.current_action:
             self.position = "Couch"

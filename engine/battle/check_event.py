@@ -1,4 +1,3 @@
-from random import randint
 from copy import deepcopy
 
 
@@ -67,11 +66,16 @@ def check_event(self):
                     self.weather_data)
                 self.reach_scene_event_list[self.battle_stage.reach_scene].pop("weather")
             if "music" in self.reach_scene_event_list[self.battle_stage.reach_scene]:  # change music
-                self.current_music = self.stage_music_pool[self.reach_scene_event_list[self.battle_stage.reach_scene]["music"]]
-                self.music_left.play(self.current_music, fade_ms=100)
-                self.music_left.set_volume(self.play_music_volume, 0)
-                self.music_right.play(self.current_music, fade_ms=100)
-                self.music_right.set_volume(0, self.play_music_volume)
+                self.current_music = self.stage_music_pool[
+                    self.reach_scene_event_list[self.battle_stage.reach_scene]["music"]]
+                if self.current_music:
+                    self.music_left.play(self.current_music, fade_ms=100)
+                    self.music_left.set_volume(self.play_music_volume, 0)
+                    self.music_right.play(self.current_music, fade_ms=100)
+                    self.music_right.set_volume(0, self.play_music_volume)
+                else:  # stop music
+                    self.music_left.stop()
+                    self.music_right.stop()
                 self.reach_scene_event_list[self.battle_stage.reach_scene].pop("music")
             if "sound" in self.reach_scene_event_list[self.battle_stage.reach_scene]:  # play sound
                 for sound_effect in self.reach_scene_event_list[self.battle_stage.reach_scene]["sound"]:
@@ -103,7 +107,8 @@ def check_event(self):
             if distance < 0:  # target at leftside
                 angle_check = -1
             if 100 < abs(distance) < 250 and \
-                    ((self.main_player_object.angle == 90 and angle_check == 1) or self.main_player_object.angle == -90):
+                    ((
+                             self.main_player_object.angle == 90 and angle_check == 1) or self.main_player_object.angle == -90):
                 # use player with the lowest number as interactor
                 self.speech_prompt.add_to_screen(self.main_player_object, item[0], target_pos)
                 if self.player_key_press[self.main_player]["Weak"]:  # player interact, start event

@@ -1,5 +1,5 @@
 "ID","Text ID","Object","Animation","Type","Trigger","Property"
-"music/scene1",,1,,"music","camera_reach_scene,1",
+"music/scene1",,7,,"music","camera_reach_scene,1",
 "boss_reach",,"p1","PresetCombatStandWalk","cutscene","camera_reach_scene,4","POS:scene_start,angle:target"
 ,,"p2","PresetCombatStandWalk",,,"POS:scene_start,angle:target"
 ,,"p3","PresetCombatStandWalk",,,"POS:scene_start,angle:target"

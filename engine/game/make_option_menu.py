@@ -47,7 +47,7 @@ def make_option_menu(self, button_image_list):
     # Volume change scroll bar
     scroller_images = (self.option_menu_images["scroller_box"], self.option_menu_images["scroller"])
     scroll_button_images = (
-    self.option_menu_images["scroll_button_normal"], self.option_menu_images["scroll_button_click"])
+        self.option_menu_images["scroll_button_normal"], self.option_menu_images["scroll_button_click"])
     volume_slider = {"master": SliderMenu(scroller_images, scroll_button_images,
                                           (self.screen_rect.width / 2, self.screen_rect.height / 4),
                                           float(config["master_volume"])),

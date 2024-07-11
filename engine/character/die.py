@@ -3,7 +3,7 @@ from random import uniform
 from pygame import Vector2
 
 from engine.drop.drop import Drop
-from engine.utils.common import clean_group_object, clean_object
+from engine.utils.common import clean_group_object
 
 
 def die(self, delete=False):
@@ -29,17 +29,15 @@ def die(self, delete=False):
         self.indicator.kill()
         self.indicator = None
 
-    for speech in self.battle.speech_boxes:
-        if speech.character == self:  # kill speech
-            speech.kill()
-
-    for follower in self.followers:
-        follower.leader = None
-    self.followers = []
-    if self.leader:
-        self.leader.followers.remove(self)
-
     if delete:
+        for speech in self.battle.speech_boxes:
+            if speech.character == self:  # kill any current speech
+                speech.kill()
+        for body_part in self.body_parts.values():
+            if body_part.stuck_effect:
+                for stuck_object in body_part.stuck_effect:  # remove stuck effect as well
+                    stuck_object.reach_target()
+                body_part.stuck_effect = []
         clean_group_object((self.body_parts,))  # remove only body parts, self will be deleted later
         self.battle.character_updater.remove(self)
     elif self.invisible:  # add back sprite for invisible character that die
@@ -47,7 +45,15 @@ def die(self, delete=False):
         for part in self.body_parts.values():
             part.re_rect()
 
-    if self.killer:
+    for follower in self.followers:
+        follower.leader = None
+    self.followers = []
+    if self.leader:
+        if self.leader.player_control and not delete and not self.battle.follower_talk_timer and "die" in self.follower_speak:
+            self.follower_talk("die")
+        self.leader.followers.remove(self)
+
+    if self.killer:  # has killer
         self.battle.increase_team_score(self.killer.team, self.score)
         if self.killer.player_control:
             # target die, add kill stat if attacker is player

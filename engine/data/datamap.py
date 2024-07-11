@@ -20,7 +20,7 @@ class BattleMapData(GameData):
             header = rd[0]
             tuple_column = ("Element", "Status", "Spell")
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
-            dict_column = ("Property", )
+            dict_column = ("Property",)
             dict_column = [index for index, item in enumerate(header) if item in dict_column]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
@@ -75,7 +75,8 @@ class BattleMapData(GameData):
                 self.choice_stage_reward[row[0]][row[1]][row[2]][row[3]] = {"Follower Reward": row[4],
                                                                             "Unique Gear Reward": row[5],
                                                                             "Item Reward": row[6],
-                                                                            "Gold Reward": row[7]}
+                                                                            "Gold Reward": row[7],
+                                                                            "Court Change": row[8]}
         edit_file.close()
 
         self.stage_reward = {}

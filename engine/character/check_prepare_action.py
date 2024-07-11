@@ -14,6 +14,6 @@ def check_prepare_action(self, value):
 
     if value["Prepare Animation"]:  # has animation to do first before performing main animation
         return value["Prepare Animation"] | \
-               {"sub action": True,
-                "next action": value["Property"] | action | self.current_moveset["Property"] | {"no prepare": True}}
+            {"sub action": True,
+             "next action": value["Property"] | action | self.current_moveset["Property"] | {"no prepare": True}}
     return action  # not add property here, will be added later

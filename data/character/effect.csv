@@ -47,8 +47,8 @@
 "Bladed Spinner",,1000,,32,,,"stick",,,,,
 "Shrapnel Bomb",,500,,,,,,"Shrapnel",,,,"spawn all angle,spawn number:15"
 "Small Bomb",,500,,,,,,"Small Explosion",,,,
-"Firework Explosion",,,,"20,49",,,,,"Firework Explosion",3500,80,"no travel"
+"Firework Explosion",,,,"20,49",,,,,"Firework Explosion",3500,40,"no travel"
 "Shrapnel",,1500,,,,,,,"Shrapnel",800,10,
-"Small Explosion",,,,,,,,,"Explosion",2000,80,"no travel"
-"Frost Explosion",,,,,,,,,"Frost Explosion",1500,50,"no travel"
+"Small Explosion",,,,,,,,,"Explosion",2000,30,"no travel"
+"Frost Explosion",,,,,,,,,"Frost Explosion",1500,20,"no travel"
 "Golden Day",,,,,,,,,,,,

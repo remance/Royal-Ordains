@@ -3,10 +3,9 @@ from pygame.transform import rotate
 
 
 def adjust_sprite(self):
+    self.image = self.base_image
     if self.angle:
         self.image = rotate(self.base_image, self.angle)
-    else:
-        self.image = self.base_image
 
     self.rect = self.image.get_rect(center=self.pos)
     self.mask = from_surface(self.image)

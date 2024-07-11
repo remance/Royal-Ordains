@@ -1,7 +1,7 @@
+from random import choice
+
 from pygame import Surface, SRCALPHA
 from pygame.font import Font
-
-from random import choice
 
 from engine.uimenu.uimenu import UIMenu
 from engine.utils.text_making import text_render_with_bg

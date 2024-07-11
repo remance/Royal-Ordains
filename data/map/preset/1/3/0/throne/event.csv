@@ -15,10 +15,10 @@
 ,"event/1_3_city_throne_talk1.1","King","Start",,,"interact,hold,repeat after,story choice:1.2.1_yes"
 ,"event/1_3a_city_throne_talk1.2","King","StartTalk",,,"interact,hold,repeat after,story choice:1.2.1_yes"
 ,"event/1_3a_city_throne_talk1.3","King","StopTalk",,,"interact,story choice:1.2.1_yes"
-,"event/1_3a_city_throne_talk1.4","Adaqua","StartTalk",,,"interact,hold,repeat after,story choice:1.2.1_yes"
+,"event/1_3a_city_throne_talk1.4","Adaqua","Talk",,,"interact,hold,repeat after,story choice:1.2.1_yes"
 ,"event/1_3a_city_throne_talk1.5","Adaqua","StopTalk",,,"interact,story choice:1.2.1_yes"
-,"event/1_3a_city_throne_talk1.6","King",,,,"interact,story choice:1.2.1_yes"
-,"event/1_3a_city_throne_talk1.7","King",,,,"interact,story choice:1.2.1_yes"
+,"event/1_3a_city_throne_talk1.6","Adaqua",,,,"interact,story choice:1.2.1_yes"
+,"event/1_3a_city_throne_talk1.7","Adaqua",,,,"interact,story choice:1.2.1_yes"
 ,"event/1_3a_city_throne_talk1.8","King",,,,"interact,story choice:1.2.1_yes"
 ,"event/1_3a_city_throne_talk1.9","Adaqua",,,,"interact,story choice:1.2.1_yes"
 ,"event/1_3a_city_throne_talk1.10","King",,,,"interact,story choice:1.2.1_yes"
@@ -46,10 +46,10 @@
 ,"event/1_3_city_throne_talk1.12","Viskes","StopTalk",,,"interact,story choice:1.2.1_no"
 ,"event/1_3_city_throne_talk1.13","King",,,,"interact,story choice:1.2.1_no"
 ,"event/1_3_city_throne_talk1.14","Viskes",,,,"interact,story choice:1.2.1_no"
-,"event/1_3_city_throne_talk1.19","King",,,,
-,"event/1_3_city_throne_talk1.20","King",,,,
-,"event/1_3_city_throne_talk1.21","King",,,,
-,"event/1_3_city_throne_talk1.22","King",,,,
+,"event/1_3_city_throne_talk1.19","King",,,,"interact"
+,"event/1_3_city_throne_talk1.20","King",,,,"interact"
+,"event/1_3_city_throne_talk1.21","King",,,,"interact"
+,"event/1_3_city_throne_talk1.22","King",,,,"interact"
 ,,1,"FullBow","cutscene",,
 ,,"Dashisi","CourtEnd","cutscene",,
 ,,"Kapuni","CourtEnd","cutscene",,

@@ -3,7 +3,7 @@ def drama_process(self):
     if not self.drama_timer and self.drama_text.queue:  # Start timer and draw if there is event queue
         # add to ui and realtime ui updater, so it shows when both running and pause
         self.realtime_ui_updater.add(self.drama_text)
-        self.add_ui_updater(self.drama_text)  
+        self.add_ui_updater(self.drama_text)
         self.drama_text.process_queue()
         self.drama_timer = 0.1
     elif self.drama_timer:

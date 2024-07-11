@@ -7,8 +7,8 @@ import pygame
 import pyperclip
 from pygame import Surface, SRCALPHA, Rect, Color, draw, mouse
 from pygame.font import Font
-from pygame.transform import smoothscale
 from pygame.sprite import Sprite
+from pygame.transform import smoothscale
 
 from engine.game.generate_custom_equipment import rarity_mod_number
 from engine.utils.common import keyboard_mouse_press_check, stat_allocation_check, skill_allocation_check
@@ -434,7 +434,8 @@ class MenuButton(UIMenu):
         if key_name != "":  # draw text into the button images
             self.text = self.grab_text(("ui", key_name))
             text_surface = self.font.render(self.text, True, (30, 30, 30))
-            text_rect = text_surface.get_rect(center=self.button_normal_image.get_rect().center)
+            text_rect = text_surface.get_rect(center=(self.button_normal_image.get_width() / 2,
+                                                      self.button_normal_image.get_height() / 2))
             self.button_normal_image.blit(text_surface, text_rect)
             self.button_over_image.blit(text_surface, text_rect)
             self.button_click_image.blit(text_surface, text_rect)
@@ -466,7 +467,8 @@ class MenuButton(UIMenu):
             self.button_over_image = self.base_image1.copy()
             self.button_click_image = self.base_image2.copy()
             text_surface = self.font.render(self.text, True, (30, 30, 30))
-            text_rect = text_surface.get_rect(center=self.button_normal_image.get_rect().center)
+            text_rect = text_surface.get_rect(center=(self.button_normal_image.get_width() / 2,
+                                                      self.button_normal_image.get_height() / 2))
             self.button_normal_image.blit(text_surface, text_rect)
             self.button_over_image.blit(text_surface, text_rect)
             self.button_click_image.blit(text_surface, text_rect)
@@ -918,7 +920,7 @@ class CharacterInterface(UIMenu):
                     row += 1
 
             if self.profile:
-                self.max_follower_allowance = (int(self.profile["chapter"]) * 20) + stat_dict["Charisma"]
+                self.max_follower_allowance = (int(self.profile["chapter"]) * 10) + stat_dict["Charisma"]
                 for key, value in self.stat.items():
                     if key in self.all_skill_row:
                         self.profile["character"]["skill allocation"][key] = value
@@ -951,8 +953,8 @@ class CharacterInterface(UIMenu):
                     item = self.profile["equipment"]["item"][equip_type.split(" ")[1]]
                     if item:
                         item_image = smoothscale(self.item_sprite_pool[self.game.battle.chapter][
-                                                     "Normal"][item][1][0], (60 * self.screen_scale[0],
-                                                                             60 * self.screen_scale[1]))
+                                                     "Normal"][item], (60 * self.screen_scale[0],
+                                                                       60 * self.screen_scale[1]))
                         image_rect = item_image.get_rect(center=rect.center)
                         self.image.blit(item_image, image_rect)
                         text_surface = text_render_with_bg(minimise_number_text(str(self.profile["storage"][item])),
@@ -967,8 +969,8 @@ class CharacterInterface(UIMenu):
                             stat = dict(item)  # custom equipment
                             item_id = "Custom " + stat["Rarity"] + "_" + stat["Type"]
                         item_image = smoothscale(self.item_sprite_pool[self.game.battle.chapter][
-                                                     "Normal"][item_id][1][0], (60 * self.screen_scale[0],
-                                                                                60 * self.screen_scale[1]))
+                                                     "Normal"][item_id], (60 * self.screen_scale[0],
+                                                                          60 * self.screen_scale[1]))
                         image_rect = item_image.get_rect(center=rect.center)
                         self.image.blit(item_image, image_rect)
 
@@ -1095,8 +1097,8 @@ class CharacterInterface(UIMenu):
                         index2 += 1
 
                 item_image = smoothscale(self.item_sprite_pool[self.game.battle.chapter][
-                                             "Normal"][item_id][1][0], (60 * self.screen_scale[0],
-                                                                        60 * self.screen_scale[1]))
+                                             "Normal"][item_id], (60 * self.screen_scale[0],
+                                                                  60 * self.screen_scale[1]))
                 item_rect = item_image.get_rect(center=self.equipment_list_slot_rect[("equip", "new")[index]].center)
                 self.image.blit(item_image, item_rect)
 
@@ -1173,7 +1175,7 @@ class CharacterInterface(UIMenu):
 
         if tuple(self.profile["storage"].keys())[page_current_row] in self.profile["storage_new"]:
             # viewed, remove not view state in profile
-            self.old_storage_list = None   # reset storage
+            self.old_storage_list = None  # reset storage
             self.profile["storage_new"].remove(tuple(self.profile["storage"].keys())[page_current_row])
 
         if not self.base_image or self.profile["storage"] != self.old_storage_list or \
@@ -1205,8 +1207,8 @@ class CharacterInterface(UIMenu):
                             item_id = "Custom " + stat["Rarity"] + "_" + stat["Type"]
                             self.image.blit(self.small_box_images[stat["Type"]], rect)
                     item_image = smoothscale(self.item_sprite_pool[self.game.battle.chapter][
-                                                 "Normal"][item_id][1][0], (50 * self.screen_scale[0],
-                                                                            50 * self.screen_scale[1]))
+                                                 "Normal"][item_id], (50 * self.screen_scale[0],
+                                                                      50 * self.screen_scale[1]))
                     image_rect = item_image.get_rect(center=rect.center)
                     self.image.blit(item_image, image_rect)
 
@@ -1422,7 +1424,7 @@ class CharacterInterface(UIMenu):
                                100 * self.screen_scale[1]),
                               width=int(3 * self.screen_scale[0]))
 
-                item_image = self.item_sprite_pool[self.game.battle.chapter]["Normal"][item][1][0]
+                item_image = self.item_sprite_pool[self.game.battle.chapter]["Normal"][item]
                 rect = item_image.get_rect(topleft=(0, (index + 1) * 100 * self.screen_scale[1]))
                 self.image.blit(item_image, rect)
 
@@ -1536,7 +1538,7 @@ class CharacterInterface(UIMenu):
                                            (110 * self.screen_scale[0],
                                             row_index * 100 * self.screen_scale[1]), self.font, color=(30, 30, 30),
                                            specific_width=self.image.get_width() - (50 * self.screen_scale[0]))
-                        item_image = self.item_sprite_pool[self.game.battle.chapter]["Normal"][item_id][1][0]
+                        item_image = self.item_sprite_pool[self.game.battle.chapter]["Normal"][item_id]
                         rect = item_image.get_rect(topleft=(0, row_index * 100 * self.screen_scale[1]))
                         self.image.blit(item_image, rect)
 
@@ -1581,7 +1583,7 @@ class CharacterInterface(UIMenu):
             if (index >= self.current_row or len(self.all_custom_item) < 5) and row_index < 5:
                 stat = dict(item)
                 item_id = "Custom " + stat["Rarity"] + "_" + stat["Type"]
-                item_image = self.item_sprite_pool[self.game.battle.chapter]["Normal"][item_id][1][0]
+                item_image = self.item_sprite_pool[self.game.battle.chapter]["Normal"][item_id]
                 if index == self.current_row:
                     # image and info to the top
                     rect = item_image.get_rect(center=(200 * self.screen_scale[0], 90 * self.screen_scale[1]))
@@ -1765,7 +1767,8 @@ class CharacterInterface(UIMenu):
                                 sort_list = {key: self.game.character_data.gear_list[key][
                                     "Type"] if key in self.game.character_data.gear_list else
                                 self.game.character_data.equip_item_list[key][
-                                    "Type"] if key in self.game.character_data.equip_item_list else dict(key)["Type"] for key
+                                    "Type"] if key in self.game.character_data.equip_item_list else dict(key)["Type"]
+                                             for key
                                              in self.current_equipment_list}
                             elif sort_how[0] == "Quantity":
                                 sort_list = {key: self.profile["storage"][key] for key in self.current_equipment_list}
@@ -1773,13 +1776,15 @@ class CharacterInterface(UIMenu):
                                 sort_list = {key: self.game.character_data.gear_list[key][
                                     "Value"] if key in self.game.character_data.gear_list else
                                 self.game.character_data.equip_item_list[key][
-                                    "Value"] if key in self.game.character_data.equip_item_list else dict(key)["Value"] for
+                                    "Value"] if key in self.game.character_data.equip_item_list else dict(key)["Value"]
+                                             for
                                              key
                                              in self.current_equipment_list}
                             elif sort_how[0] == "Rarity":
                                 sort_list = {key: self.game.character_data.gear_list[key][
                                     "Rarity"] if key in self.game.character_data.gear_list else
-                                "Common" if key in self.game.character_data.equip_item_list else dict(key)["Rarity"] for key
+                                "Common" if key in self.game.character_data.equip_item_list else dict(key)["Rarity"] for
+                                             key
                                              in self.current_equipment_list}
 
                             if sort_how[1] == "Ascending":
@@ -1798,7 +1803,8 @@ class CharacterInterface(UIMenu):
                                 sort_list = {key: self.game.character_data.gear_list[key][
                                     "Type"] if key in self.game.character_data.gear_list else
                                 self.game.character_data.equip_item_list[key][
-                                    "Type"] if key in self.game.character_data.equip_item_list else dict(key)["Type"] for key
+                                    "Type"] if key in self.game.character_data.equip_item_list else dict(key)["Type"]
+                                             for key
                                              in self.profile["storage"]}
                             elif sort_how[0] == "Quantity":
                                 sort_list = {key: value for key, value in self.profile["storage"].items()}
@@ -1806,13 +1812,15 @@ class CharacterInterface(UIMenu):
                                 sort_list = {key: self.game.character_data.gear_list[key][
                                     "Value"] if key in self.game.character_data.gear_list else
                                 self.game.character_data.equip_item_list[key][
-                                    "Value"] if key in self.game.character_data.equip_item_list else dict(key)["Value"] for
+                                    "Value"] if key in self.game.character_data.equip_item_list else dict(key)["Value"]
+                                             for
                                              key
                                              in self.profile["storage"]}
                             elif sort_how[0] == "Rarity":
                                 sort_list = {key: self.game.character_data.gear_list[key][
                                     "Rarity"] if key in self.game.character_data.gear_list else
-                                "Common" if key in self.game.character_data.equip_item_list else dict(key)["Rarity"] for key
+                                "Common" if key in self.game.character_data.equip_item_list else dict(key)["Rarity"] for
+                                             key
                                              in self.profile["storage"]}
                             if sort_how[1] == "Ascending":
                                 sort_list = dict(sorted(sort_list.items(), key=lambda item: item[1]))
@@ -1876,8 +1884,9 @@ class CharacterInterface(UIMenu):
                                 self.profile["total golds"] -= total_cost
                     elif self.sub_menu_button_list == self.enchant_confirm_list:
                         if "Confirm" in self.purchase_confirm_list[self.sub_menu_current_row]:
-                            new_gear = self.game.generate_custom_equipment(dict(self.all_custom_item[self.current_row])["Type"],
-                                                                           dict(self.all_custom_item[self.current_row])["Rarity"])
+                            new_gear = self.game.generate_custom_equipment(
+                                dict(self.all_custom_item[self.current_row])["Type"],
+                                dict(self.all_custom_item[self.current_row])["Rarity"])
                             new_gear = tuple(new_gear.items())
                             for item in self.profile["storage"].copy():
                                 if item == self.all_custom_item[self.current_row]:
@@ -1885,10 +1894,12 @@ class CharacterInterface(UIMenu):
                                         if item2 == item:  # replace equipped gear with new one
                                             self.profile["equipment"][key] = new_gear
                                     self.all_custom_item[self.all_custom_item.index(item)] = new_gear
-                                    self.profile["storage"][new_gear] = self.profile["storage"].pop(item)  # replace in storage
+                                    self.profile["storage"][new_gear] = self.profile["storage"].pop(
+                                        item)  # replace in storage
                                     break
                             self.add_enchant_list()
-                            self.game.save_data.add_profilesave_profile["character"][self.game.profile_index[self.player]]["last save"] = \
+                            self.game.save_data.add_profilesave_profile["character"][
+                                self.game.profile_index[self.player]]["last save"] = \
                                 datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")  # save after enchant
                             self.game.write_all_player_save()
 
@@ -1992,8 +2003,11 @@ class CharacterInterface(UIMenu):
                             skill_index = self.current_row - 14
                             if skill_index <= 6:
                                 skill_id = "C" + str(skill_index) + "." + str(skill_level)
-                            buttons = self.game.character_data.character_list[self.profile["character"]["ID"]]["Skill UI"][skill_id]["Buttons"]
-                            buttons = "(" + self.game.character_data.character_list[self.profile["character"]["ID"]]["Skill UI"][skill_id]["Position"] + ") " + " + ".join(buttons)
+                            buttons = self.game.character_data.character_list[self.stat["ID"]]["Skill UI"][skill_id][
+                                "Buttons"]
+                            buttons = "(" + \
+                                      self.game.character_data.character_list[self.stat["ID"]]["Skill UI"][skill_id][
+                                          "Position"] + ") " + " + ".join(buttons)
                             text = (self.grab_text(("help", new_key, "Name")),
                                     self.grab_text(("help", new_key, "Description")),
                                     self.grab_text(("ui", "Buttons")) + ":" + buttons,
@@ -2622,7 +2636,8 @@ class CharacterInterface(UIMenu):
                     self.text_popup.popup(self.rect.topleft, mod_list,
                                           shown_id=stat, width_text_wrapper=400 * self.game.screen_scale[0])
                 elif key == "Weak":
-                    remain_fund = self.profile["total golds"] - dict(self.all_custom_item[self.current_row])["Rework Cost"]
+                    remain_fund = self.profile["total golds"] - dict(self.all_custom_item[self.current_row])[
+                        "Rework Cost"]
                     if remain_fund >= 0:
                         self.open_sub_menu(self.enchant_confirm_list)
                 elif key == "Strong":
@@ -2666,8 +2681,8 @@ class CharacterInterface(UIMenu):
 
     def get_custom_equipment_description(self, item):
         stat = [self.get_custom_equipment_name(item),
-                self.grab_text(("ui", "Rarity")) +": " + self.grab_text(("ui", item["Rarity"])),
-                self.grab_text(("ui", "Weight")) +": " + str(item["Weight"])]
+                self.grab_text(("ui", "Rarity")) + ": " + self.grab_text(("ui", item["Rarity"])),
+                self.grab_text(("ui", "Weight")) + ": " + str(item["Weight"])]
         for key, value in dict(item["Modifier"]).items():
             stat_str = str(value)
             if value < 1:  # convert percentage
@@ -2680,8 +2695,8 @@ class CharacterInterface(UIMenu):
 
     def get_custom_equipment_name(self, item):
         return self.grab_text(("gear_rarity", item["Rarity"], "Name")).split(",")[item["Name"][0]] + " " + \
-               self.grab_text(("gear_preset", self.profile["character"]["ID"], item["Type"])) + " " + \
-               self.grab_text(("gear_mod", item["Name"][1], "Suffix")).split(",")[rarity_mod_number[item["Rarity"]] - 1]
+            self.grab_text(("gear_preset", self.profile["character"]["ID"], item["Type"])) + " " + \
+            self.grab_text(("gear_mod", item["Name"][1], "Suffix")).split(",")[rarity_mod_number[item["Rarity"]] - 1]
 
 
 class ControllerIcon(UIMenu):

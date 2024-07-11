@@ -1,5 +1,4 @@
 import gc
-import random
 from datetime import datetime
 from os.path import join as path_join
 from random import choices
@@ -42,8 +41,10 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
         for player, slot in self.profile_index.items():  # check for update for all active players to update state
             if self.player_char_selectors[player].mode != "empty":
                 save_profile["character"][slot]["playtime"] += self.battle.play_time
-                save_profile["character"][slot]["total scores"] += self.battle.stage_score[self.battle.player_team[player]]
-                save_profile["character"][slot]["total golds"] += self.battle.stage_gold[self.battle.player_team[player]]
+                save_profile["character"][slot]["total scores"] += self.battle.stage_score[
+                    self.battle.player_team[player]]
+                save_profile["character"][slot]["total golds"] += self.battle.stage_gold[
+                    self.battle.player_team[player]]
                 save_profile["character"][slot]["total kills"] += self.battle.player_kill[player]
                 save_profile["character"][slot]["boss kills"] += self.battle.player_boss_kill[player]
                 save_profile["character"][slot]["last save"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
@@ -97,10 +98,11 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
                                 if choice == "no":
                                     sound_name = "War-1"
                                 war_level = self.localisation.grab_text(("ui", "civilwar" + change))
-                                event_queue_data["inform"].append((self.localisation.grab_text(("ui", "civil_war_level")) + ": " + war_level +
-                                                                   "(" + change + ")", sound_name))
+                                event_queue_data["inform"].append(
+                                    (self.localisation.grab_text(("ui", "civil_war_level")) + ": " + war_level +
+                                     "(" + change + ")", sound_name))
                             if "Court Change" in choice_reward and choice_reward["Court Change"]:
-                                event_queue_data["court"] |= choice_reward["Court Change"]
+                                event_queue_data["courtbook"] |= choice_reward["Court Change"]
                             event_queue_data["mission"].append((chapter, mission))
 
                         for follower in choice_reward["Follower Reward"]:

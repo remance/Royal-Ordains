@@ -1170,7 +1170,7 @@ class Model:
                                                                       self.frame_list[current_frame]["sound_effect"][1],
                                                                       self.frame_list[current_frame]["sound_effect"][2]]
                 else:
-                    self.frame_list[current_frame]["sound_effect"] = [sound_name, 1000, 10]
+                    self.frame_list[current_frame]["sound_effect"] = [sound_name, 1000, 1]
                     sound_distance_selector.change_name("1000")
 
         elif self.part_selected:
@@ -2731,7 +2731,7 @@ while True:
                     new_distance = int(input_box.text)
                     sound_distance_selector.change_name(input_box.text)
                     model.frame_list[current_frame]["sound_effect"][1] = new_distance
-                    model.frame_list[current_frame]["sound_effect"][2] = new_distance / 100
+                    model.frame_list[current_frame]["sound_effect"][2] = int(new_distance / 1000)
 
             elif text_input_popup[1] == "new_anim_prop":  # custom animation property
                 if input_box.text not in anim_prop_list_box.namelist:

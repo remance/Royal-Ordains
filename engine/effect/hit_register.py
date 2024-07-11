@@ -1,5 +1,7 @@
 from random import uniform
 
+from pygame.transform import smoothscale, flip
+
 from engine.uibattle.uibattle import DamageNumber
 
 
@@ -47,16 +49,24 @@ def hit_register(self, target, enemy_part, collide_pos):
                             self.battle.player_damage[self.owner.player_control] += attacker_dmg
                         target.cal_loss(self.owner, attacker_dmg, self.impact, hit_angle, dmg_text_pos, critical)
                         Effect(None, (
-                        "Damaged", "Base", self.rect.topleft[0] + collide_pos[0], self.rect.topleft[1] + collide_pos[1],
-                        self.angle, 1, 0, 1), 0)
+                            "Damaged", "Base", self.rect.topleft[0] + collide_pos[0],
+                            self.rect.topleft[1] + collide_pos[1],
+                            self.angle, 1, 0, 1), 0)
 
                     if not self.penetrate and not self.owner.attack_penetrate:
                         if self.stick_reach == "stick":  # stuck at body part
                             self.stuck_part = enemy_part
+                            enemy_part.stuck_effect.append(self)
                             self.stick_timer = 3
                             self.travel_distance = 0
-                            self.current_animation = self.animation_pool["Base"][self.scale]  # change image to base
-                            self.base_image = self.current_animation[self.show_frame][self.flip]
+                            self.current_animation = self.animation_pool["Base"]  # change image to base
+                            self.base_image = self.current_animation[self.show_frame]
+                            if self.scale != 1:
+                                self.base_image = smoothscale(self.base_image,
+                                                              (self.base_image.get_width() * self.scale,
+                                                               self.base_image.get_height() * self.scale))
+                            if self.flip:
+                                self.base_image = flip(self.base_image, 1, 0)
                             self.adjust_sprite()
                             self.battle.all_damage_effects.remove(self)
                             self.base_stuck_stat = (self.pos - self.stuck_part.rect.center, self.angle,

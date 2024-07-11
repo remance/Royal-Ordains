@@ -21,7 +21,8 @@ class StageObject(sprite.Sprite):
         self.repeat_animation = True
         self.current_animation = self.stage_object_animation_pool[sprite_id][self.battle.chapter]
 
-        self.image = self.current_animation[self.show_frame]
+        self.base_image = self.current_animation[self.show_frame]
+        self.image = self.base_image
 
         self.base_pos = Vector2([int(item) for item in pos.split(",")[0:2]])
         self.pos = Vector2((self.base_pos[0] * self.screen_scale[0],

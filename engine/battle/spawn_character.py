@@ -32,10 +32,10 @@ def spawn_character(self, player_list, stage_char_list, add_helper=True):
             if "story choice" in data["Stage Property"]:
                 mission_choice_appear = data["Stage Property"]["story choice"].split("_")[0]
             if ("no player pick" not in data["Stage Property"] or \
-                    data["ID"] not in [player.char_id for player in self.player_objects.values()]) and \
-                ("story choice" not in data["Stage Property"] or
-                 data["Stage Property"]["story choice"] ==
-                 mission_choice_appear + "_" + self.main_story_profile["story choice"][mission_choice_appear]):
+                data["ID"] not in [player.char_id for player in self.player_objects.values()]) and \
+                    ("story choice" not in data["Stage Property"] or
+                     data["Stage Property"]["story choice"] ==
+                     mission_choice_appear + "_" + self.main_story_profile["story choice"][mission_choice_appear]):
                 # check if no_player_pick and player with same character exist
                 if "city npc" in data["Stage Property"]:  # city AI, has different combat update
                     specific_behaviour = None
@@ -56,7 +56,7 @@ def spawn_character(self, player_list, stage_char_list, add_helper=True):
     if player_list and not self.city_mode:  # add AI followers for added player in battle
         last_id = stage_char_list[-1]["Object ID"] + 1  # id continue from last stage chars
         for player in player_list:
-            max_follower_allowance = (int(self.chapter) * 20) + self.all_story_profiles[player]["character"]["Charisma"]
+            max_follower_allowance = (int(self.chapter) * 10) + self.all_story_profiles[player]["character"]["Charisma"]
             for key, number in self.all_story_profiles[player]["follower preset"][
                 self.all_story_profiles[player]["selected follower preset"]].items():
                 for _ in range(int(number)):
@@ -78,4 +78,4 @@ def spawn_character(self, player_list, stage_char_list, add_helper=True):
                                          "Arrive Condition": (), "Start Health": 1})  # add pixie helper character
         # Score board in animation must always be p1_special_10 part
         self.score_board = ScoreBoard(self.helper.team, self.helper.body_parts["p1_special_10"])
-        self.helper.body_parts["p1_special_10"].base_image_update_contains.append(self.score_board)
+        self.helper.body_parts["p1_special_10"].image_update_contains.append(self.score_board)

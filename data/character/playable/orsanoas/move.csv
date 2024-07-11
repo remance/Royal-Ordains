@@ -1,23 +1,25 @@
 "Buttons","Move","Name","Position","Stat Requirement","Requirement Move","Prepare Animation","After Animation","AI Range","AI Delay","AI Condition","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
 "Weak","cweak1","Low Punch","Couch",,,,,250,,,,,,,,,,,,,,,,
-,,,"Couch",,,,,,,,,,,,,,,,,,,,,
-,,,"Couch",,,,,,,,,,,,,,,,,,,,,
-,,"Hilt Thump","Couch",,,,,,,,,,,,,,,,,,,,,
+"Weak","cweak2",,"Couch",,,,,,,,,,,,,,,,,,,,,
+"Weak","cweak3",,"Couch",,,,,,,,,,,,,,,,,,,,,
+"Strong","cstrong1","Ground Thump","Couch",,,,,,,,,,,,,,,,,,,,,
 "Weak","sweak1","Hook","Stand",,,,,250,,,,,,,,,,,,,,,,
 "Weak","sweak2","Uppercut","Stand",,,,,200,,,,,,,,,,,,,,,,
 "Weak","sweak3","Smack Out","Stand",,,,,,,,,,,,,,,,,,,,,
 "Strong","sstrong1","Hilt Stab","Stand",,,,,,,,,,,,,,,,,,,,,
 "Strong","sstrong2","Hilt Smash In","Stand",,,,,,,,,,,,,,,,,,,,,
 "Strong","sstrong3","Bash Swing","Stand",,,,,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,,,,,,
+"Strong","sstrong4","Spin Swing","Stand",,,,,,,,,,,,,,,,,,,,,
+"Strong","sstrong5","Spin Swing","Stand",,,,,,,,,,,,,,,,,,,,,
+"Strong","sstrong6","Spin Swing","Stand",,,,,,,,,,,,,,,,,,,,,
+"Strong","sstrong7","Final Swing","Stand",,,,,,,,,,,,,,,,,,,,,
 "Forward,Strong","sfstrong1","One Step Swing","Stand",,,,,,,,,,,,,,,,,,,,,"all child moveset,x_momentum:200,movable,forced move"
 "Forward,Strong","sfstrong2","Two Step Swing","Stand",,,,,,,,,,,,,,,,,,,,,"all child moveset,x_momentum:200,movable,forced move"
 "Backward,Strong","sbstrong1","Backward Step Swing","Stand",,,,,,,,,,,,,,,,,,,,,"all child moveset,x_momentum:-200,movable,forced move"
 "Backward,Strong","sbstrong2","Two Backward Step Swing","Stand",,,,,,,,,,,,,,,,,,,,,"all child moveset,x_momentum:-200,movable,forced move"
-"Strong",,"Great Lift","Stand",,"sweak1",,,,,,,,,,,,,,,,,,,
-"Strong",,"Overhead Crush","Stand",,"sweak2",,,,,,,,,,,,,,,,,,,
-"Strong",,"Overhead Swing","Stand",,"sweak3",,,,,,,,,,,,,,,,,,,
+"Strong","sweak1strong","Great Lift","Stand",,"sweak1",,,,,,,,,,,,,,,,,,,
+"Strong","sweak2strong","Overhead Crush","Stand",,"sweak2",,,,,,,,,,,,,,,,,,,
+"Strong","sweak3strong","Overhead Swing","Stand",,"sweak3",,,,,,,,,,,,,,,,,,,
 ,,,"Stand",,,,,,,,,,,,,,,,,,,,,
 "Guard,Special",,"Parry Blast","Stand",,,,,,,,,,,,,,,,,,,,,
 "Special","sspecialchild","Melody of Initiation","Stand",,,,,1000,,,,,,,,,,,,,"Physical",,,"all child moveset"
@@ -43,3 +45,5 @@
 "Special","lamorkul","Song of Lamorkul","Stand",,"goldenage",,,10000,,,,,,,,,,,,,,,,
 "Down,Strong",,"Plummet","Air",,,,,,,,,,,,,,,,,,,,,
 "Down,Special",,"Blasting Sound","Air",,,,,,,,,,,,,,,,,,,,,
+"Weak",,,"Air",,,,,,,,,,,,,,,,,,,,,
+"Strong",,,"Air",,,,,,,,,,,,,,,,,,,,,

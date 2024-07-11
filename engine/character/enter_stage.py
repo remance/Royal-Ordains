@@ -17,8 +17,8 @@ def enter_stage(self, animation_data_pool):
 
     self.body_parts = {key: value for key, value in self.body_parts.items() if key in exist_part}
     self.body_parts = {
-        key: BodyPart(self, key) if not any(ext in key for ext in ("weapon",)) else BodyPart(self, key,
-                                                                                             can_hurt=False)
+        key: BodyPart(self, key) if not any(ext in key for ext in ("weapon", "special")) else BodyPart(self, key,
+                                                                                                       can_hurt=False)
         for key, value in self.body_parts.items()}
 
     # adjust layer
@@ -39,7 +39,8 @@ def enter_stage(self, animation_data_pool):
     if not self.invincible:  # not add to list if can't take damage
         for team in self.battle.all_team_enemy:
             if team != self.team:
-                self.battle.all_team_enemy[team].add(self)
+                if not self.ai_lock:
+                    self.battle.all_team_enemy[team].add(self)
                 if self.team != 0:  # team 0 is not part of condition check:
                     self.battle.all_team_enemy_check[team].add(self)
                 for part in self.body_parts.values():

@@ -1,5 +1,5 @@
-from types import MethodType
 from random import uniform
+from types import MethodType
 
 from pygame import Vector2
 
@@ -30,6 +30,9 @@ def character_event_process(self, event, event_property):
         self.ai_lock = False
         self.event_ai_lock = False
         self.battle.cutscene_playing.remove(event)
+        for team in self.battle.all_team_enemy:
+            if team != self.team and self not in self.battle.all_team_enemy[team]:
+                self.battle.all_team_enemy[team].add(self)
     elif event["Type"] == "lock":  # lock AI via event
         self.event_ai_lock = True
         self.ai_lock = True

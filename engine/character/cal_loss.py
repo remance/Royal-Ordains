@@ -18,6 +18,12 @@ def cal_loss(self, attacker, final_dmg, impact, hit_angle, dmg_text_pos, critica
 
         if final_dmg > self.health:  # dmg cannot be higher than remaining health
             final_dmg = self.health
+        elif final_dmg > self.health10:  # big hurt speech
+            if self.leader and self.leader.player_control and not self.battle.follower_talk_timer and "hurt" in self.follower_speak:
+                self.follower_talk("bighurt")
+        elif final_dmg > self.health1:  # hurt speech
+            if self.leader and self.leader.player_control and not self.battle.follower_talk_timer and "hurt" in self.follower_speak:
+                self.follower_talk("hurt")
         super_armour = self.super_armour
         if "moveset" in self.current_action:  # any moveset action make super armour double
             super_armour = self.super_armour * 2
@@ -72,14 +78,15 @@ def cal_loss(self, attacker, final_dmg, impact, hit_angle, dmg_text_pos, critica
                                                    self.dmg_screen_shake,
                                                    volume_mod=self.hit_volume_mod)
 
-        else:  # play damaged sound when hit for immovable enemy
+        else:
             if self.is_boss:  # boss add stun value to play stun animation
-                self.stun_value += impact_check
-                if self.stun_value >= self.stun_threshold:
-                    self.interrupt_animation = True
-                    self.command_action = self.stun_command_action
-                    self.stun_value = 0
-                    self.stun_threshold *= 2
+                if impact_check > 0 and not self.freeze_timer:  # stun only increase when not in freeze timer
+                    self.stun_value += impact_check
+                    if self.stun_value >= self.stun_threshold:
+                        self.interrupt_animation = True
+                        self.command_action = self.stun_command_action
+                        self.stun_value = 0
+                        self.stun_threshold *= 2
             self.battle.add_sound_effect_queue(self.sound_effect_pool["Damaged"][0], self.pos,
                                                self.dmg_sound_distance,
                                                self.dmg_screen_shake,

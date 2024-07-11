@@ -1,10 +1,10 @@
 from math import log2
 
 from pygame.sprite import spritecollide, collide_mask
+from pygame.transform import smoothscale, flip
 
 
 def hit_collide_check(self, check_damage_effect=True):
-    from engine.effect.effect import Effect
     """
     Check for collision with enemy effect and body parts
     @param self: Effect object
@@ -29,7 +29,7 @@ def hit_collide_check(self, check_damage_effect=True):
                 if impact_crash_check(self, enemy_part):  # lose in crash
                     return True
 
-            elif enemy_part.can_hurt and enemy not in self.already_hit and \
+            elif enemy_part.can_hurt and enemy.alive and enemy not in self.already_hit and \
                     ("no dmg" not in enemy.current_action or not enemy.player_control):  # collide body part
                 collide_pos = collide_mask(self, enemy_part)
                 if collide_pos:  # in case collide change
@@ -68,11 +68,11 @@ def impact_crash_check(self, crashed_part):
         self.already_hit.append(crashed_part.owner)
         if crashed_part.object_type == "body":  # play damaged animation if crash part is not effect
             crashed_part.owner.interrupt_animation = True
-            if not self.owner.no_forced_move:
+            if not crashed_part.owner.no_forced_move:
                 crashed_part.owner.command_action = crashed_part.owner.heavy_damaged_command_action
         if self.object_type == "body":
             self.owner.interrupt_animation = True
-            if not crashed_part.owner.no_forced_move:
+            if not self.owner.no_forced_move:
                 self.owner.command_action = self.owner.heavy_damaged_command_action
         Effect(None, ("Crash Player", "Base", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)
         if self.object_type == "effect":  # end effect
@@ -130,7 +130,12 @@ def sprite_bounce(self):
     else:
         self.x_momentum = -100
     self.y_momentum = 100
-    self.current_animation = self.animation_pool["Base"][self.scale]  # change image to base
-    self.base_image = self.current_animation[self.show_frame][self.flip]
+    self.current_animation = self.animation_pool["Base"]  # change image to base
+    self.base_image = self.current_animation[self.show_frame]
+    if self.scale != 1:
+        self.base_image = smoothscale(self.base_image, (self.base_image.get_width() * self.scale,
+                                                        self.base_image.get_height() * self.scale))
+    if self.flip:
+        self.base_image = flip(self.base_image, 1, 0)
     self.adjust_sprite()
     self.battle.all_damage_effects.remove(self)

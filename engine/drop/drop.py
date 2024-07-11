@@ -38,15 +38,17 @@ class Drop(sprite.Sprite):
 
         self.team = team
 
-        self.battle.all_team_drop[self.team].add(self)
-        self.current_animation = self.item_sprite_pool[self.battle.chapter]["Normal"][game_id][1]
-
-        self.base_image = self.current_animation[self.show_frame]
-        self.image = self.base_image
-
         self.angle = 0
         self.scale = 1.0
         self.flip = 0
+
+        self.battle.all_team_drop[self.team].add(self)
+        self.current_animation = self.item_sprite_pool[self.battle.chapter]["Normal"][game_id]
+        if type(self.current_animation) is dict:
+            self.current_animation = self.item_sprite_pool[self.battle.chapter]["Normal"][game_id][0][0][1]
+        self.base_image = self.current_animation
+        self.image = self.base_image
+
         self.duration = 10
         self.pos = (self.base_pos[0] * self.screen_scale[0],
                     self.base_pos[1] * self.screen_scale[1])

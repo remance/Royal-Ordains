@@ -9,7 +9,8 @@ def event_process(self):
         event_property = child_event["Property"]
         if "story choice" in event_property:
             mission_choice_appear = event_property["story choice"].split("_")[0]
-        if "story choice" not in event_property or event_property["story choice"] == mission_choice_appear + "_" + self.main_story_profile["story choice"][mission_choice_appear]:
+        if "story choice" not in event_property or event_property["story choice"] == mission_choice_appear + "_" + \
+                self.main_story_profile["story choice"][mission_choice_appear]:
             # skip event that not in story path
             if child_event["Object"] == "camera":
                 if child_event["Type"] == "move" and "POS" in event_property:

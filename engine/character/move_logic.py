@@ -48,7 +48,7 @@ def move_logic(self, dt):
             self.move_speed += self.y_momentum
             if self.y_momentum <= 0:  # reach highest y momentum now fall down
                 self.y_momentum = -self.fall_gravity
-        if self.y_momentum < 0:  # no more velocity to go up, must go down
+        elif self.position == "Air" and self.y_momentum <= 0:  # no more velocity to go up, must go down
             if self.base_pos[1] >= self.ground_pos and not self.no_clip:
                 # reach ground, start landing animation
                 self.y_momentum = 0
@@ -61,18 +61,20 @@ def move_logic(self, dt):
                 self.position = "Stand"
             elif (not self.fly and "fly" not in self.current_action) or not self.alive:
                 # falling down if not flying and not in temporary stopping or dead
+                self.move_speed = self.fall_gravity
+                self.y_momentum = -self.fall_gravity
                 if "dash" in self.current_action:
                     self.move_speed += 2000
+                    self.y_momentum = -1
                 elif "drop speed" in self.current_action:
-                    self.move_speed = self.fall_gravity * self.current_action["drop speed"]
+                    self.move_speed *= self.current_action["drop speed"]
+                    self.y_momentum = -self.move_speed * 10
                 elif "moveset" in self.current_action or self.stop_fall_duration:  # delay falling when attack midair
                     self.move_speed = 100
+                    self.y_momentum = -100
                 elif "die" in self.current_action:
-                    self.y_momentum = -self.fall_gravity
                     self.move_speed = self.fall_gravity
-                elif self.y_momentum > -self.fall_gravity:  # use gravity if existing -y momentum is higher
-                    self.move_speed = self.fall_gravity
-                else:  # fall faster if -y momentum lower than gravity
+                elif self.y_momentum < -self.fall_gravity:  # fall faster if -y momentum lower than gravity
                     self.move_speed = -self.y_momentum + self.fall_gravity
         elif self.y_momentum < 0 and self.base_pos[1] == self.ground_pos:  # reach ground, reset y momentum
             self.y_momentum = 0

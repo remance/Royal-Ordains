@@ -16,8 +16,7 @@ def play_animation(self, dt, hold_check):
                 self.show_frame += 1
             else:  # reach end frame
                 self.show_frame = 0
-                if "repeat" not in self.current_action:
-                    # not loop and not has freeze animation timer to run out first
+                if "repeat" not in self.current_action:  # not loop
                     done = True
             if self.current_animation_direction[self.show_frame]["sound_effect"]:  # play sound from animation
                 sound = self.current_animation_direction[self.show_frame]["sound_effect"]

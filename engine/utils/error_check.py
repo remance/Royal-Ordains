@@ -1,15 +1,14 @@
-import os
-
-import pygame
 import csv
-
+import os
 from pathlib import Path
 
-from engine.game.game import Game
-from engine.data.datastat import GameData
+import pygame
+
 from engine.data.datalocalisation import Localisation
 from engine.data.datamap import BattleMapData
+from engine.game.game import Game
 from engine.utils.data_loading import csv_read
+
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 main_dir = "\\".join(main_dir.split("\\")[:-2])
 main_data_dir = os.path.join(main_dir, "data")
@@ -32,7 +31,6 @@ default_sprite_size = (600, 600)
 
 ui = pygame.sprite.LayeredUpdates()
 fake_group = pygame.sprite.LayeredUpdates()  # just fake group to add for container and not get auto update
-
 
 Game.main_dir = main_dir
 Game.data_dir = data_dir
@@ -67,7 +65,8 @@ def event_translation_check(language):
                                            "event.csv"), encoding="utf-8", mode="r") as unit_file:
                         rd = list(csv.reader(unit_file, quoting=csv.QUOTE_ALL))
                         for item4 in rd:
-                            if item4[1] and item4[1] != "Text ID" and item4[1] not in localisation.text[language]["event"]:
+                            if item4[1] and item4[1] != "Text ID" and item4[1] not in localisation.text[language][
+                                "event"]:
                                 print(chapter_file_name, map_file_name, stage_file_name, item4[1])
                 else:  # city stage, read each scene
                     read_folder = Path(os.path.join(data_dir, "map", "preset", file_chapter, file_map, "0"))
@@ -79,7 +78,9 @@ def event_translation_check(language):
                                                "event.csv"), encoding="utf-8", mode="r") as unit_file:
                             rd = list(csv.reader(unit_file, quoting=csv.QUOTE_ALL))
                             for item4 in rd:
-                                if item4[1] and item4[1] != "Text ID" and item4[1] not in localisation.text[language]["event"]:
+                                if item4[1] and item4[1] != "Text ID" and item4[1] not in localisation.text[language][
+                                    "event"]:
                                     print(chapter_file_name, map_file_name, stage_file_name, scene_file_name, item4[1])
+
 
 event_translation_check("en")

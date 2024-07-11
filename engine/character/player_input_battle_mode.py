@@ -187,7 +187,10 @@ def player_input_battle_mode(self, player_index, dt):
                                 elif self.player_command_key_input[-1] == "Right" and "run" in self.current_action:
                                     # halt
                                     self.interrupt_animation = True
-                                    self.command_action = self.halt_command_action
+                                    if self.special_combat_state and self.special_halt_command:
+                                        self.command_action = self.special_halt_command[self.special_combat_state]
+                                    else:
+                                        self.command_action = self.halt_command_action
                                     self.x_momentum = -self.walk_speed
                                     self.player_command_key_input = []
                                     self.command_key_input = []
@@ -212,7 +215,10 @@ def player_input_battle_mode(self, player_index, dt):
                                 elif self.player_command_key_input[-1] == "Left" and "run" in self.current_action:
                                     # halt
                                     self.interrupt_animation = True
-                                    self.command_action = self.halt_command_action
+                                    if self.special_combat_state and self.special_halt_command:
+                                        self.command_action = self.special_halt_command[self.special_combat_state]
+                                    else:
+                                        self.command_action = self.halt_command_action
                                     self.x_momentum = self.walk_speed
                                     self.player_command_key_input = []
                                     self.command_key_input = []
@@ -228,12 +234,19 @@ def player_input_battle_mode(self, player_index, dt):
                                     self.position != "Air" and "dash" not in self.current_action:
                                 # movement with air does not use specific command action
                                 if not self.command_action:
-                                    self.command_action = self.walk_command_action
+                                    if self.special_combat_state and self.special_walk_command:
+                                        self.command_action = self.special_walk_command[self.special_combat_state]
+                                    else:
+                                        self.command_action = self.walk_command_action
                                     if run_input or "run" in self.current_action:
                                         self.engage_combat()
                                         if "walk" in self.current_action:  # reset walk animation to run
                                             self.interrupt_animation = True
-                                        self.command_action = self.run_command_action
+                                        if self.special_combat_state and self.special_run_command:
+                                            self.command_action = self.special_run_command[
+                                                                      self.special_combat_state] | {"x_momentum": True}
+                                        else:
+                                            self.command_action = self.run_command_action
 
                     elif self.position == "Air":
                         if self.air_dash_move:

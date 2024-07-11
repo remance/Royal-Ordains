@@ -1,5 +1,5 @@
-from types import MethodType
 from copy import deepcopy
+from types import MethodType
 
 from pygame.mixer import Channel
 
@@ -27,17 +27,16 @@ def state_battle_process(self, esc_press):
         self.add_ui_updater(self.cursor, self.battle_menu_button,
                             self.stage_translation_text_popup)  # add menu and its buttons to drawer
         self.realtime_ui_updater.remove(self.main_player_battle_cursor)
-    elif self.city_mode and not self.cutscene_playing and \
-            self.player_key_press[self.main_player]["Inventory Menu"]:
-        # open court book
-        self.court_book.add_portraits(self.main_story_profile["interface event queue"]["courtbook"])
-        self.add_ui_updater(self.cursor, self.court_book)
-        self.change_game_state("court")
-    elif self.city_mode and not self.cutscene_playing and \
-            self.player_key_press[self.main_player]["Special"]:
-        # open city map
-        self.add_ui_updater(self.cursor, self.city_map)
-        self.change_game_state("map")
+    elif self.city_mode and not self.cutscene_playing:
+        if self.player_key_press[self.main_player]["Inventory Menu"]:
+            # open court book
+            self.court_book.add_portraits(self.main_story_profile["interface event queue"]["courtbook"])
+            self.add_ui_updater(self.cursor, self.court_book)
+            self.change_game_state("court")
+        elif self.player_key_press[self.main_player]["Special"]:
+            # open city map
+            self.add_ui_updater(self.cursor, self.city_map)
+            self.change_game_state("map")
 
     self.camera_process()
 
@@ -50,7 +49,8 @@ def state_battle_process(self, esc_press):
         self.cutscene_finish_camera_delay -= self.dt
         if self.cutscene_finish_camera_delay < 0:
             self.cutscene_finish_camera_delay = 0
-    self.ui_timer += self.dt  # ui update by real time instead of self time to reduce workload
+    if not self.city_mode:
+        self.ui_timer += self.dt  # ui update by real time instead of self time to reduce workload
     self.ui_dt = self.dt  # get ui timer before apply
 
     if self.main_player_battle_cursor.pos_change:  # display cursor when have movement
@@ -64,6 +64,11 @@ def state_battle_process(self, esc_press):
             self.main_player_battle_cursor.shown = False
             self.main_player_battle_cursor.rect.topleft = (-100, -100)
 
+    if self.follower_talk_timer:
+        self.follower_talk_timer -= self.dt
+        if self.follower_talk_timer < 0:
+            self.follower_talk_timer = 0
+
     # Weather system
     if self.current_weather.spawn_rate:
         self.weather_spawn_timer += self.dt
@@ -74,13 +79,16 @@ def state_battle_process(self, esc_press):
     # Screen shaking
     self.shown_camera_pos = self.camera_pos.copy()  # reset camera pos first
     if self.screen_shake_value:
-        self.screen_shake_value -= (self.dt * 100)
+        decrease = 1000
+        if self.screen_shake_value > decrease:
+            decrease = self.screen_shake_value
+        self.screen_shake_value -= (self.dt * decrease)
         self.shake_camera()
         if self.screen_shake_value < 0:
             self.screen_shake_value = 0
 
     # Battle related updater
-    self.battle_stage.update(self.shown_camera_pos)  # update stage first
+    self.battle_stage.update(self.shown_camera_pos, self.camera_pos)  # update stage first
     if not self.cutscene_playing:
         self.character_updater.update(self.dt)
         self.effect_updater.update(self.dt)
@@ -93,7 +101,7 @@ def state_battle_process(self, esc_press):
 
     self.common_process()
 
-    if self.ui_timer >= 0.1 and not self.city_mode:
+    if self.ui_timer >= 0.1:
         for key, value in self.player_objects.items():
             self.player_portraits[key].value_input(value)
 
@@ -117,17 +125,22 @@ def state_battle_process(self, esc_press):
                 self.main_story_profile["story event"][self.cutscene_playing_data[0]["ID"] +
                                                        self.chapter + self.mission + self.stage] = True
 
-    if not self.city_mode and not self.all_team_enemy_check[1] and not self.later_enemy[self.battle_stage.spawn_check_scene]:  # all enemies dead, end stage process TODO rework for pvp mode
+    if not self.city_mode and not self.all_team_enemy_check[1] and not self.later_enemy[
+        self.battle_stage.spawn_check_scene]:  # all enemies dead, end stage process TODO rework for pvp mode
         if not self.end_delay and not self.cutscene_playing:
             mission_str = self.chapter + "." + self.mission + "." + self.stage
             # not ending stage yet, due to decision waiting or playing cutscene
             victory_drama = ("Victory", None)
             if self.decision_select not in self.realtime_ui_updater and self.stage_end_choice:
                 if mission_str not in self.main_story_profile["story choice"]:
+                    self.current_music = None  # stop music during end decision
+                    self.music_left.stop()
+                    self.music_right.stop()
+
                     if victory_drama not in self.drama_text.queue:
                         self.drama_text.queue.append(victory_drama)
                     self.realtime_ui_updater.add(self.decision_select)
-            elif not self.stage_end_choice:
+            elif not self.stage_end_choice:  # no choice in this stage, just show victory banner and count to end
                 if victory_drama not in self.drama_text.queue:
                     self.end_delay = 0.1
                     self.drama_text.queue.append(victory_drama)
@@ -153,9 +166,10 @@ def state_battle_process(self, esc_press):
             if self.end_delay >= 5:  # end battle
                 self.end_delay = 0
 
-                if str(int(self.stage) + 1) in self.game.preset_map_data[self.chapter][self.mission] or \
-                        str(int(self.mission) + 1) in self.game.preset_map_data[self.chapter]:
+                if self.stage.isdigit() and (
+                        str(int(self.stage) + 1) in self.game.preset_map_data[self.chapter][self.mission] or \
+                        str(int(self.mission) + 1) in self.game.preset_map_data[self.chapter]):
                     # has next stage or mission
                     return True
                 else:
-                    return False
+                    return "throne"

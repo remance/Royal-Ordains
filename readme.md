@@ -5,7 +5,7 @@
 <img src="https://github.com/remance/preview2/blob/main/bg1.1.1.3.png?raw=true">
 <img src="https://github.com/remance/preview2/blob/main/bg1.2.1.8.png?raw=true">
 
-[![](https://markdown-videos-api.jorgenkh.no/youtube/KHejwk4pPUg)](https://youtu.be/KHejwk4pPUg)
+[![](https://markdown-videos-api.jorgenkh.no/youtube/ar8TsS8spMU)](https://youtu.be/ar8TsS8spMU)
 
 
 Side-scrolling medieval fantasy action game in the art style inspired by Medieval art from various periods and regions (with a sprinkle of education elements for historical medieval period) made with [Pygame](https://github.com/pygame/pygame).
@@ -262,6 +262,7 @@ Animation maker for the Vector-based character animation in game. The tool is ma
 - Test menu music"The Britons" by kmacleod (https://pixabay.com/users/kmacleod-3979860/)
 - Battle music "Medieval: Battle" by RandomMind (https://www.chosic.com/free-music/all/?keyword=RandomMind&artist)
 - Battle music 2 "War Drums Sound Effect - Realistic Performance - Royalty Free" by Free Audio Zone (https://www.youtube.com/watch?v=d2omr4EpjVc)
+- Battle music 3-9 "Action Drum 1-7" By Ashenrise (https://pixabay.com/users/ashenrise-37219325/)
 - Council music "Meditacao" by Composiia (https://pixabay.com/users/composiia-38203768/)
 - Cathedral music "Camelot Monastery" by Darren Curtis (https://www.chosic.com/free-music/all/?keyword=Darren%20Curtis&artist)
 - Library music "Calmaria" by Composiia (https://pixabay.com/users/composiia-38203768/)

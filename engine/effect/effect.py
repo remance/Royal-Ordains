@@ -1,14 +1,14 @@
 from math import radians
 from random import uniform, choice
 
-from pygame import sprite, Vector2
-from pygame.sprite import spritecollide, collide_mask
+from pygame import Vector2
+from pygame.sprite import Sprite, spritecollide, collide_mask
 
 from engine.drop.drop import Drop
 from engine.utils.rotation import rotation_xy
 
 
-class Effect(sprite.Sprite):
+class Effect(Sprite):
     from engine.character.apply_status import apply_status
     apply_status = apply_status
 
@@ -57,7 +57,7 @@ class Effect(sprite.Sprite):
             self._layer = layer
         else:  # effect with 0 layer 0 will always be at top instead
             self._layer = 9999999999999999997
-        sprite.Sprite.__init__(self, self.containers)
+        Sprite.__init__(self, self.containers)
 
         self.show_frame = 0
         self.frame_timer = 0
@@ -141,15 +141,16 @@ class Effect(sprite.Sprite):
                     self.one_hit_per_enemy = True
 
         self.animation_pool = self.effect_animation_pool[self.effect_name][self.sprite_ver]
-        self.current_animation = self.animation_pool[self.part_name][self.scale]
+        self.current_animation = self.animation_pool[self.part_name]
+        if type(self.current_animation) is dict:
+            self.current_animation = self.current_animation[self.flip][self.scale]
 
         self.animation_speed = self.default_animation_speed
         if len(self.current_animation) == 1:  # effect with no animation play a bit longer
             self.animation_speed = 0.2
 
-        self.base_image = self.current_animation[self.show_frame][self.flip]
+        self.base_image = self.current_animation[self.show_frame]
         self.image = self.base_image
-
         self.adjust_sprite()
 
     def update(self, dt):
@@ -257,6 +258,8 @@ class Effect(sprite.Sprite):
                         moveset["Property"] = [item for item in moveset["Property"] if
                                                item != "spawn"]  # remove spawn property so it not loop spawn
                         DamageEffect(self.owner, stat, 0, moveset=moveset, from_owner=False)
+        if self.stuck_part and self in self.stuck_part.stuck_effect:
+            self.stuck_part.stuck_effect.remove(self)
         self.clean_object()
 
 
@@ -295,7 +298,6 @@ class DamageEffect(Effect):
             self.battle.all_damage_effects.remove(self)
             self.effect_collide_check = False
 
-        self.friend_status_effect = self.moveset["Status"]
         self.enemy_status_effect = self.moveset["Enemy Status"]
 
     def find_damage(self, moveset):
@@ -313,7 +315,6 @@ class DamageEffect(Effect):
         if self.dmg < 0:
             self.dmg = 0
         self.critical_chance = self.owner.critical_chance + moveset["Critical Chance Bonus"]
-        self.friend_status_effect = moveset["Status"]
         self.enemy_status_effect = moveset["Enemy Status"]
 
     def update(self, dt):
@@ -352,9 +353,6 @@ class DamageEffect(Effect):
 
             else:  # no longer bouncing, start countdown stick timer or find new pos for stuck part
                 if self.stuck_part:  # find new pos based on stuck part
-                    if not hasattr(self.stuck_part, "data"):
-                        print(self.stuck_part)
-                        print(self.stuck_part.owner,)
                     if self.stuck_part.data:
                         self.pos = list(self.stuck_part.rect.center)
                         self.angle = self.base_stuck_stat[1]

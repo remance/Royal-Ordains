@@ -1,5 +1,4 @@
 "ID","Text ID","Object","Animation","Type","Trigger","Property"
-"music/scene1",,1,,"music","camera_reach_scene,1",
 "2nd_scene_reach",,"p1","PresetCombatStandWalk","cutscene","camera_reach_scene,2","POS:scene_start,angle:target"
 ,,"p2","PresetCombatStandWalk",,,"POS:scene_start,angle:target"
 ,,"p3","PresetCombatStandWalk",,,"POS:scene_start,angle:target"
@@ -26,6 +25,37 @@
 ,,7,,"unlock",,
 ,,8,,"unlock",,
 ,,9,,"unlock",,
+,,10,,"unlock",,
+,,11,,"unlock",,
+,,12,,"unlock",,
+,,13,,"unlock",,
+,,14,,"unlock",,
+,,15,,"unlock",,
+,,16,,"unlock",,
+,,17,,"unlock",,
+,,18,,"unlock",,
+,,19,,"unlock",,
+,,20,,"unlock",,
+,,21,,"unlock",,
+,,22,,"unlock",,
+,,23,,"unlock",,
+,,24,,"unlock",,
+,,25,,"unlock",,
+,,26,,"unlock",,
+,,27,,"unlock",,
+,,28,,"unlock",,
+,,29,,"unlock",,
+,,30,,"unlock",,
+,,31,,"unlock",,
+,,32,,"unlock",,
+,,33,,"unlock",,
+,,34,,"unlock",,
+,,35,,"unlock",,
+,,36,,"unlock",,
+,,37,,"unlock",,
+,,38,,"unlock",,
+,,39,,"unlock",,
+,,3,,"music",,
 "weather",,"Red Leaf",,"weather","camera_reach_scene,6","wind direction:200"
 "weather1",,"Red Leaf",,"weather","camera_reach_scene,8","wind direction:180"
 "boss_reach",,"p1","PresetCombatStandWalk","cutscene","camera_reach_scene,8","POS:(14340;1000),angle:target"
@@ -42,9 +72,10 @@
 ,"event/1_2_1_talk2.5no",40,,,,"interact,story choice:1.1.3_no"
 ,"event/1_2_1_talk2.6no",40,"Taunt",,,"interact,story choice:1.1.3_no"
 ,,1,,"music",,"story choice:1.1.3_yes"
-,,2,,"music",,"story choice:1.1.3_no"
+,,3,,"music",,"story choice:1.1.3_no"
 ,,40,,"unlock",,
-"submit",,40,"Submit","submit","submit","submit,hold"
+"submit",,40,"Submit","submit","submit","repeat after"
+,,40,"SubmitHold",,,"repeat after,submit"
 "execute",,40,"PresetCombatStandDie","execute","execute","start_frame:-1,hold"
 ,,"helper","PresetPeaceAirWalk",,,"target:40,angle:target,wait"
 ,,"helper","Execute",,,

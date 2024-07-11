@@ -128,7 +128,8 @@ class CharacterData(GameData):
                             tuple_column = (
                                 "Buttons", "Requirement Move", "Status", "Enemy Status")  # value in tuple only
                             tuple_column = [index for index, item in enumerate(header2) if item in tuple_column]
-                            dict_column = ("Stat Requirement", "Prepare Animation", "After Animation", "AI Condition", "Property",)
+                            dict_column = (
+                            "Stat Requirement", "Prepare Animation", "After Animation", "AI Condition", "Property",)
                             dict_column = [index for index, item in enumerate(header2) if item in dict_column]
                             moveset_dict = {}
                             remain_next_move_loop = []
@@ -197,7 +198,7 @@ class CharacterData(GameData):
                             rd = tuple(csv.reader(edit_file2, quoting=csv.QUOTE_ALL))
                             header2 = rd[0]
                             tuple_column = (
-                            "Buttons", "Requirement Move", "Status", "Enemy Status")  # value in tuple only
+                                "Buttons", "Requirement Move", "Status", "Enemy Status")  # value in tuple only
                             dict_column = ("Prepare Animation", "After Animation", "AI Condition", "Property",)
                             tuple_column = [index for index, item in enumerate(header2) if item in tuple_column]
                             dict_column = [index for index, item in enumerate(header2) if item in dict_column]
