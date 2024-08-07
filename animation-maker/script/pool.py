@@ -73,9 +73,9 @@ def anim_to_pool(animation_name, pool, char, activate_list, new=False, replace=N
                                     frame != {} and activate_list[index]]
 
 
-def anim_save_pool(pool, race_name, anim_column_header):
+def anim_save_pool(pool, chapter, race_name, anim_column_header):
     """Save animation pool data"""
-    with open(os.path.join(main_dir, "data", "animation", filename_convert_readable(race_name, revert=True) + ".csv"),
+    with open(os.path.join(main_dir, "data", "animation", str(chapter), filename_convert_readable(race_name, revert=True) + ".csv"),
               mode="w",
               encoding='utf-8', newline="") as edit_file:
         filewriter = csv.writer(edit_file, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL)

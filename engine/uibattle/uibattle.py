@@ -190,7 +190,10 @@ class PlayerPortrait(UIBattle):
 
     def add_char_portrait(self, who):
         self.image = self.base_image.copy()
-        portrait = self.battle.character_data.character_portraits[who.char_id + who.sprite_ver]
+        if who.char_id + self.battle.chapter in self.battle.character_data.character_portraits:
+            portrait = self.battle.character_data.character_portraits[who.char_id + self.battle.chapter]
+        else:
+            portrait = self.battle.character_data.character_portraits[who.char_id]
         portrait_rect = portrait.get_rect(topleft=(0, 0))
         self.image.blit(portrait, portrait_rect)
         if self.battle.city_mode and self.player == self.battle.main_player:  # add helper text for main player

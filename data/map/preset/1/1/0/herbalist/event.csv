@@ -53,7 +53,19 @@
 "Pasgelo/Orsanoas/1_1_city_herbalist_talk1","Pasgelo/Orsanoas/1_1_city_herbalist_talk1.1",,"Talk","char","interact,2","interact,hold"
 "Pasgelo/Bauqah/1_1_city_herbalist_talk1","Pasgelo/Bauqah/1_1_city_herbalist_talk1.1",,"Talk","char","interact,2","interact,hold"
 "Pasgelo/Minara/1_1_city_herbalist_talk1","Pasgelo/Minara/1_1_city_herbalist_talk1.1",,"Talk","char","interact,2","interact,hold"
-"Pasgelo/Duskuksa/1_1_city_herbalist_talk1","Pasgelo/Duskuksa/1_1_city_herbalist_talk1.1",,"Talk","char","interact,2","interact,hold"
+"Pasgelo/Duskuksa/1_1_city_herbalist_talk1","Pasgelo/Duskuksa/1_1_city_herbalist_talk1.1",2,"Talk","char","interact,2","interact,hold,repeat after"
+,,2,"StopTalk",,,
+,"Pasgelo/Duskuksa/1_1_city_herbalist_talk1.2","pm","Talk",,,"interact,hold,repeat after"
+,,"pm","StopTalk",,,
+,"Pasgelo/Duskuksa/1_1_city_herbalist_talk1.3","pm",,,,"interact"
+,"Pasgelo/Duskuksa/1_1_city_herbalist_talk1.4",2,,,,"interact"
+,"Pasgelo/Duskuksa/1_1_city_herbalist_talk1.5","pm",,,,"interact"
+,"Pasgelo/Duskuksa/1_1_city_herbalist_talk1.6","pm",,,,"interact"
+,"Pasgelo/Duskuksa/1_1_city_herbalist_talk1.7",2,,,,"interact"
+,"Pasgelo/Duskuksa/1_1_city_herbalist_talk1.8",2,,,,"interact"
+,"Pasgelo/Duskuksa/1_1_city_herbalist_talk1.9",2,,,,"interact"
+,"Pasgelo/Duskuksa/1_1_city_herbalist_talk1.10","pm",,,,"interact"
+,"Pasgelo/Duskuksa/1_1_city_herbalist_talk1.11",2,,,,"interact"
 "Pasgelo/Yuawies/1_1_city_herbalist_talk1","Pasgelo/Yuawies/1_1_city_herbalist_talk1.1",,"Talk","char","interact,2","interact,hold"
 "Pasgelo/Any/1_1_city_herbalist_talk2","Pasgelo/Any/1_1_city_herbalist_talk2.1",2,"Talk","char","interact,2","interact,hold,replayable,repeat after"
 ,,2,"StopTalk",,,

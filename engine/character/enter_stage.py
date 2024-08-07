@@ -24,12 +24,14 @@ def enter_stage(self, animation_data_pool):
     # adjust layer
     if self.player_control:  # player character get priority in sprite showing
         self.base_layer = int(self.layer_id * self.body_size * 1000000000)
+        self.dead_layer = self.base_layer / 100000000
     else:
         if self.invincible:  # invincible character has lower layer priority
             self.base_layer = int(self.layer_id * self.body_size * 1000)
+            self.dead_layer = self.base_layer
         else:
             self.base_layer = int(self.layer_id * self.body_size * 1000000)
-    self.dead_layer = self.base_layer * 10000
+            self.dead_layer = self.base_layer / 10000
     for part in self.body_parts.values():
         part.owner_layer = self.base_layer
         part.dead_layer = self.dead_layer

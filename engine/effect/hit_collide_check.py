@@ -66,14 +66,6 @@ def impact_crash_check(self, crashed_part):
         crashed_part.can_deal_dmg = False
         crashed_part.already_hit.append(self.owner)
         self.already_hit.append(crashed_part.owner)
-        if crashed_part.object_type == "body":  # play damaged animation if crash part is not effect
-            crashed_part.owner.interrupt_animation = True
-            if not crashed_part.owner.no_forced_move:
-                crashed_part.owner.command_action = crashed_part.owner.heavy_damaged_command_action
-        if self.object_type == "body":
-            self.owner.interrupt_animation = True
-            if not self.owner.no_forced_move:
-                self.owner.command_action = self.owner.heavy_damaged_command_action
         Effect(None, ("Crash Player", "Base", self.rect.centerx, self.rect.centery, -self.angle, 1, 0, 1), 0)
         if self.object_type == "effect":  # end effect
             if self.stick_reach:  # bounce off

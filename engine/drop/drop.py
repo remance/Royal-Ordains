@@ -43,9 +43,9 @@ class Drop(sprite.Sprite):
         self.flip = 0
 
         self.battle.all_team_drop[self.team].add(self)
-        self.current_animation = self.item_sprite_pool[self.battle.chapter]["Normal"][game_id]
+        self.current_animation = self.item_sprite_pool["Normal"][game_id]
         if type(self.current_animation) is dict:
-            self.current_animation = self.item_sprite_pool[self.battle.chapter]["Normal"][game_id][0][0][1]
+            self.current_animation = self.item_sprite_pool["Normal"][game_id][0][0][1]
         self.base_image = self.current_animation
         self.image = self.base_image
 

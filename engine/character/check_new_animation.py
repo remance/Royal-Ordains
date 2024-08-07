@@ -63,7 +63,7 @@ def check_new_animation(self, done):
                         if spawn_type in item_stat["Property"]:
                             team = self.team
                             if "chaos" in spawn_type:  # chaos summon enemy with neutral team
-                                team = 5
+                                team = 0
                             for spawn, chance in item_stat["Property"][spawn_type].items():
                                 spawn_name = spawn
                                 if "+" in spawn_name:  # + indicate number of possible drop
@@ -81,7 +81,7 @@ def check_new_animation(self, done):
                                             BattleAICharacter(self.battle.last_char_id, self.battle.last_char_id,
                                                               self.character_data.character_list[spawn_name] |
                                                               {"ID": spawn_name,
-                                                               "Sprite Ver": self.sprite_ver, "Angle": self.angle,
+                                                               "Angle": self.angle,
                                                                "Team": team, "POS": start_pos,
                                                                "Arrive Condition": ()})
                                             Effect(None, ("Movement", "Summon", start_pos[0],
@@ -97,10 +97,8 @@ def check_new_animation(self, done):
                                                          self.base_pos[1])
                                         BattleAICharacter(self.battle.last_char_id, self.battle.last_char_id,
                                                           self.character_data.character_list[spawn_name] |
-                                                          {"ID": spawn_name,
-                                                           "Sprite Ver": self.sprite_ver, "Angle": self.angle,
-                                                           "Team": team, "POS": start_pos,
-                                                           "Arrive Condition": ()})
+                                                          {"ID": spawn_name, "Angle": self.angle,
+                                                           "Team": team, "POS": start_pos, "Arrive Condition": ()})
 
                 for ally in self.near_ally:
                     if ally[1] <= item_stat["Range"]:  # apply status based on range

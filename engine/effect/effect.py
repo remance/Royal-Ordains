@@ -76,12 +76,10 @@ class Effect(Sprite):
             self.part_name = " ".join(self.part_name.split(" ")[:-1])
 
         if self.owner and from_owner:
-            self.sprite_ver = self.owner.sprite_ver
             self.pos = Vector2(self.owner.pos[0] + (self.part_stat[2] * self.screen_scale[0]),
                                self.owner.pos[1] + (self.part_stat[3] * self.screen_scale[1]))
         else:
             self.pos = Vector2(self.part_stat[2], self.part_stat[3])
-            self.sprite_ver = self.battle.chapter
         self.base_pos = Vector2(self.pos[0] / self.screen_scale[0], self.pos[1] / self.screen_scale[1])
         self.angle = self.part_stat[4]
         self.scale = self.part_stat[7]
@@ -140,7 +138,7 @@ class Effect(Sprite):
                 if "one hit per enemy" in moveset["Property"]:
                     self.one_hit_per_enemy = True
 
-        self.animation_pool = self.effect_animation_pool[self.effect_name][self.sprite_ver]
+        self.animation_pool = self.effect_animation_pool[self.effect_name]
         self.current_animation = self.animation_pool[self.part_name]
         if type(self.current_animation) is dict:
             self.current_animation = self.current_animation[self.flip][self.scale]
@@ -186,7 +184,7 @@ class Effect(Sprite):
                 stat = [self.reach_effect, "Base", new_pos[0], new_pos[1], 0, 0, 0, 1]
                 if "reach spawn ground" in self.effect_stat[
                     "Property"]:  # reach effect spawn with rect bottom on ground
-                    height = self.effect_animation_pool[self.reach_effect][self.sprite_ver]["Base"][self.scale][0][
+                    height = self.effect_animation_pool[self.reach_effect]["Base"][self.scale][0][
                                  self.flip].get_height() / 4
                     stat[3] = self.pos[1] - height
                 if "spawn all angle" in self.effect_stat["Property"]:

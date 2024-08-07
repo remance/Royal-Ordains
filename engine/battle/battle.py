@@ -13,14 +13,15 @@ from pygame.mixer import Sound, Channel
 from engine.camera.camera import Camera
 from engine.character.character import Character
 from engine.drama.drama import TextDrama
+from engine.drop.drop import Drop
 from engine.effect.effect import Effect
 from engine.stage.stage import Stage
 from engine.stageobject.stageobject import StageObject
 from engine.uibattle.uibattle import FPSCount, BattleCursor, YesNo, CharacterSpeechBox, CharacterInteractPrompt, \
-    CourtBook, CityMap, CityMission, ScreenFade
-from engine.uimenu.uimenu import TextPopup
+    CourtBook, CityMap, CityMission, ScreenFade, WheelUI
+from engine.uimenu.uimenu import TextPopup, CharacterInterface
 from engine.utils.common import clean_object, clean_group_object
-from engine.utils.data_loading import load_image, load_images
+from engine.utils.data_loading import load_image, load_images, prepare_animation_sprite, filename_convert_readable as fcv
 from engine.utils.text_making import number_to_minus_or_plus
 from engine.weather.weather import Weather
 
@@ -257,8 +258,12 @@ class Battle:
         self.weather_data = self.battle_map_data.weather_data
         self.weather_matter_images = self.battle_map_data.weather_matter_images
         self.weather_list = self.battle_map_data.weather_list
+        self.char_sprite_chapter = self.game.char_sprite_chapter
         self.character_animation_data = self.game.character_animation_data
         self.body_sprite_pool = self.game.body_sprite_pool
+        self.default_body_sprite_pool = self.game.default_body_sprite_pool
+        self.default_effect_animation_pool = self.game.default_effect_animation_pool
+        self.part_sprite_adjust = self.game.part_sprite_adjust
         self.effect_animation_pool = self.game.effect_animation_pool
         self.language = self.game.language
         self.localisation = self.game.localisation
@@ -301,6 +306,11 @@ class Battle:
 
         self.helper = None  # helper character that can be moved via cursor
         self.score_board = None
+
+        self.chapter = None
+        self.mission = None
+        self.stage = None
+        self.scene = None
 
         self.best_depth = display.mode_ok(self.screen_rect.size, self.game.window_style,
                                           32)  # Set the display mode
@@ -485,19 +495,18 @@ class Battle:
         first_lock = None
         for value in stage_object_data.values():
             if value["Object"] not in loaded_item:  # load image
-                if value["Type"] == "stage":  # type of object with image data to load
-                    if value["Type"] == "stage":  # load background stage
-                        image = self.empty_stage_image
+                if value["Type"] == "stage":  # load background stage
+                    image = self.empty_stage_image
 
-                        if path.exists(path.join(self.data_dir, "map", "stage", value["Object"] + ".png")):
-                            image = load_image(self.data_dir, self.screen_scale, value["Object"] + ".png",
-                                               ("map", "stage"))  # no scaling yet
-                        if "front" in value["Type"]:
-                            self.frontground_stage.images[value["Object"]] = image
-                        else:
-                            self.battle_stage.images[value["Object"]] = image
+                    if path.exists(path.join(self.data_dir, "map", "stage", value["Object"] + ".png")):
+                        image = load_image(self.data_dir, self.screen_scale, value["Object"] + ".png",
+                                           ("map", "stage"))  # no scaling yet
+                    if "front" in value["Type"]:
+                        self.frontground_stage.images[value["Object"]] = image
+                    else:
+                        self.battle_stage.images[value["Object"]] = image
 
-                        loaded_item.append(value["Object"])
+                    loaded_item.append(value["Object"])
 
             if "stage" in value["Type"]:  # assign stage data
                 if "front" in value["Type"]:
@@ -535,6 +544,98 @@ class Battle:
         if not self.base_stage_end:  # no stage end from lock, use last stage end value
             self.base_stage_end = base_stage_end
             self.stage_end = stage_end
+        yield set_done_load()
+
+        yield set_start_load(self, "animation setup")
+        self.game.animation_data.load_data(chapter)  # this will load data if chapter is different
+        Drop.item_sprite_pool = self.default_body_sprite_pool[int(self.chapter)]["Item"]["special"]
+        WheelUI.item_sprite_pool = self.default_body_sprite_pool[int(self.chapter)]["Item"]["special"]
+        CharacterInterface.item_sprite_pool = self.default_body_sprite_pool[int(self.chapter)]["Item"]["special"]
+
+        character_list = ([this_char["ID"] for this_char in stage_data["character"] if type(this_char["ID"]) is str] +
+                          [player["ID"] for player in self.players.values()])
+
+        character_list = [char_id if "+" not in char_id else char_id.split("+")[0] for char_id in set(character_list)]
+        if not self.city_mode:
+            character_list.append("Dashisi")
+            for player in self.players:  # add follower
+                character_list += self.all_story_profiles[player]["follower preset"][
+                    self.all_story_profiles[player]["selected follower preset"]]
+            already_check_char = []
+            while character_list:
+                char_id = character_list[0]
+                character_list.remove(char_id)
+                if char_id not in already_check_char:
+                    already_check_char.append(char_id)
+                    if self.character_data.character_list[char_id]["Summon List"]:
+                        character_list += self.character_data.character_list[char_id]["Summon List"]
+                    item_list = ()
+                    if "Item" in self.character_data.character_list[char_id]:
+                        item_list = self.character_data.character_list[char_id]["Item"]
+                    else:  # player char, check in equipped item in object
+                        for player in self.players:
+                            if self.players[player]["ID"] == char_id:
+                                item_list = [item for item in self.all_story_profiles[player]["equipment"]["item"].values() if item]
+                                break
+                    if item_list:
+                        for item in item_list:
+                            for this_property in self.character_data.equip_item_list[item]["Property"]:
+                                if "summon" in this_property:  # item capable of summoning character
+                                    if "chaos" in this_property:  # add all characters that can be chaos invasion summon
+                                        character_list += [character for character in self.character_data.character_list if
+                                                           self.character_data.character_list[character]["Invasion"] and
+                                                           character not in character_list]
+                    character_list = [char_id if "+" not in char_id else char_id.split("+")[0] for char_id in
+                                      set(character_list)]
+
+            character_list = already_check_char
+
+        if stage_event_data:  # add character if event has character create event
+            parent_event_run_check = True
+            for value in stage_data["event_data"]:
+                event_run_check = True
+                if value["ID"]:
+                    parent_event_run_check = True
+                    if ("once" in value["Trigger"] and
+                            value["ID"] + self.chapter + self.mission + self.stage in
+                            self.main_story_profile["story event"]):  # parent event
+                        parent_event_run_check = False
+                if ("story choice" in value["Property"] and (value["Property"]["story choice"] != value["Property"]["story choice"].split("_")[0] + "_" +
+                                                 self.main_story_profile["story choice"][value["Property"]["story choice"].split("_")[0]])):
+                    event_run_check = False
+                if value["Type"] == "create" and event_run_check and parent_event_run_check and value["Object"] not in character_list:
+                    character_list.append(value["Object"])
+
+        character_list = tuple([char_id if "+" not in char_id else char_id.split("+")[0] for char_id in set(character_list)])
+
+        if not self.city_mode:  # only remove unused animation data when start battle not city
+            for key in tuple(self.body_sprite_pool.keys()):
+                if key not in character_list:  # remove unused animation data
+                    self.body_sprite_pool.pop(key)
+
+        for char_id in character_list:
+            for part_type in self.part_sprite_adjust[char_id]:
+                for part_name in self.part_sprite_adjust[char_id][part_type]:
+                    for key in self.part_sprite_adjust[char_id][part_type][part_name]:
+                        if part_type == "effect":
+                            animation_pool = self.effect_animation_pool
+                            sprite_chapter = int(self.chapter)
+                            default_pool = self.default_effect_animation_pool
+                        else:
+                            if self.char_sprite_chapter[char_id] not in self.body_sprite_pool:
+                                self.body_sprite_pool[self.char_sprite_chapter[char_id]] = {}
+                            if part_type not in self.body_sprite_pool[self.char_sprite_chapter[char_id]]:
+                                self.body_sprite_pool[self.char_sprite_chapter[char_id]][part_type] = {}
+                            animation_pool = self.body_sprite_pool[self.char_sprite_chapter[char_id]][part_type]
+                            if part_name not in animation_pool:
+                                animation_pool[part_name] = {}
+                            if key not in animation_pool[part_name]:
+                                animation_pool[part_name][key] = {}
+                            animation_pool = animation_pool[part_name][key]
+                            default_pool = self.default_body_sprite_pool
+                            sprite_chapter = self.char_sprite_chapter[char_id]
+                        prepare_animation_sprite(animation_pool, sprite_chapter, part_type, part_name, key,
+                                                 default_pool, self.part_sprite_adjust[char_id])
         yield set_done_load()
 
         yield set_start_load(self, "common setup")
@@ -575,7 +676,7 @@ class Battle:
             self.later_enemy[scene] = new_value
 
         add_helper = True
-        if self.stage == "0":  # city stage not add helper
+        if self.city_mode:  # city stage not add helper
             add_helper = False
         self.last_char_id = 0
         self.spawn_character(self.players, start_enemy, add_helper=add_helper)
@@ -588,8 +689,7 @@ class Battle:
 
         self.main_player_object = self.player_objects[self.main_player]
         if stage_event_data:
-            self.stage_music_pool = {key: Sound(self.music_pool[key]) for
-                                     key in stage_event_data["music"]}
+            self.stage_music_pool = {key: Sound(self.music_pool[key]) for key in stage_event_data["music"]}
             for trigger, value in stage_event_data.items():
                 if ("once" not in value or tuple(value["once"].keys())[0] + self.chapter + self.mission + self.stage
                     not in self.main_story_profile["story event"]) and \

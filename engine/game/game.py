@@ -376,16 +376,17 @@ class Game:
         Effect.effect_list = self.character_data.effect_list
 
         self.animation_data = AnimationData()
+        self.char_sprite_chapter = self.animation_data.char_sprite_chapter
         self.character_animation_data = self.animation_data.character_animation_data  # animation data pool
-        self.body_sprite_pool = self.animation_data.body_sprite_pool  # body sprite pool
+        self.default_body_sprite_pool = self.animation_data.default_body_sprite_pool  # default body sprite pool
+        self.part_sprite_adjust = self.animation_data.part_sprite_adjust
+        self.body_sprite_pool = {}  # body sprite pool that get added when load battle map
         self.stage_object_animation_pool = self.animation_data.stage_object_animation_pool
-        self.effect_animation_pool = self.animation_data.effect_animation_pool  # effect sprite animation pool
+        self.default_effect_animation_pool = self.animation_data.default_effect_animation_pool  # effect sprite animation pool
+        self.effect_animation_pool = self.animation_data.effect_animation_pool  # effect sprite animation pool that get added when load battle map
 
         BodyPart.body_sprite_pool = self.body_sprite_pool
-        Drop.item_sprite_pool = self.body_sprite_pool["Item"]["special"]
         Effect.effect_animation_pool = self.effect_animation_pool
-        WheelUI.item_sprite_pool = self.body_sprite_pool["Item"]["special"]
-        CharacterInterface.item_sprite_pool = self.body_sprite_pool["Item"]["special"]
         StageObject.stage_object_animation_pool = self.stage_object_animation_pool
 
         # Load sound effect

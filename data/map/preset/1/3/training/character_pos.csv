@@ -1,0 +1,8 @@
+"Object ID","ID","Scene","POS","Ground Y POS","Angle","Start Health","Team","Arrive Condition","Stage Property"
+1,"Mannequin_atk",1,"1600,1000",1000,-90,100,2,,
+2,"Mannequin",1,"800,1000",1000,-90,100,2,,
+3,"Mannequin",1,"900,1000",1000,90,100,2,,
+4,"Mannequin",1,"1000,1000",1000,90,100,2,,
+5,"Mannequin_tall",1,"50,1000",1000,90,100,2,,
+6,"Mannequin_tall",1,"100,1000",1000,-90,100,2,,
+7,"Mannequin_tall",1,"150,1000",1000,-90,100,2,,

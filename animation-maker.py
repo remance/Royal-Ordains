@@ -182,6 +182,53 @@ def change_animation_race(new_race):
     change_animation(list(current_pool[animation_race].keys())[0])
 
 
+def change_animation_chapter(new_chapter, change_race=True):
+    global animation_chapter, animation_pool_data, part_name_header, body_sprite_pool, effect_sprite_pool
+    animation_pool_data, part_name_header = read_anim_data(os.path.join(animation_dir, str(animation_chapter)),
+                                                           anim_column_header)
+    body_sprite_pool = {}
+    for char in char_list:
+        if char != "":
+            race_file_name = fcv(char, revert=True)
+            try:
+                [os.path.split(
+                    os.sep.join(os.path.normpath(x).split(os.sep)[os.path.normpath(x).split(os.sep).index("sprite"):]))
+                    for
+                    x in Path(os.path.join(animation_dir, "sprite", "character", race_file_name)).iterdir() if
+                    x.is_dir()]  # check if char folder exist
+
+                body_sprite_pool[char] = {}
+                part_folder = Path(os.path.join(animation_dir, "sprite", "character", race_file_name))
+                sub1_directories = [os.path.split(
+                    os.sep.join(
+                        os.path.normpath(x).split(os.sep)[os.path.normpath(x).split(os.sep).index(race_file_name):]))
+                    for x in part_folder.iterdir() if x.is_dir()]
+
+                for folder1 in sub1_directories:
+                    body_sprite_pool[char][folder1[-1]] = {}
+                    sub_part_folder = Path(
+                        os.path.join(animation_dir, "sprite", "character", race_file_name, folder1[-1], str(animation_chapter)))
+                    recursive_image_load(body_sprite_pool[char][folder1[-1]], screen_scale, sub_part_folder)
+
+            except FileNotFoundError as b:
+                print(b)
+
+    effect_sprite_pool = {}
+    part_folder = Path(os.path.join(animation_dir, "sprite", "effect"))
+    sub1_directories = [
+        os.path.split(
+            os.sep.join(os.path.normpath(x).split(os.sep)[os.path.normpath(x).split(os.sep).index("sprite"):]))
+        for x in part_folder.iterdir() if x.is_dir()]
+    for folder in sub1_directories:
+        effect_sprite_pool[fcv(folder[-1])] = {}
+        sub_part_folder = Path(os.path.join(animation_dir, "sprite", "effect", folder[-1], str(animation_chapter)))
+        recursive_image_load(effect_sprite_pool[fcv(folder[-1])], screen_scale, sub_part_folder)
+
+    animation_chapter = new_chapter
+    if change_race:
+        change_animation_race("Vraesier")
+
+
 def change_animation(new_name):
     global animation_name, current_frame, current_anim_row, current_frame_row, anim_property_select, frame_property_select
     anim_prop_list_box.namelist = anim_property_list + ["Custom"]  # reset property list
@@ -224,44 +271,31 @@ def change_frame_process():
                frame_prop_list_box, ui, screen_scale, layer=9,
                old_list=frame_property_select[current_frame])  # change frame property list
 
+animation_race = "Vraesier"
+animation_chapter = 1
 
 char_list = []
 for x in Path(os.path.join(animation_dir, "sprite", "character")).iterdir():  # grab char with sprite
     if os.path.normpath(x).split(os.sep)[-1] != "weapon":  # exclude weapon as char
         char_list.append(fcv(os.path.normpath(x).split(os.sep)[-1]))
 
-animation_pool_data, part_name_header = read_anim_data(animation_dir, anim_column_header)
+chapter_list = []
+for x in Path(os.path.join(animation_dir)).iterdir():  # grab folder with number chapter
+    if os.path.normpath(x).split(os.sep)[-1].isdigit():  # exclude weapon as char
+        chapter_list.append(int(os.path.normpath(x).split(os.sep)[-1]))
 
-animation_race = "Vraesier"
+
+animation_pool_data = {}
+part_name_header = {}
+body_sprite_pool = {}
+effect_sprite_pool = {}
+
+change_animation_chapter(animation_chapter, change_race=False)
 
 try:
     animation_name = list(animation_pool_data[animation_race].keys())[0]
 except:
     animation_name = None
-
-body_sprite_pool = {}
-for char in char_list:
-    if char != "":
-        race_file_name = fcv(char, revert=True)
-        try:
-            [os.path.split(
-                os.sep.join(os.path.normpath(x).split(os.sep)[os.path.normpath(x).split(os.sep).index("sprite"):])) for
-             x in Path(os.path.join(animation_dir, "sprite", "character", race_file_name)).iterdir() if
-             x.is_dir()]  # check if char folder exist
-
-            body_sprite_pool[char] = {}
-            part_folder = Path(os.path.join(animation_dir, "sprite", "character", race_file_name))
-            sub1_directories = [os.path.split(
-                os.sep.join(os.path.normpath(x).split(os.sep)[os.path.normpath(x).split(os.sep).index(race_file_name):]))
-                              for x in part_folder.iterdir() if x.is_dir()]
-
-            for folder1 in sub1_directories:
-                body_sprite_pool[char][folder1[-1]] = {}
-                sub_part_folder = Path(os.path.join(animation_dir, "sprite", "character", race_file_name, folder1[-1]))
-                recursive_image_load(body_sprite_pool[char][folder1[-1]], screen_scale, sub_part_folder)
-
-        except FileNotFoundError as b:
-            print(b)
 
 for file_index, char_file in enumerate(("playable.csv", "enemy.csv")):
     with open(os.path.join(data_dir, "character", char_file),
@@ -301,27 +335,6 @@ for char in char_list:
     else:  # no specific mode list, has only normal mode
         character_mode_list[char]["Normal"] = default_mode["Normal"]
 
-
-weapon_sprite_pool = {}
-part_folder = Path(os.path.join(animation_dir, "sprite", "character", "weapon"))
-sub1_directories = [
-    os.path.split(os.sep.join(os.path.normpath(x).split(os.sep)[os.path.normpath(x).split(os.sep).index("sprite"):]))
-    for x in part_folder.iterdir() if x.is_dir()]
-for folder in sub1_directories:
-    folder_data_name = fcv(folder[-1])
-    weapon_sprite_pool[folder_data_name] = {}
-    part_sub1_folder = Path(os.path.join(animation_dir, "sprite", "character", "weapon", folder[-1]))
-    recursive_image_load(weapon_sprite_pool[folder_data_name], screen_scale, part_sub1_folder)
-
-effect_sprite_pool = {}
-part_folder = Path(os.path.join(animation_dir, "sprite", "effect"))
-sub1_directories = [
-    os.path.split(os.sep.join(os.path.normpath(x).split(os.sep)[os.path.normpath(x).split(os.sep).index("sprite"):]))
-    for x in part_folder.iterdir() if x.is_dir()]
-for folder in sub1_directories:
-    effect_sprite_pool[fcv(folder[-1])] = {}
-    sub_part_folder = Path(os.path.join(animation_dir, "sprite", "effect", folder[-1]))
-    recursive_image_load(effect_sprite_pool[fcv(folder[-1])], screen_scale, sub_part_folder)
 
 sound_effect_pool = SoundData().sound_effect_pool
 
@@ -821,9 +834,6 @@ class Model:
         # skin = list(colour_list.keys())[random.randint(0, len(colour_list) - 1)]
         # skin_colour = skin_colour_list[skin]
 
-        self.sprite_version = {}
-        for p in range(1, max_person + 1):
-            self.sprite_version |= {p: "1"}
         self.sprite_mode = {}
         for p in range(1, max_person + 1):
             self.sprite_mode |= {p: "Normal"}
@@ -940,7 +950,7 @@ class Model:
             try:
                 head_race = bodypart_list[key + "_head"][0]
                 self.head_race[key] = head_race
-                head_sprite = body_sprite_pool[head_race]["head"][self.sprite_version[int(key[-1])]][character_mode_list[animation_race][self.sprite_mode[int(key[-1])]][key + "_head"]][bodypart_list[key + "_head"][1]].copy()
+                head_sprite = body_sprite_pool[head_race]["head"][character_mode_list[animation_race][self.sprite_mode[int(key[-1])]][key + "_head"]][bodypart_list[key + "_head"][1]].copy()
                 head_sprite_surface = pygame.Surface(head_sprite.get_size(), pygame.SRCALPHA)
                 head_rect = head_sprite.get_rect(midtop=(head_sprite_surface.get_width() / 2, 0))
                 head_sprite_surface.blit(head_sprite, head_rect)
@@ -969,12 +979,8 @@ class Model:
                 if any(ext in stuff for ext in except_list) is False:
                     try:
                         p = stuff[1]
-                        if "weapon" in stuff:
-                            self.sprite_image[stuff] = weapon_sprite_pool[bodypart_list[stuff][0]][
-                                self.sprite_version[int(stuff[1])]][character_mode_list[animation_race][self.sprite_mode[int(p)]][stuff]][bodypart_list[stuff][1]].copy()
-                        elif "effect_" in stuff:
-                            self.sprite_image[stuff] = effect_sprite_pool[bodypart_list[stuff][0]][
-                                self.sprite_version[1]][bodypart_list[stuff][1]].copy()
+                        if "effect_" in stuff:
+                            self.sprite_image[stuff] = effect_sprite_pool[bodypart_list[stuff][0]][bodypart_list[stuff][1]].copy()
                         else:
                             new_part_name = stuff
                             mode_part_check = stuff
@@ -985,10 +991,12 @@ class Model:
                                 part_name = "special"
                                 new_part_name = part_name
                                 mode_part_check = "_".join(mode_part_check.split("_")[0:-1])  # remove _number at the end of special
+                            elif "weapon" in stuff:
+                                part_name = "weapon"
+                                new_part_name = part_name
                             if "r_" in part_name[0:2] or "l_" in part_name[0:2]:
                                 new_part_name = part_name[2:]  # remove part side
-                            self.sprite_image[stuff] = body_sprite_pool[bodypart_list[stuff][0]][new_part_name][
-                                self.sprite_version[int(stuff[1])]][character_mode_list[animation_race][self.sprite_mode[int(p)]][mode_part_check]][bodypart_list[stuff][1]].copy()
+                            self.sprite_image[stuff] = body_sprite_pool[bodypart_list[stuff][0]][new_part_name][character_mode_list[animation_race][self.sprite_mode[int(p)]][mode_part_check]][bodypart_list[stuff][1]].copy()
                     except (KeyError, UnboundLocalError):  # no part name known for current char, skip getting image
                         pass
         # if skin != "white":
@@ -1101,11 +1109,6 @@ class Model:
                                                        self.animation_history[self.current_history][frame_num].items()}
                 self.bodypart_list[frame_num] = {key: value for key, value in
                                                  self.body_part_history[self.current_history][frame_num].items()}
-
-        elif "_ver_select" in edit_type:
-            if any(ext in edit_type for ext in p_list):
-                self.sprite_version[int(edit_type[1])] = edit_type[-1]
-                change_animation(animation_name)
 
         elif "_mode_select" in edit_type:
             if any(ext in edit_type for ext in p_list):
@@ -1533,23 +1536,17 @@ image = pygame.transform.smoothscale(image, (int(image.get_width() * screen_scal
                                              int(image.get_height() * screen_scale[1])))
 
 text_popup = TextPopup()
-
-animation_race_button = Button("Ani Race", image, (image.get_width() / 2, image.get_height() / 2),
-                    description=("Select animation char type", "Select animation char type pool to edit."))
-new_button = Button("New Ani", image, (image.get_width() * 1.5, image.get_height() / 2),
+animation_chapter_button = Button("CH: 1", image, (image.get_width() / 2, image.get_height() / 2),
+                    description=("Select animation chapter", "Select animation chapter pool to edit."))
+animation_race_button = Button("Ani Char", image, (image.get_width() * 1.5, image.get_height() / 2),
+                    description=("Select animation character", "Select animation character pool to edit."))
+new_button = Button("New Ani", image, (image.get_width() * 2.5, image.get_height() / 2),
                     description=("Create new animation", "Create new empty animation with name input."))
-save_button = Button("Save", image, (image.get_width() * 2.5, image.get_height() / 2),
+save_button = Button("Save", image, (image.get_width() * 3.5, image.get_height() / 2),
                      description=("Save all animation", "Save the current state of all animation only for this char."))
-size_button = Button("Size: ", image, (image.get_width() * 3.5, image.get_height() / 2),
+size_button = Button("Size: ", image, (image.get_width() * 4.5, image.get_height() / 2),
                      description=(
                      "Change animation frame size", "This does not change the size of the animation editor UI."))
-
-export_gif_button = Button("GIF", image, (image.get_width() * 4.5, image.get_height() / 2),
-                       description=("Export animation to GIF", "Export the current animation to a GIF file.",
-                                    "The speed of GIF image depends on preview play speed."))
-
-export_button = Button("PNG", image, (screen_size[0] - (image.get_width() * 4.5), image.get_height() / 2),
-                       description=("Export animation to PNG", "Export the current animation to several png image files."))
 
 rename_button = Button("Rename", image, (screen_size[0] - (image.get_width() * 3.5), image.get_height() / 2),
                        description=("Rename animation",
@@ -1620,6 +1617,7 @@ activate_button = SwitchButton(("Enable", "Disable"), image,
                                description=("Enable or disable the current frame",
                                             "Disabled frame will be cleared when change animation",
                                             "and will not be saved."))
+
 undo_button = Button("Undo", image, (play_animation_button.pos[0] - play_animation_button.image.get_width() * 6,
                                      filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
                      description=("Undo to previous edit (CTRL + Z)",
@@ -1676,6 +1674,15 @@ help_button = SwitchButton(("Help:ON", "Help:OFF"), image,
 showroom_colour_button = Button("Box RGB", image, (help_button.rect.topright[0] + image.get_width() / 2,
                                                    p_body_helper.rect.midtop[1] - (image.get_height() * 2.5)),
                                 description=("Change showroom background colour",))
+export_gif_button = Button("To GIF", image, (help_button.rect.topright[0] + image.get_width() / 2,
+                                          p_body_helper.rect.midtop[1] - (image.get_height() * 1.5)),
+                       description=("Export animation to GIF", "Export the current animation to a GIF file.",
+                                    "The speed of GIF image depends on preview play speed."))
+export_button = Button("To PNG", image, (help_button.rect.topright[0] + image.get_width() / 2,
+                                      p_body_helper.rect.midtop[1] - (image.get_height() * 0.5)),
+                       description=("Export animation to PNG", "Export the current animation to several png image files."))
+
+
 race_part_button = Button("", image, (reset_button.image.get_width() / 1.8,
                                       p_body_helper.rect.midtop[1] - (image.get_height() / 2)),
                           description=("Select part type",
@@ -1790,7 +1797,6 @@ else:
     model.animation_list = [None] * max_frame
     model.edit_part(None, "new")
 p_selector.change_name("p1")
-# sprite_ver_selector.change_name(model.sprite_version[1])
 sprite_mode_selector.change_name("Normal")
 model.add_history()
 animation_filter = [""]
@@ -2002,7 +2008,6 @@ while True:
                                 effect_helper.change_p_type(name.name + "_effect", player_change=True)
                                 p_selector.change_name(name.name)
                                 sprite_mode_selector.change_name(model.sprite_mode[int(name.name[-1])])
-                                # sprite_ver_selector.change_name(model.sprite_version[int(name.name[-1])])
                             elif "sound" in popup_list_box.action:
                                 model.edit_part(mouse_pos, "sound_select:" + name.name, specific_frame=current_frame)
                                 sound_selector.change_name(name.name)
@@ -2012,6 +2017,12 @@ while True:
                             elif "_mode_select" in popup_list_box.action:
                                 model.edit_part(mouse_pos, popup_list_box.action[0:3] + "_mode_select_" + name.name)
                                 sprite_mode_selector.change_name(name.name)
+
+                            elif popup_list_box.action == "animation_chapter_select":
+                                if animation_chapter != int(name.name):
+                                    text_input_popup = ("confirm_input", "save_chapter_first", name.name)
+                                    input_ui.change_instruction("Save Data First?")
+                                    ui.add(input_ui_popup)
                             elif popup_list_box.action == "animation_race_select":
                                 if name.name == "New Race":
                                     text_input_popup = ("text_input", "new_race")
@@ -2417,26 +2428,20 @@ while True:
                             try:
                                 if "special" in current_part:
                                     part_list = list(
-                                        body_sprite_pool[race_part_button.text]["special"][model.sprite_version[
-                                            int(p_selector.text[1])]][character_mode_list[animation_race][model.sprite_mode[int(p_selector.text[1])]][current_part[:-2]]].keys())
+                                        body_sprite_pool[race_part_button.text]["special"][character_mode_list[animation_race][model.sprite_mode[int(p_selector.text[1])]][current_part[:-2]]].keys())
                                 elif "effect" in current_part:
                                     part_list = list(
-                                        effect_sprite_pool[race_part_button.text][model.sprite_version[1]].keys())
+                                        effect_sprite_pool[race_part_button.text].keys())
                                 elif any(ext in current_part for ext in p_list):
                                     selected_part = current_part[3:]
                                     if selected_part[0:2] == "r_" or selected_part[0:2] == "l_":
                                         selected_part = selected_part[2:]
                                     part_list = list(
-                                        body_sprite_pool[race_part_button.text][selected_part][model.sprite_version[int(p_selector.text[1])]][character_mode_list[animation_race][model.sprite_mode[int(p_selector.text[1])]][current_part]].keys())
+                                        body_sprite_pool[race_part_button.text][selected_part][character_mode_list[animation_race][model.sprite_mode[int(p_selector.text[1])]][current_part]].keys())
 
-                            except KeyError:  # look at weapon next
-                                try:
-                                    selected_part = race_part_button.text
-                                    part_list = list(
-                                        weapon_sprite_pool[selected_part][model.sprite_version[int(p_selector.text[1])]][character_mode_list[animation_race][model.sprite_mode[int(p_selector.text[1])]][current_part]].keys())
-                                except KeyError:  # part not exist
-                                    print(current_part)
-                                    part_list = []
+                            except KeyError:  # part not exist
+                                print(current_part)
+                                part_list = []
                             popup_list_open(popup_list_box, popup_namegroup, ui, "part_select",
                                             part_selector.rect.topleft, part_list, "bottom", screen_scale)
 
@@ -2466,9 +2471,7 @@ while True:
                     elif race_part_button.rect.collidepoint(mouse_pos):
                         if model.part_selected:
                             current_part = list(model.mask_part_list.keys())[model.part_selected[-1]]
-                            if "weapon" in current_part:
-                                part_list = list(weapon_sprite_pool)
-                            elif "effect" in current_part:
+                            if "effect" in current_part:
                                 part_list = list(effect_sprite_pool)
                             else:
                                 part_list = list(body_sprite_pool.keys())
@@ -2482,6 +2485,14 @@ while True:
                                          animation_race_button.rect.bottomleft[1]),
                                         ["New Race"] + [key for key in current_pool if key != "Template"],
                                         "top", screen_scale, current_row=current_popup_row)
+                    elif animation_chapter_button.rect.collidepoint(mouse_pos):
+                        current_popup_row = 0  # move current selected animation to top if not in filtered list
+                        popup_list_open(popup_list_box, popup_namegroup, ui, "animation_chapter_select",
+                                        (animation_chapter_button.rect.bottomleft[0],
+                                         animation_chapter_button.rect.bottomleft[1]),
+                                        chapter_list,
+                                        "top", screen_scale, current_row=current_popup_row)
+
 
                     elif new_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("text_input", "new_animation")
@@ -2677,10 +2688,15 @@ while True:
                     change_animation_race(animation_race)
 
             elif text_input_popup[1] == "save_animation":
-                anim_save_pool(current_pool[animation_race], animation_race, anim_column_header)
+                anim_save_pool(current_pool[animation_race], animation_chapter, animation_race, anim_column_header)
+
+            elif text_input_popup[1] == "save_chapter_first":
+                anim_save_pool(current_pool[animation_race], animation_chapter, animation_race, anim_column_header)
+                change_animation_chapter(int(text_input_popup[2]))
+                animation_chapter_button.change_text("CH: " + str(animation_chapter))
 
             elif text_input_popup[1] == "save_first":
-                anim_save_pool(current_pool[animation_race], animation_race, anim_column_header)
+                anim_save_pool(current_pool[animation_race], animation_chapter, animation_race, anim_column_header)
                 change_animation_race(text_input_popup[2])
 
             elif text_input_popup[1] == "new_name":
@@ -2849,6 +2865,9 @@ while True:
                 colour_cancel_button in ui and colour_cancel_button.event) or input_esc:
             if text_input_popup[1] == "save_first":
                 change_animation_race(text_input_popup[2])
+            elif text_input_popup[1] == "save_chapter_first":
+                change_animation_chapter(int(text_input_popup[2]))
+                animation_chapter_button.change_text("CH: " + str(animation_chapter))
             input_cancel_button.event = False
             colour_cancel_button.event = False
             input_box.text_start("")

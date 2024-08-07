@@ -70,26 +70,6 @@ class CharacterData(GameData):
             self.common_moveset_skill = moveset_dict
         edit_file.close()
 
-        # Equipment dict
-        self.equipment_list = {}
-        # with open(os.path.join(self.data_dir, "troop", "troop_armour.csv"),
-        #           encoding="utf-8", mode="r") as edit_file:
-        #     rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
-        #     header = rd[0]
-        #     int_column = ("ID", "Cost")  # value int only
-        #     list_column = ("Trait",)  # value in list only
-        #     tuple_column = ()  # value in tuple only
-        #     int_column = [index for index, item in enumerate(header) if item in int_column]
-        #     list_column = [index for index, item in enumerate(header) if item in list_column]
-        #     tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
-        #     for row_index, row in enumerate(rd[1:]):
-        #         for n, i in enumerate(row):
-        #             row = stat_convert(row, n, i, list_column=list_column, tuple_column=tuple_column,
-        #                                int_column=int_column)
-        #         self.armour_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
-        # edit_file.close()
-        #
-
         # Character stat dict
         default_mode = {}
         with open(os.path.join(self.data_dir, "animation", "template.csv"),
@@ -109,14 +89,18 @@ class CharacterData(GameData):
                 rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
                 header = rd[0]
                 for row_index, row in enumerate(rd[1:]):
-                    int_column = ("Only Sprite Version",)  # value in tuple only
-                    int_column = [index for index, item in enumerate(header) if item in int_column]
                     dict_column = ("Drops", "Spawns", "Items", "Property")
                     dict_column = [index for index, item in enumerate(header) if item in dict_column]
                     for n, i in enumerate(row):
-                        row = stat_convert(row, n, i, int_column=int_column, dict_column=dict_column)
+                        row = stat_convert(row, n, i, dict_column=dict_column)
                     self.character_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
                     self.character_list[row[0]]["Move"] = {}
+
+                    self.character_list[row[0]]["Summon List"] = []
+                    if "Spawns" in header:
+                        self.character_list[row[0]]["Summon List"] = list(row[header.index("Spawns")].keys())
+
+                    summon_list = []
 
                     # Add character move data
                     if os.path.exists(
@@ -172,6 +156,13 @@ class CharacterData(GameData):
                                                      row2[0], move_data, parent_move))
                                         else:
                                             found = done_check[0]
+
+                                if "summon" in move_data["Property"]:
+                                    if type(move_data["Property"]["summon"]) is str:
+                                        summon_list.append(move_data["Property"]["summon"])
+                                    else:
+                                        summon_list += move_data["Property"]["summon"]
+
                             for item in remain_next_move_loop:
                                 # one last try to find parent in case it order in data is lower
                                 done_check = ["test"]
@@ -214,8 +205,14 @@ class CharacterData(GameData):
                                     moveset_dict[row2[header2.index("Position")]] = {}
                                 moveset_dict[row2[header2.index("Position")]][row2[0]] = move_data
                                 moveset_ui_dict[row2[0]] = move_data
+                                if "summon" in move_data["Property"]:
+                                    if type(move_data["Property"]["summon"]) is str:
+                                        summon_list.append(move_data["Property"]["summon"])
+                                    else:
+                                        summon_list += move_data["Property"]["summon"]
                             self.character_list[row[0]]["Skill"] = moveset_dict
                             self.character_list[row[0]]["Skill UI"] = moveset_ui_dict
+                            self.character_list[row[0]]["Summon List"] = tuple(self.character_list[row[0]]["Summon List"] + summon_list)
                         edit_file2.close()
 
                     # Add character mode data

@@ -132,7 +132,51 @@ def recursive_image_load(save_dict, screen_scale, part_folder, key_file_name_rea
         save_dict |= imgs
 
 
-def filename_convert_readable(filename, revert=False):
+def recursive_merge(dict1, dict2):
+    for key, value in dict2.items():
+        if key in dict1 and isinstance(dict1[key], dict) and isinstance(value, dict):
+            # Recursively merge nested dictionaries
+            dict1[key] = recursive_merge(dict1[key], value)
+        else:
+            # Merge non-dictionary values
+            dict1[key] = value
+    return dict1
+
+
+def prepare_animation_sprite(save_pool, chapter, part_type, part_name, key, sprite_pool, part_sprite_adjust):
+    imgs = sprite_pool
+    if part_sprite_adjust:
+        if part_type != "weapon":
+            part_type = filename_convert_readable(part_type)
+        else:
+            part_name = filename_convert_readable(part_name)
+        # pool = sprite_pool[]
+        imgs = {}
+        if part_type in part_sprite_adjust:
+            if part_name in part_sprite_adjust[part_type]:
+                if key in part_sprite_adjust[part_type][part_name]:
+                    for mode in sprite_pool[chapter][part_type][part_name]:
+                        imgs[mode] = {}
+                        for flip_value in part_sprite_adjust[part_type][part_name][key]:
+                            imgs[mode][flip_value] = {}
+                            if key in sprite_pool[chapter][part_type][part_name][mode]:  # sprite exist for this mode
+                                flip_image = sprite_pool[chapter][part_type][part_name][mode][key]
+                                if flip_value:
+                                    flip_image = flip(flip_image, True, False)
+                                for scale in part_sprite_adjust[part_type][part_name][key][flip_value]:
+                                    imgs[mode][flip_value][scale] = {}
+                                    scale_image = flip_image
+                                    if scale != 1:
+                                        scale_image = smoothscale(scale_image, (scale_image.get_width() * scale,
+                                                                                scale_image.get_height() * scale))
+                                    for angle in part_sprite_adjust[part_type][part_name][key][flip_value][scale]:
+                                        imgs[mode][flip_value][scale][angle] = scale_image
+                                        if angle:
+                                            imgs[mode][flip_value][scale][angle] = rotate(scale_image, angle)
+    recursive_merge(save_pool, imgs)
+
+
+def filename_convert_readable(filename, revert=False) -> str:
     if revert:
         new_filename = filename.replace(" ", "-").lower()  # replace space with - and make name lowercase
     else:

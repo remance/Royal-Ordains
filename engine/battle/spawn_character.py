@@ -56,7 +56,7 @@ def spawn_character(self, player_list, stage_char_list, add_helper=True):
     if player_list and not self.city_mode:  # add AI followers for added player in battle
         last_id = stage_char_list[-1]["Object ID"] + 1  # id continue from last stage chars
         for player in player_list:
-            max_follower_allowance = (int(self.chapter) * 10) + self.all_story_profiles[player]["character"]["Charisma"]
+            max_follower_allowance = self.all_story_profiles[player]["character"]["Charisma"]
             for key, number in self.all_story_profiles[player]["follower preset"][
                 self.all_story_profiles[player]["selected follower preset"]].items():
                 for _ in range(int(number)):
@@ -75,7 +75,7 @@ def spawn_character(self, player_list, stage_char_list, add_helper=True):
         self.helper = BattleAICharacter("helper", 99999999, self.character_data.character_list["Dashisi"] |
                                         {"ID": "Dashisi", "POS": (1000, 140 * self.screen_scale[1]), "Scene": 1,
                                          "Team": 1, "Sprite Ver": self.chapter,
-                                         "Arrive Condition": (), "Start Health": 1})  # add pixie helper character
+                                         "Arrive Condition": (), "Start Health": 1})  # add pixie helper character TODO add version for four teams
         # Score board in animation must always be p1_special_10 part
         self.score_board = ScoreBoard(self.helper.team, self.helper.body_parts["p1_special_10"])
         self.helper.body_parts["p1_special_10"].image_update_contains.append(self.score_board)

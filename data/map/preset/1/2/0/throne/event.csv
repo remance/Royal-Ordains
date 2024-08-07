@@ -154,11 +154,11 @@
 ,"King/Nayedien/1_2_city_throne_talk1.4",2,,,,
 ,"King/Nayedien/1_2_city_throne_talk1.5","pm",,,,"interact,hold,repeat after"
 ,"King/Nayedien/1_2_city_throne_talk1.6","pm",,,,"interact"
-,"King/Nayedien/1_2_city_throne_talk1.7","pm",,,,"interact"
+,"King/Nayedien/1_2_city_throne_talk1.7",2,,,,"interact"
 ,"King/Nayedien/1_2_city_throne_talk1.8",2,,,,"interact"
 ,"King/Nayedien/1_2_city_throne_talk1.9",2,,,,"interact"
 ,"King/Nayedien/1_2_city_throne_talk1.10",2,,,,"interact"
-,"King/Nayedien/1_2_city_throne_talk1.11",2,,,,"interact"
+,"King/Nayedien/1_2_city_throne_talk1.11","pm",,,,"interact"
 ,"King/Nayedien/1_2_city_throne_talk1.12","pm",,,,"interact"
 "King/Any/1_2_city_throne_talk2","King/Any/1_2_city_throne_talk2.1",2,"Talk","char","interact,2","interact,replayable,hold,repeat after"
 ,"King/Any/1_2_city_throne_talk2.2",2,"StopTalk",,,

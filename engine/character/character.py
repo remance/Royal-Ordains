@@ -345,10 +345,7 @@ class Character(sprite.Sprite):
 
         self.char_id = str(stat["ID"])
         # self.char_id_event = self.char_id + "_"  # for faster event check instead of having to + "_" every time
-        self.sprite_ver = str(stat["Sprite Ver"])
-        if "Only Sprite Version" in stat and stat["Only Sprite Version"]:  # data suggest only one sprite version exist
-            self.sprite_ver = str(stat["Only Sprite Version"])
-
+        self.sprite_ver = self.battle.char_sprite_chapter[self.char_id]
         self.command_pos = Vector2(0, 0)
 
         if "Scene" in stat:  # data with scene positioning
@@ -1256,6 +1253,7 @@ class BodyPart(sprite.Sprite):
         self.battle_camera = self.battle.battle_camera
         self.owner = owner
         self.team = self.owner.team
+        self.sprite_ver = self.owner.sprite_ver
         self.owner_layer = 0
         self.dead_layer = 0
         self.angle = self.owner.angle
@@ -1267,6 +1265,8 @@ class BodyPart(sprite.Sprite):
         self.part_name = self.part[3:]
         if self.part_name[0:2] == "l_" or self.part_name[0:2] == "r_":
             self.part_name = self.part_name[2:]
+        elif "weapon" in self.part_name:
+            self.part_name = "weapon"
         if "special" in self.part:
             self.part = "_".join(self.part.split("_")[:-1])
         self.stuck_effect = []  # effect that stuck on this body part
@@ -1287,7 +1287,6 @@ class BodyPart(sprite.Sprite):
         self.base_image = self.empty_surface
         self.image = self.empty_surface
         self.data = ()  # index 1=part name, 2and3=pos xy, 4=angle, 5=flip, 6=layer , 7=scale, 8=deal damage or not
-        self.sprite_ver = str(self.owner.sprite_ver)
         self.rect = self.image.get_rect(topleft=(0, 0))
         self.mask = from_surface(self.image)
 
@@ -1332,38 +1331,35 @@ class BodyPart(sprite.Sprite):
             if self.image_update_contains:  # update any object after getting base image
                 # part with update must always have 0 flip 0 angle and 1 scale in animation data to work will apply rotate later
                 self.base_image = \
-                self.body_sprite_pool[sprite_type]["special"][self.sprite_ver][self.mode][self.data[1]][0][1][0]
+                self.body_sprite_pool[self.sprite_ver][sprite_type]["special"][self.data[1]][self.mode][0][1][0]
                 for item in self.image_update_contains:
                     item.update()
             else:
-                if "weapon" in self.part_name:
-                    self.image = self.body_sprite_pool[self.data[0]][self.sprite_ver][self.mode][self.data[1]][
-                        self.data[5]][self.data[7]][
-                        self.data[4]]  # index 1=part name, 2and3=pos xy, 4=angle, 5=flip, 7=scale
-                elif "special" in self.part_name:
+                # index 1=part name, 2and3=pos xy, 4=angle, 5=flip, 7=scale
+                if "special" in self.part_name:
                     if sprite_name == "Template" and "change_sprite" in self.owner.current_action:
                         # template sprite that need replace
                         sprite_type = self.owner.current_action["change_sprite"]
                         if sprite_type == "Item" and "item" in self.owner.current_action:  # change to item using
                             self.image = \
-                                self.body_sprite_pool[sprite_type]["special"][self.sprite_ver][self.mode][
+                                self.body_sprite_pool[self.sprite_ver][sprite_type]["special"][self.mode][
                                     self.owner.current_action["item"]]
                             self.image = self.adjust_image(self.image, self.data)
                     else:
                         self.image = \
-                            self.body_sprite_pool[sprite_type]["special"][self.sprite_ver][self.mode][sprite_name][
+                            self.body_sprite_pool[self.sprite_ver][sprite_type]["special"][sprite_name][self.mode][
                                 self.data[5]][self.data[7]][self.data[4]]
                 else:
-                    self.image = self.body_sprite_pool[self.data[0]][self.part_name][self.sprite_ver][self.mode][
-                        self.data[1]][self.data[5]][self.data[7]][self.data[4]]
+                    self.image = self.body_sprite_pool[self.sprite_ver][sprite_type][self.part_name][
+                        sprite_name][self.mode][self.data[5]][self.data[7]][self.data[4]]
 
             self.re_rect()
             if self in self.battle_camera:
-                if not self.alive:
-                    if self._layer != self.dead_layer + 100 - data[6]:
-                        self.battle_camera.change_layer(self, self.dead_layer + 100 - data[6])
-                elif self._layer != self.owner_layer + 100 - data[6]:
-                    self.battle_camera.change_layer(self, self.owner_layer + 100 - data[6])
+                if not self.owner.alive:
+                    if self._layer != self.dead_layer - data[6]:
+                        self.battle_camera.change_layer(self, self.dead_layer - data[6])
+                elif self._layer != self.owner_layer - data[6]:
+                    self.battle_camera.change_layer(self, self.owner_layer - data[6])
 
     def re_rect(self):
         if self.data:

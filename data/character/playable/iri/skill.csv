@@ -20,10 +20,10 @@
 "C4.4","Certain Death Trap","Guard,Weak","Couch",,,500,,,,0,26,10,,,,,,"Poison",,,,"penetrate"
 "C4.5","Necromist Trap","Guard,Weak","Couch",,,500,,,,0,35,16,,,,,,"Poison",,,,"penetrate"
 "C5.1","Bolt Thrower Deploy","Guard,Strong","Stand",,,700,,,,8,48,,,,,,,"Physical",,,,"summon:Summon_scorpion"
-"C5.2","Scorpion Deploy","Guard,Strong","Stand",,,700,,,,8,59,,,,,,,"Physical",,,,"summon:summon_scorpion_tough"
+"C5.2","Scorpion Deploy","Guard,Strong","Stand",,,700,,,,8,59,,,,,,,"Physical",,,,"summon:Summon_scorpion_tough"
 "C5.3","Reinforced Scorpion Deploy","Guard,Strong","Stand",,,700,,,,8,75,,,,,,,"Physical",,,,"summon:Summon_ballista"
 "C5.4","Ballista Deploy","Guard,Strong","Stand",,,700,,,,8,91,,,,,,,"Physical",,,,"summon:Summon_ballista_good"
-"C5.5","Power Ballista Deploy","Guard,Strong","Stand",,,700,,,,8,110,,,,,,,"Physical",,,,"summon:summon_ballista_great"
+"C5.5","Power Ballista Deploy","Guard,Strong","Stand",,,700,,,,8,110,,,,,,,"Physical",,,,"summon:Summon_ballista_great"
 "C6.1","Focused Engineering","Special","Stand",,,500,,,,45,,,,,,,,"Physical","50,95",,,
 "C6.2","Unbound Expertise","Special","Stand",,,500,,,,45,,,,,,,,"Physical","50,51,95",,,
 "C6.3","Multitask Exertion","Special","Stand",,,500,,,,45,,,,,,,,"Physical","50,51,95",,,

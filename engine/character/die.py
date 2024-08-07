@@ -94,7 +94,7 @@ def die(self, delete=False):
                         BattleAICharacter(self.battle.last_char_id, self.battle.last_char_id,
                                           self.character_data.character_list[spawn_name] |
                                           {"ID": spawn_name,
-                                           "Sprite Ver": self.sprite_ver, "Angle": self.angle,
+                                           "Angle": self.angle,
                                            "Team": self.team, "POS": start_pos,
                                            "Arrive Condition": ()})
             else:
@@ -105,6 +105,6 @@ def die(self, delete=False):
                     BattleAICharacter(self.battle.last_char_id, self.battle.last_char_id,
                                       self.character_data.character_list[spawn_name] |
                                       {"ID": spawn_name,
-                                       "Sprite Ver": self.sprite_ver, "Angle": self.angle,
+                                       "Angle": self.angle,
                                        "Team": self.team, "POS": start_pos,
                                        "Arrive Condition": ()})

@@ -920,7 +920,7 @@ class CharacterInterface(UIMenu):
                     row += 1
 
             if self.profile:
-                self.max_follower_allowance = (int(self.profile["chapter"]) * 10) + stat_dict["Charisma"]
+                self.max_follower_allowance = stat_dict["Charisma"]
                 for key, value in self.stat.items():
                     if key in self.all_skill_row:
                         self.profile["character"]["skill allocation"][key] = value

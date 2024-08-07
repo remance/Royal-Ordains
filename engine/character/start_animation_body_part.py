@@ -13,7 +13,7 @@ def start_animation_body_part(self, new_animation=False):
                         BattleAICharacter("summon", -1, self.character_data.character_list[
                             self.current_moveset["Property"]["summon"]] |
                                           {"ID": self.current_moveset["Property"]["summon"],
-                                           "Sprite Ver": self.sprite_ver, "Angle": self.angle,
+                                           "Angle": self.angle,
                                            "Team": self.team, "POS": start_pos,
                                            "Arrive Condition": ()}, leader=self)
 

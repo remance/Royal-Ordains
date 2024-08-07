@@ -1,3 +1,4 @@
+import copy
 import csv
 import os
 from pathlib import Path
@@ -122,22 +123,27 @@ class BattleMapData(GameData):
                     stage_file_name = os.sep.join(os.path.normpath(file_stage).split(os.sep)[-1:])
                     self.preset_map_data[chapter_file_name][map_file_name][stage_file_name] = {}
                     if stage_file_name != "0":  # city stage use different reading
+                        original_event_data, event_data = self.load_map_event_data(chapter_file_name, map_file_name, stage_file_name)
                         self.preset_map_data[chapter_file_name][map_file_name][stage_file_name] = \
                             {"data": csv_read(file_stage, "object_pos.csv", header_key=True),
                              "character": self.load_map_unit_data(chapter_file_name, map_file_name, stage_file_name),
-                             "event": self.load_map_event_data(chapter_file_name, map_file_name, stage_file_name)}
+                             "event_data": original_event_data,
+                             "event": event_data}
                     else:  # city stage, read each scene
                         read_folder = Path(os.path.join(self.data_dir, "map", "preset", file_chapter, file_map, "0"))
                         sub4_directories = [x for x in read_folder.iterdir() if x.is_dir()]
                         for file_scene in sub4_directories:
                             scene_file_name = os.sep.join(os.path.normpath(file_scene).split(os.sep)[-1:])
+                            original_event_data, event_data = self.load_map_event_data(chapter_file_name, map_file_name,
+                                                                                       stage_file_name,
+                                                                                       scene_id=scene_file_name)
                             self.preset_map_data[chapter_file_name][map_file_name][stage_file_name][
                                 scene_file_name] = \
                                 {"data": csv_read(file_scene, "object_pos.csv", header_key=True),
                                  "character": self.load_map_unit_data(chapter_file_name, map_file_name,
                                                                       stage_file_name, scene_id=scene_file_name),
-                                 "event": self.load_map_event_data(chapter_file_name, map_file_name, stage_file_name,
-                                                                   scene_id=scene_file_name)}
+                                 "event_data": original_event_data,
+                                 "event": event_data}
 
     def load_map_event_data(self, campaign_id, map_id, stage_id, scene_id=""):
         with open(os.path.join(self.data_dir, "map", "preset", campaign_id, map_id, stage_id, scene_id,
@@ -154,6 +160,7 @@ class BattleMapData(GameData):
                 rd[data_index + 1] = {header[index]: stuff for index, stuff in enumerate(data)}
             event_data = rd[1:]
             # keep event data in trigger structure for easier check
+            original_event_data = copy.deepcopy(event_data)
             if event_data:
                 final_event_data = {"music": []}
                 for item in event_data:
@@ -170,9 +177,10 @@ class BattleMapData(GameData):
                         final_event_data["music"].append(str(item["Object"]))
                     next_level[parent_id].append(item)
                 unit_file.close()
-                return final_event_data
+                return original_event_data, final_event_data
+
             unit_file.close()
-            return event_data
+            return original_event_data, event_data
 
     def load_map_unit_data(self, campaign_id, map_id, stage_id, scene_id=""):
         try:
