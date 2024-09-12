@@ -3071,16 +3071,17 @@ class TickBox(UIMenu):
 
 
 class TextPopup(UIMenu):
-    def __init__(self):
+    def __init__(self, font_size=24):
         self._layer = 30
         UIMenu.__init__(self, player_cursor_interact=False)
-        self.font_size = int(24 * self.screen_scale[1])
+        self.font_size = int(font_size * self.screen_scale[1])
         self.font = Font(self.ui_font["main_button"], self.font_size)
         self.pos = (0, 0)
         self.last_shown_id = None
         self.text_input = ""
 
-    def popup(self, popup_rect, text_input, shown_id=None, width_text_wrapper=None, custom_screen_size=None):
+    def popup(self, popup_rect, text_input, shown_id=None, width_text_wrapper=None, custom_screen_size=None,
+              bg_colour=(220, 220, 220), font_colour=(30, 30, 30)):
         """Pop out text box with input text list in multiple line, one item equal to one paragraph"""
         self.last_shown_id = shown_id
 
@@ -3096,8 +3097,8 @@ class TextPopup(UIMenu):
                     image_height = int((self.font.render(text, True, (0, 0, 0)).get_width()) / width_text_wrapper)
                     if not image_height:  # only one line
                         text_image = Surface((width_text_wrapper, self.font_size))
-                        text_image.fill((220, 220, 220))
-                        surface = self.font.render(text, True, (30, 30, 30))
+                        text_image.fill(bg_colour)
+                        surface = self.font.render(text, True, font_colour)
                         text_image.blit(surface, (self.font_size, 0))
                         text_surface.append(text_image)  # text input font surface
                         max_height += surface.get_height()
@@ -3109,7 +3110,7 @@ class TextPopup(UIMenu):
                         space = self.font.size(" ")[0]  # the width of a space
                         for line in words:
                             for word in line:
-                                word_surface = self.font.render(word, True, (30, 30, 30))
+                                word_surface = self.font.render(word, True, font_colour)
                                 word_width, word_height = word_surface.get_size()
                                 if x + word_width >= max_width:
                                     x = self.font_size  # reset x
@@ -3118,16 +3119,16 @@ class TextPopup(UIMenu):
                             x = self.font_size  # reset x
                             y += word_height  # start on new row
                         text_image = Surface((width_text_wrapper, y))
-                        text_image.fill((220, 220, 220))
+                        text_image.fill(bg_colour)
                         make_long_text(text_image, text, (self.font_size, self.font_size), self.font,
-                                       specific_width=width_text_wrapper)
+                                       color=font_colour, specific_width=width_text_wrapper)
                         text_surface.append(text_image)
                         max_height += text_image.get_height()
             else:
                 max_width = 0
                 max_height = 0
                 for text in self.text_input:
-                    surface = self.font.render(text, True, (30, 30, 30))
+                    surface = self.font.render(text, True, font_colour)
                     text_surface.append(surface)  # text input font surface
                     text_rect = surface.get_rect(
                         topleft=(self.font_size, self.font_size))  # text input position at (1,1) on white box image
@@ -3136,7 +3137,7 @@ class TextPopup(UIMenu):
                     max_height += self.font_size + int(self.font_size / 5)
 
             self.image = Surface((max_width, max_height))  # white Box
-            self.image.fill((220, 220, 220))
+            self.image.fill(bg_colour)
 
             height = 0
             for surface in text_surface:
@@ -3166,7 +3167,11 @@ class TextPopup(UIMenu):
                 if exceed_right:
                     self.rect = self.image.get_rect(topright=popup_rect.bottomleft)
         else:  # popup_rect is pos
-            self.rect = self.image.get_rect(topleft=popup_rect)
+            if type(popup_rect) is tuple:
+                if type(popup_rect[0]) is str:
+                    exec(f"self.rect = self.image.get_rect({popup_rect[0]}=popup_rect[1])")
+                else:
+                    self.rect = self.image.get_rect(topleft=popup_rect)
 
 
 class BoxUI(UIMenu, Containable, Container):
@@ -3468,7 +3473,7 @@ class ListUI(UIMenu, Containable):
             elif self.cursor.scroll_down:
                 self.scroll_down_index += 1
                 noiovl = self.get_number_of_items_outside_visible_list(self.items, self.visible_list_capacity)
-                if self.scroll_down_index > noiovl:
+                if noiovl and self.scroll_down_index > noiovl:
                     self.scroll_down_index = noiovl
 
         # if the number of items changed a recalculation of the scroll bar is needed

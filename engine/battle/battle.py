@@ -156,11 +156,10 @@ class Battle:
         # add enemy trap with delay and cycle
         # add one more playable char
         # add online/lan multiplayer?
-        # court structure interface, mission select, side mission, feast system
+        #  mission select, side mission, feast system
         # add ranking record system
         # add pvp mode, follower recruit unlock with all save story progress
         # add sound type to skill/move for collide and damage sound check
-        # move loading sprite to when start character based on chapter
         # find way to increase speech text size
         # add no hit for stoppable frame in action property
         # finish main menu
@@ -457,6 +456,8 @@ class Battle:
         self.music_right.stop()
 
         print("Start loading", self.chapter, self.mission, self.stage, scene)
+        self.game.loading_lore_text = self.localisation.grab_text(("load", randint(0, len(self.localisation.text[self.language]["load"])), "Text"))
+
         yield set_start_load(self, "stage setup")
         self.current_weather.__init__(1, 0, 0,
                                       self.weather_data)

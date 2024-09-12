@@ -61,14 +61,30 @@
 1,3,1,1,"The Pamat Forest is home to many creatures of the One God. Brutes and beasts will do anything to survive, but they are not so ferocious that they will throw their life for nothing but to kill their adversary."
 1,3,1,2,"The change in the wilds is a sign of disturbance to nature. The most probable cause is that someone is manipulating it via magical means. It fell to the Royal Ordains to rebalance and bring peace to the forest once more."
 1,3,1,3,"Nonetheless, Woodland, by nature, is a dangerous place to traverse, even for the experienced. An alone tree may be able to provide comfort and shelter for the tired, but in abundance, they are master of labyrinths and host of savage wilds."
-1,3,1,4,
-1,3,1,5,
+1,3,1,4,"Wolf"
+1,3,1,5,"Bear"
+1,3,1,6,"Great Snail"
 1,3,2,1,
-1,3,2,2,
+1,3,2,2,"Turtle"
 1,3,2,3,"The most ferocious of all animals is no doubt a wild boar. One will attempt to charge and gore even those twice its size. Resilient skin, fur, and bone make it a challenging game, even for a skilled huntsman."
 1,3,2,4,
-1,3,2,5,
-1,3,2,6,
+1,3,2,5,"Fox"
+1,3,2,6,"Armina"
+1,3,0,"artificer","Artificer guild undertakes in the alteration of god's given gifts. The very act itself is not forbidden if conducted in moderation and compliance with the law of the land. The heroes can purchase magical accessories and alter their equipment's property here, with a suitable amount of payment."
+1,3,0,"barrack","The Royal Barrack in the Dawn Citadel. The Royal Army rest and train here. Due to the potential threat, a contingent of Flower Guard is always on standby here. This citadel is one of the first in the empire designed to defend against sieges from both land and sky."
+1,3,0,"blacksmith","The royalty's commissioned blacksmith shop, Golden Forge. A place of great importance for the Masendor Kingdom for centuries since the Fifth King, Tules the Younger. The forge has been worked by a continuous long line of the legendary Smith family to the latest. The heroes can craft their equipment here for a discounted price."
+1,3,0,"centre","The Capital's centre plaza has accommodated all manners of activity since the founding of the kingdom. Amphitheatre, market fair, ceremonial parade, and public announcement are some of such purposes. Travellers from distant lands also tend to gather here from time to time."
+1,3,0,"cathedral","The Cathedral of Saint Maaeir, named after the Canonical Third Great Saint Maaeir the Fortunas, represents the symbol of True Faith in the furthest west domain of influence established by the first Saint Mother. The heroes can receive a blessing from the saint here to boost their luck in the battle to come."
+1,3,0,"council","The royal council chamber. A place where the kingdom's brightest minds gather to better the lives of all followers of the crown. A principal council is generally convened once a month in peacetime, while a lessor is held every day, usually among the high members of the court."
+1,3,0,"garden","The famed Black Garden of Lasennis, second only to the Dawn Garden in the empire capital, Reskon. The Black Garden is full of the Masendor or Black Masen flowers, a rare hybrid found only in the Fimella region. Legend said that the flowers were dyed black by the blood of the great dragon, Lamorkul, that fell from the sky during the Battle of Arkian Sky."
+1,3,0,"hall","The famed Black Castle. Home of dynasties of kings and queens for four centuries. Newly renovated after its partial destruction thirty years ago by the great dragon Xelanos's attack. People of high birth typically stalk this hall, exchanging court gossip and politic."
+1,3,0,"herbalist","The smith of organic matter is a profession of high standing. Here is one of the few workshops in the capital. The hero can purchase beneficial potions for use in battle. A victory is most ensured for those who prepare."
+1,3,0,"library","All civilisations, like people, grow from knowledge. To know is to ascend. Here, the heroes can learn and understand the inner workings of this world."
+1,3,0,"market","The open market of Larsennis. Merchants, local and foreign, inhabit this most populous part of the capital. The heroes can purchase consumable goods and items for use in combat. Some items can even alter the battle entirely."
+1,3,0,"scriptorium","The Scriptorium of Celan Abbey. Many manuscripts were previously commissioned to be created here by the old Kings and nobles, but the Book of Royal Ordains is no doubt the greatest work of all. Labour of devotion for this book was conducted here in full for all days and nights, as illustrated on this very page."
+1,3,0,"tavern","Old Fakus, the most favoured tavern in the capital. Created by Fakus the Elder. At this time, owned by his great-grandson. Here, the heroes can accept favour quests, listen to low-value lowborn gossip, and order food and drink to improve power in the next mission."
+1,3,0,"throne","The great throne room of the Black Castle, the heart of the Masendor Kingdom. The room was sojourned by many great names, Saint Mother Caemilr the Fifth, Emperor Kihudi of Oimita, High Lord Melkirodieus of Sontriel, Rune Lord Bikillan, and many more. The heroes can start the new mission by talking with the Lord Commander here."
+1,3,"training",1,"Martial is a form of art. To be the true master is to train and improve until you achieve beyond the pinnacle of all in existence and reach the realm of gods. Through arts, one can connect with higher existences and gain a comprehension of the lower world."
 1,4,1,1,
 1,4,1,2,
 1,5,1,1,
@@ -89,22 +105,6 @@
 1,5,4,2,
 1,5,4,3,
 1,5,4,4,
-1,3,0,"artificer","Artificer guild undertakes in the alteration of god's given gifts. The very act itself is not forbidden if conducted in moderation and compliance with the law of the land. The heroes can purchase magical accessories and alter their equipment's property here, with a suitable amount of payment."
-1,3,0,"barrack","The Royal Barrack in the Dawn Citadel. The Royal Army rest and train here. Due to the potential threat, a contingent of Flower Guard is always on standby here. This citadel is one of the first in the empire designed to defend against sieges from both land and sky."
-1,3,0,"blacksmith","The royalty's commissioned blacksmith shop, Golden Forge. A place of great importance for the Masendor Kingdom for centuries since the Fifth King, Tules the Younger. The forge has been worked by a continuous long line of the legendary Smith family to the latest. The heroes can craft their equipment here for a discounted price."
-1,3,0,"centre","The Capital's centre plaza has accommodated all manners of activity since the founding of the kingdom. Amphitheatre, market fair, ceremonial parade, and public announcement are some of such purposes. Travellers from distant lands also tend to gather here from time to time."
-1,3,0,"cathedral","The Cathedral of Saint Maaeir, named after the Canonical Third Great Saint Maaeir the Fortunas, represents the symbol of True Faith in the furthest west domain of influence established by the first Saint Mother. The heroes can receive a blessing from the saint here to boost their luck in the battle to come."
-1,3,0,"council","The royal council chamber. A place where the kingdom's brightest minds gather to better the lives of all followers of the crown. A principal council is generally convened once a month in peacetime, while a lessor is held every day, usually among the high members of the court."
-1,3,0,"garden","The famed Black Garden of Lasennis, second only to the Dawn Garden in the empire capital, Reskon. The Black Garden is full of the Masendor or Black Masen flowers, a rare hybrid found only in the Fimella region. Legend said that the flowers were dyed black by the blood of the great dragon, Lamorkul, that fell from the sky during the Battle of Arkian Sky."
-1,3,0,"hall","The famed Black Castle. Home of dynasties of kings and queens for four centuries. Newly renovated after its partial destruction thirty years ago by the great dragon Xelanos's attack. People of high birth typically stalk this hall, exchanging court gossip and politic."
-1,3,0,"herbalist","The smith of organic matter is a profession of high standing. Here is one of the few workshops in the capital. The hero can purchase beneficial potions for use in battle. A victory is most ensured for those who prepare."
-1,3,0,"library","All civilisations, like people, grow from knowledge. To know is to ascend. Here, the heroes can learn and understand the inner workings of this world."
-1,3,0,"market","The open market of Larsennis. Merchants, local and foreign, inhabit this most populous part of the capital. The heroes can purchase consumable goods and items for use in combat. Some items can even alter the battle entirely."
-1,3,0,"scriptorium","The Scriptorium of Celan Abbey. Many manuscripts were previously commissioned to be created here by the old Kings and nobles, but the Book of Royal Ordains is no doubt the greatest work of all. Labour of devotion for this book was conducted here in full for all days and nights, as illustrated on this very page."
-1,3,0,"tavern","Old Fakus, the most favoured tavern in the capital. Created by Fakus the Elder. At this time, owned by his great-grandson. Here, the heroes can accept favour quests, listen to low-value lowborn gossip, and order food and drink to improve power in the next mission."
-1,3,0,"throne","The great throne room of the Black Castle, the heart of the Masendor Kingdom. The room was sojourned by many great names, Saint Mother Caemilr the Fifth, Emperor Kihudi of Oimita, High Lord Melkirodieus of Sontriel, Rune Lord Bikillan, and many more. The heroes can start the new mission by talking with the Lord Commander here."
-1,3,"training",1,"Martial is a form of art. To be the true master is to train and improve until you achieve beyond the pinnacle of all in existence and reach the realm of gods. Through arts, one can connect with higher existences and gain a comprehension of the lower world."
-,,,,
 ,,,,
 ,,,,
 ,,,,

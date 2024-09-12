@@ -1,0 +1,9 @@
+"Object ID","ID","Scene","POS","Ground Y POS","Angle","Start Health","Team","Arrive Condition","Stage Property"
+"p1",,1,"1200,1000",1000,90,1,1,,
+"p2",,1,"1400,1000",1000,90,1,1,,
+"p3",,1,"1600,1000",1000,90,1,1,,
+"p4",,1,"1800,1000",1000,90,1,1,,
+1,"Severn",1,"370,1000",1000,-90,1,1,,"city npc"
+2,"Merlaros",1,"750,1000",1000,90,1,1,,"city npc"
+3,"Laguasangte",1,"1100,1000",1000,90,1,1,,"city npc"
+4,"Bigta",1,"1500,1000",1000,90,1,1,,"city npc,story choice:1.1.3_yes,idle:CityStandIdle"

@@ -1,0 +1,164 @@
+"ID","Text ID","Object","Animation","Type","Trigger","Property"
+"music/scene1",,"tavern",,"music","camera_reach_scene,1",
+"Duhon/Any/1_1_city_tavern_talk1","Duhon/Any/1_1_city_tavern_talk1.1",1,"Talk","char","interact,1","interact,hold,angle:-90,repeat after"
+,"Duhon/Any/1_1_city_tavern_talk1.2",1,"StopTalk",,,"interact"
+,"Duhon/Any/1_1_city_tavern_talk1.3",1,,,,"interact"
+,"Duhon/Any/1_1_city_tavern_talk1.4",1,,,,"interact"
+,"Duhon/Any/1_1_city_tavern_talk1.5",1,,,,"interact"
+,"Duhon/Any/1_1_city_tavern_talk2.1",1,"Talk","char","interact,1","select:yesno,replayable,hold,repeat after"
+,,1,"StopTalk",,"yes","food"
+,"Duhon/Any/1_1_city_tavern_talk2no1",1,"StopTalk",,"no","interact"
+"Vraesier/Orsanoas/1_1_city_tavern_talk1",,2,"SitTalkIdle","char","interact,2","angle:-90,repeat after"
+,"Vraesier/Orsanoas/1_1_city_tavern_talk1.1","pm","Talk",,,"interact,hold,repeat after"
+,,"pm","StopTalk",,,
+,"Vraesier/Orsanoas/1_1_city_tavern_talk1.2",2,"SitTalk",,,"interact,hold,repeat after"
+,,2,"StopSitTalk",,,
+,,2,"SitTalkIdle",,,"repeat after"
+,"Vraesier/Orsanoas/1_1_city_tavern_talk1.3","pm",,,,"interact"
+,"Vraesier/Orsanoas/1_1_city_tavern_talk1.4",2,"SitTalkIdle",,,"interact,repeat"
+"Vraesier/Orsanoas/1_1_city_tavern_talk2","Vraesier/Orsanoas/1_1_city_tavern_talk2.1",2,"SitTalk","char","interact,2","interact,hold,replayable,angle:-90,repeat after"
+,,2,"StopSitTalk",,,
+"Vraesier/Rodhinbar/1_1_city_tavern_talk1",,2,"SitTalkIdle","char","interact,2","angle:-90,repeat after"
+,"Vraesier/Rodhinbar/1_1_city_tavern_talk1.1","pm","Talk",,,"interact,hold,repeat after"
+,,"pm","StopTalk",,,
+,"Vraesier/Rodhinbar/1_1_city_tavern_talk1.2",2,"SitTalk",,,"interact,hold,repeat after"
+,,2,"StopSitTalk",,,"repeat after"
+,,2,"SitTalkIdle",,,"repeat after"
+,"Vraesier/Rodhinbar/1_1_city_tavern_talk1.3","pm",,,,"interact"
+,"Vraesier/Rodhinbar/1_1_city_tavern_talk1.4","pm",,,,"interact"
+,"Vraesier/Rodhinbar/1_1_city_tavern_talk1.5",2,"SitTalkIdle",,,"interact,repeat after"
+,"Vraesier/Rodhinbar/1_1_city_tavern_talk1.6","pm",,,,"interact"
+,"Vraesier/Rodhinbar/1_1_city_tavern_talk1.7","pm",,,,"interact"
+,,2,"SitIdle",,,
+"Vraesier/Iri/1_1_city_tavern_talk1",,2,"SitTalkIdle","char","interact,2","angle:-90,repeat after"
+,"Vraesier/Iri/1_1_city_tavern_talk1.1","pm","Talk",,,"interact,hold,repeat after"
+,,"pm","StopTalk",,,
+,"Vraesier/Iri/1_1_city_tavern_talk1.2",2,"SitTalk",,,"interact,hold,repeat after"
+,,2,"StopSitTalk",,,
+,,2,"SitTalkIdle",,,"repeat after"
+,"Vraesier/Iri/1_1_city_tavern_talk1.3","pm",,,,"interact"
+,"Vraesier/Iri/1_1_city_tavern_talk1.4",2,"SitTalkIdle",,,"interact,repeat after"
+,"Vraesier/Iri/1_1_city_tavern_talk1.5","pm",,,,"interact"
+,"Vraesier/Iri/1_1_city_tavern_talk1.6",2,"SitTalkIdle",,,"interact,repeat"
+"Vraesier/Nayedien/1_1_city_tavern_talk1","Vraesier/Nayedien/1_1_city_tavern_talk1.1",2,,"char","interact,2","interact,angle:-90"
+,"Vraesier/Nayedien/1_1_city_tavern_talk1.2","pm",,,,"interact"
+,"Vraesier/Nayedien/1_1_city_tavern_talk1.3",2,,,,"interact"
+,"Vraesier/Nayedien/1_1_city_tavern_talk1.4","pm",,,,"interact"
+,"Vraesier/Nayedien/1_1_city_tavern_talk1.5","pm","Talk",,,"interact,hold,repeat after"
+,,"pm","StopTalk",,,
+,"Vraesier/Nayedien/1_1_city_tavern_talk1.6",2,"SitTalk",,,"interact,hold,repeat after"
+,,2,"StopSitTalk",,,"repeat after"
+,,2,"SitTalkIdle",,,"repeat after"
+,"Vraesier/Nayedien/1_1_city_tavern_talk1.7","pm",,,,"interact"
+,"Vraesier/Nayedien/1_1_city_tavern_talk1.8",2,"SitTalkIdle",,,"interact,repeat after"
+,"Vraesier/Nayedien/1_1_city_tavern_talk1.9","pm",,,,"interact"
+,"Vraesier/Nayedien/1_1_city_tavern_talk1.10",2,"SitTalkIdle",,,"interact,repeat"
+"Vraesier/Minara/1_1_city_tavern_talk1","Vraesier/Minara/1_1_city_tavern_talk1.1",,"Talk","char","interact,2","interact,hold,angle:-90"
+"Vraesier/Laguasangte/1_1_city_tavern_talk1","Vraesier/Laguasangte/1_1_city_tavern_talk1.1",,"Talk","char","interact,2","interact,hold,angle:-90"
+"Vraesier/Elmaliern/1_1_city_tavern_talk1","Vraesier/Elmaliern/1_1_city_tavern_talk1.1",,"Talk","char","interact,2","interact,hold,angle:-90"
+"Vraesier/Bauqah/1_1_city_tavern_talk1","Vraesier/Bauqah/1_1_city_tavern_talk1.1",,"Talk","char","interact,2","interact,hold,angle:-90"
+"Vraesier/Yuawies/1_1_city_tavern_talk1","Vraesier/Yuawies/1_1_city_tavern_talk1.1",,"Talk","char","interact,2","interact,hold,angle:-90"
+"Vraesier/Duskuksa/1_1_city_tavern_talk1",,2,,"char","interact,2","angle:-90"
+,"Vraesier/Duskuksa/1_1_city_tavern_talk1.1","pm","Talk",,,"interact,hold,repeat after"
+,,"pm","StopTalk",,,
+,"Vraesier/Duskuksa/1_1_city_tavern_talk1.2",2,"SitTalk",,,"interact,hold,repeat after"
+,,2,"StopSitTalk",,,
+,"Vraesier/Duskuksa/1_1_city_tavern_talk1.3","pm",,,,"interact"
+,"Vraesier/Duskuksa/1_1_city_tavern_talk1.4","pm",,,,"interact"
+,"Vraesier/Duskuksa/1_1_city_tavern_talk1.5",2,,,,"interact"
+"Vraesier/Pasgelo/1_1_city_tavern_talk1","Vraesier/Pasgelo/1_1_city_tavern_talk1.1",,"Talk","char","interact,2","interact,hold,angle:-90"
+"Vraesier/Any/1_1_city_tavern_talk2","Vraesier/Any/1_1_city_tavern_talk2.1",2,"SitTalk","char","interact,2","interact,hold,replayable,angle:-90,repeat after"
+,,2,"StopSitTalk",,,
+"Nraesier/Vraesier/1_1_city_tavern_talk1",,3,,"char","interact,3","angle:90"
+,"Nraesier/Vraesier/1_1_city_tavern_talk1.1","pm","Talk",,,"interact,hold,repeat after"
+,"Nraesier/Vraesier/1_1_city_tavern_talk1.2","pm","StopTalk",,,"interact"
+,"Nraesier/Vraesier/1_1_city_tavern_talk1.3",3,"Talk",,,"interact,hold,repeat after"
+,,3,"StopTalk",,,
+,"Nraesier/Vraesier/1_1_city_tavern_talk1.4",3,"Idle",,,"interact,repeat after"
+,"Nraesier/Vraesier/1_1_city_tavern_talk1.5",3,"Idle",,,"interact,repeat after"
+,"Nraesier/Vraesier/1_1_city_tavern_talk1.6",3,"Idle",,,"interact,repeat after"
+,"Nraesier/Vraesier/1_1_city_tavern_talk1.7",3,"Idle",,,"interact,repeat after"
+,"Nraesier/Vraesier/1_1_city_tavern_talk1.8","pm",,,,"interact"
+,"Nraesier/Vraesier/1_1_city_tavern_talk1.9","pm",,,,"interact"
+,"Nraesier/Vraesier/1_1_city_tavern_talk1.10",3,"Idle",,,"interact,repeat"
+"Nraesier/Vraesier/1_1_city_tavern_talk2","Nraesier/Vraesier/1_1_city_tavern_talk2.1",3,"Talk","char","interact,3","interact,hold,angle:90,repeat after"
+,,3,"StopTalk",,,
+,"Nraesier/Vraesier/1_1_city_tavern_talk2.2",3,"Idle",,,"interact,repeat after"
+,"Nraesier/Vraesier/1_1_city_tavern_talk2.3",3,"Idle",,,"interact,repeat after"
+,"Nraesier/Vraesier/1_1_city_tavern_talk2.4","pm","Talk",,,"interact,hold,repeat after"
+,"Nraesier/Vraesier/1_1_city_tavern_talk2.5","pm","StopTalk",,,"interact"
+,"Nraesier/Vraesier/1_1_city_tavern_talk2.6","pm",,,,"interact"
+,"Nraesier/Vraesier/1_1_city_tavern_talk2.7",3,,,,"interact"
+"Nraesier/Vraesier/1_1_city_tavern_talk3","Nraesier/Vraesier/1_1_city_tavern_talk3.1",3,"Talk","char","interact,3","interact,hold,replayable,angle:90,repeat after"
+,,3,"StopTalk",,,
+"Nraesier/Orsanoas/1_1_city_tavern_talk1",,3,,"char","interact,3","angle:90"
+,"Nraesier/Orsanoas/1_1_city_tavern_talk1.1","pm","Talk",,,"interact,hold,repeat after"
+,,"pm","StopTalk",,,
+,"Nraesier/Orsanoas/1_1_city_tavern_talk1.2",3,"Talk",,,"interact,hold,repeat after"
+,,3,"StopTalk",,,
+,,3,"Idle",,,"repeat after"
+,"Nraesier/Orsanoas/1_1_city_tavern_talk1.3","pm",,,,"interact"
+,"Nraesier/Orsanoas/1_1_city_tavern_talk1.4",3,"Idle",,,"interact,repeat after"
+,"Nraesier/Orsanoas/1_1_city_tavern_talk1.5",3,"Idle",,,"interact,repeat after"
+,"Nraesier/Orsanoas/1_1_city_tavern_talk1.6","pm",,,,"interact"
+,"Nraesier/Orsanoas/1_1_city_tavern_talk1.7",3,"Idle",,,"interact,repeat after"
+,"Nraesier/Orsanoas/1_1_city_tavern_talk1.8",3,"Idle",,,"interact,repeat after"
+,"Nraesier/Orsanoas/1_1_city_tavern_talk1.9","pm",,,,"interact"
+,"Nraesier/Orsanoas/1_1_city_tavern_talk1.10",3,"Idle",,,"interact,repeat after"
+"Nraesier/Orsanoas/1_1_city_tavern_talk2","Nraesier/Orsanoas/1_1_city_tavern_talk2.1",3,"Talk","char","interact,3","interact,hold,replayable,angle:90,repeat after"
+,,3,"StopTalk",,,
+"Nraesier/Nayedien/1_1_city_tavern_talk1","Nraesier/Nayedien/1_1_city_tavern_talk1.1",3,"Talk","char","interact,3","interact,hold,angle:90,repeat after"
+,,3,"StopTalk",,,
+,,3,"Idle",,,"repeat after"
+,"Nraesier/Nayedien/1_1_city_tavern_talk1.2","pm","Talk",,,"interact,hold,repeat after"
+,"Nraesier/Nayedien/1_1_city_tavern_talk1.3","pm","StopTalk",,,"interact"
+,"Nraesier/Nayedien/1_1_city_tavern_talk1.4",3,"Idle",,,"interact,repeat after"
+,"Nraesier/Nayedien/1_1_city_tavern_talk1.5",3,"Idle",,,"interact,repeat after"
+,"Nraesier/Nayedien/1_1_city_tavern_talk1.6","pm",,,,"interact"
+,"Nraesier/Nayedien/1_1_city_tavern_talk1.7",3,"Idle",,,"interact,repeat after"
+,"Nraesier/Nayedien/1_1_city_tavern_talk1.8",3,"Idle",,,"interact,repeat after"
+,"Nraesier/Nayedien/1_1_city_tavern_talk1.9","pm",,,,"interact"
+"Nraesier/Nayedien/1_1_city_tavern_talk2","Nraesier/Nayedien/1_1_city_tavern_talk2.1",3,"Talk","char","interact,3","interact,hold,replayable,angle:90,repeat after"
+,,3,"StopTalk",,,
+"Nraesier/Iri/1_1_city_tavern_talk1","Nraesier/Iri/1_1_city_tavern_talk1.1",3,"Talk","char","interact,3","interact,hold,angle:90,repeat after"
+,,3,"StopTalk",,,
+,"Nraesier/Iri/1_1_city_tavern_talk1.2",3,"Idle",,,"interact,repeat after"
+,"Nraesier/Iri/1_1_city_tavern_talk1.3","pm","Talk",,,"interact,hold,repeat after"
+,"Nraesier/Iri/1_1_city_tavern_talk1.4","pm","StopTalk",,,"interact"
+,"Nraesier/Iri/1_1_city_tavern_talk1.5","pm",,,,"interact"
+,"Nraesier/Iri/1_1_city_tavern_talk1.6",3,"Idle",,,"interact,repeat after"
+,"Nraesier/Iri/1_1_city_tavern_talk1.7","pm",,,,"interact"
+,"Nraesier/Iri/1_1_city_tavern_talk1.8","pm",,,,"interact"
+"Nraesier/Iri/1_1_city_tavern_talk2","Nraesier/Iri/1_1_city_tavern_talk2.1",3,"Talk","char","interact,3","interact,hold,replayable,angle:90,repeat after"
+,,3,"StopTalk",,,
+"Nraesier/Rodhinbar/1_1_city_tavern_talk1","Nraesier/Rodhinbar/1_1_city_tavern_talk1.1",3,"Talk","char","interact,3","interact,hold,angle:90,repeat after"
+,,3,"StopTalk",,,"repeat after"
+,,3,"Idle",,,"repeat after"
+,"Nraesier/Rodhinbar/1_1_city_tavern_talk1.2","pm","Talk",,,"interact,hold,repeat after"
+,,"pm","StopTalk",,,
+,"Nraesier/Rodhinbar/1_1_city_tavern_talk1.3",3,"Idle",,,"interact,repeat after"
+,"Nraesier/Rodhinbar/1_1_city_tavern_talk1.4",3,"Idle",,,"interact,repeat after"
+,"Nraesier/Rodhinbar/1_1_city_tavern_talk1.5","pm",,,,"interact"
+,"Nraesier/Rodhinbar/1_1_city_tavern_talk1.6",3,"Idle",,,"interact,repeat after"
+,"Nraesier/Rodhinbar/1_1_city_tavern_talk1.7","pm",,,,"interact"
+"Nraesier/Duskuksa/1_1_city_tavern_talk1","Nraesier/Duskuksa/1_1_city_tavern_talk1.1",3,"Talk","char","interact,3","interact,hold,angle:90,repeat after"
+,,3,"StopTalk",,,
+,"Nraesier/Duskuksa/1_1_city_tavern_talk1.2","pm","Talk",,,"interact,hold,repeat after"
+,,"pm","StopTalk",,,
+,"Nraesier/Duskuksa/1_1_city_tavern_talk1.3",3,,,,"interact"
+,"Nraesier/Duskuksa/1_1_city_tavern_talk1.4","pm",,,,"interact"
+"Nraesier/Elmaliern/1_1_city_tavern_talk1","Nraesier/Elmaliern/1_1_city_tavern_talk1.1",,,,,
+"Nraesier/Pasgelo/1_1_city_tavern_talk1","Nraesier/Pasgelo/1_1_city_tavern_talk1.1",,,,,
+"Nraesier/Laguasangte/1_1_city_tavern_talk1","Nraesier/Laguasangte/1_1_city_tavern_talk1.1",,,,,
+"Nraesier/Yuawies/1_1_city_tavern_talk1","Nraesier/Yuawies/1_1_city_tavern_talk1.1",,,,,
+"Nraesier/Bauqah/1_1_city_tavern_talk1","Nraesier/Bauqah/1_1_city_tavern_talk1.1",,,,,
+"Nraesier/Minara/1_1_city_tavern_talk1","Nraesier/Minara/1_1_city_tavern_talk1.1",,,,,
+"Nraesier/Any/1_1_city_tavern_talk2","Nraesier/Any/1_1_city_tavern_talk2.1",3,"Talk","char","interact,3","interact,hold,replayable,angle:90,repeat after"
+,,3,"StopTalk",,,
+"Board/Any/1_1_city_tavern_talk1","Board/Any/1_1_city_tavern_talk1.1",4,,"char","interact,4","interact,hold,angle:-90"
+"Barman_one/Any/1_1_city_tavern_talk1","Barman_one/Any/1_1_city_tavern_talk1.1",7,"Talk","char","interact,7","interact,hold,angle:-90,repeat after"
+,"Barman_one/Any/1_1_city_tavern_talk1.2",7,"StopTalk",,,"interact"
+,"Barman_one/Any/1_1_city_tavern_talk1.3",7,,,,"interact"
+,"Barman_one/Any/1_1_city_tavern_talk1.4",7,,,,"interact"
+"Barman_one/Any/1_1_city_tavern_talk2","Barman_one/Any/1_1_city_tavern_talk2.1",7,"Talk","char","interact,7","interact,hold,replayable,angle:-90,repeat after"
+,,7,"StopTalk",,,

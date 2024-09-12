@@ -1,0 +1,12 @@
+"Object ID","ID","Scene","POS","Ground Y POS","Angle","Start Health","Team","Arrive Condition","Stage Property"
+"p1",,1,"1200,1000",1000,90,1,1,,
+"p2",,1,"1400,1000",1000,90,1,1,,
+"p3",,1,"1600,1000",1000,90,1,1,,
+"p4",,1,"1800,1000",1000,90,1,1,,
+1,"Micorte",1,"870,1000",1000,-90,1,1,,"city npc"
+2,"Vigumatik",1,"702,1000",1000,90,1,1,,"city npc"
+3,"Quivenly",1,"1250,1013",1000,-90,1,1,,"city npc"
+4,"Wigorsein",1,"500,1010",1000,90,1,1,,"city npc"
+5,"Jurmon",1,"250,1015",1000,90,1,1,,"city npc"
+6,"Orgatonion",1,"1465,1005",1000,-90,1,1,,"city npc"
+7,"Roeveo",1,"1725,985",980,-90,1,1,,"city npc"

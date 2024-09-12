@@ -1,0 +1,8 @@
+"Buttons","Move","Name","Position","Stat Requirement","Requirement Move","Prepare Animation","After Animation","AI Range","AI Delay","AI Condition","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Weak","sweak","Water Bolt","Stand",,,,,800,2,,,5,,45,100,,,,,"Water",,,,
+"Forward,Weak","sfweak","Wind Bash","Stand",,,,,400,5,,,12,,20,5000,,,,,"Air",,,,
+"Down,Weak","sdweak","Earth Shatter","Stand",,,,,1000,5,,,20,,100,,,,5000,,"Earth",,,,
+"Special","sspecial","Summon Feral Snail","Stand",,,,,2000,4,,,60,,,,,,,,"Physical",,,,"summon:Animal_snail_feral"
+"Down,Special","sdspecial","Summon Boar","Stand",,,,,2000,5,,,80,,,,,,,,"Physical",,,,"summon:Animal_boar"
+"Forward,Special","sfspecial","Summon Wolf","Stand",,,,,2000,5,,,90,,,,,,,,"Physical",,,,"summon:Animal_wolf"
+"Backward,Special","sbspecial","Summon Bear","Stand",,,,,2000,6,,,100,,,,,,,,"Physical",,,,"summon:Animal_bear"

@@ -70,7 +70,7 @@ class AnimationData(GameData):
                             animation_pool = {}
 
                             for row_index, row in enumerate(rd):
-                                if row_index > 0:
+                                if row_index > 0 and "EXCLUDE_" not in row[0]:
                                     key = row[0].split("/")[0]
                                     for n, i in enumerate(row):
                                         row = stat_convert(row, n, i, list_column=list_column)

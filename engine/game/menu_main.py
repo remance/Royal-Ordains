@@ -31,9 +31,9 @@ def menu_main(self, esc_press):
         browser.open(self.discord_button.url)
         self.url_delay = 2
 
-    elif self.github_button.event_press and not self.url_delay:
-        browser.open(self.github_button.url)
-        self.url_delay = 2
+    # elif self.github_button.event_press and not self.url_delay:
+    #     browser.open(self.github_button.url)
+    #     self.url_delay = 2
 
     elif self.youtube_button.event_press and not self.url_delay:
         browser.open(self.youtube_button.url)

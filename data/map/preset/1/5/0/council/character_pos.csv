@@ -1,0 +1,8 @@
+"Object ID","ID","Scene","POS","Ground Y POS","Angle","Start Health","Team","Arrive Condition","Stage Property"
+"p1",,1,"1200,1000",1000,90,1,1,,
+"p2",,1,"1400,1000",1000,90,1,1,,
+"p3",,1,"1600,1000",1000,90,1,1,,
+"p4",,1,"1800,1000",1000,90,1,1,,
+1,"Solhatar",1,"200,1000",1000,-90,1,1,,"city npc"
+2,"Serlon",1,"450,1000",1000,90,1,1,,"city npc"
+3,"Elghest",1,"1000,1000",1000,-90,1,1,,"city npc"

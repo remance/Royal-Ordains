@@ -1,0 +1,4 @@
+"Buttons","Move","Name","Position","Requirement Move","Prepare Animation","After Animation","AI Range","AI Delay","AI Condition","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Weak","sweak1","Bite","Stand",,,,100,,,,4,,32,15,,,10,,"Physical",,,,
+"Weak","sweak2","Bite Again","Stand","sweak1",,,100,,,,6,,42,15,,,10,,"Physical",,,,
+"Strong","sstrong","Lunge","Stand",,"name:sstrongReady",,400,,,,10,,60,50,,,30,,"Physical",,,,"x_momentum:300"

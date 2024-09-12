@@ -33,6 +33,7 @@ class Localisation:
         self.read_localisation("status")
         self.read_localisation("event")
         self.read_localisation("help")
+        self.read_localisation("load")
 
         self.text["en"]["follower_speak"] = {}
         self.load_follower_talk_lore("en")

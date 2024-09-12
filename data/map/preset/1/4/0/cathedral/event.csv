@@ -1,0 +1,90 @@
+"ID","Text ID","Object","Animation","Type","Trigger","Property"
+"event1/1_1_city_cathedral",,"Monnirl",,"create","start,once","POS:(680;980),Angle:-90"
+,,"Worshipper_one",,"create",,"POS:(800;1000),Angle:90"
+,,"Worshipper_two",,"create",,"POS:(900;1000),Angle:90"
+,,"Shopper_three",,"create",,"POS:(1000;1000),Angle:90,Stage Property:{idle=Worship}"
+,,"Barman_two",,"create",,"POS:(1100;1000),Angle:90,Stage Property:{idle=Worship}"
+,,2,,"hide",,
+,,3,,"hide",,
+,,4,,"hide",,
+,"event/1_1_city_cathedral_talk1.1","Monnirl","Talk",,,"interact,hold"
+,"event/1_1_city_cathedral_talk1.2","Monnirl","StopTalk",,,"interact"
+,"event/1_1_city_cathedral_talk1.3","Monnirl",,,,"interact"
+,"event/1_1_city_cathedral_talk1.4","Monnirl",,,,"interact"
+,"event/1_1_city_cathedral_talk1.5","Monnirl",,,,"interact"
+,"event/1_1_city_cathedral_talk1.6","Monnirl",,,,"interact"
+,,"Monnirl","Bless","cutscene",,"wait"
+,,"camera","blackout","cutscene",,"timer:2"
+,,"Monnirl",,"remove",,
+,,"Worshipper_one",,"remove",,
+,,"Worshipper_two",,"remove",,
+,,"Shopper_three",,"remove",,
+,,"Barman_two",,"remove",,
+"music/scene1",,"cathedral",,"music","camera_reach_scene,1",
+"Orsanoas/Vraesier/1_1_city_cathedral_talk1","Orsanoas/Vraesier/1_1_city_cathedral_talk1.1",1,"CityTalk","char","interact,1","interact,hold,repeat after"
+,,1,"StopCityTalk",,,"repeat after"
+,,1,"TalkIdle",,,"repeat after"
+,"Orsanoas/Vraesier/1_1_city_cathedral_talk1.2","pm","Talk",,,"interact,hold,repeat after"
+,,"pm","StopTalk",,,
+,"Orsanoas/Vraesier/1_1_city_cathedral_talk1.3",1,"TalkIdle",,,"interact,repeat after"
+,"Orsanoas/Vraesier/1_1_city_cathedral_talk1.4","pm",,,,"interact"
+,,1,"Approve",,,"wait"
+,"Orsanoas/Vraesier/1_1_city_cathedral_talk1.5",1,"TalkIdle",,,"interact,repeat after"
+,"Orsanoas/Vraesier/1_1_city_cathedral_talk1.6",1,"TalkIdle",,,"interact,repeat after"
+,"Orsanoas/Vraesier/1_1_city_cathedral_talk1.7","pm","Nod",,,"interact"
+,"Orsanoas/Vraesier/1_1_city_cathedral_talk1.8",1,"TalkIdle",,,"interact,repeat"
+"Orsanoas/Minara/1_1_city_cathedral_talk1","Orsanoas/Minara/1_1_city_cathedral_talk1.1",,,"char","interact,1","interact,hold"
+"Orsanoas/Rodhinbar/1_1_city_cathedral_talk1","Orsanoas/Rodhinbar/1_1_city_cathedral_talk1.1","pm","Talk","char","interact,1","interact,hold,repeat after"
+,,"pm","StopTalk",,,
+,"Orsanoas/Rodhinbar/1_1_city_cathedral_talk1.2","pm",,,,"interact"
+,"Orsanoas/Rodhinbar/1_1_city_cathedral_talk1.3",1,"CityTalk",,,"interact,hold,repeat after"
+,,1,"StopCityTalk",,,
+,"Orsanoas/Rodhinbar/1_1_city_cathedral_talk1.4",1,"TalkIdle",,,"interact,repeat after"
+,"Orsanoas/Rodhinbar/1_1_city_cathedral_talk1.5","pm",,,,"interact"
+,"Orsanoas/Rodhinbar/1_1_city_cathedral_talk1.6","pm",,,,"interact"
+,"Orsanoas/Rodhinbar/1_1_city_cathedral_talk1.7",1,"TalkIdle",,,"interact,repeat after"
+,"Orsanoas/Rodhinbar/1_1_city_cathedral_talk1.8","pm",,,,"interact"
+,,1,"Idle",,,
+"Orsanoas/Laguasangte/1_1_city_cathedral_talk1","Orsanoas/Laguasangte/1_1_city_cathedral_talk1.1",,"Talk","char","interact,1","interact,hold"
+"Orsanoas/Iri/1_1_city_cathedral_talk1","Orsanoas/Iri/1_1_city_cathedral_talk1.1",,"Talk","char","interact,1","interact,hold"
+"Orsanoas/Elmaliern/1_1_city_cathedral_talk1","Orsanoas/Elmaliern/1_1_city_cathedral_talk1.1",,"Talk","char","interact,1","interact,hold"
+"Orsanoas/Bauqah/1_1_city_cathedral_talk1","Orsanoas/Bauqah/1_1_city_cathedral_talk1.1",,"Talk","char","interact,1","interact,hold"
+"Orsanoas/Yuawies/1_1_city_cathedral_talk1","Orsanoas/Yuawies/1_1_city_cathedral_talk1.1",,"Talk","char","interact,1","interact,hold"
+"Orsanoas/Duskuksa/1_1_city_cathedral_talk1","Orsanoas/Duskuksa/1_1_city_cathedral_talk1.1",1,"CityTalk","char","interact,1","interact,hold,repeat after"
+,,1,"StopCityTalk",,,
+,"Orsanoas/Duskuksa/1_1_city_cathedral_talk1.2","pm","Talk",,,"interact,hold,repeat after"
+,"Orsanoas/Duskuksa/1_1_city_cathedral_talk1.3","pm","StopTalk",,,"interact"
+,"Orsanoas/Duskuksa/1_1_city_cathedral_talk1.4",1,"TalkIdle",,,"interact,repeat after"
+,"Orsanoas/Duskuksa/1_1_city_cathedral_talk1.5","pm",,,,"interact"
+,"Orsanoas/Duskuksa/1_1_city_cathedral_talk1.6","pm",,,,"interact"
+,,1,"Idle",,,
+"Orsanoas/Nayedien/1_1_city_cathedral_talk1","Orsanoas/Nayedien/1_1_city_cathedral_talk1.1",1,"CityTalk","char","interact,1","interact,hold,repeat after"
+,,1,"StopCityTalk",,,
+,,1,"TalkIdle",,,"repeat after"
+,"Orsanoas/Nayedien/1_1_city_cathedral_talk1.2","pm","Talk",,,"interact,hold,repeat after"
+,"Orsanoas/Nayedien/1_1_city_cathedral_talk1.3",1,"TalkIdle",,,"interact,repeat after"
+,"Orsanoas/Nayedien/1_1_city_cathedral_talk1.4","pm",,,,"interact"
+,"Orsanoas/Nayedien/1_1_city_cathedral_talk1.5","pm",,,,"interact"
+,"Orsanoas/Nayedien/1_1_city_cathedral_talk1.6",1,"TalkIdle",,,"interact,repeat after"
+,"Orsanoas/Nayedien/1_1_city_cathedral_talk1.7","pm",,,,"interact"
+,"Orsanoas/Nayedien/1_1_city_cathedral_talk1.8",1,"TalkIdle",,,"interact,repeat after"
+,"Orsanoas/Nayedien/1_1_city_cathedral_talk1.9",1,"TalkIdle",,,"interact,repeat after"
+,"Orsanoas/Nayedien/1_1_city_cathedral_talk1.10","pm","Surprise",,,"interact,hold,repeat after"
+,,"pm","StopSurprise",,,
+,,1,"Idle",,,
+"Orsanoas/Pasgelo/1_1_city_cathedral_talk1","Orsanoas/Pasgelo/1_1_city_cathedral_talk1.1",,,"char","interact,1","interact,hold"
+"Orsanoas/Any/1_1_city_cathedral_talk2","Orsanoas/Any/1_1_city_cathedral_talk2.1",1,"CityTalk","char","interact,1","interact,hold,replayable,repeat after"
+,,1,"StopCityTalk",,,
+"Monnirl/Orsanoas/1_1_city_cathedral_talk1","Monnirl/Orsanoas/1_1_city_cathedral_talk1.1",,"Talk","char","interact,4","interact,hold"
+"Monnirl/Any/1_1_city_cathedral_talk1","Monnirl/Any/1_1_city_cathedral_talk1.1",4,"Talk","char","interact,4","interact,hold,repeat after"
+,"Monnirl/Any/1_1_city_cathedral_talk1.2",4,"StopTalk",,,"interact"
+,"Monnirl/Any/1_1_city_cathedral_talk1.3",4,,,,"interact"
+,"Monnirl/Any/1_1_city_cathedral_talk1.4",4,,,,"interact"
+,"Monnirl/Any/1_1_city_cathedral_talk1.5",4,,,,"interact"
+,"Monnirl/Any/1_1_city_cathedral_talk1.6",4,,,,"interact"
+,"Monnirl/Any/1_1_city_cathedral_talk2.1",4,,,,"interact"
+,"Monnirl/Any/1_1_city_cathedral_talk2yes1",4,,,,"interact,hold"
+,,4,"Bless",,,"wait"
+,"Monnirl/Any/1_1_city_cathedral_talk2no1",4,,,,"interact"
+,"Monnirl/Any/1_1_city_cathedral_talk3.1",4,"Talk","char","interact,4","interact,hold,replayable,repeat after"
+,,4,"StopTalk",,,

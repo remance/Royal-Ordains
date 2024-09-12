@@ -20,7 +20,7 @@ def character_event_process(self, event, event_property):
     if event["Type"] == "speak":  # speak something
         CharacterSpeechBox(self, self.battle.localisation.grab_text(("event",
                                                                      event["Text ID"],
-                                                                     "Text")))
+                                                                     "Text")), add_log=event["Text ID"])
     elif event["Type"] == "animation":  # play specific animation
         self.command_action = event_property
     elif event["Type"] == "remove":
@@ -119,4 +119,4 @@ def character_event_process(self, event, event_property):
                                self.battle.localisation.grab_text(("event", event["Text ID"], "Text")),
                                specific_timer=specific_timer,
                                player_input_indicator=player_input_indicator,
-                               cutscene_event=event)
+                               cutscene_event=event, add_log=event["Text ID"])

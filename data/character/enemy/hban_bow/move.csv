@@ -1,3 +1,5 @@
-"Buttons","Move","Name","Position","Requirement Move","Prepare Animation","After Animation","AI Range","AI Delay","AI Condition","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"Weak","sweak1","Gut Punch","Stand",,,,150,,,,3,,16,5,,,8,,"Physical",,,,
-"Strong","sstrong1","Shoot Arrow","Stand",,,,1200,,,1500,5,,80,10,,,15,,"Physical",,,,
+"Buttons","Move","Name","Position","Stat Requirement","Requirement Move","Prepare Animation","After Animation","AI Range","AI Delay","AI Condition","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Weak","sweak1","Gut Punch","Stand",,,,,150,,,,3,,16,5,,,8,,"Physical",,,,
+"Weak","sweak2","Double Hate","Stand","Dexterity:15",,,,150,,,,3,,30,8,,,,,"Physical",,,,
+"Weak","sweak3","Bandit Glory","Stand","Dexterity:19",,,,150,,,,3,,12,6,,,,,"Physical",,,,
+"Strong","sstrong1","Shoot Arrow","Stand",,,,,1200,,,1500,5,,80,10,,,15,,"Physical",,,,

@@ -416,14 +416,13 @@ class Game:
 
         base_button_image_list = load_base_button(self.data_dir, self.screen_scale)
 
-        main_menu_buttons_box = BoxUI((400, 500), parent=self.screen)
+        main_menu_buttons_box = BoxUI((1600, 300), parent=self.screen)
 
-        f = 0.68
-        self.start_game_button = BrownMenuButton((0, -0.6 * f), key_name="main_menu_start_game",
+        self.start_game_button = BrownMenuButton((-2, 1), key_name="main_menu_start_game",
                                                  parent=main_menu_buttons_box)
-        self.lore_button = BrownMenuButton((0, -0.2 * f), key_name="main_menu_lorebook", parent=main_menu_buttons_box)
-        self.option_button = BrownMenuButton((0, 0.2 * f), key_name="game_option", parent=main_menu_buttons_box)
-        self.quit_button = BrownMenuButton((0, 0.6 * f), key_name="game_quit", parent=main_menu_buttons_box)
+        self.lore_button = BrownMenuButton((-0.7, 1), key_name="main_menu_lorebook", parent=main_menu_buttons_box)
+        self.option_button = BrownMenuButton((0.7, 1), key_name="game_option", parent=main_menu_buttons_box)
+        self.quit_button = BrownMenuButton((2, 1), key_name="game_quit", parent=main_menu_buttons_box)
 
         main_menu_button_images = load_images(self.data_dir, screen_scale=self.screen_scale,
                                               subfolder=("ui", "mainmenu_ui"))
@@ -432,8 +431,8 @@ class Game:
                                           "https://discord.gg/q7yxz4netf")
         self.youtube_button = URLIconLink(main_menu_button_images["youtube"], self.discord_button.rect.topleft,
                                           "https://www.youtube.com/channel/UCgapwWog3mYhkEKIGW8VZtw")
-        self.github_button = URLIconLink(main_menu_button_images["github"], self.youtube_button.rect.topleft,
-                                         "https://github.com/remance/Royal-Ordains")
+        # self.github_button = URLIconLink(main_menu_button_images["github"], self.youtube_button.rect.topleft,
+        #                                  "https://github.com/remance/Royal-Ordains")
 
         self.mainmenu_button = (self.start_game_button, self.lore_button, self.option_button, self.quit_button,
                                 self.discord_button, self.youtube_button)
@@ -449,6 +448,9 @@ class Game:
         self.select_button = MenuButton(base_button_image_list,
                                         (self.screen_rect.width - base_button_image_list[0].get_width(), bottom_height),
                                         key_name="select_button")
+
+        self.loading_lore_text_popup = TextPopup(font_size=32)
+        self.loading_lore_text = ""
 
         # Option menu button
         option_menu_dict = self.make_option_menu(base_button_image_list)
@@ -549,8 +551,18 @@ class Game:
         self.background_image = load_images(self.data_dir, screen_scale=self.screen_scale,
                                             subfolder=("ui", "mainmenu_ui", "background"))
         self.background = self.background_image["background"]
+        self.o2 = MenuRotate((765 * self.screen_scale[0], 282 * self.screen_scale[1]), self.background_image["o2_1"],
+                             10, rotate_left=False)
+        self.o2_actor = MenuActor((765 * self.screen_scale[0], 285 * self.screen_scale[1]),
+                                  [self.background_image[item] for item in self.background_image if "o2_1_actor" in item],
+                                  animation_frame_play_time=0.15)
+        self.y3_actor = MenuActor((960 * self.screen_scale[0], 190 * self.screen_scale[1]),
+                                  [self.background_image[item] for item in self.background_image if "y3_1_actor" in item],
+                                  animation_frame_play_time=0.15)
+        self.l5_actor = MenuActor((1338 * self.screen_scale[0], 260 * self.screen_scale[1]),
+                                  [self.background_image[item] for item in self.background_image if "l5_1_actor" in item],
+                                  animation_frame_play_time=0.15)
 
-        self.atlas = MenuRotate((self.screen_width / 2, self.screen_height / 2), self.background_image["atlas"], 5)
         self.hide_background = StaticImage((self.screen_width / 2, self.screen_height / 2),
                                            self.background_image["hide"])
 

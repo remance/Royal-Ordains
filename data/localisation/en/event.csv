@@ -140,7 +140,7 @@
 "Nayedien/Iri/1_1_city_throne_talk1.4","Not as long as you, sadly. Only ten winters ago.",,
 "Nayedien/Iri/1_1_city_throne_talk1.5","Would you kindly spare time recounting his tale anon?",,
 "Nayedien/Iri/1_1_city_throne_talk1.6","Yes, my dear. Whenever our schedules allow it.",,
-"Nayedien/Iri/1_1_city_throne_talk1.7","…My gratitude.",,
+"Nayedien/Iri/1_1_city_throne_talk1.7","… My gratitude.",,
 "Nayedien/Pasgelo/1_1_city_throne_talk1.1","…",,
 "Nayedien/Pasgelo/1_1_city_throne_talk1.2",,,
 "Nayedien/Pasgelo/1_1_city_throne_talk1.3",,,
@@ -448,7 +448,7 @@
 "Amunsa/Any/1_1_city_blacksmith_talk2.1","Are you in need of my service, warrior?",,
 "Amunsa/Any/1_1_city_blacksmith_talk2no1","Come back whenever you need to.",,
 "Amunsa/Duskuksa/1_1_city_blacksmith_talk1.1","Hail, fellow artisan. Welcome to my humble Golden Forge.",,
-"Amunsa/Duskuksa/1_1_city_blacksmith_talk1.2","Your coming into my shop is nothing but a blessing.",,
+"Amunsa/Duskuksa/1_1_city_blacksmith_talk1.2","Your coming into my forge is nothing but a blessing.",,
 "Amunsa/Duskuksa/1_1_city_blacksmith_talk1.3","If you are in need of my craft, I am at your service.",,
 "Amunsa/Duskuksa/1_1_city_blacksmith_talk1.4","Ha! No need to be so formal, my good man.",,
 "Amunsa/Duskuksa/1_1_city_blacksmith_talk1.5","I am still but a learner and your works here impress me.",,
@@ -563,7 +563,7 @@
 "Yuawies/Iri/1_1_city_garden_talk1.15","I understand. Pray come tell of your travel again later.",,
 "Yuawies/Iri/1_1_city_garden_talk1.16","Absolutely, my dear.",,
 "Yuawies/Nayedien/1_1_city_garden_talk1.1","Good morrow, elven Aide. So you have not forgotten your roots.",,
-"Yuawies/Nayedien/1_1_city_garden_talk1.2","A nice garden you have here. Pity can’t rest among the flowers.",,
+"Yuawies/Nayedien/1_1_city_garden_talk1.2","A nice garden you have here. Pity can not rest among the flowers.",,
 "Yuawies/Nayedien/1_1_city_garden_talk1.3","Apology, even if you are now the Hero of the Kingdom.",,
 "Yuawies/Nayedien/1_1_city_garden_talk1.4","There are still rules that need to be adhered to.",,
 "Yuawies/Nayedien/1_1_city_garden_talk1.5","And yes, even after I become a ""City Elf"", I still know my roots.",,
@@ -1126,8 +1126,6 @@
 "Orsanoas/Nayedien/1_1_city_cathedral_talk1.10","…",,
 "Orsanoas/Pasgelo/1_1_city_cathedral_talk1.1",,,
 "Orsanoas/Any/1_1_city_cathedral_talk2.1","HMM I NEED A BIGGER STATUE.",,
-,,,
-,,,
 "Towncrier/Any/1_1_city_plaza_talk1.1","Oyez, Oyez, Oyez!",,
 "Towncrier/Any/1_1_city_plaza_talk1.2","The Heroes Have Answered The Called From Our King!",,
 "Towncrier/Any/1_1_city_plaza_talk1.3","They Arrived In Our Fair City Today With A Welcome Ceremony!",,
@@ -1470,11 +1468,12 @@
 "Vraesier/Elmaliern/1_2_city_tavern_talk1.1",,,
 "Vraesier/Bauqah/1_2_city_tavern_talk1.1",,,
 "Vraesier/Yuawies/1_2_city_tavern_talk1.1",,,
-"Vraesier/Duskuksa/1_2_city_tavern_talk1.1",,,
-"Vraesier/Duskuksa/1_2_city_tavern_talk1.2",,,
-"Vraesier/Duskuksa/1_2_city_tavern_talk1.3",,,
-"Vraesier/Duskuksa/1_2_city_tavern_talk1.4",,,
-"Vraesier/Duskuksa/1_2_city_tavern_talk1.5",,,
+"Vraesier/Duskuksa/1_2_city_tavern_talk1.1","Formidable performance with your two swords.",,
+"Vraesier/Duskuksa/1_2_city_tavern_talk1.2","I daresay your exotic dance of blades is of no similarity in this land.",,
+"Vraesier/Duskuksa/1_2_city_tavern_talk1.3","Or at least none that I have the pleasure of witnessing afore.",,
+"Vraesier/Duskuksa/1_2_city_tavern_talk1.4","Yes, a paltry blessing of my affliction.",,
+"Vraesier/Duskuksa/1_2_city_tavern_talk1.5","Aye, certain that you will go far even as a human evermore.",,
+"Vraesier/Duskuksa/1_2_city_tavern_talk1.6","… Thanks.",,
 "Vraesier/Pasgelo/1_2_city_tavern_talk1.1",,,
 "Vraesier/Any/1_2_city_tavern_talk2.1","We should talk later.",,
 "Nraesier/Vraesier/1_2_city_tavern_talk1.1","Did you find anything of note?",,
@@ -1634,24 +1633,21 @@
 "Quivenly/Any/1_2_city_scriptorium_talk1.9","I will have time to design the decoration for the battle scenes.",,
 "Quivenly/Any/1_2_city_scriptorium_talk1.10","I have high hopes for this work if I say so myself.",,
 "Quivenly/Any/1_2_city_scriptorium_talk2.1","Bless you and luck for your next quest, hero.",,
-"Orgatonion/Any/1_2_city_scriptorium_talk1.1",,,
-"Orgatonion/Any/1_2_city_scriptorium_talk1.2",,,
-"Orgatonion/Any/1_2_city_scriptorium_talk1.3",,,
-"Orgatonion/Any/1_2_city_scriptorium_talk1.4",,,
-"Orgatonion/Any/1_2_city_scriptorium_talk1.5",,,
-"Orgatonion/Any/1_2_city_scriptorium_talk1.6",,,
-"Orgatonion/Any/1_2_city_scriptorium_talk1.7",,,
-"Orgatonion/Any/1_2_city_scriptorium_talk1.8",,,
-"Orgatonion/Any/1_2_city_scriptorium_talk1.9",,,
-"Orgatonion/Any/1_2_city_scriptorium_talk2.1",,,
-"Roeveo/Any/1_2_city_scriptorium_talk1.1",,,
-"Roeveo/Any/1_2_city_scriptorium_talk1.2",,,
-"Roeveo/Any/1_2_city_scriptorium_talk1.3",,,
-"Roeveo/Any/1_2_city_scriptorium_talk1.4",,,
-"Roeveo/Any/1_2_city_scriptorium_talk1.5",,,
-"Roeveo/Any/1_2_city_scriptorium_talk1.6",,,
-"Roeveo/Any/1_2_city_scriptorium_talk1.7",,,
-"Roeveo/Any/1_2_city_scriptorium_talk2.1",,,
+"Orgatonion/Any/1_2_city_scriptorium_talk1.1","Dear hero, our work of your deeds begins now in earnest.",,
+"Orgatonion/Any/1_2_city_scriptorium_talk1.2","A start of your ceremony in the throne room in the Black Castle.",,
+"Orgatonion/Any/1_2_city_scriptorium_talk1.3","The first step of the journey for the Royal Ordains. Blessed by the King.",,
+"Orgatonion/Any/1_2_city_scriptorium_talk1.4","Your meetings with the residents of our fair capital.",,
+"Orgatonion/Any/1_2_city_scriptorium_talk1.5","Have no doubt that no falsity shall be in our history.",,
+"Orgatonion/Any/1_2_city_scriptorium_talk1.6","We all are assured that your gloriousest of quests will bear no rival.",,
+"Orgatonion/Any/1_2_city_scriptorium_talk1.7","As your battles against the rabbits make obviously so.",,
+"Orgatonion/Any/1_2_city_scriptorium_talk2.1","The greatest work awaits us all.",,
+"Roeveo/Any/1_2_city_scriptorium_talk1.1","Ah, hero, I bid you welcome once more.",,
+"Roeveo/Any/1_2_city_scriptorium_talk1.2","The talk of your victory forewent your joyous journey back.",,
+"Roeveo/Any/1_2_city_scriptorium_talk1.3","Truly an impressive display of might only the finest vallum can befit. ",,
+"Roeveo/Any/1_2_city_scriptorium_talk1.4","I am of sure mind that our first book will be hundreds of pages.",,
+"Roeveo/Any/1_2_city_scriptorium_talk1.5","Thus, my labour will be toil endlessly all Primes and Nones.",,
+"Roeveo/Any/1_2_city_scriptorium_talk1.6","I am in hope you aware that you will be pleased with our effects.",,
+"Roeveo/Any/1_2_city_scriptorium_talk2.1","Hero.",,
 "Vigumatik/Any/1_2_city_scriptorium_talk1.1","Magnificent display, Royal Ordains.",,
 "Vigumatik/Any/1_2_city_scriptorium_talk1.2","Your battle inspires me and my assistants immensely.",,
 "Vigumatik/Any/1_2_city_scriptorium_talk1.3","It is a rather daunting prospect to imagine illustrating your prowess -",,
@@ -1663,32 +1659,21 @@
 "Vigumatik/Any/1_2_city_scriptorium_talk1.9","A morale of the highest order now anchors in this very room.",,
 "Vigumatik/Any/1_2_city_scriptorium_talk1.10","Perhaps the Saint Mother is watching over us after all.",,
 "Vigumatik/Any/1_2_city_scriptorium_talk2.1","I yearn to witness your action once more, hero.",,
-"Wigorsein/Any/1_2_city_scriptorium_talk1.1",,,
-"Wigorsein/Any/1_2_city_scriptorium_talk1.2",,,
-"Wigorsein/Any/1_2_city_scriptorium_talk1.3",,,
-"Wigorsein/Any/1_2_city_scriptorium_talk1.4",,,
-"Wigorsein/Any/1_2_city_scriptorium_talk1.5",,,
-"Wigorsein/Any/1_2_city_scriptorium_talk1.6",,,
-"Wigorsein/Any/1_2_city_scriptorium_talk1.7",,,
-"Wigorsein/Any/1_2_city_scriptorium_talk2.1",,,
-"Wigorsein/Any/1_2_city_scriptorium_talk3.1",,,
-"Wigorsein/Any/1_2_city_scriptorium_talk4.1",,,
-"Jurmon/Any/1_2_city_scriptorium_talk1.1",,,
-"Jurmon/Any/1_2_city_scriptorium_talk1.2",,,
-"Jurmon/Any/1_2_city_scriptorium_talk1.3",,,
-"Jurmon/Any/1_2_city_scriptorium_talk1.4",,,
-"Jurmon/Any/1_2_city_scriptorium_talk1.5",,,
-"Jurmon/Any/1_2_city_scriptorium_talk1.6",,,
-"Jurmon/Any/1_2_city_scriptorium_talk1.7",,,
-"Jurmon/Any/1_2_city_scriptorium_talk2.1",,,
-"Jurmon/Any/1_2_city_scriptorium_talk1.1",,,
-"Jurmon/Any/1_2_city_scriptorium_talk1.2",,,
-"Jurmon/Any/1_2_city_scriptorium_talk1.3",,,
-"Jurmon/Any/1_2_city_scriptorium_talk1.4",,,
-"Jurmon/Any/1_2_city_scriptorium_talk1.5",,,
-"Jurmon/Any/1_2_city_scriptorium_talk1.6",,,
-"Jurmon/Any/1_2_city_scriptorium_talk1.7",,,
-"Jurmon/Any/1_2_city_scriptorium_talk2.1",,,
+"Wigorsein/Any/1_2_city_scriptorium_talk1.1","Ha, hero! Mighty of you in your accomplishments.",,
+"Wigorsein/Any/1_2_city_scriptorium_talk1.2","Our scintillating Court Jester wrote and told us all your displays.",,
+"Wigorsein/Any/1_2_city_scriptorium_talk1.3","I am in awe! You are indeed the hope of this land.",,
+"Wigorsein/Any/1_2_city_scriptorium_talk1.4","Now I know what the ever fair Commander said of your aborning ability.",,
+"Wigorsein/Any/1_2_city_scriptorium_talk1.5","He made such comments only to curtail temerity I am sure.",,
+"Wigorsein/Any/1_2_city_scriptorium_talk1.6","A fair remark with merit but undoubtedly proven wrong.",,
+"Wigorsein/Any/1_2_city_scriptorium_talk1.7","Still, admittedly our fervent Court Jester may embellish your tale much.",,
+"Wigorsein/Any/1_2_city_scriptorium_talk1.8","Your combat prowess may be rather difficult to capture in full glory.",,
+"Wigorsein/Any/1_2_city_scriptorium_talk1.9","But not to say that we will not try to the absolute of all efforts.",,
+"Wigorsein/Any/1_2_city_scriptorium_talk1.10","I too look forward to your blossoming as the greatest of our era.",,
+"Wigorsein/Any/1_2_city_scriptorium_talk2.1","Oh, hero. More ever come back victorious.",,
+"Jurmon/Any/1_2_city_scriptorium_talk1.1","Welcome back, hero. Honour be upon your triumph.",,
+"Jurmon/Any/1_2_city_scriptorium_talk1.2","But apology. Alas, I am unable to freely converse with you this day.",,
+"Jurmon/Any/1_2_city_scriptorium_talk1.3","Please come back next time, and we shall talk in detail.",,
+"Jurmon/Any/1_2_city_scriptorium_talk2.1","Apology, hero.",,
 "Amunsa/Any/1_2_city_blacksmith_talk1.1","I see you have survived the first encounter.",,
 "Amunsa/Any/1_2_city_blacksmith_talk1.2","A warrior with good equipment increases the survival rate by 50.",,
 "Amunsa/Any/1_2_city_blacksmith_talk1.3","50 what? I do not know. I just made it up.",,
@@ -1697,14 +1682,22 @@
 "Amunsa/Any/1_2_city_blacksmith_talk1.6","Reliability, the only component required in this Golden Forge of ours.",,
 "Amunsa/Any/1_2_city_blacksmith_talk2.1","A craft a day keeps the nemy’s sword at bay.",,
 "Amunsa/Any/1_2_city_blacksmith_talk2no1","Do not neglect to improve your equipment.",,
-"Amunsa/Duskuksa/1_2_city_blacksmith_talk1.1",,,
-"Amunsa/Duskuksa/1_2_city_blacksmith_talk1.2",,,
-"Amunsa/Duskuksa/1_2_city_blacksmith_talk1.3",,,
-"Amunsa/Duskuksa/1_2_city_blacksmith_talk1.4",,,
-"Amunsa/Duskuksa/1_2_city_blacksmith_talk1.5",,,
-"Amunsa/Duskuksa/1_2_city_blacksmith_talk1.6",,,
-"Amunsa/Duskuksa/1_2_city_blacksmith_talk1.7",,,
-"Amunsa/Duskuksa/1_2_city_blacksmith_talk2.1",,,
+"Amunsa/Duskuksa/1_2_city_blacksmith_talk1.1","Greeting friend! I am back from my quest.",,
+"Amunsa/Duskuksa/1_2_city_blacksmith_talk1.2","And here once again in all my eagerness!",,
+"Amunsa/Duskuksa/1_2_city_blacksmith_talk1.3","Welcome back. I suppose all went well?",,
+"Amunsa/Duskuksa/1_2_city_blacksmith_talk1.4","Surprisingly, the rabbitmen were quite smart and diligent folks.",,
+"Amunsa/Duskuksa/1_2_city_blacksmith_talk1.5","I believe they can become a threat to the whole empire left alone.",,
+"Amunsa/Duskuksa/1_2_city_blacksmith_talk1.6","Hmm, an interesting prospect. A realm of herbivorous woodlanders.",,
+"Amunsa/Duskuksa/1_2_city_blacksmith_talk1.7","And what of their craftsmanship?",,
+"Amunsa/Duskuksa/1_2_city_blacksmith_talk1.8","Not much. Much of their weaponry was salvaged from bygone battles.",,
+"Amunsa/Duskuksa/1_2_city_blacksmith_talk1.9","But they have a knack for architecture. A humble forest jousting arena.",,
+"Amunsa/Duskuksa/1_2_city_blacksmith_talk1.10","Still quite a grandeur display of a newborn civilisation.",,
+"Amunsa/Duskuksa/1_2a_city_blacksmith_talk1.11","Well, I wonder if they can become a fine forge hand with teaching.",,
+"Amunsa/Duskuksa/1_2a_city_blacksmith_talk1.12","An endeavour worth entertaining, I suppose.",,
+"Amunsa/Duskuksa/1_2b_city_blacksmith_talk1.11","Hmm, too bad they will be extinguished then.",,
+"Amunsa/Duskuksa/1_2b_city_blacksmith_talk1.12","Aye, a choice was made, and I will live with it.",,
+"Amunsa/Duskuksa/1_2b_city_blacksmith_talk1.13","As long as you are not in conflict with it, friend.",,
+"Amunsa/Duskuksa/1_2_city_blacksmith_talk2.1","Can my hands be of help for you this day?",,
 "Velmidas/Any/1_2a_city_blacksmith_talk1.1","Hero, what an unexpected solution you brought for us.",,
 "Velmidas/Any/1_2a_city_blacksmith_talk1.2","Rabbitmen as civilians. Our workforce multiplies tenfold in a day.",,
 "Velmidas/Any/1_2a_city_blacksmith_talk1.3","Perhaps the restoration will proceed at a much more satisfying rate.",,
@@ -1789,8 +1782,8 @@
 "Rudehst/Any/1_2a_city_garden_talk1.6","Do not dig a hole in the ground here!",,
 "Rudehst/Any/1_2b_city_garden_talk1.1","Come to immerse in the garden's beauty once again?",,
 "Rudehst/Any/1_2b_city_garden_talk1.2","It is irresistible, I know. The blackness that draws in your soul.",,
-"Rudehst/Any/1_2b_city_garden_talk1.3","…..",,
-"Rudehst/Any/1_2b_city_garden_talk1.4","…..",,
+"Rudehst/Any/1_2b_city_garden_talk1.3","…",,
+"Rudehst/Any/1_2b_city_garden_talk1.4","…",,
 "Rudehst/Any/1_2b_city_garden_talk1.5","Ah ahem. Pardon me.",,
 "Rudehst/Any/1_2b_city_garden_talk1.6","Even as a caretaker of this great achievement, I still feel dazed by it.",,
 "Rudehst/Any/1_2a_city_garden_talk2.1","I think we may need to install a fence.",,
@@ -1808,151 +1801,747 @@
 "Viskes/Any/1_2b_city_garden_talk1.5",,,
 "Viskes/Any/1_2a_city_garden_talk2.1",,,"At your service."
 "Viskes/Any/1_2b_city_garden_talk2.1",,,
-"Yuawies/Vraeiser/1_2_city_garden_talk1.1",,,"Good morrow, ruffel girl. Please, to meet you among the green."
-"Yuawies/Vraeiser/1_2_city_garden_talk1.2",,,"Or black, hehe. Here for a nice view as well?"
-"Yuawies/Vraeiser/1_2_city_garden_talk1.3",,,"Just looking around."
-"Yuawies/Vraeiser/1_2_city_garden_talk1.4",,,"Well, have a look then! Nothing but blackness all around."
-"Yuawies/Vraeiser/1_2_city_garden_talk1.5",,,"Such a great place for contemplation. And a drink."
-"Yuawies/Vraeiser/1_2_city_garden_talk1.6",,,"… I will leave you to it."
-"Yuawies/Vraeiser/1_2_city_garden_talk1.7",,,"See you again!"
-"Yuawies/Rodhinbar/1_2_city_garden_talk1.1",,,"The garden here sure is a sight of magnificence."
-"Yuawies/Rodhinbar/1_2_city_garden_talk1.2",,,"The blackness of the flowers and the castle captivate me so."
-"Yuawies/Rodhinbar/1_2_city_garden_talk1.3",,,"Good morrow, turban lord. This place sure is great, I agree."
-"Yuawies/Rodhinbar/1_2_city_garden_talk1.4",,,"I am not sure morning is the best time for a drink, though."
-"Yuawies/Rodhinbar/1_2_city_garden_talk1.5",,,"Folly, everything in life is all about happiness."
-"Yuawies/Rodhinbar/1_2_city_garden_talk1.6",,,"Beauty, drink, and food all around!"
-"Yuawies/Rodhinbar/1_2_city_garden_talk1.7",,,"I reckon you are right in a way. Life is nought without happiness."
-"Yuawies/Iri/1_2_city_garden_talk1.1",,,"So you are a traveller of the world? From corner to corner?"
-"Yuawies/Iri/1_2_city_garden_talk1.2",,,"I wouldn't say I have reached the two corners yet, but I did go far."
-"Yuawies/Iri/1_2_city_garden_talk1.3",,,"Well, pray tell, is there any beauty better than the garden here?"
-"Yuawies/Iri/1_2_city_garden_talk1.4",,,"Not many in the same category I can think of."
-"Yuawies/Iri/1_2_city_garden_talk1.5",,,"Bialong Sihimrat in the desert plain of Yehman Mullema."
-"Yuawies/Iri/1_2_city_garden_talk1.6",,,"Aelreye Burnat in the Naljesmil Askiron Forest."
-"Yuawies/Iri/1_2_city_garden_talk1.7",,,"Those are the two I can think of. Unparrarel garden of nature."
-"Yuawies/Iri/1_2_city_garden_talk1.8",,,"You have travelled to many places. See far and wide."
-"Yuawies/Iri/1_2_city_garden_talk1.9",,,"But still, the two you mentioned are not of its purpose."
-"Yuawies/Iri/1_2_city_garden_talk1.10",,,"They are not created with the intention to captivate or amase."
-"Yuawies/Iri/1_2_city_garden_talk1.11",,,"Why do you think they are better than this for its sole intent?"
-"Yuawies/Iri/1_2_city_garden_talk1.12",,,"That I can affirm is the nature of us halflings. "
-"Yuawies/Iri/1_2_city_garden_talk1.13",,,"We adore the world we belong in. Both the order and choas in it."
-"Yuawies/Iri/1_2_city_garden_talk1.14",,,"It is no matter the intent or purpose of things but what we feel."
-"Yuawies/Iri/1_2_city_garden_talk1.15",,,"I understand. Pray come tell of your travel again later. "
-"Yuawies/Iri/1_2_city_garden_talk1.16",,,"Absolutely, my dear."
-"Yuawies/Nayedien/1_2_city_garden_talk1.1",,,"Good morrow, elven Aide. So you have not forgotten your roots."
-"Yuawies/Nayedien/1_2_city_garden_talk1.2",,,"A nice garden you have here. Pity can’t rest among the flowers."
-"Yuawies/Nayedien/1_2_city_garden_talk1.3",,,"Apology, even if you are now the Hero of the Kingdom."
-"Yuawies/Nayedien/1_2_city_garden_talk1.4",,,"There are still rules that need to be adhered to."
-"Yuawies/Nayedien/1_2_city_garden_talk1.5",,,"And yes, even after I become a ""City Elf"", I still know my roots."
-"Yuawies/Nayedien/1_2_city_garden_talk1.6",,,"This place here is filled with love and hatred in equality."
-"Yuawies/Nayedien/1_2_city_garden_talk1.7",,,"Love for the flowers and hatred for the so-called vermins."
-"Yuawies/Nayedien/1_2_city_garden_talk1.8",,,"It is not in my place to judge, for I also adhered to the rules."
-"Yuawies/Nayedien/1_2_city_garden_talk1.9",,,"As all in nature live as they do. That is the truth."
-"Yuawies/Nayedien/1_2_city_garden_talk1.10",,,"Yes, I believe so. I do not wish to take more of your time."
-"Yuawies/Nayedien/1_2_city_garden_talk1.11",,,"Talk to you again soon. Until then, fare thee well."
-"Yuawies/Nayedien/1_2_city_garden_talk1.12",,,"You too, elven Aide."
+"Yuawies/Vraeiser/1_2_city_garden_talk1.1","Nice to see you again. Here for relaxation after rigorous battles?",,
+"Yuawies/Vraeiser/1_2_city_garden_talk1.2","A change of pace.",,
+"Yuawies/Vraeiser/1_2_city_garden_talk1.3","Hehe, indeed. A forest green to a garden black.",,
+"Yuawies/Vraeiser/1_2_city_garden_talk1.4","One filled with gore. One filled with thorns.",,
+"Yuawies/Vraeiser/1_2a_city_garden_talk1.5","See those rabbitmen over there? They seem to think the same.",,
+"Yuawies/Vraeiser/1_2a_city_garden_talk1.6","Mhmm.",,
+"Yuawies/Vraeiser/1_2a_city_garden_talk1.7","Well, not much else to do aside from resting til the next fight. So tata.",,
+"Yuawies/Vraeiser/1_2b_city_garden_talk1.5","A culling of pests for cultivation. Civilisations demand much of nature.",,
+"Yuawies/Vraeiser/1_2b_city_garden_talk1.6","Perhaps you will fit right in here after all.",,
+"Yuawies/Vraeiser/1_2b_city_garden_talk1.7","Perhaps so. Perhaps not.",,
+"Yuawies/Vraeiser/1_2b_city_garden_talk1.8","Time will tell. Time will tell. And see you until the time comes again.",,
+"Yuawies/Rodhinbar/1_2_city_garden_talk1.1","Lord of Sand. What is your impression of the vert?",,
+"Yuawies/Rodhinbar/1_2_city_garden_talk1.2","Our journey and battle there were fruitful to your acuity, I hope.",,
+"Yuawies/Rodhinbar/1_2_city_garden_talk1.3","Indeed so, Lady of Verdant. Much I can bring back to my realm.",,
+"Yuawies/Rodhinbar/1_2_city_garden_talk1.4","Impressive. If you seek to spread foliage all to abundance.",,
+"Yuawies/Rodhinbar/1_2_city_garden_talk1.5","Then please do invite me to voyage with you. Perhaps I can be of use. ",,
+"Yuawies/Rodhinbar/1_2_city_garden_talk1.6","I will when such an occasion ever comes.",,
+"Yuawies/Rodhinbar/1_2_city_garden_talk1.7","I am glad to hear you acquiesce so.",,
+"Yuawies/Iri/1_2a_city_garden_talk1.1","What a circumstance for us to be here together, Traveller.",,
+"Yuawies/Iri/1_2a_city_garden_talk1.2","Surrounded by all manners of beings here in the garden of unity.",,
+"Yuawies/Iri/1_2a_city_garden_talk1.3","I wonder who else will join us as we continue in these missions.",,
+"Yuawies/Iri/1_2a_city_garden_talk1.4","I sure do not mind getting a dragon or two.",,
+"Yuawies/Iri/1_2a_city_garden_talk1.5","The finest and most marvellous of companions to have. I agree.",,
+"Yuawies/Iri/1_2a_city_garden_talk1.6","Oh, and of course, Gryphons, but I doubt we will reach way south.",,
+"Yuawies/Iri/1_2a_city_garden_talk1.7","To the mountain ranges of Mawwintot? I sure hope not.",,
+"Yuawies/Iri/1_2a_city_garden_talk1.8","Tis impossible distance from here to matter lest for a world conquest.",,
+"Yuawies/Iri/1_2a_city_garden_talk1.9","Well, one can never guess with the great mind of our patron.",,
+"Yuawies/Iri/1_2b_city_garden_talk1.1","Truly, you befuddle me greatly, my dear Traveller.",,
+"Yuawies/Iri/1_2b_city_garden_talk1.2","I thought your kinds were harmonious sorts and seek not decimation.",,
+"Yuawies/Iri/1_2b_city_garden_talk1.3","Are you disappointed, or mayhap, despondent at this turn of events?",,
+"Yuawies/Iri/1_2b_city_garden_talk1.4","Not in the exact way as your wording. Unexpected I would say.",,
+"Yuawies/Iri/1_2b_city_garden_talk1.5","I abide by the choice most befit for this land in this circumstance.",,
+"Yuawies/Iri/1_2b_city_garden_talk1.6","So you are of a practical mind rather than an ideal one.",,
+"Yuawies/Iri/1_2b_city_garden_talk1.7","Sensible, as a well-travelled and embryonic hero of this realm.",,
+"Yuawies/Iri/1_2b_city_garden_talk1.8","The king wants us to decide for ourselves what is best for his realm.",,
+"Yuawies/Iri/1_2b_city_garden_talk1.9","He sure placed a great deal of his duty on us heroes eh?",,
+"Yuawies/Iri/1_2b_city_garden_talk1.10","That is undoubtedly the matter that I understand not most.",,
+"Yuawies/Iri/1_2b_city_garden_talk1.11","But I feel it will be revealed more in time. Which I shall abide by.",,
+"Yuawies/Iri/1_2b_city_garden_talk1.12","Yes, I too have concluded he will reveal more in time.",,
+"Yuawies/Iri/1_2_city_garden_talk2.1","With that out of the way, would you orate more of your previous travel?",,
+"Yuawies/Iri/1_2_city_garden_talk2.2","Hmm. How about my first away journey to the empire of my people?",,
+"Yuawies/Iri/1_2_city_garden_talk2.3","A proper selection for a start.",,
+"Yuawies/Iri/1_2_city_garden_talk2.4","Mmm, how much do you know about the great empire of Nan?",,
+"Yuawies/Iri/1_2_city_garden_talk2.5","Only the name that I can only claim to truly know.",,
+"Yuawies/Iri/1_2_city_garden_talk2.6","Ah. Well, I should preface that I am from Whe, its vassal Kingdom.",,
+"Yuawies/Iri/1_2_city_garden_talk2.7","The empire is the first destination for most of our journey.",,
+"Yuawies/Iri/1_2_city_garden_talk2.8","A pilgrimage to start our second life, one could say.",,
+"Yuawies/Iri/1_2_city_garden_talk2.9","The trip itself is rather uneventful, just a caravan of halfling wayfarers.",,
+"Yuawies/Iri/1_2_city_garden_talk2.10","Seven villages, two cities, and four fortresses to reach the capital.",,
+"Yuawies/Iri/1_2_city_garden_talk2.11","Those midway visits took four Integrated months from my journey.",,
+"Yuawies/Iri/1_2_city_garden_talk2.12","Is it due to your custom to be familiar with culture during your stay? ",,
+"Yuawies/Iri/1_2_city_garden_talk2.13","Indeed, travel is to absorb the venture rather than pass by.",,
+"Yuawies/Iri/1_2_city_garden_talk2.14","But despite the prior drabness, the capital itself left a great impression.",,
+"Yuawies/Iri/1_2_city_garden_talk2.15","A transformation the world has never before seen.",,
+"Yuawies/Iri/1_2_city_garden_talk2.16","I was told in my childhood it was the centre of innovation.",,
+"Yuawies/Iri/1_2_city_garden_talk2.17","An unfathomable sight I saw. Steam and steels envelop the sky.",,
+"Yuawies/Iri/1_2_city_garden_talk2.18","The white city of faith darkens with the might of progression.",,
+"Yuawies/Iri/1_2_city_garden_talk2.19","Is it for better or for worse?",,
+"Yuawies/Iri/1_2_city_garden_talk2.20","But I know for sure that our old way of life will soon be no more.",,
+"Yuawies/Iri/1_2_city_garden_talk2.21","Tradition can not last if the newer generations see no benefit from it.",,
+"Yuawies/Iri/1_2_city_garden_talk2.22","I feel too that the balance will shift that much is certain.",,
+"Yuawies/Iri/1_2_city_garden_talk2.23","Well, shall we continue this talk another time?",,
+"Yuawies/Iri/1_2_city_garden_talk2.24","Yes, good talking with you, miss dryad.",,
+"Yuawies/Nayedien/1_2_city_garden_talk1.1","Well well, dear Aide. You are indeed the greatest warrior among us.",,
+"Yuawies/Nayedien/1_2_city_garden_talk1.2","Only for now. I am confident all of you will surpass me in time.",,
+"Yuawies/Nayedien/1_2_city_garden_talk1.3","Such is also the wisdom of my king in his selection for this group.",,
+"Yuawies/Nayedien/1_2_city_garden_talk1.4","Humility is an odd trait for elves, the most elevated of civilised ones.",,
+"Yuawies/Nayedien/1_2_city_garden_talk1.5","But a welcoming one among friends all the same.",,
+"Yuawies/Nayedien/1_2_city_garden_talk1.6","Well, that is most astonishing. But I am elated to hear so. ",,
+"Yuawies/Nayedien/1_2_city_garden_talk1.7","Do not be. I think our little group of ours will go far with your guidance.",,
+"Yuawies/Nayedien/1_2_city_garden_talk1.8","But oftens said, no deeds should go unrewarded with a good rest after.",,
+"Yuawies/Nayedien/1_2_city_garden_talk1.9","So come sit and enjoy this drink with me.",,
+"Yuawies/Nayedien/1_2_city_garden_talk1.10","I would love to but with respect to the Flower Keeper.",,
+"Yuawies/Nayedien/1_2_city_garden_talk1.11","Maybe we should go to somewhere more suitable?",,
+"Yuawies/Nayedien/1_2_city_garden_talk1.12","Ah ah, if you say so. Perhaps after dinner at the castle today.",,
+"Yuawies/Nayedien/1_2_city_garden_talk1.13","A fine plan. Until tonight then. And please be moderate in your drinking.",,
 "Yuawies/Elmaliern/1_2_city_garden_talk1.1",,,
 "Yuawies/Pasgelo/1_2_city_garden_talk1.1",,,
 "Yuawies/Laguasangte/1_2_city_garden_talk1.1",,,
 "Yuawies/Orsanoas/1_2_city_garden_talk1.1",,,
 "Yuawies/Bauqah/1_2_city_garden_talk1.1",,,
 "Yuawies/Minara/1_2_city_garden_talk1.1",,,
-"Yuawies/Duskuksa/1_2_city_garden_talk1.1",,,"Hmm, a student of stone in my presence."
-"Yuawies/Duskuksa/1_2_city_garden_talk1.2",,,"Your kind are not known to reside in woodlands."
-"Yuawies/Duskuksa/1_2_city_garden_talk1.3",,,"This also brings me to a question, where are the dryad of stone?"
-"Yuawies/Duskuksa/1_2_city_garden_talk1.4",,,"You dryads will fare much better in sapping essence from dwarves."
-"Yuawies/Duskuksa/1_2_city_garden_talk1.5",,,"Unlike those meek humans, we are boundless in energy. Ha!"
-"Yuawies/Duskuksa/1_2_city_garden_talk1.6",,,"An intriguing offer that my brethren may be persuaded by."
-"Yuawies/Duskuksa/1_2_city_garden_talk1.7",,,"Perhaps feel free to repeat that again when you meet another dryad."
-"Yuawies/Any/1_2a_city_garden_talk2.1","These rabbitmen are quite cute and good companions.",,"A day like this is rare to see!"
-"Yuawies/Any/1_2b_city_garden_talk2.1","Come, drink with this lonesome me. Will you?",,
+"Yuawies/Duskuksa/1_2_city_garden_talk1.1","How do you like our first adventure in the vert, my dear?",,
+"Yuawies/Duskuksa/1_2_city_garden_talk1.2","Nothing of note, but because it is not my first bout in the green.",,
+"Yuawies/Duskuksa/1_2_city_garden_talk1.3","These rabbitmen are not so different from the deep goblins.",,
+"Yuawies/Duskuksa/1_2_city_garden_talk1.4","Great in number, lacking in quality, but a surprising share of versatility.",,
+"Yuawies/Duskuksa/1_2_city_garden_talk1.5","So, aside from the dampness and darkness of the cave, all is as usual.",,
+"Yuawies/Duskuksa/1_2_city_garden_talk1.6","I never knew. Perhaps an investigation is worthwhile.",,
+"Yuawies/Duskuksa/1_2_city_garden_talk1.7","Eh, what are you interested in finding?",,
+"Yuawies/Duskuksa/1_2_city_garden_talk1.8","You know, finding a home in a mountain cave. An intriguing idea, yes?",,
+"Yuawies/Duskuksa/1_2_city_garden_talk1.9","Perhaps I will be the first dryad of stone for you lots, after all this.",,
+"Yuawies/Duskuksa/1_2_city_garden_talk1.10","Hmm, I believe some dwarven clans also cultivate deep gardens.",,
+"Yuawies/Duskuksa/1_2_city_garden_talk1.11","If you like this garden here, oh ho expect to see ones in the deep.",,
+"Yuawies/Duskuksa/1_2_city_garden_talk1.12","That is another on my list to go then.",,
+"Yuawies/Any/1_2a_city_garden_talk2.1","These rabbitmen are quite cute and good companions.",,
+"Yuawies/Any/1_2b_city_garden_talk2.1","Come, drink with this lonesome me, will you?",,
+"Sasinola/Any/1_2_city_herbalist_talk1.1","Welcome again, hero.",,"Welcome, hero, to my herbalist workshop."
+"Sasinola/Any/1_2_city_herbalist_talk1.2",,,"Feel free to browse."
+"Sasinola/Any/1_2_city_herbalist_talk1.3",,,"Ah, hero, forgive her manner. Our herbalist is a bit of a wallflower."
+"Sasinola/Any/1_2_city_herbalist_talk1.4",,,"I can vouch for the quality of all purchases here, myself!"
+"Sasinola/Any/1_2_city_herbalist_talk1.5",,,"A regular customer, indeed, I am. So have a look around!"
+"Sasinola/Any/1_2_city_herbalist_talk2.1",,,"Have a look?"
+"Sasinola/Any/1_2_city_herbalist_talk2no1",,,"See you."
+"Sasinola/Pasgelo/1_2_city_herbalist_talk1.1",,,
+"Pasgelo/Vraesier/1_2_city_herbalist_talk1.1",,,"Hmph, a bandit hero. Our employer truly has a bizarre preference."
+"Pasgelo/Vraesier/1_2_city_herbalist_talk1.2",,,"Tell me, what feats have you accomplished, hero?"
+"Pasgelo/Vraesier/1_2_city_herbalist_talk1.3",,,"Nothing that I feel worthy of recounting."
+"Pasgelo/Vraesier/1_2_city_herbalist_talk1.4",,,"Hmph, a secretive type as well. No matter, we shall see soon."
+"Pasgelo/Vraesier/1_2_city_herbalist_talk2.1",,,"I shall bear witness your might in battle, hero."
+"Pasgelo/Rodhinbar/1_2_city_herbalist_talk1.1",,,"A lord serving another lord? A peculiar sort of affair, is it not?"
+"Pasgelo/Rodhinbar/1_2_city_herbalist_talk1.2",,,"What is there to gain from such service? Why come personally?"
+"Pasgelo/Rodhinbar/1_2_city_herbalist_talk1.3",,,"Same as you, noble elf. For unignorable rewards"
+"Pasgelo/Rodhinbar/1_2_city_herbalist_talk1.4",,,"Fair, I suppose. But I am here to prove my chivalry code as well."
+"Pasgelo/Rodhinbar/1_2_city_herbalist_talk2.1",,,"We can talk more anon. I need to prepare for our journey."
+"Pasgelo/Iri/1_2_city_herbalist_talk1.1",,,"So, it seems there are no Alkeranoisis Roots to be purchased here."
+"Pasgelo/Iri/1_2_city_herbalist_talk1.2",,,"Alas, I shan't demonstrate the full height of my power in this endeavour."
+"Pasgelo/Iri/1_2_city_herbalist_talk1.3",,,"I am in hope the king will be satisfied with my inadequate display."
+"Pasgelo/Iri/1_2_city_herbalist_talk1.4",,,"I wouldn't be so certain of such a conclusion yet, noble friend."
+"Pasgelo/Iri/1_2_city_herbalist_talk1.5",,,"The pace of progression by these humans is astounding."
+"Pasgelo/Iri/1_2_city_herbalist_talk1.6",,,"They are resilient sorts and of curious minds."
+"Pasgelo/Iri/1_2_city_herbalist_talk1.7",,,"Perhaps the cultivation here will satisfy your needs someday."
+"Pasgelo/Iri/1_2_city_herbalist_talk1.8",,,"Is that your conclusion from travelling the land, then?"
+"Pasgelo/Iri/1_2_city_herbalist_talk1.9",,,"Not yet conclusion, supposition. And who knows what time bring."
+"Pasgelo/Iri/1_2_city_herbalist_talk1.10",,,"Hmm, the millennium of my patience hereafter will verify it for you then."
+"Pasgelo/Iri/1_2_city_herbalist_talk2.1",,,"I am in requirement for peace of contemplation, for now, Traveller."
+"Pasgelo/Nayedien/1_2_city_herbalist_talk1.1",,,"…"
+"Pasgelo/Nayedien/1_2_city_herbalist_talk1.2",,,"Well met, Honourable Mage."
+"Pasgelo/Nayedien/1_2_city_herbalist_talk1.3",,,"… Sieletan mekrie ane yielwenonsecli."
+"Pasgelo/Nayedien/1_2_city_herbalist_talk1.4",,,"… I am sorry, I know not the accent of your speech."
+"Pasgelo/Nayedien/1_2_city_herbalist_talk1.5",,,"I see. Hail to thee, Aide. Is there anything I can do for you?"
+"Pasgelo/Nayedien/1_2_city_herbalist_talk1.6",,,"No, but perhaps I can be of aid. Are you in need of anything here?"
+"Pasgelo/Nayedien/1_2_city_herbalist_talk1.7",,,"I would not trouble you for time, Aide. My task is of little matter."
+"Pasgelo/Nayedien/1_2_city_herbalist_talk1.8",,,"There is much better use of your time elsewhere."
+"Pasgelo/Nayedien/1_2_city_herbalist_talk1.9",,,"If you are certain, do let me know if I can be of service."
+"Pasgelo/Nayedien/1_2_city_herbalist_talk2.1",,,"Thank you for your consideration. Another time or day, perhaps."
+"Pasgelo/Elmaliern/1_2_city_herbalist_talk1.1",,,
+"Pasgelo/Laguasangte/1_2_city_herbalist_talk1.1",,,
+"Pasgelo/Orsanoas/1_2_city_herbalist_talk1.1",,,
+"Pasgelo/Bauqah/1_2_city_herbalist_talk1.1",,,
+"Pasgelo/Minara/1_2_city_herbalist_talk1.1",,,
+"Pasgelo/Duskuksa/1_2_city_herbalist_talk1.1",,,"Ah, ser Smith. Curious to see you at this place of verdurous craft."
+"Pasgelo/Duskuksa/1_2_city_herbalist_talk1.2",,,"Aye, my compatriot. Even a hand of lustrous craft need rest for a time."
+"Pasgelo/Duskuksa/1_2_city_herbalist_talk1.3",,,"And me too perhaps, in wonder to see you here."
+"Pasgelo/Duskuksa/1_2_city_herbalist_talk1.4",,,"How ever so? A mage is never full of his demand for curiosity."
+"Pasgelo/Duskuksa/1_2_city_herbalist_talk1.5",,,"Aye, that I wonder. I doubt here you can purchase unexplored learning."
+"Pasgelo/Duskuksa/1_2_city_herbalist_talk1.6",,,"You hail from a land of high culture in this subject, after all."
+"Pasgelo/Duskuksa/1_2_city_herbalist_talk1.7",,,"Ah, my curiosity for dissimilarity is in no less abundance than yours."
+"Pasgelo/Duskuksa/1_2_city_herbalist_talk1.8",,,"Even, well ... in inferiority dwell unknowns found not in superior."
+"Pasgelo/Duskuksa/1_2_city_herbalist_talk1.9",,,"Nevertheless, it is in my appeal to survey this realm whole and through."
+"Pasgelo/Duskuksa/1_2_city_herbalist_talk1.10",,,"Then I expect we shall meet ever more in curious sights then."
+"Pasgelo/Duskuksa/1_2_city_herbalist_talk1.11",,,"Hm, I predict too that we shall, good ser."
+"Pasgelo/Yuawies/1_2_city_herbalist_talk1.1",,,
+"Pasgelo/Any/1_2_city_herbalist_talk2.1",,,"Another time, please."
+"Sihest/Orsanoas/1_2_city_herbalist_talk1.1",,,
+"Sihest/Yuawies/1_2_city_herbalist_talk1.1",,,
+"Sihest/Any/1_2_city_herbalist_talk1.1",,,"Hail and well met, hero. Mighty to find you here."
+"Sihest/Any/1_2_city_herbalist_talk1.2",,,"Here, have a whiff of a sniff at this. Smell great, yes?"
+"Sihest/Any/1_2_city_herbalist_talk1.3",,,"This herb will be in tonight's feast for you at the castle."
+"Sihest/Any/1_2_city_herbalist_talk1.4",,,"The food will smell irresistible and taste unforgettable."
+"Sihest/Any/1_2_city_herbalist_talk1.5",,,"My pride as an artisan of culinary can promise you that!"
+"Sihest/Any/1_2_city_herbalist_talk2.1",,,"Look forward to the feast later!"
+"Solhatar/Nayedien/1_2_city_council_talk1.1",,,"Greetings and salutations, Aide. A special time for us on this day."
+"Solhatar/Nayedien/1_2_city_council_talk1.2",,,"Curious to hear you say that. I did not see you at the ceremony."
+"Solhatar/Nayedien/1_2_city_council_talk1.3",,,"Ah, I asked our good friend Lord Steward to attend in our name."
+"Solhatar/Nayedien/1_2_city_council_talk1.4",,,"There was, ahem, an urgent matter that required my attention."
+"Solhatar/Nayedien/1_2_city_council_talk1.5",,,"If you say so, Lord Chancellor."
+"Solhatar/Nayedien/1_2_city_council_talk1.6",,,"I also heard that you will take part in the quests with these heroes."
+"Solhatar/Nayedien/1_2_city_council_talk1.7",,,"You heard right. His majesty requested of me to aid them."
+"Solhatar/Nayedien/1_2_city_council_talk1.8",,,"I wonder why. But your absence will no doubt cause disruption."
+"Solhatar/Nayedien/1_2_city_council_talk1.9",,,"Maybe your duty should be reassigned to available hands for now."
+"Solhatar/Nayedien/1_2_city_council_talk1.10",,,"Lord Chancellor, if his majesty will so, I will readily resign my duty."
+"Solhatar/Nayedien/1_2_city_council_talk1.11",,,"But that is not within your duty to advise. So say no more of it."
+"Solhatar/Nayedien/1_2_city_council_talk1.12",,,"As you wish, dear Aide."
+"Solhatar/Nayedien/1_2_city_council_talk2.1",,,"So, Aide. as you already know, my duty is to the chancery."
+"Solhatar/Any/1_2_city_council_talk1.1",,,"Greetings and salutations, hero. A special time for us on this day."
+"Solhatar/Any/1_2_city_council_talk1.2",,,"Your arrival brought hope for a better future for us all."
+"Solhatar/Any/1_2_city_council_talk2.1",,,"Hero, I have important information you may interested in."
+"Solhatar/Any/1_2_city_council_talk2.2",,,"Diplomacy and administration of the lower society are my domains."
+"Solhatar/Any/1_2_city_council_talk2.3",,,"And as the hero ordained by the King. You have the rights -"
+"Solhatar/Any/1_2_city_council_talk2.4",,,"to know the current standing of our land and among other nations."
+"Solhatar/Any/1_2_city_council_talk2.5",,,"Talk to me again if you would like to hear more."
+"Solhatar/Any/1_2_city_council_talk3.1",,,"Here is the report."
+"Solhatar/Any/1_2_city_council_talk3.2",,,"At this time, the inner central realm is in relative peace."
+"Solhatar/Any/1_2_city_council_talk3.3",,,"The peasants are obedient and loyal."
+"Solhatar/Any/1_2_city_council_talk3.4",,,"However, the northern and southern realms are in chaos."
+"Solhatar/Any/1_2_city_council_talk3.5",,,"Most non-human nations nearby are unfriendly, as ever will be."
+"Solhatar/Any/1_2_city_council_talk3.6",,,"I must admit at least that the ingenious of this hero's plan -"
+"Solhatar/Any/1_2_city_council_talk3.7",,,"does deepen some relationships with some heroes' home nation."
+"Solhatar/Any/1_2_city_council_talk3.8",,,"Our standing in the empire is also much better than the decade ago."
+"Solhatar/Any/1_2_city_council_talk3.9",,,"With your help, the order will be re-established again certainly."
+"Solhatar/Any/1_2_city_council_talk4.1",,,"I look forward to hearing about your exploits."
+"Serlon/Nayedien/1_2_city_council_talk1.1",,,"Good health to you, Aide."
+"Serlon/Nayedien/1_2_city_council_talk1.2",,,"I possess an inquiry regarding the heroes' accommodation."
+"Serlon/Nayedien/1_2_city_council_talk1.3",,,"Prey tell. I will respond all that I can."
+"Serlon/Nayedien/1_2_city_council_talk1.4",,,"Are we certain that some request a stay at the outer town?"
+"Serlon/Nayedien/1_2_city_council_talk1.5",,,"It would seem so. They feel uneasy with the ordeal in the castle."
+"Serlon/Nayedien/1_2_city_council_talk1.6",,,"Well, prey informs them that the castle is always welcome."
+"Serlon/Any/1_2_city_council_talk1.1",,,"Abundance of respect for you, hero. Lord Chamberlain at service."
+"Serlon/Any/1_2_city_council_talk1.2",,,"I wish you the most comfortable stay in our Kingdom."
+"Serlon/Any/1_2_city_council_talk1.3",,,"We provide accommodation for you here in the castle."
+"Serlon/Any/1_2_city_council_talk1.4",,,"If you require assistance, prey inform the Head Servant of such."
+"Serlon/Any/1_2_city_council_talk1.5",,,"I believe she usually stays around Castle Hall."
+"Serlon/Any/1_2_city_council_talk2.1",,,"The One God smile on us this day."
+"Elghest/Nayedien/1_2_city_council_talk1.1",,,"Greetings again, Aide. A nice and conservative event we had today."
+"Elghest/Nayedien/1_2_city_council_talk1.2",,,"Very agreeable to the treasury, I salute to the wisdom of our king!"
+"Elghest/Nayedien/1_2_city_council_talk1.3",,,"Yes, best to keep the lavish celebration parade after victory."
+"Elghest/Nayedien/1_2_city_council_talk1.4",,,"On that, we agree. I am glad you are the close advisor to our king."
+"Elghest/Nayedien/1_2_city_council_talk1.5",,,"Oh, uhh, my gratitude for your kind words, Lord Steward."
+"Elghest/Nayedien/1_2_city_council_talk2.1",,,"Prosperity to the land."
+"Elghest/Any/1_2_city_council_talk1.1",,,"My humble greetings to you, hero. I am the realm's Lord Steward."
+"Elghest/Any/1_2_city_council_talk1.2",,,"It is my duty to prepare funding for your journey and quest."
+"Elghest/Any/1_2_city_council_talk1.3",,,"Unfortunately, our budget is rather limited at the moment."
+"Elghest/Any/1_2_city_council_talk1.4",,,"We cannot provide you with the finest equipment and supplies."
+"Elghest/Any/1_2_city_council_talk1.5",,,"But with each victory, we will surely collect more tax... Ahem."
+"Elghest/Any/1_2_city_council_talk1.6",,,"More funding from the treasury to fund your quests."
+"Elghest/Any/1_2_city_council_talk2.1",,,"If you are in need of monetary supply, enemies you encounter -"
+"Elghest/Any/1_2_city_council_talk2.2",,,"in your quest can drop items and coins. Good hunting."
+"Aerlnarn/Rodhinbar/1_2_city_hall_talk1.1",,,"Salutation, you must be the foreign lord among the heroes."
+"Aerlnarn/Rodhinbar/1_2_city_hall_talk1.2",,,"That is so, and you are?"
+"Aerlnarn/Rodhinbar/1_2_city_hall_talk1.3",,,"Head Servant at your service. I am tasked with satisfying -"
+"Aerlnarn/Rodhinbar/1_2_city_hall_talk1.4",,,"your needs for accommodation within the castle if you so wish."
+"Aerlnarn/Rodhinbar/1_2_city_hall_talk1.5",,,"I am thankful."
+"Aerlnarn/Rodhinbar/1_2_city_hall_talk1.6",,,"My lord, I also regret to inform you that our court is not -"
+"Aerlnarn/Rodhinbar/1_2_city_hall_talk1.7",,,"completely in unity for your group's arrival and assignment."
+"Aerlnarn/Rodhinbar/1_2_city_hall_talk1.8",,,"I believe for your diplomatic mission, which I assume is your goal."
+"Aerlnarn/Rodhinbar/1_2_city_hall_talk1.9",,,"It is important to know who supports or is against you, my lord."
+"Aerlnarn/Rodhinbar/1_2_city_hall_talk1.10",,,"I will bear a rumour of the court for you when we converse again."
+"Aerlnarn/Rodhinbar/1_2_city_hall_talk1.11",,,"Before that, I must ask. Why? I am a lord of foreign land."
+"Aerlnarn/Rodhinbar/1_2_city_hall_talk1.12",,,"It is a suspicious offer for you to defame your lords."
+"Aerlnarn/Rodhinbar/1_2_city_hall_talk1.13",,,"A reasonable distrust for you. In truth, I am an ally of the people."
+"Aerlnarn/Rodhinbar/1_2_city_hall_talk1.14",,,"My allegiance lies not with the high-born but with the country itself."
+"Aerlnarn/Rodhinbar/1_2_city_hall_talk1.15",,,"You, now the hero of our country, deserve all the help you can get."
+"Aerlnarn/Rodhinbar/1_2_city_hall_talk1.16",,,"That is an understandable motive. I shall take your offer."
+"Aerlnarn/Yuawies/1_2_city_hall_talk1.1",,,
+"Aerlnarn/Nayedien/1_2_city_hall_talk1.1",,,"Dear Aide, Blessings of eternal health to you."
+"Aerlnarn/Nayedien/1_2_city_hall_talk1.2",,,"How was the ceremony to welcome our new heroes?"
+"Aerlnarn/Nayedien/1_2_city_hall_talk1.3",,,"It is a good start, I believe. Modest to curtail excess expectations."
+"Aerlnarn/Nayedien/1_2_city_hall_talk1.4",,,"I expect a more grand welcome but I suppose it can wait."
+"Aerlnarn/Nayedien/1_2_city_hall_talk1.5",,,"But if our dear Aide thinks it is good then it must be!"
+"Aerlnarn/Nayedien/1_2_city_hall_talk1.6",,,"Incidentally, I heard some rumours that you may be interested in."
+"Aerlnarn/Nayedien/1_2_city_hall_talk1.7",,,"Let me know when you wish to hear it."
+"Aerlnarn/Any/1_2_city_hall_talk1.1",,,"Hero, what a glorious day today is! Absolutely!"
+"Aerlnarn/Any/1_2_city_hall_talk1.2",,,"Everyone in the castle is excited to witness you in person!"
+"Aerlnarn/Any/1_2_city_hall_talk1.3",,,"Ah! Such gallantry! Such allure of extraordinary!"
+"Aerlnarn/Any/1_2_city_hall_talk1.4",,,"Head Servant at your service! And an honour to meet you!"
+"Aerlnarn/Any/1_2_city_hall_talk1.5",,,"I will arrange all the accommodations for your visit in the castle."
+"Aerlnarn/Any/1_2_city_hall_talk1.6",,,"Also, I am to inform you that tonight's feast awaits!"
+"Aerlnarn/Any/1_2_city_hall_talk1.7",,,"Lastly, for you, an ally of our king. my services also enclose -"
+"Aerlnarn/Any/1_2_city_hall_talk1.8",,,"the rumour and mood around the court, especially regarding you."
+"Aerlnarn/Any/1_2_city_hall_talk1.9",,,"It is important to know who supports or is against you, our hero."
+"Aerlnarn/Any/1_2_city_hall_talk1.10",,,"Talk to me again if you want to know more!"
+"Aerlnarn/Any/1_2_city_hall_talk2.1",,,"Greetings again. I shall mutter and impart now what I heard."
+"Aerlnarn/Any/1_2_city_hall_talk2.2",,,"It seems that the court is in discord regarding your presence."
+"Aerlnarn/Any/1_2_city_hall_talk2.3",,,"Some qualms and vexes that the King spent funding for outsiders -"
+"Aerlnarn/Any/1_2_city_hall_talk2.4",,,"to solve our crisis instead of strengthening our military."
+"Aerlnarn/Any/1_2_city_hall_talk2.5",,,"I am of no military mind, but surely the King knows more than them."
+"Aerlnarn/Any/1_2_city_hall_talk2.6",,,"I believe that with each of your success, the opposing nobles -"
+"Aerlnarn/Any/1_2_city_hall_talk2.7",,,"will change their tune and regret their mistrust of our great king."
+"Aerlnarn/Any/1_2_city_hall_talk2.8",,,"I will pray to the One God every day for your victories to come."
+"Aerlnarn/Any/1_2_city_hall_talk3.1",,,"The plebeians always support you, hero!"
+"Maelsen/Rude/1_2_city_hall_talk1.1",,,"…"
+"Maelsen/Any/1_2_city_hall_talk1.1",,,"Salutation, hero."
+"Kapuni/Any/1_2_city_hall_talk1.1",,,"A great mirth to you, newly ordained hero."
+"Kapuni/Any/1_2_city_hall_talk1.2",,,"I, court composer, musician, and ceremonial master, bow to you."
+"Kapuni/Any/1_2_city_hall_talk1.3",,,"Plenty of music I will conduct for you in your journey and combat."
+"Kapuni/Any/1_2_city_hall_talk1.4",,,"As our folks always say, an act should not be without its music -"
+"Kapuni/Any/1_2_city_hall_talk1.5",,,"to inspire the actors so the greatest performance they commit."
+"Kapuni/Any/1_2_city_hall_talk1.6",,,"To unrisk our artists of danger, however, we saw fit to commission -"
+"Kapuni/Any/1_2_city_hall_talk1.7",,,"a music box of magical origin to convey our hearts to you from afar."
+"Kapuni/Any/1_2_city_hall_talk1.8",,,"Our dear mate, Court Jester, will be the bearer of this great import."
+"Kapuni/Any/1_2_city_hall_talk1.9",,,"Evading the arrows, flame, swing, stones, and more!"
+"Kapuni/Any/1_2_city_hall_talk1.10",,,"To bring forth the full force epicness of your quest it deserves."
+"Kapuni/Any/1_2_city_hall_talk1.11",,,"Hear us of our passion, hero. And create the epic that equates none."
+"Kapuni/Yuawies/1_2_city_hall_talk1.1",,,
+"Kapuni/Laguasangte/1_2_city_hall_talk1.1",,,
+"Kapuni/Any/1_2_city_hall_talk2.1",,,"Two high, one low, and rise to the peak."
+"Bauqah/Vraesier/1_2_city_hall_talk1.1",,,"Well, well. What an exceptional creature you are."
+"Bauqah/Vraesier/1_2_city_hall_talk1.2",,,"…"
+"Bauqah/Vraesier/1_2_city_hall_talk1.3",,,"Ah, no need for hostility. I will not pry further than what -"
+"Bauqah/Vraesier/1_2_city_hall_talk1.4",,,"you already exude all over. Such a strong and potent aroma."
+"Bauqah/Vraesier/1_2_city_hall_talk1.5",,,"Humans sure have no sense of smell at all, are they?"
+"Bauqah/Vraesier/1_2_city_hall_talk1.6",,,"I look forward to the bloodbath you will unleash in our journey."
+"Bauqah/Orsanoas/1_2_city_hall_talk1.1",,,
+"Bauqah/Minara/1_2_city_hall_talk1.1",,,
+"Bauqah/Rodhinbar/1_2_city_hall_talk1.1",,,"Phew! What a strong, peppy aroma! You desert humans and spice."
+"Bauqah/Rodhinbar/1_2_city_hall_talk1.2",,,"Oh, this is nothing. You should come to visit my land."
+"Bauqah/Rodhinbar/1_2_city_hall_talk1.3",,,"You beastmen feast only in rawness. Culinary art is all about spice!"
+"Bauqah/Rodhinbar/1_2_city_hall_talk1.4",,,"You must be trying to end me! Such foods are incompatible with us."
+"Bauqah/Rodhinbar/1_2_city_hall_talk1.5",,,"You will find no success in such a nefarious endeavour."
+"Bauqah/Rodhinbar/1_2_city_hall_talk1.6",,,"With experience, one will adapt as they said."
+"Bauqah/Rodhinbar/1_2_city_hall_talk2.1",,,"A distance away from me, you must stay."
+"Bauqah/Laguasangte/1_2_city_hall_talk1.1",,,
+"Bauqah/Iri/1_2_city_hall_talk1.1",,,"Great meeting you, small Traveller."
+"Bauqah/Iri/1_2_city_hall_talk1.2",,,"Greetings! I better not see you salivating, lionman!"
+"Bauqah/Iri/1_2_city_hall_talk1.3",,,"Heh heh heh."
+"Bauqah/Iri/1_2_city_hall_talk1.4",,,"I only perform such acts in secret. Away from the prey's vision."
+"Bauqah/Iri/1_2_city_hall_talk1.5",,,"Aha, a predator in our midst. Food is actually your goal in this, is it?"
+"Bauqah/Iri/1_2_city_hall_talk1.6",,,"It is at least a side benefit, my dear Traveller."
+"Bauqah/Elmaliern/1_2_city_hall_talk1.1",,,
+"Bauqah/Yuawies/1_2_city_hall_talk1.1",,,
+"Bauqah/Duskuksa/1_2_city_hall_talk1.1",,,"Great meeting you, apprentice of holy art."
+"Bauqah/Duskuksa/1_2_city_hall_talk1.2",,,"A riddle I have for you to decipher if you so inclined."
+"Bauqah/Duskuksa/1_2_city_hall_talk1.3",,,"You beastmen sure have a peculiar way of starting a conversation."
+"Bauqah/Duskuksa/1_2_city_hall_talk1.4",,,"Hmph, well. Only one riddle a day I will entertain you."
+"Bauqah/Duskuksa/1_2_city_hall_talk1.5",,,"Very good of you. Well then, here is one."
+"Bauqah/Duskuksa/1_2_city_hall_talk1.6",,,"Once, there was a man who worked hard his entire life."
+"Bauqah/Duskuksa/1_2_city_hall_talk1.7",,,"He led a purposeful life, raised his family, and bothered none."
+"Bauqah/Duskuksa/1_2_city_hall_talk1.8",,,"The country deems him a model citizen, exemplary of commoners."
+"Bauqah/Duskuksa/1_2_city_hall_talk1.9",,,"On the final day, infirmity in his death bed encircled by offspring."
+"Bauqah/Duskuksa/1_2_city_hall_talk1.10",,,"The man left the world with the last quite soft breath."
+"Bauqah/Duskuksa/1_2_city_hall_talk1.11",,,"His relatives mourned, a funeral was held, and that ends his story."
+"Bauqah/Duskuksa/1_2_city_hall_talk1.12",,,"… that is not actually a riddle, is it?"
+"Bauqah/Duskuksa/1_2_city_hall_talk1.13",,,"What do you think?"
+"Bauqah/Duskuksa/1_2_city_hall_talk1.14",,,"I think you just tricked me into listening to a nonsensical story."
+"Bauqah/Duskuksa/1_2_city_hall_talk1.15",,,"Heh heh heh. Perhaps so."
+"Bauqah/Duskuksa/1_2_city_hall_talk2.1",,,"You know, I actually want to try a genuine riddle now."
+"Bauqah/Duskuksa/1_2_city_hall_talk2.2",,,"So how about giving me a real one straight this time?"
+"Bauqah/Duskuksa/1_2_city_hall_talk2.3",,,"It will be quite tricky to perform such an activity."
+"Bauqah/Duskuksa/1_2_city_hall_talk2.4",,,"You see, I can offer you only two choices of answer."
+"Bauqah/Duskuksa/1_2_city_hall_talk2.5",,,"Thumb up or thumb down. Yes or No. 1 or 2. Such is our limit."
+"Bauqah/Duskuksa/1_2_city_hall_talk2.6",,,"But we can try if you are so eager. So here is one I heard before."
+"Bauqah/Duskuksa/1_2_city_hall_talk2.7",,,"Actually before we start, there is one thing I must mention."
+"Bauqah/Duskuksa/1_2_city_hall_talk2.8",,,"I am not a sphinx."
+"Bauqah/Duskuksa/1_2_city_hall_talk2.9",,,"Creature can walks on four legs in the morn, -"
+"Bauqah/Duskuksa/1_2_city_hall_talk2.10",,,"two legs in the afternoon, and three legs in the evening."
+"Bauqah/Duskuksa/1_2_city_hall_talk2.11",,,"Is this creature a human?"
+"Bauqah/Duskuksa/1_2_city_hall_talk2yes1",,,"You are correct."
+"Bauqah/Duskuksa/1_2_city_hall_talk2yes2",,,"Only human clowns or buffoons change gait each time of the day."
+"Bauqah/Duskuksa/1_2_city_hall_talk2yes3",,,"No creature in their right mind would do such unnatural act."
+"Bauqah/Duskuksa/1_2_city_hall_talk2no1",,,"Incorrect. But perhaps I should include dwarf in the question."
+"Bauqah/Duskuksa/1_2_city_hall_talk2no2",,,"I have not yet seen a true dwarf jester before."
+"Bauqah/Duskuksa/1_2_city_hall_talk2no3",,,"Perhaps you will be the first to demonstrate for me?"
+"Bauqah/Duskuksa/1_2_city_hall_talk3.1",,,"So, dwarf. What is your opinion of my fine riddle?"
+"Bauqah/Duskuksa/1_2_city_hall_talk3.2",,,"I wish we had a real sphinx in this city."
+"Bauqah/Duskuksa/1_2_city_hall_talk3.3",,,"Heh heh heh. You will have to bear with mine presence for now."
+"Bauqah/Duskuksa/1_2_city_hall_talk4.1",,,"A new conversation awaits at another time."
+"Bauqah/Nayedien/1_2_city_hall_talk1.1",,,"Hmm, what do we have here? An elven Aide of indiscernible scent."
+"Bauqah/Nayedien/1_2_city_hall_talk1.2",,,"Not to be rude to you. But you are an enigma even among us all."
+"Bauqah/Nayedien/1_2_city_hall_talk1.3",,,"Perhaps even more so than that king of yours."
+"Bauqah/Nayedien/1_2_city_hall_talk1.4",,,"My character is of no concern to you, Shaman. But know that -"
+"Bauqah/Nayedien/1_2_city_hall_talk1.5",,,"I am in this group because of my merits not favouritism."
+"Bauqah/Nayedien/1_2_city_hall_talk1.6",,,"Oh, of that, I am not in doubt. But I was rude to you. My apology."
+"Bauqah/Nayedien/1_2_city_hall_talk1.7",,,"In our culture, one's smell convey one's character and personal."
+"Bauqah/Nayedien/1_2_city_hall_talk1.8",,,"Your secret will not be shared by me, at the very least."
+"Bauqah/Nayedien/1_2_city_hall_talk1.9",,,"Apology accepted. But please be more mindful."
+"Bauqah/Nayedien/1_2_city_hall_talk1.10",,,"Some possess secrets that best not be revealed until the time."
+"Bauqah/Pasgelo/1_2_city_hall_talk1.1",,,
+"Bauqah/Any/1_2_city_hall_talk2.1",,,"Delightful to meet you again."
+"Peurrus/Elmaliern/1_2_city_library_talk1.1",,,
+"Peurrus/Orsanoas/1_2_city_library_talk1.1",,,
+"Peurrus/Any/1_2_city_library_talk1.1",,,"I still think our realm should focus on the development of life magic."
+"Peurrus/Any/1_2_city_library_talk1.2",,,"Folly of your suggestion. We should focus on defence magic."
+"Peurrus/Any/1_2_city_library_talk1.3",,,"What will happen if another major crisis occurs?"
+"Peurrus/Any/1_2_city_library_talk1.4",,,"A preventive measure is more important than a cure."
+"Peurrus/Any/1_2_city_library_talk1.5",,,"True, life magic may bring extra benefit to convention medical arts."
+"Peurrus/Any/1_2_city_library_talk1.6",,,"But our realm has more doctors than mages. A less pressing issue."
+"Peurrus/Any/1_2_city_library_talk1.7",,,"Well, our realm has elite soldiers to protect us from enemies."
+"Peurrus/Any/1_2_city_library_talk1.8",,,"I am certain Commander already undertook defensive measures."
+"Peurrus/Any/1_2_city_library_talk1.9",,,"It is high time for medical advancement, which will benefit you too."
+"Peurrus/Any/1_2_city_library_talk1.10",,,"True, I agree with you, but priority is the crucial matter here."
+"Peurrus/Any/1_2_city_library_talk1.11",,,"Yes, priority. Do you know how much time you have left, friend?"
+"Peurrus/Any/1_2_city_library_talk1.12",,,"We need you to last longer, or our land will be out of skilled mage."
+"Peurrus/Any/1_2_city_library_talk1.13",,,"That will not happen. This body of mine shall last to the next era."
+"Peurrus/Any/1_2_city_library_talk2.1",,,"We still need to compose a petition to the King on this matter."
+"Dashisi/Iri/1_2_city_library_talk1.1",,,"Hither beest a mistress of journey. Prey bid of thy finest tale."
+"Dashisi/Iri/1_2_city_library_talk1.2",,,"Hmm, let's see. Ahem, once did exist a sir of true quality."
+"Dashisi/Iri/1_2_city_library_talk1.3",,,"Nev'r fear, ev'r brave. All foes art equal in his eyes"
+"Dashisi/Iri/1_2_city_library_talk1.4",,,"All in those folk, he did seek only the greatest dare of strength"
+"Dashisi/Iri/1_2_city_library_talk1.5",,,"With a bodkin and buckler, the mightiest he becameth."
+"Dashisi/Iri/1_2_city_library_talk1.6",,,"One day, he hath fallen a dragon and a king he becameth."
+"Dashisi/Iri/1_2_city_library_talk1.7",,,"The mightiest nay moo with the fia flow of time."
+"Dashisi/Iri/1_2_city_library_talk1.8",,,"Anon an fusty sir who is't passeth the heroic tales to the youngs."
+"Dashisi/Iri/1_2_city_library_talk1.9",,,"Ah, a saga of our king. I see thee knoweth him well."
+"Dashisi/Iri/1_2_city_library_talk1.10",,,"Only a portion of his early life. We shall talk more of other tales."
+"Dashisi/Iri/1_2_city_library_talk1.11",,,"In time, we shalt."
+"Dashisi/Yuawies/1_2_city_library_talk1.1",,,
+"Dashisi/Any/1_2_city_library_talk1.1",,,"Beest thou hale f'r tis fine day is f'r jolly and mirth."
+"Dashisi/Any/1_2_city_library_talk1.2",,,"F'r thy life reacheth the next measure of chronology of our ordinary."
+"Dashisi/Any/1_2_city_library_talk1.3",,,"Our king did see fit to reacheth out to thee f'r thy potential talent"
+"Dashisi/Any/1_2_city_library_talk1.4",,,"And so i bid thou welcome to this brave country of mine office."
+"Dashisi/Any/1_2_city_library_talk1.5",,,"It is within mine assignment to course thou 'I thy quests."
+"Dashisi/Any/1_2_city_library_talk1.6",,,"Alas, i am no a warrior of combat yet something of mind and antic."
+"Dashisi/Any/1_2_city_library_talk1.7",,,"Nay foe shalt i duel, but nay protection is of request f'r me"
+"Dashisi/Any/1_2_city_library_talk1.8",,,"A valorous companion i shalt beest, and what glory we shall has't!"
+"Dashisi/Any/1_2_city_library_talk2.1",,,"I behold fia to our journey."
+"Furlest/Elmaliern/1_2_city_library_talk1.1",,,
+"Furlest/Bauqah/1_2_city_library_talk1.1",,,
+"Furlest/Pasgelo/1_2_city_library_talk1.1",,,
+"Furlest/Any/1_2_city_library_talk1.1",,,"Do you truly think medical progress can alter the history for better?"
+"Furlest/Any/1_2_city_library_talk1.2",,,"Why do you think not? Less dead people bring more advancement."
+"Furlest/Any/1_2_city_library_talk1.3",,,"As the story of our history conveyed to us time and time again."
+"Furlest/Any/1_2_city_library_talk1.4",,,"That is true. Too many talents perished before they could blossom."
+"Furlest/Any/1_2_city_library_talk1.5",,,"But the same for tyrants and evil-doers."
+"Furlest/Any/1_2_city_library_talk1.6",,,"The people who will benefit the most because of their wealth."
+"Furlest/Any/1_2_city_library_talk1.7",,,"From the access to the newest and greatest medical can bring."
+"Furlest/Any/1_2_city_library_talk1.8",,,"Just as you, the greatest physician of our realm bar none."
+"Furlest/Any/1_2_city_library_talk1.9",,,"Employed by the highest of society, our king, the ruler."
+"Furlest/Any/1_2_city_library_talk1.10",,,"Hypothetically, if our king transforms evil and rules with hatred."
+"Furlest/Any/1_2_city_library_talk1.11",,,"The longer he will rule, the more suffering he will inflict."
+"Furlest/Any/1_2_city_library_talk1.12",,,"Just like how magic was and still is hoarded by elite wizards."
+"Furlest/Any/1_2_city_library_talk1.13",,,"Simply advancement will not surely bring benefit to all."
+"Furlest/Any/1_2_city_library_talk1.14",,,"It is a good thing we have a benevolent king, then."
+"Furlest/Any/1_2_city_library_talk1.15",,,"He worried about the people that he hired heroes for help."
+"Furlest/Any/1_2_city_library_talk1.16",,,"I am not so assured yet, but I will make no argument on that end."
+"Furlest/Any/1_2_city_library_talk2.1",,,"We need to invent an automatic printing press. Knowledge must flow."
+"Tanrsakt/Rodhinbar/1_2_city_market_talk1.1",,,"Oh dear, my lord. My humble bazaar is honoured by your visit."
+"Tanrsakt/Rodhinbar/1_2_city_market_talk1.2",,,"Greetings Merchant, from where you hail from?"
+"Tanrsakt/Rodhinbar/1_2_city_market_talk1.3",,,"I am from the Oimita Empire, my Lord."
+"Tanrsakt/Rodhinbar/1_2_city_market_talk1.4",,,"The great land of invention. The reigning sultan's wisdom is limitless."
+"Tanrsakt/Rodhinbar/1_2_city_market_talk1.5",,,"This is why it is such a great time for commerce my lord."
+"Tanrsakt/Rodhinbar/1_2_city_market_talk1.6",,,"Many of the artefacts in my shop can not be found elsewhere."
+"Tanrsakt/Rodhinbar/1_2_city_market_talk1.7",,,"So come, browse my ware for I am certain it will interest you."
+"Tanrsakt/Any/1_2_city_market_talk1.1",,,"Welcome to my personal bazaar, o' hero."
+"Tanrsakt/Any/1_2_city_market_talk1.2",,,"A travelling merchant I am. From the far west of this land."
+"Tanrsakt/Any/1_2_city_market_talk1.3",,,"All manners of product do I have for you to purchase in reasonable -"
+"Tanrsakt/Any/1_2_city_market_talk1.4",,,"of wealth require to impart from my generous hands."
+"Tanrsakt/Any/1_2_city_market_talk1.5",,,"Disappointment not in sight. Only satisfaction, this I promise!"
+"Tanrsakt/Any/1_2_city_market_talk2.1",,,"Buy first, buy fast, think later!"
+"Tanrsakt/Any/1_2_city_market_talk2no1",,,"Buy later, then!"
+"Shopper_one/Any/1_2_city_market_talk1.1",,,"It seems like we have had an influx of foreign merchants lately."
+"Shopper_one/Any/1_2_city_market_talk1.2",,,"Naturally, the route eastward seems to stabilise lately."
+"Shopper_one/Any/1_2_city_market_talk1.3",,,"Our alliance with the Hlilitans and Lesses works wonder."
+"Shopper_one/Any/1_2_city_market_talk1.4",,,"Now, if only we could start trading with the elves up north again."
+"Shopper_one/Any/1_2_city_market_talk1.5",,,"I heard that the newly arrived foreign heroes will travel north soon."
+"Shopper_one/Any/1_2_city_market_talk1.6",,,"With the intent of securing the northern border with the Lulislc tribe."
+"Shopper_one/Any/1_2_city_market_talk1.7",,,"Hmm, if they succeed, our realm may secure foreign diplomatic gain."
+"Shopper_one/Any/1_2_city_market_talk1.8",,,"A terrifying prospect, we may gain jealously from within the Empire."
+"Shopper_one/Any/1_2_city_market_talk1.9",,,"A delicate balance to be held. Less the Empire see us as a threat."
+"Shopper_one/Any/1_2_city_market_talk2.1",,,"Hmm... "
+"Shopper_one/Any/1_2_city_market_talk2.2",,,"Hmm... "
+"Shopper_one/Any/1_2_city_market_talk2.3",,,"Hmm... "
+"Elmaliern/Vraesier/1_2_city_market_talk1.1",,,"Good day."
+"Elmaliern/Vraesier/1_2_city_market_talk1.2",,,"Good day."
+"Elmaliern/Vraesier/1_2_city_market_talk1.3",,,"…"
+"Elmaliern/Vraesier/1_2_city_market_talk1.4",,,"…"
+"Elmaliern/Vraesier/1_2_city_market_talk1.5",,,"…"
+"Elmaliern/Vraesier/1_2_city_market_talk1.6",,,"…"
+"Elmaliern/Orsanoas/1_2_city_market_talk1.1",,,
+"Elmaliern/Minara/1_2_city_market_talk1.1",,,
+"Elmaliern/Rodhinbar/1_2_city_market_talk1.1",,,"My Lord."
+"Elmaliern/Rodhinbar/1_2_city_market_talk1.2",,,"Well met, miss."
+"Elmaliern/Rodhinbar/1_2_city_market_talk1.3",,,"I must admit you are not in my expectation to see in our company."
+"Elmaliern/Rodhinbar/1_2_city_market_talk1.4",,,"But still, the King's invitation includes only those with talent."
+"Elmaliern/Rodhinbar/1_2_city_market_talk1.5",,,"I am eager to see your skills with my own eyes."
+"Elmaliern/Rodhinbar/1_2_city_market_talk1.6",,,"My skills are still meagre, but I will try not to disappoint."
+"Elmaliern/Laguasangte/1_2_city_market_talk1.1",,,
+"Elmaliern/Iri/1_2_city_market_talk1.1",,,"Well met, how fare you in this fine morrow."
+"Elmaliern/Iri/1_2_city_market_talk1.2",,,"I am full of hope on this day. Thank you for asking."
+"Elmaliern/Iri/1_2_city_market_talk1.3",,,"Mhmm, glad to hear."
+"Elmaliern/Bauqah/1_2_city_market_talk1.1",,,
+"Elmaliern/Yuawies/1_2_city_market_talk1.1",,,
+"Elmaliern/Duskuksa/1_2_city_market_talk1.1",,,"Hail, I have an inquiry regarding rune magic that you may know."
+"Elmaliern/Duskuksa/1_2_city_market_talk1.2",,,"Good day, good fellow. I am open to you as a book of knowledge."
+"Elmaliern/Duskuksa/1_2_city_market_talk1.3",,,"Is there a principle of life magic in the dwarven runic art?"
+"Elmaliern/Duskuksa/1_2_city_market_talk1.4",,,"Not in the explicit relation, rune magic does not alter one life flow."
+"Elmaliern/Duskuksa/1_2_city_market_talk1.5",,,"We classify rune magic into two types: heat and cold."
+"Elmaliern/Duskuksa/1_2_city_market_talk1.6",,,"By altering the state of being, the balance in matter shifts."
+"Elmaliern/Duskuksa/1_2_city_market_talk1.7",,,"So, just like a natural fire and snow can affect matters around it."
+"Elmaliern/Duskuksa/1_2_city_market_talk1.8",,,"Just so. But future innovation may open more possibilities."
+"Elmaliern/Duskuksa/1_2_city_market_talk1.9",,,"I thank you for the information."
+"Elmaliern/Nayedien/1_2_city_market_talk1.1",,,"Hail to thee, noble Aide."
+"Elmaliern/Nayedien/1_2_city_market_talk1.2",,,"There is no need for formality. Prey considers us equal in this."
+"Elmaliern/Nayedien/1_2_city_market_talk1.3",,,"If that will please you then, Aide."
+"Elmaliern/Nayedien/1_2_city_market_talk1.4",,,"That will do. Are you in need of assistance before we move out?"
+"Elmaliern/Nayedien/1_2_city_market_talk1.5",,,"Not at this immediate time. But I reserve your offer for the future."
+"Elmaliern/Nayedien/1_2_city_market_talk1.6",,,"As you wish."
+"Elmaliern/Pasgelo/1_2_city_market_talk1.1",,,
+"Elmaliern/Any/1_2_city_market_talk2.1",,,"Good day again."
+"Rodhinbar/Vraesier/1_2_city_market_talk1.1",,,"Hail and well met, miss."
+"Rodhinbar/Vraesier/1_2_city_market_talk1.2",,,"Hail."
+"Rodhinbar/Vraesier/1_2_city_market_talk1.3",,,"Are you from within the empire?"
+"Rodhinbar/Vraesier/1_2_city_market_talk1.4",,,"No, Felkulos to the West."
+"Rodhinbar/Vraesier/1_2_city_market_talk1.5",,,"Ah, the Kingdom of Mountain Wall. Products of the titans of old."
+"Rodhinbar/Vraesier/1_2_city_market_talk1.6",,,"You know of it?"
+"Rodhinbar/Vraesier/1_2_city_market_talk1.7",,,"I have studied the Winkel Atlas, the most detailed map of our time."
+"Rodhinbar/Vraesier/1_2_city_market_talk1.8",,,"The map also mentioned the invention of the venomous culinary."
+"Rodhinbar/Vraesier/1_2_city_market_talk1.9",,,"The greatest advancement in spice study come from your land."
+"Rodhinbar/Vraesier/1_2_city_market_talk1.10",,,"Do you have a copy I can borrow?"
+"Rodhinbar/Vraesier/1_2_city_market_talk1.11",,,"It is not in my possession, sadly. Perhaps the royal library has it."
+"Rodhinbar/Vraesier/1_2_city_market_talk1.12",,,"Thanks."
+"Rodhinbar/Orsanoas/1_2_city_market_talk1.1",,,
+"Rodhinbar/Minara/1_2_city_market_talk1.1",,,
+"Rodhinbar/Iri/1_2_city_market_talk1.1",,,"Well met, Traveller. Many halflings I met in my journey."
+"Rodhinbar/Iri/1_2_city_market_talk1.2",,,"But never expect to see them becoming a hero."
+"Rodhinbar/Iri/1_2_city_market_talk1.3",,,"Hmph, resourcefulness is one of the hero qualities."
+"Rodhinbar/Iri/1_2_city_market_talk1.4",,,"And we halflings are the best travellers of all!"
+"Rodhinbar/Iri/1_2_city_market_talk1.5",,,"Well, I also personally know the King, so there is that."
+"Rodhinbar/Iri/1_2_city_market_talk1.6",,,"Oh, I see. But surely your talents can be of use."
+"Rodhinbar/Iri/1_2_city_market_talk1.7",,,"All my knowledge and expertise will surely awe you!"
+"Rodhinbar/Iri/1_2_city_market_talk1.8",,,"I look forward to it."
+"Rodhinbar/Laguasangte/1_2_city_market_talk1.1",,,
+"Rodhinbar/Elmaliern/1_2_city_market_talk1.1",,,
+"Rodhinbar/Bauqah/1_2_city_market_talk1.1",,,
+"Rodhinbar/Yuawies/1_2_city_market_talk1.1",,,
+"Rodhinbar/Duskuksa/1_2_city_market_talk1.1",,,"Good day, Runesmith. Interest in the local products here?"
+"Rodhinbar/Duskuksa/1_2_city_market_talk1.2",,,"Hail, lord. Some intriguing  curiosities may be of use in my study."
+"Rodhinbar/Duskuksa/1_2_city_market_talk1.3",,,"We will stay here for a while after all, best survey all we can."
+"Rodhinbar/Duskuksa/1_2_city_market_talk1.4",,,"What of you, lord? Any localities caught your interest?"
+"Rodhinbar/Duskuksa/1_2_city_market_talk1.5",,,"Not in the products, no. I am focusing more learning the culture."
+"Rodhinbar/Duskuksa/1_2_city_market_talk1.6",,,"That is a reasonable undertaken if we are to make use of our -"
+"Rodhinbar/Duskuksa/1_2_city_market_talk1.7",,,"heroic role that we are playing to the greatest."
+"Rodhinbar/Nayedien/1_2_city_market_talk1.1",,,"Headman. A question if you are available for a bit of time."
+"Rodhinbar/Nayedien/1_2_city_market_talk1.2",,,"I will assist in all inquiries you possess for me, Aide."
+"Rodhinbar/Nayedien/1_2_city_market_talk1.3",,,"During your travel here, did you make a visit to Kaffumich?"
+"Rodhinbar/Nayedien/1_2_city_market_talk1.4",,,"The dungeon city? I did stay there for a few days to resupply."
+"Rodhinbar/Nayedien/1_2_city_market_talk1.5",,,"Did you hear any rumour regarding a steel orb artefact?"
+"Rodhinbar/Nayedien/1_2_city_market_talk1.6",,,"One that kills everyone in proximity with a flash of blue light."
+"Rodhinbar/Nayedien/1_2_city_market_talk1.7",,,"I heard no such rumour. I did hear about the newly discovered -"
+"Rodhinbar/Nayedien/1_2_city_market_talk1.8",,,"ruler's sceptre of the long-extinct empire that once ruled our world."
+"Rodhinbar/Nayedien/1_2_city_market_talk1.9",,,"I see. My gratitude, I will take no more free time from you."
+"Rodhinbar/Nayedien/1_2_city_market_talk1.10",,,"Gladly."
+"Rodhinbar/Pasgelo/1_2_city_market_talk1.1",,,
+"Rodhinbar/Any/1_2_city_market_talk2.1",,,"I bid you luck in our quests."
+"Lisha/Any/1_2_city_artificer_talk1.1",,,"Welcome to the Masendor branch of the Artificer Guild."
+"Lisha/Any/1_2_city_artificer_talk1.2",,,"Our service includes modifying equipment with random effects."
+"Lisha/Any/1_2_city_artificer_talk1.3",,,"Such is the extent of our enchanting technology today."
+"Lisha/Any/1_2_city_artificer_talk1.4",,,"Unfortunately, other services are exclusive only for royalties."
+"Lisha/Any/1_2_city_artificer_talk1.5",,,"Inform me if you are in need of enchanting for your equipment."
+"Lisha/Any/1_2_city_artificer_talk2.1",,,"Do you prefer to enchant your equipment with new properties?"
+"Lisha/Any/1_2_city_artificer_talk2no1",,,"As you say."
+"Lisha/Minara/1_2_city_artificer_talk1.1",,,
+"Kemilsz/Any/1_2_city_artificer_talk1.1",,,"Good dear, you are the hero that everyone talking about today."
+"Kemilsz/Any/1_2_city_artificer_talk1.2",,,"A lowly assistant of the Guild at your service."
+"Kemilsz/Any/1_2_city_artificer_talk1.3",,,"There is not much I can do for you but offer some dialogues."
+"Kemilsz/Any/1_2_city_artificer_talk1.4",,,"Perhaps I can offer you information about the guild if you prefer."
+"Kemilsz/Any/1_2_city_artificer_talk1.5",,,"But not today, though. I still need to attend to orders."
+"Kemilsz/Any/1_2_city_artificer_talk2.1",,,"Welcome to the guild, hero."
+"Kemilsz/Rodhinbar/1_2_city_artificer_talk1.1",,,"Ah, my lord, welcome to the Artificer Guild."
+"Kemilsz/Rodhinbar/1_2_city_artificer_talk1.2",,,"Are you hailed from the far west as well?"
+"Kemilsz/Rodhinbar/1_2_city_artificer_talk1.3",,,"That is so. I hailed from the Garbarra city-state."
+"Kemilsz/Rodhinbar/1_2_city_artificer_talk1.4",,,"Ah, I am from Muhinsa Kerbelarr, a neighbour of your land."
+"Kemilsz/Rodhinbar/1_2_city_artificer_talk1.5",,,"My condolence, the war there is not so well for your home."
+"Kemilsz/Rodhinbar/1_2_city_artificer_talk1.6",,,"The Orc of the Dakun empire made gains ever so often."
+"Kemilsz/Rodhinbar/1_2_city_artificer_talk1.7",,,"It is as I fear, but at least we still persist."
+"Kemilsz/Rodhinbar/1_2_city_artificer_talk1.8",,,"My mission to this land is to secure allies against the orc."
+"Kemilsz/Rodhinbar/1_2_city_artificer_talk1.9",,,"One day, we will surely halt their advance."
+"Kemilsz/Rodhinbar/1_2_city_artificer_talk1.10",,,"I wish you a complete success in your journey, my lord."
+"Kemilsz/Rodhinbar/1_2_city_artificer_talk2.1",,,"Welcome to the guild, my lord."
+"Minara/Iri/1_2_city_artificer_talk1.1",,,"Greetings. Is it correct to assume your origin is in the land of snow?"
+"Minara/Iri/1_2_city_artificer_talk1.2",,,"Tukelirestor, Oulun Chiefdom is my origin."
+"Minara/Iri/1_2_city_artificer_talk1.3",,,"Tumoliristar, the farthest you are from here in our group."
+"Minara/Iri/1_2_city_artificer_talk1.4",,,"I did not travel long. I have not been home for many seasons."
+"Minara/Iri/1_2_city_artificer_talk1.5",,,"So am I, a fellow travellers we are, I suppose."
+"Minara/Vraesier/1_2_city_artificer_talk1.1",,,"I thought human culture did not permit female soldiers."
+"Minara/Vraesier/1_2_city_artificer_talk1.2",,,"I am no soldier. These came from the dead ones."
+"Minara/Vraesier/1_2_city_artificer_talk1.3",,,"Even more intriguing is a female looter without followers."
+"Minara/Vraesier/1_2_city_artificer_talk1.4",,,"Life of lawlessness is not easy but at least you also manage it."
+"Minara/Vraesier/1_2_city_artificer_talk1.5",,,"Also?"
+"Minara/Vraesier/1_2_city_artificer_talk1.6",,,"Ah think nothing of it."
+"Minara/Orsanoas/1_2_city_artificer_talk1.1",,,
+"Minara/Rodhinbar/1_2_city_artificer_talk1.1",,,"I never thought it possible for any humanoid to be so pure white."
+"Minara/Rodhinbar/1_2_city_artificer_talk1.2",,,"Madam, what land do you hail from? Surely not from here?"
+"Minara/Rodhinbar/1_2_city_artificer_talk1.3",,,"I can guess you are also not from here with your nature."
+"Minara/Rodhinbar/1_2_city_artificer_talk1.4",,,"I am from far north of here, the land of pure snow."
+"Minara/Rodhinbar/1_2_city_artificer_talk1.5",,,"I have heard of such tales of the land of cold snow before."
+"Minara/Rodhinbar/1_2_city_artificer_talk1.6",,,"A complete contrast of my land with heat and golden sand."
+"Minara/Rodhinbar/1_2_city_artificer_talk1.7",,,"I hope we have a chance to visit each other land afterwards in life."
+"Minara/Rodhinbar/1_2_city_artificer_talk1.8",,,"When a more peaceful time comes."
+"Minara/Laguasangte/1_2_city_artificer_talk1.1",,,
+"Minara/Elmaliern/1_2_city_artificer_talk1.1",,,
+"Minara/Bauqah/1_2_city_artificer_talk1.1",,,
+"Minara/Yuawies/1_2_city_artificer_talk1.1",,,
+"Minara/Duskuksa/1_2_city_artificer_talk1.1",,,"Good day to you."
+"Minara/Duskuksa/1_2_city_artificer_talk1.2",,,"Good day to you, too."
+"Minara/Duskuksa/1_2_city_artificer_talk1.3",,,"Good luck in the field."
+"Minara/Duskuksa/1_2_city_artificer_talk1.4",,,"Good luck to you, too."
+"Minara/Nayedien/1_2_city_artificer_talk1.1",,,"Aide, can you help arrange for the guild to expand their license?"
+"Minara/Nayedien/1_2_city_artificer_talk1.2",,,"There are many products here that may be of use to me in combat."
+"Minara/Nayedien/1_2_city_artificer_talk1.3",,,"I may not be able to help on this matter, but I can try to arrange -"
+"Minara/Nayedien/1_2_city_artificer_talk1.4",,,"for your purchase under the sign of the Royal Treasury for you."
+"Minara/Nayedien/1_2_city_artificer_talk1.5",,,"I suppose that will do. I will make a list of purchases for you later."
+"Minara/Pasgelo/1_2_city_artificer_talk1.1",,,
+"Minara/Any/1_2_city_artificer_talk2.1",,,"What about this item?"
+"Minara/Any/1_2_city_artificer_talk2.2",,,"This one is also already reserved for the royalty."
+"Minara/Any/1_2_city_artificer_talk2.3",,,"And this one?"
+"Minara/Any/1_2_city_artificer_talk2.4",,,"Same as well, miss."
+"event/1_2_city_cathedral_talk1.1",,,"And thus, in his glory, the world flourishes once more."
+"event/1_2_city_cathedral_talk1.2",,,"With his breath, we abide. An adoration must be given."
+"event/1_2_city_cathedral_talk1.3",,,"Recite well my litanies. o' servants of the One God."
+"event/1_2_city_cathedral_talk1.4",,,"Be ever vigilant in your will and faith in dedication to the One God."
+"event/1_2_city_cathedral_talk1.5",,,"And in his reward, he shall listen to your prayer with attention."
+"event/1_2_city_cathedral_talk1.6",,,"May the One God gifts you with the luck you require."
+"Monnirl/Any/1_2_city_cathedral_talk1.1",,,"Welcome to the Cathedral of Saint Monnirl. I am the Faithkeeper."
+"Monnirl/Any/1_2_city_cathedral_talk1.2",,,"It is my duty to ensure the faith of the people is incorruptible."
+"Monnirl/Any/1_2_city_cathedral_talk1.3",,,"It is of no matter what religion or custom you follow."
+"Monnirl/Any/1_2_city_cathedral_talk1.4",,,"I am informed that you will embark on a quest to help this land."
+"Monnirl/Any/1_2_city_cathedral_talk1.5",,,"And for that, I shall perform a rite of luck if you so require."
+"Monnirl/Any/1_2_city_cathedral_talk1.6",,,"But know that only through faith the One God will help you."
+"Monnirl/Any/1_2_city_cathedral_talk2.1",,,"Shall I perform a blessing of luck for your journey?"
+"Monnirl/Any/1_2_city_cathedral_talk2yes1",,,"May the One God provide you with the luck you require. "
+"Monnirl/Any/1_2_city_cathedral_talk2no1",,,"That is so your will."
+"Monnirl/Any/1_2_city_cathedral_talk3.1",,,"The One God watches over you."
+"Monnirl/Orsanoas/1_2_city_cathedral_talk1.1",,,
+"Orsanoas/Vraesier/1_2_city_cathedral_talk1.1",,,"GREAT MEETING, WARRIOR. ARE YOU A PERSON OF FAITH?"
+"Orsanoas/Vraesier/1_2_city_cathedral_talk1.2",,,"No, not at all."
+"Orsanoas/Vraesier/1_2_city_cathedral_talk1.3",,,"I SEE. YOU ARE NOT ABLE TO AID ME IN THIS PROSPECT."
+"Orsanoas/Vraesier/1_2_city_cathedral_talk1.4",,,"Just so. But try."
+"Orsanoas/Vraesier/1_2_city_cathedral_talk1.5",,,"THE SAINT OF FAITH. TALES OF STRENGTH ABUNDANCE."
+"Orsanoas/Vraesier/1_2_city_cathedral_talk1.6",,,"I PONDER WHAT IS THE SECRET OF SUCH FEATS."
+"Orsanoas/Vraesier/1_2_city_cathedral_talk1.7",,,"The secret of might ... Interesting. I will help."
+"Orsanoas/Vraesier/1_2_city_cathedral_talk1.8",,,"VERY GOOD. A WARRIOR NEVER STOP LEARNING."
+"Orsanoas/Minara/1_2_city_cathedral_talk1.1",,,
+"Orsanoas/Rodhinbar/1_2_city_cathedral_talk1.1",,,"We two are infidels in this site of faith, Warrior."
+"Orsanoas/Rodhinbar/1_2_city_cathedral_talk1.2",,,"But I see you are a learnt man of inquiring mind."
+"Orsanoas/Rodhinbar/1_2_city_cathedral_talk1.3",,,"IT IS NOT THE FAITH ITSELF I AM IN PURSUIT."
+"Orsanoas/Rodhinbar/1_2_city_cathedral_talk1.4",,,"BUT THE STRENGTH BEHIND IN IT FOUNDATION."
+"Orsanoas/Rodhinbar/1_2_city_cathedral_talk1.5",,,"I understand. Perhaps you should lower your voice a bit here."
+"Orsanoas/Rodhinbar/1_2_city_cathedral_talk1.6",,,"This place seems to amplify your voice even more than usual."
+"Orsanoas/Rodhinbar/1_2_city_cathedral_talk1.7",,,"THIS IS FINE. THE PRIEST SEEM TO PAY NO MIND TO IT."
+"Orsanoas/Rodhinbar/1_2_city_cathedral_talk1.8",,,"Hmm, well, we shall speak more another time then. Preferably outside."
+"Orsanoas/Laguasangte/1_2_city_cathedral_talk1.1",,,
+"Orsanoas/Iri/1_2_city_cathedral_talk1.1",,,
+"Orsanoas/Elmaliern/1_2_city_cathedral_talk1.1",,,
+"Orsanoas/Bauqah/1_2_city_cathedral_talk1.1",,,
+"Orsanoas/Yuawies/1_2_city_cathedral_talk1.1",,,
+"Orsanoas/Duskuksa/1_2_city_cathedral_talk1.1",,,"GOOD TO SEE YOU, SMITH. HERE TO PRAY?"
+"Orsanoas/Duskuksa/1_2_city_cathedral_talk1.2",,,"Not exactly so, but I do feel curious about this place."
+"Orsanoas/Duskuksa/1_2_city_cathedral_talk1.3",,,"There are runic magic here, and I am in an inquisitive mood."
+"Orsanoas/Duskuksa/1_2_city_cathedral_talk1.4",,,"I OBSERVE AT LEAST TWENTY ON THIS FLOOR MEDALLION."
+"Orsanoas/Duskuksa/1_2_city_cathedral_talk1.5",,,"Outstanding, this place is a gold mine for archaeology study."
+"Orsanoas/Duskuksa/1_2_city_cathedral_talk1.6",,,"Indeed, I shall pay a visit some more at a later time!"
+"Orsanoas/Nayedien/1_2_city_cathedral_talk1.1",,,"ARE YOU AN ENSARAEN, AIDE?"
+"Orsanoas/Nayedien/1_2_city_cathedral_talk1.2",,,"No, I am not."
+"Orsanoas/Nayedien/1_2_city_cathedral_talk1.3",,,"DO YOU KNOW THE SECRET OF THEIR SAINT'S STRENGTH?"
+"Orsanoas/Nayedien/1_2_city_cathedral_talk1.4",,,"I can not say I do. Their method is different than ours."
+"Orsanoas/Nayedien/1_2_city_cathedral_talk1.5",,,"A secret that they will never intend to reveal, I would think."
+"Orsanoas/Nayedien/1_2_city_cathedral_talk1.6",,,"SHAME. STRENGTH SHOULD BE SHARED."
+"Orsanoas/Nayedien/1_2_city_cathedral_talk1.7",,,"I am of uncertain mind. My faith also does not condone sharing."
+"Orsanoas/Nayedien/1_2_city_cathedral_talk1.8",,,"A SOLITUDE OF STRENGTH IS WASTED IN THE WIND."
+"Orsanoas/Nayedien/1_2_city_cathedral_talk1.9",,,"A POINTLESS CULTIVATION FOR NO PURPOSE BUT GREED."
+"Orsanoas/Nayedien/1_2_city_cathedral_talk1.10",,,"…"
+"Orsanoas/Pasgelo/1_2_city_cathedral_talk1.1",,,
+"Orsanoas/Any/1_2_city_cathedral_talk2.1",,,"HMM I NEED A BIGGER STATUE."
 ,,,
 ,,,
-"event/1_2_1_talk1.1","So you are the rumour Royal Ordains. Turn around and leave.",,
-"event/1_2_1_talk1.2","We, the Red Leaf, are not so easy to defeat as the rabbits.",,
-"event/1_2_1_talk1.3","Nay, thee pitiful daws, our warriors shalt vanquish thee hither.",,
-"event/1_2_1_talk1.4","Yield and the King shall spare thy pitiful life f'r a chance to renew",,
-"event/1_2_1_talk1.5","Hmph, I do not think so! Catch me if you can.",,
-"event/1_2_1_talk2.1","Not bad for a bunch of upstarts.",,
-"event/1_2_1_talk2.2","But no further shall you inflict upon my mates!",,
-"event/1_2_1_talk2.3","To arms! The hunt shall now begin anew!",,
-"event/1_2_1_talk2.5no","Hmm, what is that sound?",,
-"event/1_2_1_talk2.6no","Oh. It appears you have really done it. Vengeance hath cometh.",,
+"Towncrier/Any/1_2_city_plaza_talk1.1",,,"Oyez, Oyez, Oyez!"
+"Towncrier/Any/1_2_city_plaza_talk1.2",,,"The Heroes Have Answered The Called From Our King!"
+"Towncrier/Any/1_2_city_plaza_talk1.3",,,"They Arrived In Our Fair City Today With A Welcome Ceremony!"
+"Towncrier/Any/1_2_city_plaza_talk1.4",,,"Their Next Destination Is The Panac Forest In The North!"
+"Towncrier/Any/1_2_city_plaza_talk1.5",,,"May They Succeed In This Initiative!"
+"Iri/Vraesier/1_2_city_plaza_talk1.1",,,"Greeting! Here a nice city to live in, don't you think?"
+"Iri/Vraesier/1_2_city_plaza_talk1.2",,,"Peace and order. A manifestation of civilisation."
+"Iri/Vraesier/1_2_city_plaza_talk1.3",,,"Yes."
+"Iri/Vraesier/1_2_city_plaza_talk1.4",,,"If only such things could be kept in perpetuity."
+"Iri/Vraesier/1_2_city_plaza_talk1.5",,,"… (If only)."
+"Iri/Orsanoas/1_2_city_plaza_talk1.1",,,
+"Iri/Minara/1_2_city_plaza_talk1.1",,,
+"Iri/Rodhinbar/1_2_city_plaza_talk1.1",,,"Greetings! The air here is quite comfortable and pleasant."
+"Iri/Rodhinbar/1_2_city_plaza_talk1.2",,,"Well met, Traveller. It is a mark of land suitable for growth."
+"Iri/Rodhinbar/1_2_city_plaza_talk1.3",,,"The fertility of a country comes first from the land, then the air."
+"Iri/Rodhinbar/1_2_city_plaza_talk1.4",,,"Lastly and most importantly, it comes from the people."
+"Iri/Rodhinbar/1_2_city_plaza_talk1.5",,,"Yes, that is why your people endure despite the desolation."
+"Iri/Rodhinbar/1_2_city_plaza_talk1.6",,,"You are informed of my land, then?"
+"Iri/Rodhinbar/1_2_city_plaza_talk1.7",,,"I can somewhat hazard a guess from your attire."
+"Iri/Rodhinbar/1_2_city_plaza_talk1.8",,,"Hmm."
+"Iri/Laguasangte/1_2_city_plaza_talk1.1",,,
+"Iri/Elmaliern/1_2_city_plaza_talk1.1",,,
+"Iri/Bauqah/1_2_city_plaza_talk1.1",,,
+"Iri/Yuawies/1_2_city_plaza_talk1.1",,,
+"Iri/Duskuksa/1_2_city_plaza_talk1.1",,,"How are you settled in, Mister Runesmith?"
+"Iri/Duskuksa/1_2_city_plaza_talk1.2",,,"Not too shabby. For a human settlement."
+"Iri/Duskuksa/1_2_city_plaza_talk1.3",,,"No disrespect to them, but much of their faith seep into everything."
+"Iri/Duskuksa/1_2_city_plaza_talk1.4",,,"Our tribe worship our forebears in full respect, aye."
+"Iri/Duskuksa/1_2_city_plaza_talk1.5",,,"But we do not make everything all about them."
+"Iri/Duskuksa/1_2_city_plaza_talk1.6",,,"The calendar, building, language, art, history, and music."
+"Iri/Duskuksa/1_2_city_plaza_talk1.7",,,"Creativity and individuality, first and foremost, for society to grow."
+"Iri/Duskuksa/1_2_city_plaza_talk1.8",,,"Less it will stay forever in the cradle of inception."
+"Iri/Duskuksa/1_2_city_plaza_talk1.9",,,"Perhaps so. One must find balance in everything."
+"Iri/Nayedien/1_2_city_plaza_talk1.1",,,"Greetings again! Surprising to see you out here."
+"Iri/Nayedien/1_2_city_plaza_talk1.2",,,"Do you not have a duty to attend to the King at all times as Aide?"
+"Iri/Nayedien/1_2_city_plaza_talk1.3",,,"And I am now tasked with becoming acquainted with the group."
+"Iri/Nayedien/1_2_city_plaza_talk1.4",,,"I suppose I will have more chances to tour the city now as a hero."
+"Iri/Nayedien/1_2_city_plaza_talk1.5",,,"It is good to travel from time to time. Believe me."
+"Iri/Nayedien/1_2_city_plaza_talk1.6",,,"That I am not in doubt. But I do not wish to neglect my main duty."
+"Iri/Pasgelo/1_2_city_plaza_talk1.1",,,
+"Iri/Any/1_2_city_plaza_talk2.1",,,"Great bounties await us all."
+"Severn/Any/1_2_city_barrack_talk1.1",,,"You are in the presence of Chief Justiciar, hero."
+"Severn/Any/1_2_city_barrack_talk1.2",,,"The legal judgment for the lower society is my domain."
+"Severn/Any/1_2_city_barrack_talk1.3",,,"If you are in a dispute with the plebeians, issue a charge with me."
+"Severn/Any/1_2_city_barrack_talk1.4",,,"The case will be processed, and a justiciar will be dispatched."
+"Severn/Any/1_2_city_barrack_talk1.5",,,"Do remember that we will issue a verdict in the fairest capacity."
+"Severn/Orsanoas/1_2_city_barrack_talk1.1",,,
+"Severn/Nayedien/1_2_city_barrack_talk1.1",,,"How fare you, Aide? "
+"Severn/Nayedien/1_2_city_barrack_talk1.2",,,"The group of new heroes bring unknown change to our land."
+"Severn/Nayedien/1_2_city_barrack_talk1.3",,,"I must admit an air of apprehension circle around us, Justiciars."
+"Severn/Nayedien/1_2_city_barrack_talk1.4",,,"The invitation of talent issued before already stirred the gentries."
+"Severn/Nayedien/1_2_city_barrack_talk1.5",,,"And now heroes of various uncertain origins and arrived."
+"Severn/Nayedien/1_2_city_barrack_talk1.6",,,"Certainly, your concern is not unfounded, but be rest assured."
+"Severn/Nayedien/1_2_city_barrack_talk1.7",,,"Our King did not proceed with such an event without a proper plan."
+"Severn/Nayedien/1_2_city_barrack_talk1.8",,,"If you believe so, do remind them that they are still under the law."
+"Severn/Vraesier/1_2_city_barrack_talk1.1",,,"I heard you were a bandit in your previous trade, hero."
+"Severn/Vraesier/1_2_city_barrack_talk1.2",,,"I was. For a time."
+"Severn/Vraesier/1_2_city_barrack_talk1.3",,,"Then, I must advise that banditry will not be tolerated."
+"Severn/Vraesier/1_2_city_barrack_talk1.4",,,"… (Hmm, trouble abounds?)"
+"Severn/Vraesier/1_2_city_barrack_talk1.5",,,"Just to be clear that, a hero is not excused for crimes."
+"Severn/Vraesier/1_2_city_barrack_talk1.6",,,"I know, and talk no more of it. (Guess not.)"
+"Severn/Vraesier/1_2_city_barrack_talk1.7",,,"Good of you to reform. But be reminded us Justiciar is ever vigilant."
+"Severn/Vraesier/1_2_city_barrack_talk1.8",,,"As you should. (Best withdraw for now.)"
+"Severn/Any/1_2_city_barrack_talk2.1",,,"Praise be to the Kingdom and Empire."
+"Merlaros/Any/1_2_city_barrack_talk1.1",,,"Hail to the hero of the hour."
+"Merlaros/Any/1_2_city_barrack_talk1.2",,,"If you need to travel by equestrian, I can make an arrangement."
+"Merlaros/Any/1_2_city_barrack_talk1.3",,,"The caravan is also already being prepared for your journey ahead."
+"Merlaros/Any/1_2_city_barrack_talk1.4",,,"Give instructions to the Commander when you are ready."
+"Merlaros/Any/1_2_city_barrack_talk2.1",,,"The Master of Ride is at your call."
+"Merlaros/Laguasangte/1_2_city_barrack_talk1.1",,,
+"Laguasangte/Vraesier/1_2_city_barrack_talk1.1",,,"what an outlandish of heroes we are."
+"Laguasangte/Vraesier/1_2_city_barrack_talk1.2",,,"i can smell in you. demon."
+"Laguasangte/Vraesier/1_2_city_barrack_talk1.3",,,"I did not intend to hide, child."
+"Laguasangte/Vraesier/1_2_city_barrack_talk1.4",,,"it is of no matter to me. you are not yet a risk to our mission."
+"Laguasangte/Vraesier/1_2_city_barrack_talk1.5",,,"but be cautious and not let it consume you. and I am no child."
+"Laguasangte/Orsanoas/1_2_city_barrack_talk1.1",,,
+"Laguasangte/Minara/1_2_city_barrack_talk1.1",,,
+"Laguasangte/Rodhinbar/1_2_city_barrack_talk1.1",,,"a smell of sand and cactus. a staple of eastern world."
+"Laguasangte/Rodhinbar/1_2_city_barrack_talk1.2",,,"Hail, it seems we are all from different parts of the land."
+"Laguasangte/Rodhinbar/1_2_city_barrack_talk1.3",,,"a physical point of intertwining and connection of the king."
+"Laguasangte/Rodhinbar/1_2_city_barrack_talk1.4",,,"I possess scant of doubt something is at play."
+"Laguasangte/Rodhinbar/1_2_city_barrack_talk1.5",,,"the pledge must be fulfilled, that is only matter of mine."
+"Laguasangte/Rodhinbar/1_2_city_barrack_talk1.6",,,"In that case, I hope for the greatest of luck in your objective."
+"Laguasangte/Iri/1_2_city_barrack_talk1.1",,,"a halfling of many scents, a veteran of expedition you are."
+"Laguasangte/Iri/1_2_city_barrack_talk1.2",,,"Hmm, your olfaction sense is similar to the lionman, strange child."
+"Laguasangte/Iri/1_2_city_barrack_talk1.3",,,"strange is a word many described to me before."
+"Laguasangte/Iri/1_2_city_barrack_talk1.4",,,"keep your further stupefaction for during our expedition then."
+"Laguasangte/Elmaliern/1_2_city_barrack_talk1.1",,,
+"Laguasangte/Bauqah/1_2_city_barrack_talk1.1",,,
+"Laguasangte/Duskuksa/1_2_city_barrack_talk1.1",,,"Well met, a student of craftsmanship greets you with honour."
+"Laguasangte/Duskuksa/1_2_city_barrack_talk1.2",,,"and i to you."
+"Laguasangte/Nayedien/1_2_city_barrack_talk1.1",,,"noble of foreign or perhaps witch-elf it more suiting?"
+"Laguasangte/Nayedien/1_2_city_barrack_talk1.2",,,"Abomination."
+"Laguasangte/Nayedien/1_2_city_barrack_talk1.3",,,"I will tell you of this now. A hero you may be by the grace of King."
+"Laguasangte/Nayedien/1_2_city_barrack_talk1.4",,,"Your pledge means nought to me. Any attempt I will thwart myself."
+"Laguasangte/Nayedien/1_2_city_barrack_talk1.5",,,"and you will disobey your king's will? yours and mine benefactor."
+"Laguasangte/Nayedien/1_2_city_barrack_talk1.6",,,"… Do not force my hands, monster."
+"Laguasangte/Nayedien/1_2_city_barrack_talk1.7",,,"it is not yet time for our quarrel, witch-elf."
+"Laguasangte/Yuawies/1_2_city_barrack_talk1.1",,,
+"Laguasangte/Pasgelo/1_2_city_barrack_talk1.1",,,
+"Laguasangte/Any/1_2_city_barrack_talk2.1",,,"…"
 ,,,
 ,,,
 ,,,
 ,,,
 ,,,
-"event/1_3_city_throne_talk1.1","We’re pleased to see you return once more, heroes of Royal Ordains.",,
-"event/1_3a_city_throne_talk1.2","And you bring with you the leader of the Red Leaf.",,
-"event/1_3a_city_throne_talk1.3","So bandit, to what end do you intend for your little campaign?",,
-"event/1_3a_city_throne_talk1.4","You must be the king who executed my foster father.",,
-"event/1_3a_city_throne_talk1.5","Then, know that my goal is to create a realm without suffering.",,
-"event/1_3a_city_throne_talk1.6","Your people in the north suffer greatly from famine and unjust taxation.",,
-"event/1_3a_city_throne_talk1.7","It is only right to steal back from robbers that exist above the law.",,
-"event/1_3a_city_throne_talk1.8","So, your intention did not align with that of your father.",,
-"event/1_3a_city_throne_talk1.9","Not in the least, a brute like him is best left in the grave.",,
-"event/1_3a_city_throne_talk1.10","So it is that you are not without the quality of a ruler. ",,
-"event/1_3a_city_throne_talk1.11","We will now pronounce a decree for the Red Leaf bandits.",,
-"event/1_3a_city_throne_talk1.12","We sentence all members to the northern restoration for 6 winters.",,
-"event/1_3a_city_throne_talk1.13","You, Adaqua, will act as an arbitrator of labour administration.",,
-"event/1_3a_city_throne_talk1.14","With the commander's recommendation for adoption,",,
-"event/1_3a_city_throne_talk1.15","You will be part of the Akamanes as a lower noble of the fourth rank.",,
-"event/1_3a_city_throne_talk1.16","We also hereby grant you the title of Master of Hunt.",,
-"event/1_3a_city_throne_talk1.17","Your duty is to the venison accountment for both high and low society.",,
-"event/1_3a_city_throne_talk1.18","Make it so that your dream is fulfilled with your own hands.",,
-"event/1_3a_city_throne_talk1.19","What?! I... I accept your decree with all my heart.",,
-"event/1_3a_city_throne_talk1.20","I hereby swear my allegiance to you, my Lord, my King.",,
-"event/1_3b_city_throne_talk1.2","A great service you have provided to the northern people.",,
-"event/1_3b_city_throne_talk1.3","Justice has been delivered this day, and peace is ensured.",,
-"event/1_3b_city_throne_talk1.4","An example has been made that no outlaws shall prevail in our realm.",,
-"event/1_3b_city_throne_talk1.5","It is but a matter of time until the law of forest can be re-established.",,
-"event/1_3b_city_throne_talk1.6","The peasants and nobles alike will benefit from bountiful woodlands.",,
-"event/1_3b_city_throne_talk1.7","Those who disturb such balance will be punished with no exception.",,
-"event/1_3b_city_throne_talk1.8","Master of Hunt, the bandits did damage to the verts in Panac Forest.",,
-"event/1_3b_city_throne_talk1.9","You are given a task to ensure no more trespassing.",,
-"event/1_3b_city_throne_talk1.10","And ensure that the next game will be fulfilling for a three morns hunt.",,
-"event/1_3b_city_throne_talk1.11","As you command, Your Majesty.",,
-"event/1_3b_city_throne_talk1.12","The very next morn, I shall ride to the forest for overseer personally.",,
-"event/1_3b_city_throne_talk1.13","That is well. We wish you a complete success in this effort.",,
-"event/1_3b_city_throne_talk1.14","Thank you, Your Majesty. I will bring only good news back home.",,
-"event/1_3_city_throne_talk1.19","Heroes, your rewards are sent to your storage as per usual.",,
-"event/1_3_city_throne_talk1.20","I suggest you take appropriate respite before the next mission.",,
-"event/1_3_city_throne_talk1.21","The Commander advised me the next task would be a perilous one.",,
-"event/1_3_city_throne_talk1.22","Prepare for a long fight and come back victorious once more.",,
-"Vurus/Any/1_3_city_throne_talk1.1","Another victorious day for you, Royal Ordains.",,
-"Vurus/Any/1_3_city_throne_talk1.2","Again, I am most pleased with your accomplishments these days.",,
-"Vurus/Any/1_3_city_throne_talk1.3","A small group they may be, but you surpass all their advantages.",,
-"Vurus/Any/1_3_city_throne_talk1.4","I think you are more than ready for difficult tasks and foes ahead.",,
-"Vurus/Any/1_3_city_throne_talk1.5","Speak with me once more when you are ready.",,
-"Vurus/Any/1_3_city_throne_talk2.1","Have you rested enough to begin the next mission?",,
-"Vurus/Any/1_3_city_throne_talk2.yes1","A notice was received that notified the strange wild's behaviour.",,
-"Vurus/Any/1_3_city_throne_talk2.yes2","The inner woods now in turmoil with attacks from beasts of all manners.",,
-"Vurus/Any/1_3_city_throne_talk2.yes3","We conjecture that someone is behind this incident.",,
-"Vurus/Any/1_3_city_throne_talk2.yes4","Most likely a druid of baleful influence to command nature.",,
-"Vurus/Any/1_3_city_throne_talk2.yes5","The beasts you will face are likely to be ferocious and fearless.",,
-"Vurus/Any/1_3_city_throne_talk2.yes6","I implore you to be cautious in this endeavour for your success.",,
-"Vurus/Any/1_3_city_throne_talk2.yes7","Like before, deal with the culpable druid as you see appropriate.",,
-"Vurus/Any/1_3_city_throne_talk2.yes8","I look forward to hearing about your triumph.",,
-"Vurus/Any/1_3_city_throne_talk2.yes9","May the One God watch over you in this journey.",,
-"Vurus/Any/1_3_city_throne_talk2.no1","Rest well. A hasty sally will only bring harm to the unprepared.",,
-,,,
-"Vurus/Any/1_2_city_throne_talk1.1","Hero, your success truly please me.",,
-"Vurus/Any/1_2_city_throne_talk1.2","A mark of new growth I can see on you.",,
-"Vurus/Any/1_2_city_throne_talk1.3","The rabbitmen did not cause you much trouble, did they?",,
-"Vurus/Any/1_2_city_throne_talk1.4","You have proved well beyond any doubt of your potential.",,
-"Vurus/Any/1_2_city_throne_talk1.5","With each victory, a full-fledged master of combat you will become.",,
-"Vurus/Any/1_2_city_throne_talk1.6","Do reflect that the mettle of a hero is not only in personal strength.",,
-"Vurus/Any/1_2_city_throne_talk1.7","Prepare well your equipment and bring suitable allies into battle.",,
-"Vurus/Any/1_2_city_throne_talk2.1","Are you ready to start your next mission?",,
-"Vurus/Any/1_2_city_throne_talk2.yes1","Very good. You will travel deeper into the Panac Forest.",,
-"Vurus/Any/1_2_city_throne_talk2.yes2","Groups of bandits is using the forest as their base of operation.",,
-"Vurus/Any/1_2_city_throne_talk2.yes3","The target of this mission is a group named Red Leaf.",,
-"Vurus/Any/1_2_city_throne_talk2.yes4","The threat that needs to be dealt with this time is smaller in number.",,
-"Vurus/Any/1_2_city_throne_talk2.yes5","But underestimate not, for they are much stronger individually.",,
-"Vurus/Any/1_2_city_throne_talk2.yes6","Capture the leader, and the group will surely fall apart.",,
-"Vurus/Any/1_2_city_throne_talk2.yes7","I leave it to your decision on how to deal with such a villain.",,
-"Vurus/Any/1_2_city_throne_talk2.yes8","May the One God watch over you.",,
-"Vurus/Any/1_2_city_throne_talk2.no1","Take enough rest. The escorts will be prepared when you are ready.",,
 ,,,
 ,,,
 ,,,
@@ -1979,8 +2568,60 @@
 ,,,
 ,,,
 ,,,
-"Duskuksa/Any/1_2_city_blacksmith_talk2.1","Superb work, friend!",,
-"Duskuksa/Any/1_2_city_blacksmith_talk2.2","Thanks, friend! Let’s make a better one!",,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+,,,
+"Duskuksa/Any/1_3_city_blacksmith_talk2.1","Superb work, friend!",,
+"Duskuksa/Any/1_3_city_blacksmith_talk2.2","Thanks, friend! Let’s make a better one!",,
 ,,,
 ,,,
 "event/1_4_1_talk1.1","Ahh... It seems you did me a great disservice this day, maiden.",,
@@ -2049,7 +2690,7 @@
 ,,,
 ,"Why is this book so long.",,
 ,,,
-,"Something is wrong with me today; I do not know of why.",,
+,"Something is wrong with me today"," I do not know of why.",
 ,"I should do a sick leave later.",,
 ,,,
 ,,,
@@ -2079,7 +2720,7 @@
 ,,,
 ,,,
 ,,,
-,,,
+,"A path one must walk toward salvation all the same.",,
 ,,,
 ,,,
 ,"Ha! the people indeed.",,
