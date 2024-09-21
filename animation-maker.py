@@ -1,20 +1,20 @@
+import csv
 import os
 import random
 import re
 import sys
 import time
-import csv
+from math import atan2, degrees
 from pathlib import Path
 
 import pygame
-from math import atan2, degrees
 from PIL import Image, ImageFilter, ImageEnhance, ImageOps
 
-from engine.uimenu.uimenu import MenuCursor, NameList, MenuButton, TextPopup, InputUI, InputBox, ListBox
-from engine.uibattle.uibattle import UIScroll
-from engine.game.game import Game
 from engine.data.datalocalisation import Localisation
 from engine.data.datasound import SoundData
+from engine.game.game import Game
+from engine.uibattle.uibattle import UIScroll
+from engine.uimenu.uimenu import MenuCursor, NameList, MenuButton, TextPopup, InputUI, InputBox, ListBox
 from engine.utils.data_loading import csv_read, load_image, load_images, load_base_button, recursive_image_load, \
     filename_convert_readable as fcv
 
@@ -51,7 +51,6 @@ default_sprite_size = (600, 600)
 
 ui = pygame.sprite.LayeredUpdates()
 fake_group = pygame.sprite.LayeredUpdates()  # just fake group to add for container and not get auto update
-
 
 Game.main_dir = main_dir
 Game.data_dir = data_dir
@@ -115,7 +114,7 @@ def reload_animation(animation, char, specific_frame=None):
                 if "effect" in prop:
                     size = frames[frame_index].get_size()
                     data = pygame.image.tobytes(frames[frame_index],
-                                                 "RGBA")  # convert image to string data for filtering effect
+                                                "RGBA")  # convert image to string data for filtering effect
                     surface = Image.frombytes("RGBA", size, data)  # use PIL to get image data
                     alpha = surface.split()[-1]  # save alpha
                     if "grey" in prop:  # not work with just convert L for some reason
@@ -124,7 +123,8 @@ def reload_animation(animation, char, specific_frame=None):
                     if "blur" in prop:
                         surface = surface.filter(
                             ImageFilter.GaussianBlur(
-                                radius=float(prop[prop.rfind("_") + 1:])))  # blur Image (or apply other filter in future)
+                                radius=float(
+                                    prop[prop.rfind("_") + 1:])))  # blur Image (or apply other filter in future)
                     if "contrast" in prop:
                         enhancer = ImageEnhance.Contrast(surface)
                         surface = enhancer.enhance(float(prop[prop.rfind("_") + 1:]))
@@ -135,7 +135,8 @@ def reload_animation(animation, char, specific_frame=None):
                         empty = pygame.Surface(size, pygame.SRCALPHA)
                         empty.fill((255, 255, 255, 255))
                         empty = pygame.image.tobytes(empty, "RGBA")  # convert image to string data for filtering effect
-                        empty = Image.frombytes("RGBA", frames[frame_index].get_size(), empty)  # use PIL to get image data
+                        empty = Image.frombytes("RGBA", frames[frame_index].get_size(),
+                                                empty)  # use PIL to get image data
                         surface = Image.blend(surface, empty, alpha=float(prop[prop.rfind("_") + 1:]) / 10)
                     surface.putalpha(alpha)  # put back alpha
                     surface = surface.tobytes()
@@ -207,7 +208,8 @@ def change_animation_chapter(new_chapter, change_race=True):
                 for folder1 in sub1_directories:
                     body_sprite_pool[char][folder1[-1]] = {}
                     sub_part_folder = Path(
-                        os.path.join(animation_dir, "sprite", "character", race_file_name, folder1[-1], str(animation_chapter)))
+                        os.path.join(animation_dir, "sprite", "character", race_file_name, folder1[-1],
+                                     str(animation_chapter)))
                     recursive_image_load(body_sprite_pool[char][folder1[-1]], screen_scale, sub_part_folder)
 
             except FileNotFoundError as b:
@@ -271,6 +273,7 @@ def change_frame_process():
                frame_prop_list_box, ui, screen_scale, layer=9,
                old_list=frame_property_select[current_frame])  # change frame property list
 
+
 animation_race = "Vraesier"
 animation_chapter = 1
 
@@ -283,7 +286,6 @@ chapter_list = []
 for x in Path(os.path.join(animation_dir)).iterdir():  # grab folder with number chapter
     if os.path.normpath(x).split(os.sep)[-1].isdigit():  # exclude weapon as char
         chapter_list.append(int(os.path.normpath(x).split(os.sep)[-1]))
-
 
 animation_pool_data = {}
 part_name_header = {}
@@ -335,7 +337,6 @@ for char in char_list:
     else:  # no specific mode list, has only normal mode
         character_mode_list[char]["Normal"] = default_mode["Normal"]
 
-
 sound_effect_pool = SoundData().sound_effect_pool
 
 
@@ -373,7 +374,7 @@ class Filmstrip(pygame.sprite.Sprite):
             self.image = self.base_image.copy()
             if image is not None:
                 self.blit_image = pygame.transform.smoothscale(image.copy(), (
-                int(100 * self.image_scale[0]), int(100 * self.image_scale[1])))
+                    int(100 * self.image_scale[0]), int(100 * self.image_scale[1])))
                 self.strip_rect = self.blit_image.get_rect(
                     center=(self.image.get_width() / 2, self.image.get_height() / 2))
                 self.image.blit(self.blit_image, self.strip_rect)
@@ -522,31 +523,31 @@ class BodyHelper(pygame.sprite.Sprite):
                              self.ui_type + "_r_arm_up": (self.image.get_width() / 2 -
                                                           (self.image.get_width() / 20), 95),
                              self.ui_type + "_r_arm_low": (self.image.get_width() / 2 -
-                                                          (self.image.get_width() / 20), 125),
+                                                           (self.image.get_width() / 20), 125),
                              self.ui_type + "_r_hand": (self.image.get_width() / 2 -
-                                                          (self.image.get_width() / 20), 155),
+                                                        (self.image.get_width() / 20), 155),
                              self.ui_type + "_l_arm_up": (self.image.get_width() / 2 +
                                                           (self.image.get_width() / 20), 95),
                              self.ui_type + "_l_arm_low": (self.image.get_width() / 2 +
-                                                          (self.image.get_width() / 20), 125),
+                                                           (self.image.get_width() / 20), 125),
                              self.ui_type + "_l_hand": (self.image.get_width() / 2 +
-                                                          (self.image.get_width() / 20), 155),
+                                                        (self.image.get_width() / 20), 155),
                              self.ui_type + "_r_leg_up": (self.image.get_width() / 2 -
                                                           (self.image.get_width() / 40), 185),
                              self.ui_type + "_r_leg_low": (self.image.get_width() / 2 -
-                                                       (self.image.get_width() / 40), 216),
+                                                           (self.image.get_width() / 40), 216),
                              self.ui_type + "_r_foot": (self.image.get_width() / 2 -
-                                                          (self.image.get_width() / 40), 246),
+                                                        (self.image.get_width() / 40), 246),
                              self.ui_type + "_l_leg_up": (self.image.get_width() / 2 +
                                                           (self.image.get_width() / 40), 185),
                              self.ui_type + "_l_leg_low": (self.image.get_width() / 2 +
-                                                       (self.image.get_width() / 40), 216),
+                                                           (self.image.get_width() / 40), 216),
                              self.ui_type + "_l_foot": (self.image.get_width() / 2 +
-                                                          (self.image.get_width() / 40), 246),
+                                                        (self.image.get_width() / 40), 246),
                              self.ui_type + "_main_weapon": (self.image.get_width() / 2 -
-                                                          (self.image.get_width() / 20), 25),
+                                                             (self.image.get_width() / 20), 25),
                              self.ui_type + "_sub_weapon": (self.image.get_width() / 2 +
-                                                          (self.image.get_width() / 20), 25)}
+                                                            (self.image.get_width() / 20), 25)}
         else:
             p_type = self.ui_type[:2]
             self.rect_part_list = {p_type + "_special_1": None, p_type + "_special_2": None,
@@ -669,14 +670,16 @@ class BodyHelper(pygame.sprite.Sprite):
                         midleft=(self.part_pos[head_name][0] + shift_x, self.part_pos[head_name][1] - 5))
                     text_rect2 = text_surface2.get_rect(
                         midleft=(
-                        self.part_pos[head_name][0] + shift_x, self.part_pos[head_name][1] - 5 + self.font_size + 2))
+                            self.part_pos[head_name][0] + shift_x,
+                            self.part_pos[head_name][1] - 5 + self.font_size + 2))
                 elif "neck" in part:
                     head_name = part[0:2] + "_head"
                     text_rect1 = text_surface1.get_rect(
                         midleft=(self.part_pos[head_name][0] + shift_x, self.part_pos[head_name][1] - 25))
                     text_rect2 = text_surface2.get_rect(
                         midleft=(
-                        self.part_pos[head_name][0] + shift_x, self.part_pos[head_name][1] - 25 + self.font_size + 2))
+                            self.part_pos[head_name][0] + shift_x,
+                            self.part_pos[head_name][1] - 25 + self.font_size + 2))
                 elif "head" in part:
                     text_rect1 = text_surface1.get_rect(
                         midright=(self.part_pos[part][0] - shift_x, self.part_pos[part][1] - 10))
@@ -691,13 +694,13 @@ class BodyHelper(pygame.sprite.Sprite):
                             midleft=(self.part_pos[part][0] + shift_x, self.part_pos[part][1] - 15))
                         text_rect2 = text_surface2.get_rect(
                             midleft=(
-                            self.part_pos[part][0] + shift_x, self.part_pos[part][1] - 15 + self.font_size + 2))
+                                self.part_pos[part][0] + shift_x, self.part_pos[part][1] - 15 + self.font_size + 2))
                     else:
                         text_rect1 = text_surface1.get_rect(
                             midright=(self.part_pos[part][0] - shift_x, self.part_pos[part][1] - 15))
                         text_rect2 = text_surface2.get_rect(
                             midright=(
-                            self.part_pos[part][0] - shift_x, self.part_pos[part][1] - 15 + self.font_size + 2))
+                                self.part_pos[part][0] - shift_x, self.part_pos[part][1] - 15 + self.font_size + 2))
                 self.image.blit(text_surface1, text_rect1)
                 self.image.blit(text_surface2, text_rect2)
             # else:
@@ -950,7 +953,9 @@ class Model:
             try:
                 head_race = bodypart_list[key + "_head"][0]
                 self.head_race[key] = head_race
-                head_sprite = body_sprite_pool[head_race]["head"][character_mode_list[animation_race][self.sprite_mode[int(key[-1])]][key + "_head"]][bodypart_list[key + "_head"][1]].copy()
+                head_sprite = body_sprite_pool[head_race]["head"][
+                    character_mode_list[animation_race][self.sprite_mode[int(key[-1])]][key + "_head"]][
+                    bodypart_list[key + "_head"][1]].copy()
                 head_sprite_surface = pygame.Surface(head_sprite.get_size(), pygame.SRCALPHA)
                 head_rect = head_sprite.get_rect(midtop=(head_sprite_surface.get_width() / 2, 0))
                 head_sprite_surface.blit(head_sprite, head_rect)
@@ -973,14 +978,15 @@ class Model:
             except (KeyError, UnboundLocalError, TypeError):
                 pass
 
-        except_list = ("head", )  # skip doing these parts
+        except_list = ("head",)  # skip doing these parts
         for stuff in bodypart_list:  # create stat and sprite image
             if bodypart_list[stuff]:
                 if any(ext in stuff for ext in except_list) is False:
                     try:
                         p = stuff[1]
                         if "effect_" in stuff:
-                            self.sprite_image[stuff] = effect_sprite_pool[bodypart_list[stuff][0]][bodypart_list[stuff][1]].copy()
+                            self.sprite_image[stuff] = effect_sprite_pool[bodypart_list[stuff][0]][
+                                bodypart_list[stuff][1]].copy()
                         else:
                             new_part_name = stuff
                             mode_part_check = stuff
@@ -990,13 +996,16 @@ class Model:
                             if "special" in stuff:
                                 part_name = "special"
                                 new_part_name = part_name
-                                mode_part_check = "_".join(mode_part_check.split("_")[0:-1])  # remove _number at the end of special
+                                mode_part_check = "_".join(
+                                    mode_part_check.split("_")[0:-1])  # remove _number at the end of special
                             elif "weapon" in stuff:
                                 part_name = "weapon"
                                 new_part_name = part_name
                             if "r_" in part_name[0:2] or "l_" in part_name[0:2]:
                                 new_part_name = part_name[2:]  # remove part side
-                            self.sprite_image[stuff] = body_sprite_pool[bodypart_list[stuff][0]][new_part_name][character_mode_list[animation_race][self.sprite_mode[int(p)]][mode_part_check]][bodypart_list[stuff][1]].copy()
+                            self.sprite_image[stuff] = body_sprite_pool[bodypart_list[stuff][0]][new_part_name][
+                                character_mode_list[animation_race][self.sprite_mode[int(p)]][mode_part_check]][
+                                bodypart_list[stuff][1]].copy()
                     except (KeyError, UnboundLocalError):  # no part name known for current char, skip getting image
                         pass
         # if skin != "white":
@@ -1089,7 +1098,7 @@ class Model:
         elif edit_type == "paste part stat":  # paste copy stat
             for part in copy_part_stat:
                 new_part = part
-                if any(ext in part for ext in ("effect", )) is False:
+                if any(ext in part for ext in ("effect",)) is False:
                     new_part = p_body_helper.ui_type + part[2:]
                 if copy_part_stat[part] is not None:
                     self.bodypart_list[edit_frame][new_part] = copy_part_stat[part].copy()
@@ -1333,10 +1342,13 @@ class Model:
                     try:
                         sprite_part = self.animation_part_list[frame_num]
                         if sprite_part[key] is not None:
-                            self.frame_list[frame_num][key] = name_list[key] + [sprite_part[key][2][0], sprite_part[key][2][1],
-                                                                                 sprite_part[key][3], sprite_part[key][4],
-                                                                                 sprite_part[key][5], sprite_part[key][6],
-                                                                            sprite_part[key][7]]
+                            self.frame_list[frame_num][key] = name_list[key] + [sprite_part[key][2][0],
+                                                                                sprite_part[key][2][1],
+                                                                                sprite_part[key][3],
+                                                                                sprite_part[key][4],
+                                                                                sprite_part[key][5],
+                                                                                sprite_part[key][6],
+                                                                                sprite_part[key][7]]
                         else:
                             self.frame_list[frame_num][key] = []
                     except (TypeError, IndexError):  # None type error from empty frame
@@ -1438,9 +1450,10 @@ class Animation:
             play_speed = self.speed_ms
             if any("play_time_mod_" in item for item in frame_property_select[self.show_frame]):
                 play_speed *= float([item for item in frame_property_select[self.show_frame] if
-                                   "play_time_mod_" in item][0].split("_")[-1])
+                                     "play_time_mod_" in item][0].split("_")[-1])
             elif any("play_time_mod_" in item for item in anim_property_select):
-                play_speed *= float([item for item in anim_property_select if "play_time_mod_" in item][0].split("_")[-1])
+                play_speed *= float(
+                    [item for item in anim_property_select if "play_time_mod_" in item][0].split("_")[-1])
             if time.time() - self.first_time >= play_speed:
                 self.show_frame += 1
                 while self.show_frame < max_frame and play_list[self.show_frame] is False:
@@ -1470,6 +1483,7 @@ class Animation:
                            old_list=frame_property_select[self.show_frame])
 
         surface.blit(self.frames[int(self.show_frame)], position)
+
 
 # start animation maker
 clock = pygame.time.Clock()
@@ -1537,16 +1551,16 @@ image = pygame.transform.smoothscale(image, (int(image.get_width() * screen_scal
 
 text_popup = TextPopup()
 animation_chapter_button = Button("CH: 1", image, (image.get_width() / 2, image.get_height() / 2),
-                    description=("Select animation chapter", "Select animation chapter pool to edit."))
+                                  description=("Select animation chapter", "Select animation chapter pool to edit."))
 animation_race_button = Button("Ani Char", image, (image.get_width() * 1.5, image.get_height() / 2),
-                    description=("Select animation character", "Select animation character pool to edit."))
+                               description=("Select animation character", "Select animation character pool to edit."))
 new_button = Button("New Ani", image, (image.get_width() * 2.5, image.get_height() / 2),
                     description=("Create new animation", "Create new empty animation with name input."))
 save_button = Button("Save", image, (image.get_width() * 3.5, image.get_height() / 2),
                      description=("Save all animation", "Save the current state of all animation only for this char."))
 size_button = Button("Size: ", image, (image.get_width() * 4.5, image.get_height() / 2),
                      description=(
-                     "Change animation frame size", "This does not change the size of the animation editor UI."))
+                         "Change animation frame size", "This does not change the size of the animation editor UI."))
 
 rename_button = Button("Rename", image, (screen_size[0] - (image.get_width() * 3.5), image.get_height() / 2),
                        description=("Rename animation",
@@ -1575,13 +1589,13 @@ all_paste_button = Button("Paste A", image, (play_animation_button.pos[0] - play
                           description=("Paste all copied frames",))
 speed_button = Button("Speed: 0.1",
                       image, (play_animation_button.pos[0] - play_animation_button.image.get_width(),
-                                          filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
+                              filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
                       description=("Change preview animation play time (in second per frame)",
                                    "Change according to the input number."))
 frame_copy_button = Button("Copy F", image, (play_animation_button.pos[0] + play_animation_button.image.get_width(),
                                              filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
                            description=(
-                           "Copy frame (CTRL + C)", "Does not copy frame properties."))
+                               "Copy frame (CTRL + C)", "Does not copy frame properties."))
 frame_paste_button = Button("Paste F", image,
                             (play_animation_button.pos[0] + play_animation_button.image.get_width() * 2,
                              filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
@@ -1592,21 +1606,25 @@ frame_paste_button = Button("Paste F", image,
 #                        description=("Reload all assets",))
 add_frame_button = Button("Add F", image, (play_animation_button.pos[0] + play_animation_button.image.get_width() * 4,
                                            filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
-                          description=("Add empty frame and move the other after frames", "Will remove the last frame."))
+                          description=(
+                          "Add empty frame and move the other after frames", "Will remove the last frame."))
 
-remove_frame_button = Button("Del F", image, (play_animation_button.pos[0] + play_animation_button.image.get_width() * 5,
-                                           filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
+remove_frame_button = Button("Del F", image,
+                             (play_animation_button.pos[0] + play_animation_button.image.get_width() * 5,
+                              filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
                              description=("Remove current frame",))
-all_frame_part_copy_button = Button("Copy PA", image, (play_animation_button.pos[0] + play_animation_button.image.get_width() * 6,
-                                           filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
+all_frame_part_copy_button = Button("Copy PA", image,
+                                    (play_animation_button.pos[0] + play_animation_button.image.get_width() * 6,
+                                     filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
                                     description=("Copy selected parts in all frame",))
-all_frame_part_paste_button = Button("Paste PA", image, (play_animation_button.pos[0] + play_animation_button.image.get_width() * 7,
-                                           filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
+all_frame_part_paste_button = Button("Paste PA", image,
+                                     (play_animation_button.pos[0] + play_animation_button.image.get_width() * 7,
+                                      filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
                                      description=("Paste parts in all frame", "Only copied from all frame part copy."))
 reverse_frame_button = Button("Reverse F", image,
                               (play_animation_button.pos[0] + play_animation_button.image.get_width() * 8,
                                filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
-                              description=("Reverse animation", ))
+                              description=("Reverse animation",))
 
 clear_button = Button("Clear", image, (play_animation_button.pos[0] - play_animation_button.image.get_width() * 4,
                                        filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
@@ -1636,8 +1654,9 @@ flip_hori_button = Button("Flip H", image, (reset_button.pos[0] + reset_button.i
 #                                             p_body_helper.rect.midtop[1] - (image.get_height() / 2)),
 #                           description=("Vertical Flip part", "Flip the selected part vertically."))
 damage_button = Button("Do DMG", image, (reset_button.pos[0] + (reset_button.image.get_width() * 3),
-                                            p_body_helper.rect.midtop[1] - (image.get_height() / 2)),
-                          description=("Part do damage", "Add indication that the selected parts deal damage in this frame."))
+                                         p_body_helper.rect.midtop[1] - (image.get_height() / 2)),
+                       description=(
+                       "Part do damage", "Add indication that the selected parts deal damage in this frame."))
 part_copy_button = Button("Copy P", image, (screen_size[0] / 1.35,
                                             p_body_helper.rect.midtop[1] - (image.get_height() * 1.5)),
                           description=("Copy parts (ALT + C)", "Copy the selected part only from this frame."))
@@ -1645,10 +1664,10 @@ part_paste_button = Button("Paste P", image, (part_copy_button.rect.topright[0] 
                                               p_body_helper.rect.midtop[1] - (image.get_height() * 1.5)),
                            description=("Paste parts (ALT + V)", "Pasted the copied part only for this frame."))
 part_stat_copy_button = Button("Copy PS", image, (part_copy_button.rect.topright[0] + image.get_width() * 1.5,
-                                              p_body_helper.rect.midtop[1] - (image.get_height() * 1.5)),
+                                                  p_body_helper.rect.midtop[1] - (image.get_height() * 1.5)),
                                description=("Copy parts 'stat", "Copy the stat of selected part."))
 part_stat_paste_button = Button("Paste PS", image, (part_copy_button.rect.topright[0] + image.get_width() * 2.5,
-                                              p_body_helper.rect.midtop[1] - (image.get_height() * 1.5)),
+                                                    p_body_helper.rect.midtop[1] - (image.get_height() * 1.5)),
                                 description=("Paste parts' stat", "Pasted the copied stats on same type of parts."))
 p_all_button = Button("P All", image, (screen_size[0] / 1.35,
                                        p_body_helper.rect.midtop[1] - (image.get_height() * 2.5)),
@@ -1675,13 +1694,13 @@ showroom_colour_button = Button("Box RGB", image, (help_button.rect.topright[0] 
                                                    p_body_helper.rect.midtop[1] - (image.get_height() * 2.5)),
                                 description=("Change showroom background colour",))
 export_gif_button = Button("To GIF", image, (help_button.rect.topright[0] + image.get_width() / 2,
-                                          p_body_helper.rect.midtop[1] - (image.get_height() * 1.5)),
-                       description=("Export animation to GIF", "Export the current animation to a GIF file.",
-                                    "The speed of GIF image depends on preview play speed."))
+                                             p_body_helper.rect.midtop[1] - (image.get_height() * 1.5)),
+                           description=("Export animation to GIF", "Export the current animation to a GIF file.",
+                                        "The speed of GIF image depends on preview play speed."))
 export_button = Button("To PNG", image, (help_button.rect.topright[0] + image.get_width() / 2,
-                                      p_body_helper.rect.midtop[1] - (image.get_height() * 0.5)),
-                       description=("Export animation to PNG", "Export the current animation to several png image files."))
-
+                                         p_body_helper.rect.midtop[1] - (image.get_height() * 0.5)),
+                       description=(
+                       "Export animation to PNG", "Export the current animation to several png image files."))
 
 race_part_button = Button("", image, (reset_button.image.get_width() / 1.8,
                                       p_body_helper.rect.midtop[1] - (image.get_height() / 2)),
@@ -1696,20 +1715,20 @@ p_selector = NameBox((250, image.get_height()), (reset_button.image.get_width() 
 #                                                           p_body_helper.rect.midtop[1] - (image.get_height() * 4.5)),
 #                               description=("Select preview sprite version", "Only for preview and not saved in animation file."))
 sprite_mode_selector = NameBox((250, image.get_height()), (reset_button.image.get_width() * 1.8,
-                                                          p_body_helper.rect.midtop[1] - (image.get_height() * 3.5)),
-                              description=("Select preview sprite mode", "Only for preview and not saved in animation file."))
-
+                                                           p_body_helper.rect.midtop[1] - (image.get_height() * 3.5)),
+                               description=(
+                               "Select preview sprite mode", "Only for preview and not saved in animation file."))
 
 sound_selector = NameBox((250, image.get_height()), (screen_size[0] - (reset_button.image.get_width() * 1.8),
                                                      p_body_helper.rect.midtop[1] - (image.get_height() * 5.5)),
-                     description=("Add/remove sound effect to frame",
-                                  "Sound will be played during in animation preview in this tool."))
+                         description=("Add/remove sound effect to frame",
+                                      "Sound will be played during in animation preview in this tool."))
 
 sound_distance_selector = NameBox((250, image.get_height()),
                                   (screen_size[0] - (reset_button.image.get_width() * 1.8),
                                    p_body_helper.rect.midtop[1] - (image.get_height() * 4.5)),
-                     description=("Change sound effect distance if exist",
-                                  "Will have no effect if there is not sound selected."))
+                                  description=("Change sound effect distance if exist",
+                                               "Will have no effect if there is not sound selected."))
 
 # lock_button = SwitchButton(["Lock:OFF","Lock:ON"], image, (reset_button.pos[0] + reset_button.image.get_width() * 2,
 #                                            p_body_helper.rect.midtop[1] - (image.get_height() / 1.5)))
@@ -1720,7 +1739,7 @@ input_ui = InputUI(load_image(data_dir, screen_scale, "input_ui.png", ("ui", "ma
 image_list = load_base_button(data_dir, screen_scale)
 
 input_ok_button = MenuButton(image_list, pos=(input_ui.rect.midleft[0] + image_list[0].get_width(),
-                                                     input_ui.rect.midleft[1] + image_list[0].get_height()),
+                                              input_ui.rect.midleft[1] + image_list[0].get_height()),
                              key_name="confirm_button", layer=31)
 input_cancel_button = MenuButton(image_list,
                                  pos=(input_ui.rect.midright[0] - image_list[0].get_width(),
@@ -1736,18 +1755,18 @@ confirm_ui = InputUI(load_image(data_dir, screen_scale, "input_ui.png", ("ui", "
 confirm_ui_popup = (confirm_ui, input_ok_button, input_cancel_button)
 
 colour_ui = InputUI(load_image(current_data_dir, screen_scale, "colour.png", "animation_maker_ui"),
-                         (screen_size[0] / 2, screen_size[1] / 2))  # user text input ui box popup
+                    (screen_size[0] / 2, screen_size[1] / 2))  # user text input ui box popup
 colour_wheel = ColourWheel(load_image(main_data_dir, screen_scale, "rgb.png",
                                       subfolder=("animation", "sprite")),
                            (colour_ui.pos[0], colour_ui.pos[1] / 1.5))
 colour_input_box = InputBox((colour_ui.rect.center[0], colour_ui.rect.center[1] * 1.2),
-                                   input_ui.image.get_width())  # user text input box
+                            input_ui.image.get_width())  # user text input box
 
 colour_ok_button = MenuButton(image_list, pos=(colour_ui.rect.midleft[0] + image_list[0].get_width(),
-                                                      colour_ui.rect.midleft[1] + (image_list[0].get_height() * 2)),
+                                               colour_ui.rect.midleft[1] + (image_list[0].get_height() * 2)),
                               key_name="confirm_button", layer=31)
 colour_cancel_button = MenuButton(image_list, pos=(colour_ui.rect.midright[0] - image_list[0].get_width(),
-                                                          colour_ui.rect.midright[1] + (image_list[0].get_height() * 2)),
+                                                   colour_ui.rect.midright[1] + (image_list[0].get_height() * 2)),
                                   key_name="cancel_button", layer=31)
 colour_ui_popup = (colour_ui, colour_wheel, colour_input_box, colour_ok_button, colour_cancel_button)
 
@@ -1761,7 +1780,7 @@ anim_prop_list_box = ListBox((0, filmstrip_list[0].rect.midbottom[1] +
                               (reset_button.image.get_height() * 1.5)), box_img, 8)
 anim_prop_list_box.namelist = anim_property_list + ["Custom"]
 frame_prop_list_box = ListBox((screen_size[0] - box_img.get_width(), filmstrip_list[0].rect.midbottom[1] +
-                                      (reset_button.image.get_height() * 1.5)), box_img, 8)
+                               (reset_button.image.get_height() * 1.5)), box_img, 8)
 frame_prop_list_box.namelist = [frame_property_list + ["Custom"] for _ in range(max_frame)]
 UIScroll(anim_prop_list_box, anim_prop_list_box.rect.topright)  # create scroll for animation prop box
 UIScroll(frame_prop_list_box, frame_prop_list_box.rect.topright)  # create scroll for frame prop box
@@ -1852,7 +1871,7 @@ while True:
                     mouse_scroll_down = True
                 if popup_list_box in ui and (
                         popup_list_box.rect.collidepoint(mouse_pos) or popup_list_box.scroll.rect.collidepoint(
-                        mouse_pos)):
+                    mouse_pos)):
                     current_popup_row = list_scroll(mouse_scroll_up, mouse_scroll_down,
                                                     popup_list_box, current_popup_row, popup_list_box.namelist,
                                                     popup_namegroup, ui, screen_scale)
@@ -2129,7 +2148,8 @@ while True:
                                         text_input_popup = ("text_input", "new_anim_prop")
                                         input_ui.change_instruction("Custom Property:")
                                         ui.add(input_ui_popup)
-                                    elif name.name[-1] == "_" or name.name[-1].isdigit():  # property that need number value
+                                    elif name.name[-1] == "_" or name.name[
+                                        -1].isdigit():  # property that need number value
                                         if name.selected is False:
                                             if "colour" in name.name:
                                                 text_input_popup = ("text_input", naming + "_prop_colour_" + name.name)
@@ -2201,9 +2221,11 @@ while True:
                                                         key, value in
                                                         model.part_name_list[frame].items()}
                                 # keep only selected one
-                                all_copy_part[frame] = {item: all_copy_part[frame][item] for item in all_copy_part[frame] if
-                                     item in model.mask_part_list and list(model.mask_part_list.keys()).index(
-                                         item) in model.part_selected}
+                                all_copy_part[frame] = {item: all_copy_part[frame][item] for item in
+                                                        all_copy_part[frame] if
+                                                        item in model.mask_part_list and list(
+                                                            model.mask_part_list.keys()).index(
+                                                            item) in model.part_selected}
                                 all_copy_animation[frame] = {item: all_copy_animation[frame][item] for index, item in
                                                              enumerate(all_copy_animation[frame].keys())
                                                              if
@@ -2428,16 +2450,25 @@ while True:
                             try:
                                 if "special" in current_part:
                                     part_list = list(
-                                        body_sprite_pool[race_part_button.text]["special"][character_mode_list[animation_race][model.sprite_mode[int(p_selector.text[1])]][current_part[:-2]]].keys())
+                                        body_sprite_pool[race_part_button.text]["special"][
+                                            character_mode_list[animation_race][
+                                                model.sprite_mode[int(p_selector.text[1])]][current_part[:-2]]].keys())
                                 elif "effect" in current_part:
                                     part_list = list(
                                         effect_sprite_pool[race_part_button.text].keys())
+                                elif "weapon" in current_part:
+                                    part_list = list(
+                                        body_sprite_pool[race_part_button.text]["weapon"][
+                                            character_mode_list[animation_race][
+                                                model.sprite_mode[int(p_selector.text[1])]][current_part]].keys())
                                 elif any(ext in current_part for ext in p_list):
                                     selected_part = current_part[3:]
                                     if selected_part[0:2] == "r_" or selected_part[0:2] == "l_":
                                         selected_part = selected_part[2:]
                                     part_list = list(
-                                        body_sprite_pool[race_part_button.text][selected_part][character_mode_list[animation_race][model.sprite_mode[int(p_selector.text[1])]][current_part]].keys())
+                                        body_sprite_pool[race_part_button.text][selected_part][
+                                            character_mode_list[animation_race][
+                                                model.sprite_mode[int(p_selector.text[1])]][current_part]].keys())
 
                             except KeyError:  # part not exist
                                 print(current_part)
@@ -2492,7 +2523,6 @@ while True:
                                          animation_chapter_button.rect.bottomleft[1]),
                                         chapter_list,
                                         "top", screen_scale, current_row=current_popup_row)
-
 
                     elif new_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("text_input", "new_animation")
@@ -2559,8 +2589,10 @@ while True:
                                 for index, helper in enumerate(helper_list):
                                     if helper != helper_click:
                                         helper.select_part(None, False, True)
-                            elif this_part is not None and ctrl_press and tuple(model.mask_part_list.keys()).index(this_part) in model.part_selected:
-                                model.part_selected.remove(tuple(model.mask_part_list.keys()).index(this_part))  # clear old list first
+                            elif this_part is not None and ctrl_press and tuple(model.mask_part_list.keys()).index(
+                                    this_part) in model.part_selected:
+                                model.part_selected.remove(
+                                    tuple(model.mask_part_list.keys()).index(this_part))  # clear old list first
                             for index, helper in enumerate(helper_list):  # add selected part to model selected
                                 if helper.part_selected:
                                     for part in helper.part_selected:
@@ -2680,11 +2712,13 @@ while True:
             elif text_input_popup[1] == "new_race":
                 if input_box.text not in current_pool:  # no existing name already
                     animation_race = input_box.text
-                    current_pool[animation_race] = {key: value.copy() for key, value in current_pool["Template"].items()}
+                    current_pool[animation_race] = {key: value.copy() for key, value in
+                                                    current_pool["Template"].items()}
                     for key in current_pool[animation_race]:
                         for index in range(len(current_pool[animation_race][key])):
-                            current_pool[animation_race][key][index] = {key2: value2.copy() if type(value2) is list else value2 for key2, value2 in
-                                                                        current_pool[animation_race][key][index].items()}
+                            current_pool[animation_race][key][index] = {
+                                key2: value2.copy() if type(value2) is list else value2 for key2, value2 in
+                                current_pool[animation_race][key][index].items()}
                     change_animation_race(animation_race)
 
             elif text_input_popup[1] == "save_animation":
@@ -2840,7 +2874,8 @@ while True:
                         property_to_pool_data(naming)
                         break
 
-            elif text_input_popup[1] == "change_size" and input_box.text and re.search("[a-zA-Z]", input_box.text) is None:
+            elif text_input_popup[1] == "change_size" and input_box.text and re.search("[a-zA-Z]",
+                                                                                       input_box.text) is None:
                 model.size = float(input_box.text)
                 model.read_animation(animation_name, old=True)
                 reload_animation(anim, model)
@@ -2873,7 +2908,6 @@ while True:
             input_box.text_start("")
             text_input_popup = (None, None)
             ui.remove(*input_ui_popup, *confirm_ui_popup, *colour_ui_popup)
-
 
     ui.update()
     anim.play(showroom.image, (0, 0), activate_list)

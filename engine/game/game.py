@@ -556,7 +556,10 @@ class Game:
         self.o2_actor = MenuActor((765 * self.screen_scale[0], 285 * self.screen_scale[1]),
                                   [self.background_image[item] for item in self.background_image if "o2_1_actor" in item],
                                   animation_frame_play_time=0.15)
-        self.y3_actor = MenuActor((960 * self.screen_scale[0], 190 * self.screen_scale[1]),
+        self.a4_actor = MenuActor((1160 * self.screen_scale[0], 325 * self.screen_scale[1]),
+                                  [self.background_image[item] for item in self.background_image if "a4_1_actor" in item],
+                                  animation_frame_play_time=0.15)
+        self.y3_actor = MenuActor((960 * self.screen_scale[0], 200 * self.screen_scale[1]),
                                   [self.background_image[item] for item in self.background_image if "y3_1_actor" in item],
                                   animation_frame_play_time=0.15)
         self.l5_actor = MenuActor((1338 * self.screen_scale[0], 260 * self.screen_scale[1]),
