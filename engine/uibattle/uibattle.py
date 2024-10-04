@@ -115,24 +115,51 @@ class ScreenFade(UIBattle):
         self._layer = 99
         UIBattle.__init__(self)
         self.font = Font(self.ui_font["manuscript_font"], int(100 * self.screen_scale[1]))
+        self.use_font_texture = "gold"
         self.text = None
         self.rect = self.battle.screen.get_rect()
         self.image = Surface(self.rect.size, SRCALPHA)
         self.alpha = 0
+        self.text_alpha = 0
+        self.text_delay = 0
         self.fade_direction = 1000
+        self.text_surface = None
+        self.text_rect = None
 
-    def reset(self, direction: (-1, 1), text=None):
+    def reset(self, direction: (-1, 1), text=None, font_texture=None, instant_fade=False,
+              text_fade_in=False, text_delay=0):
         """
         Reset value for new fading
         @param direction: must be either -1 or 1
         @param text: new text
+        @param font_texture: font texture name
+        @param instant_fade: no fading animation
+        @param text_fade_in: text also need to do fade in animation to appear
+        @param text_delay: timer for text delay after fade finish
         """
-        self.alpha = 1  # fade in
-        if direction == -1:  # fade out
+        self.use_font_texture = font_texture
+        self.text_alpha = 255
+        if not text_fade_in:
+            self.text_alpha = 0
+        self.text_delay = text_delay
+        if not font_texture:
+            self.use_font_texture = "gold"
+        if not instant_fade:
+            self.alpha = 1  # fade in
+            if direction == -1:  # fade out
+                self.alpha = 254
+        else:  # start with fade almost complete
             self.alpha = 254
+            if direction == -1:
+                self.alpha = 1
         self.fade_direction = direction * 1000
         self.image = Surface(self.rect.size, SRCALPHA)
         self.text = text
+        self.text_surface = None
+        self.text_rect = None
+        if self.text:
+            self.text_surface = text_render_with_texture(self.text, self.font, self.font_texture[self.use_font_texture])
+            self.text_rect = self.text_surface.get_rect(center=self.image.get_rect().center)
 
     def update(self):
         if 0 < self.alpha < 255:  # keep fading
@@ -143,10 +170,18 @@ class ScreenFade(UIBattle):
                 self.alpha = 0
             self.image.fill((20, 20, 20, self.alpha))
         elif self.alpha == 255 and self.text:  # add text when finish fading if any
-            text_surface = text_render_with_texture(self.text, self.font, self.font_texture["gold"])
-            text_rect = text_surface.get_rect(center=self.image.get_rect().center)
-            self.image.blit(text_surface, text_rect)
-            self.text = None  # remove text after finish blit
+            if not self.text_delay:
+                self.image.blit(self.text_surface, self.text_rect)
+                if self.text_alpha:
+                    self.text_alpha -= self.battle.true_dt
+                    if self.text_alpha < 0:
+                        self.text_alpha = 0
+                else:
+                    self.text = None  # remove text after finish blit
+            else:
+                self.text_delay -= self.battle.true_dt
+                if self.text_delay < 0:
+                    self.text_delay = 0
 
 
 class PlayerPortrait(UIBattle):

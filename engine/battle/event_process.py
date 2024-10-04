@@ -1,3 +1,6 @@
+import pygame
+import sys
+
 from random import choice, randint
 
 from engine.character.character import AICharacter
@@ -37,19 +40,44 @@ def event_process(self):
                             if child_event["Text ID"]:
                                 text = self.localisation.grab_text(
                                     ("event", child_event["Text ID"], "Text"))
-                            self.screen_fade.reset(1, text=text)
+                            use_font_texture = None
+                            if "font texture" in child_event["Property"]:
+                                use_font_texture = child_event["Property"]["font texture"]
+                            instant_fade = False
+                            if "instant fade" in child_event["Property"]:
+                                instant_fade = child_event["Property"]["instant fade"]
+                            text_delay = False
+                            if "text delay" in child_event["Property"]:
+                                text_delay = child_event["Property"]["text delay"]
+                            text_fade_in = False
+                            if "text fade in" in child_event["Property"]:
+                                text_fade_in = child_event["Property"]["text fade in"]
+                            self.screen_fade.reset(1, text=text, font_texture=use_font_texture,
+                                                   instant_fade=instant_fade, text_fade_in=text_fade_in,
+                                                   text_delay=text_delay)
                             self.realtime_ui_updater.add(self.screen_fade)
                             if "timer" in event_property:
                                 self.cutscene_timer = event_property["timer"]
                         else:
-                            if self.cutscene_timer and self.screen_fade.alpha == 255:
-                                # count down timer after finish fading
+                            if (self.cutscene_timer and self.screen_fade.alpha == 255
+                                    and not self.screen_fade.text_delay):
+                                # count down timer after finish fading and no text delay waiting
                                 self.cutscene_timer -= self.true_dt
-                                if self.cutscene_timer < 0:
-                                    self.screen_fade.reset(1)
-                                    self.realtime_ui_updater.remove(self.screen_fade)
+                                if self.cutscene_timer <= 0:
+                                    if "no auto fade out" not in event_property:
+                                        print(child_event)
+                                        self.screen_fade.reset(1)
+                                        self.realtime_ui_updater.remove(self.screen_fade)
                                     self.cutscene_timer = 0
                                     self.cutscene_playing.remove(child_event)
+            elif child_event["Object"] == "battle":
+                if child_event["Type"] == "end":  # end battle, go to menu
+                    return False
+
+            elif child_event["Object"] == "game":
+                if child_event["Type"] == "end":  # end game entirely
+                    pygame.quit()
+                    sys.exit()
             else:
                 event_character = None
                 if child_event["Type"] == "create":  # add character for cutscene

@@ -2773,9 +2773,12 @@ while True:
 
             elif text_input_popup[1] == "change_speed":
                 if re.search("[a-zA-Z]", input_box.text) is None:
-                    new_speed = float(input_box.text)
-                    speed_button.change_text("Time: " + input_box.text)
-                    anim.speed_ms = new_speed
+                    try:
+                        new_speed = float(input_box.text)
+                        speed_button.change_text("Time: " + input_box.text)
+                        anim.speed_ms = new_speed
+                    except ValueError:
+                        pass
 
             elif text_input_popup[1] == "change_sound_distance":
                 if input_box.text.isdigit():
@@ -2877,9 +2880,12 @@ while True:
 
             elif text_input_popup[1] == "change_size" and input_box.text and re.search("[a-zA-Z]",
                                                                                        input_box.text) is None:
-                model.size = float(input_box.text)
-                model.read_animation(animation_name, old=True)
-                reload_animation(anim, model)
+                try:
+                    model.size = float(input_box.text)
+                    model.read_animation(animation_name, old=True)
+                    reload_animation(anim, model)
+                except ValueError:
+                    pass
 
             elif text_input_popup[1] == "filter":
                 animation_filter = input_box.text.split(",")

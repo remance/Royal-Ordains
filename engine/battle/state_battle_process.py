@@ -112,7 +112,7 @@ def state_battle_process(self, esc_press):
         self.check_event()
     else:  # currently in cutscene mode
         end_battle_specific_mission = self.event_process()
-        if end_battle_specific_mission:  # event cause the end of mission, go to the output mission next
+        if end_battle_specific_mission is not None:  # event cause the end of mission, go to the output mission next
             return end_battle_specific_mission
 
         if not self.cutscene_playing:  # finish with current parent cutscene
