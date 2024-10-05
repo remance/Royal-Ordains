@@ -4,6 +4,7 @@ import sys
 from random import choice, randint
 
 from engine.character.character import AICharacter
+from engine.stageobject.stageobject import StageObject
 
 
 def event_process(self):
@@ -87,6 +88,15 @@ def event_process(self):
                                 {"ID": child_event["Object"],
                                  "Ground Y POS": event_property["POS"][1],
                                  "Scene": 1, "Team": 1, "Arrive Condition": {}, "Sprite Ver": self.chapter})
+                    self.cutscene_playing.remove(child_event)
+                elif child_event["Type"] == "place":  # place stage object
+                    StageObject(child_event["Object"], event_property["POS"], child_event["Object"],
+                                event_property["Angle"])
+                    self.cutscene_playing.remove(child_event)
+                elif child_event["Type"] == "delete":  # delete specified stage object
+                    for item in self.stage_objects:
+                        if item.game_id == child_event["Object"]:
+                            item.kill()
                     self.cutscene_playing.remove(child_event)
                 elif child_event["Type"] == "music":  # play new music
                     self.current_music = self.stage_music_pool[str(child_event["Object"])]

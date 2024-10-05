@@ -12,10 +12,11 @@ class StageObject(sprite.Sprite):
     screen_scale = None
     stage_object_animation_pool = None
 
-    def __init__(self, sprite_id, pos):
+    def __init__(self, sprite_id, pos, game_id=0, angle=None):
         """Stage object with animation"""
         self._layer = 1
         sprite.Sprite.__init__(self, self.containers)
+        self.game_id = game_id
         self.show_frame = 0
         self.frame_timer = 0
         self.repeat_animation = True
@@ -24,10 +25,17 @@ class StageObject(sprite.Sprite):
         self.base_image = self.current_animation[self.show_frame]
         self.image = self.base_image
 
-        self.base_pos = Vector2([int(item) for item in pos.split(",")[0:2]])
+        if type(pos) is str:
+            self.base_pos = Vector2([int(item) for item in pos.split(",")[0:2]])
+            self.angle = int(pos.split(",")[2])
+        else:
+            self.base_pos = Vector2(pos)
+            self.angle = 0
+
+        if angle is not None:
+            self.angle = angle
         self.pos = Vector2((self.base_pos[0] * self.screen_scale[0],
                             self.base_pos[1] * self.screen_scale[1]))
-        self.angle = int(pos.split(",")[2])
         self.rect = self.image.get_rect(center=self.pos)
 
     def update(self, dt):

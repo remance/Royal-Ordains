@@ -210,6 +210,7 @@ class Battle:
         self.all_chars = game.all_chars
         self.speech_boxes = game.speech_boxes
         self.all_damage_effects = game.all_damage_effects
+        self.stage_objects = game.stage_objects
         self.effect_updater = game.effect_updater
         self.realtime_ui_updater = game.realtime_ui_updater
 

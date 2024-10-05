@@ -309,6 +309,7 @@ class Game:
 
         self.all_chars = sprite.Group()  # group to keep all character objects for cleaning
         self.all_damage_effects = sprite.Group()  # group to keep all damage objects for collision check
+        self.stage_objects = sprite.Group()  # group to keep all stage objects for event delete check
 
         self.button_ui = sprite.Group()  # ui button group in battle
 
@@ -336,7 +337,7 @@ class Game:
         DamageNumber.containers = self.effect_updater, self.battle_camera
         BodyPart.containers = self.effect_updater, self.battle_camera
         Effect.containers = self.effect_updater, self.battle_camera
-        StageObject.containers = self.effect_updater, self.battle_camera
+        StageObject.containers = self.effect_updater, self.battle_camera, self.stage_objects
         DamageEffect.containers = self.all_damage_effects, self.effect_updater, self.battle_camera
 
         MenuCursor.containers = self.ui_updater, self.ui_drawer
