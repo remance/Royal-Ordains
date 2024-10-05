@@ -41,6 +41,9 @@ def event_process(self):
                             if child_event["Text ID"]:
                                 text = self.localisation.grab_text(
                                     ("event", child_event["Text ID"], "Text"))
+                            direction = 1
+                            if "direction" in child_event["Property"]:
+                                direction = child_event["Property"]["direction"]
                             use_font_texture = None
                             if "font texture" in child_event["Property"]:
                                 use_font_texture = child_event["Property"]["font texture"]
@@ -53,7 +56,7 @@ def event_process(self):
                             text_fade_in = False
                             if "text fade in" in child_event["Property"]:
                                 text_fade_in = child_event["Property"]["text fade in"]
-                            self.screen_fade.reset(1, text=text, font_texture=use_font_texture,
+                            self.screen_fade.reset(direction, text=text, font_texture=use_font_texture,
                                                    instant_fade=instant_fade, text_fade_in=text_fade_in,
                                                    text_delay=text_delay)
                             self.realtime_ui_updater.add(self.screen_fade)
