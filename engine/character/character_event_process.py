@@ -18,9 +18,13 @@ def character_event_process(self, event, event_property):
         self.cutscene_update = MethodType(Character.inactive_update, self)
         self.battle.cutscene_playing.remove(event)
     if event["Type"] == "speak":  # speak something
+        sound_effect = None
+        if "sound" in event["Property"]:
+            sound_effect = event["Property"]["sound"]
         CharacterSpeechBox(self, self.battle.localisation.grab_text(("event",
                                                                      event["Text ID"],
-                                                                     "Text")), add_log=event["Text ID"])
+                                                                     "Text")), add_log=event["Text ID"],
+                           specific_sound_effect=sound_effect)
     elif event["Type"] == "animation":  # play specific animation
         self.command_action = event_property
     elif event["Type"] == "remove":
