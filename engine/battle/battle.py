@@ -457,7 +457,7 @@ class Battle:
         self.music_right.stop()
 
         print("Start loading", self.chapter, self.mission, self.stage, scene)
-        self.game.loading_lore_text = self.localisation.grab_text(("load", randint(0, len(self.localisation.text[self.language]["load"])), "Text"))
+        self.game.loading_lore_text = self.localisation.grab_text(("load", randint(0, len(self.localisation.text[self.language]["load"]) - 1), "Text"))
 
         yield set_start_load(self, "stage setup")
         self.current_weather.__init__(1, 0, 0,
