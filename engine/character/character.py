@@ -260,6 +260,7 @@ class Character(sprite.Sprite):
         self.followers = []
         self.leader = None
         self.killer = None  # object that kill this character, for adding gold, score, and kill stat
+        self.speech = None
         self.broken = False
         self.ai_lock = False
         self.drops = {}
@@ -439,10 +440,12 @@ class Character(sprite.Sprite):
                     # animation consider finish when reach target or finish animation with no repeat, pick idle animation
                     self.current_action = {}
                     self.pick_cutscene_animation({})
-                if self.cutscene_event and "repeat" not in self.cutscene_event["Property"] and \
-                        "interact" not in self.cutscene_event["Property"] and \
-                        (not self.cutscene_target_pos or self.cutscene_target_pos == self.base_pos):
-                    # finish animation, consider event done unless event require player interaction first or in repeat
+                if (self.cutscene_event and "repeat" not in self.cutscene_event["Property"] and
+                        "interact" not in self.cutscene_event["Property"] and
+                        (not self.speech or "wait" not in self.cutscene_event["Property"]) and
+                        (not self.cutscene_target_pos or self.cutscene_target_pos == self.base_pos)):
+                    # finish animation, consider event done unless event in timer or
+                    # require player interaction first or in repeat
                     self.cutscene_target_pos = None
                     if "repeat after" not in self.cutscene_event["Property"]:
                         if self.current_action:

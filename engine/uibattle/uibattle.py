@@ -112,6 +112,7 @@ class BattleCursor(UIBattle):
 
 class ScreenFade(UIBattle):
     def __init__(self):
+        """Currently can blit only one line of text, can't show more than around 75 text length"""
         self._layer = 99
         UIBattle.__init__(self)
         self.font = Font(self.ui_font["manuscript_font"], int(100 * self.screen_scale[1]))
@@ -158,6 +159,8 @@ class ScreenFade(UIBattle):
         self.text_surface = None
         self.text_rect = None
         if self.text:
+            font_size = int((100 - len(text) / 1.5) * self.screen_scale[1])
+            self.font = Font(self.ui_font["manuscript_font"], font_size)
             self.text_surface = text_render_with_texture(self.text, self.font, self.font_texture[self.use_font_texture])
             self.text_rect = self.text_surface.get_rect(center=self.image.get_rect().center)
 
@@ -971,7 +974,7 @@ class CharacterSpeechBox(UIBattle):
     simple_font = False
 
     def __init__(self, character, text, specific_timer=None, player_input_indicator=False, cutscene_event=None,
-                 add_log=None, specific_sound_effect=None):
+                 add_log=None, voice=None):
         """Speech box that appear from character head"""
         self._layer = 9999999999999999998
         UIBattle.__init__(self, player_cursor_interact=False, has_containers=True)
@@ -983,6 +986,7 @@ class CharacterSpeechBox(UIBattle):
         self.left_corner_rect = self.left_corner.get_rect(topleft=(0, 0))  # The starting point
 
         self.character = character
+        self.character.speech = self
         self.player_input_indicator = player_input_indicator
         self.cutscene_event = cutscene_event
         self.head_part = self.character.body_parts["p1_head"]  # assuming character always has p1 head
@@ -1000,13 +1004,13 @@ class CharacterSpeechBox(UIBattle):
         self.max_length = self.base_image.get_width()  # max length of the body, not counting the end corner
         self.rect = self.base_image.get_rect(midleft=self.head_part.rect.center)
 
-        if specific_sound_effect:
-            self.battle.add_sound_effect_queue(choice(self.battle.sound_effect_pool[specific_sound_effect[0]]),
-                                               self.battle.camera_pos, specific_sound_effect[1],
-                                               specific_sound_effect[2])
-        else:
-            self.battle.add_sound_effect_queue(choice(self.battle.sound_effect_pool["Parchment_write"]),
-                                               self.battle.camera_pos, 2000, 0)
+        if voice:
+            self.battle.add_sound_effect_queue(choice(self.battle.sound_effect_pool[voice[0]]),
+                                               self.battle.camera_pos, voice[1],
+                                               voice[2])
+            # else:
+            #     self.battle.add_sound_effect_queue(choice(self.battle.sound_effect_pool["Parchment_write"]),
+            #                                        self.battle.camera_pos, 2000, 0)
         if specific_timer:
             self.timer = specific_timer
         else:
@@ -1043,10 +1047,12 @@ class CharacterSpeechBox(UIBattle):
         else:  # finish animation, count down timer
             self.timer -= dt
             if self.timer <= 0:
+                self.character.speech = None
                 self.kill()
                 return
 
         if not self.character.alive:  # kill speech if character die
+            self.character.speech = None
             self.kill()
             return
 

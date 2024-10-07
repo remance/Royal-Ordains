@@ -17,14 +17,8 @@ def character_event_process(self, event, event_property):
             self.battle.battle_camera.remove(self.indicator)
         self.cutscene_update = MethodType(Character.inactive_update, self)
         self.battle.cutscene_playing.remove(event)
-    if event["Type"] == "speak":  # speak something
-        sound_effect = None
-        if "sound" in event["Property"]:
-            sound_effect = event["Property"]["sound"]
-        CharacterSpeechBox(self, self.battle.localisation.grab_text(("event",
-                                                                     event["Text ID"],
-                                                                     "Text")), add_log=event["Text ID"],
-                           specific_sound_effect=sound_effect)
+    elif event["Type"] == "speak":  # speak something
+        start_speech(self, event, event_property)
     elif event["Type"] == "animation":  # play specific animation
         self.command_action = event_property
     elif event["Type"] == "remove":
@@ -102,25 +96,32 @@ def character_event_process(self, event, event_property):
         if action_dict and action_dict != self.current_action:  # start new action
             self.pick_cutscene_animation(action_dict)
         if event["Text ID"]:
-            specific_timer = None
-            player_input_indicator = None
-            if "interact" in event_property:
-                specific_timer = infinity
-                player_input_indicator = True
-            elif "timer" in event_property:
-                specific_timer = event_property
-            elif "select" in event_property or \
-                    "hold" in event_property:
-                # selecting event, also infinite timer but not add player input indication
-                specific_timer = infinity
+            start_speech(self, event, event_property)
 
-            if "angle" in event_property:
-                if self.angle != event_property["angle"]:  # player face target
-                    self.new_angle *= -1
-                    self.rotate_logic()
 
-            CharacterSpeechBox(self,
-                               self.battle.localisation.grab_text(("event", event["Text ID"], "Text")),
-                               specific_timer=specific_timer,
-                               player_input_indicator=player_input_indicator,
-                               cutscene_event=event, add_log=event["Text ID"])
+def start_speech(self, event, event_property):
+    specific_timer = None
+    player_input_indicator = None
+    voice = None
+    if "voice" in event["Property"]:
+        voice = event["Property"]["voice"]
+    if "interact" in event_property:
+        specific_timer = infinity
+        player_input_indicator = True
+    elif "timer" in event_property:
+        specific_timer = event_property["timer"]
+    elif "select" in event_property or \
+            "hold" in event_property:
+        # selecting event, also infinite timer but not add player input indication
+        specific_timer = infinity
+
+    if "angle" in event_property:
+        if self.angle != event_property["angle"]:  # player face target
+            self.new_angle *= -1
+            self.rotate_logic()
+
+    self.speech = CharacterSpeechBox(self, self.battle.localisation.grab_text(("event", event["Text ID"], "Text")),
+                                     specific_timer=specific_timer,
+                                     player_input_indicator=player_input_indicator,
+                                     cutscene_event=event, add_log=event["Text ID"], voice=voice)
+

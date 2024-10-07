@@ -408,6 +408,8 @@ def stat_convert(row, n, i, percent_column=(), mod_column=(), list_column=(), tu
 def item_conversion(i):
     if i == "":
         return 0
+    elif i.lower() == "none":
+        return None
     elif i.lower() == "true":
         return True
     elif i.lower() == "false":
