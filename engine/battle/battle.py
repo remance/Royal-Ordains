@@ -536,9 +536,41 @@ class Battle:
             elif value["Type"] == "object":
                 StageObject(value["Object"], value["POS"])
 
+        if stage_event_data:  # add stage if event has stage change event
+            parent_event_run_check = True
+            for value in stage_data["event_data"]:
+                event_run_check = True
+                if value["ID"]:
+                    parent_event_run_check = True
+                    if ("once" in value["Trigger"] and
+                            value["ID"] + self.chapter + self.mission + self.stage in
+                            self.main_story_profile["story event"]):  # parent event
+                        parent_event_run_check = False
+                if ("story choice" in value["Property"] and (value["Property"]["story choice"] != value["Property"]["story choice"].split("_")[0] + "_" +
+                                                 self.main_story_profile["story choice"][value["Property"]["story choice"].split("_")[0]])):
+                    event_run_check = False
+                if value["Type"] == "bgchange" and event_run_check and parent_event_run_check:
+                    image = self.empty_stage_image
+                    pos = 1
+                    if "POS" in value["Property"]:
+                        pos = value["Property"]["POS"]
+                    if "front" in value["Type"]:
+                        self.frontground_stage.data["event"][pos] = value["Object"]
+                        images = self.frontground_stage.images
+                    else:
+                        self.battle_stage.data["event"][pos] = value["Object"]
+                        images = self.battle_stage.images
+
+                    if value["Object"] not in images:
+                        if path.exists(path.join(self.data_dir, "map", "stage", value["Object"] + ".png")):
+                            image = load_image(self.data_dir, self.screen_scale, value["Object"] + ".png",
+                                               ("map", "stage"))  # no scaling yet
+                        images[value["Object"]] = image
+
         base_stage_end = 0
         stage_end = -self.battle_camera_center[0]
-        for key, value in self.battle_stage.data.items():
+        stage_bg_data = {key: value for key, value in self.battle_stage.data.items() if key != "event"}
+        for key, value in stage_bg_data.items():
             base_stage_end += 1920  # 1 scene width size always 1920
             stage_end += self.battle_stage.images[value].get_width()
             self.base_stage_end_list[key] = base_stage_end

@@ -96,6 +96,14 @@ def event_process(self):
                     StageObject(child_event["Object"], event_property["POS"], child_event["Object"],
                                 event_property["Angle"])
                     self.cutscene_playing.remove(child_event)
+                elif child_event["Type"] == "bgchange":
+                    pos = 1
+                    if "POS" in event_property:
+                        pos = event_property["POS"]
+                    if "front" in child_event["Type"]:
+                        self.frontground_stage.data[pos] = self.frontground_stage.data["event"][pos]
+                    else:
+                        self.battle_stage.data[pos] = self.battle_stage.data["event"][pos]
                 elif child_event["Type"] == "delete":  # delete specified stage object
                     for item in self.stage_objects:
                         if item.game_id == child_event["Object"]:
