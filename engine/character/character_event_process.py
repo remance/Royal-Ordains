@@ -19,6 +19,8 @@ def character_event_process(self, event, event_property):
         self.battle.cutscene_playing.remove(event)
     elif event["Type"] == "speak":  # speak something
         start_speech(self, event, event_property)
+    elif event["Type"] == "idle":  # replace idle animation, note that it replace even after cutscene finish
+        self.replace_idle_animation = event["Animation"]
     elif event["Type"] == "animation":  # play specific animation
         self.command_action = event_property
     elif event["Type"] == "remove":
@@ -103,8 +105,8 @@ def start_speech(self, event, event_property):
     specific_timer = None
     player_input_indicator = None
     voice = None
-    if "voice" in event["Property"]:
-        voice = event["Property"]["voice"]
+    if "voice" in event_property:
+        voice = event_property["voice"]
     if "interact" in event_property:
         specific_timer = infinity
         player_input_indicator = True

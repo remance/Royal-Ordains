@@ -4,7 +4,7 @@ from random import randint
 
 import pygame
 from PIL import Image
-from pygame import Color, Surface, image
+from pygame import Color, Surface, image, SRCALPHA
 
 
 def change_number(number):
@@ -35,7 +35,8 @@ def sort_list_dir_with_str(dir_list, str_list):
     return sorted_dir
 
 
-def make_long_text(surface, text, pos, font, color=Color("black"), with_texture=(), specific_width=None):
+def make_long_text(surface, text, pos, font, color=Color("black"), with_texture=(), specific_width=None,
+                   alignment="left"):
     """
     Blit long text into separate row of text by blitting text word by word
     :param surface: Input Pygame Surface
@@ -45,11 +46,13 @@ def make_long_text(surface, text, pos, font, color=Color("black"), with_texture=
     :param color: Text colour
     :param with_texture: List array with value for argument of text_render_with_texture (texture, (gf_colour, o_colour, opx))
     :param specific_width: Specific width size of text
+    :param alignment: text alignment "left", "right", "center"
     """
     # TODO Add sizing and colouring for highlight and maybe URL system
-    if type(text) is not list:
+    if type(text) not in (list, tuple):
         text = [text]
-    x, y = pos
+    x, y = [0, 0]
+    true_x = pos[0]
     word_height = font.size(" ")[1]
     max_width = surface.get_width()
     if specific_width:
@@ -59,19 +62,48 @@ def make_long_text(surface, text, pos, font, color=Color("black"), with_texture=
     for this_text in text:
         words = [word.split(" ") for word in str(this_text).splitlines()]  # 2D array where each row is a list of words
         for line in words:
+            this_subsurface_list = {}
             for word in line:
                 if not with_texture:
                     word_surface = font.render(word, True, color)
                 else:
-                    word_surface = text_render_with_texture(text, font, with_texture[0], with_bg=with_texture[1])
+                    word_surface = text_render_with_texture(word, font, with_texture[0], with_bg=with_texture[1])
 
                 word_width = word_surface.get_width()
-                if x + word_width >= max_width:
-                    x = pos[0]  # reset x
+                if true_x + word_width >= max_width or word == "\\n":
+                    subsurface = Surface((x, word_height), SRCALPHA)
+                    for w_x, w_surface in this_subsurface_list.items():
+                        subsurface.blit(w_surface, (w_x, 0))
+                    if alignment == "left":
+                        surface.blit(subsurface, (pos[0], y))
+                    elif alignment == "right":
+                        surface.blit(subsurface, subsurface.get_rect(topright=(surface.get_rect().topright[0], y)))
+                    else:
+                        surface.blit(subsurface, subsurface.get_rect(center=(surface.get_rect().center[0],
+                                                                             y + (word_height / 2))))
+                    x = 0  # reset x
+                    true_x = pos[0]
                     y += word_height  # start on new line.
-                surface.blit(word_surface, (x, y))
-                x += word_width + space
-            x = pos[0]  # reset x
+                    this_subsurface_list = {}
+
+                if word != "\\n":
+                    this_subsurface_list[x] = word_surface
+                    x += word_width + space
+                    true_x += word_width + space
+
+            subsurface = Surface((x, word_height), SRCALPHA)
+            for w_x, w_surface in this_subsurface_list.items():
+                subsurface.blit(w_surface, (w_x, 0))
+
+            if alignment == "left":
+                surface.blit(subsurface, (pos[0], y))
+            elif alignment == "right":
+                surface.blit(subsurface, subsurface.get_rect(topright=(surface.get_rect().topright[0], y)))
+            else:
+                surface.blit(subsurface, subsurface.get_rect(center=(surface.get_rect().center[0],
+                                                                     y + (word_height / 2))))
+            x = 0  # reset x
+            true_x = pos[0]
         y += word_height  # start on new line
 
 

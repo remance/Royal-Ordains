@@ -425,7 +425,7 @@ class Battle:
         self.stage_end_list = {}
         self.end_delay = 0  # delay until stage end and continue to next one
         self.spawn_delay_timer = {}
-        self.cutscene_timer = 0
+        self.cutscene_in_progress = False
         self.cutscene_finish_camera_delay = 0  # delay before camera can move again after cutscene
         self.survive_timer = 0
         self.follower_talk_timer = 0  # timer for follower talk based on their action
@@ -551,14 +551,9 @@ class Battle:
                     event_run_check = False
                 if value["Type"] == "bgchange" and event_run_check and parent_event_run_check:
                     image = self.empty_stage_image
-                    pos = 1
-                    if "POS" in value["Property"]:
-                        pos = value["Property"]["POS"]
                     if "front" in value["Type"]:
-                        self.frontground_stage.data["event"][pos] = value["Object"]
                         images = self.frontground_stage.images
                     else:
-                        self.battle_stage.data["event"][pos] = value["Object"]
                         images = self.battle_stage.images
 
                     if value["Object"] not in images:
@@ -585,10 +580,8 @@ class Battle:
         Drop.item_sprite_pool = self.default_body_sprite_pool[int(self.chapter)]["Item"]["special"]
         WheelUI.item_sprite_pool = self.default_body_sprite_pool[int(self.chapter)]["Item"]["special"]
         CharacterInterface.item_sprite_pool = self.default_body_sprite_pool[int(self.chapter)]["Item"]["special"]
-
         character_list = ([this_char["ID"] for this_char in stage_data["character"] if type(this_char["ID"]) is str] +
                           [player["ID"] for player in self.players.values()])
-
         character_list = [char_id if "+" not in char_id else char_id.split("+")[0] for char_id in set(character_list)]
         if not self.city_mode:
             character_list.append("Dashisi")
@@ -723,7 +716,8 @@ class Battle:
 
         self.main_player_object = self.player_objects[self.main_player]
         if stage_event_data:
-            self.stage_music_pool = {key: Sound(self.music_pool[key]) for key in stage_event_data["music"]}
+            self.stage_music_pool = {key: Sound(self.music_pool[key]) for key in stage_event_data["music"] if
+                                     key.lower() != "none"}
             for trigger, value in stage_event_data.items():
                 if ("once" not in value or tuple(value["once"].keys())[0] + self.chapter + self.mission + self.stage
                     not in self.main_story_profile["story event"]) and \
@@ -825,7 +819,7 @@ class Battle:
         self.shown_camera_pos = self.camera_pos
 
         self.screen_shake_value = 0
-        self.cutscene_timer = 0
+        self.cutscene_in_progress = 0
         self.cutscene_finish_camera_delay = 0
         self.follower_talk_timer = 0
         self.ui_timer = 0

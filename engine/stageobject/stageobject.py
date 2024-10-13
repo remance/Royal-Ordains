@@ -12,13 +12,14 @@ class StageObject(sprite.Sprite):
     screen_scale = None
     stage_object_animation_pool = None
 
-    def __init__(self, sprite_id, pos, game_id=0, angle=None):
+    def __init__(self, sprite_id, pos, game_id=0, angle=None, animation_speed=0.1):
         """Stage object with animation"""
         self._layer = 1
         sprite.Sprite.__init__(self, self.containers)
         self.game_id = game_id
         self.show_frame = 0
         self.frame_timer = 0
+        self.animation_speed = animation_speed
         self.repeat_animation = True
         self.current_animation = self.stage_object_animation_pool[sprite_id][self.battle.chapter]
 
@@ -39,4 +40,4 @@ class StageObject(sprite.Sprite):
         self.rect = self.image.get_rect(center=self.pos)
 
     def update(self, dt):
-        self.play_animation(0.1, dt)  # TODO add sound effect to stage object
+        self.play_animation(self.animation_speed, dt)  # TODO add sound effect to stage object

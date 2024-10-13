@@ -18,7 +18,7 @@ class Stage(Sprite):
         self.battle = Game.battle
         self._layer = layer
         Sprite.__init__(self)
-        self.data = {"event": {}}
+        self.data = {}
         self.images = {}
         self.current_scene = 1  # index of current scene
         self.spawn_check_scene = 1  # index of current scene, can be higher than current scene when
@@ -66,7 +66,7 @@ class Stage(Sprite):
                 self.image.blit(frame_image, rect)
 
     def clear_image(self):
-        self.data = {"event": {}}
+        self.data = {}
         self.images = {}
         self.camera_x = -1000
         self.old_camera_pos = None

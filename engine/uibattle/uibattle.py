@@ -9,7 +9,7 @@ from pygame.transform import smoothscale, rotate, flip
 
 from engine.uimenu.uimenu import UIMenu
 from engine.utils.text_making import number_to_minus_or_plus, text_render_with_bg, text_render_with_texture, \
-    minimise_number_text
+    minimise_number_text, make_long_text
 
 team_colour = {0: Color("grey"), 1: Color("black"), 2: Color("red"), 3: Color("blue"), 4: Color("darkgoldenrod1"),
                5: Color("purple"), 6: Color("orange"),
@@ -119,72 +119,117 @@ class ScreenFade(UIBattle):
         self.use_font_texture = "gold"
         self.text = None
         self.rect = self.battle.screen.get_rect()
+        self.max_text_width = int(self.screen_size[0] * 0.8)
         self.image = Surface(self.rect.size, SRCALPHA)
         self.alpha = 0
         self.text_alpha = 0
         self.text_delay = 0
+        self.fade_speed = 1
         self.fade_direction = 1000
         self.text_surface = None
         self.text_rect = None
+        self.text_fade_in = False
+        self.fade_in_done = False
+        self.fade_out = False
+        self.done = False
 
-    def reset(self, direction: (-1, 1), text=None, font_texture=None, instant_fade=False,
-              text_fade_in=False, text_delay=0):
+    def reset(self, text=None, font_texture=None, font_size=70, instant_fade=False,
+              text_fade_in=False, text_delay=0, fade_speed=1, fade_out=False):
         """
         Reset value for new fading
-        @param direction: must be either -1 or 1
         @param text: new text
         @param font_texture: font texture name
+        @param font_size: font size
         @param instant_fade: no fading animation
         @param text_fade_in: text also need to do fade in animation to appear
-        @param text_delay: timer for text delay after fade finish
+        @param text_delay: timer for delay showing text after fade in finish
+        @param fade_speed: speed of screen fading
+        @param fade_out: also fade out after finish
         """
         self.use_font_texture = font_texture
         self.text_alpha = 255
+        self.text_fade_in = True
         if not text_fade_in:
+            self.text_fade_in = False
             self.text_alpha = 0
         self.text_delay = text_delay
         if not font_texture:
             self.use_font_texture = "gold"
         if not instant_fade:
             self.alpha = 1  # fade in
-            if direction == -1:  # fade out
-                self.alpha = 254
         else:  # start with fade almost complete
             self.alpha = 254
-            if direction == -1:
-                self.alpha = 1
-        self.fade_direction = direction * 1000
+        self.fade_speed = 1000 * fade_speed
         self.image = Surface(self.rect.size, SRCALPHA)
+        self.image.fill((20, 20, 20))
         self.text = text
         self.text_surface = None
         self.text_rect = None
+        self.fade_in_done = False
+        self.fade_out = fade_out
+        self.done = False
         if self.text:
-            font_size = int((100 - len(text) / 1.5) * self.screen_scale[1])
+            font_size = int(font_size * self.screen_scale[1])
             self.font = Font(self.ui_font["manuscript_font"], font_size)
-            self.text_surface = text_render_with_texture(self.text, self.font, self.font_texture[self.use_font_texture])
+            image_height = int((self.font.render(self.text, True, (0, 0, 0)).get_width()) / self.max_text_width)
+            if not image_height:  # only one line
+                self.text_surface = text_render_with_texture(self.text, self.font,
+                                                             self.font_texture[self.use_font_texture])
+            else:
+                # Find new image height, using code from make_long_text
+                x, y = (font_size, font_size)
+                words = [word.split(" ") for word in
+                         str(text).splitlines()]  # 2D array where each row is a list of words
+                space = self.font.size(" ")[0]  # the width of a space
+                for line in words:
+                    for word in line:
+                        word_surface = self.font.render(word, True, (0, 0, 0))
+                        word_width, word_height = word_surface.get_size()
+                        if x + word_width >= self.max_text_width:
+                            x = font_size  # reset x
+                            y += word_height  # start on new row.
+                        x += word_width + space
+                    x = font_size  # reset x
+                    y += word_height  # start on new row
+                self.text_surface = Surface((self.max_text_width, y), SRCALPHA)
+                self.text_surface.fill((0, 0, 0, 0))
+                make_long_text(self.text_surface, text, (font_size, font_size), self.font,
+                               with_texture=(self.font_texture[self.use_font_texture], None),
+                               specific_width=self.max_text_width, alignment="center")
+
             self.text_rect = self.text_surface.get_rect(center=self.image.get_rect().center)
+            if not text_fade_in:
+                self.image.blit(self.text_surface, self.text_rect)
+        self.image.set_alpha(self.alpha)
 
     def update(self):
-        if 0 < self.alpha < 255:  # keep fading
-            self.alpha += self.fade_direction * self.battle.true_dt
-            if self.alpha > 255:
+        if not self.fade_in_done:  # keep fading
+            self.alpha += self.battle.true_dt * self.fade_speed
+            if self.alpha >= 255:
                 self.alpha = 255
-            elif self.alpha < 0:
-                self.alpha = 0
-            self.image.fill((20, 20, 20, self.alpha))
-        elif self.alpha == 255 and self.text:  # add text when finish fading if any
+                self.fade_in_done = True
+            self.image.set_alpha(self.alpha)
+        elif self.text_fade_in and self.text:  # add text when finish fading if any
             if not self.text_delay:
                 self.image.blit(self.text_surface, self.text_rect)
                 if self.text_alpha:
                     self.text_alpha -= self.battle.true_dt
                     if self.text_alpha < 0:
                         self.text_alpha = 0
-                else:
-                    self.text = None  # remove text after finish blit
-            else:
+        else:
+            if self.text_delay:
                 self.text_delay -= self.battle.true_dt
                 if self.text_delay < 0:
                     self.text_delay = 0
+            if not self.text_delay:
+                if self.fade_out:
+                    self.alpha -= self.battle.true_dt * self.fade_speed
+                    if self.alpha <= 0:
+                        self.alpha = 0
+                        self.done = True
+                    self.image.set_alpha(self.alpha)
+                else:
+                    self.done = True
 
 
 class PlayerPortrait(UIBattle):
@@ -978,10 +1023,45 @@ class CharacterSpeechBox(UIBattle):
         """Speech box that appear from character head"""
         self._layer = 9999999999999999998
         UIBattle.__init__(self, player_cursor_interact=False, has_containers=True)
-        self.body = self.images["speech_body"]
-        self.left_corner = self.images["speech_start"]
-        self.right_corner = self.images["speech_end"]
-        self.font_size = int(30 * self.screen_scale[1])
+        font = self.battle.chapter
+        if self.simple_font:
+            font = "simple"
+
+        self.font_size = int(28 * self.screen_scale[1])
+        self.font = Font(self.ui_font[chapter_font_name[font]], self.font_size)
+        self.max_text_width = 600 * self.screen_scale[0]
+        image_height = int((self.font.render(text, True, (0, 0, 0)).get_width()) / self.max_text_width)
+        if not image_height:  # only one line
+            self.body = self.images["speech_body"]
+            self.left_corner = self.images["speech_start"]
+            self.right_corner = self.images["speech_end"]
+            text_surface = Font(self.ui_font[chapter_font_name[font]], self.font_size).render(text, True, (0, 0, 0))
+            self.max_text_width = text_surface.get_width() + (36 * self.screen_scale[0])
+        else:
+            self.body = self.images["big_speech_body"]
+            self.left_corner = self.images["big_speech_start"]
+            self.right_corner = self.images["big_speech_end"]
+
+        # Find new image height, using code from make_long_text
+        x, y = (self.font_size, self.font_size)
+        words = [word.split(" ") for word in
+                 str(text).splitlines()]  # 2D array where each row is a list of words
+        space = self.font.size(" ")[0]  # the width of a space
+        for line in words:
+            for word in line:
+                word_surface = self.font.render(word, True, (0, 0, 0))
+                word_width, word_height = word_surface.get_size()
+                if x + word_width >= self.max_text_width:
+                    x = self.font_size  # reset x
+                    y += word_height  # start on new row.
+                x += word_width + space
+            x = self.font_size  # reset x
+            y += word_height  # start on new row
+        self.text_surface = Surface((self.max_text_width, y), SRCALPHA)
+
+        self.text_surface.fill((0, 0, 0, 0))
+        make_long_text(self.text_surface, text, (self.font_size, self.font_size), self.font,
+                       specific_width=self.max_text_width)
 
         self.left_corner_rect = self.left_corner.get_rect(topleft=(0, 0))  # The starting point
 
@@ -993,10 +1073,7 @@ class CharacterSpeechBox(UIBattle):
         self.base_pos = self.character.base_pos.copy()
         self.finish_unfolding = False
         self.current_length = self.left_corner.get_width()  # current unfolded length start at 20
-        font = self.battle.chapter
-        if self.simple_font:
-            font = "simple"
-        self.text_surface = Font(self.ui_font[chapter_font_name[font]], self.font_size).render(text, True, (0, 0, 0))
+
         self.base_image = Surface((self.text_surface.get_width() + int(self.left_corner.get_width() * 1.5),
                                    self.left_corner.get_height()), SRCALPHA)
         self.base_image.blit(self.left_corner, self.left_corner_rect)  # start animation with the left corner
@@ -1082,7 +1159,7 @@ class CharacterSpeechBox(UIBattle):
         if self.current_length >= self.max_length:
             # blit text when finish unfold
             text_rect = self.text_surface.get_rect(center=(int(self.image.get_width() / 2),
-                                                           int(self.body.get_height() / 2)))
+                                                           int(self.body.get_height() / 1.5)))
             self.image.blit(self.text_surface, text_rect)
 
 

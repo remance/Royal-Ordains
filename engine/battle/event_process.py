@@ -35,15 +35,12 @@ def event_process(self):
                         self.cutscene_playing.remove(child_event)
                 elif child_event["Type"] == "cutscene":
                     if child_event["Animation"] == "blackout":
-                        if not self.cutscene_timer:
-                            self.cutscene_timer = 1
+                        if not self.cutscene_in_progress:
+                            self.cutscene_in_progress = True
                             text = None
                             if child_event["Text ID"]:
                                 text = self.localisation.grab_text(
                                     ("event", child_event["Text ID"], "Text"))
-                            direction = 1
-                            if "direction" in child_event["Property"]:
-                                direction = child_event["Property"]["direction"]
                             use_font_texture = None
                             if "font texture" in child_event["Property"]:
                                 use_font_texture = child_event["Property"]["font texture"]
@@ -51,29 +48,37 @@ def event_process(self):
                             if "instant fade" in child_event["Property"]:
                                 instant_fade = child_event["Property"]["instant fade"]
                             text_delay = False
-                            if "text delay" in child_event["Property"]:
-                                text_delay = child_event["Property"]["text delay"]
+                            if "timer" in child_event["Property"]:
+                                text_delay = child_event["Property"]["timer"]
                             text_fade_in = False
                             if "text fade in" in child_event["Property"]:
                                 text_fade_in = child_event["Property"]["text fade in"]
-                            self.screen_fade.reset(direction, text=text, font_texture=use_font_texture,
+                            fade_out = True
+                            if "no auto fade out" in event_property:
+                                fade_out = False
+                            speed = 1
+                            if "speed" in event_property:
+                                speed = child_event["Property"]["speed"]
+                            self.screen_fade.reset(text=text, font_texture=use_font_texture,
                                                    instant_fade=instant_fade, text_fade_in=text_fade_in,
-                                                   text_delay=text_delay)
+                                                   text_delay=text_delay, fade_speed=speed, fade_out=fade_out)
                             self.realtime_ui_updater.add(self.screen_fade)
-                            if "timer" in event_property:
-                                self.cutscene_timer = event_property["timer"]
                         else:
-                            if (self.cutscene_timer and self.screen_fade.alpha == 255
-                                    and not self.screen_fade.text_delay):
-                                # count down timer after finish fading and no text delay waiting
-                                self.cutscene_timer -= self.true_dt
-                                if self.cutscene_timer <= 0:
-                                    if "no auto fade out" not in event_property:
-                                        print(child_event)
-                                        self.screen_fade.reset(1)
-                                        self.realtime_ui_updater.remove(self.screen_fade)
-                                    self.cutscene_timer = 0
-                                    self.cutscene_playing.remove(child_event)
+                            if self.screen_fade.done:
+                                if "no auto fade out" not in event_property:
+                                    self.screen_fade.reset()
+                                    self.realtime_ui_updater.remove(self.screen_fade)
+                                self.cutscene_in_progress = False
+                                self.cutscene_playing.remove(child_event)
+                    elif child_event["Animation"] == "wait":
+                        if self.cutscene_in_progress is False:
+                            self.cutscene_in_progress = event_property["timer"]  # must have timer property
+                        else:
+                            self.cutscene_in_progress -= self.true_dt
+                            if self.cutscene_in_progress < 0:
+                                self.cutscene_in_progress = False
+                                self.cutscene_playing.remove(child_event)
+
             elif child_event["Object"] == "battle":
                 if child_event["Type"] == "end":  # end battle, go to menu
                     return False
@@ -93,28 +98,39 @@ def event_process(self):
                                  "Scene": 1, "Team": 1, "Arrive Condition": {}, "Sprite Ver": self.chapter})
                     self.cutscene_playing.remove(child_event)
                 elif child_event["Type"] == "place":  # place stage object
+                    angle = None
+                    if "angle" in event_property:
+                        angle = event_property["angle"]
+                    animation_speed = 0.1
+                    if "speed" in event_property:
+                        animation_speed = event_property["speed"]
                     StageObject(child_event["Object"], event_property["POS"], child_event["Object"],
-                                event_property["Angle"])
+                                angle, animation_speed=animation_speed)
                     self.cutscene_playing.remove(child_event)
                 elif child_event["Type"] == "bgchange":
                     pos = 1
                     if "POS" in event_property:
                         pos = event_property["POS"]
                     if "front" in child_event["Type"]:
-                        self.frontground_stage.data[pos] = self.frontground_stage.data["event"][pos]
+                        self.frontground_stage.data[pos] = child_event["Object"]
                     else:
-                        self.battle_stage.data[pos] = self.battle_stage.data["event"][pos]
+                        self.battle_stage.data[pos] = child_event["Object"]
                 elif child_event["Type"] == "delete":  # delete specified stage object
                     for item in self.stage_objects:
                         if item.game_id == child_event["Object"]:
                             item.kill()
                     self.cutscene_playing.remove(child_event)
                 elif child_event["Type"] == "music":  # play new music
-                    self.current_music = self.stage_music_pool[str(child_event["Object"])]
-                    self.music_left.play(self.current_music, fade_ms=100)
-                    self.music_left.set_volume(self.play_music_volume, 0)
-                    self.music_right.play(self.current_music, fade_ms=100)
-                    self.music_right.set_volume(0, self.play_music_volume)
+                    if str(child_event["Object"]).lower() == "none":
+                        self.current_music = None
+                        self.music_left.stop()
+                        self.music_right.stop()
+                    else:
+                        self.current_music = self.stage_music_pool[str(child_event["Object"])]
+                        self.music_left.play(self.current_music, fade_ms=100)
+                        self.music_left.set_volume(self.play_music_volume, 0)
+                        self.music_right.play(self.current_music, fade_ms=100)
+                        self.music_right.set_volume(0, self.play_music_volume)
                     self.cutscene_playing.remove(child_event)
                 elif child_event["Type"] == "sound":  # play sound
                     self.add_sound_effect_queue(choice(self.sound_effect_pool[str(child_event["Object"])]),
