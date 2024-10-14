@@ -24,6 +24,13 @@ class Stage(Sprite):
         self.spawn_check_scene = 1  # index of current scene, can be higher than current scene when
         self.reach_scene = 1  # next scene that camera reach
 
+        self.alpha = 0
+        self.fade_speed = 1
+        self.fade_start = False
+        self.fade_in = False
+        self.fade_out = False
+        self.fade_delay = 0
+
     def update(self, shown_camera_pos, camera_pos):
         camera_y_shift = self.camera_center_y - shown_camera_pos[1]
         current_frame = camera_pos[0] / self.screen_width
@@ -64,6 +71,27 @@ class Stage(Sprite):
                 frame_image = self.images[self.data[self.current_scene]]
                 rect = frame_image.get_rect(midtop=(frame_image.get_width() / 2, camera_y_shift))
                 self.image.blit(frame_image, rect)
+
+        if self.fade_start:
+            if self.fade_in:  # keep fading in
+                self.alpha += self.battle.dt * self.fade_speed
+                if self.alpha >= 255:
+                    self.alpha = 255
+                    self.fade_in = False
+                self.image.fill((0, 0, 0, self.alpha))
+            elif self.fade_out:
+                self.alpha -= self.battle.dt * self.fade_speed
+                if self.alpha <= 0:
+                    self.alpha = 0
+                    self.fade_out = False
+                self.image.fill((0, 0, 0, self.alpha))
+
+            if self.fade_delay:
+                self.fade_delay -= self.battle.dt
+                if self.fade_delay < 0:
+                    self.fade_delay = 0
+            if not self.fade_delay:
+                self.fade_start = False
 
     def clear_image(self):
         self.data = {}

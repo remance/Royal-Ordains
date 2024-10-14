@@ -107,7 +107,7 @@ def event_process(self):
                     StageObject(child_event["Object"], event_property["POS"], child_event["Object"],
                                 angle, animation_speed=animation_speed)
                     self.cutscene_playing.remove(child_event)
-                elif child_event["Type"] == "bgchange":
+                elif child_event["Type"] and "bgchange" in child_event["Type"]:
                     pos = 1
                     if "POS" in event_property:
                         pos = event_property["POS"]
@@ -115,6 +115,27 @@ def event_process(self):
                         self.frontground_stage.data[pos] = child_event["Object"]
                     else:
                         self.battle_stage.data[pos] = child_event["Object"]
+                elif child_event["Type"] and "bgfade" in child_event["Type"]:
+                    if "front" in child_event["Type"]:
+                        stage = self.frontground_stage
+                    else:
+                        stage = self.battle_stage
+
+                    stage.fade_start = True
+                    if "fadein" in child_event["Type"]:
+                        stage.alpha = 0
+                        stage.fade_in = True
+                    elif "fadeout" in child_event["Type"]:
+                        stage.alpha = 255
+                        stage.fade_out = True
+
+                    stage.fade_speed = 1
+                    stage.fade_delay = 0
+                    if "speed" in event_property:
+                        stage.fade_speed = event_property["speed"]
+                    if "timer" in event_property:
+                        stage.fade_delay = event_property["timer"]
+
                 elif child_event["Type"] == "delete":  # delete specified stage object
                     for item in self.stage_objects:
                         if item.game_id == child_event["Object"]:
@@ -146,7 +167,6 @@ def event_process(self):
                                                   weather_strength,
                                                   self.weather_data)
                     self.cutscene_playing.remove(child_event)
-
                 else:
                     if child_event["Object"] == "pm":  # main player
                         event_character = self.main_player_object

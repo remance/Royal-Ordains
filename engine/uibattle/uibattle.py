@@ -112,7 +112,6 @@ class BattleCursor(UIBattle):
 
 class ScreenFade(UIBattle):
     def __init__(self):
-        """Currently can blit only one line of text, can't show more than around 75 text length"""
         self._layer = 99
         UIBattle.__init__(self)
         self.font = Font(self.ui_font["manuscript_font"], int(100 * self.screen_scale[1]))
@@ -125,7 +124,6 @@ class ScreenFade(UIBattle):
         self.text_alpha = 0
         self.text_delay = 0
         self.fade_speed = 1
-        self.fade_direction = 1000
         self.text_surface = None
         self.text_rect = None
         self.text_fade_in = False
@@ -1019,7 +1017,7 @@ class CharacterSpeechBox(UIBattle):
     simple_font = False
 
     def __init__(self, character, text, specific_timer=None, player_input_indicator=False, cutscene_event=None,
-                 add_log=None, voice=None):
+                 add_log=None, voice=None, body_part="p1_head"):
         """Speech box that appear from character head"""
         self._layer = 9999999999999999998
         UIBattle.__init__(self, player_cursor_interact=False, has_containers=True)
@@ -1036,7 +1034,7 @@ class CharacterSpeechBox(UIBattle):
             self.left_corner = self.images["speech_start"]
             self.right_corner = self.images["speech_end"]
             text_surface = Font(self.ui_font[chapter_font_name[font]], self.font_size).render(text, True, (0, 0, 0))
-            self.max_text_width = text_surface.get_width() + (36 * self.screen_scale[0])
+            self.max_text_width = text_surface.get_width() + (60 * self.screen_scale[0])
         else:
             self.body = self.images["big_speech_body"]
             self.left_corner = self.images["big_speech_start"]
@@ -1069,7 +1067,7 @@ class CharacterSpeechBox(UIBattle):
         self.character.speech = self
         self.player_input_indicator = player_input_indicator
         self.cutscene_event = cutscene_event
-        self.head_part = self.character.body_parts["p1_head"]  # assuming character always has p1 head
+        self.head_part = self.character.body_parts[body_part]  # assuming character always has p1 head
         self.base_pos = self.character.base_pos.copy()
         self.finish_unfolding = False
         self.current_length = self.left_corner.get_width()  # current unfolded length start at 20

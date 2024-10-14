@@ -167,6 +167,7 @@ class Game:
 
         self.config_path = os.path.join(self.main_dir, "configuration.ini")
 
+        pygame.mixer.pre_init(44100, -16, 1000, 4096)
         pygame.init()  # Initialize pygame
 
         mouse.set_visible(False)  # set mouse as not visible, use in-game mouse sprite

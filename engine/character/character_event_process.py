@@ -107,6 +107,10 @@ def start_speech(self, event, event_property):
     voice = None
     if "voice" in event_property:
         voice = event_property["voice"]
+    body_part = "p1_head"
+    if "body part" in event_property:
+        body_part = event_property["body part"]
+
     if "interact" in event_property:
         specific_timer = infinity
         player_input_indicator = True
@@ -125,5 +129,5 @@ def start_speech(self, event, event_property):
     self.speech = CharacterSpeechBox(self, self.battle.localisation.grab_text(("event", event["Text ID"], "Text")),
                                      specific_timer=specific_timer,
                                      player_input_indicator=player_input_indicator,
-                                     cutscene_event=event, add_log=event["Text ID"], voice=voice)
+                                     cutscene_event=event, add_log=event["Text ID"], voice=voice, body_part=body_part)
 
