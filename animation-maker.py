@@ -38,6 +38,8 @@ anim_del_pool = pool.anim_del_pool
 screen_size = (1300, 900)
 screen_scale = (1, 1)
 
+inf = float("inf")
+
 pygame.init()
 pen = pygame.display.set_mode(screen_size)
 pygame.display.set_caption("Animation Maker")  # set the self name on program border/tab
@@ -868,7 +870,10 @@ class Model:
             while len(frame_list) < max_frame:  # add empty item
                 frame_list.append({})
 
-            showroom_base_point = (default_sprite_size[0] * self.size / 2, default_sprite_size[1] * self.size * 0.8)
+            showroom_base_point = ((default_sprite_size[0] * self.size / 2) + showroom_camera_pos[0],
+                                   (default_sprite_size[1] * self.size * 0.8) + showroom_camera_pos[1])
+            showroom.showroom_base_point = ((showroom_size[0] / 2) + showroom_camera_pos[0],
+                                            (showroom_size[1] * 0.8) + showroom_camera_pos[1])
             size_button.change_text("Size: " + str(self.size))
             for index, pose in enumerate(frame_list):
                 sprite_part = {key: None for key in self.mask_part_list}
@@ -1046,7 +1051,7 @@ class Model:
                 self.part_selected = [list(self.mask_part_list.keys()).index(part)]
 
     def edit_part(self, edit_mouse_pos, edit_type, specific_frame=None):
-        global edit_delay
+        global edit_delay, showroom_camera_pos
         if not edit_delay:
             edit_delay = 0.1
             edit_frame = current_frame
@@ -1181,10 +1186,10 @@ class Model:
 
             elif self.part_selected:
                 if edit_type == "place":  # find center point of all selected parts
-                    min_x = 9999999
-                    min_y = 9999999
-                    max_x = -9999999
-                    max_y = -9999999
+                    min_x = inf
+                    min_y = inf
+                    max_x = -inf
+                    max_y = -inf
                     for part in self.part_selected:  # loop to find min and max point for center
                         if part < len(key_list):  # skip part that not exist
                             part_index = key_list[part]
@@ -1499,9 +1504,13 @@ text_input_popup = (None, None)
 current_pool = animation_pool_data
 
 showroom_size = (500, 500)
+showroom_camera_pos = [0, 0]
 showroom_scale_mul = (default_sprite_size[0] / showroom_size[0], default_sprite_size[1] / showroom_size[1])
 showroom = showroom.Showroom(showroom_size, screen_size)
-showroom_base_point = (default_sprite_size[0] / 2, default_sprite_size[1] * 0.8)
+showroom_base_point = ((default_sprite_size[0] / 2) + showroom_camera_pos[0],
+                       (default_sprite_size[1] * 0.8) + showroom_camera_pos[1])
+showroom.showroom_base_point = ((showroom_size[0] / 2) + showroom_camera_pos[0],
+                                (showroom_size[1] * 0.8) + showroom_camera_pos[1])
 ui.add(showroom)
 
 image = pygame.transform.smoothscale(load_image(current_data_dir, screen_scale, "film.png", "animation_maker_ui"),
@@ -1596,9 +1605,10 @@ frame_paste_button = Button("Paste F", image,
                              filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
                             description=("Paste copied frame (CTRL + V)",
                                          "Does not paste frame properties."))
-# reload_button = Button("Reload", image, (play_animation_button.pos[0] + play_animation_button.image.get_width() * 3,
-#                                          filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
-#                        description=("Reload all assets",))
+reset_camera_button = Button("Reset C", image,
+                             (play_animation_button.pos[0] + play_animation_button.image.get_width() * 3,
+                              filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
+                             description=("Reset camera pos", "Reset showroom camera pos."))
 add_frame_button = Button("Add F", image, (play_animation_button.pos[0] + play_animation_button.image.get_width() * 4,
                                            filmstrip_list[0].rect.midbottom[1] + (image.get_height() / 2)),
                           description=(
@@ -1678,6 +1688,7 @@ help_button = SwitchButton(("Help:ON", "Help:OFF"), image,
                            (p_all_button.rect.topright[0] + image.get_width() * 2.5,
                             p_body_helper.rect.midtop[1] - (image.get_height() * 2.5)),
                            description=("Enable or disable help popup.",
+                                        "Arrow keys to control showroom camera pos",
                                         "Control for parts selection:", "Left Click on part = Part selection",
                                         "Shift + Left Click = Add selection", "CTRL + Left Click = Remove selection",
                                         "- (minus) or = (equal) = Previous or next frame",
@@ -1706,9 +1717,12 @@ p_selector = NameBox((250, image.get_height()), (reset_button.image.get_width() 
                                                  p_body_helper.rect.midtop[1] - (image.get_height() * 5.5)),
                      description=("Select person to display in edit helper",
                                   "Parts from different person can still be selected in editor preview."))
-# sprite_ver_selector = NameBox((250, image.get_height()), (reset_button.image.get_width() * 1.8,
-#                                                           p_body_helper.rect.midtop[1] - (image.get_height() * 4.5)),
-#                               description=("Select preview sprite version", "Only for preview and not saved in animation file."))
+
+camera_pos_show_button = NameBox((250, image.get_height()), (reset_button.image.get_width() * 1.8,
+                                                 p_body_helper.rect.midtop[1] - (image.get_height() * 4.5)),
+                                 description=("Camera POS", ))
+camera_pos_show_button.change_name(str(showroom_camera_pos))
+
 sprite_mode_selector = NameBox((250, image.get_height()), (reset_button.image.get_width() * 1.8,
                                                            p_body_helper.rect.midtop[1] - (image.get_height() * 3.5)),
                                description=(
@@ -1788,7 +1802,7 @@ frame_prop_list_box.scroll.change_image(new_row=0, row_size=len(frame_prop_list_
 ui.add(anim_prop_list_box, frame_prop_list_box, anim_prop_list_box.scroll, frame_prop_list_box.scroll)
 
 animation_selector = NameBox((600, image.get_height()), (screen_size[0] / 2, 0))
-part_selector = NameBox((200, image.get_height()), (reset_button.image.get_width() * 2.5,
+part_selector = NameBox((300, image.get_height()), (reset_button.image.get_width() * 3.5,
                                                     reset_button.rect.midtop[1]))
 
 shift_press = False
@@ -1945,6 +1959,42 @@ while True:
                     part_paste_press = True
             elif key_press[pygame.K_LSHIFT] or key_press[pygame.K_RSHIFT]:
                 shift_press = True
+            elif key_press[pygame.K_UP]:
+                keypress_delay = 0.1
+                showroom_camera_pos[1] -= 1
+                showroom_base_point = ((default_sprite_size[0] * model.size / 2) + showroom_camera_pos[0],
+                                       (default_sprite_size[1] * model.size * 0.8) + showroom_camera_pos[1])
+                showroom.showroom_base_point = ((showroom_size[0] / 2) + showroom_camera_pos[0],
+                                                (showroom_size[1] * 0.8) + showroom_camera_pos[1])
+                camera_pos_show_button.change_name(str(showroom_camera_pos))
+                model.edit_part(mouse_pos, "")
+            elif key_press[pygame.K_DOWN]:
+                keypress_delay = 0.1
+                showroom_camera_pos[1] += 1
+                showroom_base_point = ((default_sprite_size[0] * model.size / 2) + showroom_camera_pos[0],
+                                       (default_sprite_size[1] * model.size * 0.8) + showroom_camera_pos[1])
+                showroom.showroom_base_point = ((showroom_size[0] / 2) + showroom_camera_pos[0],
+                                                (showroom_size[1] * 0.8) + showroom_camera_pos[1])
+                camera_pos_show_button.change_name(str(showroom_camera_pos))
+                model.edit_part(mouse_pos, "")
+            elif key_press[pygame.K_LEFT]:
+                keypress_delay = 0.1
+                showroom_camera_pos[0] -= 1
+                showroom_base_point = ((default_sprite_size[0] * model.size / 2) + showroom_camera_pos[0],
+                                       (default_sprite_size[1] * model.size * 0.8) + showroom_camera_pos[1])
+                showroom.showroom_base_point = ((showroom_size[0] / 2) + showroom_camera_pos[0],
+                                                (showroom_size[1] * 0.8) + showroom_camera_pos[1])
+                camera_pos_show_button.change_name(str(showroom_camera_pos))
+                model.edit_part(mouse_pos, "")
+            elif key_press[pygame.K_RIGHT]:
+                keypress_delay = 0.1
+                showroom_camera_pos[0] += 1
+                showroom_base_point = ((default_sprite_size[0] * model.size / 2) + showroom_camera_pos[0],
+                                       (default_sprite_size[1] * model.size * 0.8) + showroom_camera_pos[1])
+                showroom.showroom_base_point = ((showroom_size[0] / 2) + showroom_camera_pos[0],
+                                                (showroom_size[1] * 0.8) + showroom_camera_pos[1])
+                camera_pos_show_button.change_name(str(showroom_camera_pos))
+                model.edit_part(mouse_pos, "")
             elif key_press[pygame.K_w]:
                 model.edit_part(mouse_pos, "move_w", specific_frame=current_frame)
             elif key_press[pygame.K_s]:
@@ -2308,6 +2358,15 @@ while True:
 
                     elif frame_paste_button.rect.collidepoint(mouse_pos):
                         paste_press = True
+
+                    elif reset_camera_button.rect.collidepoint(mouse_pos):
+                        showroom_camera_pos = [0, 0]
+                        showroom_base_point = ((default_sprite_size[0] * model.size / 2) + showroom_camera_pos[0],
+                                               (default_sprite_size[1] * model.size * 0.8) + showroom_camera_pos[1])
+                        showroom.showroom_base_point = ((showroom_size[0] / 2) + showroom_camera_pos[0],
+                                                        (showroom_size[1] * 0.8) + showroom_camera_pos[1])
+                        camera_pos_show_button.change_name(str(showroom_camera_pos))
+                        model.edit_part(mouse_pos, "")
 
                     elif part_copy_button.rect.collidepoint(mouse_pos):
                         part_copy_press = True
