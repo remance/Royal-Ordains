@@ -49,7 +49,7 @@ data_dir = os.path.join(main_dir, "data")
 animation_dir = os.path.join(data_dir, "animation")
 language = "en"
 
-default_sprite_size = (600, 600)
+default_sprite_size = (500, 500)
 
 ui = pygame.sprite.LayeredUpdates()
 fake_group = pygame.sprite.LayeredUpdates()  # just fake group to add for container and not get auto update
@@ -230,7 +230,7 @@ def change_animation_chapter(new_chapter, change_race=True):
 
     animation_chapter = new_chapter
     if change_race:
-        change_animation_race("Vraesier")
+        change_animation_race("Miquella")
 
 
 def change_animation(new_name):
@@ -276,7 +276,14 @@ def change_frame_process():
                old_list=frame_property_select[current_frame])  # change frame property list
 
 
-animation_race = "Vraesier"
+def recal_camera_pos(model):
+    global showroom_base_point, showroom
+    showroom_base_point = ((default_sprite_size[0] * model.size / 2) + (showroom_camera_pos[0] * model.size),
+                           (default_sprite_size[1] * model.size * 0.8) + (showroom_camera_pos[1] * model.size))
+    showroom.showroom_base_point = ((showroom_size[0] / 2) + showroom_camera_pos[0],
+                                    (showroom_size[1] * 0.8) + showroom_camera_pos[1])
+
+animation_race = "Miquella"
 animation_chapter = 1
 
 char_list = []
@@ -870,10 +877,7 @@ class Model:
             while len(frame_list) < max_frame:  # add empty item
                 frame_list.append({})
 
-            showroom_base_point = ((default_sprite_size[0] * self.size / 2) + showroom_camera_pos[0],
-                                   (default_sprite_size[1] * self.size * 0.8) + showroom_camera_pos[1])
-            showroom.showroom_base_point = ((showroom_size[0] / 2) + showroom_camera_pos[0],
-                                            (showroom_size[1] * 0.8) + showroom_camera_pos[1])
+            recal_camera_pos(self)
             size_button.change_text("Size: " + str(self.size))
             for index, pose in enumerate(frame_list):
                 sprite_part = {key: None for key in self.mask_part_list}
@@ -1228,21 +1232,39 @@ class Model:
                                 except TypeError:  # None position
                                     new_point = [0, 0]
                                 if "w" in edit_type:
-                                    new_point[1] = new_point[1] - 1
+                                    if shift_press:
+                                        new_point[1] = new_point[1] - 10
+                                    else:
+                                        new_point[1] = new_point[1] - 1
                                 elif "s" in edit_type:
-                                    new_point[1] = new_point[1] + 1
+                                    if shift_press:
+                                        new_point[1] = new_point[1] + 10
+                                    else:
+                                        new_point[1] = new_point[1] + 1
                                 elif "a" in edit_type:
-                                    new_point[0] = new_point[0] - 1
+                                    if shift_press:
+                                        new_point[1] = new_point[0] - 10
+                                    else:
+                                        new_point[0] = new_point[0] - 1
                                 elif "d" in edit_type:
-                                    new_point[0] = new_point[0] + 1
+                                    if shift_press:
+                                        new_point[1] = new_point[0] + 10
+                                    else:
+                                        new_point[0] = new_point[0] + 1
                                 self.animation_part_list[edit_frame][part_index][2] = new_point.copy()
 
                             elif "tilt_" in edit_type:  # keyboard rotate
                                 new_angle = self.animation_part_list[edit_frame][part_index][3]
                                 if "q" in edit_type:
-                                    new_angle = new_angle - 1
+                                    if shift_press:
+                                        new_angle = new_angle - 10
+                                    else:
+                                        new_angle = new_angle - 1
                                 elif "e" in edit_type:
-                                    new_angle = new_angle + 1
+                                    if shift_press:
+                                        new_angle = new_angle + 10
+                                    else:
+                                        new_angle = new_angle + 1
                                 self.animation_part_list[edit_frame][part_index][3] = new_angle
 
                             elif edit_type == "rotate":  # mouse rotate
@@ -1940,6 +1962,8 @@ while True:
 
     if input_ui not in ui and colour_ui not in ui:
         if key_press is not None and keypress_delay < 0.1:
+            if key_press[pygame.K_LSHIFT] or key_press[pygame.K_RSHIFT]:
+                shift_press = True
             if key_press[pygame.K_LCTRL] or key_press[pygame.K_RCTRL]:
                 ctrl_press = True
                 if key_press[pygame.K_c]:  # copy frame
@@ -1957,42 +1981,40 @@ while True:
                     part_copy_press = True
                 elif key_press[pygame.K_v]:  # paste part
                     part_paste_press = True
-            elif key_press[pygame.K_LSHIFT] or key_press[pygame.K_RSHIFT]:
-                shift_press = True
             elif key_press[pygame.K_UP]:
                 keypress_delay = 0.1
-                showroom_camera_pos[1] -= 1
-                showroom_base_point = ((default_sprite_size[0] * model.size / 2) + showroom_camera_pos[0],
-                                       (default_sprite_size[1] * model.size * 0.8) + showroom_camera_pos[1])
-                showroom.showroom_base_point = ((showroom_size[0] / 2) + showroom_camera_pos[0],
-                                                (showroom_size[1] * 0.8) + showroom_camera_pos[1])
+                if shift_press:
+                    showroom_camera_pos[1] -= 10
+                else:
+                    showroom_camera_pos[1] -= 1
+                recal_camera_pos(model)
                 camera_pos_show_button.change_name(str(showroom_camera_pos))
                 model.edit_part(mouse_pos, "")
             elif key_press[pygame.K_DOWN]:
                 keypress_delay = 0.1
-                showroom_camera_pos[1] += 1
-                showroom_base_point = ((default_sprite_size[0] * model.size / 2) + showroom_camera_pos[0],
-                                       (default_sprite_size[1] * model.size * 0.8) + showroom_camera_pos[1])
-                showroom.showroom_base_point = ((showroom_size[0] / 2) + showroom_camera_pos[0],
-                                                (showroom_size[1] * 0.8) + showroom_camera_pos[1])
+                if shift_press:
+                    showroom_camera_pos[1] += 10
+                else:
+                    showroom_camera_pos[1] += 1
+                recal_camera_pos(model)
                 camera_pos_show_button.change_name(str(showroom_camera_pos))
                 model.edit_part(mouse_pos, "")
             elif key_press[pygame.K_LEFT]:
                 keypress_delay = 0.1
-                showroom_camera_pos[0] -= 1
-                showroom_base_point = ((default_sprite_size[0] * model.size / 2) + showroom_camera_pos[0],
-                                       (default_sprite_size[1] * model.size * 0.8) + showroom_camera_pos[1])
-                showroom.showroom_base_point = ((showroom_size[0] / 2) + showroom_camera_pos[0],
-                                                (showroom_size[1] * 0.8) + showroom_camera_pos[1])
+                if shift_press:
+                    showroom_camera_pos[0] -= 10
+                else:
+                    showroom_camera_pos[0] -= 1
+                recal_camera_pos(model)
                 camera_pos_show_button.change_name(str(showroom_camera_pos))
                 model.edit_part(mouse_pos, "")
             elif key_press[pygame.K_RIGHT]:
                 keypress_delay = 0.1
-                showroom_camera_pos[0] += 1
-                showroom_base_point = ((default_sprite_size[0] * model.size / 2) + showroom_camera_pos[0],
-                                       (default_sprite_size[1] * model.size * 0.8) + showroom_camera_pos[1])
-                showroom.showroom_base_point = ((showroom_size[0] / 2) + showroom_camera_pos[0],
-                                                (showroom_size[1] * 0.8) + showroom_camera_pos[1])
+                if shift_press:
+                    showroom_camera_pos[0] += 10
+                else:
+                    showroom_camera_pos[0] += 1
+                recal_camera_pos(model)
                 camera_pos_show_button.change_name(str(showroom_camera_pos))
                 model.edit_part(mouse_pos, "")
             elif key_press[pygame.K_w]:
@@ -2361,10 +2383,7 @@ while True:
 
                     elif reset_camera_button.rect.collidepoint(mouse_pos):
                         showroom_camera_pos = [0, 0]
-                        showroom_base_point = ((default_sprite_size[0] * model.size / 2) + showroom_camera_pos[0],
-                                               (default_sprite_size[1] * model.size * 0.8) + showroom_camera_pos[1])
-                        showroom.showroom_base_point = ((showroom_size[0] / 2) + showroom_camera_pos[0],
-                                                        (showroom_size[1] * 0.8) + showroom_camera_pos[1])
+                        recal_camera_pos(model)
                         camera_pos_show_button.change_name(str(showroom_camera_pos))
                         model.edit_part(mouse_pos, "")
 
@@ -2728,15 +2747,16 @@ while True:
                                         helper.select_part(mouse_pos, True, False,
                                                            specific_part=list(model.mask_part_list.keys())[part])
                             helper.blit_part()
-                    if mouse_wheel_up or mouse_wheel_down:
-                        model.edit_part(new_mouse_pos, "rotate", specific_frame=current_frame)
-                    elif mouse_right_up or mouse_right_down:
-                        if mouse_right_down:
-                            if keypress_delay == 0:
+                    if model.part_selected:
+                        if mouse_wheel_up or mouse_wheel_down:
+                            model.edit_part(new_mouse_pos, "rotate", specific_frame=current_frame)
+                        elif mouse_right_up or mouse_right_down:
+                            if mouse_right_down:
+                                if not keypress_delay:
+                                    model.edit_part(new_mouse_pos, "place", specific_frame=current_frame)
+                                    keypress_delay = 0.1
+                            else:
                                 model.edit_part(new_mouse_pos, "place", specific_frame=current_frame)
-                                keypress_delay = 0.1
-                        else:
-                            model.edit_part(new_mouse_pos, "place", specific_frame=current_frame)
 
             if model.part_selected:
                 part = model.part_selected[-1]

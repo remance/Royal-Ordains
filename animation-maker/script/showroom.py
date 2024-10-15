@@ -15,7 +15,6 @@ class Showroom(pygame.sprite.Sprite):
         self.image = pygame.Surface(self.size)
         self.colour = (200, 200, 200)
         self.showroom_base_point = [0, 0]
-        self.true_base_point = (self.size[0] / 2, self.size[1] * 0.8)
         self.image.fill(self.colour)
         self.rect = self.image.get_rect(center=(screen_size[0] / 2, screen_size[1] / 2.35))
         self.grid = True
