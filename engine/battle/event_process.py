@@ -146,6 +146,13 @@ def event_process(self):
                         self.current_music = None
                         self.music_left.stop()
                         self.music_right.stop()
+                    elif str(child_event["Object"]).lower() == "pause":
+                        self.current_music = None  # remove current music so when game unpause it not replace event
+                        self.music_left.pause()
+                        self.music_right.pause()
+                    elif str(child_event["Object"]).lower() == "resume":
+                        self.music_left.unpause()
+                        self.music_right.unpause()
                     else:
                         self.current_music = self.stage_music_pool[str(child_event["Object"])]
                         self.music_left.play(self.current_music, fade_ms=100)

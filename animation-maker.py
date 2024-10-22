@@ -230,7 +230,7 @@ def change_animation_chapter(new_chapter, change_race=True):
 
     animation_chapter = new_chapter
     if change_race:
-        change_animation_race("Miquella")
+        change_animation_race("Vraesier")
 
 
 def change_animation(new_name):
@@ -283,7 +283,7 @@ def recal_camera_pos(model):
     showroom.showroom_base_point = ((showroom_size[0] / 2) + showroom_camera_pos[0],
                                     (showroom_size[1] * 0.8) + showroom_camera_pos[1])
 
-animation_race = "Miquella"
+animation_race = "Vraesier"
 animation_chapter = 1
 
 char_list = []
@@ -1243,12 +1243,12 @@ class Model:
                                         new_point[1] = new_point[1] + 1
                                 elif "a" in edit_type:
                                     if shift_press:
-                                        new_point[1] = new_point[0] - 10
+                                        new_point[0] = new_point[0] - 10
                                     else:
                                         new_point[0] = new_point[0] - 1
                                 elif "d" in edit_type:
                                     if shift_press:
-                                        new_point[1] = new_point[0] + 10
+                                        new_point[0] = new_point[0] + 10
                                     else:
                                         new_point[0] = new_point[0] + 1
                                 self.animation_part_list[edit_frame][part_index][2] = new_point.copy()

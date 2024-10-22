@@ -396,9 +396,9 @@ class Battle:
 
         # music player
         self.current_music = None
-        self.music_left = Channel(1)
+        self.music_left = Channel(0)
         self.music_left.set_volume(self.play_music_volume, 0)
-        self.music_right = Channel(2)
+        self.music_right = Channel(1)
         self.music_right.set_volume(0, self.play_music_volume)
 
         # Battle map object

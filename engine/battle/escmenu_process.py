@@ -114,8 +114,11 @@ def back_to_battle_state(self):
                            self.stage_translation_text_popup, self.player_char_base_interfaces.values(),
                            self.player_char_interfaces.values())
     self.realtime_ui_updater.add(self.main_player_battle_cursor)
-    for sound_ch in range(0, 1000):
-        if Channel(sound_ch).get_busy():  # pause all sound playing
+    if self.current_music:
+        self.music_left.unpause()
+        self.music_right.unpause()
+    for sound_ch in range(2, 1000):
+        if Channel(sound_ch).get_busy():  # unpause all sound playing
             Channel(sound_ch).unpause()
     self.change_game_state("battle")
 
