@@ -717,7 +717,7 @@ class Battle:
         self.main_player_object = self.player_objects[self.main_player]
         if stage_event_data:
             self.stage_music_pool = {key: Sound(self.music_pool[key]) for key in stage_event_data["music"] if
-                                     key.lower() != "none"}
+                                     key.lower() not in ("none", "resume", "pause")}
             for trigger, value in stage_event_data.items():
                 if ("once" not in value or tuple(value["once"].keys())[0] + self.chapter + self.mission + self.stage
                     not in self.main_story_profile["story event"]) and \
