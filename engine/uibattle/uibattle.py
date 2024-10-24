@@ -1017,7 +1017,7 @@ class CharacterSpeechBox(UIBattle):
     simple_font = False
 
     def __init__(self, character, text, specific_timer=None, player_input_indicator=False, cutscene_event=None,
-                 add_log=None, voice=None, body_part="p1_head"):
+                 add_log=None, voice=None, body_part="p1_head", use_big=False):
         """Speech box that appear from character head"""
         self._layer = 9999999999999999998
         UIBattle.__init__(self, player_cursor_interact=False, has_containers=True)
@@ -1029,7 +1029,7 @@ class CharacterSpeechBox(UIBattle):
         self.font = Font(self.ui_font[chapter_font_name[font]], self.font_size)
         self.max_text_width = 600 * self.screen_scale[0]
         image_height = int((self.font.render(text, True, (0, 0, 0)).get_width()) / self.max_text_width)
-        if not image_height:  # only one line
+        if not image_height and not use_big:  # only one line
             self.body = self.images["speech_body"]
             self.left_corner = self.images["speech_start"]
             self.right_corner = self.images["speech_end"]
@@ -1112,10 +1112,6 @@ class CharacterSpeechBox(UIBattle):
             # right corner end
             right_corner_rect = self.right_corner.get_rect(topright=(self.base_image.get_width(), 0))
             self.base_image.blit(self.right_corner, right_corner_rect)
-            if self.player_input_indicator:  # add player weak button indicate for closing speech in cutscene
-                rect = self.images["button_weak"].get_rect(topright=(self.base_image.get_width(),
-                                                                     self.right_corner.get_height() * 0.8))
-                self.base_image.blit(self.images["button_weak"], rect)
             self.image = self.base_image.copy()
             self.finish_unfolding = True
 
@@ -1131,15 +1127,17 @@ class CharacterSpeechBox(UIBattle):
             self.kill()
             return
 
+        left_direction = False
         if self.character.angle == 90:  # left direction facing
             if self.head_part.rect.midleft[0] - (
                     self.battle.shown_camera_pos[0] - self.battle.camera.camera_w_center) < self.base_image.get_width():
-                # text will exceed screen, go other way
                 self.image = self.base_image.copy()
                 self.rect.bottomleft = self.head_part.rect.midright
             else:
+                # text will exceed screen, go other way
                 self.image = flip(self.base_image, 1, 0)
                 self.rect.bottomright = self.head_part.rect.midleft
+                left_direction = True
 
         else:  # right direction facing
             if (self.battle.shown_camera_pos[0] + self.battle.camera.camera_w_center) - \
@@ -1147,6 +1145,7 @@ class CharacterSpeechBox(UIBattle):
                 # text will exceed screen, go other way
                 self.image = flip(self.base_image, 1, 0)
                 self.rect.bottomright = self.head_part.rect.midleft
+                left_direction = True
             else:
                 self.image = self.base_image.copy()
                 self.rect.bottomleft = self.head_part.rect.midright
@@ -1159,6 +1158,14 @@ class CharacterSpeechBox(UIBattle):
             text_rect = self.text_surface.get_rect(center=(int(self.image.get_width() / 2),
                                                            int(self.body.get_height() / 1.5)))
             self.image.blit(self.text_surface, text_rect)
+
+            if self.player_input_indicator:  # add player weak button indicate for closing speech in cutscene
+                if left_direction:
+                    rect = self.images["button_weak"].get_rect(topleft=(0, self.right_corner.get_height() * 0.8))
+                else:
+                    rect = self.images["button_weak"].get_rect(topright=(self.base_image.get_width(),
+                                                                         self.right_corner.get_height() * 0.8))
+                self.image.blit(self.images["button_weak"], rect)
 
 
 class DamageNumber(UIBattle):

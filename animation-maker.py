@@ -1054,9 +1054,9 @@ class Model:
             else:
                 self.part_selected = [list(self.mask_part_list.keys()).index(part)]
 
-    def edit_part(self, edit_mouse_pos, edit_type, specific_frame=None):
+    def edit_part(self, edit_mouse_pos, edit_type, specific_frame=None, check_delay=True):
         global edit_delay, showroom_camera_pos
-        if not edit_delay:
+        if not edit_delay or not check_delay:
             edit_delay = 0.1
             edit_frame = current_frame
             key_list = list(self.mask_part_list.keys())
@@ -1084,9 +1084,6 @@ class Model:
                 setup_list(NameList, current_frame_row, frame_prop_list_box.namelist[edit_frame], frame_prop_namegroup,
                            frame_prop_list_box, ui, screen_scale, layer=9,
                            old_list=frame_property_select[edit_frame])  # change frame property list
-
-            # elif edit_type == "change":  # change strip
-            #     self.part_selected = []
 
             elif edit_type == "paste":  # paste copy part
                 for part in copy_part:
@@ -1131,12 +1128,27 @@ class Model:
                     self.bodypart_list[frame_num] = {key: value for key, value in
                                                      self.body_part_history[self.current_history][frame_num].items()}
 
+            elif "sound_select:" in edit_type:  # add sound effect to frame
+                sound_name = edit_type.split(":")[1]
+                if sound_name == "None":
+                    self.frame_list[current_frame]["sound_effect"] = []
+                    sound_distance_selector.change_name("")
+                else:
+                    if self.frame_list[current_frame]["sound_effect"]:
+                        self.frame_list[current_frame]["sound_effect"] = [sound_name,
+                                                                          self.frame_list[current_frame]["sound_effect"][1],
+                                                                          self.frame_list[current_frame]["sound_effect"][2]]
+                    else:
+                        self.frame_list[current_frame]["sound_effect"] = [sound_name, 1000, 1]
+                        sound_distance_selector.change_name("1000")
+
+
             elif "_mode_select" in edit_type:
                 if any(ext in edit_type for ext in p_list):
                     self.sprite_mode[int(edit_type[1])] = edit_type.split("_")[-1]
                     change_animation(animation_name)
 
-            elif "part" in edit_type:
+            elif "part:" in edit_type:
                 if self.part_selected:
                     part = self.part_selected[-1]
                     part_index = key_list[part]
@@ -1149,7 +1161,7 @@ class Model:
                         self.animation_part_list[edit_frame][part_index][1] = "center"
                     self.animation_part_list[edit_frame][part_index][0] = self.sprite_image[part_index]
 
-            elif "race" in edit_type:  # change char/base part type
+            elif "race:" in edit_type:  # change char/base part type
                 if self.part_selected:
                     part = self.part_selected[-1]
                     part_index = key_list[part]
@@ -1168,25 +1180,11 @@ class Model:
                     except IndexError:
                         pass
 
-            elif "new" in edit_type:  # new animation
+            elif edit_type == "new":  # new animation
                 self.animation_part_list = [{key: None for key in self.mask_part_list}] * max_frame
                 self.bodypart_list = [{key: value for key, value in self.all_part_list.items()}] * max_frame
                 self.part_name_list = [{key: None for key in self.mask_part_list}] * max_frame
                 self.part_selected = []
-
-            elif "sound_select:" in edit_type:  # add sound effect to frame
-                sound_name = edit_type.split(":")[1]
-                if sound_name == "None":
-                    self.frame_list[current_frame]["sound_effect"] = []
-                    sound_distance_selector.change_name("")
-                else:
-                    if self.frame_list[current_frame]["sound_effect"]:
-                        self.frame_list[current_frame]["sound_effect"] = [sound_name,
-                                                                          self.frame_list[current_frame]["sound_effect"][1],
-                                                                          self.frame_list[current_frame]["sound_effect"][2]]
-                    else:
-                        self.frame_list[current_frame]["sound_effect"] = [sound_name, 1000, 1]
-                        sound_distance_selector.change_name("1000")
 
             elif self.part_selected:
                 if edit_type == "place":  # find center point of all selected parts
@@ -2092,22 +2090,27 @@ while True:
                     for index, name in enumerate(popup_namegroup):  # click on popup list
                         if name.rect.collidepoint(mouse_pos):
                             if popup_list_box.action == "part_select":
-                                model.edit_part(mouse_pos, "part_" + name.name, specific_frame=current_frame)
+                                model.edit_part(mouse_pos, "part:" + name.name, specific_frame=current_frame,
+                                                check_delay=False)
                             elif popup_list_box.action == "race_select":
-                                model.edit_part(mouse_pos, "race_" + name.name, specific_frame=current_frame)
+                                model.edit_part(mouse_pos, "race:" + name.name, specific_frame=current_frame,
+                                                check_delay=False)
                             elif "person" in popup_list_box.action:
                                 p_body_helper.change_p_type(name.name, player_change=True)
                                 effect_helper.change_p_type(name.name + "_effect", player_change=True)
                                 p_selector.change_name(name.name)
                                 sprite_mode_selector.change_name(model.sprite_mode[int(name.name[-1])])
                             elif "sound" in popup_list_box.action:
-                                model.edit_part(mouse_pos, "sound_select:" + name.name, specific_frame=current_frame)
+                                model.edit_part(mouse_pos, "sound_select:" + name.name, specific_frame=current_frame,
+                                                check_delay=False)
                                 sound_selector.change_name(name.name)
                             elif "_ver_select" in popup_list_box.action:
-                                model.edit_part(mouse_pos, popup_list_box.action[0:3] + "_ver_select" + name.name)
+                                model.edit_part(mouse_pos, popup_list_box.action[0:3] + "_ver_select" + name.name,
+                                                check_delay=False)
                                 # sprite_ver_selector.change_name(name.name)
                             elif "_mode_select" in popup_list_box.action:
-                                model.edit_part(mouse_pos, popup_list_box.action[0:3] + "_mode_select_" + name.name)
+                                model.edit_part(mouse_pos, popup_list_box.action[0:3] + "_mode_select_" + name.name,
+                                                check_delay=False)
                                 sprite_mode_selector.change_name(name.name)
 
                             elif popup_list_box.action == "animation_chapter_select":

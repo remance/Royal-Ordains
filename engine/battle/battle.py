@@ -28,6 +28,7 @@ from engine.weather.weather import Weather
 script_dir = path.split(path.abspath(__file__))[0] + "/"
 
 decision_route = {"yes": "a", "no": "b"}
+inf = float("inf")
 
 
 def set_start_load(self, what):  # For output asset loading time in terminal
@@ -406,7 +407,7 @@ class Battle:
                                                              self.camera.image.get_height()))
         Stage.camera_center_y = self.battle_camera_center[1]
         self.battle_stage = Stage(1)
-        self.frontground_stage = Stage(100000000000000000000000000000000000000000000000)
+        self.frontground_stage = Stage(inf)
         self.empty_stage_image = load_image(self.data_dir, self.screen_scale, "empty.png",
                                             ("map", "stage"))  # no scaling yet
 
@@ -497,7 +498,7 @@ class Battle:
         first_lock = None
         for value in stage_object_data.values():
             if value["Object"] not in loaded_item:  # load image
-                if value["Type"] == "stage":  # load background stage
+                if "stage" in value["Type"]:  # load background stage
                     image = self.empty_stage_image
 
                     if path.exists(path.join(self.data_dir, "map", "stage", value["Object"] + ".png")):

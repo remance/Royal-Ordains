@@ -423,42 +423,48 @@ class Character(sprite.Sprite):
                 hold_check = True
             done = self.play_cutscene_animation(dt, hold_check)
             if done or (self.cutscene_target_pos and self.cutscene_target_pos == self.base_pos):
-                if done:
-                    self.start_animation_body_part()
-                    if self.cutscene_event and "die" in self.cutscene_event["Property"]:  # die animation
-                        self.battle.cutscene_playing.remove(self.cutscene_event)
-                        self.cutscene_target_pos = None
-                        self.current_action = {}
-                        self.cutscene_event = None
-                        self.show_frame = self.max_show_frame
-                        self.max_show_frame = 0  # reset max_show_frame to 0 to prevent restarting animation
-                        self.start_animation_body_part()  # revert previous show_frame 0 animation start
-                        return
-                if self.current_action and ((self.cutscene_target_pos and self.cutscene_target_pos == self.base_pos) or \
-                                            (not self.cutscene_target_pos and "repeat" not in self.current_action and
-                                             "repeat after" not in self.current_action)):
-                    # animation consider finish when reach target or finish animation with no repeat, pick idle animation
-                    self.current_action = {}
-                    self.pick_cutscene_animation({})
-                if (self.cutscene_event and "repeat" not in self.cutscene_event["Property"] and
-                        "interact" not in self.cutscene_event["Property"] and
-                        (not self.speech or "wait" not in self.cutscene_event["Property"]) and
-                        (not self.cutscene_target_pos or self.cutscene_target_pos == self.base_pos)):
-                    # finish animation, consider event done unless event in timer or
-                    # require player interaction first or in repeat
-                    self.cutscene_target_pos = None
-                    if "repeat after" not in self.cutscene_event["Property"]:
-                        if self.current_action:
+                if "next action" not in self.current_action:
+                    if done:
+                        self.start_animation_body_part()
+                        if self.cutscene_event and "die" in self.cutscene_event["Property"]:  # die animation
+                            self.battle.cutscene_playing.remove(self.cutscene_event)
+                            self.cutscene_target_pos = None
                             self.current_action = {}
-                            self.pick_cutscene_animation({})
-                        self.command_action = {}
-                    else:  # event indicate repeat animation after event end
-                        self.current_action["repeat"] = True
-                        if not self.alive:
-                            self.current_action["die"] = True
-                    if self.cutscene_event in self.battle.cutscene_playing:
-                        self.battle.cutscene_playing.remove(self.cutscene_event)
-                    self.cutscene_event = None
+                            self.cutscene_event = None
+                            self.show_frame = self.max_show_frame
+                            self.max_show_frame = 0  # reset max_show_frame to 0 to prevent restarting animation
+                            self.start_animation_body_part()  # revert previous show_frame 0 animation start
+                            return
+                    if self.current_action and (
+                            (self.cutscene_target_pos and self.cutscene_target_pos == self.base_pos) or
+                            (not self.cutscene_target_pos and "repeat" not in self.current_action and
+                             "repeat after" not in self.current_action)):
+                        # animation consider finish when reach target or finish animation with no repeat, pick idle animation
+                        self.current_action = {}
+                        self.pick_cutscene_animation({})
+                    if (self.cutscene_event and "repeat" not in self.cutscene_event["Property"] and
+                            "interact" not in self.cutscene_event["Property"] and
+                            (not self.speech or "wait" not in self.cutscene_event["Property"]) and
+                            (not self.cutscene_target_pos or self.cutscene_target_pos == self.base_pos)):
+                        # finish animation, consider event done unless event in timer or
+                        # require player interaction first or in repeat
+                        self.cutscene_target_pos = None
+                        if "repeat after" not in self.cutscene_event["Property"]:
+                            if self.current_action:
+                                self.current_action = {}
+                                self.pick_cutscene_animation({})
+                            self.command_action = {}
+                        else:  # event indicate repeat animation after event end
+                            self.current_action["repeat"] = True
+                            if not self.alive:
+                                self.current_action["die"] = True
+                        if self.cutscene_event in self.battle.cutscene_playing:
+                            self.battle.cutscene_playing.remove(self.cutscene_event)
+                        self.cutscene_event = None
+                else:
+                    self.cutscene_target_pos = None
+                    self.current_action = self.current_action["next action"]
+                    self.pick_cutscene_animation(self.current_action)
 
     def ai_update(self, dt):
         pass

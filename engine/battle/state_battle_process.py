@@ -97,7 +97,7 @@ def state_battle_process(self, esc_press):
         self.effect_updater.cutscene_update(self.dt)
     self.realtime_ui_updater.update()  # update UI
     self.camera.update(self.shown_camera_pos, self.battle_camera, self.realtime_ui_updater)
-    # self.frontground_stage.update(self.shown_camera_pos[0])  # update frontground stage last
+    self.frontground_stage.update(self.shown_camera_pos, self.camera_pos)  # update frontground stage last
 
     self.common_process()
 

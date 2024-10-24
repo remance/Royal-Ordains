@@ -1,7 +1,7 @@
 def state_shop_process(self, esc_press):
     self.battle_stage.update(self.shown_camera_pos, self.camera_pos)  # update stage first
     self.camera.update(self.shown_camera_pos, self.battle_camera, self.realtime_ui_updater)
-    # self.frontground_stage.update(self.shown_camera_pos)  # update frontground stage last
+    self.frontground_stage.update(self.shown_camera_pos, self.camera_pos)  # update frontground stage last
     self.ui_drawer.draw(self.screen)  # draw the UI
 
     self.common_process()
