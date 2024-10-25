@@ -226,12 +226,12 @@ Animation maker for the Vector-based character animation in game. The tool is ma
 
 ### Sound (Obtained and edited):
 
+- Weapon sound "Wooshes" by lebaston100 (https://freesound.org/people/lebaston100/)
 - Musket shot "aaronsiler_musket 3", "aaronsiler_musket 4" by aaronsiler (https://freesound.org/people/aaronsiler/)
 - Assorted weapon sound from Videvo (https://www.videvo.net/)
 - Cannon sound "canon" from man (https://freesound.org/people/man/)
 - Cannonball sound effect "Real Cannonballs Flying By (Restored Audio)" from John Camara (https://www.youtube.com/watch?v=maVSnWIXGE8)
 - Bullet sound "Bullet passbys" from Audionautics (https://freesound.org/people/Audionautics/)
-- Heavy rain weather ambient sound "Heavy Rain", weapon sound "Wooshes" by lebaston100 (https://freesound.org/people/lebaston100/)
 - Heavy Weapon swing by "Swinging staff whoosh (strong) 08" Nightflame (https://freesound.org/people/Nightflame/)
 - Sword swing "Swosh Sword Swing" by qubodup (https://freesound.org/people/qubodup/)
 - Sword swing "swordslash" by deleted_user_13668154 (https://freesound.org/people/deleted_user_13668154/)
@@ -275,8 +275,12 @@ Animation maker for the Vector-based character animation in game. The tool is ma
 - Training ground music "Sword-19" by its_tigri (https://pixabay.com/users/42054041/?tab=music&order=latest&pagi=1)
 - Castle hall music "Royal Coupling" by kmacleod (https://archive.org/details/medieval-instrumental-background-music)
 - Artificer music "Medieval" by thematic_stock_music (https://pixabay.com/users/thematic_stock_music-35174846/)
-- Blacksmith music "Musik Hintergrund" by (https://pixabay.com/users/dueg-oth-34165349/)
+- Blacksmith music "Musik Hintergrund" by dueg-oth (https://pixabay.com/users/dueg-oth-34165349/)
 - Barrack music "Forge" by Ehved (https://pixabay.com/users/ehved-42712802/)
+
+### Ambient
+- Windy, forest ambient by Pixabay (https://pixabay.com/users/pixabay-1/) 
+- Heavy rain weather ambient sound by lebaston100 (https://freesound.org/people/lebaston100/)
 
 [//]: # (## Translation)
 
