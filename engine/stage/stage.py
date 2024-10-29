@@ -4,6 +4,7 @@ from pygame.sprite import Sprite
 class Stage(Sprite):
     image = None
     camera_center_y = None  # get add later when Battle is initiate
+    battle = None
 
     def __init__(self, layer):
         from engine.game.game import Game
@@ -15,7 +16,6 @@ class Stage(Sprite):
         self.screen_width = self.screen_size[0]
         self.screen_height = self.screen_size[1]
         self.half_screen = self.screen_width / 2
-        self.battle = Game.battle
         self._layer = layer
         Sprite.__init__(self)
         self.data = {}

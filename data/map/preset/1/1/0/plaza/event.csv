@@ -40,7 +40,7 @@
 "Iri/Pasgelo/1_1_city_plaza_talk1","Iri/Pasgelo/1_1_city_plaza_talk1.1",,,"char","interact,1","interact,hold"
 "Iri/Any/1_1_city_plaza_talk2","Iri/Any/1_1_city_plaza_talk2.1",1,"Talk","char","interact,1","interact,hold,replayble,repeat after"
 ,,1,"StopTalk",,,
-"Towncrier/Any/1_1_city_plaza_talk1","Towncrier/Any/1_1_city_plaza_talk1.1",2,"News","char","interact,2","interact,hold,replayble,angle:-90,repeat after"
+"Towncrier/Any/1_1_city_plaza_talk1","Towncrier/Any/1_1_city_plaza_talk1.1",2,"News","char","interact,2","interact,hold,replayble,Angle:-90,repeat after"
 ,"Towncrier/Any/1_1_city_plaza_talk1.2",2,"StopNews",,,"interact"
 ,"Towncrier/Any/1_1_city_plaza_talk1.3",2,,,,"interact"
 ,"Towncrier/Any/1_1_city_plaza_talk1.4",2,,,,"interact"

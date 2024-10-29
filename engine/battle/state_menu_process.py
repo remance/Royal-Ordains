@@ -4,10 +4,12 @@ from pygame import quit as pg_quit
 
 
 def state_menu_process(self, esc_press):
-    self.battle_stage.update(self.shown_camera_pos, self.camera_pos)  # update stage first
+    self.back_stage.update(self.shown_camera_pos, self.camera_pos)  # update backstage first
+    self.battle_stage.update(self.shown_camera_pos, self.camera_pos)
     # self.realtime_ui_updater.update()  # update UI
-    self.camera.update(self.shown_camera_pos, self.battle_camera, self.realtime_ui_updater)
-    self.frontground_stage.update(self.shown_camera_pos, self.camera_pos)  # update frontground stage last
+    self.camera.update(self.shown_camera_pos, self.battle_camera)
+    self.front_stage.update(self.shown_camera_pos, self.camera_pos)  # update front stage last
+    self.camera.out_update(self.realtime_ui_updater)
     self.ui_drawer.draw(self.screen)  # draw the UI
 
     if self.input_popup:  # currently, have input pop up on screen, stop everything else until done

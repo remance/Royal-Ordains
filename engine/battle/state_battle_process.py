@@ -88,16 +88,19 @@ def state_battle_process(self, esc_press):
             self.screen_shake_value = 0
 
     # Battle related updater
-    self.battle_stage.update(self.shown_camera_pos, self.camera_pos)  # update stage first
+    self.back_stage.update(self.shown_camera_pos, self.camera_pos)  # update backstage first
+    self.battle_stage.update(self.shown_camera_pos, self.camera_pos)
     if not self.cutscene_playing:
         self.character_updater.update(self.dt)
         self.effect_updater.update(self.dt)
     else:
         self.character_updater.cutscene_update(self.dt)
         self.effect_updater.cutscene_update(self.dt)
+
     self.realtime_ui_updater.update()  # update UI
-    self.camera.update(self.shown_camera_pos, self.battle_camera, self.realtime_ui_updater)
-    self.frontground_stage.update(self.shown_camera_pos, self.camera_pos)  # update frontground stage last
+    self.camera.update(self.shown_camera_pos, self.battle_camera)
+    self.front_stage.update(self.shown_camera_pos, self.camera_pos)  # update front stage last
+    self.camera.out_update(self.realtime_ui_updater)
 
     self.common_process()
 

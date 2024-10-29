@@ -22,7 +22,7 @@ def pick_cutscene_animation(self, action):
 
     self.command_action = {}
     self.current_action = action
-    if self.current_action:  # pick animation with cutscene animation data
+    if "name" in self.current_action:  # pick animation with cutscene animation data
         animation_name = self.current_action["name"]
         # self.angle = self.current_action["angle"]
     else:  # idle animation

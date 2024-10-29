@@ -526,33 +526,33 @@ class BodyHelper(pygame.sprite.Sprite):
                                    self.ui_type + "_l_leg_up": None, self.ui_type + "_l_leg_low": None,
                                    self.ui_type + "_l_foot": None, self.ui_type + "_main_weapon": None,
                                    self.ui_type + "_sub_weapon": None}
-            self.part_pos = {self.ui_type + "_head": (self.image.get_width() / 2, 60),
-                             self.ui_type + "_neck": (self.image.get_width() / 2, 90),
-                             self.ui_type + "_body": (self.image.get_width() / 2, 130),
+            self.part_pos = {self.ui_type + "_head": (self.image.get_width() / 2, 70),
+                             self.ui_type + "_neck": (self.image.get_width() / 2, 100),
+                             self.ui_type + "_body": (self.image.get_width() / 2, 140),
                              self.ui_type + "_r_arm_up": (self.image.get_width() / 2 -
-                                                          (self.image.get_width() / 20), 95),
+                                                          (self.image.get_width() / 20), 105),
                              self.ui_type + "_r_arm_low": (self.image.get_width() / 2 -
-                                                           (self.image.get_width() / 20), 125),
+                                                           (self.image.get_width() / 20), 135),
                              self.ui_type + "_r_hand": (self.image.get_width() / 2 -
-                                                        (self.image.get_width() / 20), 155),
+                                                        (self.image.get_width() / 20), 165),
                              self.ui_type + "_l_arm_up": (self.image.get_width() / 2 +
-                                                          (self.image.get_width() / 20), 95),
+                                                          (self.image.get_width() / 20), 105),
                              self.ui_type + "_l_arm_low": (self.image.get_width() / 2 +
-                                                           (self.image.get_width() / 20), 125),
+                                                           (self.image.get_width() / 20), 135),
                              self.ui_type + "_l_hand": (self.image.get_width() / 2 +
-                                                        (self.image.get_width() / 20), 155),
+                                                        (self.image.get_width() / 20), 165),
                              self.ui_type + "_r_leg_up": (self.image.get_width() / 2 -
-                                                          (self.image.get_width() / 40), 185),
+                                                          (self.image.get_width() / 40), 195),
                              self.ui_type + "_r_leg_low": (self.image.get_width() / 2 -
-                                                           (self.image.get_width() / 40), 216),
+                                                           (self.image.get_width() / 40), 226),
                              self.ui_type + "_r_foot": (self.image.get_width() / 2 -
-                                                        (self.image.get_width() / 40), 246),
+                                                        (self.image.get_width() / 40), 256),
                              self.ui_type + "_l_leg_up": (self.image.get_width() / 2 +
-                                                          (self.image.get_width() / 40), 185),
+                                                          (self.image.get_width() / 40), 195),
                              self.ui_type + "_l_leg_low": (self.image.get_width() / 2 +
-                                                           (self.image.get_width() / 40), 216),
+                                                           (self.image.get_width() / 40), 226),
                              self.ui_type + "_l_foot": (self.image.get_width() / 2 +
-                                                        (self.image.get_width() / 40), 246),
+                                                        (self.image.get_width() / 40), 256),
                              self.ui_type + "_main_weapon": (self.image.get_width() / 2 -
                                                              (self.image.get_width() / 20), 25),
                              self.ui_type + "_sub_weapon": (self.image.get_width() / 2 +
@@ -571,11 +571,11 @@ class BodyHelper(pygame.sprite.Sprite):
                              p_type + "_special_3": (20, 75),
                              p_type + "_special_4": (20, 105), p_type + "_special_5": (20, 135),
                              "effect_1": (20, 165), "effect_2": (20, 195), "effect_3": (20, 225), "effect_4": (20, 255),
-                             p_type + "_special_6": (225, 15), p_type + "_special_7": (225, 45),
-                             p_type + "_special_8": (225, 75),
-                             p_type + "_special_9": (225, 105), p_type + "_special_10": (225, 135),
-                             "effect_5": (225, 165), "effect_6": (225, 195), "effect_7": (225, 225),
-                             "effect_8": (225, 255)}
+                             p_type + "_special_6": (250, 15), p_type + "_special_7": (250, 45),
+                             p_type + "_special_8": (250, 75),
+                             p_type + "_special_9": (250, 105), p_type + "_special_10": (250, 135),
+                             "effect_5": (250, 165), "effect_6": (250, 195), "effect_7": (250, 225),
+                             "effect_8": (250, 255)}
         if player_change:
             self.select_part(None, False, False)  # reset first
             for part in model.part_selected:  # blit selected part that is in helper
@@ -1559,8 +1559,8 @@ filmstrip_list += [Filmstrip((image.get_width() * this_index, 42 * screen_scale[
 filmstrips.add(*filmstrip_list)
 
 images = load_images(current_data_dir, screen_scale=screen_scale, subfolder=("animation_maker_ui", "helper_parts"))
-body_helper_size = (650 * screen_scale[0], 270 * screen_scale[1])
-effect_helper_size = (450 * screen_scale[0], 270 * screen_scale[1])
+body_helper_size = (700 * screen_scale[0], 270 * screen_scale[1])
+effect_helper_size = (500 * screen_scale[0], 270 * screen_scale[1])
 effect_helper = BodyHelper(effect_helper_size, (screen_size[0] - (body_helper_size[0] / 3),
                                                 screen_size[1] - (body_helper_size[1] / 2)),
                            "p1_effect", [images["16_smallbox_helper"]])

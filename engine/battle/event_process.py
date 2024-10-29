@@ -2,6 +2,7 @@ import pygame
 import sys
 
 from random import choice, randint
+from pygame.mixer import Sound
 
 from engine.character.character import AICharacter
 from engine.stageobject.stageobject import StageObject
@@ -111,17 +112,34 @@ def event_process(self):
                     pos = 1
                     if "POS" in event_property:
                         pos = event_property["POS"]
-                    if "front" in child_event["Type"]:
-                        self.frontground_stage.data[pos] = child_event["Object"]
+                    if child_event["Object"] != "remove":
+                        if "front" in child_event["Type"]:
+                            self.front_stage.data[pos] = child_event["Object"]
+                        elif "back" in child_event["Type"]:
+                            self.back_stage.data[pos] = child_event["Object"]
+                        else:
+                            self.battle_stage.data[pos] = child_event["Object"]
                     else:
-                        self.battle_stage.data[pos] = child_event["Object"]
+                        if "front" in child_event["Type"]:
+                            stage_data = self.front_stage.data
+                        elif "back" in child_event["Type"]:
+                            stage_data = self.back_stage.data
+                        else:
+                            stage_data = self.battle_stage.data
+                        if pos in stage_data:
+                            stage_data.pop(pos)
+
                 elif child_event["Type"] and "bgfade" in child_event["Type"]:
                     if "front" in child_event["Type"]:
-                        stage = self.frontground_stage
+                        stage = self.front_stage
+                    elif "back" in child_event["Type"]:
+                        stage = self.back_stage
                     else:
                         stage = self.battle_stage
 
                     stage.fade_start = True
+                    stage.fade_in = False
+                    stage.fade_out = False
                     if "fadein" in child_event["Type"]:
                         stage.alpha = 0
                         stage.fade_in = True
@@ -135,6 +153,7 @@ def event_process(self):
                         stage.fade_speed = event_property["speed"]
                     if "timer" in event_property:
                         stage.fade_delay = event_property["timer"]
+                    self.cutscene_playing.remove(child_event)
 
                 elif child_event["Type"] == "delete":  # delete specified stage object
                     for item in self.stage_objects:
@@ -151,14 +170,30 @@ def event_process(self):
                         self.music_left.pause()
                         self.music_right.pause()
                     elif str(child_event["Object"]).lower() == "resume":
+                        self.current_music = 1
                         self.music_left.unpause()
                         self.music_right.unpause()
                     else:
                         self.current_music = self.stage_music_pool[str(child_event["Object"])]
-                        self.music_left.play(self.current_music, fade_ms=100)
+                        self.music_left.play(self.current_music, loops=-1, fade_ms=100)
+                        self.music_right.play(self.current_music, loops=-1, fade_ms=100)
                         self.music_left.set_volume(self.play_music_volume, 0)
-                        self.music_right.play(self.current_music, fade_ms=100)
                         self.music_right.set_volume(0, self.play_music_volume)
+                    self.cutscene_playing.remove(child_event)
+                elif child_event["Type"] == "ambient":  # play new ambient
+                    if str(child_event["Object"]).lower() == "none":
+                        self.current_ambient = None
+                        self.ambient.stop()
+                    elif str(child_event["Object"]).lower() == "pause":
+                        self.current_ambient = None  # remove current ambient so when game unpause it not replace event
+                        self.ambient.pause()
+                    elif str(child_event["Object"]).lower() == "resume":
+                        self.current_ambient = 1
+                        self.ambient.unpause()
+                    else:
+                        self.current_ambient = Sound(self.ambient_pool[str(child_event["Object"])])
+                        self.ambient.play(self.current_ambient, loops=-1, fade_ms=100)
+                        self.ambient.set_volume(self.play_effect_volume)
                     self.cutscene_playing.remove(child_event)
                 elif child_event["Type"] == "sound":  # play sound
                     self.add_sound_effect_queue(choice(self.sound_effect_pool[str(child_event["Object"])]),
@@ -188,7 +223,8 @@ def event_process(self):
                         self.cutscene_playing.remove(child_event)
             if "select" in event_property:
                 if event_property["select"] == "yesno":
-                    self.realtime_ui_updater.add(self.decision_select)
+                    if self.decision_select not in self.realtime_ui_updater:
+                        self.realtime_ui_updater.add(self.decision_select)
 
             elif "shop" in event_property:  # open shop interface
                 self.change_game_state("shop")

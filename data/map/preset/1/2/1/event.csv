@@ -1,10 +1,10 @@
 "ID","Text ID","Object","Animation","Type","Trigger","Property"
-"2nd_scene_reach",,"p1","PresetCombatStandWalk","cutscene","camera_reach_scene,2","POS:scene_start,angle:target"
-,,"p2","PresetCombatStandWalk",,,"POS:scene_start,angle:target"
-,,"p3","PresetCombatStandWalk",,,"POS:scene_start,angle:target"
-,,"p4","PresetCombatStandWalk",,,"POS:scene_start,angle:target"
-,,"helper","PresetPeaceAirWalk",,,"POS:reach_center,angle:target"
-,,40,,"setup",,"POS:(3600;1000),angle:90,speed:1000000"
+"2nd_scene_reach",,"p1","PresetCombatStandWalk","cutscene","camera_reach_scene,2","POS:scene_start,Angle:target"
+,,"p2","PresetCombatStandWalk",,,"POS:scene_start,Angle:target"
+,,"p3","PresetCombatStandWalk",,,"POS:scene_start,Angle:target"
+,,"p4","PresetCombatStandWalk",,,"POS:scene_start,Angle:target"
+,,"helper","PresetPeaceAirWalk",,,"POS:reach_center,Angle:target"
+,,40,,"setup",,"POS:(3600;1000),Angle:90,speed:1000000"
 ,,"camera",,"move",,"POS:2,wait"
 ,"event/1_2_1_talk1.1",40,"CombatTalk",,,"interact,hold,repeat after"
 ,,40,"CombatStopTalk",,,
@@ -13,8 +13,8 @@
 ,,"helper","CombatStopTalk",,,
 ,"event/1_2_1_talk1.4","helper",,,,"interact"
 ,"event/1_2_1_talk1.5",40,,,,"interact"
-,,40,"PresetCombatStandsbstrong",,,"angle:90,wait"
-,,40,,"setup",,"POS:(14840;1000),angle:90,speed:1000000"
+,,40,"PresetCombatStandsbstrong",,,"Angle:90,wait"
+,,40,,"setup",,"POS:(14840;1000),Angle:90,speed:1000000"
 ,,40,,"lock",,
 ,,1,,"unlock",,
 ,,2,,"unlock",,
@@ -58,11 +58,11 @@
 ,,3,,"music",,
 "weather",,"Red Leaf",,"weather","camera_reach_scene,6","wind direction:200"
 "weather1",,"Red Leaf",,"weather","camera_reach_scene,8","wind direction:180"
-"boss_reach",,"p1","PresetCombatStandWalk","cutscene","camera_reach_scene,8","POS:(14340;1000),angle:target"
-,,"p2","PresetCombatStandWalk",,,"POS:(14240;1000),angle:target"
-,,"p3","PresetCombatStandWalk",,,"POS:(14140;1000),angle:target"
-,,"p4","PresetCombatStandWalk",,,"POS:(14040;1000),angle:target"
-,,"helper","PresetPeaceAirWalk",,,"POS:reach_center,angle:target"
+"boss_reach",,"p1","PresetCombatStandWalk","cutscene","camera_reach_scene,8","POS:(14340;1000),Angle:target"
+,,"p2","PresetCombatStandWalk",,,"POS:(14240;1000),Angle:target"
+,,"p3","PresetCombatStandWalk",,,"POS:(14140;1000),Angle:target"
+,,"p4","PresetCombatStandWalk",,,"POS:(14040;1000),Angle:target"
+,,"helper","PresetPeaceAirWalk",,,"POS:reach_center,Angle:target"
 ,,"camera",,"move",,"POS:8,wait"
 ,"event/1_2_1_talk2.1",40,"CombatTalk",,,"interact,hold,repeat after"
 ,,40,"CombatStopTalk",,,
@@ -77,7 +77,7 @@
 "submit",,40,"Submit","submit","submit","repeat after"
 ,,40,"SubmitHold",,,"repeat after,submit"
 "execute",,40,"PresetCombatStandDie","execute","execute","start_frame:-1,hold"
-,,"helper","PresetPeaceAirWalk",,,"target:40,angle:target,wait"
+,,"helper","PresetPeaceAirWalk",,,"target:40,Angle:target,wait"
 ,,"helper","Execute",,,
 ,,40,"Execute",,,"die"
-,,"helper","PresetPeaceAirWalk",,,"POS:scene_center,angle:target"
+,,"helper","PresetPeaceAirWalk",,,"POS:scene_center,Angle:target"

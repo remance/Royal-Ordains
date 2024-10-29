@@ -35,7 +35,7 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
         if int(save_profile["game"]["chapter"]) < int(chapter):
             save_profile["game"]["chapter"] = chapter
             save_profile["game"]["mission"] = mission
-        elif int(save_profile["game"]["mission"]) < int(mission):
+        elif mission.isdigit() and int(save_profile["game"]["mission"]) < int(mission):
             save_profile["game"]["mission"] = mission
 
         for player, slot in self.profile_index.items():  # check for update for all active players to update state
@@ -54,7 +54,7 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
                 if save_profile["character"][slot]["chapter"] == chapter and \
                         save_profile["character"][slot]["mission"] == mission:
                     # update for player with this mission as last progress
-                    if str(int(mission) + 1) in self.preset_map_data[chapter]:
+                    if mission.isdigit() and str(int(mission) + 1) in self.preset_map_data[chapter]:
                         # update save state to next mission of the current chapter
                         save_profile["character"][slot]["mission"] = str(int(mission) + 1)
                     elif str(int(chapter) + 1) in self.preset_map_data[chapter]:

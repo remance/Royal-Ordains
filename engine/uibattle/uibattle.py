@@ -1017,7 +1017,7 @@ class CharacterSpeechBox(UIBattle):
     simple_font = False
 
     def __init__(self, character, text, specific_timer=None, player_input_indicator=False, cutscene_event=None,
-                 add_log=None, voice=None, body_part="p1_head", use_big=False):
+                 add_log=None, voice=None, body_part="p1_head", use_big=False, max_text_width=600):
         """Speech box that appear from character head"""
         self._layer = 9999999999999999998
         UIBattle.__init__(self, player_cursor_interact=False, has_containers=True)
@@ -1027,8 +1027,9 @@ class CharacterSpeechBox(UIBattle):
 
         self.font_size = int(28 * self.screen_scale[1])
         self.font = Font(self.ui_font[chapter_font_name[font]], self.font_size)
-        self.max_text_width = 600 * self.screen_scale[0]
+        self.max_text_width = max_text_width * self.screen_scale[0]
         image_height = int((self.font.render(text, True, (0, 0, 0)).get_width()) / self.max_text_width)
+        self.big = False
         if not image_height and not use_big:  # only one line
             self.body = self.images["speech_body"]
             self.left_corner = self.images["speech_start"]
@@ -1036,6 +1037,7 @@ class CharacterSpeechBox(UIBattle):
             text_surface = Font(self.ui_font[chapter_font_name[font]], self.font_size).render(text, True, (0, 0, 0))
             self.max_text_width = text_surface.get_width() + (60 * self.screen_scale[0])
         else:
+            self.big = True
             self.body = self.images["big_speech_body"]
             self.left_corner = self.images["big_speech_start"]
             self.right_corner = self.images["big_speech_end"]
@@ -1082,10 +1084,7 @@ class CharacterSpeechBox(UIBattle):
         if voice:
             self.battle.add_sound_effect_queue(choice(self.battle.sound_effect_pool[voice[0]]),
                                                self.battle.camera_pos, voice[1],
-                                               voice[2])
-            # else:
-            #     self.battle.add_sound_effect_queue(choice(self.battle.sound_effect_pool["Parchment_write"]),
-            #                                        self.battle.camera_pos, 2000, 0)
+                                               voice[2], volume="voice")
         if specific_timer:
             self.timer = specific_timer
         else:
@@ -1155,8 +1154,12 @@ class CharacterSpeechBox(UIBattle):
 
         if self.current_length >= self.max_length:
             # blit text when finish unfold
-            text_rect = self.text_surface.get_rect(center=(int(self.image.get_width() / 2),
-                                                           int(self.body.get_height() / 1.5)))
+            if not self.big:
+                text_rect = self.text_surface.get_rect(center=(int(self.image.get_width() / 2),
+                                                               int(self.body.get_height() / 1.4)))
+            else:
+                text_rect = self.text_surface.get_rect(center=(int(self.image.get_width() / 2),
+                                                               int(self.body.get_height() / 1.6)))
             self.image.blit(self.text_surface, text_rect)
 
             if self.player_input_indicator:  # add player weak button indicate for closing speech in cutscene

@@ -58,12 +58,10 @@ class Effect(Sprite):
         else:  # effect with 0 layer 0 will always be at top instead
             self._layer = 9999999999999999997
         Sprite.__init__(self, self.containers)
-
         self.show_frame = 0
         self.frame_timer = 0
         self.repeat_animation = False
         self.stage_end = self.battle.base_stage_end
-
         self.object_type = "effect"
 
         self.fall_gravity = self.battle.base_fall_gravity

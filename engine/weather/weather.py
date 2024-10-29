@@ -1,6 +1,7 @@
 from random import choice, uniform
 
 from pygame import transform, Vector2
+from pygame.mixer import Sound
 
 from engine.uibattle.uibattle import UIBattle
 from engine.utils.rotation import set_rotate
@@ -47,6 +48,13 @@ class Weather(UIBattle):
             self.random_sprite_angle = False
             if "random sprite angle" in stat["Property"]:
                 self.random_sprite_angle = True
+
+            self.battle.weather_ambient.stop()
+            if stat["Ambient"]:
+                if stat["Ambient"] in self.battle.weather_ambient_pool:
+                    self.battle.weather_ambient.play(Sound(self.battle.weather_ambient_pool[stat["Ambient"]]),
+                                                     loops=-1, fade_ms=100)
+                    self.battle.weather_ambient.set_volume(self.battle.play_effect_volume)
 
 
 class MatterSprite(UIBattle):

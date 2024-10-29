@@ -1,4 +1,5 @@
 from copy import deepcopy
+from pygame.mixer import Sound
 
 
 def check_event(self):
@@ -66,17 +67,30 @@ def check_event(self):
                     self.weather_data)
                 self.reach_scene_event_list[self.battle_stage.reach_scene].pop("weather")
             if "music" in self.reach_scene_event_list[self.battle_stage.reach_scene]:  # change music
-                self.current_music = self.stage_music_pool[
-                    self.reach_scene_event_list[self.battle_stage.reach_scene]["music"]]
+                self.current_music = None
+                if self.reach_scene_event_list[self.battle_stage.reach_scene]["music"] != "none":
+                    self.current_music = self.stage_music_pool[
+                        self.reach_scene_event_list[self.battle_stage.reach_scene]["music"]]
                 if self.current_music:
-                    self.music_left.play(self.current_music, fade_ms=100)
+                    self.music_left.play(self.current_music, loops=-1, fade_ms=100)
+                    self.music_right.play(self.current_music, loops=-1, fade_ms=100)
                     self.music_left.set_volume(self.play_music_volume, 0)
-                    self.music_right.play(self.current_music, fade_ms=100)
                     self.music_right.set_volume(0, self.play_music_volume)
                 else:  # stop music
                     self.music_left.stop()
                     self.music_right.stop()
                 self.reach_scene_event_list[self.battle_stage.reach_scene].pop("music")
+            if "ambient" in self.reach_scene_event_list[self.battle_stage.reach_scene]:  # change ambient
+                self.current_ambient = None
+                if self.reach_scene_event_list[self.battle_stage.reach_scene]["ambient"] != "none":
+                    self.current_ambient = Sound(self.ambient_pool[
+                        self.reach_scene_event_list[self.battle_stage.reach_scene]["ambient"]])
+                if self.current_ambient:
+                    self.ambient.play(self.current_ambient, loops=-1, fade_ms=100)
+                    self.ambient.set_volume(self.play_effect_volume)
+                else:  # stop ambient
+                    self.ambient.stop()
+                self.reach_scene_event_list[self.battle_stage.reach_scene].pop("ambient")
             if "sound" in self.reach_scene_event_list[self.battle_stage.reach_scene]:  # play sound
                 for sound_effect in self.reach_scene_event_list[self.battle_stage.reach_scene]["sound"]:
                     self.add_sound_effect_queue(sound_effect[0],

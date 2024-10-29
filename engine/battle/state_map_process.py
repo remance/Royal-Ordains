@@ -1,5 +1,6 @@
 def state_map_process(self, esc_press):
-    self.camera.update(self.shown_camera_pos, self.battle_camera, self.realtime_ui_updater)
+    self.camera.update(self.shown_camera_pos, self.battle_camera)
+    self.camera.out_update(self.realtime_ui_updater)
     self.ui_drawer.draw(self.screen)  # draw the UI
 
     self.common_process()

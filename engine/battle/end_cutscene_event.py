@@ -5,8 +5,8 @@ def end_cutscene_event(self, child_event):
             if char.cutscene_event in self.cutscene_playing:
                 # end any player_interact events currently awaiting
                 self.cutscene_playing.remove(char.cutscene_event)
-            if "repeat after" not in char.cutscene_event["Property"] and char.current_action:
-                char.pick_cutscene_animation({})
+            if "repeat after" in char.current_action:
+                char.current_action["repeat"] = True
             char.cutscene_event = None
             break
 

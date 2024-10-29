@@ -21,6 +21,8 @@ def character_event_process(self, event, event_property):
         start_speech(self, event, event_property)
     elif event["Type"] == "idle":  # replace idle animation, note that it replace even after cutscene finish
         self.replace_idle_animation = event["Animation"]
+        self.pick_cutscene_animation({})
+        self.battle.cutscene_playing.remove(event)
     elif event["Type"] == "animation":  # play specific animation
         self.command_action = event_property
     elif event["Type"] == "remove":
@@ -40,7 +42,7 @@ def character_event_process(self, event, event_property):
     elif (not self.cutscene_event or (("hold" in self.current_action or "repeat" in self.current_action) and
                                       self.cutscene_event != event)):
         # replace previous event on hold or repeat when there is new one to play next
-        if "hold" in self.current_action and self.cutscene_event in self.battle.cutscene_playing:
+        if self.cutscene_event in self.battle.cutscene_playing:
             # previous event done
             self.battle.cutscene_playing.remove(self.cutscene_event)
 
@@ -81,18 +83,18 @@ def character_event_process(self, event, event_property):
                 if character2.game_id == event_property["target"]:  # go to target pos
                     self.cutscene_target_pos = character2.base_pos
                     break
-        if "angle" in event_property:
-            if event_property["angle"] == "target":
+        if "Angle" in event_property:
+            if event_property["Angle"] == "target":
                 # facing target must have cutscene_target_pos
                 if self.cutscene_target_pos[0] >= self.base_pos[0]:
                     self.new_angle = -90
                 else:
                     self.new_angle = 90
             else:
-                self.new_angle = int(event_property["angle"])
+                self.new_angle = int(event_property["Angle"])
             self.rotate_logic()
         animation = event["Animation"]
-        action_dict = {}
+        action_dict = event_property
         if animation:
             action_dict = {"name": event["Animation"]} | event_property
         if action_dict and action_dict != self.current_action:  # start new action
@@ -113,7 +115,9 @@ def start_speech(self, event, event_property):
     use_big = False
     if "use big" in event_property:
         use_big = event_property["use big"]
-
+    max_text_width = 600
+    if "max text width" in event_property:
+        max_text_width = event_property["max text width"]
     if "interact" in event_property:
         specific_timer = infinity
         player_input_indicator = True
@@ -133,5 +137,4 @@ def start_speech(self, event, event_property):
                                      specific_timer=specific_timer,
                                      player_input_indicator=player_input_indicator,
                                      cutscene_event=event, add_log=event["Text ID"], voice=voice, body_part=body_part,
-                                     use_big=use_big)
-
+                                     use_big=use_big, max_text_width=max_text_width)

@@ -8,7 +8,7 @@ class Camera:
         self.camera_w_center = camera_w / 2
         self.camera_h_center = camera_h / 2
 
-    def update(self, pos, surfaces, out_surfaces):
+    def update(self, pos, surfaces):
         """Update self camera with sprite blit to camera image"""
         camera_x = pos[0] - self.camera_w_center  # Current camera center x
         camera_y = pos[1] - self.camera_h_center  # Current camera center y
@@ -19,5 +19,7 @@ class Camera:
                 # only blit if image in camera at all
                 self.image.blit(surface.image, (surface_x - camera_x, surface_y - camera_y))
 
+    def out_update(self, out_surfaces):
         for surface in out_surfaces:  # surface that get blit with pos on screen instead of in battle
             self.image.blit(surface.image, surface.rect)
+

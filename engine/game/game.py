@@ -394,6 +394,8 @@ class Game:
         # Load sound effect
         self.sound_effect_pool = self.sound_data.sound_effect_pool
         self.music_pool = self.sound_data.music_pool
+        self.ambient_pool = self.sound_data.ambient_pool
+        self.weather_ambient_pool = self.sound_data.weather_ambient_pool
 
         # Music player
         pygame.mixer.set_num_channels(1000)

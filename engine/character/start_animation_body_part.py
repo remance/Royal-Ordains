@@ -4,8 +4,8 @@ def start_animation_body_part(self, new_animation=False):
     current_animation_data = self.current_animation_direction[self.show_frame]
     for key, part_data in current_animation_data.items():
         if part_data:
-            if "effect_" in key and not self.battle.cutscene_playing:
-                if part_data[8]:  # damage effect
+            if "effect_" in key:
+                if part_data[8] and not self.battle.cutscene_playing:  # damage effect
                     if "summon" in self.current_moveset["Property"]:
                         # summon AI character, using effect with damage does not create Effect
                         start_pos = (self.base_pos[0] + (part_data[2]),

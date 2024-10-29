@@ -952,9 +952,8 @@ class CharacterInterface(UIMenu):
                 if "item" in equip_type:  # consumable item type
                     item = self.profile["equipment"]["item"][equip_type.split(" ")[1]]
                     if item:
-                        item_image = smoothscale(self.item_sprite_pool[self.game.battle.chapter][
-                                                     "Normal"][item], (60 * self.screen_scale[0],
-                                                                       60 * self.screen_scale[1]))
+                        item_image = smoothscale(self.item_sprite_pool["Normal"][item],
+                                                 (60 * self.screen_scale[0], 60 * self.screen_scale[1]))
                         image_rect = item_image.get_rect(center=rect.center)
                         self.image.blit(item_image, image_rect)
                         text_surface = text_render_with_bg(minimise_number_text(str(self.profile["storage"][item])),
@@ -968,9 +967,8 @@ class CharacterInterface(UIMenu):
                         if item not in self.game.character_data.gear_list:
                             stat = dict(item)  # custom equipment
                             item_id = "Custom " + stat["Rarity"] + "_" + stat["Type"]
-                        item_image = smoothscale(self.item_sprite_pool[self.game.battle.chapter][
-                                                     "Normal"][item_id], (60 * self.screen_scale[0],
-                                                                          60 * self.screen_scale[1]))
+                        item_image = smoothscale(self.item_sprite_pool["Normal"][item_id],
+                                                 (60 * self.screen_scale[0], 60 * self.screen_scale[1]))
                         image_rect = item_image.get_rect(center=rect.center)
                         self.image.blit(item_image, image_rect)
 
@@ -1096,9 +1094,8 @@ class CharacterInterface(UIMenu):
                         self.image.blit(text_surface, text_rect)
                         index2 += 1
 
-                item_image = smoothscale(self.item_sprite_pool[self.game.battle.chapter][
-                                             "Normal"][item_id], (60 * self.screen_scale[0],
-                                                                  60 * self.screen_scale[1]))
+                item_image = smoothscale(self.item_sprite_pool["Normal"][item_id],
+                                         (60 * self.screen_scale[0], 60 * self.screen_scale[1]))
                 item_rect = item_image.get_rect(center=self.equipment_list_slot_rect[("equip", "new")[index]].center)
                 self.image.blit(item_image, item_rect)
 
@@ -1206,9 +1203,8 @@ class CharacterInterface(UIMenu):
                             stat = dict(item)
                             item_id = "Custom " + stat["Rarity"] + "_" + stat["Type"]
                             self.image.blit(self.small_box_images[stat["Type"]], rect)
-                    item_image = smoothscale(self.item_sprite_pool[self.game.battle.chapter][
-                                                 "Normal"][item_id], (50 * self.screen_scale[0],
-                                                                      50 * self.screen_scale[1]))
+                    item_image = smoothscale(self.item_sprite_pool["Normal"][item_id],
+                                             (50 * self.screen_scale[0], 50 * self.screen_scale[1]))
                     image_rect = item_image.get_rect(center=rect.center)
                     self.image.blit(item_image, image_rect)
 
@@ -1424,7 +1420,7 @@ class CharacterInterface(UIMenu):
                                100 * self.screen_scale[1]),
                               width=int(3 * self.screen_scale[0]))
 
-                item_image = self.item_sprite_pool[self.game.battle.chapter]["Normal"][item]
+                item_image = self.item_sprite_pool["Normal"][item]
                 rect = item_image.get_rect(topleft=(0, (index + 1) * 100 * self.screen_scale[1]))
                 self.image.blit(item_image, rect)
 
@@ -1538,7 +1534,7 @@ class CharacterInterface(UIMenu):
                                            (110 * self.screen_scale[0],
                                             row_index * 100 * self.screen_scale[1]), self.font, color=(30, 30, 30),
                                            specific_width=self.image.get_width() - (50 * self.screen_scale[0]))
-                        item_image = self.item_sprite_pool[self.game.battle.chapter]["Normal"][item_id]
+                        item_image = self.item_sprite_pool["Normal"][item_id]
                         rect = item_image.get_rect(topleft=(0, row_index * 100 * self.screen_scale[1]))
                         self.image.blit(item_image, rect)
 
@@ -1583,7 +1579,7 @@ class CharacterInterface(UIMenu):
             if (index >= self.current_row or len(self.all_custom_item) < 5) and row_index < 5:
                 stat = dict(item)
                 item_id = "Custom " + stat["Rarity"] + "_" + stat["Type"]
-                item_image = self.item_sprite_pool[self.game.battle.chapter]["Normal"][item_id]
+                item_image = self.item_sprite_pool["Normal"][item_id]
                 if index == self.current_row:
                     # image and info to the top
                     rect = item_image.get_rect(center=(200 * self.screen_scale[0], 90 * self.screen_scale[1]))
@@ -3094,7 +3090,8 @@ class TextPopup(UIMenu):
                 max_height = 0
                 max_width = width_text_wrapper
                 for text in self.text_input:
-                    image_height = int((self.font.render(text, True, (0, 0, 0)).get_width()) / width_text_wrapper)
+                    image_height = int(((self.font.render(text, True, (0, 0, 0)).get_width()) +
+                                        self.font_size) / width_text_wrapper)
                     if not image_height:  # only one line
                         text_image = Surface((width_text_wrapper, self.font_size))
                         text_image.fill(bg_colour)

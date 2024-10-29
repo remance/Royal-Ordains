@@ -247,6 +247,8 @@ class Battle:
 
         self.music_pool = game.music_pool
         self.sound_effect_pool = game.sound_effect_pool
+        self.ambient_pool = game.ambient_pool
+        self.weather_ambient_pool = game.weather_ambient_pool
         self.sound_effect_queue = {}
         self.stage_music_pool = {}  # pool for music already converted to pygame Sound
 
@@ -401,13 +403,21 @@ class Battle:
         self.music_left.set_volume(self.play_music_volume, 0)
         self.music_right = Channel(1)
         self.music_right.set_volume(0, self.play_music_volume)
+        self.current_ambient = None
+        self.ambient = Channel(2)
+        self.ambient.set_volume(self.play_effect_volume)
+        self.weather_ambient = Channel(3)
+        self.weather_ambient.set_volume(self.play_effect_volume)
+
 
         # Battle map object
         Stage.image = Surface.subsurface(self.camera.image, (0, 0, self.camera.image.get_width(),
                                                              self.camera.image.get_height()))
         Stage.camera_center_y = self.battle_camera_center[1]
+        Stage.battle = self
+        self.back_stage = Stage(0)
         self.battle_stage = Stage(1)
-        self.frontground_stage = Stage(inf)
+        self.front_stage = Stage(inf)
         self.empty_stage_image = load_image(self.data_dir, self.screen_scale, "empty.png",
                                             ("map", "stage"))  # no scaling yet
 
@@ -452,17 +462,18 @@ class Battle:
         self.players = players
         self.existing_playable_characters = [value["ID"] for value in self.players.values()]
 
-        # Stop any current music
+        # Stop all sound
+        for sound_ch in range(0, 1000):
+            if Channel(sound_ch).get_busy():
+                Channel(sound_ch).stop()
         self.current_music = None
-        self.music_left.stop()
-        self.music_right.stop()
+        self.current_ambient = None
 
         print("Start loading", self.chapter, self.mission, self.stage, scene)
         self.game.loading_lore_text = self.localisation.grab_text(("load", randint(0, len(self.localisation.text[self.language]["load"]) - 1), "Text"))
 
         yield set_start_load(self, "stage setup")
-        self.current_weather.__init__(1, 0, 0,
-                                      self.weather_data)
+        self.current_weather.__init__(1, 0, 0, self.weather_data)
 
         stage_data = self.game.preset_map_data[chapter][mission][stage]
         self.city_mode = False
@@ -505,7 +516,9 @@ class Battle:
                         image = load_image(self.data_dir, self.screen_scale, value["Object"] + ".png",
                                            ("map", "stage"))  # no scaling yet
                     if "front" in value["Type"]:
-                        self.frontground_stage.images[value["Object"]] = image
+                        self.front_stage.images[value["Object"]] = image
+                    elif "back" in value["Type"]:
+                        self.back_stage.images[value["Object"]] = image
                     else:
                         self.battle_stage.images[value["Object"]] = image
 
@@ -513,10 +526,13 @@ class Battle:
 
             if "stage" in value["Type"]:  # assign stage data
                 if "front" in value["Type"]:
-                    self.frontground_stage.data[value["POS"]] = value["Object"]
+                    self.front_stage.data[value["POS"]] = value["Object"]
+                elif "back" in value["Type"]:
+                    self.back_stage.data[value["POS"]] = value["Object"]
                 else:  # battle stage should have data for all scene
                     self.battle_stage.data[value["POS"]] = value["Object"]
                     later_enemy[value["POS"]] = []
+
             elif "endchoice" in value["Type"]:
                 self.stage_end_choice = True
             elif "lock" in value["Type"]:
@@ -553,7 +569,9 @@ class Battle:
                 if value["Type"] == "bgchange" and event_run_check and parent_event_run_check:
                     image = self.empty_stage_image
                     if "front" in value["Type"]:
-                        images = self.frontground_stage.images
+                        images = self.front_stage.images
+                    elif "back" in value["Type"]:
+                        images = self.back_stage.images
                     else:
                         images = self.battle_stage.images
 
@@ -578,6 +596,7 @@ class Battle:
 
         yield set_start_load(self, "animation setup")
         self.game.animation_data.load_data(chapter)  # this will load data if chapter is different
+        print()
         Drop.item_sprite_pool = self.default_body_sprite_pool[int(self.chapter)]["Item"]["special"]
         WheelUI.item_sprite_pool = self.default_body_sprite_pool[int(self.chapter)]["Item"]["special"]
         CharacterInterface.item_sprite_pool = self.default_body_sprite_pool[int(self.chapter)]["Item"]["special"]
@@ -1044,12 +1063,6 @@ class Battle:
                             self.joystick_player.pop(value)
                             break
 
-            if not self.music_left.get_busy() and self.current_music:  # change if music finish playing
-                self.music_left.play(self.current_music, fade_ms=100)
-                self.music_left.set_volume(self.play_music_volume, 0)
-                self.music_right.play(self.current_music, fade_ms=100)
-                self.music_right.set_volume(0, self.play_music_volume)
-
             if self.player_key_press[self.main_player]["Menu/Cancel"]:
                 # open/close menu
                 esc_press = True
@@ -1088,10 +1101,14 @@ class Battle:
 
         for helper in self.player_trainings.values():
             helper.reset()
-        self.music_left.stop()
-        self.music_right.stop()
-        self.stage_music_pool = {}
+
+        # stop all sounds
+        for sound_ch in range(0, 1000):
+            if Channel(sound_ch).get_busy():
+                Channel(sound_ch).stop()
         self.current_music = None
+        self.current_ambient = None
+        self.stage_music_pool = {}
 
         # remove all reference from battle object
         self.players = {}
@@ -1110,7 +1127,8 @@ class Battle:
         self.sound_effect_queue = {}
 
         self.battle_stage.clear_image()
-        self.frontground_stage.clear_image()
+        self.front_stage.clear_image()
+        self.back_stage.clear_image()
 
         self.drama_timer = 0  # reset drama text popup
         self.follower_talk_timer = 0

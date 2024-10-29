@@ -63,7 +63,7 @@
 ,,3,"StopTalk",,,
 ,"Duskuksa/Rodhinbar/1_1_city_blacksmith_talk1.2","pm","Talk",,,"interact,hold,repeat after"
 ,,"pm","StopTalk",,,
-,"Duskuksa/Rodhinbar/1_1_city_blacksmith_talk1.3",1,"Talk",,,"interact,hold,angle:-90,repeat after"
+,"Duskuksa/Rodhinbar/1_1_city_blacksmith_talk1.3",1,"Talk",,,"interact,hold,Angle:-90,repeat after"
 ,,1,"StopTalk",,,
 ,"Duskuksa/Rodhinbar/1_1_city_blacksmith_talk1.4","pm",,,,"interact"
 ,"Duskuksa/Rodhinbar/1_1_city_blacksmith_talk1.5","pm",,,,"interact"

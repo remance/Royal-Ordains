@@ -2,7 +2,7 @@ from engine.uibattle.uibattle import DamageNumber
 
 
 def pick_animation(self):
-    if self.current_action:  # pick animation with current action
+    if "name" in self.current_action:  # pick animation with current action
         if "moveset" in self.current_action:
             animation_name = None
             if self.current_moveset:  # has moveset to perform
