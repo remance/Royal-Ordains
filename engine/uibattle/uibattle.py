@@ -1095,8 +1095,8 @@ class CharacterSpeechBox(UIBattle):
             for profile in self.battle.all_story_profiles.values():  # add speech text to dialogue log for all save
                 if profile:
                     profile["dialogue log"].append(("(" + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + ")" +
-                                                   " ch." + self.battle.chapter + "." + self.battle.mission + "." +
-                                                   self.battle.stage + " " + self.character.show_name + ": ", add_log))
+                                                    " ch." + self.battle.chapter + "." + self.battle.mission + "." +
+                                                    self.battle.stage + " " + self.character.show_name + ": ", add_log))
                     if len(profile["dialogue log"]) > 200:
                         profile["dialogue log"] = profile["dialogue log"][1:]
 

@@ -24,9 +24,9 @@ from engine.lorebook.lorebook import Lorebook, SubsectionName, lorebook_process
 from engine.menubackground.menubackground import MenuActor, MenuRotate, StaticImage
 from engine.stageobject.stageobject import StageObject
 from engine.uibattle.uibattle import Profiler, FPSCount, DamageNumber, CharacterSpeechBox, \
-    CharacterIndicator, WheelUI
+    CharacterIndicator
 from engine.uimenu.uimenu import OptionMenuText, SliderMenu, MenuCursor, BoxUI, BrownMenuButton, \
-    URLIconLink, MenuButton, TextPopup, MapTitle, CharacterInterface, CharacterProfileBox, \
+    URLIconLink, MenuButton, TextPopup, MapTitle, CharacterProfileBox, \
     NameTextBox
 from engine.updater.updater import ReversedLayeredUpdates
 from engine.utils.common import edit_config, cutscene_update
@@ -558,16 +558,20 @@ class Game:
         self.o2 = MenuRotate((765 * self.screen_scale[0], 282 * self.screen_scale[1]), self.background_image["o2_1"],
                              10, rotate_left=False)
         self.o2_actor = MenuActor((765 * self.screen_scale[0], 285 * self.screen_scale[1]),
-                                  [self.background_image[item] for item in self.background_image if "o2_1_actor" in item],
+                                  [self.background_image[item] for item in self.background_image if
+                                   "o2_1_actor" in item],
                                   animation_frame_play_time=0.15)
         self.a4_actor = MenuActor((1160 * self.screen_scale[0], 325 * self.screen_scale[1]),
-                                  [self.background_image[item] for item in self.background_image if "a4_1_actor" in item],
+                                  [self.background_image[item] for item in self.background_image if
+                                   "a4_1_actor" in item],
                                   animation_frame_play_time=0.15)
         self.y3_actor = MenuActor((960 * self.screen_scale[0], 200 * self.screen_scale[1]),
-                                  [self.background_image[item] for item in self.background_image if "y3_1_actor" in item],
+                                  [self.background_image[item] for item in self.background_image if
+                                   "y3_1_actor" in item],
                                   animation_frame_play_time=0.15)
         self.l5_actor = MenuActor((1338 * self.screen_scale[0], 260 * self.screen_scale[1]),
-                                  [self.background_image[item] for item in self.background_image if "l5_1_actor" in item],
+                                  [self.background_image[item] for item in self.background_image if
+                                   "l5_1_actor" in item],
                                   animation_frame_play_time=0.15)
 
         self.hide_background = StaticImage((self.screen_width / 2, self.screen_height / 2),

@@ -21,7 +21,7 @@ from engine.uibattle.uibattle import FPSCount, BattleCursor, YesNo, CharacterSpe
     CourtBook, CityMap, CityMission, ScreenFade, WheelUI
 from engine.uimenu.uimenu import TextPopup, CharacterInterface
 from engine.utils.common import clean_object, clean_group_object
-from engine.utils.data_loading import load_image, load_images, prepare_animation_sprite, filename_convert_readable as fcv
+from engine.utils.data_loading import load_image, load_images, prepare_animation_sprite
 from engine.utils.text_making import number_to_minus_or_plus
 from engine.weather.weather import Weather
 
@@ -409,7 +409,6 @@ class Battle:
         self.weather_ambient = Channel(3)
         self.weather_ambient.set_volume(self.play_effect_volume)
 
-
         # Battle map object
         Stage.image = Surface.subsurface(self.camera.image, (0, 0, self.camera.image.get_width(),
                                                              self.camera.image.get_height()))
@@ -470,7 +469,8 @@ class Battle:
         self.current_ambient = None
 
         print("Start loading", self.chapter, self.mission, self.stage, scene)
-        self.game.loading_lore_text = self.localisation.grab_text(("load", randint(0, len(self.localisation.text[self.language]["load"]) - 1), "Text"))
+        self.game.loading_lore_text = self.localisation.grab_text(
+            ("load", randint(0, len(self.localisation.text[self.language]["load"]) - 1), "Text"))
 
         yield set_start_load(self, "stage setup")
         self.current_weather.__init__(1, 0, 0, self.weather_data)
@@ -532,7 +532,6 @@ class Battle:
                 else:  # battle stage should have data for all scene
                     self.battle_stage.data[value["POS"]] = value["Object"]
                     later_enemy[value["POS"]] = []
-
             elif "endchoice" in value["Type"]:
                 self.stage_end_choice = True
             elif "lock" in value["Type"]:
@@ -563,8 +562,9 @@ class Battle:
                             value["ID"] + self.chapter + self.mission + self.stage in
                             self.main_story_profile["story event"]):  # parent event
                         parent_event_run_check = False
-                if ("story choice" in value["Property"] and (value["Property"]["story choice"] != value["Property"]["story choice"].split("_")[0] + "_" +
-                                                 self.main_story_profile["story choice"][value["Property"]["story choice"].split("_")[0]])):
+                if ("story choice" in value["Property"] and (
+                        value["Property"]["story choice"] != value["Property"]["story choice"].split("_")[0] + "_" +
+                        self.main_story_profile["story choice"][value["Property"]["story choice"].split("_")[0]])):
                     event_run_check = False
                 if value["Type"] == "bgchange" and event_run_check and parent_event_run_check:
                     image = self.empty_stage_image
@@ -596,7 +596,6 @@ class Battle:
 
         yield set_start_load(self, "animation setup")
         self.game.animation_data.load_data(chapter)  # this will load data if chapter is different
-        print()
         Drop.item_sprite_pool = self.default_body_sprite_pool[int(self.chapter)]["Item"]["special"]
         WheelUI.item_sprite_pool = self.default_body_sprite_pool[int(self.chapter)]["Item"]["special"]
         CharacterInterface.item_sprite_pool = self.default_body_sprite_pool[int(self.chapter)]["Item"]["special"]
@@ -622,14 +621,16 @@ class Battle:
                     else:  # player char, check in equipped item in object
                         for player in self.players:
                             if self.players[player]["ID"] == char_id:
-                                item_list = [item for item in self.all_story_profiles[player]["equipment"]["item"].values() if item]
+                                item_list = [item for item in
+                                             self.all_story_profiles[player]["equipment"]["item"].values() if item]
                                 break
                     if item_list:
                         for item in item_list:
                             for this_property in self.character_data.equip_item_list[item]["Property"]:
                                 if "summon" in this_property:  # item capable of summoning character
                                     if "chaos" in this_property:  # add all characters that can be chaos invasion summon
-                                        character_list += [character for character in self.character_data.character_list if
+                                        character_list += [character for character in self.character_data.character_list
+                                                           if
                                                            self.character_data.character_list[character]["Invasion"] and
                                                            character not in character_list]
                     character_list = [char_id if "+" not in char_id else char_id.split("+")[0] for char_id in
@@ -647,13 +648,16 @@ class Battle:
                             value["ID"] + self.chapter + self.mission + self.stage in
                             self.main_story_profile["story event"]):  # parent event
                         parent_event_run_check = False
-                if ("story choice" in value["Property"] and (value["Property"]["story choice"] != value["Property"]["story choice"].split("_")[0] + "_" +
-                                                 self.main_story_profile["story choice"][value["Property"]["story choice"].split("_")[0]])):
+                if ("story choice" in value["Property"] and (
+                        value["Property"]["story choice"] != value["Property"]["story choice"].split("_")[0] + "_" +
+                        self.main_story_profile["story choice"][value["Property"]["story choice"].split("_")[0]])):
                     event_run_check = False
-                if value["Type"] == "create" and event_run_check and parent_event_run_check and value["Object"] not in character_list:
+                if value["Type"] == "create" and event_run_check and parent_event_run_check and value[
+                    "Object"] not in character_list:
                     character_list.append(value["Object"])
 
-        character_list = tuple([char_id if "+" not in char_id else char_id.split("+")[0] for char_id in set(character_list)])
+        character_list = tuple(
+            [char_id if "+" not in char_id else char_id.split("+")[0] for char_id in set(character_list)])
 
         if not self.city_mode:  # only remove unused animation data when start battle not city
             for key in tuple(self.body_sprite_pool.keys()):

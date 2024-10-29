@@ -1,5 +1,4 @@
 import pygame
-from engine.utils.text_making import make_long_text
 
 
 def loading_screen(self, state):

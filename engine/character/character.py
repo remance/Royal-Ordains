@@ -1344,7 +1344,7 @@ class BodyPart(sprite.Sprite):
             if self.image_update_contains:  # update any object after getting base image
                 # part with update must always have 0 flip 0 angle and 1 scale in animation data to work will apply rotate later
                 self.base_image = \
-                self.body_sprite_pool[self.sprite_ver][sprite_type]["special"][self.data[1]][self.mode][0][1][0]
+                    self.body_sprite_pool[self.sprite_ver][sprite_type]["special"][self.data[1]][self.mode][0][1][0]
                 for item in self.image_update_contains:
                     item.update()
             else:

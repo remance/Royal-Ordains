@@ -1,4 +1,5 @@
 from copy import deepcopy
+
 from pygame.mixer import Sound
 
 
@@ -84,7 +85,8 @@ def check_event(self):
                 self.current_ambient = None
                 if self.reach_scene_event_list[self.battle_stage.reach_scene]["ambient"] != "none":
                     self.current_ambient = Sound(self.ambient_pool[
-                        self.reach_scene_event_list[self.battle_stage.reach_scene]["ambient"]])
+                                                     self.reach_scene_event_list[self.battle_stage.reach_scene][
+                                                         "ambient"]])
                 if self.current_ambient:
                     self.ambient.play(self.current_ambient, loops=-1, fade_ms=100)
                     self.ambient.set_volume(self.play_effect_volume)

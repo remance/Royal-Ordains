@@ -12,6 +12,5 @@ def adjust_sprite(self):
         self.image = smoothscale(self.image, (int(self.image.get_width() * self.scale),
                                               int(self.image.get_height() * self.scale)))
 
-
     self.rect = self.image.get_rect(center=self.pos)
     self.mask = from_surface(self.image)

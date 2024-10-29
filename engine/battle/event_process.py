@@ -1,7 +1,7 @@
-import pygame
 import sys
-
 from random import choice, randint
+
+import pygame
 from pygame.mixer import Sound
 
 from engine.character.character import AICharacter

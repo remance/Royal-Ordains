@@ -1,4 +1,3 @@
-import copy
 import csv
 from os import sep, listdir
 from os.path import join, split, normpath, exists, isfile
@@ -38,7 +37,7 @@ class AnimationData(GameData):
 
             subdirectories = [split(sep.join(
                 normpath(x).split(sep)[normpath(x).split(sep).index("animation"):]))[-1] for x
-                in Path(join(self.data_dir, "animation")).iterdir() if x.is_dir()]
+                              in Path(join(self.data_dir, "animation")).iterdir() if x.is_dir()]
             # get only chapter lower or equal to current chapter
             subdirectories = reversed([x for x in subdirectories if x.isdigit() and int(x) <= int(self.chapter)])
             for sub_folder in subdirectories:  # get chapter animation file
@@ -51,11 +50,12 @@ class AnimationData(GameData):
                         # update to new chapter
                         self.char_sprite_chapter[file_data_name] = int(sub_folder)
                         with (open(join(self.data_dir, "animation", str(chapter), file + ".csv"), encoding="utf-8",
-                                  mode="r") as edit_file):
+                                   mode="r") as edit_file):
                             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
                             part_name_header = rd[0]
                             list_column = ["head", "neck", "body", "r_arm_up", "r_arm_low", "r_hand", "l_arm_up",
-                                           "l_arm_low", "l_hand", "r_leg_up", "r_leg_low", "r_foot", "l_leg_up", "l_leg_low",
+                                           "l_arm_low", "l_hand", "r_leg_up", "r_leg_low", "r_foot", "l_leg_up",
+                                           "l_leg_low",
                                            "l_foot", "main_weapon", "sub_weapon",
                                            "special_1", "special_2", "special_3", "special_4", "special_5",
                                            "special_6", "special_7", "special_8", "special_9", "special_10"]
@@ -95,7 +95,8 @@ class AnimationData(GameData):
                                                 flip_row[part_index][5] = 0
 
                                     animation_pool[key]["l_side"].append(
-                                        {part_name_header[item_index]: item for item_index, item in enumerate(flip_row)})
+                                        {part_name_header[item_index]: item for item_index, item in
+                                         enumerate(flip_row)})
 
                                     for side in animation_pool[key].values():  # get angle, scale, flip for both side
                                         for row_part in side:
@@ -121,26 +122,35 @@ class AnimationData(GameData):
                                                         self.part_sprite_adjust[file_data_name] = {}
                                                     if part_type not in self.part_sprite_adjust[file_data_name]:
                                                         self.part_sprite_adjust[file_data_name][part_type] = {}
-                                                    if part_name not in self.part_sprite_adjust[file_data_name][part_type]:
-                                                        self.part_sprite_adjust[file_data_name][part_type][part_name] = {}
-                                                    if part[1] not in self.part_sprite_adjust[file_data_name][part_type][
-                                                        part_name]:
+                                                    if part_name not in self.part_sprite_adjust[file_data_name][
+                                                        part_type]:
+                                                        self.part_sprite_adjust[file_data_name][part_type][
+                                                            part_name] = {}
+                                                    if part[1] not in \
+                                                            self.part_sprite_adjust[file_data_name][part_type][
+                                                                part_name]:
                                                         self.part_sprite_adjust[file_data_name][part_type][part_name][
                                                             part[1]] = {}
                                                     if part[5] not in \
-                                                            self.part_sprite_adjust[file_data_name][part_type][part_name][
+                                                            self.part_sprite_adjust[file_data_name][part_type][
+                                                                part_name][
                                                                 part[1]]:  # flip
-                                                        self.part_sprite_adjust[file_data_name][part_type][part_name][part[1]][
+                                                        self.part_sprite_adjust[file_data_name][part_type][part_name][
+                                                            part[1]][
                                                             part[5]] = {}
                                                     if part[7] not in \
-                                                            self.part_sprite_adjust[file_data_name][part_type][part_name][
+                                                            self.part_sprite_adjust[file_data_name][part_type][
+                                                                part_name][
                                                                 part[1]][part[5]]:  # scale
-                                                        self.part_sprite_adjust[file_data_name][part_type][part_name][part[1]][
+                                                        self.part_sprite_adjust[file_data_name][part_type][part_name][
+                                                            part[1]][
                                                             part[5]][part[7]] = []
                                                     if part[4] not in \
-                                                            self.part_sprite_adjust[file_data_name][part_type][part_name][
+                                                            self.part_sprite_adjust[file_data_name][part_type][
+                                                                part_name][
                                                                 part[1]][part[5]][part[7]]:  # angle
-                                                        self.part_sprite_adjust[file_data_name][part_type][part_name][part[1]][
+                                                        self.part_sprite_adjust[file_data_name][part_type][part_name][
+                                                            part[1]][
                                                             part[5]][part[7]].append(part[4])
 
                                     for side_data in animation_pool[key].values():
@@ -152,18 +162,21 @@ class AnimationData(GameData):
                                             item["property"] = tuple(set(item["property"]))
                                             if item["sound_effect"]:
                                                 item["sound_effect"] = (
-                                                    item["sound_effect"][0], item["sound_effect"][1], item["sound_effect"][2])
+                                                    item["sound_effect"][0], item["sound_effect"][1],
+                                                    item["sound_effect"][2])
 
                             # since pool data cannot be changed later, use tuple instead
                             for key in animation_pool:
                                 for index in range(len(animation_pool[key]["l_side"])):
-                                    animation_pool[key]["l_side"][index] = {key: tuple(value) if type(value) is list else value
-                                                                            for key, value in
-                                                                            animation_pool[key]["l_side"][index].items()}
+                                    animation_pool[key]["l_side"][index] = {
+                                        key: tuple(value) if type(value) is list else value
+                                        for key, value in
+                                        animation_pool[key]["l_side"][index].items()}
                                 for index in range(len(animation_pool[key]["r_side"])):
-                                    animation_pool[key]["r_side"][index] = {key: tuple(value) if type(value) is list else value
-                                                                            for key, value in
-                                                                            animation_pool[key]["r_side"][index].items()}
+                                    animation_pool[key]["r_side"][index] = {
+                                        key: tuple(value) if type(value) is list else value
+                                        for key, value in
+                                        animation_pool[key]["r_side"][index].items()}
 
                             self.character_animation_data[file_data_name] = animation_pool
                         edit_file.close()
@@ -198,14 +211,15 @@ class AnimationData(GameData):
                                                         "character", fcv(char_id, revert=True), part_type,
                                                         str(self.char_sprite_chapter[key])))
                                 subdirectories = [split(sep.join(normpath(x).split(sep)[normpath(x).split(sep).index(
-                                                 "animation"):])) for x in part_folder.iterdir() if x.is_dir()]
+                                    "animation"):])) for x in part_folder.iterdir() if x.is_dir()]
 
                                 for folder in subdirectories:  # loop part mode
                                     folder_data_name = fcv(folder[-1])
                                     if folder_data_name not in sprite_pool[part_type]:
                                         sprite_pool[part_type][folder_data_name] = {}
                                     if part_name not in sprite_pool[part_type][folder_data_name]:
-                                        if exists(join(self.data_dir, folder[0], folder[1], fcv(part_name + ".png", revert=True))):
+                                        if exists(join(self.data_dir, folder[0], folder[1],
+                                                       fcv(part_name + ".png", revert=True))):
                                             sprite_pool[part_type][folder_data_name][part_name] = load_image(
                                                 join(self.data_dir, folder[0], folder[1]), self.screen_scale,
                                                 fcv(part_name + ".png", revert=True))
@@ -242,11 +256,13 @@ class AnimationData(GameData):
                                     sprite_animation_list = [value for key, value in images.items() if final_name ==
                                                              " ".join([string for string in key.split(" ")[:-1]])]
                                 else:  # single frame animation
-                                    sprite_animation_list = [value for key, value in images.items() if final_name == key]
+                                    sprite_animation_list = [value for key, value in images.items() if
+                                                             final_name == key]
 
                                 self.default_effect_animation_pool[folder_data_name][final_name] = sprite_animation_list
 
-            self.effect_animation_pool |= {key: value.copy() for key, value in self.default_effect_animation_pool.items()}
+            self.effect_animation_pool |= {key: value.copy() for key, value in
+                                           self.default_effect_animation_pool.items()}
 
             part_folder = Path(join(self.data_dir, "animation", "sprite", "object"))
             subdirectories = [split(

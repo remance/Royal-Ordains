@@ -113,7 +113,7 @@ class CharacterData(GameData):
                                 "Buttons", "Requirement Move", "Status", "Enemy Status")  # value in tuple only
                             tuple_column = [index for index, item in enumerate(header2) if item in tuple_column]
                             dict_column = (
-                            "Stat Requirement", "Prepare Animation", "After Animation", "AI Condition", "Property",)
+                                "Stat Requirement", "Prepare Animation", "After Animation", "AI Condition", "Property",)
                             dict_column = [index for index, item in enumerate(header2) if item in dict_column]
                             moveset_dict = {}
                             remain_next_move_loop = []
@@ -212,7 +212,8 @@ class CharacterData(GameData):
                                         summon_list += move_data["Property"]["summon"]
                             self.character_list[row[0]]["Skill"] = moveset_dict
                             self.character_list[row[0]]["Skill UI"] = moveset_ui_dict
-                            self.character_list[row[0]]["Summon List"] = tuple(self.character_list[row[0]]["Summon List"] + summon_list)
+                            self.character_list[row[0]]["Summon List"] = tuple(
+                                self.character_list[row[0]]["Summon List"] + summon_list)
                         edit_file2.close()
 
                     # Add character mode data

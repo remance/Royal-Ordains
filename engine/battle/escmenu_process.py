@@ -47,7 +47,8 @@ def escmenu_process(self, esc_press: bool):
                                            self.stage_translation_text_popup)  # remove start_set esc menu button
                     self.dialogue_box.__init__(self.dialogue_box.origin, self.dialogue_box.pivot,
                                                self.dialogue_box.relative_size_inside_container,
-                                               ListAdapter([" ".join(item[0]) + self.localisation.grab_text(("event", item[1], "Text")) for item in
+                                               ListAdapter([" ".join(item[0]) + self.localisation.grab_text(
+                                                   ("event", item[1], "Text")) for item in
                                                             self.main_story_profile["dialogue log"]]),
                                                self.dialogue_box.parent,
                                                self.dialogue_box.visible_list_capacity,
