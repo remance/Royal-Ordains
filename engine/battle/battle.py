@@ -595,10 +595,6 @@ class Battle:
         yield set_done_load()
 
         yield set_start_load(self, "animation setup")
-        self.game.animation_data.load_data(chapter)  # this will load data if chapter is different
-        Drop.item_sprite_pool = self.default_body_sprite_pool[int(self.chapter)]["Item"]["special"]
-        WheelUI.item_sprite_pool = self.default_body_sprite_pool[int(self.chapter)]["Item"]["special"]
-        CharacterInterface.item_sprite_pool = self.default_body_sprite_pool[int(self.chapter)]["Item"]["special"]
         character_list = ([this_char["ID"] for this_char in stage_data["character"] if type(this_char["ID"]) is str] +
                           [player["ID"] for player in self.players.values()])
         character_list = [char_id if "+" not in char_id else char_id.split("+")[0] for char_id in set(character_list)]
@@ -663,6 +659,11 @@ class Battle:
             for key in tuple(self.body_sprite_pool.keys()):
                 if key not in character_list:  # remove unused animation data
                     self.body_sprite_pool.pop(key)
+
+        self.game.animation_data.load_data(chapter, character_list)  # this will load data if chapter is different
+        Drop.item_sprite_pool = self.default_body_sprite_pool[int(self.chapter)]["Item"]["special"]
+        WheelUI.item_sprite_pool = self.default_body_sprite_pool[int(self.chapter)]["Item"]["special"]
+        CharacterInterface.item_sprite_pool = self.default_body_sprite_pool[int(self.chapter)]["Item"]["special"]
 
         for char_id in character_list:
             for part_type in self.part_sprite_adjust[char_id]:
