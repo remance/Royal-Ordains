@@ -6,7 +6,7 @@ from types import MethodType
 import pygame
 from pygame import sprite, Vector2
 from pygame.mask import from_surface
-from pygame.transform import flip, smoothscale, rotate
+from pygame.transform import flip, smoothscale, rotozoom
 
 from engine.character.ai_combat import ai_combat_dict
 from engine.character.ai_move import ai_move_dict
@@ -1318,7 +1318,7 @@ class BodyPart(sprite.Sprite):
         if data[7] != 1:
             image = smoothscale(image, (image.get_width() * data[7], image.get_height() * data[7]))
         if data[4]:
-            image = rotate(image, data[4])
+            image = rotozoom(image, data[4], 1)
         return image
 
     def get_part(self, data, new_animation):

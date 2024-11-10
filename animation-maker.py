@@ -108,7 +108,7 @@ effect_colour_: Colourise entire frame based on the input value
 
 def reload_animation(animation, char, specific_frame=None):
     """Reload animation frames"""
-    frames = [pygame.transform.smoothscale(this_image, showroom.size) for this_image in char.animation_list if
+    frames = [this_image for this_image in char.animation_list if
               this_image is not None]
     for frame_index in range(max_frame):
         if (not specific_frame and activate_list[frame_index]) or (specific_frame and frame_index == specific_frame):
@@ -244,6 +244,9 @@ def change_animation(new_name):
     model.read_animation(new_name)
     if activate_list[current_frame] is False:
         current_frame = 0
+        setup_list(NameList, current_frame_row, frame_prop_list_box.namelist[current_frame], frame_prop_namegroup,
+                   frame_prop_list_box, ui, screen_scale, layer=9,
+                   old_list=frame_property_select[current_frame])  # change frame property list
     anim.show_frame = current_frame
     animation_name = new_name
     animation_selector.change_name(new_name)
@@ -941,7 +944,7 @@ class Model:
                    frame_prop_list_box, ui, screen_scale, layer=9, old_list=frame_property_select[current_frame])
 
     def create_animation_film(self, pose_layer_list, frame, empty=False):
-        image = pygame.Surface((default_sprite_size[0] * self.size, default_sprite_size[1] * self.size),
+        image = pygame.Surface((default_sprite_size[0], default_sprite_size[1]),
                                pygame.SRCALPHA)  # default size will scale down later
         save_mask = False
         if frame == current_frame:
@@ -1394,11 +1397,8 @@ class Model:
                 self.current_history -= new_first
 
     def part_to_sprite(self, surface, part, part_name, target, angle, flip, scale, save_mask=False):
-        """Find body part's new center point from main_joint_pos with new angle, then create rotated part and blit to sprite"""
-        part_rotated = part.copy()
-        if scale != 1:
-            part_rotated = pygame.transform.smoothscale(part_rotated, (part_rotated.get_width() * scale,
-                                                                       part_rotated.get_height() * scale))
+        part_rotated = pygame.transform.smoothscale(part, (part.get_width() * scale / self.size,
+                                                           part.get_height() * scale / self.size))
         if flip:
             if flip == 1:  # horizontal only
                 part_rotated = pygame.transform.flip(part_rotated, True, False)
@@ -1407,9 +1407,9 @@ class Model:
             # elif flip == 3:  # flip both direction
             #     part_rotated = pygame.transform.flip(part_rotated, True, True)
         if angle:
-            part_rotated = pygame.transform.rotate(part_rotated, angle)  # rotate part sprite
+            part_rotated = pygame.transform.rotozoom(part_rotated, angle, 1)  # rotate part sprite
 
-        new_target = (target[0] + showroom_base_point[0], target[1] + showroom_base_point[1])
+        new_target = ((target[0] + showroom_base_point[0]) / self.size, (target[1] + showroom_base_point[1]) / self.size)
         rect = part_rotated.get_rect(center=new_target)
         if save_mask:
             mask = pygame.mask.from_surface(part_rotated)
@@ -1418,14 +1418,6 @@ class Model:
         surface.blit(part_rotated, rect)
 
         return surface
-
-    def remake_mask_list(self):
-        for key, value in self.mask_part_list.items():  # reset rect list
-            self.mask_part_list[key] = None
-
-        for part_index, part in enumerate(self.animation_part_list[current_frame]):
-            rect = part.rect
-            self.mask_part_list[list(self.mask_part_list.keys())[part_index]] = rect
 
     def add_history(self):
         self.current_history += 1
@@ -2257,7 +2249,7 @@ while True:
 
                     elif speed_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("text_input", "change_speed")
-                        input_ui.change_instruction("Input Time Number Value:")
+                        input_ui.change_instruction("Input Time Value:")
                         ui.add(input_ui_popup)
 
                     elif all_copy_button.rect.collidepoint(mouse_pos):
@@ -2505,12 +2497,12 @@ while True:
 
                     elif export_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("confirm_input", "export_animation")
-                        input_ui.change_instruction("Export to PNG Files?")
+                        input_ui.change_instruction("Export to PNGs?")
                         ui.add(input_ui_popup)
 
                     elif export_gif_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("confirm_input", "export_animation_gif")
-                        input_ui.change_instruction("Export to GIF Files?")
+                        input_ui.change_instruction("Export to a GIF?")
                         ui.add(input_ui_popup)
 
                     elif flip_hori_button.rect.collidepoint(mouse_pos):
@@ -2738,8 +2730,8 @@ while True:
 
                 if showroom.rect.collidepoint(mouse_pos):  # mouse at showroom
                     new_mouse_pos = pygame.Vector2(
-                        (mouse_pos[0] - showroom.rect.topleft[0]) * showroom_scale_mul[0] * model.size,
-                        (mouse_pos[1] - showroom.rect.topleft[1]) * showroom_scale_mul[1] * model.size)
+                        (mouse_pos[0] - showroom.rect.topleft[0]) * showroom_scale_mul[0],
+                        (mouse_pos[1] - showroom.rect.topleft[1]) * showroom_scale_mul[1])
                     if mouse_left_up:  # left click on showroom
                         model.click_part(new_mouse_pos, shift_press, ctrl_press)
                         for index, helper in enumerate(helper_list):
@@ -2750,7 +2742,10 @@ while True:
                                         helper.select_part(mouse_pos, True, False,
                                                            specific_part=list(model.mask_part_list.keys())[part])
                             helper.blit_part()
-                    if model.part_selected:
+                    elif model.part_selected:
+                        new_mouse_pos = pygame.Vector2(
+                            (mouse_pos[0] - showroom.rect.topleft[0]) * showroom_scale_mul[0] * model.size,
+                            (mouse_pos[1] - showroom.rect.topleft[1]) * showroom_scale_mul[1] * model.size)
                         if mouse_wheel_up or mouse_wheel_down:
                             model.edit_part(new_mouse_pos, "rotate", specific_frame=current_frame)
                         elif mouse_right_up or mouse_right_down:

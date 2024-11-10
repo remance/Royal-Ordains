@@ -1,11 +1,11 @@
 from pygame.mask import from_surface
-from pygame.transform import rotate, flip, smoothscale
+from pygame.transform import rotozoom, flip, smoothscale
 
 
 def adjust_sprite(self):
     self.image = self.base_image
     if self.angle:
-        self.image = rotate(self.base_image, self.angle)
+        self.image = rotozoom(self.base_image, self.angle, 1)
     if self.flip:
         self.image = flip(self.image, True, False)
     if self.scale:

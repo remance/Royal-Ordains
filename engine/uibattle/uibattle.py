@@ -1017,7 +1017,7 @@ class CharacterSpeechBox(UIBattle):
     simple_font = False
 
     def __init__(self, character, text, specific_timer=None, player_input_indicator=False, cutscene_event=None,
-                 add_log=None, voice=None, body_part="p1_head", use_big=False, max_text_width=600):
+                 add_log=None, voice=False, body_part="p1_head", use_big=False, max_text_width=600):
         """Speech box that appear from character head"""
         self._layer = 9999999999999999998
         UIBattle.__init__(self, player_cursor_interact=False, has_containers=True)
@@ -1085,6 +1085,10 @@ class CharacterSpeechBox(UIBattle):
             self.battle.add_sound_effect_queue(choice(self.battle.sound_effect_pool[voice[0]]),
                                                self.battle.camera_pos, voice[1],
                                                voice[2], volume="voice")
+        elif voice is False:  # None will play no sound
+            self.battle.add_sound_effect_queue(choice(self.battle.sound_effect_pool["Parchment_write"]),
+                                               self.battle.camera_pos, 1000,
+                                               0, volume="voice")
         if specific_timer:
             self.timer = specific_timer
         else:

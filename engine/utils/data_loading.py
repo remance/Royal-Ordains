@@ -6,7 +6,7 @@ from pathlib import Path
 from PIL import Image
 from pygame import image
 from pygame.mixer import Sound
-from pygame.transform import smoothscale, flip, rotate
+from pygame.transform import smoothscale, flip, rotozoom
 
 accept_image_types = ("png", "jpg", "jpeg", "svg", "gif", "bmp")
 
@@ -128,7 +128,7 @@ def recursive_image_load(save_dict, screen_scale, part_folder, key_file_name_rea
                                     for angle in part_sprite_adjust[part_type][part_name][key][flip_value][scale]:
                                         imgs[key][flip_value][scale][angle] = scale_image
                                         if angle:
-                                            imgs[key][flip_value][scale][angle] = rotate(scale_image, angle)
+                                            imgs[key][flip_value][scale][angle] = rotozoom(scale_image, angle, 1)
         save_dict |= imgs
 
 
@@ -172,7 +172,7 @@ def prepare_animation_sprite(save_pool, chapter, part_type, part_name, key, spri
                                     for angle in part_sprite_adjust[part_type][part_name][key][flip_value][scale]:
                                         imgs[mode][flip_value][scale][angle] = scale_image
                                         if angle:
-                                            imgs[mode][flip_value][scale][angle] = rotate(scale_image, angle)
+                                            imgs[mode][flip_value][scale][angle] = rotozoom(scale_image, angle, 1)
     recursive_merge(save_pool, imgs)
 
 
