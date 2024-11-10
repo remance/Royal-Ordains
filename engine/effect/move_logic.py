@@ -34,12 +34,6 @@ def move_logic(self, dt, done):
                     self.stick_timer = 5
                     self.current_animation = self.animation_pool["Base"]  # change image to base
                     self.base_image = self.current_animation[self.show_frame]
-                    if self.scale != 1:
-                        self.base_image = smoothscale(self.base_image,
-                                                      (self.base_image.get_width() * self.scale,
-                                                       self.base_image.get_height() * self.scale))
-                    if self.flip:
-                        self.base_image = flip(self.base_image, 1, 0)
                     self.adjust_sprite()
                     self.battle.all_damage_effects.remove(self)
                 else:

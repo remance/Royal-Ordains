@@ -21,7 +21,6 @@ class AnimationData(GameData):
         self.default_body_sprite_pool = {}
         self.default_effect_animation_pool = {}
         self.effect_animation_pool = {}
-        self.stage_object_sprite_pool = {}
         self.stage_object_animation_pool = {}
         self.char_sprite_chapter = {}
 
@@ -32,8 +31,6 @@ class AnimationData(GameData):
             self.character_animation_data.clear()
             self.default_effect_animation_pool.clear()
             self.effect_animation_pool.clear()
-            self.stage_object_sprite_pool.clear()
-            self.stage_object_animation_pool.clear()
 
         new_part_sprite_adjust = {}
         subdirectories = [split(sep.join(
@@ -178,7 +175,6 @@ class AnimationData(GameData):
                                     key: tuple(value) if type(value) is list else value
                                     for key, value in
                                     animation_pool[key]["r_side"][index].items()}
-
                         self.character_animation_data[file_data_name] = animation_pool
                     edit_file.close()
 
@@ -267,6 +263,10 @@ class AnimationData(GameData):
 
             self.effect_animation_pool |= {key: value.copy() for key, value in
                                            self.default_effect_animation_pool.items()}
+
+    def load_stage_object_data(self, chapter):
+        if self.chapter != chapter:  # new chapter load, reload all assets
+            self.stage_object_animation_pool.clear()
 
             part_folder = Path(join(self.data_dir, "animation", "sprite", "object"))
             subdirectories = [split(

@@ -61,12 +61,6 @@ def hit_register(self, target, enemy_part, collide_pos):
                             self.travel_distance = 0
                             self.current_animation = self.animation_pool["Base"]  # change image to base
                             self.base_image = self.current_animation[self.show_frame]
-                            if self.scale != 1:
-                                self.base_image = smoothscale(self.base_image,
-                                                              (self.base_image.get_width() * self.scale,
-                                                               self.base_image.get_height() * self.scale))
-                            if self.flip:
-                                self.base_image = flip(self.base_image, 1, 0)
                             self.adjust_sprite()
                             self.battle.all_damage_effects.remove(self)
                             self.base_stuck_stat = (self.pos - self.stuck_part.rect.center, self.angle,

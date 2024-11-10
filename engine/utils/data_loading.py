@@ -150,7 +150,6 @@ def prepare_animation_sprite(save_pool, chapter, part_type, part_name, key, spri
             part_type = filename_convert_readable(part_type)
         else:
             part_name = filename_convert_readable(part_name)
-        # pool = sprite_pool[]
         imgs = {}
         if part_type in part_sprite_adjust:
             if part_name in part_sprite_adjust[part_type]:
@@ -180,8 +179,8 @@ def filename_convert_readable(filename, revert=False) -> str:
     if revert:
         new_filename = filename.replace(" ", "-").lower()  # replace space with - and make name lowercase
     else:
-        if "-" in filename:
-            new_filename = filename.split("-")
+        if "-" in filename or " " in filename:
+            new_filename = filename.replace(" ", "-").split("-")
         else:
             new_filename = [filename]
 

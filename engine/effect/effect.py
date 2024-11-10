@@ -82,7 +82,6 @@ class Effect(Sprite):
         self.angle = self.part_stat[4]
         self.scale = self.part_stat[7]
         self.flip = self.part_stat[5]
-
         self.deal_dmg = False
         self.reach_effect = None
         self.stick_reach = False

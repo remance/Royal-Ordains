@@ -506,6 +506,7 @@ class Battle:
         self.stage_music_pool = {}
         self.speech_prompt.clear()
 
+        self.game.animation_data.load_stage_object_data(chapter)  # this will load data if chapter is different
         first_lock = None
         for value in stage_object_data.values():
             if value["Object"] not in loaded_item:  # load image
