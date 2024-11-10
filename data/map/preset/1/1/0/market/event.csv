@@ -1,5 +1,5 @@
 "ID","Text ID","Object","Animation","Type","Trigger","Property"
-"music/scene1",,"market",,"music","camera_reach_scene,1",
+"music/scene1",,"Market",,"music","camera_reach_scene,1",
 ,"Tanrsakt/Rodhinbar/1_1_city_market_talk1.1",1,"Talk","char","interact,1","interact,hold,repeat after"
 ,,1,"StopTalk",,,
 ,"Tanrsakt/Rodhinbar/1_1_city_market_talk1.2","pm","Talk",,,"interact,hold,repeat after"

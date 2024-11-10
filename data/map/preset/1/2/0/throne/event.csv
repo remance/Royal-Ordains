@@ -51,7 +51,7 @@
 ,,"Kapuni",,"remove",,
 ,,"Tulia",,"remove",,
 ,,"Bigta",,"remove",,
-"music/scene1",,"throne",,"music","camera_reach_scene,1",
+"music/scene1",,"Throne",,"music","camera_reach_scene,1",
 "King/Vraesier/1_2_city_throne_talk1","King/Vraesier/1_2_city_throne_talk1.1",2,"Talk","char","interact,2","interact,hold,repeat after"
 ,,2,"StopTalk",,,
 ,"King/Vraesier/1_2_city_throne_talk1.2",2,,,,"interact"

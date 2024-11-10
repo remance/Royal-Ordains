@@ -399,7 +399,7 @@ class Game:
 
         # Music player
         pygame.mixer.set_num_channels(1000)
-        music.load(self.music_pool["menu"])
+        music.load(self.music_pool["Menu"])
         music.set_volume(self.play_music_volume)
 
         # Load UI images

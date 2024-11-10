@@ -1,5 +1,5 @@
 "ID","Text ID","Object","Animation","Type","Trigger","Property"
-"music/scene1",,"council",,"music","camera_reach_scene,1",
+"music/scene1",,"Council",,"music","camera_reach_scene,1",
 "Solhatar/Nayedien/1_1_city_council_talk1","Solhatar/Nayedien/1_1_city_council_talk1.1",1,"Talk","char","interact,1","interact,hold,repeat after"
 ,,1,"StopTalk",,,
 ,"Solhatar/Nayedien/1_1_city_council_talk1.2","pm","Talk",,,"interact,hold,repeat after"

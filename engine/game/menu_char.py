@@ -64,7 +64,7 @@ def menu_char(self, esc_press):
             self.start_battle(
                 self.save_data.save_profile["character"][self.profile_index[main_story_player]]["chapter"],
                 self.save_data.save_profile["character"][self.profile_index[main_story_player]]["mission"],
-                "0", players=players, scene="throne")
+                "0", players=players, scene="Throne")
 
             # self.start_battle(
             #     self.save_data.save_profile["character"][self.profile_index[main_story_player]]["chapter"],

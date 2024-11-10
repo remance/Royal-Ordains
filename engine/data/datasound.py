@@ -33,15 +33,15 @@ class SoundData(GameData):
 
         # load music
         self.music_pool = glob.glob(os.path.join(self.data_dir, "sound", "music", "*.ogg"))
-        self.music_pool = {item.split("\\")[-1].replace(".ogg", ""): item for
+        self.music_pool = {fcv(item.split("\\")[-1].replace(".ogg", "")): item for
                            item in self.music_pool}
 
         # load ambient
         self.ambient_pool = glob.glob(os.path.join(self.data_dir, "sound", "ambient", "*.ogg"))
-        self.ambient_pool = {item.split("\\")[-1].replace(".ogg", ""): item for
+        self.ambient_pool = {fcv(item.split("\\")[-1].replace(".ogg", "")): item for
                              item in self.ambient_pool}
 
         # load weather ambient
         self.weather_ambient_pool = glob.glob(os.path.join(self.data_dir, "sound", "weather", "*.ogg"))
-        self.weather_ambient_pool = {item.split("\\")[-1].replace(".ogg", ""): item for
+        self.weather_ambient_pool = {fcv(item.split("\\")[-1].replace(".ogg", "")): item for
                                      item in self.weather_ambient_pool}

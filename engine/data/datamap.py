@@ -120,7 +120,7 @@ class BattleMapData(GameData):
                 read_folder = Path(os.path.join(self.data_dir, "map", "preset", file_chapter, file_map))
                 sub3_directories = [x for x in read_folder.iterdir() if x.is_dir()]
                 for file_stage in sub3_directories:
-                    stage_file_name = os.sep.join(os.path.normpath(file_stage).split(os.sep)[-1:])
+                    stage_file_name = fcv(os.sep.join(os.path.normpath(file_stage).split(os.sep)[-1:]))
                     self.preset_map_data[chapter_file_name][map_file_name][stage_file_name] = {}
                     if stage_file_name != "0":  # city stage use different reading
                         original_event_data, event_data = self.load_map_event_data(chapter_file_name, map_file_name,
@@ -134,7 +134,7 @@ class BattleMapData(GameData):
                         read_folder = Path(os.path.join(self.data_dir, "map", "preset", file_chapter, file_map, "0"))
                         sub4_directories = [x for x in read_folder.iterdir() if x.is_dir()]
                         for file_scene in sub4_directories:
-                            scene_file_name = os.sep.join(os.path.normpath(file_scene).split(os.sep)[-1:])
+                            scene_file_name = fcv(os.sep.join(os.path.normpath(file_scene).split(os.sep)[-1:]))
                             original_event_data, event_data = self.load_map_event_data(chapter_file_name, map_file_name,
                                                                                        stage_file_name,
                                                                                        scene_id=scene_file_name)

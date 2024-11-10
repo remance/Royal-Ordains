@@ -2729,10 +2729,10 @@ while True:
                         model.edit_part(None, "redo")
 
                 if showroom.rect.collidepoint(mouse_pos):  # mouse at showroom
-                    new_mouse_pos = pygame.Vector2(
-                        (mouse_pos[0] - showroom.rect.topleft[0]) * showroom_scale_mul[0],
-                        (mouse_pos[1] - showroom.rect.topleft[1]) * showroom_scale_mul[1])
                     if mouse_left_up:  # left click on showroom
+                        new_mouse_pos = pygame.Vector2(
+                            (mouse_pos[0] - showroom.rect.topleft[0]) * showroom_scale_mul[0],
+                            (mouse_pos[1] - showroom.rect.topleft[1]) * showroom_scale_mul[1])
                         model.click_part(new_mouse_pos, shift_press, ctrl_press)
                         for index, helper in enumerate(helper_list):
                             helper.select_part(None, shift_press, ctrl_press)

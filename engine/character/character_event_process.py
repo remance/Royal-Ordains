@@ -106,7 +106,7 @@ def character_event_process(self, event, event_property):
 def start_speech(self, event, event_property):
     specific_timer = None
     player_input_indicator = None
-    voice = None
+    voice = False
     if "voice" in event_property:
         voice = event_property["voice"]
     body_part = "p1_head"

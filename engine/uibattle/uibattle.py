@@ -1089,6 +1089,7 @@ class CharacterSpeechBox(UIBattle):
             self.battle.add_sound_effect_queue(choice(self.battle.sound_effect_pool["Parchment_write"]),
                                                self.battle.camera_pos, 1000,
                                                0, volume="voice")
+
         if specific_timer:
             self.timer = specific_timer
         else:

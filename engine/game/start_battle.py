@@ -178,11 +178,11 @@ def start_battle(self, chapter, mission, stage, players=None, scene=None):
             self.start_battle(chapter, mission, str(int(stage) + 1), players=players)
         else:
             self.start_battle(self.battle.main_story_profile["chapter"],
-                              self.battle.main_story_profile["mission"], "0", players=players, scene="throne")
+                              self.battle.main_story_profile["mission"], "0", players=players, scene="Throne")
 
-    elif next_battle == "training":  # start training ground
+    elif next_battle == "Training":  # start training ground
         self.start_battle(self.battle.main_story_profile["chapter"], self.battle.main_story_profile["mission"],
-                          "training", players=players)
+                          "Training", players=players)
     elif next_battle and not any(i.isdigit() for i in next_battle):  # city stage go to specific city scene
         self.start_battle(self.battle.main_story_profile["chapter"], self.battle.main_story_profile["mission"],
                           "0", players=players, scene=next_battle)

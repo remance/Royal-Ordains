@@ -20,7 +20,7 @@
 ,,"Worshipper_two",,"remove",,
 ,,"Shopper_three",,"remove",,
 ,,"Barman_two",,"remove",,
-"music/scene1",,"cathedral",,"music","camera_reach_scene,1",
+"music/scene1",,"Cathedral",,"music","camera_reach_scene,1",
 "Orsanoas/Vraesier/1_1_city_cathedral_talk1","Orsanoas/Vraesier/1_1_city_cathedral_talk1.1",1,"CityTalk","char","interact,1","interact,hold,repeat after"
 ,,1,"StopCityTalk",,,"repeat after"
 ,,1,"TalkIdle",,,"repeat after"

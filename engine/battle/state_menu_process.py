@@ -28,7 +28,7 @@ def state_menu_process(self, esc_press):
                 return False
             elif input_popup == "end_battle":
                 self.back_to_battle_state()
-                return "throne"
+                return "Throne"
 
         elif self.input_cancel_button.event_press or esc_press:
             self.change_pause_update(False)

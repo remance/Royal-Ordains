@@ -175,4 +175,4 @@ def state_battle_process(self, esc_press):
                     # has next stage or mission
                     return True
                 else:
-                    return "throne"
+                    return "Throne"

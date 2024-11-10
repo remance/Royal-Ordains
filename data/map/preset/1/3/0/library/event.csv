@@ -1,5 +1,5 @@
 "ID","Text ID","Object","Animation","Type","Trigger","Property"
-"music/scene1",,"library",,"music","camera_reach_scene,1",
+"music/scene1",,"Library",,"music","camera_reach_scene,1",
 "Peurrus/Elmaliern/1_1_city_library_talk1","Peurrus/Elmaliern/1_1_city_library_talk1.1",,"Talk","char","interact,1","interact,hold"
 "Peurrus/Orsanoas/1_1_city_library_talk1","Peurrus/Orsanoas/1_1_city_library_talk1.1",,"Talk","char","interact,1","interact,hold"
 "Peurrus/Any/1_1_city_library_talk1","Peurrus/Any/1_1_city_library_talk1.1",1,"Talk","char","interact,1","interact,hold,Angle:-90,repeat after"

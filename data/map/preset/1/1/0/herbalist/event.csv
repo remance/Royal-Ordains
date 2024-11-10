@@ -1,5 +1,5 @@
 "ID","Text ID","Object","Animation","Type","Trigger","Property"
-"music/scene1",,"herbalist",,"music","camera_reach_scene,1",
+"music/scene1",,"Herbalist",,"music","camera_reach_scene,1",
 "Sasinola/Pasgelo/1_1_city_herbalist_talk1","Sasinola/Pasgelo/1_1_city_herbalist_talk1.1",,"Talk","char","interact,1","interact,hold"
 "Sasinola/Any/1_1_city_herbalist_talk1","Sasinola/Any/1_1_city_herbalist_talk1.1",1,"Talk","char","interact,1","interact,hold,repeat after"
 ,"Sasinola/Any/1_1_city_herbalist_talk1.2",1,"StopTalk",,,"interact"
