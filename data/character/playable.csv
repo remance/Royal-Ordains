@@ -1,14 +1,14 @@
-"ID","Name","Base Health","Start Health","Max Resource","Start Resource","Strength","Dexterity","Agility","Constitution","Intelligence","Wisdom","Charisma","Physical Resistance","Fire Resistance","Water Resistance","Air Resistance","Earth Resistance","Magic Resistance","Poison Resistance","Size","Ground Movement","Air Movement","Tinkerer","Arm Mastery","Wealth","Immunity","Resourceful","Combat Contest"
-"Hero","Vars",1200,1,0,0,50,53,54,58,18,24,32,0.3,0.3,0.3,0.3,0.3,0.3,0.3,12,2,2,,2,,2,,2
-"Vraesier","Vraesier",1000,1,50,0,19,13,15,12,7,8,7,,,0.1,,,0.1,,10,,1,,1,,,,
-"Orsanoas","Orsanoas",1400,1,100,0,21,7,11,19,5,5,10,0.1,,,,,,0.1,15,,,,,,1,,1
-"Minara","Minara",780,1,35,0.5,10,16,8,14,13,14,8,,0.2,,,,,,11,,,1,,,,1,
-"Rodhinbar","Rodhinbar",600,1,20,0.5,5,20,16,7,11,10,12,,,,0.1,,,0.1,10,,1,,,1,,,
-"Iri","Iri Kada Whe",640,1,200,1,2,15,19,6,16,14,4,,,0.05,0.15,,,,7,1,,1,,,,,
-"Bauqah","Bauqah",570,1,,,9,7,10,12,20,14,11,,0.1,,0.1,,,,10,,1,,,,,1,
-"Elmaliern","Elmaliern",450,1,,,3,11,6,5,16,22,13,0.05,,,,,0.15,,9,,,,,,1,1,
-"Pasgelo","Pasgelo",570,1,,,4,8,5,5,22,17,14,,0.1,,0.1,,,,10,,,,,1,1,,
-"Yuawies","Yuawies",510,1,,,7,9,8,11,13,14,20,,,0.1,,0.1,,,10,1,,,,1,,,
-"Duskuksa","Duskuksa",1260,1,80,1,13,10,6,15,13,14,12,0.05,,,,0.15,,,12,,,1,,,,,1
-"Nayedien","Nayedien",750,1,1000,1,13,17,17,9,9,11,6,,0.1,,0.1,,,,10,,,,1,,,,1
-"Laguasangte","Laguasangte",720,1,,,11,17,17,8,12,13,2,,,0.1,,0.1,,,11,1,,,1,,,,
+"ID","Name","Base Health","Start Health","Max Resource","Start Resource","Strength","Dexterity","Agility","Constitution","Intelligence","Wisdom","Charisma","Physical Resistance","Fire Resistance","Water Resistance","Air Resistance","Earth Resistance","Magic Resistance","Poison Resistance","Size","Ground Movement","Air Movement","Tinkerer","Arm Mastery","Wealth","Immunity","Resourceful","Combat Contest","Boss","Summon","AI Behaviour"
+"Hero","Vars",1200,1,0,0,50,53,54,58,18,24,32,0.3,0.3,0.3,0.3,0.3,0.3,0.3,12,2,2,,2,,2,,2,"FALSE","FALSE","common"
+"Vraesier","Vraesier",1000,1,50,0,19,13,15,12,7,8,7,,,0.1,,,0.1,,10,,1,,1,,,,,"FALSE","FALSE","common"
+"Orsanoas","Orsanoas",1400,1,100,0,21,7,11,19,5,5,10,0.1,,,,,,0.1,15,,,,,,1,,1,"FALSE","FALSE","common"
+"Minara","Minara",780,1,35,0.5,10,16,8,14,13,14,8,,0.2,,,,,,11,,,1,,,,1,,"FALSE","FALSE","common"
+"Rodhinbar","Rodhinbar",600,1,20,0.5,5,20,16,7,11,10,12,,,,0.1,,,0.1,10,,1,,,1,,,,"FALSE","FALSE","common"
+"Iri","Iri Kada Whe",640,1,200,1,2,15,19,6,16,14,4,,,0.05,0.15,,,,7,1,,1,,,,,,"FALSE","FALSE","common"
+"Bauqah","Bauqah",570,1,,,9,7,10,12,20,14,11,,0.1,,0.1,,,,10,,1,,,,,1,,"FALSE","FALSE","common"
+"Elmaliern","Elmaliern",450,1,,,3,11,6,5,16,22,13,0.05,,,,,0.15,,9,,,,,,1,1,,"FALSE","FALSE","common"
+"Pasgelo","Pasgelo",570,1,,,4,8,5,5,22,17,14,,0.1,,0.1,,,,10,,,,,1,1,,,"FALSE","FALSE","common"
+"Yuawies","Yuawies",510,1,,,7,9,8,11,13,14,20,,,0.1,,0.1,,,10,1,,,,1,,,,"FALSE","FALSE","common"
+"Duskuksa","Duskuksa",1260,1,80,1,13,10,6,15,13,14,12,0.05,,,,0.15,,,12,,,1,,,,,1,"FALSE","FALSE","common"
+"Nayedien","Nayedien",750,1,1000,1,13,17,17,9,9,11,6,,0.1,,0.1,,,,10,,,,1,,,,1,"FALSE","FALSE","common"
+"Laguasangte","Laguasangte",720,1,,,11,17,17,8,12,13,2,,,0.1,,0.1,,,11,1,,,1,,,,,"FALSE","FALSE","common"

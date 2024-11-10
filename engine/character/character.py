@@ -727,7 +727,9 @@ class BattleCharacter(Character):
                                self.item_usage.items()}
             self.item_usage = {key: value if value > 0 else 0 for key, value in self.item_usage.items()}
         else:
-            self.item_usage = stat["Items"]
+            self.item_usage = {}
+            if "Items" in stat:
+                self.item_usage = stat["Items"]
 
         self.attack_status_chance = {key: value for key, value in self.attack_status_chance.items() if value}
         self.body_mass = (stat["Size"] + self.weight) * 10
