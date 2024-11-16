@@ -54,3 +54,8 @@ def pick_cutscene_animation(self, action):
     self.final_animation_play_time = self.default_animation_play_time  # use default play speed
     if "play_time_mod" in self.current_animation_direction[self.show_frame]:
         self.final_animation_play_time *= self.current_animation_direction[self.show_frame]["play_time_mod"]
+
+    if self.current_animation_direction[self.show_frame]["sound_effect"]:  # play sound from animation
+        sound = self.current_animation_direction[self.show_frame]["sound_effect"]
+        self.battle.add_sound_effect_queue(self.sound_effect_pool[sound[0]][0],
+                                           self.pos, sound[1], sound[2])
