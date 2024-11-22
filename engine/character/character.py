@@ -476,12 +476,12 @@ class Character(sprite.Sprite):
 
 class BattleCharacter(Character):
     # static variable
-    knock_down_sound_distance = 1500
-    knock_down_screen_shake = 15
-    heavy_dmg_sound_distance = 100
-    heavy_dmg_screen_shake = 7
-    dmg_sound_distance = 80
-    dmg_screen_shake = 2
+    knock_down_sound_distance = 1000
+    knock_down_screen_shake = 10
+    heavy_dmg_sound_distance = 700
+    heavy_dmg_screen_shake = 5
+    dmg_sound_distance = 500
+    dmg_screen_shake = 0
 
     def __init__(self, game_id, layer_id, stat, player_control=False, leader=None, team_scaling=1):
         """

@@ -1,9 +1,8 @@
 "Buttons","Move","Name","Position","Stat Requirement","Requirement Move","Prepare Animation","After Animation","AI Range","AI Delay","AI Condition","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
 "Weak","cweak1","Fist Smack","Couch",,,,,250,,,,,,,,,,,,,"Physical",,,
 "Weak","cweak2","Low Punch","Couch",,,,,250,,,,,,,,,,,,,"Physical",,,
-"Weak","cweak3",,"Couch",,,,,,,,,,,,,,,,,,"Physical",,,
 "Strong","cstrong1","Ground Thump","Couch",,,,,200,,,,,,,,,,,,,"Physical",,,
-"Weak","sweak1","Kick Up","Stand",,,,,250,,,,,,,,,,,,,"Physical",,,
+"Weak","sweak1","Kick","Stand",,,,,250,,,,,,,,,,,,,"Physical",,,
 "Weak","sweak2","Stomp","Stand",,,,,200,,,,,,,,,,,,,"Physical",,,
 "Weak","sweak3","Full Punch","Stand",,,,,300,,,,,,,,,,,,,"Physical",,,
 "Strong","sstrong1","Hilt Stab","Stand",,,,,250,,,,,,,,,,,,,"Physical",,,

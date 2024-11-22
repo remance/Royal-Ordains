@@ -17,8 +17,7 @@ def enter_stage(self, animation_data_pool):
 
     self.body_parts = {key: value for key, value in self.body_parts.items() if key in exist_part}
     self.body_parts = {
-        key: BodyPart(self, key) if not any(ext in key for ext in ("weapon", "special")) else BodyPart(self, key,
-                                                                                                       can_hurt=False)
+        key: BodyPart(self, key) if not any(ext in key for ext in ("weapon", )) else BodyPart(self, key, can_hurt=False)
         for key, value in self.body_parts.items()}
 
     # adjust layer
