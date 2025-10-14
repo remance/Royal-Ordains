@@ -23,78 +23,55 @@ class Localisation:
         except FileNotFoundError:
             pass
 
-        self.read_localisation("history")
         self.read_localisation("character")
-        self.read_localisation("gear")
-        self.read_localisation("gear_mod")
-        self.read_localisation("gear_preset")
-        self.read_localisation("gear_rarity")
         self.read_localisation("item")
         self.read_localisation("status")
+        self.read_localisation("mission")
         self.read_localisation("event")
-        self.read_localisation("help")
         self.read_localisation("load")
 
-        self.text["en"]["follower_speak"] = {}
-        self.load_follower_talk_lore("en")
+        self.text["en"]["ai_speak"] = {}
+        self.text["en"]["scene"] = {}
+        self.load_follower_talk_localisation("en")
+        self.load_scene_text("en")
         if self.language != "en":
-            self.text[self.language]["follower_speak"] = {}
-            self.load_follower_talk_lore(self.language)
+            self.text[self.language]["ai_speak"] = {}
+            self.text[self.language]["scene"] = {}
+            self.load_follower_talk_localisation(self.language)
+            self.load_scene_text(self.language)
 
-        # Load map description
-        self.text["en"]["map"] = {}
-        self.load_map_lore("en")
-        if self.language != "en":
-            self.text[self.language]["map"] = {}
-            self.load_map_lore(self.language)
-
-    def load_follower_talk_lore(self, language):
+    def load_scene_text(self, language):
         try:
-            with open(os.path.join(self.data_dir, "localisation", language,
-                                   "follower_speak" + ".csv"), encoding="utf-8", mode="r") as edit_file:
-                rd = csv.reader(edit_file, quoting=csv.QUOTE_ALL)
-                rd = [row for row in rd]
-                for index, row in enumerate(rd[1:]):
-                    if row[0] not in self.text[language]["follower_speak"]:
-                        self.text[language]["follower_speak"][row[0]] = {}
-                    if row[1].split("_")[0] not in self.text[language]["follower_speak"][row[0]]:
-                        self.text[language]["follower_speak"][row[0]][row[1].split("_")[0]] = []
-                    self.text[language]["follower_speak"][row[0]][row[1].split("_")[0]].append(row[2])
-            edit_file.close()
-            for key, value in self.text[language]["follower_speak"].items():
-                for key2, value2 in value.items():
-                    self.text[language]["follower_speak"][key][key2] = tuple(value2)
-
-        except FileNotFoundError:
-            pass
-
-    def load_map_lore(self, language):
-        try:
-            with open(os.path.join(self.data_dir, "localisation", language, "stage.csv"),
+            with open(os.path.join(self.data_dir, "localisation", language, "scene.csv"),
                       encoding="utf-8", mode="r") as edit_file:  # read map info file
                 rd = csv.reader(edit_file, quoting=csv.QUOTE_ALL)
                 rd = [row for row in rd]
                 for index, row in enumerate(rd[1:]):
-                    if row[0]:  # chapter, no need for else since must have chapter
-                        if row[0] not in self.text[language]["map"]:
-                            self.text[language]["map"][row[0]] = {}
-                        if row[1]:  # mission
-                            if row[1] not in self.text[language]["map"][row[0]]:
-                                self.text[language]["map"][row[0]][row[1]] = {}
-                            if row[2]:  # stage
-                                if row[2] not in self.text[language]["map"][row[0]][row[1]]:
-                                    self.text[language]["map"][row[0]][row[1]][row[2]] = {}
-                                if row[3]:  # scene
-                                    if row[3] not in self.text[language]["map"][row[0]][row[1]][row[2]]:
-                                        # last at scene
-                                        self.text[language]["map"][row[0]][row[1]][row[2]][row[3]] = {"Text": row[4]}
-                                else:
-                                    self.text[language]["map"][row[0]][row[1]][row[2]]["Text"] = row[4]
-                            else:
-                                self.text[language]["map"][row[0]][row[1]]["Text"] = row[4]
-                        else:
-                            self.text[language]["map"][row[0]]["Text"] = row[4]
+                    if row[0] not in self.text[language]["scene"]:  # scene
+                        self.text[language]["scene"][row[0]] = {}
+                    if row[1] not in self.text[language]["scene"][row[0]]:  # scene
+                        self.text[language]["scene"][row[0]][row[1]] = {"Text": row[2]}
             edit_file.close()
+        except FileNotFoundError:
+            pass
+
+    def load_follower_talk_localisation(self, language):
+        try:
+            with open(os.path.join(self.data_dir, "localisation", language,
+                                   "ai_speak" + ".csv"), encoding="utf-8", mode="r") as edit_file:
+                rd = csv.reader(edit_file, quoting=csv.QUOTE_ALL)
+                rd = [row for row in rd]
+                for index, row in enumerate(rd[1:]):
+                    if row[0] not in self.text[language]["ai_speak"]:
+                        self.text[language]["ai_speak"][row[0]] = {}
+                    if row[1].split("_")[0] not in self.text[language]["ai_speak"][row[0]]:
+                        self.text[language]["ai_speak"][row[0]][row[1].split("_")[0]] = []
+                    self.text[language]["ai_speak"][row[0]][row[1].split("_")[0]].append(row[2])
+            edit_file.close()
+            for key, value in self.text[language]["ai_speak"].items():
+                for key2, value2 in value.items():
+                    self.text[language]["ai_speak"][key][key2] = tuple(value2)
+
         except FileNotFoundError:
             pass
 
@@ -118,13 +95,6 @@ class Localisation:
                 edit_file.close()
             except FileNotFoundError:
                 pass
-
-    def create_lore_data(self, key_type):
-        lore_data = self.text["en"][key_type]
-        if key_type in self.text[self.language]:  # replace english with available localisation of selected language
-            for key in self.text[self.language][key_type]:
-                lore_data[key] = self.text[self.language][key_type][key]
-        return lore_data
 
     def grab_text(self, key, alternative_text_data=None):
         """

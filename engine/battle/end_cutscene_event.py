@@ -1,5 +1,6 @@
 def end_cutscene_event(self, child_event):
-    for char in self.all_chars:
+    """End cutscene from interact or selection input"""
+    for char in self.all_characters:
         if char.game_id == child_event["Object"] or \
                 (child_event["Object"] == "pm" and char == self.main_player_object):
             if char.cutscene_event in self.cutscene_playing:

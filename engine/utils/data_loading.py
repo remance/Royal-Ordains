@@ -6,7 +6,9 @@ from pathlib import Path
 from PIL import Image
 from pygame import image
 from pygame.mixer import Sound
-from pygame.transform import smoothscale, flip, rotozoom
+from pygame.transform import smoothscale, flip
+
+from engine.utils.sprite_altering import sprite_rotate
 
 accept_image_types = ("png", "jpg", "jpeg", "svg", "gif", "bmp")
 
@@ -20,7 +22,7 @@ def load_image(directory, screen_scale, file, subfolder="", no_alpha=False, as_p
     :param subfolder: List of sub1_folder path
     :param no_alpha: Indicate if surface require alpha or not
     :param as_pillow_image: return surface as Pillow image instead of pygame surface
-    :return: Pygame Surface
+    :return: Pygame.Surface
     """
     new_subfolder = subfolder
     if isinstance(new_subfolder, list) or isinstance(new_subfolder, tuple):
@@ -128,54 +130,11 @@ def recursive_image_load(save_dict, screen_scale, part_folder, key_file_name_rea
                                     for angle in part_sprite_adjust[part_type][part_name][key][flip_value][scale]:
                                         imgs[key][flip_value][scale][angle] = scale_image
                                         if angle:
-                                            imgs[key][flip_value][scale][angle] = rotozoom(scale_image, angle, 1)
+                                            imgs[key][flip_value][scale][angle] = sprite_rotate(scale_image, angle)
         save_dict |= imgs
 
 
-def recursive_merge(dict1, dict2):
-    for key, value in dict2.items():
-        if key in dict1 and isinstance(dict1[key], dict) and isinstance(value, dict):
-            # Recursively merge nested dictionaries
-            dict1[key] = recursive_merge(dict1[key], value)
-        else:
-            # Merge non-dictionary values
-            dict1[key] = value
-    return dict1
-
-
-def prepare_animation_sprite(save_pool, chapter, part_type, part_name, key, sprite_pool, part_sprite_adjust):
-    imgs = sprite_pool
-    if part_sprite_adjust:
-        if part_type != "weapon":
-            part_type = filename_convert_readable(part_type)
-        else:
-            part_name = filename_convert_readable(part_name)
-        imgs = {}
-        if part_type in part_sprite_adjust:
-            if part_name in part_sprite_adjust[part_type]:
-                if key in part_sprite_adjust[part_type][part_name]:
-                    for mode in sprite_pool[chapter][part_type][part_name]:
-                        imgs[mode] = {}
-                        for flip_value in part_sprite_adjust[part_type][part_name][key]:
-                            imgs[mode][flip_value] = {}
-                            if key in sprite_pool[chapter][part_type][part_name][mode]:  # sprite exist for this mode
-                                flip_image = sprite_pool[chapter][part_type][part_name][mode][key]
-                                if flip_value:
-                                    flip_image = flip(flip_image, True, False)
-                                for scale in part_sprite_adjust[part_type][part_name][key][flip_value]:
-                                    imgs[mode][flip_value][scale] = {}
-                                    scale_image = flip_image
-                                    if scale != 1:
-                                        scale_image = smoothscale(scale_image, (scale_image.get_width() * scale,
-                                                                                scale_image.get_height() * scale))
-                                    for angle in part_sprite_adjust[part_type][part_name][key][flip_value][scale]:
-                                        imgs[mode][flip_value][scale][angle] = scale_image
-                                        if angle:
-                                            imgs[mode][flip_value][scale][angle] = rotozoom(scale_image, angle, 1)
-    recursive_merge(save_pool, imgs)
-
-
-def filename_convert_readable(filename, revert=False) -> str:
+def filename_convert_readable(filename: str, revert=False) -> str:
     if revert:
         new_filename = filename.replace(" ", "-").lower()  # replace space with - and make name lowercase
     else:
@@ -271,29 +230,7 @@ def load_base_button(data_dir, screen_scale):
             load_image(data_dir, screen_scale, "click_button.png", ("ui", "mainmenu_ui")))
 
 
-def make_bar_list(main_dir, screen_scale, list_to_do, menu_image):
-    """
-    Make a drop down bar list option button
-    :param main_dir: Game directory folder path
-    :param screen_scale: Resolution scale of game
-    :param list_to_do: List of text
-    :param menu_image: Menu image that will get drop list
-    :return: List of bar button objects
-    """
-    from engine.uimenu import uimenu
-    bar_list = []
-    image = load_image(main_dir, screen_scale, "bar_normal.jpg", ("ui", "mainmenu_ui"))
-    image2 = load_image(main_dir, screen_scale, "bar_mouse.jpg", ("ui", "mainmenu_ui"))
-    image3 = image2
-    for index, bar in enumerate(list_to_do):
-        bar_image = (image.copy(), image2.copy(), image3.copy())
-        bar = uimenu.MenuButton(bar_image, (menu_image.pos[0], menu_image.pos[1] + image.get_height() * (index + 1)),
-                                key_name=bar)
-        bar_list.append(bar)
-    return bar_list
-
-
-def stat_convert(row, n, i, percent_column=(), mod_column=(), list_column=(), tuple_column=(), int_column=(),
+def stat_convert(row, n, i, percent_column=(), list_column=(), tuple_column=(), int_column=(),
                  float_column=(), dict_column=(), str_column=()):
     """
     Convert string value to another type
@@ -301,7 +238,6 @@ def stat_convert(row, n, i, percent_column=(), mod_column=(), list_column=(), tu
     :param n: index of value
     :param i: value
     :param percent_column: list of value header that should be in percentage as decimal value
-    :param mod_column: list of value header that should be in percentage as decimal value and use as additive later
     :param list_column: list of value header that should be in list type, in case it needs to be modified later
     :param tuple_column: list of value header that should be in tuple type, for value that is static
     :param int_column: list of value header that should be in int number type
@@ -310,18 +246,12 @@ def stat_convert(row, n, i, percent_column=(), mod_column=(), list_column=(), tu
     :param str_column: list of value header that should be in str type
     :return: converted row
     """
+    # print(dict_column, n)
     if n in percent_column:
-        if i == "":
+        if not i:
             row[n] = 1
         else:
-            row[n] = float(i) / 100
-
-    elif n in mod_column:
-        if i == "":
-            row[n] = 0
-        else:
-            # Keep only the number higher or lower than 1 (base), as the game will stack modifier before calculate them
-            row[n] = float(i)
+            row[n] = float(i) + 1
 
     elif n in list_column:
         if "," in i:
@@ -342,8 +272,12 @@ def stat_convert(row, n, i, percent_column=(), mod_column=(), list_column=(), tu
     elif n in tuple_column:
         if "," in i:
             if "(" in i:  # tuple item
-                i = i.replace("(", "").replace(")", "")
-                row[n] = tuple([item_conversion(item2) for item2 in i.split(";")])
+                i = i.split("(")
+                i = [item.replace(")", "") for item in i if item]
+                i = [item.strip(";").split(";") for item in i]  # item with item1;item2 instead of ","
+                for k_index, k in enumerate(i):
+                    i[k_index] = tuple([item_conversion(item2) for item2 in k])
+                row[n] = tuple(i)
 
             row[n] = tuple([item_conversion(item) for item in i.split(",")])
         else:
@@ -352,21 +286,22 @@ def stat_convert(row, n, i, percent_column=(), mod_column=(), list_column=(), tu
                 row[n] = ()
 
     elif n in int_column:
-        if i != "":
+        if i:
             row[n] = int(i)
-        elif i == "":
+        else:
             row[n] = 0
 
     elif n in float_column:
-        if i != "":
+        if i:
             row[n] = float(i)
-        elif i == "":
+        else:
             row[n] = 0
 
     elif n in dict_column:
         # dict column value can be in key:value format or just key, if contains only key it will be assigned TRUE value
         # if it has / and character after the value after / will be the item value
-        if i != "":
+        row[n] = {}
+        if i:
             new_i = i.split(",")
             result_i = {}
             for item in new_i:
@@ -374,11 +309,18 @@ def stat_convert(row, n, i, percent_column=(), mod_column=(), list_column=(), tu
                     new_i2 = item.split(":")
                     result_i[new_i2[0]] = new_i2[1]
                     if "(" in new_i2[1]:  # tuple value
-                        new_i2[1] = new_i2[1].replace("(", "").replace(")", "")  # item with item1;item2 instead of ,
-                        result_i[new_i2[0]] = tuple([item_conversion(item2) for item2 in new_i2[1].split(";")])
+                        new_i2[1] = new_i2[1].split("(")
+                        new_i2[1] = [item.replace(")", "") for item in new_i2[1] if item]
+                        new_i2[1] = [item.strip(";").split(";") for item in new_i2[1]]
+                        for k_index, k in enumerate(new_i2[1]):
+                            new_i2[1][k_index] = tuple([item_conversion(item2) for item2 in k])
+                        result_i[new_i2[0]] = tuple(tuple(new_i2[1]))
                     elif "{" in new_i2[1]:  # dict value with key=value instead of key:value
                         new_i2[1] = new_i2[1].replace("{", "").replace("}", "")
-                        result_i[new_i2[0]] = {new_i2[1].split("=")[0]: item_conversion(new_i2[1].split("=")[1])}
+                        item_list = tuple([item_conversion(item2) for item2 in new_i2[1].split(";")])
+                        result_i[new_i2[0]] = {
+                            i3.split("=")[0]: item_conversion(i3.split("=")[1]) if "=" in i3 else True for i3 in
+                            item_list}
                     else:
                         result_i[new_i2[0]] = item_conversion(result_i[new_i2[0]])
                 else:
@@ -392,8 +334,6 @@ def stat_convert(row, n, i, percent_column=(), mod_column=(), list_column=(), tu
                             value = float(value)
                         result_i[item.split("/")[0]] = value
             row[n] = result_i
-        else:
-            row[n] = {}
 
     elif n in str_column:
         row[n] = str(i)

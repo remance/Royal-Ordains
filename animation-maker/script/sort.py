@@ -6,11 +6,9 @@ from pathlib import Path
 
 current_dir = os.path.split(os.path.abspath(__file__))[0]
 main_dir = current_dir[:current_dir.rfind("\\") + 1].split("\\")
-main_dir = ''.join(stuff + "\\" for stuff in main_dir[:-2])  # one folder further back
+main_dir = ''.join(stuff + "\\" for stuff in main_dir[:-1])  # one folder further back
 sys.path.insert(1, main_dir)
 data_dir = os.path.join(main_dir, "data")
-
-module_name = "historical"
 
 animation_folder = Path(os.path.join(data_dir, "animation"))
 sub1_directories = [os.path.normpath(x).split(os.sep)[-1] for x in animation_folder.iterdir() if not x.is_dir()]
@@ -35,7 +33,7 @@ def sort_animation(pool, header):
             pass
     new_pool = animation_pool
 
-    with open(os.path.join(animation_folder, animation_race), mode="w",
+    with open(os.path.join(animation_folder, animation_character), mode="w",
               encoding='utf-8',
               newline="") as edit_file:
         filewriter = csv.writer(edit_file, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -48,9 +46,9 @@ def sort_animation(pool, header):
     edit_file.close()
 
 
-for animation_race in sub1_directories:
-    if animation_race not in ("readme.md", "template.csv"):
-        with open(os.path.join(animation_folder, animation_race), encoding="utf-8",
+for animation_character in sub1_directories:
+    if animation_character not in ("readme.md", "template.csv"):
+        with open(os.path.join(animation_folder, animation_character), encoding="utf-8",
                   mode="r") as edit_file:
             rd = csv.reader(edit_file, quoting=csv.QUOTE_MINIMAL)
             rd = [row for row in rd]

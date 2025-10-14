@@ -1,0 +1,6 @@
+"Buttons","Move","Name","Requirement Move","Prepare Animation","After Animation","AI Range","AI Delay","AI Condition","Range","Resource Cost","Power","Push Impact","Pull Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Weak","weak1","Bite",,,,100,,,,,5,5,,5,,"Physical",,,,
+"Weak","weak2","Bite Again","weak1",,,100,,,,,5,5,,5,,"Physical",,,,
+"Weak","weak3","Slap","weak2",,,100,5,,,,8,,,30,,"Physical",,,,
+"Strong","strong","Leap",,,,400,5,,,,10,15,,50,,"Physical",,,,"movable,x_momentum:700,hold"
+"Special","special","Bark",,,,500,3,,600,,,,,,,"Physical",,47,,

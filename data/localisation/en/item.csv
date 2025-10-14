@@ -1,56 +1,60 @@
-"ID","Name","Description","Tag"
-"Small Healing Kit","Small Medkit","A small healing kit that is enough to heal small wounds for everyone in the team.","Heal"
-"Medium Healing Kit","Medium Medkit","A medium healing kit essential for dangerous journey. Capable of fixing moderate wounds for all nearby allies.","Heal"
-"Large Healing Kit","Large Medkit","A large healing kit capable of fixing serious wounds. A mandatory tool for war surgeons.","Heal"
-"Great Healing Kit","Great Medkit","A great healing kit all patients will be happy to see. The kit is filled with all kind of medical tools and medicines.","Heal"
-"Master Healing Kit","Master Medkit",,"Heal"
-"Elixir","Elixir",,"Cure"
-"Super Elixir","Super Elixir",,"Cure"
-"Small Resource Kit","Small Resource Kit",,"Resource"
-"Medium Resource Kit","Medium Resource Kit",,"Resource"
-"Large Resource Kit","Large Resource Kit",,"Resource"
-"Great Resource Kit","Great Resource Kit",,"Resource"
-"Master Resource Kit","Master Resource Kit",,"Resource"
-"Small Explosive","Small Explosive",,"Bomb"
-"Medium Explosive","Medium Explosive",,"Bomb"
-"Large Explosive","Large Explosive",,"Bomb"
-"Mega Explosive","Mega Explosive",,"Bomb"
-"Oily Burst Explosive","Oily Burst Explosive",,"Bomb"
-"Shrapnel Explosive","Shrapnel Explosive",,"Bomb"
-"Poison Explosive","Poison Explosive",,"Bomb"
-"Razor Explosive","Razor Explosive",,"Bomb"
-"Weather Idol","Weather Idol","This weather idol is cursed with a witch's magic. Capable of invoking weather-changing effects that are impossible to predict.","Weather"
-"Sun Idol",,"Idol of the Sun filled with magic to blow the bad weather away. Changing the weather to a clear day.","Weather"
-"Snow Idol",,,"Weather"
-"Fog Idol",,,"Weather"
-"Rain Idol",,,"Weather"
-"Cloud Idol",,,"Weather"
-"Wind Idol",,,"Weather"
-"Storm Idol",,,"Weather"
-"Hail Idol",,,"Weather"
-"Wet Idol",,,"Weather"
-"Decay Idol",,,"Weather"
-"Sand Idol",,,"Weather"
-"Blood Idol",,,"Weather"
-"Chaos Winter Idol",,,"Weather"
-"Blood Winter Idol",,,"Weather"
-"Dark Winter Idol",,,"Weather"
-"Lucky Charm","Lucky Charm","Summon a medium chest. If you are lucky, you will receive an abundance of gold and potions.","Battle"
-"Monster Caller","Monster Caller","Call a bunch of random creatures. They will attack everyone in sight except among themselves.","Battle"
-"Stampede Caller","Stampede Caller",,"Battle"
-"Invasion Caller","Invasion Caller","Let loose the the locust of war. There is no order in a battle. Calling huge numbers of random creatures from somewhere to fight against everyone.","Battle"
-"Fireball Scroll","Fireball Scroll",,"Spell"
-"Lightning Bolt Score","Lightning Bolt Score",,"Spell"
-"Ice Shards Scroll","Ice Shards Scroll",,"Spell"
-"Magic Missiles Scroll","Magic Missiles Scroll",,"Spell"
-"Blizzard Scroll","Blizzard Scroll",,"Spell"
-"Meteor Scroll","Meteor Scroll",,"Spell"
-"Thunder Storm Scroll","Thunder Storm Scroll",,"Spell"
-"Magic Barrages Scroll","Magic Barrages Scroll",,"Spell"
-"Magic Chaos Scroll","Magic Chaos Scroll",,"Spell"
-"Power Rune","Power Rune",,"Spell"
-"Defence Rune","Defence Rune",,"Spell"
-"Speed Rune","Speed Rune",,"Spell"
-"Might Rune","Might Rune",,"Spell"
-"Guardian Rune","Guardian Rune",,"Spell"
-"Haste Rune","Haste Rune",,"Spell"
+"ID","Name","Description"
+"Small Healing Kit","Small Healing Kit","A small healing kit that is enough to heal small wounds for everyone in the team."
+"Medium Healing Kit","Medium Healing Kit","A medium healing kit essential for dangerous journey. Capable of fixing moderate wounds for all nearby allies."
+"Large Healing Kit","Large Healing Kit","A large healing kit capable of fixing serious wounds. A mandatory tool for war surgeons."
+"Great Healing Kit","Great Healing Kit","A great healing kit all patients will be happy to see. The kit is filled with all kind of medical tools and medicines."
+"Master Healing Kit","Master Healing Kit",
+"Health Potion","Health Potion",
+"Large Health Potion","Large Health Potion",
+"Massive Health Potion","Massive Health Potion",
+"Reviving Seed","Reviving Seed",
+"Cure Potion","Cure Potion",
+"Speed Potion","Speed Potion",
+"Stone Potion","Stone Potion",
+"Resource Potion","Resource Potion",
+"Elixir","Elixir",
+"Super Elixir","Super Elixir",
+"Resource Kit","Small Resource Kit",
+"Small Explosive","Small Explosive",
+"Medium Explosive","Medium Explosive",
+"Large Explosive","Large Explosive",
+"Mega Explosive","Mega Explosive",
+"Oily Burst Explosive","Oily Burst Explosive",
+"Shrapnel Explosive","Shrapnel Explosive",
+"Poison Explosive","Poison Explosive",
+"Razor Explosive","Razor Explosive",
+"Weather Idol","Weather Idol","This weather idol is cursed with a witch's magic. Capable of invoking weather-changing effects that are impossible to predict."
+"Sun Idol","Sun Idol","Idol of the Sun filled with magic to blow the bad weather away. Changing the weather to a clear day."
+"Snow Idol","Snow Idol",
+"Fog Idol","Fog Idol",
+"Rain Idol","Rain Idol",
+"Cloud Idol","Cloud Idol",
+"Wind Idol","Wind Idol",
+"Storm Idol","Storm Idol",
+"Hail Idol","Hail Idol",
+"Wet Idol","Wet Idol",
+"Decay Idol","Decay Idol",
+"Sand Idol","Sand Idol",
+"Blood Idol","Blood Idol",
+"Chaos Winter Idol","Chaos Winter Idol",
+"Blood Winter Idol","Blood Winter Idol",
+"Dark Winter Idol","Dark Winter Idol",
+"Monster Caller","Monster Caller","Call a bunch of random creatures. They will attack everyone in sight except among themselves."
+"Stampede Caller","Stampede Caller",
+"Invasion Caller","Invasion Caller","Let loose the the locust of war. There is no order in a battle. Calling huge numbers of random creatures from somewhere to fight against everyone."
+"Devil Charm","Devil Charm",
+"Fireball Scroll","Fireball Scroll",
+"Lightning Bolt Score","Lightning Bolt Score",
+"Ice Shards Scroll","Ice Shards Scroll",
+"Magic Missiles Scroll","Magic Missiles Scroll",
+"Blizzard Scroll","Blizzard Scroll",
+"Meteor Scroll","Meteor Scroll",
+"Thunder Storm Scroll","Thunder Storm Scroll",
+"Magic Barrages Scroll","Magic Barrages Scroll",
+"Magic Chaos Scroll","Magic Chaos Scroll",
+"Power Rune","Power Rune",
+"Defence Rune","Defence Rune",
+"Speed Rune","Speed Rune",
+"Might Rune","Might Rune",
+"Guardian Rune","Guardian Rune",
+"Haste Rune","Haste Rune",

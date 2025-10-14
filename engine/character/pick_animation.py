@@ -1,108 +1,110 @@
-from engine.uibattle.uibattle import DamageNumber
+from random import uniform
 
 
 def pick_animation(self):
-    if "name" in self.current_action:  # pick animation with current action
+    if self.current_action:  # pick animation with current action
+        if "direction" in self.current_action:
+            self.new_direction = self.current_action["direction"]
+
+        # new action property
+        if "x_momentum" in self.current_action and not isinstance(self.current_action["x_momentum"], bool):
+            # action with specific x_momentum from data like attack action that move player, not for AI move
+            if self.new_direction == "right":
+                self.x_momentum = self.current_action["x_momentum"]
+            else:
+                self.x_momentum = -self.current_action["x_momentum"]
+        if "y_momentum" in self.current_action and not isinstance(self.current_action["y_momentum"], bool):
+            self.y_momentum = self.current_action["y_momentum"]
+
         if "moveset" in self.current_action:
             animation_name = None
-            if self.current_moveset:  # has moveset to perform
-                animation_name = self.equipped_weapon + "Combat" + self.position + \
-                                 self.current_moveset["Move"]
 
-                if "no prepare" not in self.current_action:  # check if action has prepare animation to perform
-                    self.current_action = self.check_prepare_action(
-                        self.current_moveset)  # check for prepare animation first
-                if "sub action" not in self.current_action:  # main action now, not prepare or after action
+            if self.current_moveset:  # has moveset to perform
+                if "no prepare" not in self.current_action:
                     resource_cost = self.current_moveset["Resource Cost"]
                     if self.current_moveset["Resource Cost"] > 0:
                         # only apply cost modifier for move that reduce resource
                         resource_cost = self.current_moveset["Resource Cost"] * self.resource_cost_modifier
-                    if (self.resource >= resource_cost or (self.health_as_resource and
-                                                           (self.health > resource_cost or self.is_summon))) and \
-                            self.current_moveset["Move"] not in self.attack_cooldown:
-                        self.current_action = self.current_action | self.current_moveset["Property"]  # add property
-
+                    if self.resource >= resource_cost or self.is_summon:
+                        # has enough resource to perform the moveset or summon that can use health as resource
+                        self.get_damage()
                         if self.resource >= resource_cost:
                             self.resource -= resource_cost
                             if self.resource < 0:
                                 self.resource = 0
                             elif self.resource > self.base_resource:
                                 self.resource = self.base_resource
-                        else:  # use health, no need require check since condition above should do it already
+                        if self.is_summon:
+                            # summon also use health
                             self.health -= resource_cost
 
-                        if self.current_moveset["Cooldown"]:
-                            self.attack_cooldown[self.current_moveset["Move"]] = self.current_moveset["Cooldown"]
+                        # check if action has prepare/after animation for the moveset
+                        self.current_action = self.current_action | self.current_moveset["Property"] | {
+                            "no prepare": True}
+                        self.current_action["name"] = self.current_moveset["Move"]
+                        if self.current_moveset["After Animation"]:
+                            self.current_action["next action"] = (
+                                    self.current_moveset["After Animation"] | {"no prepare": True})
 
-                    else:  # no resource to do the move, reset to idle
-                        if self.current_moveset["Move"] in self.attack_cooldown:  # add cooldown value to screen
-                            DamageNumber(str(round(self.attack_cooldown[self.current_moveset["Move"]], 1)),
-                                         (self.pos[0], self.pos[1] - (self.sprite_height * 2)), False, self.team,
-                                         move=False)
+                        if self.current_moveset[
+                            "Prepare Animation"]:  # has animation to do first before performing main animation
+                            self.current_action = (self.current_moveset["Prepare Animation"] | {"no prepare": True}
+                                                   | {"next action": self.current_action})
+
+                        self.move_cooldown[self.current_moveset["Move"]] = self.current_moveset["Cooldown"]
+                        animation_name = self.current_action["name"]
+
+                        if ("moveset" in self.current_action and not self.battle.ai_battle_speak_timer and
+                                "hit" in self.ai_speak_list and uniform(0, 10) > 8):
+                            self.ai_speak("hit")
+
+                    else:  # no resource to start the move, reset to idle
                         self.current_moveset = None
-                        self.continue_moveset = None
-                        animation_name = self.equipped_weapon + self.combat_state + self.position + "Idle"
-                        if self.special_combat_state:
-                            self.special_combat_state = 0
-
-                else:  # prepare animation simply play without action related stuff
-                    animation_name = self.equipped_weapon + self.combat_state + self.position + self.current_action[
-                        "name"]
+                else:
+                    animation_name = self.current_action["name"]
 
             if not animation_name:  # None animation_name from no moveset found, use idle
                 self.current_moveset = None
-                self.continue_moveset = None
                 self.current_action = {}
-                animation_name = self.equipped_weapon + self.combat_state + self.position + "Idle"
+                animation_name = "Idle"
                 self.current_animation = self.animation_pool[animation_name]
 
         else:  # animation that is not related to action moveset
             self.current_moveset = None
-            self.continue_moveset = None
-            animation_name = self.equipped_weapon + self.combat_state + self.position + self.current_action["name"]
+            animation_name = self.current_action["name"]
 
     else:  # idle animation
         self.current_moveset = None
-        self.continue_moveset = None
-        if not self.fly and self.position == "Air" and self.y_momentum < 0:  # air fall animation
-            animation_name = self.equipped_weapon + "CombatAirFall"
-        else:  # idle
-            if not self.replace_idle_animation:
-                animation_name = self.equipped_weapon + self.combat_state + self.position + "Idle"
-            else:
-                animation_name = self.replace_idle_animation
-            if self.special_combat_state and self.combat_state == "Combat":
-                # use special idle if char has special state
-                animation_name += str(self.special_combat_state)
-
-    if "guard" in self.current_action:
-        self.guarding = 0.1
-    else:  # no longer guard
-        self.guarding = 0
+        if not self.replace_idle_animation:
+            animation_name = "Idle"
+        else:
+            animation_name = self.replace_idle_animation
 
     if animation_name in self.animation_pool:
         self.current_animation = self.animation_pool[animation_name]
-    else:  # animation not found, use default  # TODO remove in stable?
-        print("notfound", self.name, animation_name, self.current_action, self.command_action, self.alive)
-        animation_name = "Default"
+    else:  # animation not found, use default
+        print("notfound", self.name, animation_name, self.current_action, self.command_action, self.alive,
+              self.invincible, self.health)
         self.current_animation = self.animation_pool["Default"]
 
-        # self.current_moveset = None
-        # self.continue_moveset = None
-        # animation_name = self.equipped_weapon + self.combat_state + self.position + "Idle"
-        # self.current_animation = self.animation_pool[animation_name]
+    if "reverse" not in self.current_action:
+        self.max_show_frame = self.current_animation["max frame"]
+    else:
+        self.max_show_frame = 0
+        self.show_frame = self.current_animation["max frame"]
 
-    self.current_animation_direction = self.current_animation[self.sprite_direction]
-    self.current_animation_data = self.animation_data_pool[animation_name]
+    self.current_animation_frame = self.current_animation[self.show_frame]
+    self.current_animation_direction = self.current_animation_frame[self.direction]
 
-    self.max_show_frame = len(self.current_animation_direction) - 1
-
-    self.start_animation_body_part(new_animation=True)
     self.final_animation_play_time = self.animation_play_time  # get new play speed
-    if "play_time_mod" in self.current_animation_direction[self.show_frame]:
-        self.final_animation_play_time *= self.current_animation_direction[self.show_frame]["play_time_mod"]
+    if "fixed play speed" in self.current_action:  # moveset does not allow animation speed modifier effect
+        self.final_animation_play_time = self.Base_Animation_Play_Time
+    if "play_time_mod" in self.current_animation_frame:
+        self.final_animation_play_time *= self.current_animation_frame["play_time_mod"]
 
-    if self.current_animation_direction[self.show_frame]["sound_effect"]:  # play sound from animation
-        sound = self.current_animation_direction[self.show_frame]["sound_effect"]
+    if self.current_animation_frame["sound_effect"]:  # play sound from animation
+        sound = self.current_animation_frame["sound_effect"]
         self.battle.add_sound_effect_queue(self.sound_effect_pool[sound[0]][0],
                                            self.pos, sound[1], sound[2])
+
+    self.update_sprite = True

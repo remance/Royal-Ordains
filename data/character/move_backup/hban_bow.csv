@@ -1,0 +1,5 @@
+"Buttons","Move","Name","Requirement Move","Prepare Animation","After Animation","AI Range","AI Delay","AI Condition","Range","Resource Cost","Power","Push Impact","Pull Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Weak","weak1","Gut Punch",,,,100,3,,,,3,5,,8,,"Physical",,,,
+"Weak","weak2","Double Hate","weak1",,,100,3,,,,4,8,,,,"Physical",,,,
+"Weak","weak3","Bandit Glory","weak2",,,100,3,,,,5,6,,,,"Physical",,,,
+"Strong","strong1","Shoot Arrow",,,,1200,5,,1500,,7,10,,15,,"Physical",,,,

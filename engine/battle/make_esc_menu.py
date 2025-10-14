@@ -1,62 +1,28 @@
-from engine.uibattle.uibattle import EscButton, CharacterBaseInterface
-from engine.uimenu.uimenu import SliderMenu, ValueBox, OptionMenuText, ListUI, ListAdapter
+from engine.uimenu.uimenu import BrownMenuButton, BoxUI, SliderMenu, ValueBox, OptionMenuText, ListUI, ListAdapter
 
 
 def make_esc_menu(self):
     """create Esc menu related objects"""
-    font_size = int(32 * self.screen_scale[1])
-
-    player1_char_base_interface = CharacterBaseInterface((self.screen_width / 8, self.screen_height / 2.4),
-                                                         self.game.char_selector_images["Profile"])
-    player2_char_base_interface = CharacterBaseInterface((self.screen_width / 2.7, self.screen_height / 2.4),
-                                                         self.game.char_selector_images["Profile"])
-    player3_char_base_interface = CharacterBaseInterface((self.screen_width / 1.6, self.screen_height / 2.4),
-                                                         self.game.char_selector_images["Profile"])
-    player4_char_base_interface = CharacterBaseInterface((self.screen_width / 1.15, self.screen_height / 2.4),
-                                                         self.game.char_selector_images["Profile"])
-    player_char_base_interfaces = {1: player1_char_base_interface, 2: player2_char_base_interface,
-                                   3: player3_char_base_interface, 4: player4_char_base_interface}
+    font_size = int(64 * self.screen_scale[1])
 
     # Create ESC Menu box and buttons
-    esc_button_text_size = int(22 * self.screen_scale[1])
+    main_menu_buttons_box = BoxUI((1600 * self.screen_scale[0], 200 * self.screen_scale[1]), parent=self.screen)
 
-    battle_menu_button = [
-        EscButton(self.game.button_images,
-                  (self.screen_rect.center[0] / 7, self.screen_rect.height - (20 * self.screen_scale[1])),
-                  text="Resume", text_size=esc_button_text_size),
-        EscButton(self.game.button_images,
-                  (self.screen_rect.center[0] / 2.55, self.screen_rect.height - (20 * self.screen_scale[1])),
-                  text="Encyclopedia", text_size=esc_button_text_size),
-        EscButton(self.game.button_images,
-                  (self.screen_rect.center[0] / 1.55, self.screen_rect.height - (20 * self.screen_scale[1])),
-                  text="Dialogue Log", text_size=esc_button_text_size),
-        EscButton(self.game.button_images,
-                  (self.screen_rect.center[0], self.screen_rect.height - (20 * self.screen_scale[1])),
-                  text="Option", text_size=esc_button_text_size),
-        EscButton(self.game.button_images,
-                  (self.screen_rect.center[0] * 1.35, self.screen_rect.height - (20 * self.screen_scale[1])),
-                  text="End Battle", text_size=esc_button_text_size),
-        EscButton(self.game.button_images,
-                  (self.screen_rect.center[0] * 1.6, self.screen_rect.height - (20 * self.screen_scale[1])),
-                  text="Main Menu", text_size=esc_button_text_size),
-        EscButton(self.game.button_images,
-                  (self.screen_rect.center[0] * 1.85, self.screen_rect.height - (20 * self.screen_scale[1])),
-                  text="Desktop", text_size=esc_button_text_size)]
+    battle_menu_button = {"resume": BrownMenuButton((-2.5, 1.8), key_name="esc_resume", parent=main_menu_buttons_box),
+                          "log": BrownMenuButton((-1.25, 1.8), key_name="esc_log", parent=main_menu_buttons_box),
+                          "option": BrownMenuButton((0, 1.8), key_name="esc_option", parent=main_menu_buttons_box),
+                          "end": BrownMenuButton((1.25, 1.8), key_name="esc_end", parent=main_menu_buttons_box),
+                          "quit": BrownMenuButton((2.5, 1.8), key_name="esc_quit", parent=main_menu_buttons_box)}
 
     dialogue_box = ListUI(pivot=(-0.9, -0.9), origin=(-1, -1), size=(.9, .8),
                           items=ListAdapter(["None"]), parent=self.screen, item_size=10)
 
-    esc_dialogue_button = EscButton(self.game.button_images,
-                                    (self.screen_rect.center[0], self.screen_rect.center[1] * 1.8),
-                                    text="Close", text_size=esc_button_text_size)
+    esc_dialogue_button = BrownMenuButton((0, 1.8), key_name="esc_close", parent=main_menu_buttons_box)
 
     # Create option menu
-    esc_option_menu_button = EscButton(self.game.button_images,
-                                       (self.screen_rect.center[0], self.screen_rect.center[1] * 1.3),
-                                       text="Confirm", text_size=esc_button_text_size)
+    esc_option_menu_button = BrownMenuButton((0, 1.8), key_name="esc_confirm", parent=main_menu_buttons_box)
 
     # Volume change scroll bar
-
     scroller_images = (self.game.option_menu_images["scroller_box"], self.game.option_menu_images["scroller"])
     scroll_button_images = (
         self.game.option_menu_images["scroll_button_normal"], self.game.option_menu_images["scroll_button_click"])
@@ -75,7 +41,7 @@ def make_esc_menu(self):
 
     value_box = {key: ValueBox(self.game.option_menu_images["value"],
                                (volume_slider[key].rect.topright[0] * 1.1, volume_slider[key].rect.center[1]),
-                               volume_slider[key].value, int(26 * self.screen_scale[1])) for key in volume_slider}
+                               volume_slider[key].value, int(52 * self.screen_scale[1])) for key in volume_slider}
 
     volume_texts = {key: OptionMenuText((volume_slider[key].pos[0] - (volume_slider[key].pos[0] / 4.5),
                                          volume_slider[key].pos[1]),
@@ -85,5 +51,5 @@ def make_esc_menu(self):
     return {"battle_menu_button": battle_menu_button,
             "esc_option_menu_button": esc_option_menu_button,
             "esc_slider_menu": volume_slider, "esc_value_boxes": value_box, "volume_texts": volume_texts,
-            "player_char_base_interfaces": player_char_base_interfaces, "dialogue_box": dialogue_box,
+            "dialogue_box": dialogue_box,
             "esc_dialogue_button": esc_dialogue_button}

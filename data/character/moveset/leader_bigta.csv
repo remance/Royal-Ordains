@@ -1,0 +1,8 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Attack1","Pierce",,,,350,,,,18,24,14,,,"Physical",,,,
+"Attack2","Shield Bash",,,,250,,,,9,9,30,15,,"Physical",,,,
+"Skill1","Spinspin",,,,400,,8,15,4,150,150,100,,"Physical",,,,
+"Skill2","Bark",,,,700,1000,40,10,,,,,,"Physical",,"Disorient",,
+"Skill3","Team Work",,,,2000,1000,120,40,,,,,,"Physical","Excited",,,
+"Skill4","Jousting_charge","name:Skill4Ready","name:Skill4End","self:{no_engage=1000}",1500,,20,20,60,120,50,50,,"Physical","Jousting_charge",,,"run,movable,x_momentum:1500,repeat"
+"UseItem","Stone Potion",,,,3000,,120,,,,,,,"Physical","Stone_skin",,,

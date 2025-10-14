@@ -1,0 +1,2 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Attack1","Bless Strike",,,"enemy:{target_type=air}",1200,,7,14,45,6,20,-100,,"Physical","Bless",,,"walk,movable,end_when_done,x_momentum:3000"

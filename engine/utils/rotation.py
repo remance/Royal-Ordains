@@ -33,18 +33,40 @@ def set_rotate(self, base_target, convert=True, use_pos=False):
         my_radians = atan2(base_target[1] - self.pos[1], base_target[0] - self.pos[0])
     new_angle = int(degrees(my_radians))
     if convert:
-        # """upper left and upper right"""
-        if -180 <= new_angle < 0:
-            new_angle = -new_angle - 90
-
-        # """lower right -"""
-        elif 0 <= new_angle <= 90:
-            new_angle = -(new_angle + 90)
-
-        # """lower left +"""
-        elif 90 < new_angle <= 180:
-            new_angle = 270 - new_angle
+        new_angle = convert_degree_angle(new_angle)
     return new_angle
+
+
+def convert_degree_angle(angle):
+    # """upper left and upper right"""
+    if -180 <= angle < 0:
+        return -angle - 90
+
+    # """lower right -"""
+    elif 0 <= angle <= 90:
+        return -(angle + 90)
+
+    # """lower left +"""
+    elif 90 < angle <= 180:
+        return 270 - angle
+
+
+def convert_projectile_degree_angle(angle):
+    # """upper left"""
+    if -90 <= angle < 0:
+        return 90 + angle
+
+    # """upper right"""
+    elif 0 <= angle < 90:
+        return angle - 90
+
+    # """lower right"""
+    elif -180 <= angle < -90:
+        return angle + 270
+
+    # """lower left"""
+    else:
+        return angle - 270
 
 
 def convert_degree_to_360(angle):

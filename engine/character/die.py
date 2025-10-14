@@ -1,85 +1,74 @@
 from random import uniform
 
-from pygame import Vector2
-
-from engine.drop.drop import Drop
-from engine.utils.common import clean_group_object
+import engine.character.character
+from engine.utils.common import clean_object
 
 
-def die(self, delete=False):
-    """Character left battle, either dead or flee"""
-    from engine.character.character import BattleAICharacter
-
+def die(self):
+    """Character dead"""
     # remove from updater
-    self.battle.all_team_character[self.team].remove(self)
-    for team in self.battle.all_team_enemy_part:
+    if self in self.battle.ai_process_list:
+        self.battle.ai_process_list.remove(self)
+    self.ally_list.remove(self)
+    if self.is_general:
+        self.battle.all_team_general[self.team].remove(self)
+        if self.team == 1 and self.is_controllable:
+            if self in self.battle.player_selected_generals:
+                self.battle.player_selected_generals.remove(self)
+            if self in self.battle.player_control_generals:  # remove from player control generals list
+                self.battle.player_control_generals.remove(self)
+
+    for team in self.battle.all_team_enemy_check:
         if team != self.team:
-            for part in self.body_parts.values():
-                self.battle.all_team_enemy_part[team].remove(part)
-            if self in self.battle.all_team_enemy[team]:
-                self.battle.all_team_enemy[team].remove(self)
+            for grid in self.grid_range:
+                self.all_team_enemy_collision_grids[team][grid].remove(self)
             if self in self.battle.all_team_enemy_check[team]:
                 self.battle.all_team_enemy_check[team].remove(self)
-    if self.player_control and int(self.game_id[-1]) in self.battle.player_objects:
-        self.battle.player_objects.pop(int(self.game_id[-1]))
-
-    self.current_action = {}
 
     if self.indicator:
-        self.indicator.kill()
+        clean_object(self.indicator)
         self.indicator = None
 
-    if delete:
-        for speech in self.battle.speech_boxes:
-            if speech.character == self:  # kill any current speech
-                speech.kill()
-        for body_part in self.body_parts.values():
-            if body_part.stuck_effect:
-                for stuck_object in body_part.stuck_effect:  # remove stuck effect as well
-                    stuck_object.reach_target()
-                body_part.stuck_effect = []
-        clean_group_object((self.body_parts,))  # remove only body parts, self will be deleted later
-        self.battle.character_updater.remove(self)
-    elif self.invisible:  # add back sprite for invisible character that die
-        self.invisible = False
-        for part in self.body_parts.values():
-            part.re_rect()
+    if self.main_character:
+        self.main_character.sub_characters.remove(self)
+        if (not self.main_character.sub_characters and not self.main_character.active_without_sub_character and
+                self.main_character.health):
+            # main character no longer has sub characters, check if main character is consider no longer active
+            # does not include main character that is dead already
+            self.main_character.die()
+    self.main_character = None
+
+    if "die" in self.ai_speak_list:
+        self.ai_speak("die")
 
     for follower in self.followers:
-        follower.leader = None
+        if self.leader and self.leader.alive:  # transfer leadership to its leader, use less leadership to boost stat
+            follower.base_offence = follower.original_offence * (self.leader.leadership / 200)
+            follower.base_defence = follower.original_defence * (self.leader.leadership / 200)
+            follower.leadership = follower.original_leadership * (self.leader.leadership / 200)
+            follower.leader = self.leader
+        else:  # revert follower stat to no leadership when it die and no general to transfer
+            follower.base_offence = follower.original_offence
+            follower.base_defence = follower.original_defence
+            follower.leadership = follower.original_leadership
+            follower.leader = None
+            follower.general = None
+
     self.followers = []
-    if self.leader:
-        if self.leader.player_control and not delete and not self.battle.follower_talk_timer and "die" in self.follower_speak:
-            self.follower_talk("die")
-        self.leader.followers.remove(self)
+    for sub_character in self.sub_characters:
+        sub_character.main_character = None
+    self.sub_characters = []
 
-    if self.killer:  # has killer
-        self.battle.increase_team_score(self.killer.team, self.score)
-        if self.killer.player_control:
-            # target die, add kill stat if attacker is player
-            self.battle.player_kill[int(self.killer.game_id[-1])] += 1
-            if self.is_boss:
-                self.battle.player_boss_kill[int(self.killer.game_id[-1])] += 1
-        self.killer = None
+    if self.leader:  # remove self from leader stuff
+        if self.leader.alive and self in self.leader.followers:
+            self.leader.followers.remove(self)
+        self.leader = None
 
-    self.status_effect = {}
-    self.status_duration = {}
-    self.status_applier = {}
+    if self.general:
+        if self.general.alive:
+            self.general.reset_general_variables()
+        self.general = None
 
-    if self.drops:  # only drop items if dead
-        for drop, chance in self.drops.items():
-            drop_name = drop
-            if "+" in drop_name:  # + indicate number of possible drop
-                drop_num = int(drop_name.split("+")[1])
-                drop_name = drop_name.split("+")[0]
-                for _ in range(drop_num):
-                    if chance >= uniform(0, 100):
-                        Drop(Vector2(self.base_pos[0], self.base_pos[1] - (self.sprite_height * 2)), drop_name, 1,
-                             momentum=(uniform(-200, 200), (uniform(50, 150))))
-            else:
-                if chance >= uniform(0, 100):  # TODO change team later when add pvp mode or something
-                    Drop(Vector2(self.base_pos[0], self.base_pos[1] - (self.sprite_height * 2)), drop, 1,
-                         momentum=(uniform(-200, 200), (uniform(50, 150))))
     if self.spawns:
         for spawn, chance in self.spawns.items():
             spawn_name = spawn
@@ -87,24 +76,42 @@ def die(self, delete=False):
                 spawn_num = int(spawn_name.split("+")[1])
                 spawn_name = spawn_name.split("+")[0]
                 for _ in range(spawn_num):
-                    self.battle.last_char_id += 1  # id continue from last chars
                     if chance >= uniform(0, 100):
                         start_pos = (self.base_pos[0] + uniform(-200, 200),
                                      self.base_pos[1])
-                        BattleAICharacter(self.battle.last_char_id, self.battle.last_char_id,
-                                          self.character_data.character_list[spawn_name] |
-                                          {"ID": spawn_name,
-                                           "Angle": self.angle,
-                                           "Team": self.team, "POS": start_pos,
-                                           "Arrive Condition": ()})
+                        engine.character.character.BattleCharacter(None,
+                                                                   self.character_data.character_list[spawn_name] |
+                                                                   {"ID": spawn_name,
+                                                                    "Angle": self.angle,
+                                                                    "Team": self.team, "POS": start_pos,
+                                                                    "Arrive Condition": ()})
             else:
                 if chance >= uniform(0, 100):
-                    self.battle.last_char_id += 1  # id continue from last chars
                     start_pos = (self.base_pos[0] + uniform(-200, 200),
                                  self.base_pos[1])
-                    BattleAICharacter(self.battle.last_char_id, self.battle.last_char_id,
-                                      self.character_data.character_list[spawn_name] |
-                                      {"ID": spawn_name,
-                                       "Angle": self.angle,
-                                       "Team": self.team, "POS": start_pos,
-                                       "Arrive Condition": ()})
+                    engine.character.character.BattleCharacter(None,
+                                                               self.character_data.character_list[spawn_name] |
+                                                               {"ID": spawn_name,
+                                                                "Angle": self.angle,
+                                                                "Team": self.team, "POS": start_pos,
+                                                                "Arrive Condition": ()})
+
+    self.status_effect = {}
+    self.status_duration = {}
+
+
+def air_die(self):
+    for air_group in self.battle.team_stat[self.team]["air_group"]:
+        if self in air_group:
+            air_group.remove(self)
+            break
+    die(self)
+
+
+def commander_die(self):
+    for character in self.battle.all_team_ally[self.team]:
+        character.broken = True
+    for air_group in self.battle.team_stat[self.team]["air_group"]:
+        for character in air_group:
+            character.broken = True
+    die(self)

@@ -1,0 +1,2 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Property"
+"Attack1","Roll",,,,600,,,,7,10,20,10,,"Physical",,,"x_momentum:600"

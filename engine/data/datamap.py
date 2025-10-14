@@ -15,17 +15,21 @@ class BattleMapData(GameData):
         GameData.__init__(self)
 
         self.weather_data = {}
-        with open(os.path.join(self.data_dir, "map", "weather", "weather.csv"),
+        with open(os.path.join(self.data_dir, "map", "stage", "weather", "weather.csv"),
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
+            percent_column = ("Offence Modifier", "Defence Modifier", "Speed Modifier",
+                              "Air Offence Modifier", "Air Defence Modifier", "Air Speed Modifier",)
             tuple_column = ("Element", "Status", "Spell")
+            dict_column = ("Spawn Cooldown", "Property",)
+            percent_column = [index for index, item in enumerate(header) if item in percent_column]
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
-            dict_column = ("Property",)
             dict_column = [index for index, item in enumerate(header) if item in dict_column]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
-                    row = stat_convert(row, n, i, tuple_column=tuple_column, dict_column=dict_column)
+                    row = stat_convert(row, n, i, percent_column=percent_column,
+                                       tuple_column=tuple_column, dict_column=dict_column)
                 self.weather_data[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
         edit_file.close()
 
@@ -42,112 +46,43 @@ class BattleMapData(GameData):
         for this_weather in weather_list:  # Load weather matter sprite image
             try:
                 images = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                     subfolder=("map", "weather", "matter", fcv(this_weather, revert=True)))
+                                     subfolder=("map", "stage", "weather", "matter", fcv(this_weather, revert=True)))
                 self.weather_matter_images[this_weather] = tuple(images.values())
             except FileNotFoundError:
                 self.weather_matter_images[this_weather] = ()
 
-        read_folder = Path(os.path.join(self.data_dir, "map", "preset"))
+        read_folder = Path(os.path.join(self.data_dir, "map", "stage", "preset"))
         sub1_directories = [x for x in read_folder.iterdir() if x.is_dir()]
 
-        self.choice_stage_reward = {}
-        with open(os.path.join(self.data_dir, "map", "choice.csv"),
-                  encoding="utf-8", mode="r") as edit_file:
-            rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
-            header = rd[0]
-            str_column = ("Chapter", "Mission", "Stage")
-            str_column = [index for index, item in enumerate(header) if item in str_column]
-            tuple_column = ("Follower Reward", "Unique Gear Reward")
-            tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
-            dict_column = ("Item Reward", "Court Change")
-            dict_column = [index for index, item in enumerate(header) if item in dict_column]
-            for index, row in enumerate(rd[1:]):
-                for n, i in enumerate(row):
-                    row = stat_convert(row, n, i, tuple_column=tuple_column, str_column=str_column,
-                                       dict_column=dict_column)
-                if row[0] not in self.choice_stage_reward:  # choice
-                    self.choice_stage_reward[row[0]] = {}
-                if row[1] not in self.choice_stage_reward[row[0]]:  # chapter
-                    self.choice_stage_reward[row[0]][row[1]] = {}
-                if row[2] not in self.choice_stage_reward[row[0]][row[1]]:  # mission
-                    self.choice_stage_reward[row[0]][row[1]][row[2]] = {}
-                if row[3] not in self.choice_stage_reward[row[0]][row[1]][row[2]]:  # stage
-                    self.choice_stage_reward[row[0]][row[1]][row[2]][row[3]] = {}
-                self.choice_stage_reward[row[0]][row[1]][row[2]][row[3]] = {"Follower Reward": row[4],
-                                                                            "Unique Gear Reward": row[5],
-                                                                            "Item Reward": row[6],
-                                                                            "Gold Reward": row[7],
-                                                                            "Court Change": row[8]}
-        edit_file.close()
-
-        self.stage_reward = {}
-        with open(os.path.join(self.data_dir, "map", "reward.csv"),
-                  encoding="utf-8", mode="r") as edit_file:
-            rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
-            header = rd[0]
-            str_column = ("Chapter", "Mission", "Stage")
-            str_column = [index for index, item in enumerate(header) if item in str_column]
-            tuple_column = ("Follower Reward", "Item Reward")
-            tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
-            dict_column = ("Gear Reward",)
-            dict_column = [index for index, item in enumerate(header) if item in dict_column]
-            for index, row in enumerate(rd[1:]):
-                for n, i in enumerate(row):
-                    row = stat_convert(row, n, i, tuple_column=tuple_column, dict_column=dict_column,
-                                       str_column=str_column)
-                if row[0] not in self.stage_reward:  # chapter
-                    self.stage_reward[row[0]] = {}
-                if row[1] not in self.stage_reward[row[0]]:  # mission
-                    self.stage_reward[row[0]][row[1]] = {}
-                self.stage_reward[row[0]][row[1]] = {header[2]: row[2], header[3]: row[3], header[4]: row[4],
-                                                     header[5]: row[5], header[6]: row[6], header[7]: row[7]}
-        edit_file.close()
-
-        self.preset_map_folder = []  # folder for reading later
         self.preset_map_data = {}
+        for file_map in sub1_directories:
+            map_file_name = os.sep.join(os.path.normpath(file_map).split(os.sep)[-1:])
+            self.preset_map_data[map_file_name] = {}
 
-        for file_chapter in sub1_directories:
-            read_folder = Path(os.path.join(self.data_dir, "map", "preset", file_chapter))
-            chapter_file_name = os.sep.join(os.path.normpath(file_chapter).split(os.sep)[-1:])
-            sub2_directories = [x for x in read_folder.iterdir() if x.is_dir()]
+            if map_file_name != "event":  # city scene use different reading
+                original_event_data, event_data = self.load_map_event_data(map_file_name)
+                self.preset_map_data[map_file_name] = \
+                    {"data": csv_read(file_map, "object_pos.csv", header_key=True),
+                     "character": self.load_map_unit_data(map_file_name),
+                     "event_data": original_event_data,
+                     "event": event_data}
+            else:  # events, read each scene
+                read_folder = Path(os.path.join(self.data_dir, "map", "stage", "preset", "event"))
+                sub4_directories = [x for x in read_folder.iterdir() if x.is_dir()]
+                for file_scene in sub4_directories:
+                    scene_file_name = fcv(os.sep.join(os.path.normpath(file_scene).split(os.sep)[-1:]))
+                    original_event_data, event_data = self.load_map_event_data(map_file_name.lower(),
+                                                                               scene_id=scene_file_name.lower())
+                    self.preset_map_data[map_file_name][
+                        scene_file_name] = \
+                        {"data": csv_read(file_scene, "object_pos.csv", header_key=True),
+                         "character": self.load_map_unit_data(map_file_name.lower(),
+                                                              scene_id=scene_file_name.lower()),
+                         "event_data": original_event_data,
+                         "event": event_data}
 
-            self.preset_map_data[chapter_file_name] = {}
-            for file_map in sub2_directories:
-                map_file_name = os.sep.join(os.path.normpath(file_map).split(os.sep)[-1:])
-                self.preset_map_folder.append(map_file_name)
-                self.preset_map_data[chapter_file_name][map_file_name] = {}
-
-                read_folder = Path(os.path.join(self.data_dir, "map", "preset", file_chapter, file_map))
-                sub3_directories = [x for x in read_folder.iterdir() if x.is_dir()]
-                for file_stage in sub3_directories:
-                    stage_file_name = fcv(os.sep.join(os.path.normpath(file_stage).split(os.sep)[-1:]))
-                    self.preset_map_data[chapter_file_name][map_file_name][stage_file_name] = {}
-                    if stage_file_name != "0":  # city stage use different reading
-                        original_event_data, event_data = self.load_map_event_data(chapter_file_name, map_file_name,
-                                                                                   stage_file_name)
-                        self.preset_map_data[chapter_file_name][map_file_name][stage_file_name] = \
-                            {"data": csv_read(file_stage, "object_pos.csv", header_key=True),
-                             "character": self.load_map_unit_data(chapter_file_name, map_file_name, stage_file_name),
-                             "event_data": original_event_data,
-                             "event": event_data}
-                    else:  # city stage, read each scene
-                        read_folder = Path(os.path.join(self.data_dir, "map", "preset", file_chapter, file_map, "0"))
-                        sub4_directories = [x for x in read_folder.iterdir() if x.is_dir()]
-                        for file_scene in sub4_directories:
-                            scene_file_name = fcv(os.sep.join(os.path.normpath(file_scene).split(os.sep)[-1:]))
-                            original_event_data, event_data = self.load_map_event_data(chapter_file_name, map_file_name,
-                                                                                       stage_file_name,
-                                                                                       scene_id=scene_file_name)
-                            self.preset_map_data[chapter_file_name][map_file_name][stage_file_name][
-                                scene_file_name] = \
-                                {"data": csv_read(file_scene, "object_pos.csv", header_key=True),
-                                 "character": self.load_map_unit_data(chapter_file_name, map_file_name,
-                                                                      stage_file_name, scene_id=scene_file_name),
-                                 "event_data": original_event_data,
-                                 "event": event_data}
-
-    def load_map_event_data(self, campaign_id, map_id, stage_id, scene_id=""):
-        with open(os.path.join(self.data_dir, "map", "preset", campaign_id, map_id, stage_id, scene_id,
+    def load_map_event_data(self, map_id, scene_id=""):
+        with open(os.path.join(self.data_dir, "map", "stage", "preset", map_id, scene_id,
                                "event.csv"), encoding="utf-8", mode="r") as unit_file:
             rd = list(csv.reader(unit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
@@ -183,25 +118,25 @@ class BattleMapData(GameData):
             unit_file.close()
             return original_event_data, event_data
 
-    def load_map_unit_data(self, campaign_id, map_id, stage_id, scene_id=""):
+    def load_map_unit_data(self, map_id, scene_id=""):
         try:
-            with open(os.path.join(self.data_dir, "map", "preset", campaign_id, map_id, stage_id, scene_id,
+            with open(os.path.join(self.data_dir, "map", "stage", "preset", map_id, scene_id,
                                    "character_pos.csv"), encoding="utf-8", mode="r") as unit_file:
                 rd = list(csv.reader(unit_file, quoting=csv.QUOTE_ALL))
                 header = rd[0]
-                int_column = ("Team",)  # value int only
+                int_column = ("Team", "Angle")  # value int only
                 list_column = ("POS",)  # value in list only
-                float_column = ("Angle", "Start Health", "Start Stamina")  # value in float
-                dict_column = ("Stage Property", "Arrive Condition")
+                dict_column = ("Behaviour", "Stage Property", "Arrive Condition")
+                str_column = ("Followers",)
                 int_column = [index for index, item in enumerate(header) if item in int_column]
                 list_column = [index for index, item in enumerate(header) if item in list_column]
-                float_column = [index for index, item in enumerate(header) if item in float_column]
                 dict_column = [index for index, item in enumerate(header) if item in dict_column]
+                str_column = [index for index, item in enumerate(header) if item in str_column]
 
                 for data_index, data in enumerate(rd[1:]):  # skip header
                     for n, i in enumerate(data):
                         data = stat_convert(data, n, i, list_column=list_column, int_column=int_column,
-                                            float_column=float_column, dict_column=dict_column)
+                                            dict_column=dict_column, str_column=str_column)
                     rd[data_index + 1] = {header[index]: stuff for index, stuff in enumerate(data)}
                 char_data = rd[1:]
             unit_file.close()

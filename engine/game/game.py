@@ -3,36 +3,54 @@ import configparser
 import os.path
 import sys
 import types
-from math import sin, cos, radians
 
 import pygame
-from pygame import sprite, Vector2, JOYDEVICEADDED, JOYDEVICEREMOVED, display, mouse
+from pygame import sprite, display, mouse, Surface
+from pygame.font import Font
 from pygame.locals import *
 from pygame.mixer import music
 
 from engine.battle.battle import Battle
-from engine.character.character import Character, BodyPart
+from engine.character.character import Character, BattleCharacter
 from engine.data.datalocalisation import Localisation
 from engine.data.datamap import BattleMapData
 from engine.data.datasave import SaveData
 from engine.data.datasound import SoundData
-from engine.data.datasprite import AnimationData
+from engine.data.datasprite import SpriteData
 from engine.data.datastat import CharacterData
-from engine.drop.drop import Drop
 from engine.effect.effect import Effect, DamageEffect
-from engine.lorebook.lorebook import Lorebook, SubsectionName, lorebook_process
+from engine.lorebook.lorebook import Lorebook, lorebook_process
 from engine.menubackground.menubackground import MenuActor, MenuRotate, StaticImage
 from engine.stageobject.stageobject import StageObject
 from engine.uibattle.uibattle import Profiler, FPSCount, DamageNumber, CharacterSpeechBox, \
-    CharacterIndicator
-from engine.uimenu.uimenu import OptionMenuText, SliderMenu, MenuCursor, BoxUI, BrownMenuButton, \
-    URLIconLink, MenuButton, TextPopup, MapTitle, CharacterProfileBox, \
-    NameTextBox
+    CharacterGeneralIndicator
+from engine.uimenu.uimenu import (OptionMenuText, SliderMenu, MenuCursor, BoxUI, BrownMenuButton,
+                                  TextPopup, CharacterSelector, CharacterInterface,
+                                  MapTitle, ListUI, CampaignListAdapter)
 from engine.updater.updater import ReversedLayeredUpdates
-from engine.utils.common import edit_config, cutscene_update
+from engine.utils.common import cutscene_update
 from engine.utils.data_loading import load_image, load_images, csv_read, load_base_button
-from engine.utils.text_making import number_to_minus_or_plus
-from engine.weather.weather import MatterSprite, SpecialWeatherEffect
+from engine.weather.weather import MatterSprite
+
+from engine.game.activate_input_popup import activate_input_popup
+from engine.game.assign_key import assign_key
+from engine.game.back_mainmenu import back_mainmenu
+from engine.game.change_keybind import change_keybind
+from engine.game.change_pause_update import change_pause_update
+from engine.game.change_sound_volume import change_sound_volume
+from engine.game.create_config import create_config
+from engine.game.get_keybind_button_name import get_keybind_button_name
+from engine.game.loading_screen import loading_screen
+from engine.game.make_input_box import make_input_box
+from engine.game.make_lorebook import make_lorebook
+from engine.game.make_option_menu import make_option_menu
+from engine.game.menu_char import menu_char
+from engine.game.menu_keybind import menu_keybind
+from engine.game.menu_main import menu_main
+from engine.game.menu_option import menu_option
+from engine.game.start_battle import start_battle
+
+from engine.constants import *
 
 game_name = "Royal Ordains"  # Game name that will appear as game name at the windows bar
 
@@ -50,113 +68,34 @@ class Game:
     cursor = None
     ui_updater = None
     ui_drawer = None
-    battle_camera = None
-
-    player_list = (1, 2, 3, 4)
 
     screen_rect = None
     screen_scale = (1, 1)
     screen_size = ()
 
-    game_version = "0.2"
-    joystick_bind_name = {"XBox": {0: "A", 1: "B", 2: "X", 3: "Y", 4: "-", 5: "Home", 6: "+", 7: "Start", 8: None,
-                                   9: None, 10: None, 11: "D-Up", 12: "D-Down", 13: "D-Left", 14: "D-Right",
-                                   15: "Capture", "axis-0": "L. Stick Left", "axis+0": "L. Stick R.",
-                                   "axis-1": "L. Stick U.", "axis+1": "L. Stick D.",
-                                   "axis-2": "R. Stick Left", "axis+2": "R. Stick R.",
-                                   "axis-3": "R. Stick U.", "axis+3": "R. Stick D.",
-                                   "hat-0": "L. Arrow", "hat+0": "R. Arrow",
-                                   "hat-1": "D. Arrow", "hat+1": "U. Arrow"},
-                          "Other": {0: "1", 1: "2", 2: "3", 3: "4", 4: "L1", 5: "R1", 6: "L2", 7: "R2", 8: "Select",
-                                    9: "Start", 10: "L. Stick", 11: "R. Stick", 12: None, 13: None, 14: None, 15: None,
-                                    "axis-0": "L. Stick L.", "axis+0": "L. Stick R.",
-                                    "axis-1": "L. Stick U.", "axis+1": "L. Stick D.",
-                                    "axis-2": "R. Stick Left", "axis+2": "R. Stick R.",
-                                    "axis-3": "R. Stick U.", "axis+3": "R. Stick D.",
-                                    "hat-0": "L. Arrow", "hat+0": "R. Arrow",
-                                    "hat-1": "D. Arrow", "hat+1": "U. Arrow"},
-                          "DualSense Wireless Controller":  # ps5 joystick
-                              {0: "Cross", 1: "Circle", 2: "Square", 3: "Triangle", 4: "Share", 5: "PS", 6: "Options",
-                               7: "L. Stick",
-                               8: "R. Stick", 9: "L1", 10: "R1", 11: "D-Up", 12: "D-Down", 13: "D-Left", 14: "D-R.",
-                               15: "T-Pad", "axis-0": "L. Stick L.", "axis+0": "L. Stick R.",
-                               "axis-1": "L. Stick U.", "axis+1": "L. Stick D.",
-                               "axis-2": "R. Stick Left", "axis+2": "R. Stick R.",
-                               "axis-3": "R. Stick U.", "axis+3": "R. Stick D.",
-                               "axis+4": "L2", "axis+5": "R2",
-                               "hat-0": "L. Arrow", "hat+0": "R. Arrow",
-                               "hat-1": "D. Arrow", "hat+1": "U. Arrow"}}
+    game_version = "0.2.3.1"
 
     # import from game
-    from engine.game.activate_input_popup import activate_input_popup
     activate_input_popup = activate_input_popup
-
-    from engine.game.add_joystick import add_joystick
-    add_joystick = add_joystick
-
-    from engine.game.assign_key import assign_key
     assign_key = assign_key
-
-    from engine.game.back_mainmenu import back_mainmenu
     back_mainmenu = back_mainmenu
-
-    from engine.game.change_keybind import change_keybind
     change_keybind = change_keybind
-
-    from engine.game.change_pause_update import change_pause_update
     change_pause_update = change_pause_update
-
-    from engine.game.change_sound_volume import change_sound_volume
     change_sound_volume = change_sound_volume
-
-    from engine.game.create_config import create_config
     create_config = create_config
-
-    from engine.game.generate_custom_equipment import generate_custom_equipment
-    generate_custom_equipment = generate_custom_equipment
-
-    from engine.game.get_keybind_button_name import get_keybind_button_name
     get_keybind_button_name = get_keybind_button_name
-
-    from engine.game.loading_screen import loading_screen
     loading_screen = loading_screen
-
-    from engine.game.make_character_interfaces import make_character_interfaces
-    make_character_interfaces = make_character_interfaces
-
-    from engine.game.make_input_box import make_input_box
     make_input_box = make_input_box
-
-    from engine.game.make_lorebook import make_lorebook
     make_lorebook = make_lorebook
-
-    from engine.game.make_option_menu import make_option_menu
     make_option_menu = make_option_menu
-
-    from engine.game.menu_char import menu_char
     menu_char = menu_char
-
-    from engine.game.menu_keybind import menu_keybind
     menu_keybind = menu_keybind
-
-    from engine.game.menu_main import menu_main
     menu_main = menu_main
-
-    from engine.game.menu_option import menu_option
     menu_option = menu_option
-
-    from engine.game.start_battle import start_battle
     start_battle = start_battle
 
-    from engine.game.update_profile_slots import update_profile_slots
-    update_profile_slots = update_profile_slots
-
-    from engine.game.write_all_player_save import write_all_player_save
-    write_all_player_save = write_all_player_save
-
     lorebook_process = lorebook_process
-
-    resolution_list = ("3200 x 1800", "2560 x 1440", "1920 x 1080", "1600 x 900", "1360 x 768",
+    resolution_list = ("3840 x 2160", "3200 x 1800", "2560 x 1440", "1920 x 1080", "1600 x 900", "1360 x 768",
                        "1280 x 720", "1024 x 576", "960 x 540", "854 x 480")
 
     def __init__(self, main_dir, error_log):
@@ -169,6 +108,8 @@ class Game:
 
         pygame.mixer.pre_init(44100, -16, 1000, 4096)
         pygame.init()  # Initialize pygame
+
+        pygame.event.set_allowed((QUIT, KEYDOWN, KEYUP, MOUSEBUTTONUP, MOUSEBUTTONDOWN))
 
         mouse.set_visible(False)  # set mouse as not visible, use in-game mouse sprite
 
@@ -185,7 +126,8 @@ class Game:
         try:
             self.config = config
             self.show_fps = int(self.config["USER"]["fps"])
-            self.easy_text = int(self.config["USER"]["easy_text"])
+            self.use_easy_text = int(self.config["USER"]["easy_text"])
+            self.show_dmg_number = int(self.config["USER"]["show_dmg_number"])
             self.screen_width = int(self.config["USER"]["screen_width"])
             self.screen_height = int(self.config["USER"]["screen_height"])
             self.full_screen = int(self.config["USER"]["full_screen"])
@@ -197,10 +139,7 @@ class Game:
             self.voice_volume = float(self.config["USER"]["voice_volume"])
             self.play_voice_volume = self.master_volume * self.voice_volume / 10000
             self.language = str(self.config["USER"]["language"])
-            self.player_key_bind_list = {player: ast.literal_eval(self.config["USER"]["keybind player " + str(player)])
-                                         for player in self.player_list}
-            self.player_key_control = {player: self.config["USER"]["control player " + str(player)] for player in
-                                       self.player_list}
+            self.player_key_bind_list = ast.literal_eval(self.config["USER"]["keybind"])
             if self.game_version != self.config["VERSION"]["ver"]:  # remake config as game version change
                 raise KeyError  # cause KeyError to reset config file
         except (KeyError, TypeError, NameError) as b:  # config error will make the game recreate config with default
@@ -208,7 +147,8 @@ class Game:
             config = self.create_config()
             self.config = config
             self.show_fps = int(self.config["USER"]["fps"])
-            self.easy_text = int(self.config["USER"]["easy_text"])
+            self.use_easy_text = int(self.config["USER"]["easy_text"])
+            self.show_dmg_number = int(self.config["USER"]["show_dmg_number"])
             self.screen_width = int(self.config["USER"]["screen_width"])
             self.screen_height = int(self.config["USER"]["screen_height"])
             self.full_screen = int(self.config["USER"]["full_screen"])
@@ -220,29 +160,26 @@ class Game:
             self.voice_volume = float(self.config["USER"]["voice_volume"])
             self.play_voice_volume = self.master_volume * self.voice_volume / 10000
             self.language = str(self.config["USER"]["language"])
-            self.player_key_bind_list = {player: ast.literal_eval(self.config["USER"]["keybind player " + str(player)])
-                                         for player in self.player_list}
-            self.player_key_control = {player: self.config["USER"]["control player " + str(player)] for player in
-                                       self.player_list}
+            self.player_key_bind_list = ast.literal_eval(self.config["USER"]["keybind"])
 
         self.corner_screen_width = self.screen_width - 1
         self.corner_screen_height = self.screen_height - 1
 
-        self.default_player_key_bind_list = {
-            player: ast.literal_eval(self.config["DEFAULT"]["keybind player " + str(player)])
-            for player in self.player_list}
+        self.default_player_key_bind_list = ast.literal_eval(self.config["DEFAULT"]["keybind"])
 
         Game.language = self.language
 
         # Set the display mode
-        # game default screen size is 1920 x 1080, other resolution get scaled from there
-        Game.screen_scale = (self.screen_width / 1920, self.screen_height / 1080)
+        # game default screen size is 3840 x 2160, other resolution get scaled from there
+        Game.screen_scale = (self.screen_width / Default_Screen_Width, self.screen_height / Default_Screen_Height)
         Game.screen_size = (self.screen_width, self.screen_height)
 
         self.window_style = 0
         if self.full_screen == 1:
-            self.window_style = pygame.FULLSCREEN
-        self.screen = display.set_mode(self.screen_size, self.window_style)
+            self.window_style = pygame.FULLSCREEN | SCALED
+
+        self.screen = display.set_mode(self.screen_size, DOUBLEBUF | self.window_style)
+
         Game.screen_rect = self.screen.get_rect()
 
         Character.screen_scale = self.screen_scale
@@ -256,21 +193,10 @@ class Game:
         self.loading = load_image(self.data_dir, self.screen_scale, "loading.png", ("ui", "mainmenu_ui"))
         self.loading = pygame.transform.scale(self.loading, self.screen_rect.size)
 
-        self.joysticks = {}
-        self.joystick_name = {}
-        self.player_joystick = {}  # always check link with joystick_player when change code
-        self.joystick_player = {}
-
-        self.player_key_control = {player: self.config["USER"]["control player " + str(player)] for player in
-                                   self.player_list}
-        self.player_key_bind = {player: self.game.player_key_bind_list[player][self.player_key_control[player]] for
-                                player in self.player_list}
-        self.player_key_bind_name = {player: {value: key for key, value in self.player_key_bind[player].items()} for
-                                     player in self.player_list}
-        self.player_key_press = {player: {key: False for key in self.player_key_bind[player]} for player in
-                                 self.player_list}
-        self.player_key_hold = {player: {key: False for key in self.player_key_bind[player]} for player in
-                                self.player_list}  # key that consider holding
+        self.player_key_bind = self.player_key_bind_list
+        self.player_key_bind_name = {value: key for key, value in self.player_key_bind.items()}
+        self.player_key_press = {key: False for key in self.player_key_bind}
+        self.player_key_hold = {key: False for key in self.player_key_bind}  # key that consider holding
         self.player_key_bind_button_name = self.get_keybind_button_name()
 
         Game.ui_font = csv_read(self.data_dir, "ui_font.csv", ("ui",), header_key=True)
@@ -278,6 +204,24 @@ class Game:
             Game.ui_font[item] = os.path.join(self.font_dir, Game.ui_font[item]["Font"] + ".ttf")
         Game.font_texture = load_images(self.data_dir, screen_scale=self.screen_scale,
                                         subfolder=("font", "texture"), as_pillow_image=True)
+
+        # ui font
+        self.loading_screen_lore_font = pygame.font.Font(self.ui_font["main_button"], int(60 * self.screen_scale[1]))
+
+        self.generic_ui_font = Font(self.ui_font["main_button"], int(30 * self.screen_scale[1]))
+        self.fps_counter_font = Font(self.ui_font["main_button"], int(40 * self.screen_scale[1]))
+        self.battle_timer_font = Font(self.ui_font["main_button"], int(60 * self.screen_scale[1]))
+        self.screen_fade_font = Font(self.ui_font["manuscript_font"], int(100 * self.screen_scale[1]))
+        self.character_indicator_font = Font(self.ui_font["manuscript_font"], int(50 * self.screen_scale[1]))
+        self.damage_number_font = Font(self.ui_font["manuscript_font"], int(46 * self.screen_scale[1]))
+        self.critical_damage_number_font = Font(self.ui_font["manuscript_font2"], int(76 * self.screen_scale[1]))
+        self.character_name_talk_prompt_font = Font(self.ui_font["talk_font"], int(40 * self.screen_scale[1]))
+        self.drama_font = Font(self.ui_font["manuscript_font"], int(90 * self.screen_scale[1]))
+        self.profiler_font = Font(self.ui_font["main_button"], 16)
+
+        self.list_font1 = Font(self.ui_font["text_paragraph"], int(40 * Game.screen_scale[1]))
+        self.list_font2 = Font(self.ui_font["text_paragraph"], int(32 * Game.screen_scale[1]))
+        self.list_font3 = Font(self.ui_font["text_paragraph"], int(24 * Game.screen_scale[1]))
 
         # Decorate game icon window
         # icon = load_image(self.data_dir, "sword.jpg")
@@ -292,25 +236,26 @@ class Game:
         self.menu_icon = sprite.Group()  # mostly for option icon like volume or screen resolution
         self.menu_slider = sprite.Group()
 
-        # lorebook group
-        self.subsection_name = sprite.Group()  # subsection name objects group in lorebook blit on lore_name_list
+        # ui list group
+        self.subsection_name = sprite.Group()  # subsection name objects group for item list
         self.tag_filter_name = sprite.Group()  # tag filter objects group in lorebook blit on filter_name_list
 
         # battle object group
-        Game.battle_camera = sprite.LayeredUpdates()  # layer drawer battle camera, all image pos should be based on the map not screen
+        self.battle_cameras = {"ui": sprite.LayeredUpdates(), "battle": sprite.LayeredUpdates()}
         self.battle_ui_updater = ReversedLayeredUpdates()  # this is updater and drawer for ui, all image pos should be based on the screen
         self.battle_ui_drawer = sprite.LayeredUpdates()
-        self.battle_cursor_drawer = sprite.LayeredUpdates()
 
         self.character_updater = sprite.Group()  # updater for character objects
         self.character_updater.cutscene_update = types.MethodType(cutscene_update, self.character_updater)
-        self.realtime_ui_updater = sprite.Group()  # for UI stuff that need to be updated in real time like drama and weather objects, also used as drawer
+        # for battle UI stuff that need to be updated in real time like drama and weather objects, also used as drawer
+        self.battle_outer_ui_updater = sprite.Group()
         self.effect_updater = sprite.Group()  # updater for effect objects (e.g. range attack sprite)
         self.effect_updater.cutscene_update = types.MethodType(cutscene_update, self.effect_updater)
 
-        self.all_chars = sprite.Group()  # group to keep all character objects for cleaning
-        self.all_damage_effects = sprite.Group()  # group to keep all damage objects for collision check
-        self.stage_objects = sprite.Group()  # group to keep all stage objects for event delete check
+        self.all_characters = sprite.Group()  # group for all character objects for cleaning
+        self.all_damage_effects = sprite.Group()  # group for all damage objects for collision check
+        self.stage_objects = sprite.Group()  # group for all scene objects for event delete check
+        self.player_general_indicators = sprite.Group()  # group for select check of all indicator of player general
 
         self.button_ui = sprite.Group()  # ui button group in battle
 
@@ -320,33 +265,27 @@ class Game:
         self.slider_menu = sprite.Group()  # volume slider in esc option menu
 
         self.weather_matters = sprite.Group()  # sprite of weather effect group such as rain sprite
-        self.weather_effect = sprite.Group()  # sprite of special weather effect group such as fog that cover whole screen
 
         # Assign containers
         OptionMenuText.containers = self.menu_icon
         SliderMenu.containers = self.menu_slider, self.slider_menu
 
+        StaticImage.containers = self.ui_updater, self.ui_drawer
         MenuRotate.containers = self.ui_updater, self.ui_drawer
         MenuActor.containers = self.ui_updater, self.ui_drawer
 
-        SubsectionName.containers = self.ui_updater, self.ui_drawer, self.battle_ui_updater, self.battle_ui_drawer
+        # SubsectionName.containers = self.ui_updater, self.ui_drawer, self.battle_ui_updater, self.battle_ui_drawer
 
         # battle containers
-        CharacterSpeechBox.containers = self.effect_updater, self.battle_camera, self.speech_boxes
-        CharacterIndicator.containers = self.effect_updater, self.battle_camera
-        Drop.containers = self.effect_updater, self.battle_camera
-        DamageNumber.containers = self.effect_updater, self.battle_camera
-        BodyPart.containers = self.effect_updater, self.battle_camera
-        Effect.containers = self.effect_updater, self.battle_camera
-        StageObject.containers = self.effect_updater, self.battle_camera, self.stage_objects
-        DamageEffect.containers = self.all_damage_effects, self.effect_updater, self.battle_camera
+        CharacterSpeechBox.containers = self.effect_updater, self.battle_cameras["ui"], self.speech_boxes
+        CharacterGeneralIndicator.containers = self.effect_updater, self.battle_cameras["ui"]
+        DamageNumber.containers = self.effect_updater, self.battle_cameras["ui"]
+        Effect.containers = self.effect_updater
+        StageObject.containers = self.effect_updater, self.stage_objects
+        DamageEffect.containers = self.all_damage_effects, self.effect_updater
+        MatterSprite.containers = self.weather_matters, self.battle_outer_ui_updater
 
-        MenuCursor.containers = self.ui_updater, self.ui_drawer
-
-        MatterSprite.containers = self.weather_matters, self.realtime_ui_updater
-        SpecialWeatherEffect.containers = self.weather_effect, self.battle_ui_updater, self.battle_ui_drawer
-
-        Character.containers = self.character_updater, self.all_chars
+        Character.containers = self.character_updater, self.all_characters
 
         self.game_intro(False)  # run intro
 
@@ -355,39 +294,33 @@ class Game:
         Game.localisation = self.localisation
 
         # Create game cursor, make sure it is the first object in ui to be created, so it is always update first
-        cursor_images = load_images(self.data_dir, subfolder=("ui", "cursor_menu"))  # no need to scale cursor
-        self.cursor = MenuCursor(cursor_images)
-        Game.cursor = self.cursor
+        Game.cursor = MenuCursor(load_images(self.data_dir, subfolder=("ui", "cursor_menu")))  # no need to scale cursor
+        self.add_ui_updater(self.cursor)
 
         # Battle related data
         self.character_data = CharacterData()
         self.battle_map_data = BattleMapData()
         self.sound_data = SoundData()
 
-        self.preset_map_folder = self.battle_map_data.preset_map_folder
         self.preset_map_data = self.battle_map_data.preset_map_data
-        self.choice_stage_reward = self.battle_map_data.choice_stage_reward
-        self.stage_reward = self.battle_map_data.stage_reward
 
+        if self.show_dmg_number:
+            BattleCharacter.show_dmg_number = True
         Character.character_data = self.character_data
         Character.status_list = self.character_data.status_list
+        Character.status_apply_funcs = self.character_data.status_apply_funcs
         Character.effect_list = self.character_data.effect_list
-
-        Drop.drop_item_list = self.character_data.drop_item_list
 
         Effect.effect_list = self.character_data.effect_list
 
-        self.animation_data = AnimationData()
-        self.char_sprite_chapter = self.animation_data.char_sprite_chapter
-        self.character_animation_data = self.animation_data.character_animation_data  # animation data pool
-        self.default_body_sprite_pool = self.animation_data.default_body_sprite_pool  # default body sprite pool
-        self.part_sprite_adjust = self.animation_data.part_sprite_adjust
-        self.body_sprite_pool = {}  # body sprite pool that get added when load battle map
-        self.stage_object_animation_pool = self.animation_data.stage_object_animation_pool
-        self.default_effect_animation_pool = self.animation_data.default_effect_animation_pool  # effect sprite animation pool
-        self.effect_animation_pool = self.animation_data.effect_animation_pool  # effect sprite animation pool that get added when load battle map
+        self.sprite_data = SpriteData()
+        self.character_animation_data = self.sprite_data.character_animation_data  # character animation data pool
+        self.character_portraits = self.sprite_data.character_portraits
+        self.stage_object_animation_pool = self.sprite_data.stage_object_animation_pool
+        self.effect_animation_pool = self.sprite_data.effect_animation_pool  # effect sprite animation pool
+        self.item_sprite_pool = self.sprite_data.item_sprite_pool
+        self.battle_item_sprite_pool = self.sprite_data.battle_item_sprite_pool
 
-        BodyPart.body_sprite_pool = self.body_sprite_pool
         Effect.effect_animation_pool = self.effect_animation_pool
         StageObject.stage_object_animation_pool = self.stage_object_animation_pool
 
@@ -405,59 +338,65 @@ class Game:
         # Load UI images
         self.battle_ui_images = load_images(self.data_dir, screen_scale=self.screen_scale,
                                             subfolder=("ui", "battle_ui"))
+        self.weather_icon_images = load_images(self.data_dir, screen_scale=self.screen_scale,
+                                               subfolder=("ui", "weather_ui"), key_file_name_readable=True)
         self.char_selector_images = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                                subfolder=("ui", "char_ui"), key_file_name_readable=True)
-        self.button_images = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                         subfolder=("ui", "battlemenu_ui", "button"))
+                                                subfolder=("ui", "char_ui"))
         self.option_menu_images = load_images(self.data_dir, screen_scale=self.screen_scale,
                                               subfolder=("ui", "option_ui"))
         # Main menu interface
         self.fps_count = FPSCount(self)  # FPS number counter
         if self.show_fps:
             self.add_ui_updater(self.fps_count)
-        if self.easy_text:
+        if self.use_easy_text:
             CharacterSpeechBox.simple_font = True
 
         base_button_image_list = load_base_button(self.data_dir, self.screen_scale)
 
-        main_menu_buttons_box = BoxUI((1600, 300), parent=self.screen)
+        BrownMenuButton.button_frame = load_image(self.game.data_dir, (1, 1),
+                                                  "new_button.png", ("ui", "mainmenu_ui"))
+        main_menu_buttons_box = BoxUI((1600 * self.screen_scale[0], 300 * self.screen_scale[1]), parent=self.screen)
 
-        self.start_game_button = BrownMenuButton((-2, 1), key_name="main_menu_start_game",
-                                                 parent=main_menu_buttons_box)
-        self.lore_button = BrownMenuButton((-0.7, 1), key_name="main_menu_lorebook", parent=main_menu_buttons_box)
-        self.option_button = BrownMenuButton((0.7, 1), key_name="game_option", parent=main_menu_buttons_box)
-        self.quit_button = BrownMenuButton((2, 1), key_name="game_quit", parent=main_menu_buttons_box)
+        self.custom_battle_button = BrownMenuButton((-2, 1), key_name="main_menu_custom_game",
+                                                    parent=main_menu_buttons_box)
+        self.lore_button = BrownMenuButton((-0.75, 1), key_name="game_lorebook",
+                                           parent=main_menu_buttons_box)
+        self.option_button = BrownMenuButton((0.75, 1), key_name="game_option",
+                                             parent=main_menu_buttons_box)
+        self.quit_button = BrownMenuButton((2, 1), key_name="game_quit",
+                                           parent=main_menu_buttons_box)
 
-        main_menu_button_images = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                              subfolder=("ui", "mainmenu_ui"))
+        self.mainmenu_button = (self.custom_battle_button, self.lore_button, self.option_button, self.quit_button)
 
-        self.discord_button = URLIconLink(main_menu_button_images["discord"], (self.screen_width, 0),
-                                          "https://discord.gg/q7yxz4netf")
-        self.youtube_button = URLIconLink(main_menu_button_images["youtube"], self.discord_button.rect.topleft,
-                                          "https://www.youtube.com/channel/UCgapwWog3mYhkEKIGW8VZtw")
-        # self.github_button = URLIconLink(main_menu_button_images["github"], self.youtube_button.rect.topleft,
-        #                                  "https://github.com/remance/Royal-Ordains")
-
-        self.mainmenu_button = (self.start_game_button, self.lore_button, self.option_button, self.quit_button,
-                                self.discord_button, self.youtube_button)
+        # self.start_game_button = BrownMenuButton((-2.4, 1), key_name="main_menu_start_game",
+        #                                          parent=main_menu_buttons_box)
+        # self.load_game_button = BrownMenuButton((-1.2, 1), key_name="main_menu_load_game",
+        #                                          parent=main_menu_buttons_box)
+        # self.custom_battle_button = BrownMenuButton((-1.2, 1), key_name="main_menu_custom_game",
+        #                                          parent=main_menu_buttons_box)
+        # self.lore_button = BrownMenuButton((0, 1), key_name="game_lorebook",
+        #                                          parent=main_menu_buttons_box)
+        # self.option_button = BrownMenuButton((1.2, 1), key_name="game_option", parent=main_menu_buttons_box)
+        # self.quit_button = BrownMenuButton((2.4, 1), key_name="game_quit", parent=main_menu_buttons_box)
+        #
+        # self.mainmenu_button = (self.start_game_button, self.load_game_button, self.custom_battle_button,
+        #                         self.lore_button, self.option_button, self.quit_button)
 
         # Battle map select menu button
         self.map_title = MapTitle((self.screen_rect.width / 2, 0))
+        self.preset_map_list_box = ListUI(pivot=(-0.9, -0.9), origin=(-1, -1), size=(.2, .8),
+                                          items=CampaignListAdapter(),
+                                          parent=self.screen, item_size=20)
 
         # self.map_preview = MapPreview(self.preset_map_list_box.rect.topright)
 
         # UIScroll(self.unit_selector, self.unit_selector.rect.topright)  # scroll bar for character pick
 
-        bottom_height = self.screen_rect.height - base_button_image_list[0].get_height()
-        self.select_button = MenuButton(base_button_image_list,
-                                        (self.screen_rect.width - base_button_image_list[0].get_width(), bottom_height),
-                                        key_name="select_button")
-
-        self.loading_lore_text_popup = TextPopup(font_size=32)
+        self.loading_lore_text_popup = TextPopup(font_size=70)
         self.loading_lore_text = ""
 
         # Option menu button
-        option_menu_dict = self.make_option_menu(base_button_image_list)
+        option_menu_dict = self.make_option_menu(main_menu_buttons_box)
         self.back_button = option_menu_dict["back_button"]
         self.keybind_button = option_menu_dict["keybind_button"]
         self.default_button = option_menu_dict["default_button"]
@@ -473,48 +412,37 @@ class Game:
         self.fps_text = option_menu_dict["fps_text"]
         self.keybind_text = option_menu_dict["keybind_text"]
         self.keybind_icon = option_menu_dict["keybind_icon"]
-        self.control_switch = option_menu_dict["control_switch"]
-        self.control_player_next = option_menu_dict["control_player_next"]
-        self.control_player_back = option_menu_dict["control_player_back"]
         self.easy_text_box = option_menu_dict["easy_text_box"]
         self.easy_text = option_menu_dict["easy_text"]
+        self.show_dmg_box = option_menu_dict["show_dmg_box"]
+        self.show_dmg_text = option_menu_dict["show_dmg_text"]
 
         self.option_text_list = tuple(
-            [self.resolution_text, self.fullscreen_text, self.fps_text, self.easy_text] +
+            [self.resolution_text, self.fullscreen_text, self.fps_text, self.easy_text, self.show_dmg_text] +
             [value for value in self.volume_texts.values()])
         self.option_menu_button = (
             self.back_button, self.default_button, self.keybind_button, self.resolution_drop,
-            self.fullscreen_box, self.fps_box, self.easy_text_box)
+            self.fullscreen_box, self.fps_box, self.easy_text_box, self.show_dmg_box)
 
         # Character select menu button
-        self.start_button = MenuButton(base_button_image_list,
-                                       (self.screen_rect.width / 1.5, self.screen_rect.height / 1.05),
-                                       key_name="start_button")
-        self.char_back_button = MenuButton(base_button_image_list,
-                                           (self.screen_rect.width / 4, self.screen_rect.height / 1.05),
-                                           key_name="back_button")
+        # self.start_battle_button = BrownMenuButton((2, 1.8), key_name="start_button",
+        #                                            parent=main_menu_buttons_box)
+        # self.char_back_button = BrownMenuButton((-2, 1.8), key_name="back_button", parent=main_menu_buttons_box)
 
-        self.char_interface_text_popup = {index: TextPopup() for index in range(1, 5)}
-
-        self.player_char_selectors, self.player_char_interfaces = self.make_character_interfaces()
-        self.char_menu_buttons = (self.player_char_selectors[1], self.player_char_selectors[2],
-                                  self.player_char_selectors[3], self.player_char_selectors[4],
-                                  self.char_back_button, self.start_button)
-        CharacterProfileBox.image = self.char_selector_images["Charsheet"]
-        self.char_profile_boxes = {
-            key + 1: {key2 + 1: CharacterProfileBox((self.player_char_selectors[key + 1].rect.topleft[0],
-                                                     self.player_char_selectors[key + 1].rect.topleft[1] +
-                                                     (key2 * (210 * self.screen_scale[1])))) for
-                      key2 in range(4)} for key in range(4)}
-        self.char_profile_page_text = {key + 1: NameTextBox((self.player_char_selectors[1].image.get_width() / 1.5,
-                                                             42 * self.screen_scale[1]),
-                                                            (self.player_char_selectors[key + 1].rect.center[0],
-                                                             self.player_char_selectors[key + 1].rect.midbottom[1] -
-                                                             42 * self.screen_scale[1]),
-                                                            "1/2", text_size=36 * self.screen_scale[1],
-                                                            center_text=True) for key in range(4)}
-        self.profile_page = {1: 0, 2: 0, 3: 0, 4: 0}
-        self.profile_index = {1: 1, 2: 1, 3: 1, 4: 1}
+        # self.char_interface_text_popup = {index: TextPopup() for index in range(1, 3)}
+        #
+        # self.player_char_selectors = {
+        #     1: CharacterSelector((self.screen_width / 12, self.screen_height / 3.5), self.char_selector_images),
+        #     2: CharacterSelector((self.screen_width / 1.8, self.screen_height / 3.5), self.char_selector_images)}
+        # self.player_char_interfaces = {index: CharacterInterface((self.player_char_selectors[index].rect.topleft[0],
+        #                                                           self.player_char_selectors[index].rect.topleft[1] -
+        #                                                           (60 * self.screen_scale[1])),
+        #                                                          index, self.char_interface_text_popup[index]) for index
+        #                                in range(1, 3)}
+        #
+        # self.char_menu_buttons = (self.player_char_selectors[1], self.player_char_selectors[2],
+        #                           self.player_char_interfaces[1], self.player_char_interfaces[2],
+        #                           self.char_back_button, self.start_battle_button)
 
         # User input popup ui
         input_ui_dict = self.make_input_box(base_button_image_list)
@@ -530,24 +458,20 @@ class Game:
                                    self.input_ui, self.input_box)
 
         # Encyclopedia interface
-        Lorebook.history_lore = self.localisation.create_lore_data("history")
-        Lorebook.character_lore = self.localisation.create_lore_data("character")
-        Lorebook.item_lore = self.localisation.create_lore_data("item")
-        Lorebook.status_lore = self.localisation.create_lore_data("status")
+        # Lorebook.history_lore = self.localisation.create_lore_data("history")
+        # Lorebook.character_lore = self.localisation.create_lore_data("character")
 
         Lorebook.character_data = self.character_data
 
-        self.lorebook, self.lore_name_list, self.filter_tag_list, self.lore_buttons = self.make_lorebook()
-
-        self.lorebook_stuff = (self.lorebook, self.lore_name_list, self.filter_tag_list,
-                               self.lore_name_list.scroll, self.filter_tag_list.scroll, self.lore_buttons.values())
+        # self.lorebook, self.lore_name_list, self.filter_tag_list, self.lore_buttons = self.make_lorebook()
+        #
+        # self.lorebook_stuff = (self.lorebook, self.lore_name_list, self.filter_tag_list,
+        #                        self.lore_name_list.scroll, self.filter_tag_list.scroll, self.lore_buttons.values())
 
         self.battle = Battle(self)
 
         Game.battle = self.battle
         Character.battle = self.battle
-        Drop.battle = self.battle
-        BodyPart.battle = self.battle
         Effect.battle = self.battle
         StageObject.battle = self.battle
 
@@ -555,44 +479,34 @@ class Game:
         self.background_image = load_images(self.data_dir, screen_scale=self.screen_scale,
                                             subfolder=("ui", "mainmenu_ui", "background"))
         self.background = self.background_image["background"]
-        self.o2 = MenuRotate((765 * self.screen_scale[0], 282 * self.screen_scale[1]), self.background_image["o2_1"],
-                             10, rotate_left=False)
-        self.o2_actor = MenuActor((765 * self.screen_scale[0], 285 * self.screen_scale[1]),
+        self.o2 = MenuRotate((1530 * self.screen_scale[0], 564 * self.screen_scale[1]),
+                             self.background_image["o2_1"], 10, 1, rotate_left=False)
+        self.o2_actor = MenuActor((1530 * self.screen_scale[0], 570 * self.screen_scale[1]),
                                   [self.background_image[item] for item in self.background_image if
-                                   "o2_1_actor" in item],
+                                   "o2_1_actor" in item], 0,
                                   animation_frame_play_time=0.15)
-        self.a4_actor = MenuActor((1160 * self.screen_scale[0], 325 * self.screen_scale[1]),
+        self.a4_actor = MenuActor((2320 * self.screen_scale[0], 650 * self.screen_scale[1]),
                                   [self.background_image[item] for item in self.background_image if
-                                   "a4_1_actor" in item],
+                                   "a4_1_actor" in item], 0,
                                   animation_frame_play_time=0.15)
-        self.y3_actor = MenuActor((960 * self.screen_scale[0], 200 * self.screen_scale[1]),
+        self.y3_actor = MenuActor((1920 * self.screen_scale[0], 400 * self.screen_scale[1]),
                                   [self.background_image[item] for item in self.background_image if
-                                   "y3_1_actor" in item],
+                                   "y3_1_actor" in item], 0,
                                   animation_frame_play_time=0.15)
-        self.l5_actor = MenuActor((1338 * self.screen_scale[0], 260 * self.screen_scale[1]),
+        self.l5_actor = MenuActor((2676 * self.screen_scale[0], 520 * self.screen_scale[1]),
                                   [self.background_image[item] for item in self.background_image if
-                                   "l5_1_actor" in item],
+                                   "l5_1_actor" in item], 0,
                                   animation_frame_play_time=0.15)
 
-        self.hide_background = StaticImage((self.screen_width / 2, self.screen_height / 2),
-                                           self.background_image["hide"])
+        self.main_menu_actor = (self.o2, self.o2_actor, self.a4_actor, self.y3_actor, self.l5_actor)
 
-        # Starting script
-        for event in pygame.event.get():
-            if event.type == JOYDEVICEADDED:  # search for joystick plugin before game start
-                self.add_joystick(event)
-
-        for player in self.player_key_control:
-            # search for joystick player with no joystick to revert control to keyboard
-            if self.player_key_control[player] == "joystick" and player not in self.player_joystick:
-                self.config["USER"]["control player " + str(player)] = "keyboard"
-                self.change_keybind()
-
-        self.player_char_select = {1: None, 2: None, 3: None, 4: None}
+        hide_bg = Surface((self.screen_width, self.screen_height), SRCALPHA)
+        hide_bg.fill((0, 0, 0, 200))
+        self.hide_background = StaticImage((self.screen_width / 2, self.screen_height / 2), 3, hide_bg)
+        self.remove_ui_updater(self.hide_background)
 
         self.dt = 0
         self.text_delay = 0
-        self.url_delay = 0
         self.add_ui_updater(self.mainmenu_button)
 
         self.menu_state = "main_menu"
@@ -632,7 +546,7 @@ class Game:
     def setup_profiler(self):
         self.profiler = Profiler()
         self.profiler.enable()
-        self.battle.realtime_ui_updater.add(self.profiler)
+        self.battle.battle_outer_ui_updater.add(self.profiler)
 
     def run(self):
         while True:
@@ -640,70 +554,19 @@ class Game:
             self.dt = self.clock.get_time() / 1000  # dt before game_speed
             self.cursor.scroll_down = False
             self.cursor.scroll_up = False
-            esc_press = False
+            self.esc_press = False
 
-            self.player_key_press = {key: dict.fromkeys(self.player_key_press[key], False) for key in
-                                     self.player_key_press}
-            self.player_key_hold = {key: dict.fromkeys(self.player_key_hold[key], False) for key in
-                                    self.player_key_hold}
+            self.player_key_press = {key: False for key in self.player_key_press}
+            self.player_key_hold = {key: False for key in self.player_key_hold}
 
             key_press = pygame.key.get_pressed()
 
             if not music.get_busy():  # replay menu song when not playing anything
                 music.play()
 
-            if self.url_delay:
-                self.url_delay -= self.dt
-                if self.url_delay < 0:
-                    self.url_delay = 0
-
-            for player, key_set in self.player_key_press.items():
-                if self.player_key_control[player] == "keyboard":
-                    for key in key_set:  # check for key holding
-                        if type(self.player_key_bind[player][key]) == int and key_press[
-                            self.player_key_bind[player][key]]:
-                            self.player_key_hold[player][key] = True
-                else:
-                    player_key_bind_name = self.player_key_bind_name[player]
-                    for joystick_id, joystick in self.joysticks.items():
-                        if self.player_joystick[player] == joystick_id:
-                            for i in range(joystick.get_numaxes()):
-                                if joystick.get_axis(i) > 0.5 or joystick.get_axis(i) < -0.5:
-                                    if i in (2, 3) and player == 1:  # right axis only for cursor (player 1 only)
-                                        vec = Vector2(joystick.get_axis(2), joystick.get_axis(3))
-                                        radius, angle = vec.as_polar()
-                                        adjusted_angle = (angle + 90) % 360
-                                        new_pos = Vector2(
-                                            self.cursor.pos[0] + (self.dt * 1000 * sin(radians(adjusted_angle))),
-                                            self.cursor.pos[1] - (self.dt * 1000 * cos(radians(adjusted_angle))))
-                                        if new_pos[0] < 0:
-                                            new_pos[0] = 0
-                                        elif new_pos[0] > self.corner_screen_width:
-                                            new_pos[0] = self.corner_screen_width
-                                        if new_pos[1] < 0:
-                                            new_pos[1] = 0
-                                        elif new_pos[1] > self.corner_screen_height:
-                                            new_pos[1] = self.corner_screen_height
-                                        mouse.set_pos(new_pos)
-                                    else:
-                                        axis_name = "axis" + number_to_minus_or_plus(joystick.get_axis(i)) + str(i)
-                                        if axis_name in player_key_bind_name:
-                                            self.player_key_hold[player][player_key_bind_name[axis_name]] = True
-                                            self.player_key_press[player][player_key_bind_name[axis_name]] = True
-
-                            for i in range(joystick.get_numbuttons()):
-                                if joystick.get_button(i) and i in player_key_bind_name:
-                                    self.player_key_hold[player][player_key_bind_name[i]] = True
-
-                            for i in range(joystick.get_numhats()):
-                                if joystick.get_hat(i)[0] > 0.1 or joystick.get_hat(i)[0] < -0.1:
-                                    hat_name = "hat" + number_to_minus_or_plus(joystick.get_hat(i)[0]) + str(0)
-                                    if hat_name in self.player_key_bind_name:
-                                        self.player_key_hold[player][player_key_bind_name[hat_name]] = True
-                                if joystick.get_hat(i)[1] > 0.1 or joystick.get_hat(i)[1] < -0.1:
-                                    hat_name = "hat" + number_to_minus_or_plus(joystick.get_hat(i)[1]) + str(1)
-                                    if hat_name in self.player_key_bind_name:
-                                        self.player_key_hold[player][player_key_bind_name[hat_name]] = True
+            for key in self.player_key_press:
+                if type(self.player_key_bind[key]) is int and key_press[self.player_key_bind[key]]:
+                    self.player_key_hold[key] = True
 
             for event in pygame.event.get():
                 if event.type == pygame.MOUSEBUTTONUP:
@@ -712,84 +575,26 @@ class Game:
                     elif event.button == 5:  # Mouse scroll up
                         self.cursor.scroll_down = True
 
-                elif event.type == pygame.JOYBUTTONUP:
-                    joystick = event.instance_id
-                    if self.input_popup:
-                        if self.config["USER"]["control player " + str(self.control_switch.player)] == "joystick" and \
-                                self.input_popup[0] == "keybind_input" and \
-                                self.player_joystick[self.control_switch.player] == joystick:
-                            # check for button press
-                            self.assign_key(event.button)
-                    else:
-                        if joystick in self.joystick_player:
-                            player = self.joystick_player[joystick]
-                            if self.player_key_control[player] == "joystick" and \
-                                    event.button in self.player_key_bind_name[player]:  # check for key press
-                                self.player_key_press[player][self.player_key_bind_name[player][event.button]] = True
-
                 elif event.type == pygame.KEYDOWN:
                     event_key_press = event.key
+
                     if self.input_popup:  # event update to input box
 
                         if event.key == pygame.K_ESCAPE:
-                            esc_press = True
+                            self.esc_press = True
 
-                        elif self.input_popup[0] == "keybind_input" and \
-                                self.config["USER"]["control player " + str(self.control_switch.player)] == "keyboard":
+                        elif self.input_popup[0] == "keybind_input":
                             self.assign_key(event.key)
 
                         elif self.input_popup[0] == "text_input":
                             self.input_box.player_input(event, key_press)
                             self.text_delay = 0.1
                     else:
-                        for player in self.player_key_control:
-                            if self.player_key_control[player] == "keyboard" and \
-                                    event_key_press in self.player_key_bind_name[player]:  # check for key press
-                                self.player_key_press[player][self.player_key_bind_name[player][event_key_press]] = True
+                        if event_key_press in self.player_key_bind_name:  # check for key press
+                            self.player_key_press[self.player_key_bind_name[event_key_press]] = True
 
                         if event.key == pygame.K_ESCAPE:
-                            esc_press = True
-
-                elif event.type == JOYDEVICEADDED:
-                    # Player add new joystick by plug in
-                    self.add_joystick(event)
-
-                elif event.type == JOYDEVICEREMOVED:
-                    # Player unplug joystick
-                    del self.joysticks[event.instance_id]
-                    del self.joystick_name[event.instance_id]
-                    for key, value in self.player_joystick.copy().items():
-                        if value == event.instance_id:
-                            self.player_joystick.pop(key)
-                            self.joystick_player.pop(value)
-
-                            if self.menu_state == "keybind" and self.control_switch.player == key:
-                                # remove joystick when in keybind menu with joystick setting
-                                self.player_key_bind[key] = self.player_key_bind_list[key]["keyboard"]
-                                self.config["USER"]["control player " + str(key)] = "keyboard"
-                                self.control_switch.change_control("keyboard", key)
-                                self.player_key_control[key] = self.config["USER"][
-                                    "control player " + str(key)]
-                                edit_config("USER", "control player " + str(key),
-                                            self.config["USER"]["control player " + str(key)],
-                                            self.config_path, self.config)
-
-                                for key2, value2 in self.keybind_icon.items():
-                                    value2.change_key(self.config["USER"]["control player " + str(key)],
-                                                      self.player_key_bind_list[key][self.config["USER"][
-                                                          "control player " + str(key)]][key2], None)
-
-                                self.player_key_bind_name = {player: {value: key for key, value in
-                                                                      self.player_key_bind[player].items()}
-                                                             for player in self.player_list}
-                                self.player_key_bind_button_name = self.get_keybind_button_name()
-
-                            break
-
-                    self.player_key_bind_name = {
-                        player: {value: key for key, value in self.player_key_bind[player].items()} for
-                        player in self.player_list}
-                    self.player_key_bind_button_name = self.get_keybind_button_name()
+                            self.esc_press = True
 
                 elif event.type == QUIT:
                     pygame.quit()
@@ -804,21 +609,12 @@ class Game:
                 if self.input_ok_button.event_press or key_press[pygame.K_RETURN] or key_press[pygame.K_KP_ENTER]:
                     done = True
                     if "replace key" in self.input_popup[1]:  # swap between 2 keys
-                        player = self.control_switch.player
-                        old_key = self.player_key_bind[player][self.input_popup[1][1]]
+                        old_key = self.player_key_bind[self.input_popup[1][1]]
 
-                        self.player_key_bind[player][self.input_popup[1][1]] = self.player_key_bind[player][
-                            self.input_popup[1][2]]
-                        self.player_key_bind[player][self.input_popup[1][2]] = old_key
-                        self.config["USER"]["keybind player " + str(player)] = str(self.player_key_bind_list[player])
+                        self.player_key_bind[self.input_popup[1][1]] = self.player_key_bind[self.input_popup[1][2]]
+                        self.player_key_bind[self.input_popup[1][2]] = old_key
+                        self.config["USER"]["keybind"] = str(self.player_key_bind_list)
                         self.change_keybind()
-
-                    elif self.input_popup[1] == "delete profile":
-                        self.save_data.save_profile["character"].pop(self.input_popup[2])
-                        self.save_data.remove_save_file(
-                            os.path.join(self.main_dir, "save", str(self.input_popup[2]) + ".dat"))
-                        for player2 in self.profile_page:
-                            self.update_profile_slots(player2)
 
                     elif self.input_popup[1] == "quit":
                         pygame.time.wait(1000)
@@ -831,7 +627,7 @@ class Game:
                         self.input_popup = None
                         self.remove_ui_updater(self.all_input_ui_popup)
 
-                elif self.input_cancel_button.event_press or self.input_close_button.event_press or esc_press:
+                elif self.input_cancel_button.event_press or self.input_close_button.event_press or self.esc_press:
                     self.change_pause_update(False)
                     self.input_box.text_start("")
                     self.input_popup = None
@@ -847,49 +643,19 @@ class Game:
                         if self.text_delay >= 0.3:
                             self.text_delay = 0
 
-                else:
-                    if self.player_key_control[self.control_switch.player] == "joystick" and \
-                            self.input_popup[0] == "keybind_input":  # check for joystick hat and axis keybind
-                        for joystick_id, joystick in self.joysticks.items():
-                            if self.player_joystick[self.control_switch.player] == joystick_id:
-                                for i in range(joystick.get_numaxes()):
-                                    if i < 4:
-                                        if joystick.get_axis(i) > 0.5 or joystick.get_axis(i) < -0.5:
-                                            if i not in (2, 3):  # prevent right axis from being assigned
-                                                axis_name = "axis" + number_to_minus_or_plus(
-                                                    joystick.get_axis(i)) + str(i)
-                                                self.assign_key(axis_name)
-                                    else:  # axis from other type of joystick (ps5 axis 4 and 5 is L2 and R2) which -1 mean not press
-                                        if joystick.get_axis(i) > 0.5:  # check only positive
-                                            axis_name = "axis" + number_to_minus_or_plus(joystick.get_axis(i)) + str(i)
-                                            self.assign_key(axis_name)
-
-                                for i in range(joystick.get_numhats()):
-                                    if joystick.get_hat(i)[0] > 0.1 or joystick.get_hat(i)[0] < -0.1:
-                                        hat_name = "hat" + number_to_minus_or_plus(joystick.get_hat(i)[0]) + str(0)
-                                        self.assign_key(hat_name)
-                                    elif joystick.get_hat(i)[1] > 0.1 or joystick.get_hat(i)[1] < -0.1:
-                                        hat_name = "hat" + number_to_minus_or_plus(joystick.get_hat(i)[1]) + str(1)
-                                        self.assign_key(hat_name)
-
             elif not self.input_popup:
                 if self.menu_state == "main_menu":
-                    self.menu_main(esc_press)
+                    self.menu_main()
 
                 elif self.menu_state == "char":
-                    self.menu_char(esc_press)
+                    self.menu_char()
 
                 elif self.menu_state == "option":
-                    self.menu_option(esc_press)
+                    self.menu_option()
 
                 elif self.menu_state == "keybind":
-                    self.menu_keybind(esc_press)
-
-                elif self.menu_state == "lorebook":
-                    command = self.lorebook_process(esc_press)
-                    if esc_press or command == "exit":
-                        self.menu_state = "main_menu"  # change menu back to default 0
+                    self.menu_keybind()
 
             self.ui_drawer.draw(self.screen)
             display.update()
-            self.clock.tick(300)
+            self.clock.tick(1000)

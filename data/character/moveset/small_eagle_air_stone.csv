@@ -1,0 +1,3 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Attack1","Drop Stone",,,"enemy:{target_type=ground}",1500,10000,6,20,27,7,20,-50,,"Earth",,,,"movable,end_when_done,x_momentum:500"
+"Attack2","Beak Attack",,,"enemy:{target_type=air}",1000,,8,9,30,11,,,,"Physical",,,,"movable,x_momentum:500"

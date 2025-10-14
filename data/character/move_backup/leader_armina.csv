@@ -1,0 +1,10 @@
+"Buttons","Move","Name","Requirement Move","Prepare Animation","After Animation","AI Range","AI Delay","AI Condition","Range","Resource Cost","Power","Push Impact","Pull Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Weak","weak","Water Bolt",,,,800,2,,,5,10,50,,,,"Water",,,,
+"Forward,Weak","fweak","Wind Bash",,,,400,5,,,5,7,1500,,,,"Air",,,,
+"Down,Weak","dweak","Earth Shatter",,,,1000,6,,,20,8,,,2000,,"Earth",,,,
+"Special","special","Summon Feral Snail",,,,2000,8,,,50,,,,,,"Physical",,,,"summon:Animal_snail_feral"
+"Down,Special","dspecial","Summon Boar",,,,2000,8,,,50,,,,,,"Physical",,,,"summon:Animal_boar"
+"Forward,Special","fspecial","Summon Wolf",,,,2000,8,,,50,,,,,,"Physical",,,,"summon:Animal_wolf"
+"Backward,Special","bspecial","Summon Bear",,,,2000,6,,,50,,,,,,"Physical",,,,"summon:Animal_bear"
+"Foward,Strong","fstrong","Teleport Forward",,,,,6,,,15,,,,,,"Magic",,,,"momentum_x:500,move_speed:9999999"
+"Backward,Strong","bstrong","Teleport Backward",,,,,6,,,15,,,,,,"Magic",,,,"momentum_x:-500,move_speed:9999999"

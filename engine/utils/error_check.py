@@ -60,7 +60,7 @@ def event_translation_check(language):
             sub3_directories = [x for x in read_folder.iterdir() if x.is_dir()]
             for file_stage in sub3_directories:
                 stage_file_name = os.sep.join(os.path.normpath(file_stage).split(os.sep)[-1:])
-                if stage_file_name != "0":  # city stage use different reading
+                if stage_file_name != "0":  # city scene use different reading
                     with open(os.path.join(data_dir, "map", "preset", chapter_file_name, map_file_name, stage_file_name,
                                            "event.csv"), encoding="utf-8", mode="r") as unit_file:
                         rd = list(csv.reader(unit_file, quoting=csv.QUOTE_ALL))
@@ -68,7 +68,7 @@ def event_translation_check(language):
                             if item4[1] and item4[1] != "Text ID" and item4[1] not in localisation.text[language][
                                 "event"]:
                                 print(chapter_file_name, map_file_name, stage_file_name, item4[1])
-                else:  # city stage, read each scene
+                else:  # city scene, read each scene
                     read_folder = Path(os.path.join(data_dir, "map", "preset", file_chapter, file_map, "0"))
                     sub4_directories = [x for x in read_folder.iterdir() if x.is_dir()]
                     for file_scene in sub4_directories:

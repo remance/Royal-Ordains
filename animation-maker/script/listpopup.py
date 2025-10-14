@@ -1,12 +1,4 @@
-import os
-import sys
-
 from engine.uimenu.uimenu import NameList
-
-current_dir = os.path.split(os.path.abspath(__file__))[0]
-main_dir = current_dir[:current_dir.rfind("\\") + 1].split("\\")
-main_dir = ''.join(stuff + "\\" for stuff in main_dir[:-2])  # one folder further back
-sys.path.insert(1, main_dir)
 
 
 def setup_list(item_class, current_row, show_list, item_group, box, ui_class,

@@ -1,0 +1,5 @@
+"Buttons","Move","Name","Requirement Move","Prepare Animation","After Animation","AI Range","AI Delay","AI Condition","Range","Resource Cost","Power","Push Impact","Pull Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Weak","weak1","Club Smash",,,,150,2,,,,8,10,,5,,"Physical",,,,
+"Strong","strong1","Club Swing",,,,150,5,,,,7,15,,5,,"Physical",,,,
+"Strong","strong2","Club Club","strong1",,,150,5,,,,9,5,,20,,"Physical",,,,
+"Strong","strong3","Club Momentum","strong2",,,150,5,,,,12,15,,20,,"Physical",,,,

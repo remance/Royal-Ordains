@@ -1,25 +1,24 @@
 from random import choice
 
 from pygame import Surface, SRCALPHA
-from pygame.font import Font
 
-from engine.uimenu.uimenu import UIMenu
+from engine.uibattle.uibattle import UIBattle
 from engine.utils.text_making import text_render_with_bg
 
 
-class TextDrama(UIMenu):
+class TextDrama(UIBattle):
     images = []
 
     def __init__(self, battle):
         self._layer = 17
-        UIMenu.__init__(self)
+        UIBattle.__init__(self, player_cursor_interact=False)
         self.body = self.images["body"]
         self.left_corner = self.images["start"]
         self.right_corner = self.images["end"]
         self.battle = battle
         # drama appear at around center top pos of battle camera
-        self.pos = (self.battle.battle_camera_size[0] / 2, self.battle.battle_camera_size[1] / 5)
-        self.font = Font(self.ui_font["manuscript_font"], int(60 * self.screen_scale[1]))
+        self.pos = (self.battle.camera_center_x, self.battle.camera_size[1] / 5)
+        self.font = self.game.drama_font
         self.queue = []  # text list to popup
         self.blit_text = False
         self.current_length = 0

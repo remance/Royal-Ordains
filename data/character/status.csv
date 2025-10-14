@@ -1,99 +1,73 @@
-"ID","Name","Status Conflict","Duration","Power Bonus","Defence Bonus","Speed Bonus","Animation Time Modifier","HP Regeneration Bonus","Resource Regeneration Bonus","Physical Resistance Bonus","Fire Resistance Bonus","Water Resistance Bonus","Air Resistance Bonus","Earth Resistance Bonus","Poison Resistance Bonus","Magic Resistance Bonus","Status Sprite","Debuff"
-1,"Pin Down",,5,,,-1000,,,,,,,,,,,,"TRUE"
-2,"Fear","1,3",15,,,,,,,,,,,,,,,"TRUE"
-3,"Hope",2,15,,,,,,,,,,,,,,,"FALSE"
-4,"Invisible","15,20,21,23,24,32,33,40,54",15,,0.1,,,,,,,,,,,,,"FALSE"
-5,"Disrupt",,10,-10,-0.1,,,,,,,,,,,,,"TRUE"
-6,"Paralysis",,8,-30,-0.3,-100,1,,,,,,,,,,,"TRUE"
-7,"Blind",30,6,-40,-0.3,-50,0.2,,,,,,,,,,,"TRUE"
-8,"Petrify",30,5,,,,,,,,,,,,,,,"TRUE"
-9,"Blacked Out",30,4,-100,-1,,,1,,,,,,,,,,"TRUE"
-10,"Panic",,15,-40,-0.25,-35,,,,,,,,,,,,"TRUE"
-11,"Berserk",,60,50,-0.5,50,,,,,,,,,,,,"TRUE"
-12,"Confuse",30,10,-40,-0.4,-30,,,,,,,,,,,,"TRUE"
-13,"Teary Eye",,15,-25,-0.25,,0.1,,,,,,,,,,,"TRUE"
-14,"True Speed",,3,,,50,-0.5,,,,,,,,,,,"FALSE"
-15,"Oiled",30,20,-5,,-30,,,,,-0.35,,,,,,,"TRUE"
-16,"Plague",30,60,-8,-0.08,-10,,-1,-3,,,,,,,,,"TRUE"
-17,"Stun",30,5,-25,-0.25,-40,,,,,,,,,,,,"TRUE"
-18,"Poison","19,30",30,,-0.05,-5,,-2,-1,,,,,,,,,"TRUE"
-19,"Deadly Poison",30,30,,-0.15,-15,,-10,-2,,,,,,,,,"TRUE"
-20,"Burn","21,23,38,46,47,49",10,,,,,-8,,,,,,,,,,"TRUE"
-21,"Freeze","20,37",30,-15,-0.15,-50,,,,,,,,,,,,"TRUE"
-22,"Shock",39,30,-25,-0.22,-30,,,,,,,,,,,,"TRUE"
-23,"Wet",38,30,,,-10,,,,,,-0.25,-0.5,,,,,"TRUE"
-24,"Persist Burn",,60,,,,,-3,,,,,,,,,,"TRUE"
-25,"Drunk",,30,10,-0.1,-25,,,1,,,,,,,,,"TRUE"
-26,"Cripple",30,45,-5,-0.15,-45,,,,,,,,,,,,"TRUE"
-27,"Slow",45,5,,,-25,0.25,,,,,,,,,,,"TRUE"
-28,"Resource Generation",,10,,,,,,2,,,,,,,,,"FALSE"
-29,"Disarmed",,10,,,,,,,,,,,,,,,"TRUE"
-30,"Cure",,10,,,,,,,,,,,,,,,"FALSE"
-31,"Minor Bleeding","30,32,33",30,,,,,-10,,,,,,,,,"Bleeding","TRUE"
-32,"Bleeding","30,33",30,-5,,,,-35,,,,,,,,,"Bleeding","TRUE"
-33,"Major Bleeding",30,30,-10,,,,-80,,,,,,,,,"Bleeding","TRUE"
-34,"Smoke",,2,,,,,,,,,,,,,,,"TRUE"
-35,"Suppressed",,15,,,-50,,,,,,,,,,,,"TRUE"
-36,"Daze",,5,,-0.1,-20,,,-1,,,,,,,,,"TRUE"
-37,"Provoke",,25,15,-0.5,,,,,,,,,,,,,"TRUE"
-38,"Time Stop",,,,-1000,-100000,,,,,,,,,,,,"TRUE"
-39,"Severe Burning","21,38,46,47,49",10,,,,,-8,,,,,,,,,,"TRUE"
-40,"Drench",37,20,,,-25,,,,,-0.5,-0.75,,,,,,"TRUE"
-41,"Electrocution",,,,,,,-3,,,,,,,,,,"TRUE"
-42,"Cold","21,41",10,-10,-0.05,-10,,,,,,-0.15,,,,,,"TRUE"
-43,"Hot","21,40,42",10,-10,-0.1,-10,,,,,-0.05,,,,,,,"TRUE"
-44,"Suppressed",,10,,-0.05,-5,0.1,,,,,,,,,,,"TRUE"
-45,"Haste",27,5,,,25,-0.25,,,,,,,,,,,"FALSE"
-46,"Enraged",,10,15,,,,,,,,,,,,,,"TRUE"
-47,"Disorient",,15,-5,-0.1,-10,0.05,,,-0.1,,,,,,,,"TRUE"
-48,"Vulnerable",,10,,-0.25,,,,,-0.3,-0.3,-0.3,-0.3,-0.3,-0.3,-0.3,,"TRUE"
-49,"Stagger",,30,-10,-0.1,,,,-1,,,,,,,,,"TRUE"
-50,"Half Resource Cost",,15,,,,,,,,,,,,,,,"FALSE"
-51,"Full Power",,10,100,,,,,,,,,,,,,,"FALSE"
-52,"Collapse",,5,-50,-0.5,-100,,1,,,,,,,,,,"TRUE"
-53,"Overload",,10,,,,,-50,10,,,,,,,,,"FALSE"
-54,"Marked For Death",,10,,-0.4,,,,,-0.4,,,,,,,,"TRUE"
-55,"Stone Shield",,30,,,,,,,,,,,,,,,"FALSE"
-56,"Jousting Charge",,5,10,0.1,5,,,,,,,,,,,,"FALSE"
-57,"Sudden Blood Loss",,1,,,,,-50,,,,,,,,,,"TRUE"
-58,"Calculated Blood Loss",,1,,,,,-10,,,,,,,,,,"TRUE"
-59,"Minor Heat Burst","60,61,62,63",30,,-0.2,50,,-5,,,,-0.15,,,0.1,,"Heat Burst","FALSE"
-60,"Moderate Heat Burst","61,62,63",40,,-0.1,85,,-2,,,,-0.3,,,0.2,,"Heat Burst","FALSE"
-61,"Heavy Heat Burst","62,63",50,,-0.05,125,,,,,,-0.45,,,0.3,,"Heat Burst","FALSE"
-62,"Extreme Heat Burst",63,60,,,160,,,,,,-0.5,,,0.3,,"Heat Burst","FALSE"
-63,"Supreme Heat Burst",,70,,,200,,,,,,-0.5,,,0.35,,"Heat Burst","FALSE"
-64,"Minor Heat Inner","65,66,67,68",60,10,,,,,,,,,,,,-0.3,"Heat Inner","FALSE"
-65,"Moderate Heat Inner","66,67,68",70,15,,,,,,,,0.2,,,,-0.3,"Heat Inner","FALSE"
-66,"Heavy Heat Inner","67,68",80,25,,,,,,,,0.3,,,,-0.3,"Heat Inner","FALSE"
-67,"Extreme Heat Inner",68,90,35,,,,,,,,0.4,,,,-0.2,"Heat Inner","FALSE"
-68,"Supreme Heat Inner",,100,50,,,,,,,,0.6,0.3,,,-0.1,"Heat Inner","FALSE"
-69,"Minor Cold Burst","70,71,72,73",30,,0.25,,,,,,-0.15,0.2,,,,,"Cold Burst","FALSE"
-70,"Moderate Cold Burst","71,72,73",40,,0.35,,,,,,-0.3,0.3,,,,,"Cold Burst","FALSE"
-71,"Heavy Cold Burst","72,73",50,,0.6,,,,,0.15,-0.45,0.4,,,,,"Cold Burst","FALSE"
-72,"Extreme Cold Burst",73,60,,0.9,,,,,0.25,-0.5,0.5,,,,,"Cold Burst","FALSE"
-73,"Supreme Cold Burst",,70,,1.25,,,,,0.35,-0.5,0.8,,,,,"Cold Burst","FALSE"
-74,"Minor Cold Inner","75,76,77,78",60,,,,,5,,,0.2,,,,,,"Cold Inner","FALSE"
-75,"Moderate Cold Inner","76,77,78",70,,,,,15,1,,0.3,,,,,0.15,"Cold Inner","FALSE"
-76,"Heavy Cold Inner","77,78",80,,,,,30,1,,0.5,,,,,0.25,"Cold Inner","FALSE"
-77,"Extreme Cold Inner",78,90,,,,,50,2,,0.7,,,,,0.3,"Cold Inner","FALSE"
-78,"Supreme Cold Inner",,100,,,,,90,3,,0.8,,,,0.4,0.45,"Cold Inner","FALSE"
-79,"Second Wind",,1,,,,,300,,,,,,,,,,"FALSE"
-80,"Steady Recovery",,10,,,,,10,,,,,,,,,,"FALSE"
-81,"Steady Recovery Heal",,1,,,,,350,,,,,,,,,,"FALSE"
-82,"Cleansing Body",,10,,,,,10,,,,,,,,,,"FALSE"
-83,"Cleansing Body Heal",,1,,,,,500,,,,,,,,,,"FALSE"
-84,"Vitality Burst",,10,,,,,15,,0.15,0.15,0.15,0.15,0.15,0.15,0.15,,"FALSE"
-85,"Vitality Burst Heal",,1,,,,,700,,,,,,,,,,"FALSE"
-86,"Complete Rejuvenation",,10,,,,,20,,0.15,0.15,0.15,0.15,0.15,0.15,0.15,,"FALSE"
-87,"Complete Rejuvenation Heal",,1,,,,,1000,,,,,,,,,,"FALSE"
-88,"Excited",,15,10,,15,-0.1,,,,,,,,,,,"FALSE"
-89,"Pale Dance",,15,,0.4,,-0.1,,,,,,,,,,,"FALSE"
-90,"Speed Up",,30,,,50,-0.15,,,,,,,,,,,"FALSE"
-91,"Stone Skin",,30,,0.3,,,,,0.1,0.1,0.1,0.1,0.1,0.1,0.1,,"FALSE"
-92,"Adrenaline Rush",,15,,,30,-0.35,,,,,,,,,,,"FALSE"
-93,"Strengthen",,30,35,,,,,,,,,,,,,,"FALSE"
-94,"Finest Archery",,5,50,,30,-0.3,,,,,,,,,,,"FALSE"
-95,"Skill Focus",,15,,-0.35,-35,0.15,,,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,,"FALSE"
-96,"Curse",,30,-25,-0.2,-10,0.1,,-0.5,-0.25,-0.25,-0.25,-0.25,-0.25,-0.25,-0.25,,"TRUE"
-97,"Pure Focus",,30,,,,,,10,,,,,,,,,"FALSE"
-98,"Bless",,30,25,0.2,10,0.1,,,,,,,,,,,"FALSE"
+"ID","Status Conflict","Duration","Offence Modifier","Defence Modifier","Speed Modifier","Animation Time Modifier","HP Regeneration Bonus","Resource Regeneration Bonus","Physical Resistance Bonus","Fire Resistance Bonus","Water Resistance Bonus","Air Resistance Bonus","Earth Resistance Bonus","Poison Resistance Bonus","Magic Resistance Bonus","Property","Status Sprite"
+"Berserk",,60,0.3,-0.5,0.5,-0.1,,,,,,,,,,,
+"Blacked_out","Cure",4,-1,-1,-1,,1,,,,,,,,,,
+"Bleeding","Cure",30,-0.02,,,,-35,,,,,,,,,,"Bleeding"
+"Bless","Curse",30,0.25,0.2,0.1,0.1,,,0.2,0.2,0.2,0.2,0.2,0.2,0.2,,
+"Blind","Cure",6,-0.5,-0.3,-0.1,0.2,,,,,,,,,,"blind",
+"Burn","Cold,Drench,Freezing,Wet",10,,,,,-8,,,,,,,,,,
+"Clarity","False_advance,False_attack,False_retreat",10,,,,,,,,,,,,,,,
+"Cold","Burn,Hot",10,-0.03,-0.05,-0.05,,,,,,-0.15,,,,,,
+"Collapse","Cure",5,-0.5,-0.5,-0.9,,1,,,,,,,,,,
+"Confuse","Cure",10,-0.25,-0.4,-0.25,,,,,,,,,,,,
+"Cripple","Cure",45,0.2,-0.15,-0.45,,,,,,,,,,,,
+"Cure",,10,,,,,,,,,,,,,,,
+"Curse","Bless",30,-0.25,-0.2,-0.1,0.1,,-0.5,-0.25,-0.25,-0.25,-0.25,-0.25,-0.25,-0.25,,
+"Daze",,5,,-0.1,-0.25,,,-1,,,,,,,,,
+"Deadly_poison","Cure",30,,-0.15,-0.1,,-5,-2,,,,,,,,,
+"Disarmed",,10,,,,,,,,,,,,,,,
+"Disorient",,15,-0.1,-0.1,-0.2,0.05,,,-0.1,,,,,,,,
+"Distract",,8,,-0.3,-0.05,,,-1,,,,,,,,,
+"Disrupt",,10,-0.05,-0.1,-0.15,,,,,,,,,,,,
+"Drench","Wet",20,,,-0.15,,,,,-0.5,-0.75,,,,,,
+"Drunk",,30,0.1,-0.1,-0.2,,,1,,,,,,,,,
+"Electrocution",,,,,,,-3,,,,,,,,,,
+"Enraged",,10,0.15,,,,,,,,,,,,,,
+"Excited",,15,0.05,,0.15,-0.1,,,,,,,,,,,
+"Fear","Hope",30,-0.05,,,-0.05,,,,,,,,,,,
+"Freezing","Hot,Burn",30,-0.25,-0.15,-1,,,,,,,,,,,,
+"Full_power",,10,1,,,,,,,,,,,,,,
+"Half_resource_cost",,10,,,,,,,,,,,,,,"resource_cost_modifier:0.5",
+"Haste","Slow",10,,,0.3,-0.25,,,,,,,,,,,
+"Hope","Fear",30,0.05,,,0.05,,,,,,,,,,,
+"Hot","Burn,Drench,Cold",10,-0.03,-0.1,-0.05,,,,,-0.05,,,,,,,
+"Invisible","Burn,Drench,Wet,Freezing,Bleeding",15,,0.1,,,,,,,,,,,,,
+"Jousting_charge",,7,0.1,0.1,0.4,,,,,,,,,,,,
+"Marked_for_death",,10,,-0.4,,,,,-0.4,,,,,,,,
+"Oiled","Cure",20,-0.05,,-0.125,,,,,-0.5,,,,,,,
+"Overload",,10,,,,,-50,10,,,,,,,,,
+"Pale_dance",,15,,0.4,,-0.1,,,,,,,,,,,
+"Panic",,15,-0.2,-0.25,-0.25,,,,,,,,,,,,
+"Paralysis",,8,-0.4,-0.3,-1,1,,,,,,,,,,,
+"Petrify","Cure",5,,,,,,,,,,,,,,,
+"Pin_down",,5,,,-0.75,,,,,,,,,,,,
+"Plague","Cure",60,-0.05,-0.08,-0.15,,-1,-3,,,,,,,,,
+"Poison","Deadly_poison,Cure",30,,-0.05,-0.05,,-2,-1,,,,,,,,,
+"Provoke",,25,0.15,-0.5,,,,,,,,,,,,,
+"Pure_focus","Berserk",30,,,-0.3,,,10,,,,,,,,,
+"Resource_generation",,30,,,,,,2,,,,,,,,,
+"Second_wind",,1,,,,,300,20,,,,,,,,,
+"Shock",,30,-0.2,-0.22,-0.25,,,,,,,-0.2,,,,,
+"Slow","Haste",10,,,-0.3,0.25,,,,,,,,,,,
+"Smoke",,2,,,,,,,,,,,,,,,
+"Stagger",,30,-0.1,-0.1,,,,-1,,,,,,,,,
+"Stone_skin",,30,,0.3,,,,,0.2,0.2,-0.3,0.2,-0.5,0.5,0.1,,
+"Strengthen",,30,0.25,,,,,,,,,,,,,,
+"Stun","Cure",5,-0.15,-0.25,-0.4,,,,,,,,,,,,
+"Suppressed",,10,,-0.05,-0.1,0.1,,,,,,,,,,,
+"Supreme_defence",,20,,1,,,,,,,,,,,,,
+"Time_stop",,10,-1,-1,-1,-1,,,,,,,,,,,
+"True_speed",,3,,,0.5,-0.5,,,,,,,,,,,
+"Vulnerable",,10,,-0.25,,,,,-0.3,-0.3,-0.3,-0.3,-0.3,-0.3,-0.3,,
+"Wet","Burn",30,,,-0.05,,,,,,-0.25,-0.5,,,,,
+"Small_healing_kit",,1,,,,,50,,,,,,,,,,
+"Medium_healing_kit",,1,,,,,120,,,,,,,,,,
+"Large_healing_kit",,1,,,,,280,,,,,,,,,,
+"Great_healing_kit",,1,,,,,400,,,,,,,,,,
+"Master_healing_kit",,1,,,,,600,,,,,,,,,,
+"Health_potion",,1,,,,,150,,,,,,,,,,
+"Large_health_potion",,1,,,,,500,,,,,,,,,,
+"Massive_health_potion",,1,,,,,1000,,,,,,,,,,
+"Resource_potion",,1,,,,,,50,,,,,,,,,
+"Resource_kit",,1,,,,,,50,,,,,,,,,
+"Magic_shield",,,,,,,,,,,,,,,0.8,,
+"Flame_shield",,,,,,,,,,0.8,,,,,,,

@@ -1,0 +1,14 @@
+"Buttons","Move","Name","Requirement Move","Prepare Animation","After Animation","AI Range","AI Delay","AI Condition","Range","Resource Cost","Power","Push Impact","Pull Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Weak","weak1","Spear Piercing",,,"name:weak1End",200,,,,,15,45,,,,"Air",,,,
+"Weak","weak2","Flail Arc","weak1,weak1strong,weak1strongstrong,weak1strongspecial",,"name:weak2End",200,,,,,18,10,,50,,"Fire",,,,
+"Weak","weak3","Clean Slash","weak2,weak2strong,weak2strongstrong,weak2strongspecial",,"name:weak3End",200,,,,,23,20,,15,,"Water",,,,
+"Strong","weak1strong","Wind Spear Lift","weak1,weak1strongstrong",,"name:weak1End",250,,,,5,21,30,,30,,"Air",,,,
+"Strong","weak2strong","Flame Flail Crush","weak2,weak2strongstrong",,"name:weak2End",250,,,,5,32,,,80,,"Fire",,15,,
+"Strong","weak3strong","Frost Sword Slice","weak3,weak3strongstrong",,"name:weak3End",250,,,,5,37,,,,,"Water",,,,
+"Strong","weak1strongstrong","Down Wind","weak1strong",,"name:weak1End",250,3,,,10,27,,,100,,"Air",,,,
+"Strong","weak2strongstrong","Fire Splitter","weak2strong",,"name:weak2End",250,3,,,10,35,150,,,0.05,"Fire",,,,
+"Strong","weak3strongstrong","Ice Slash","weak3strong",,"name:weak3End",250,3,,,10,42,30,,20,0.1,"Water",,,,
+"Special","weak1strongspecial","Guiding Wind","weak1strong",,"name:weak1End",250,4,,,22,14,45,,,,"Air",,,,"multiple hits"
+"Special","weak2strongspecial","Ember Storm","weak2strong",,"name:weak2End",250,4,,,22,9,60,,,,"Fire",,39,,"multiple hits,penetrate"
+"Special","weak3strongspecial","Ice Spear","weak3strong",,"name:weak3End",300,4,,,22,50,50,,,,"Water",,,,"penetrate"
+"Forward,Strong","fstrong","Spear Rush",,,,500,3,,,10,25,50,,10,,"Air",,,,"x_momentum:200,movable,forced move,penetrate"

@@ -1,4 +1,5 @@
 from collections.abc import Iterable
+from math import radians, sin
 
 import pygame
 import pygame.freetype
@@ -32,35 +33,7 @@ def change_group(item, group, change):
         group.remove(item)
 
 
-def stat_allocation_check(stat, point_pool, how):
-    up_cost = int(stat / 10) + 1
-    if how == "up":
-        if up_cost > point_pool:
-            return stat, point_pool
-        return stat + 1, point_pool - up_cost
-    else:
-        if stat > 1:
-            return stat - 1, point_pool + up_cost
-        else:
-            return stat, point_pool
-
-
-def skill_allocation_check(skill, point_pool, how, current_chapter):
-    if how == "up":
-        max_level = current_chapter + 1  # max level increase every chapter
-        if max_level > 5:  # max skill lv in game is 5 so chapter 4 is when skill can be maxed
-            max_level = 5
-        if point_pool > 0 and skill < max_level:
-            return skill + 1, point_pool - 1
-        return skill, point_pool
-    else:
-        if skill > 0:
-            return skill - 1, point_pool + 1
-        return skill, point_pool
-
-
-def keyboard_mouse_press_check(button_type, button, is_button_just_down, is_button_down, is_button_just_up,
-                               joystick_check=()):
+def keyboard_mouse_press_check(button_type, button, is_button_just_down, is_button_down, is_button_just_up):
     """
     Check for button just press, holding, and release for keyboard or mouse
     :param button_type: pygame.key, pygame.mouse, or pygame.
@@ -68,23 +41,9 @@ def keyboard_mouse_press_check(button_type, button, is_button_just_down, is_butt
     :param is_button_just_down: button is just press last update
     :param is_button_down: button is pressing after first update
     :param is_button_just_up: button is just release last update
-    :param joystick_check: check for joystick press as well
     :return: new state of is_button_just_down, is_button_down, is_button_just_up
     """
-    if joystick_check:
-        if type(joystick_check[1]) is str:  # hat and axis input
-            if "hat" in joystick_check[1]:
-                button_check = joystick_check[0].get_hat(int(joystick_check[1][-2:]))
-            if "axis" in joystick_check[1]:
-                button_check = joystick_check[0].get_axis(int(joystick_check[1][-2:]))
-                if int(joystick_check[1][-2:]) > 0 > button_check:
-                    button_check = 0
-                if int(joystick_check[1][-2:]) < 1 < button_check:
-                    button_check = 0
-        else:  # other buttons input
-            button_check = joystick_check[0].get_button(joystick_check[1])
-
-    if button_type.get_pressed()[button] or (joystick_check and button_check):
+    if button_type.get_pressed()[button]:
         # press button
         if not is_button_just_down:
             if not is_button_down:  # fresh press
@@ -120,7 +79,7 @@ def edit_config(section, option, value, filename, config):
 
 
 def setup_list(item_class, current_row, show_list, item_group, box, ui_class, layer=15):
-    """generate list of subsection buttons like in the lorebook"""
+    """generate list of subsection buttons"""
     from engine.game.game import Game
     screen_scale = Game.screen_scale
     row = 5 * screen_scale[1]
@@ -180,15 +139,37 @@ def list_scroll(screen_scale, mouse_scroll_up, mouse_scroll_down, scroll, box, c
     return current_row
 
 
+def calculate_projectile_target(velocity, angle):
+    angle = radians(angle)
+    return velocity ** 2 * sin(2 * angle)
+
+
+def calculate_projectile_velocity(angle, distance):
+    """Velocity required for object to reach give distance and angle"""
+    angle = radians(angle)
+    if angle:
+        return (distance / (sin(2 * angle))) ** 0.5
+    else:
+        return distance ** 0.5
+
+
+def float_check(value):
+    try:
+        float(value)
+        return True
+    except ValueError:
+        return
+
+
 def clean_group_object(groups):
     """Clean all attributes of every object in group in list"""
     for group in groups:
         if len(group) > 0:
-            if type(group) == pygame.sprite.Group or type(group) == list or type(group) == tuple:
+            if type(group) is pygame.sprite.Group or type(group) is list or type(group) is tuple:
                 for stuff in group:
                     clean_object(stuff)
                 group.empty()
-            elif type(group) == dict:
+            elif type(group) is dict:
                 for stuff in group.values():
                     if isinstance(stuff, Iterable):
                         for item in stuff:

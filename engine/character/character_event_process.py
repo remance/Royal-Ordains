@@ -1,8 +1,8 @@
-from random import uniform
 from types import MethodType
 
 from pygame import Vector2
 
+from engine.constants import *
 from engine.uibattle.uibattle import CharacterSpeechBox
 
 infinity = float("inf")
@@ -12,86 +12,61 @@ def character_event_process(self, event, event_property):
     from engine.character.character import Character
 
     if event["Type"] == "hide":
-        self.battle.battle_camera.remove(self.body_parts.values())
         if self.indicator:  # also hide indicator
-            self.battle.battle_camera.remove(self.indicator)
-        self.cutscene_update = MethodType(Character.inactive_update, self)
+            self.battle_camera.remove(self.indicator)
+        self.update = MethodType(Character.inactive_update, self)
         self.battle.cutscene_playing.remove(event)
-    elif event["Type"] == "speak":  # speak something
-        start_speech(self, event, event_property)
+    elif event["Type"] == "show":
+        if self.indicator:
+            self.battle_camera.add(self.indicator)
+        self.update = MethodType(Character.update, self)
+        self.battle.cutscene_playing.remove(event)
     elif event["Type"] == "idle":  # replace idle animation, note that it replace even after cutscene finish
         self.replace_idle_animation = event["Animation"]
-        self.pick_cutscene_animation({})
         self.battle.cutscene_playing.remove(event)
-    elif event["Type"] == "animation":  # play specific animation
-        self.command_action = event_property
     elif event["Type"] == "remove":
-        self.die(delete=True)
+        self.die()
+        self.erase()
         self.battle.cutscene_playing.remove(event)
-    elif event["Type"] == "unlock":  # unlock AI via event
-        self.ai_lock = False
-        self.event_ai_lock = False
-        self.battle.cutscene_playing.remove(event)
-        for team in self.battle.all_team_enemy:
-            if team != self.team and self not in self.battle.all_team_enemy[team]:
-                self.battle.all_team_enemy[team].add(self)
-    elif event["Type"] == "lock":  # lock AI via event
-        self.event_ai_lock = True
-        self.ai_lock = True
-        self.battle.cutscene_playing.remove(event)
-    elif (not self.cutscene_event or (("hold" in self.current_action or "repeat" in self.current_action) and
-                                      self.cutscene_event != event)):
-        # replace previous event on hold or repeat when there is new one to play next
-        if self.cutscene_event in self.battle.cutscene_playing:
-            # previous event done
-            self.battle.cutscene_playing.remove(self.cutscene_event)
+    elif not self.cutscene_event:
+        # replace previous event when there is new one to play next
 
         self.cutscene_event = event
-        if "POS" in event_property:
+        if "POS" in event_property:  # move to position
             if type(event_property["POS"]) is str:
-                target_scene = self.battle.battle_stage.current_scene
+                target_scene = self.battle.current_scene
                 if "reach_" in event_property["POS"]:
-                    target_scene = self.battle.battle_stage.reach_scene
+                    target_scene = self.battle.reach_scene
 
                 if "start" in event_property["POS"]:
-                    positioning = self.layer_id
-                    if self.layer_id > 4:
-                        positioning = uniform(1, 4)
-                    ground_pos = self.ground_pos
-                    if self.fly:  # flying character can just move with current y pos
-                        ground_pos = self.base_pos[1]
-                    self.cutscene_target_pos = Vector2(
-                        (1920 * target_scene) + (100 * positioning), ground_pos)
+                    self.cutscene_target_pos = Vector2((Default_Screen_Width * target_scene) + 100, 1000)
                 elif "middle" in event_property["POS"]:
-                    ground_pos = self.ground_pos
-                    if self.fly:  # flying character can just move with current y pos
-                        ground_pos = self.base_pos[1]
                     self.cutscene_target_pos = Vector2(
-                        (1920 * target_scene) - (self.battle.battle_camera_center[0] * 1.5),
-                        ground_pos)
+                        (Default_Screen_Width * target_scene) - (self.battle.camera_center_x * 1.5),
+                        self.base_pos[1])
                 elif "center" in event_property["POS"]:
                     # true center, regardless of flying
                     self.cutscene_target_pos = Vector2(
-                        (1920 * target_scene) - (self.battle.battle_camera_center[0] * 1.5),
-                        self.battle.battle_camera_center[1])
+                        (Default_Screen_Width * target_scene) - (self.battle.camera_center_x * 1.5),
+                        self.battle.camera_center_y)
             else:
                 self.cutscene_target_pos = Vector2(
                     event_property["POS"][0],
                     event_property["POS"][1])
         elif "target" in event_property:
-            for character2 in self.battle.all_chars:
+            for character2 in self.battle.all_characters:
                 if character2.game_id == event_property["target"]:  # go to target pos
                     self.cutscene_target_pos = character2.base_pos
                     break
-        if "Angle" in event_property:
-            if event_property["Angle"] == "target":
+        if "angle" in event_property:
+            if event_property["angle"] == "target":
                 # facing target must have cutscene_target_pos
                 if self.cutscene_target_pos[0] >= self.base_pos[0]:
-                    self.new_angle = -90
+                    self.new_direction = "right"
                 else:
-                    self.new_angle = 90
+                    self.new_direction = "left"
             else:
-                self.new_angle = int(event_property["Angle"])
+                self.new_angle = event_property["angle"]
             self.rotate_logic()
         animation = event["Animation"]
         action_dict = event_property
@@ -112,10 +87,10 @@ def start_speech(self, event, event_property):
     body_part = "p1_head"
     if "body part" in event_property:
         body_part = event_property["body part"]
-    use_big = False
-    if "use big" in event_property:
-        use_big = event_property["use big"]
-    max_text_width = 600
+    font_size = 60
+    if "font size" in event_property:
+        font_size = event_property["font size"]
+    max_text_width = 800
     if "max text width" in event_property:
         max_text_width = event_property["max text width"]
     if "interact" in event_property:
@@ -123,13 +98,12 @@ def start_speech(self, event, event_property):
         player_input_indicator = True
     elif "timer" in event_property:
         specific_timer = event_property["timer"]
-    elif "select" in event_property or \
-            "hold" in event_property:
+    elif "select" in event_property:
         # selecting event, also infinite timer but not add player input indication
         specific_timer = infinity
 
     if "angle" in event_property:
-        if self.angle != event_property["angle"]:  # player face target
+        if self.angle != event_property["angle"]:
             self.new_angle *= -1
             self.rotate_logic()
 
@@ -137,4 +111,4 @@ def start_speech(self, event, event_property):
                                      specific_timer=specific_timer,
                                      player_input_indicator=player_input_indicator,
                                      cutscene_event=event, add_log=event["Text ID"], voice=voice, body_part=body_part,
-                                     use_big=use_big, max_text_width=max_text_width)
+                                     font_size=font_size, max_text_width=max_text_width)

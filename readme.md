@@ -1,14 +1,14 @@
-# Royal Ordains the First Book  <img src="https://github.com/remance/preview2/blob/main/rabbit.png?raw=true">
+# Royal Ordains  <img src="https://github.com/remance/preview2/blob/main/rabbit.png?raw=true">
 
-### This is the Book of Royal Ordains. A manuscript that tells the past courageous deeds of the hero group named Royal Ordains, sanctioned by the King of Masendor, so that their history will never be forgotten.
+### This is the Book of Royal Ordains. A manuscript that tells the history of the great realms, so that their history will never be forgotten.
 
 <img src="https://github.com/remance/preview2/blob/main/bg1.1.1.3.png?raw=true">
 <img src="https://github.com/remance/preview2/blob/main/bg1.2.1.8.png?raw=true">
 
-[![](https://markdown-videos-api.jorgenkh.no/youtube/ar8TsS8spMU)](https://youtu.be/ar8TsS8spMU)
+[//]: # ([![]&#40;https://markdown-videos-api.jorgenkh.no/youtube/ar8TsS8spMU&#41;]&#40;https://youtu.be/ar8TsS8spMU&#41;)
 
 
-Side-scrolling medieval fantasy action game in the art style inspired by Medieval art from various periods and regions (with a sprinkle of education elements for historical medieval period) made with [Pygame](https://github.com/pygame/pygame).
+Side-scrolling medieval fantasy strategy game in the art style inspired by Medieval arts from various periods and regions made with [Pygame](https://github.com/pygame/pygame).
 
 <div align="center">    
     <img src="https://github.com/remance/preview/blob/main/pygamelogo.gif?raw=true" alt="Pygame Logo">
@@ -22,11 +22,15 @@ Discord channel: [![github](https://github.com/remance/preview/blob/main/discord
 
 For game update showcase video: [![github](https://github.com/remance/preview/blob/main/youtube_logo3.png?raw=true)][2]
 
-<img src="https://github.com/remance/preview2/blob/main/rabbit-rider.gif?raw=true" width="200" height="200"></a> 
-<img src="https://github.com/remance/preview2/blob/main/bigta.gif?raw=true" width="200" height="200"></a>  
-<img src="https://github.com/remance/preview2/blob/main/bow.gif?raw=true" width="200" height="200"></a>
-<img src="https://github.com/remance/preview2/blob/main/peace.gif?raw=true" width="200" height="200"></a>   
-<img src="https://github.com/remance/preview2/blob/main/CourtEnd.gif?raw=true" width="200" height="200"></a>   
+[//]: # (<img src="https://github.com/remance/preview2/blob/main/rabbit-rider.gif?raw=true" width="200" height="200"></a> )
+
+[//]: # (<img src="https://github.com/remance/preview2/blob/main/bigta.gif?raw=true" width="200" height="200"></a>  )
+
+[//]: # (<img src="https://github.com/remance/preview2/blob/main/bow.gif?raw=true" width="200" height="200"></a>)
+
+[//]: # (<img src="https://github.com/remance/preview2/blob/main/peace.gif?raw=true" width="200" height="200"></a>   )
+
+[//]: # (<img src="https://github.com/remance/preview2/blob/main/CourtEnd.gif?raw=true" width="200" height="200"></a>   )
 
 
 ---------------
@@ -84,14 +88,17 @@ code.<br>
 
 Also, the game is currently written based on the pygame 2.5.2 module and python 3.11. Using older versions of the two likely will cause error.
 
+[//]: # ()
+[//]: # (# Game Features)
 
-# Game Features
+[//]: # ()
+[//]: # (- Play a custom battle against an AI opponent.)
 
-- Play solo, with AI followers, and/or with 3 other players (Local multiplayer only for now)
-- Choices matter. Players will encounter many but simple choices (Yes/No) throughout the game, which can alter the story and gameplay in different ways.
-- Medieval art style that will change along with the progress of the story. 
+[//]: # (- )
 
-<img src="https://github.com/remance/preview2/blob/main/decision.png?raw=true"></a> 
+[//]: # (- Medieval art style that will change along with the progress of the story. )
+
+
 
 
 [//]: # (# System Requirements)
@@ -137,62 +144,7 @@ Also, the game is currently written based on the pygame 2.5.2 module and python 
 
 ---------------
 
-# Development Progress
-
-The current game version consists of 5 playable characters and first 2 missions for chapter 1.
-
-### Warrior type
-
-<img src="https://github.com/remance/preview2/blob/main/vraesier.png?raw=true" ></a>
-
-### Archer type
-
-<img src="https://github.com/remance/preview2/blob/main/rodhinbar.png?raw=true"></a>
-
-### Support type
-
-<img src="https://github.com/remance/preview2/blob/main/duskuksa1.png?raw=true" width="100" height="100"></a> Rune Sage Journeyman
-
-### Skill type
-
-<img src="https://github.com/remance/preview2/blob/main/iri1.png?raw=true" width="100" height="100"></a> Traveller
-
-### Special type
-
-<img src="https://github.com/remance/preview2/blob/main/nayedien.png?raw=true" ></a>
-
-# Future Playable Characters
-
-### Warrior type
-
-<img src="https://github.com/remance/preview2/blob/main/orsanoas1.png?raw=true" width="100" height="100"></a> Warrior
-
-### Archer type
-
-<img src="https://github.com/remance/preview2/blob/main/minara1.png?raw=true" width="100" height="100"></a> Exiled Scout
-
-### Skill type
-
-<img src="https://github.com/remance/preview2/blob/main/bauqah1.png?raw=true" width="100" height="100"></a> Hedge Shaman
-
-
-### Mage type
-
-<img src="https://github.com/remance/preview2/blob/main/elmaliern1.png?raw=true" width="100" height="100"></a> Desperate Widow
-
-<img src="https://github.com/remance/preview2/blob/main/pasgelo1.png?raw=true" width="100" height="100"></a> Mage of Season
-
-### Support type
-
-<img src="https://github.com/remance/preview2/blob/main/yuawies1.png?raw=true" width="100" height="100"></a> Dryad
-
-### Special type
-
-<img src="https://github.com/remance/preview2/blob/main/laguasangte1.png?raw=true" width="100" height="100"></a> Sweeper
-
----------------
-
-## Tools
+## Tool
 
 ### Animation maker
 
@@ -206,8 +158,8 @@ Animation maker for the Vector-based character animation in game. The tool is ma
 # Credit
 
 [//]: # (## Programming)
-
-## Tool
+[//]: # ()
+[//]: # (## Tool)
 
 [//]: # (### Subunit sprite viewer by coppermouse &#40;https://github.com/coppermouse&#41;)
 
@@ -256,7 +208,7 @@ Animation maker for the Vector-based character animation in game. The tool is ma
 - Whistling sound "Joy Whistle" by Vampireayanos-narry (https://pixabay.com/users/vampireayanos-narry-33446737/)
 - Firework sound "Firework Explosion With Echo" and explosion sound "Slow Explosion" by Alex_Jauk (https://pixabay.com/users/alex_jauk-16800354/)
 - Various Ice sound by danielsoundsgood (https://linktr.ee/danielsoundsgood)
-
+- Catapult sound by Sounddino (https://sounddino.com/en/effects/catapult/)
 ### Music
 
 - Test menu music"The Britons" by kmacleod (https://pixabay.com/users/kmacleod-3979860/)

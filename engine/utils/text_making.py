@@ -70,7 +70,7 @@ def make_long_text(surface, text, pos, font, color=Color("black"), with_texture=
                     word_surface = text_render_with_texture(word, font, with_texture[0], with_bg=with_texture[1])
 
                 word_width = word_surface.get_width()
-                if true_x + word_width >= max_width or word == "\\n":
+                if true_x + word_width >= max_width or word == "\\n":  # new line
                     subsurface = Surface((x, word_height), SRCALPHA)
                     for w_x, w_surface in this_subsurface_list.items():
                         subsurface.blit(w_surface, (w_x, 0))

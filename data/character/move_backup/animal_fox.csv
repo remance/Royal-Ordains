@@ -1,0 +1,4 @@
+"Buttons","Move","Name","Requirement Move","Prepare Animation","After Animation","AI Range","AI Delay","AI Condition","Range","Resource Cost","Power","Push Impact","Pull Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Weak","weak","Enlighting Light",,,,800,7,,,,,,,,,"Magic",,7,,
+"Strong","strong","Words of Wisdom",,,,800,7,,,,,,,,,"Magic",,12,,
+"Special","special","Soothing Smoke",,,,800,7,,,,,,,,,"Magic",,36,,

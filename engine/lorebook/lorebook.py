@@ -54,11 +54,12 @@ class Lorebook(UIMenu):
         self.page = 0
         self.max_page = 0
         self.rect = self.image.get_rect(center=(self.screen_size[0] / 2, self.screen_size[1] / 2))
-        self.tag_list = [{stuff["Tag"]: True for stuff in self.history_lore.values() if "Tag" in stuff and  stuff["Tag"]},
-                         {stuff["Tag"]: True for stuff in self.character_lore.values() if "Tag" in stuff and stuff["Tag"]},
-                         {stuff["Tag"]: True for stuff in self.item_lore.values() if "Tag" in stuff and stuff["Tag"]},
-                         {stuff["Tag"]: True for stuff in self.status_lore.values() if type(stuff) != int and "Tag" in stuff
-                          and stuff["Tag"]}]
+        self.tag_list = [
+            {stuff["Tag"]: True for stuff in self.history_lore.values() if "Tag" in stuff and stuff["Tag"]},
+            {stuff["Tag"]: True for stuff in self.character_lore.values() if "Tag" in stuff and stuff["Tag"]},
+            {stuff["Tag"]: True for stuff in self.item_lore.values() if "Tag" in stuff and stuff["Tag"]},
+            {stuff["Tag"]: True for stuff in self.status_lore.values() if type(stuff) != int and "Tag" in stuff
+             and stuff["Tag"]}]
         for index, tag_list in enumerate(self.tag_list):
             tag_list["No Tag"] = True
             self.tag_list[index] = {"No Tag": self.tag_list[index].pop("No Tag"), **self.tag_list[index]}
@@ -280,7 +281,7 @@ class SubsectionName(UIMenu):
 #         newcharacter = pygame.key.name(input)
 #         self.text += newcharacter
 
-def lorebook_process(self, esc_press):
+def lorebook_process(self):
     """Lorebook user interaction"""
     command = None
     close = False
@@ -292,7 +293,7 @@ def lorebook_process(self, esc_press):
                                              self.filter_tag_list,
                                              self.filter_tag_list.scroll)  # change to section of that button
 
-            elif button_index == "close" or esc_press:  # Close button
+            elif button_index == "close" or self.esc_press:  # Close button
                 close = True
 
             break  # found clicked button, break loop
@@ -345,7 +346,7 @@ def lorebook_process(self, esc_press):
                 self.lorebook.setup_subsection_list(self.filter_tag_list, self.tag_filter_name, "tag")
                 self.filter_tag_list.scroll.change_image(new_row=self.lorebook.current_filter_row)
 
-    if close or esc_press:
+    if close or self.esc_press:
         self.portrait = None
         self.remove_ui_updater(self.lorebook_stuff)  # remove lorebook related sprites
         for group in (self.subsection_name, self.tag_filter_name):

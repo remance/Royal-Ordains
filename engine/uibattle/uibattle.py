@@ -2,21 +2,21 @@ import cProfile
 from datetime import datetime
 from math import cos, sin, radians
 from random import choice
+from operator import itemgetter
 
+import pygame
 from pygame import Vector2, Surface, SRCALPHA, Color, Rect, draw, mouse
 from pygame.font import Font
-from pygame.transform import smoothscale, rotate, flip
+from pygame.transform import smoothscale, flip
 
-from engine.uimenu.uimenu import UIMenu
-from engine.utils.text_making import number_to_minus_or_plus, text_render_with_bg, text_render_with_texture, \
-    minimise_number_text, make_long_text
+from engine.utils.common import keyboard_mouse_press_check
+from engine.constants import *
+from engine.uimenu.uimenu import UIMenu, MenuCursor
+from engine.utils.text_making import text_render_with_bg, text_render_with_texture, \
+    make_long_text
 
-team_colour = {0: Color("grey"), 1: Color("black"), 2: Color("red"), 3: Color("blue"), 4: Color("darkgoldenrod1"),
-               5: Color("purple"), 6: Color("orange"),
-               "health": Color("seagreen4"), "resource": Color("slateblue1"), "revive": Color("purple")}
-
-chapter_font_name = {"simple": "simple_talk_font", "1": "ch1_talk_font", "2": "ch2_talk_font", "3": "ch3_talk_font",
-                     "4": "ch4_talk_font", "5": "ch5_talk_font", "6": "ch6_talk_font"}
+team_colour = {0: Color("grey"), 1: (100, 110, 150), 2: (190, 50, 50), 3: (50, 190, 50), 4: (122, 60, 120)}
+follower_type_colour = {0: (70, 70, 180), 1: (100, 200, 100)}  # melee, range
 
 
 class UIBattle(UIMenu):
@@ -26,12 +26,11 @@ class UIBattle(UIMenu):
         """
         from engine.battle.battle import Battle
         UIMenu.__init__(self, player_cursor_interact=player_cursor_interact, has_containers=has_containers)
-        self.updater = Battle.ui_updater  # change updater to use battle ui updater instead of main menu one
         self.battle = Battle.battle
         self.screen = Battle.screen
-        self.battle_camera_size = Battle.battle_camera_size
-        self.battle_camera_min = Battle.battle_camera_min
-        self.battle_camera_max = Battle.battle_camera_max
+        self.camera_size = Battle.camera_size
+        self.camera_max = Battle.camera_max
+        self.cursor = Battle.battle_cursor  # use battle cursor for battle ui
 
 
 class ButtonUI(UIBattle):
@@ -48,64 +47,43 @@ class ButtonUI(UIBattle):
         self.rect = self.image.get_rect(center=self.pos)
 
 
-class BattleCursor(UIBattle):
-    def __init__(self, images, player_input):
+class BattleCursor(UIBattle, MenuCursor):
+    def __init__(self, images):
         """Game battle cursor"""
-        self._layer = 100  # as high as possible, always blit last
+        self._layer = 999999999999  # as high as possible, always blit last
+        MenuCursor.__init__(self, images)
         UIBattle.__init__(self)
-        self.pos_change = False
-
-        self.images = images
-        self.image = images["normal"]
-        self.pos = Vector2(self.screen_size[0] / 2, self.screen_size[1] / 29)
-        self.old_mouse_pos = (0, 0)
-        self.rect = self.image.get_rect(topleft=self.pos)
-        self.player_input = player_input
-        self.shown = True
-
-    def change_input(self, player_input):
-        self.player_input = player_input
-
-    def change_image(self, image_name):
-        """Change cursor image to whatever input name"""
-        self.image = self.images[image_name]
-        self.rect = self.image.get_rect(topleft=self.pos)
 
     def update(self):
-        """Update cursor position based on joystick or mouse input"""
-        new_pos = mouse.get_pos()
-        self.pos_change = False
-        if self.old_mouse_pos != new_pos:
-            self.old_mouse_pos = new_pos
-            self.pos = Vector2(self.old_mouse_pos)  # get pos from mouse first
-            self.pos_change = True
+        self.is_select_just_down, self.is_select_down, self.is_select_just_up = keyboard_mouse_press_check(
+            mouse, 0, self.is_select_just_down, self.is_select_down, self.is_select_just_up)
 
-        if self.player_input == "joystick":  # joystick control
-            for joystick in self.battle.joysticks.values():
-                for i in range(joystick.get_numaxes()):
-                    if joystick.get_axis(i) > 0.1 or joystick.get_axis(i) < -0.1:
-                        axis_name = number_to_minus_or_plus(joystick.get_axis(i))
-                        if i == 2:
-                            if axis_name == "+":
-                                self.pos[0] += 5
-                            else:
-                                self.pos[0] -= 5
-                        if i == 3:
-                            if axis_name == "+":
-                                self.pos[1] += 5
-                            else:
-                                self.pos[1] -= 5
-                        self.pos_change = True
+        # Alternative select press button, like mouse right
+        self.is_alt_select_just_down, self.is_alt_select_down, self.is_alt_select_just_up = keyboard_mouse_press_check(
+            mouse, 2, self.is_alt_select_just_down, self.is_alt_select_down, self.is_alt_select_just_up)
 
-        if self.pos[0] > self.battle_camera_max[0]:
-            self.pos[0] = self.battle_camera_max[0]
-        elif self.pos[0] < 0:
-            self.pos[0] = 0
-        if self.pos[1] > self.battle_camera_max[1]:
-            self.pos[1] = self.battle_camera_max[1]
-        if self.pos[1] < 0:
-            self.pos[1] = 0
+        if self.is_select_down:
+            self.image = self.images["click"]
+        else:
+            if self.mouse_over or not self.battle.player_selected_generals:
+                if self.is_alt_select_down:
+                    self.image = self.images["click"]
+                else:
+                    self.image = self.images["normal"]
+            elif self.battle.player_selected_generals:  # change cursor to match for player input right click
+                if self.battle.alt_press:
+                    if self.is_alt_select_down:
+                        self.image = self.images["attack_click"]
+                    else:
+                        self.image = self.images["attack"]
+                else:
+                    if self.is_alt_select_down:
+                        self.image = self.images["move_click"]
+                    else:
+                        self.image = self.images["move"]
 
+        self.pos = mouse.get_pos()
+        self.mouse_over = False
         if self.shown:
             self.rect.topleft = self.pos
 
@@ -114,7 +92,7 @@ class ScreenFade(UIBattle):
     def __init__(self):
         self._layer = 99
         UIBattle.__init__(self)
-        self.font = Font(self.ui_font["manuscript_font"], int(100 * self.screen_scale[1]))
+        self.font = self.game.screen_fade_font
         self.use_font_texture = "gold"
         self.text = None
         self.rect = self.battle.screen.get_rect()
@@ -230,179 +208,213 @@ class ScreenFade(UIBattle):
                     self.done = True
 
 
-class PlayerPortrait(UIBattle):
-    def __init__(self, health_bar_image, resource_bar_image, guard_bar_image, player, pos):
+class Command(UIBattle):
+    number_text_cache = {}
+
+    def __init__(self):
         self._layer = 9
-        UIBattle.__init__(self, player_cursor_interact=False)
-        self.player = player
-        self.image = Surface((320 * self.screen_scale[0], 120 * self.screen_scale[1]), SRCALPHA)
-        self.rect = self.image.get_rect(midleft=pos)
+        UIBattle.__init__(self, player_cursor_interact=True)
+        self.number_font = self.game.character_indicator_font
+        self.image = Surface((700 * self.screen_scale[0], 300 * self.screen_scale[1]), SRCALPHA)
+        self.image.fill((0, 0, 0, 125))
+        # self.image.blit(commander_circle_image, commander_circle_image.get_rect(topleft=(0, 0)))
+        self.rect = self.image.get_rect(topleft=(0, 0))
+        self.update_timer = 0
+        self.character_rect = {}
+        self.air_group_rect = {}
 
-        self.font = Font(self.ui_font["main_button"], int(18 * self.screen_scale[1]))
+        self.selected_icon = Surface((100 * self.screen_scale[0], 100 * self.screen_scale[1]), SRCALPHA)
+        draw.circle(self.selected_icon, (150, 200, 150),
+                    (self.selected_icon.get_width() / 2, self.selected_icon.get_height() / 2),
+                    (self.selected_icon.get_width() / 2.5), width=int(8 * self.screen_scale[0]))
 
-        self.health_bar_image = health_bar_image
-        self.base_health_bar_image = health_bar_image.copy()
-        self.health_bar_rect = self.health_bar_image.get_rect(topleft=(120 * self.screen_scale[0],
-                                                                       20 * self.screen_scale[1]))
-        self.health_text_rect = self.health_bar_image.get_rect(center=(self.health_bar_image.get_width() / 2,
-                                                                       self.health_bar_image.get_height() / 2))
+        self.retreat_icon = Surface((100 * self.screen_scale[0], 100 * self.screen_scale[1]), SRCALPHA)
+        draw.rect(self.retreat_icon, (0, 0, 0),
+                  (30 * self.screen_scale[0], 30 * self.screen_scale[1],
+                   10 * self.screen_scale[0], 60 * self.screen_scale[0]))
+        draw.rect(self.retreat_icon, (200, 50, 50),
+                  (40 * self.screen_scale[0], 30 * self.screen_scale[1],
+                   40 * self.screen_scale[0], 30 * self.screen_scale[0]))
 
-        self.resource_bar_image = resource_bar_image
-        self.base_resource_bar_image = resource_bar_image.copy()
-        self.resource_bar_rect = self.resource_bar_image.get_rect(topleft=(120 * self.screen_scale[0],
-                                                                           50 * self.screen_scale[1]))
-        self.resource_text_rect = self.resource_bar_image.get_rect(center=(self.health_bar_image.get_width() / 2,
-                                                                           self.health_bar_image.get_height() / 2))
+        self.broken_icon = Surface((100 * self.screen_scale[0], 100 * self.screen_scale[1]), SRCALPHA)
+        draw.rect(self.broken_icon, (0, 0, 0),
+                  (30 * self.screen_scale[0], 30 * self.screen_scale[1],
+                   10 * self.screen_scale[0], 60 * self.screen_scale[0]))
+        draw.rect(self.broken_icon, (255, 255, 255),
+                  (40 * self.screen_scale[0], 30 * self.screen_scale[1],
+                   40 * self.screen_scale[0], 30 * self.screen_scale[0]))
 
-        self.guard_bar_image = guard_bar_image
-        self.base_guard_bar_image = guard_bar_image.copy()
-        self.guard_bar_rect = self.guard_bar_image.get_rect(topleft=(120 * self.screen_scale[0],
-                                                                     80 * self.screen_scale[1]))
-        self.guard_text_rect = self.guard_bar_image.get_rect(center=(self.health_bar_image.get_width() / 2,
-                                                                     self.health_bar_image.get_height() / 2))
+        self.air_return_icon = Surface((100 * self.screen_scale[0], 100 * self.screen_scale[1]), SRCALPHA)
+        draw.circle(self.air_return_icon, (200, 70, 70),
+                    (self.air_return_icon.get_width() / 2, self.air_return_icon.get_height() / 2),
+                    (self.air_return_icon.get_width() / 2.5), width=int(8 * self.screen_scale[0]))
 
-        self.bar_size = self.base_health_bar_image.get_size()
-        self.last_health_value = None
-        self.last_resource_value = None
-        self.last_guard_value = None
-        self.last_resurrect_value = None
+        self.air_active_icon = Surface((100 * self.screen_scale[0], 100 * self.screen_scale[1]), SRCALPHA)
+        draw.circle(self.air_active_icon, (200, 200, 0),
+                    (self.air_active_icon.get_width() / 2, self.air_active_icon.get_height() / 2),
+                    (self.air_active_icon.get_width() / 2.5), width=int(8 * self.screen_scale[0]))
+
+        self.air_dead_icon = Surface((100 * self.screen_scale[0], 100 * self.screen_scale[1]), SRCALPHA)
+        draw.circle(self.air_dead_icon, (0, 0, 0),
+                    (self.air_dead_icon.get_width() / 2, self.air_dead_icon.get_height() / 2),
+                    (self.air_dead_icon.get_width() / 2.5))
+
+        self.font = self.game.generic_ui_font
+        self.player_air_group_number = [None, None, None, None, None]
+        self.air_group_health = [None, None, None, None, None]
+        self.air_group_resource = [None, None, None, None, None]
+        self.air_bar_width = 100 * self.screen_scale[0]
+        self.air_bar_height = 15 * self.screen_scale[0]
+        self.selected_air_group_indexes = []
 
         self.base_image = self.image.copy()
 
-    def add_char_portrait(self, who):
-        self.image = self.base_image.copy()
-        if who.char_id + self.battle.chapter in self.battle.character_data.character_portraits:
-            portrait = self.battle.character_data.character_portraits[who.char_id + self.battle.chapter]
-        else:
-            portrait = self.battle.character_data.character_portraits[who.char_id]
-        portrait_rect = portrait.get_rect(topleft=(0, 0))
-        self.image.blit(portrait, portrait_rect)
-        if self.battle.city_mode and self.player == self.battle.main_player:  # add helper text for main player
-            text_surface = self.font.render(self.grab_text(("ui", "press")) + " " +
-                                            self.game.player_key_bind_button_name[self.player]["Special"] +
-                                            self.grab_text(("ui", "open_map")), True, (30, 30, 30),
-                                            (220, 220, 220))
-            text_rect = text_surface.get_rect(topleft=(110 * self.screen_scale[0], 10 * self.screen_scale[1]))
-            self.image.blit(text_surface, text_rect)
-
-            text_surface = self.font.render(self.grab_text(("ui", "press")) + " " +
-                                            self.game.player_key_bind_button_name[self.player]["Guard"] +
-                                            self.grab_text(("ui", "open_mission")), True, (30, 30, 30),
-                                            (220, 220, 220))
-            text_rect = text_surface.get_rect(topleft=(110 * self.screen_scale[0], 40 * self.screen_scale[1]))
-            self.image.blit(text_surface, text_rect)
-
-            text_surface = self.font.render(self.grab_text(("ui", "press")) + " " +
-                                            self.game.player_key_bind_button_name[self.player]["Inventory Menu"] +
-                                            self.grab_text(("ui", "open_court")), True, (30, 30, 30),
-                                            (220, 220, 220))
-            text_rect = text_surface.get_rect(topleft=(110 * self.screen_scale[0], 70 * self.screen_scale[1]))
-            self.image.blit(text_surface, text_rect)
-        self.reset_value()
-
-    def reset_value(self):
-        self.last_health_value = None
-        self.last_resource_value = None
-        self.last_guard_value = None
-        self.last_resurrect_value = None
-
-    def value_input(self, who):
-        if self.last_health_value != who.health:
-            self.last_health_value = who.health
-            self.health_bar_image = self.base_health_bar_image.copy()
-            percent = 1 - (who.health / who.base_health)
-            bar = Surface((self.bar_size[0] * percent, self.bar_size[1]))
-            bar.fill((0, 0, 0))
-            self.health_bar_image.blit(bar, (self.bar_size[0] - bar.get_width(), 0))
-            value_text = self.font.render(str(int(self.last_health_value)) + " / " + str(who.base_health), True,
-                                          (220, 220, 220))
-            self.health_bar_image.blit(value_text, self.health_text_rect)
-            self.image.blit(self.health_bar_image, self.health_bar_rect)
-
-        if self.last_resource_value != who.resource:
-            self.last_resource_value = who.resource
-            self.resource_bar_image = self.base_resource_bar_image.copy()
-            percent = 1 - (who.resource / who.base_resource)
-            bar = Surface((self.bar_size[0] * percent, self.bar_size[1]))
-            bar.fill((0, 0, 0))
-            self.resource_bar_image.blit(bar, (self.bar_size[0] - bar.get_width(), 0))
-            value_text = self.font.render(str(int(self.last_resource_value)) + " / " + str(who.base_resource), True,
-                                          (220, 220, 220))
-            self.resource_bar_image.blit(value_text, self.resource_text_rect)
-            self.image.blit(self.resource_bar_image, self.resource_bar_rect)
-
-        if self.last_guard_value != who.guard:
-            self.last_guard_value = who.guard
-            self.guard_bar_image = self.base_guard_bar_image.copy()
-            percent = 1 - (who.guard / who.max_guard)
-            bar = Surface((self.bar_size[0] * percent, self.bar_size[1]))
-            bar.fill((0, 0, 0))
-            self.guard_bar_image.blit(bar, (self.bar_size[0] - bar.get_width(), 0))
-            value_text = self.font.render(str(int(self.last_guard_value)) + " / " + str(who.max_guard), True,
-                                          (220, 220, 220))
-            self.guard_bar_image.blit(value_text, self.guard_text_rect)
-            self.image.blit(self.guard_bar_image, self.guard_bar_rect)
-
-
-class TrainingHelper(UIBattle):
-    def __init__(self, images, player, pos):
-        self._layer = 9
-        UIBattle.__init__(self, player_cursor_interact=False)
-        self.images = images
-        self.player = player
-        self.image = Surface((320 * self.screen_scale[0], 500 * self.screen_scale[1]), SRCALPHA)
-        self.font = Font(self.ui_font["main_button"], int(22 * self.screen_scale[1]))
-        self.base_image = self.image.copy()
-        self.pos = pos
-        self.rect = self.image.get_rect(topleft=self.pos)
-        self.combo_input = []
-        self.old_combo_input = []
-
-    def reset(self):
-        self.combo_input = []
-        self.old_combo_input = []
+        scaled_pos = 100 * self.screen_scale[0]
+        self.ground_portrait_rect = {index: self.selected_icon.get_rect(center=(scaled_pos + (
+                index * 120 * self.screen_scale[0]), 50 * self.screen_scale[1])) for index in range(5)}
+        self.air_portrait_rect = {index: self.selected_icon.get_rect(center=(scaled_pos + (
+                index * 120 * self.screen_scale[0]), 200 * self.screen_scale[1])) for index in range(5)}
 
     def update(self):
-        if self.combo_input:
-            self.combo_input = [[item[0], item[1] - self.battle.dt, item[2]] for
-                                item in self.combo_input if item[1] - self.battle.dt > 0]
-            if len(self.combo_input) > 5:
-                self.combo_input = self.combo_input[-5:]
-        if self.old_combo_input != self.combo_input:
-            self.old_combo_input = self.combo_input.copy()
-            self.image = self.base_image.copy()
-            for index, item in enumerate(self.combo_input):
-                button_surface = Surface((320 * self.screen_scale[0], 100 * self.screen_scale[1]), SRCALPHA)
-                if item[2]:
-                    button_surface.fill((70, 70, 70, 200))
+        self.update_timer += self.battle.true_dt
+        if self.update_timer > 0.2:
+            self.update_timer -= 0.2
+            for index, character in enumerate(self.battle.player_control_generals):
+                # add general portrait
+                self.image.blit(character.command_icon_right, self.ground_portrait_rect[index])
+                self.character_rect[character] = self.ground_portrait_rect[index]
+
+                if character in self.battle.player_selected_generals:  # add selected circle on portrait
+                    self.image.blit(self.selected_icon, self.ground_portrait_rect[index])
+
+                if character.broken:
+                    self.image.blit(self.broken_icon, self.ground_portrait_rect[index])
+                elif "broken" in character.commander_order:
+                    self.image.blit(self.retreat_icon, self.ground_portrait_rect[index])
+
+                health_bar_rect = character.indicator.health_bar.get_rect(midtop=self.ground_portrait_rect[index].midbottom)
+                self.image.blit(character.indicator.health_bar, health_bar_rect)
+                self.image.blit(character.indicator.follower_bar,
+                                character.indicator.follower_bar.get_rect(midtop=health_bar_rect.midbottom))
+
+            for index, air_group in enumerate(self.battle.team_stat[1]["air_group"]):  # add air unit group
+                health_bar_percentage = 0
+                resource_bar_percentage = 0
+                if air_group:
+                    health_bar_percentage = min([character.health / character.base_health for character in air_group])
+                    resource_bar_percentage = min([character.resource / character.base_resource for character in air_group])
+
+                    self.image.blit(air_group[0].command_icon_right, self.air_portrait_rect[index])
+                    self.air_group_rect[index] = self.air_portrait_rect[index]
+                    if index in self.selected_air_group_indexes:
+                        self.image.blit(self.selected_icon, self.air_portrait_rect[index])
+                    elif "back" in air_group[0].commander_order:
+                        self.image.blit(self.air_return_icon, self.air_portrait_rect[index])
+                    elif any([air_character.active for air_character in air_group]):
+                        self.image.blit(self.air_active_icon, self.air_portrait_rect[index])
+
+                if len(air_group) != self.player_air_group_number[index]:
+                    if not air_group:  # air group completely dead, blit black circle over
+                        self.image.blit(self.air_dead_icon, self.air_portrait_rect[index])
+                    self.player_air_group_number[index] = len(air_group)
+
+                if len(air_group) not in self.number_text_cache:
+                    number_text = text_render_with_bg(str(len(air_group)),
+                                                      self.number_font, o_colour=(200, 200, 100))
+                    self.number_text_cache[len(air_group)] = number_text
                 else:
-                    button_surface.fill((200, 200, 200, 200))
-                for index2, button in enumerate(item[0]["Buttons"]):
-                    if index2 != 0:
-                        button_surface.blit(self.images["button_" + button.lower()],
-                                            self.images["button_" + button.lower()].get_rect(
-                                                topleft=((index2 * 50 * self.screen_scale[0], 0))))
+                    number_text = self.number_text_cache[len(air_group)]
+                number_rect = number_text.get_rect(midbottom=self.air_portrait_rect[index].bottomright)
+                self.image.blit(number_text, number_rect)
+
+                if self.air_group_health[index] != health_bar_percentage:
+                    self.air_group_health[index] = health_bar_percentage
+                    self.image.fill((0, 0, 0), (self.air_portrait_rect[index].bottomleft[0],
+                                                self.air_portrait_rect[index].bottomleft[1],
+                                                self.air_bar_width, self.air_bar_height))
+                    self.image.fill((150, 50, 50), (self.air_portrait_rect[index].bottomleft[0],
+                                                    self.air_portrait_rect[index].bottomleft[1],
+                                                    self.air_bar_width * health_bar_percentage,
+                                                    self.air_bar_height))
+
+                if self.air_group_resource[index] != resource_bar_percentage:
+                    self.air_group_resource[index] = resource_bar_percentage
+                    self.image.fill((0, 0, 0), (self.air_portrait_rect[index].bottomleft[0],
+                                                self.air_portrait_rect[index].bottomleft[1] + self.air_bar_height,
+                                                self.air_bar_width, self.air_bar_height))
+                    self.image.fill((200, 100, 200), (self.air_portrait_rect[index].bottomleft[0],
+                                                      self.air_portrait_rect[index].bottomleft[1] + self.air_bar_height,
+                                                      self.air_bar_width * resource_bar_percentage,
+                                                      self.air_bar_height))
+
+        UIMenu.update(self)
+        if self.event_press:
+            inside_mouse_pos = pygame.Vector2(
+                (self.cursor.pos[0] - self.rect.topleft[0]),
+                (self.cursor.pos[1] - self.rect.topleft[1]))
+            for character, rect in self.character_rect.items():
+                if rect.collidepoint(inside_mouse_pos):
+                    if self.battle.shift_press:
+                        self.battle.player_selected_generals.append(character)
+                    elif self.battle.ctrl_press:
+                        if character in self.battle.player_selected_generals:
+                            self.battle.player_selected_generals.remove(character)
                     else:
-                        button_surface.blit(self.images["button_" + button.lower()],
-                                            self.images["button_" + button.lower()].get_rect(topleft=(0, 0)))
-                text_surface = text_render_with_bg("(" + item[0]["Position"] + ") " + item[0]["Name"], self.font)
-                text_rect = text_surface.get_rect(topleft=(0, 50 * self.screen_scale[1]))
-                button_surface.blit(text_surface, text_rect)
-                self.image.blit(button_surface, button_surface.get_rect(topleft=(0,
-                                                                                 (index * 100) * self.screen_scale[1])))
+                        self.battle.player_selected_generals = [character]
+                    self.battle.player_selected_generals = list(set(self.battle.player_selected_generals))
+                    return
+
+            for air_group, rect in self.air_group_rect.items():
+                if rect.collidepoint(inside_mouse_pos):
+                    if (self.player_air_group_number[air_group] and
+                            not any([air_character.active for air_character in
+                                     self.battle.team_stat[1]["air_group"][air_group]])):
+                        # active or completely dead air group is not selectable
+                        if self.battle.shift_press:
+                            self.selected_air_group_indexes.append(air_group)
+                        elif self.battle.ctrl_press:
+                            if air_group in self.selected_air_group_indexes:
+                                self.selected_air_group_indexes.remove(air_group)
+                        else:
+                            self.selected_air_group_indexes = [air_group]
+                        self.selected_air_group_indexes = list(set(self.selected_air_group_indexes))
+                    return
+
+        elif self.event_alt_press:
+            inside_mouse_pos = pygame.Vector2(
+                (self.cursor.pos[0] - self.rect.topleft[0]),
+                (self.cursor.pos[1] - self.rect.topleft[1]))
+            for air_group, rect in self.air_group_rect.items():
+                if rect.collidepoint(inside_mouse_pos):
+                    if (self.player_air_group_number[air_group] and
+                            any([air_character.active for air_character in
+                                 self.battle.team_stat[1]["air_group"][air_group]])):
+                        # right click on active air group order it to exit the battle
+                        for character in self.battle.team_stat[1]["air_group"][air_group]:
+                            if character.alive:
+                                character.issue_commander_order(("back", character.enter_pos))
+
+    def reset(self):
+        self.image = self.base_image.copy()
+        self.selected_air_group_indexes = []
+        self.air_group_health = [None, None, None, None, None]
+        self.air_group_resource = [None, None, None, None, None]
+        self.player_air_group_number = [None, None, None, None, None]
+        self.character_rect = {}
+        self.air_group_rect = {}
 
 
 class FPSCount(UIBattle):
     def __init__(self, parent):
-        self._layer = 12
+        self._layer = 10
         UIBattle.__init__(self, player_cursor_interact=False)
-        self.image = Surface((80 * self.screen_scale[0], 40 * self.screen_scale[1]), SRCALPHA)
+        self.image = Surface((80 * self.screen_scale[0], 80 * self.screen_scale[1]), SRCALPHA)
         self.base_image = self.image.copy()
-        self.font = Font(self.ui_font["main_button"], int(30 * self.screen_scale[1]))
+        self.font = self.game.fps_counter_font
         self.clock = parent.clock
         fps_text = self.font.render("60", True, (255, 60, 60))
         self.text_rect = fps_text.get_rect(center=(self.image.get_width() / 2, self.image.get_height() / 2))
-        self.rect = self.image.get_rect(topleft=self.screen_rect.topleft)
+        self.rect = self.image.get_rect(topleft=(0, 0))
 
     def update(self):
         """Update current fps"""
@@ -410,6 +422,355 @@ class FPSCount(UIBattle):
         fps = str(int(self.clock.get_fps()))
         fps_text = self.font.render(fps, True, (255, 60, 60))
         self.image.blit(fps_text, self.text_rect)
+
+
+class BattleHelper(UIBattle):
+    def __init__(self, weather_icon_images, time_select_image, time_selector_image):
+        self._layer = 12
+        UIBattle.__init__(self)
+        self.font = self.game.battle_timer_font
+        self.image = Surface((700 * self.screen_scale[0], 300 * self.screen_scale[1]), SRCALPHA)
+        self.image.fill((0, 0, 0, 125))
+
+        self.button_rect = {"menu": (), "pause": (), "x1": (), "x2": (), "x3": ()}
+        self.base_image = self.image.copy()
+
+        self.image_width = self.image.get_width()
+        self.base_battle_scale_image_height = 40 * self.screen_scale[1]
+        self.battle_scale = None
+
+        self.weather = None
+        self.weather_icon_images = weather_icon_images
+
+        self.time_select_image = time_select_image
+        self.base_time_select_image = time_select_image.copy()
+        self.time_selector_image = time_selector_image
+        self.time_choice = (0, 0.5, 1, 2, 4)
+        self.time_select_rect = self.time_select_image.get_rect(midtop=(self.image.get_width() / 2,
+                                                                   self.image.get_height() / 2))
+        self.time_select_width = self.time_select_image.get_width()
+        self.time_select_rect_topleft_x = self.time_select_rect.topleft[0]
+
+        self.time_choice_pos_percent = (0.2, 0.35, 0.5, 0.65, 0.8)  # for player click check
+        self.time_choice_pos = [self.time_select_width * index for index in self.time_choice_pos_percent]
+        self.time_choice_pos_selector_place = [self.time_select_width * index for
+                                               index in (0.1, 0.3, 0.5, 0.7, 0.9)]  # for placing the selector image
+        self.time_option = 2
+        self.time_selector_rect = self.time_selector_image.get_rect(center=(
+            self.time_choice_pos_selector_place[self.time_option],
+            self.time_select_image.get_height() / 2))
+        self.time_select_image.blit(self.time_selector_image, self.time_selector_rect)
+        self.image.blit(self.time_select_image, self.time_select_rect)
+
+        self.rect = self.image.get_rect(topright=(self.battle.screen_width, 0))
+
+    def update(self):
+        """Update battle time"""
+        text = text_render_with_bg("{:.2f}".format(round(self.battle.battle_time / 100, 2)), self.font)
+        text_bg = Surface((text.get_size()))
+        text_bg.blit(text, text.get_rect(topleft=(0, 0)))
+        text_rect = text.get_rect(topright=(self.image.get_width(), self.base_battle_scale_image_height))
+        self.image.blit(text_bg, text_rect)
+
+        if self.battle_scale != self.battle.battle_scale:
+            self.battle_scale = self.battle.battle_scale
+            if self.battle_scale:
+                percent_scale = 0  # start point fo fill colour of team scale
+                for team, value in enumerate(self.battle_scale):
+                    if value > 0:
+                        self.image.fill(team_colour[team], (self.image_width * percent_scale, 0,
+                                                            self.image_width, self.base_battle_scale_image_height))
+                        percent_scale += value
+            else:
+                self.image.fill((0, 0, 0), (0, 0,
+                                            self.image_width, self.base_battle_scale_image_height))
+
+        if self.weather != self.battle.current_weather.weather_now:
+            self.weather = self.battle.current_weather.weather_now
+            icon_image = self.weather_icon_images[self.weather]
+            icon_rect = icon_image.get_rect(topleft=(0, self.base_battle_scale_image_height))
+            self.image.blit(icon_image, icon_rect)
+
+        UIMenu.update(self)
+
+        if self.event_press:
+            inside_mouse_pos = pygame.Vector2(
+                (self.cursor.pos[0] - self.rect.topleft[0]),
+                (self.cursor.pos[1] - self.rect.topleft[1]))
+
+            if self.time_select_rect.collidepoint(inside_mouse_pos):
+                inside_mouse_pos = inside_mouse_pos[0] - self.time_select_rect.topleft[0]
+                mouse_value = inside_mouse_pos / self.time_select_width
+                self.time_option = sorted({self.time_choice_pos_percent.index(item): abs(mouse_value - item) for
+                                           item in self.time_choice_pos_percent}.items(),
+                                          key=itemgetter(1))[0][0]  # sort the closest time value that player select
+                if self.battle.game_speed != self.time_choice[self.time_option]:
+                    self.time_select_image = self.base_time_select_image.copy()
+                    self.battle.game_speed = self.time_choice[self.time_option]
+                    self.time_selector_rect = self.time_selector_image.get_rect(center=(
+                        self.time_choice_pos_selector_place[self.time_option],
+                        self.time_select_image.get_height() / 2))
+                    self.time_select_image.blit(self.time_selector_image, self.time_selector_rect)
+                    self.image.blit(self.time_select_image, self.time_select_rect)
+
+
+class TacticalMap(UIBattle):
+    def __init__(self, selected_image, selected_commander_image):
+        self._layer = 10
+        UIBattle.__init__(self, player_cursor_interact=True)
+        self.update_timer = 0
+        self.map_scale_width = 1
+        self.base_image = Surface((2400 * self.screen_scale[0], 300 * self.screen_scale[1]), SRCALPHA)
+        self.base_image.fill((255, 255, 255, 125))
+        self.air_icon_pos_y = 90 * self.screen_scale[1]
+        self.ground_icon_pos_y = 240 * self.screen_scale[1]
+        self.ground_noselect_icon_pos_y = 300 * self.screen_scale[1]
+        self.camera_border_image = None
+        self.image = self.base_image.copy()
+        self.image_width = self.image.get_width()
+        self.image_height = self.image.get_height()
+        self.rect = self.image.get_rect(midtop=(self.battle.screen_width / 2, 0))
+        self.team_icon_border = {team: {"unselected": self.make_icon_border(team, False),
+                                        "noselect": self.make_icon_border(team, Surface((100 * self.screen_scale[0],
+                                                                                         100 * self.screen_scale[1]),
+                                                                                        SRCALPHA)),
+                                        "selected": self.make_icon_border(team, selected_image),
+                                        "commander_unselected": self.make_icon_border(team, False, colour_modifier=1.5),
+                                        "commander_selected": self.make_icon_border(team, selected_commander_image)} for
+                                 team in team_colour}
+        self.character_rect = {}
+
+    def make_icon_border(self, team, circle, colour_modifier=1):
+        if circle:
+            image = Surface(circle.get_size(), SRCALPHA)
+        else:
+            image = Surface((170 * self.screen_scale[0], 170 * self.screen_scale[1]), SRCALPHA)
+        if colour_modifier != 1:
+            draw.circle(image, [value * colour_modifier if value * colour_modifier <= 255 else 255
+                                for value in team_colour[team]], (image.get_width() / 2, image.get_height() / 2),
+                        (image.get_width() / 2))
+        else:
+            draw.circle(image, team_colour[team], (image.get_width() / 2, image.get_height() / 2),
+                        (image.get_width() / 2))
+        if circle:
+            image.blit(circle, circle.get_rect(topleft=(0, 0)))
+
+        return image
+
+    def setup(self):
+        self.map_scale_width = self.battle.base_stage_end / self.image_width
+        self.camera_border_image = Surface((Default_Screen_Width / self.map_scale_width,
+                                            300 * self.screen_scale[1]), SRCALPHA)
+        draw.rect(self.camera_border_image, (0, 0, 0), (0, 0, self.camera_border_image.get_width(), self.image_height),
+                  width=int(15*self.screen_scale[0]))
+        self.character_rect = {}
+
+    def update(self):
+        """update map"""
+        self.update_timer += self.battle.true_dt
+        if self.update_timer > 0.05:
+            self.update_timer -= 0.05
+            self.character_rect = {}
+            self.image = self.base_image.copy()
+
+            # Draw camera border
+            self.image.blit(self.camera_border_image,
+                            self.camera_border_image.get_rect(topleft=(self.battle.base_camera_left / self.map_scale_width, 0)))
+
+            # Draw general character
+            for team, general_list in self.battle.all_team_general.items():
+                revamp_list = [general for general in general_list]
+                # sort list by priority of being shown in tactical map
+                revamp_list.sort(key=lambda x: (not x.is_controllable, x.is_commander, x.is_controllable))
+                for character in revamp_list:
+                    back_icon = self.team_icon_border[character.team]["unselected"]
+                    icon = character.icon[character.direction]
+                    if not character.is_controllable:  # use smaller icon at bottom for uncontrollable general
+                        scaled_pos = (character.base_pos[0] / self.map_scale_width, self.ground_noselect_icon_pos_y)
+                        icon = character.command_icon[character.direction]
+                        back_icon = self.team_icon_border[character.team]["noselect"]
+                    else:
+                        scaled_pos = (character.base_pos[0] / self.map_scale_width, self.ground_icon_pos_y)
+                        if character.team == 1:
+                            if character in self.battle.player_selected_generals:
+                                if character.is_commander:
+                                    back_icon = self.team_icon_border[character.team]["commander_selected"]
+                                else:
+                                    back_icon = self.team_icon_border[character.team]["selected"]
+                            elif character.is_commander:
+                                back_icon = self.team_icon_border[character.team]["commander_unselected"]
+
+                    rect = back_icon.get_rect(midbottom=scaled_pos)
+                    self.image.blit(back_icon, rect)
+                    rect = icon.get_rect(midbottom=scaled_pos)
+                    self.image.blit(icon, rect)
+                    self.character_rect[character] = rect
+            for team_stat in self.battle.team_stat.values():
+                for index, air_group in enumerate(team_stat["air_group"]):
+                    active_list = [character for character in air_group if character.active]
+                    if active_list:
+                        # use first character in group for portrait and position
+                        scaled_pos = (active_list[0].base_pos[0] / self.map_scale_width, self.air_icon_pos_y)
+                        back_icon = self.team_icon_border[active_list[0].team]["noselect"]
+                        rect = back_icon.get_rect(midbottom=scaled_pos)
+                        self.image.blit(back_icon, rect)
+                        icon = active_list[0].command_icon[active_list[0].direction]
+                        self.image.blit(icon, icon.get_rect(midbottom=scaled_pos))
+
+        UIMenu.update(self)
+        if self.event_press:
+            inside_mouse_pos = pygame.Vector2(
+                (self.cursor.pos[0] - self.rect.topleft[0]),
+                (self.cursor.pos[1] - self.rect.topleft[1]))
+            for character, rect in self.character_rect.items():
+                if rect.collidepoint(inside_mouse_pos) and character.is_controllable:
+                    if self.battle.shift_press:
+                        self.battle.player_selected_generals.append(character)
+                    elif self.battle.ctrl_press:
+                        if character in self.battle.player_selected_generals:
+                            self.battle.player_selected_generals.remove(character)
+                    else:
+                        self.battle.player_selected_generals = [character]
+                        break
+            self.battle.player_selected_generals = list(set(self.battle.player_selected_generals))
+        elif self.event_alt_press:
+            self.battle.camera_pos[0] = ((self.cursor.pos[0] - self.rect.topleft[0]) * self.map_scale_width *
+                                         self.screen_scale[0])
+
+
+class StrategySelect(UIBattle):
+    def __init__(self, pos, strategy_icons):
+        self._layer = 10
+        UIBattle.__init__(self, player_cursor_interact=True)
+        self.strategy_icons = strategy_icons
+        self.font = self.game.battle_timer_font
+        self.update_timer = 0
+        self.original_image = Surface((200 * self.screen_scale[0], 1000 * self.screen_scale[1]), SRCALPHA)
+        self.image_width_center = 100 * self.screen_scale[0]
+        self.original_image.fill((0, 0, 0, 125))
+        self.base_image = self.original_image.copy()
+        self.image = self.base_image.copy()
+        self.image_width = self.image.get_width()
+        self.image_height = self.image.get_height()
+        self.rect = self.image.get_rect(topleft=pos)
+
+        self.strategy_rect = {}
+
+    def setup(self):
+        self.base_image = self.original_image.copy()
+        pos_y = 0
+        for index, strategy in enumerate(self.battle.team_stat[1]["strategy"]):
+            icon_image = self.strategy_icons[strategy]
+            rect = icon_image.get_rect(midtop=(self.image_width_center, pos_y))
+            self.base_image.blit(icon_image, rect)
+            print(self.battle.player_key_bind_name)
+            shortcut_text = text_render_with_bg(pygame.key.name(self.battle.player_key_bind[
+                                                                    "Strategy " + str(index + 1)]).capitalize(),
+                                                self.font)
+            text_rect = shortcut_text.get_rect(bottomright=rect.bottomright)
+            self.base_image.blit(shortcut_text, text_rect)
+            pos_y += 200 * self.screen_scale[1]
+            self.strategy_rect[index] = rect
+
+    def update(self):
+        self.update_timer += self.battle.true_dt
+        if self.update_timer > 0.1:
+            self.image = self.base_image.copy()
+            self.update_timer -= 0.1
+
+
+class PlayerSelectCharacterBand(UIBattle):
+    def __init__(self):
+        self._layer = 9999999999999999999
+        UIBattle.__init__(self, player_cursor_interact=False)
+        self.selection_start_pos = pygame.Vector2()
+        self.current_pos = pygame.Vector2()
+        self.line_size = int(10 * self.screen_scale[0])
+        self.inner_line_size = int(20 * self.screen_scale[0])
+        if self.line_size < 1:
+            self.line_size = 1
+        self.image = None
+        self.rect = None
+
+    def reset(self):
+        self.current_pos = None
+        self.selection_start_pos = None
+        self.rect = None
+
+    def update(self):
+        self.event_press = False
+        self.event_hold = False  # some UI differentiates between press release or holding, if not just use event
+        self.event_alt_press = False
+        self.event_alt_hold = True
+
+        if not self.cursor.mouse_over:
+            if self.cursor.is_alt_select_just_up:  # put alt (right) click first to prioritise it
+                self.event_alt_press = True
+                self.cursor.is_alt_select_just_up = False  # reset select button to prevent overlap interaction
+            elif self.cursor.is_alt_select_down:
+                self.event_alt_hold = True
+                self.cursor.is_alt_select_just_down = False  # reset select button to prevent overlap interaction
+            elif self.cursor.is_select_just_up:
+                self.event_press = True
+                self.cursor.is_select_just_up = False  # reset select button to prevent overlap interaction
+            elif self.cursor.is_select_down:
+                self.event_hold = True
+                self.cursor.is_select_just_down = False  # reset select button to prevent overlap interaction
+
+        if not self.event_hold and not self.event_press:
+            if self.selection_start_pos:  # release hold while band exist
+                rect_list = list(set([character for index, character in enumerate(self.battle.all_team_general[1]) if
+                                      index in self.rect.collidelistall([
+                                          character.rect for
+                                          character in self.battle.all_team_general[1] if character.is_controllable])]
+                                     + [indicator.character for index, indicator in
+                                        enumerate(self.battle.player_general_indicators) if index in
+                                        self.rect.collidelistall([indicator.rect for indicator in
+                                                                       self.battle.player_general_indicators])]))
+                if self.battle.shift_press:
+                    self.battle.player_selected_generals += rect_list
+                    self.battle.player_selected_generals = list(set(self.battle.player_selected_generals))
+                elif self.battle.ctrl_press:
+                    for character in rect_list:
+                        if character in self.battle.player_selected_generals:
+                            self.battle.player_selected_generals.remove(character)
+                else:
+                    self.battle.player_selected_generals = rect_list
+                self.reset()
+
+            if self.event_alt_press:  # right click order selected general to do something
+                if self.battle.player_selected_generals:
+                    for general in self.battle.player_selected_generals:
+                        if self.battle.alt_press:  # order to move and attack enemy in range along the way
+                            general.issue_commander_order(("attack", self.battle.base_cursor_pos[0]))
+                        else:  # order to move to area, no attack at all until reach
+                            general.issue_commander_order(("move", self.battle.base_cursor_pos[0]))
+                if self.battle.command_ui.selected_air_group_indexes:
+                    self.battle.call_in_air_group(1, self.battle.command_ui.selected_air_group_indexes,
+                                                  self.battle.base_cursor_pos[0])
+                    self.battle.command_ui.selected_air_group_indexes = []
+
+        else:  # holding left click, manipulate band
+            self.current_pos = self.cursor.pos
+            if not self.selection_start_pos:
+                self.selection_start_pos = self.current_pos
+            else:
+                x1, y1 = self.selection_start_pos
+                x2, y2 = self.current_pos
+                # Calculate the top-left and dimensions of the selection rectangle
+                left = min(x1, x2)
+                top = min(y1, y2)
+                if self.current_pos != self.selection_start_pos:
+                    width = abs(x1 - x2)
+                    height = abs(y1 - y2)
+                    selection_rect = Rect(left, top, width, height)
+                    self.rect = Rect(left - self.battle.camera_center_x + self.battle.camera_pos[0],
+                                     top, width, height)  # rect for collision unit selection check
+                    draw.rect(self.battle.camera.image, (0, 0, 0), selection_rect, self.inner_line_size)
+                    draw.rect(self.battle.camera.image, (255, 255, 255), selection_rect, self.line_size)
+                else:
+                    self.rect = Rect(left - self.battle.camera_center_x + self.battle.camera_pos[0],
+                                     top, 1, 1)  # rect for collision unit selection check
 
 
 class YesNo(UIBattle):
@@ -439,8 +800,8 @@ class YesNo(UIBattle):
         yes_image_rect = self.yes_image.get_rect(midleft=(0, self.image.get_height() / 2))
         no_image_rect = self.no_image.get_rect(midright=(self.image.get_width(),
                                                          self.image.get_height() / 2))
-        cursor_pos = (self.battle.main_player_battle_cursor.pos[0] - self.rect.topleft[0],
-                      self.battle.main_player_battle_cursor.pos[1] - self.rect.topleft[1])
+        cursor_pos = (self.battle.battle_cursor.pos[0] - self.rect.topleft[0],
+                      self.battle.battle_cursor.pos[1] - self.rect.topleft[1])
         if yes_image_rect.collidepoint(cursor_pos):
             self.image = self.base_image.copy()
             self.no_zoom_animation_timer = 0
@@ -448,7 +809,7 @@ class YesNo(UIBattle):
                 self.yes_zoom_animation_timer = 0.01
                 yes_zoom_animation_timer = 1.01
             else:
-                self.yes_zoom_animation_timer += self.battle.dt / 5
+                self.yes_zoom_animation_timer += self.battle.true_dt / 5
                 yes_zoom_animation_timer = 1 + self.yes_zoom_animation_timer
                 if self.yes_zoom_animation_timer > 0.2:
                     yes_zoom_animation_timer = 1.2 - (self.yes_zoom_animation_timer - 0.2)
@@ -468,7 +829,7 @@ class YesNo(UIBattle):
                 self.no_zoom_animation_timer = 0.01
                 no_zoom_animation_timer = 1.01
             else:
-                self.no_zoom_animation_timer += self.battle.dt / 5
+                self.no_zoom_animation_timer += self.battle.true_dt / 5
                 no_zoom_animation_timer = 1 + self.no_zoom_animation_timer
                 if self.no_zoom_animation_timer > 0.2:
                     no_zoom_animation_timer = 1.2 - (self.no_zoom_animation_timer - 0.2)
@@ -486,7 +847,7 @@ class YesNo(UIBattle):
             self.yes_zoom_animation_timer = 0
             self.image = self.base_image2.copy()
 
-        if self.battle.player_key_press[self.battle.main_player]["Weak"]:
+        if self.battle.player_key_press[self.battle.main_player]["Confirm"]:
             if yes_image_rect.collidepoint(cursor_pos):
                 self.selected = "yes"
             elif no_image_rect.collidepoint(cursor_pos):
@@ -494,35 +855,109 @@ class YesNo(UIBattle):
                 pass
 
 
-class CharacterIndicator(UIBattle):
-    def __init__(self, character):
+class CharacterCommandIndicator(UIBattle):
+    def __init__(self):
         self._layer = 9999999999999999998
-        UIBattle.__init__(self, has_containers=True)
-        self.font = Font(self.ui_font["main_button"], 42)
+        UIBattle.__init__(self, player_cursor_interact=False, has_containers=True)
+
+    def update(self):
+        # Draw general character
+        x = 0
+        y = 0
+        for character in self.battle.player_selected_generals:
+            scaled_pos = (character.base_pos[0] / self.map_scale_width, self.icon_pos_y)
+            rect = character.icon[character.direction].get_rect(center=scaled_pos)
+            self.image.blit(character.icon[character.direction], rect)
+            self.character_rect[character] = rect
+            x += 1
+            if x :
+                x = 0
+                y += 1
+
+
+class CharacterGeneralIndicator(UIBattle):
+    indicator_select_image = None
+    text_image_cache = {team: {} for team in team_colour}
+
+    def __init__(self, character):
+        self._layer = 9999999999999999997
+        UIBattle.__init__(self, player_cursor_interact=False, has_containers=True)
         self.character = character
-        self.height_adjust = character.sprite_height * 3.5
-        if character.player_control:  # player indicator
-            text = character.game_id
+        self.height_adjust = character.sprite_height
+        font = self.game.character_indicator_font
 
-            self.image = text_render_with_bg(text,
-                                             Font(self.ui_font["manuscript_font"], int(42 * self.screen_scale[1])),
-                                             gf_colour=team_colour[self.character.team], o_colour=Color("white"))
-        else:  # follower indicator
-            text = "F" + str(character.leader.game_id)
+        index = self.battle.player_control_generals.index(character)
+        text = "g" + str(index + 1)
+        if character.is_commander:
+            text = "C" + str(index + 1)
 
-            self.image = text_render_with_bg(text,
-                                             Font(self.ui_font["manuscript_font"], int(32 * self.screen_scale[1])),
-                                             gf_colour=team_colour[self.character.team], o_colour=Color("white"))
+        if character.team == 1:
+            self.battle.player_general_indicators.add(self)
+
+        if text not in self.text_image_cache[self.character.team]:
+            self.text_image_cache[self.character.team][text] = {}
+            self.base_text_image = text_render_with_bg(text, font, gf_colour=team_colour[self.character.team],
+                                                       o_colour=Color("white"))
+            self.selected_text_image = text_render_with_bg(text, font, gf_colour=team_colour[self.character.team],
+                                                           o_colour=Color("black"))
+            self.text_image_cache[self.character.team][text]["normal"] = self.base_text_image
+            self.text_image_cache[self.character.team][text]["selected"] = self.selected_text_image
+        else:
+            self.base_text_image = self.text_image_cache[self.character.team][text]["normal"]
+            self.selected_text_image = self.text_image_cache[self.character.team][text]["selected"]
 
         self.base_pos = None
-        self.pos = self.character.pos
-        self.rect = self.image.get_rect(midbottom=self.pos)
+        self.selected = False
+        self.pos_y = 2170 * self.screen_scale[1]
+        self.image = Surface((100 * self.screen_scale[0], 100 * self.screen_scale[1]), SRCALPHA)
+        self.health = None
+        self.followers = None
+
+        self.image_width = self.image.get_width()
+        self.health_bar_height = 15 * self.screen_scale[0]
+        self.health_bar = Surface((self.image_width, self.health_bar_height))
+        self.follower_bar = Surface((self.image.get_width(), self.health_bar_height))
+
+        self.text_rect = self.base_text_image.get_rect(midtop=(self.image_width / 2, 0))
+        self.health_bar_rect = self.health_bar.get_rect(midtop=(self.image_width / 2,
+                                                                self.text_rect.midbottom[1]))
+        self.follower_bar_rect = self.follower_bar.get_rect(midtop=(self.image.get_width() / 2,
+                                                                    self.health_bar_rect.midbottom[1]))
+        self.image.blit(self.base_text_image, self.text_rect)
+        self.image.blit(self.health_bar, self.health_bar_rect)
+        self.image.blit(self.follower_bar, self.follower_bar_rect)
+        self.rect = self.image.get_rect(midbottom=(self.character.pos[0], self.pos_y))
 
     def update(self, dt):
         if self.base_pos != self.character.base_pos:
             self.base_pos = self.character.base_pos.copy()
-            self.pos = (self.character.pos[0], (self.character.pos[1] - self.height_adjust))
-            self.rect.midbottom = self.pos
+            self.rect.midbottom = (self.character.pos[0], self.pos_y)
+        if self.health != self.character.health:
+            self.health = self.character.health
+            self.health_bar.fill((0, 0, 0))
+            self.health_bar.fill((150, 50, 50), (0, 0,
+                                                 self.image_width * (self.health / self.character.base_health),
+                                                 self.health_bar_height))
+            self.image.blit(self.health_bar, self.health_bar_rect)
+        if self.followers != self.character.followers_len_check:
+            self.followers = self.character.followers_len_check
+            self.follower_bar.fill((0, 0, 0))
+            percent_scale = 0  # start point fo fill colour
+            for follower_type, value in enumerate(self.followers):
+                if value:
+                    percent = (value / self.character.max_followers_len_check)
+                    self.follower_bar.fill(follower_type_colour[follower_type], (percent_scale, 0,
+                                                                                 self.image_width * percent,
+                                                                                 self.health_bar_height))
+                    percent_scale += self.image_width * percent
+
+            self.image.blit(self.follower_bar, self.follower_bar_rect)
+        if self.character in self.battle.player_selected_generals and not self.selected:
+            self.image.blit(self.selected_text_image, self.text_rect)
+            self.selected = True
+        elif self.character not in self.battle.player_selected_generals and self.selected:
+            self.image.blit(self.base_text_image, self.text_rect)
+            self.selected = False
 
 
 class UIScroll(UIBattle):
@@ -587,391 +1022,16 @@ class UIScroll(UIBattle):
             return self.current_row
 
 
-class CharacterBaseInterface(UIBattle):
-    def __init__(self, pos, image):
-        UIBattle.__init__(self, player_cursor_interact=False)
-        self.pos = pos
-        self.image = image
-        self.rect = self.image.get_rect(center=self.pos)
-
-
-class ScoreBoard(UIBattle):
-    def __init__(self, team, body_part):
-        UIBattle.__init__(self, player_cursor_interact=False)
-        self.body_part = body_part
-        self.team = team
-        self.font = Font(self.ui_font["main_button"], int(20 * self.screen_scale[1]))
-
-    def update(self):
-        """Add score and gold to scoreboard image"""
-        score_text = self.font.render(minimise_number_text(self.battle.stage_score[self.team]) + "/" +
-                                      str(self.battle.reserve_resurrect_stage_score[self.team]), True, (20, 20, 20))
-        gold_text = self.font.render(minimise_number_text(self.battle.stage_gold[self.team]), True, (20, 20, 20))
-
-        if self.body_part.owner.angle == 90:
-            score_rect = score_text.get_rect(center=(self.body_part.image.get_width() / 3,
-                                                     self.body_part.image.get_height() / 2.5))
-            gold_rect = gold_text.get_rect(center=(self.body_part.image.get_width() / 3,
-                                                   self.body_part.image.get_height() / 1.3))
-        else:
-            score_rect = score_text.get_rect(center=(self.body_part.image.get_width() / 1.5,
-                                                     self.body_part.image.get_height() / 2.5))
-            gold_rect = gold_text.get_rect(center=(self.body_part.image.get_width() / 1.5,
-                                                   self.body_part.image.get_height() / 1.3))
-        self.body_part.image = self.body_part.base_image.copy()
-        self.body_part.image.blit(score_text, score_rect)
-        self.body_part.image.blit(gold_text, gold_rect)
-        self.body_part.image = rotate(self.body_part.image, self.body_part.data[4])
-
-
-class CourtBook(UIBattle):
-    def __init__(self, images):
-        UIBattle.__init__(self)
-        self._layer = 11
-        self.images = images
-        self.image = self.images["Base"]
-
-        self.event = {}
-        self.event_timer = 0
-
-        self.empty_portrait = Surface((100 * self.screen_scale[0], 100 * self.screen_scale[1]), SRCALPHA)
-        self.portrait_rect = {"King": self.empty_portrait.get_rect(
-            center=(835 * self.screen_scale[0], 110 * self.screen_scale[1])),
-            "Queen": self.empty_portrait.get_rect(
-                center=(1085 * self.screen_scale[0], 110 * self.screen_scale[1])),
-            "Regent": self.empty_portrait.get_rect(
-                center=(1600 * self.screen_scale[0], 110 * self.screen_scale[1])),
-            "Grand Marshal": self.empty_portrait.get_rect(
-                center=(195 * self.screen_scale[0], 326 * self.screen_scale[1])),
-            "Faith Keeper": self.empty_portrait.get_rect(
-                center=(450 * self.screen_scale[0], 326 * self.screen_scale[1])),
-            "Lord Steward": self.empty_portrait.get_rect(
-                center=(705 * self.screen_scale[0], 326 * self.screen_scale[1])),
-            "Lord Chancellor": self.empty_portrait.get_rect(
-                center=(960 * self.screen_scale[0], 326 * self.screen_scale[1])),
-            "Prime Minister": self.empty_portrait.get_rect(
-                center=(1215 * self.screen_scale[0], 326 * self.screen_scale[1])),
-            "Lord Chamberlain": self.empty_portrait.get_rect(
-                center=(1470 * self.screen_scale[0], 326 * self.screen_scale[1])),
-            "Confidant": self.empty_portrait.get_rect(
-                center=(1725 * self.screen_scale[0], 326 * self.screen_scale[1])),
-            "Royal Champion": self.empty_portrait.get_rect(
-                center=(195 * self.screen_scale[0], 530 * self.screen_scale[1])),
-            "Chief Scholar": self.empty_portrait.get_rect(
-                center=(450 * self.screen_scale[0], 530 * self.screen_scale[1])),
-            "Chief Architect": self.empty_portrait.get_rect(
-                center=(705 * self.screen_scale[0], 530 * self.screen_scale[1])),
-            "Lord Judge": self.empty_portrait.get_rect(
-                center=(960 * self.screen_scale[0], 530 * self.screen_scale[1])),
-            "Secret Keeper": self.empty_portrait.get_rect(
-                center=(1215 * self.screen_scale[0], 530 * self.screen_scale[1])),
-            "Vice Chamberlain": self.empty_portrait.get_rect(
-                center=(1470 * self.screen_scale[0], 530 * self.screen_scale[1])),
-            "Seneschal": self.empty_portrait.get_rect(
-                center=(1725 * self.screen_scale[0], 530 * self.screen_scale[1])),
-            "King Of Arms": self.empty_portrait.get_rect(
-                center=(195 * self.screen_scale[0], 758 * self.screen_scale[1])),
-            "Vice Marshal": self.empty_portrait.get_rect(
-                center=(450 * self.screen_scale[0], 758 * self.screen_scale[1])),
-            "Court Mage": self.empty_portrait.get_rect(
-                center=(705 * self.screen_scale[0], 758 * self.screen_scale[1])),
-            "Chief Justiciar": self.empty_portrait.get_rect(
-                center=(960 * self.screen_scale[0], 758 * self.screen_scale[1])),
-            "Chief Verderer": self.empty_portrait.get_rect(
-                center=(1215 * self.screen_scale[0], 758 * self.screen_scale[1])),
-            "Master Of Ceremony": self.empty_portrait.get_rect(
-                center=(1470 * self.screen_scale[0], 758 * self.screen_scale[1])),
-            "Health Keeper": self.empty_portrait.get_rect(
-                center=(1725 * self.screen_scale[0], 758 * self.screen_scale[1])),
-            "Provost Marshal": self.empty_portrait.get_rect(
-                center=(195 * self.screen_scale[0], 950 * self.screen_scale[1])),
-            "Hound Keeper": self.empty_portrait.get_rect(
-                center=(450 * self.screen_scale[0], 950 * self.screen_scale[1])),
-            "Master Of Ride": self.empty_portrait.get_rect(
-                center=(705 * self.screen_scale[0], 950 * self.screen_scale[1])),
-            "Flower Keeper": self.empty_portrait.get_rect(
-                center=(960 * self.screen_scale[0], 950 * self.screen_scale[1])),
-            "Master Of Hunt": self.empty_portrait.get_rect(
-                center=(1215 * self.screen_scale[0], 950 * self.screen_scale[1])),
-            "Court Jester": self.empty_portrait.get_rect(
-                center=(1470 * self.screen_scale[0], 950 * self.screen_scale[1])),
-            "Court Herald": self.empty_portrait.get_rect(
-                center=(1725 * self.screen_scale[0], 950 * self.screen_scale[1]))}
-
-        self.circle_rect = {key: self.images[key].get_rect(
-            center=(value.centerx, value.centery + (10 * self.screen_scale[1]))) for
-            key, value in self.portrait_rect.items()}
-
-        self.base_image = self.image.copy()  # empty first image
-        self.base_image2 = self.image.copy()  # image after added all portraits except one with event
-
-        self.rect = self.image.get_rect(topleft=(0, 0))
-
-    def check_character_localisation(self, who, item):
-        if who:
-            if who + self.battle.chapter in self.battle.character_data.character_portraits:
-                return self.grab_text(("character", who + self.battle.chapter, item))
-            elif who in self.battle.character_data.character_portraits:
-                return self.grab_text(("character", who, item))
-            elif who + str(self.battle.main_story_profile["character"][
-                               "Sprite Ver"]) in self.battle.character_data.character_portraits:
-                return self.grab_text(
-                    ("character", who + str(self.battle.main_story_profile["character"]["Sprite Ver"]), item))
-        return "Empty"
-
-    def check_portrait(self, who):
-        """Find portrait with appropriate version in data"""
-        if who:
-            if who + self.battle.chapter in self.battle.character_data.character_portraits:
-                return self.battle.character_data.character_portraits[who + self.battle.chapter]
-            elif who in self.battle.character_data.character_portraits:
-                return self.battle.character_data.character_portraits[who]
-            elif who + str(self.battle.main_story_profile["character"][
-                               "Sprite Ver"]) in self.battle.character_data.character_portraits:
-                return self.battle.character_data.character_portraits[
-                    who + self.battle.main_story_profile["character"]["sprite ver"]]
-        return self.empty_portrait
-
-    def add_portraits(self, event):
-        self.image = self.base_image.copy()
-        self.event = event
-        for portrait, rect in self.portrait_rect.items():
-            if portrait not in event:
-                self.blit_portrait(portrait,
-                                   self.check_portrait(self.battle.main_story_profile["save state"]["court"][portrait]),
-                                   rect)
-            self.image.blit(self.images[portrait], self.circle_rect[portrait])
-        self.base_image2 = self.image.copy()
-
-    def blit_portrait(self, portrait_key, image, rect):
-        if portrait_key in ("Queen", "Regent", "Lord Chancellor", "Prime Minister", "Confidant", "Chief Architect",
-                            "Lord Judge", "Vice Chamberlain", "Vice Marshall", "Chief Verderer", "Health Keeper",
-                            "Master of Ride", "Court Herald"):  # flip portrait to face left for some titles
-            image = flip(image, True, False)
-        self.image.blit(image, rect)
-
-    def update(self):
-        self.battle.remove_ui_updater(self.battle.text_popup)
-        if self.event:
-            playing_event = tuple(self.event.keys())[0]
-            self.image = self.base_image2.copy()
-            if not self.event_timer:
-                self.battle.drama_text.queue.append((self.grab_text(("ui", playing_event)) + " " +
-                                                     self.grab_text(("ui", "New Holder:")) +
-                                                     self.check_character_localisation(self.event[playing_event],
-                                                                                       "Name"),
-                                                     "Parchment_write"))
-                self.event_timer = 1
-            else:
-                self.event_timer -= self.battle.dt
-            self.image.blit(self.images[playing_event], self.circle_rect[playing_event])
-            if self.battle.main_story_profile["save state"]["court"][playing_event]:  # fade out old portrait
-                old_image = self.check_portrait(
-                    self.battle.main_story_profile["save state"]["court"][playing_event]).copy()
-                old_image.set_alpha(255 * self.event_timer)
-                self.blit_portrait(playing_event, old_image, self.portrait_rect[playing_event])
-            old_image = self.check_portrait(self.event[playing_event]).copy()  # fade in new one
-            old_image.set_alpha(255 * (1 - self.event_timer))
-            self.blit_portrait(playing_event, old_image, self.portrait_rect[playing_event])
-            self.image.blit(self.images[playing_event], self.circle_rect[playing_event])
-            if self.event_timer <= 0:  # event end
-                self.event_timer = 0
-                self.battle.main_story_profile["save state"]["court"][playing_event] = self.event[playing_event]
-                self.event.pop(playing_event)
-                self.base_image2 = self.image.copy()
-        else:
-            cursor_pos = (self.battle.cursor.pos[0] - self.rect.topleft[0],
-                          self.battle.cursor.pos[1] - self.rect.topleft[1])
-            for image, rect in self.portrait_rect.items():
-                if rect.collidepoint(cursor_pos):
-                    self.battle.add_ui_updater(self.battle.text_popup)
-                    char_name = self.battle.main_story_profile["save state"]["court"][image]
-                    self.battle.text_popup.popup((0, 0),
-                                                 (self.grab_text(("ui", image)),
-                                                  self.grab_text(("ui", "Role:")) +
-                                                  self.grab_text(("ui", image + "'s Role")),
-                                                  self.grab_text(("ui", "Holder:")) +
-                                                  self.check_character_localisation(char_name, "Name"),
-                                                  self.check_character_localisation(char_name, "Description")),
-                                                 shown_id=image, width_text_wrapper=800 * self.game.screen_scale[0])
-                    break
-
-
-class CityMap(UIBattle):
-    def __init__(self, images):
-        UIBattle.__init__(self)
-        self._layer = 11
-        self.selected_animation_timer = []
-        self.images = images
-        self.image = self.images["map"]
-        self.base_image = self.image.copy()
-
-        self.selected = None
-
-        self.rect = self.image.get_rect(topleft=(0, 0))
-
-        self.stage_select_rect = {"herbalist": self.images["herbalist"].get_rect(
-            center=(252 * self.screen_scale[0], 691 * self.screen_scale[1])),
-            "training": self.images["training"].get_rect(
-                center=(330 * self.screen_scale[0], 285 * self.screen_scale[1])),
-            "barrack": self.images["barrack"].get_rect(
-                center=(428 * self.screen_scale[0], 394 * self.screen_scale[1])),
-            "blacksmith": self.images["blacksmith"].get_rect(
-                center=(438 * self.screen_scale[0], 579 * self.screen_scale[1])),
-            "cathedral": self.images["cathedral"].get_rect(
-                center=(711 * self.screen_scale[0], 645 * self.screen_scale[1])),
-            "plaza": self.images["plaza"].get_rect(
-                center=(884 * self.screen_scale[0], 704 * self.screen_scale[1])),
-            "tavern": self.images["tavern"].get_rect(
-                center=(970 * self.screen_scale[0], 801 * self.screen_scale[1])),
-            "garden": self.images["garden"].get_rect(
-                center=(1022 * self.screen_scale[0], 497 * self.screen_scale[1])),
-            "artificer": self.images["artificer"].get_rect(
-                center=(1339 * self.screen_scale[0], 382 * self.screen_scale[1])),
-            "market": self.images["market"].get_rect(
-                center=(1377 * self.screen_scale[0], 629 * self.screen_scale[1])),
-            "scriptorium": self.images["scriptorium"].get_rect(
-                center=(1617 * self.screen_scale[0], 436 * self.screen_scale[1])),
-            "throne": self.images["throne"].get_rect(
-                center=(1015 * self.screen_scale[0], 109 * self.screen_scale[1])),
-            "library": self.images["library"].get_rect(
-                center=(730 * self.screen_scale[0], 202 * self.screen_scale[1])),
-            "hall": self.images["hall"].get_rect(
-                center=(1021 * self.screen_scale[0], 199 * self.screen_scale[1])),
-            "council": self.images["council"].get_rect(
-                center=(1298 * self.screen_scale[0], 198 * self.screen_scale[1]))
-        }
-
-        for image, rect in self.stage_select_rect.items():
-            self.base_image.blit(self.images[image], rect)
-        self.image = self.base_image.copy()
-        self.selected_map = None
-
-    def update(self):
-        cursor_pos = (self.battle.cursor.pos[0] - self.rect.topleft[0],
-                      self.battle.cursor.pos[1] - self.rect.topleft[1])
-        found_select = False
-        self.selected_map = None
-        for image, rect in self.stage_select_rect.items():
-            if rect.collidepoint(cursor_pos):
-                found_select = True
-                self.image = self.base_image.copy()
-                if self.selected_animation_timer:  # already has previous hovering
-                    if self.selected_animation_timer[0] != image:  # different hovering
-                        self.selected_animation_timer = [image, 0]
-                else:
-                    self.selected_animation_timer = [image, 0]
-                self.selected_animation_timer[1] += self.battle.dt / 5
-                zoom_animation_timer = 1 + self.selected_animation_timer[1]
-                if self.selected_animation_timer[1] > 0.2:
-                    zoom_animation_timer = 1.2 - (self.selected_animation_timer[1] - 0.2)
-                    if self.selected_animation_timer[1] > 0.4:
-                        self.selected_animation_timer[1] = 0
-
-                new_image = smoothscale(self.images[image],
-                                        (self.images[image].get_width() * zoom_animation_timer,
-                                         self.images[image].get_height() * zoom_animation_timer))
-                self.image.blit(new_image, new_image.get_rect(center=rect.center))
-
-                if self.battle.player_key_press[self.battle.main_player][
-                    "Weak"] or self.battle.cursor.is_select_just_up:
-                    self.selected_map = image
-                break
-
-        if not found_select:
-            self.selected_animation_timer = []
-            self.image = self.base_image
-
-
-class CityMission(UIBattle):
-    def __init__(self, images):
-        UIBattle.__init__(self)
-        self._layer = 11
-        self.selected_animation_timer = []
-        self.images = images
-        self.image = self.images["map"]
-        self.base_image = self.image.copy()
-
-        self.base_image2 = self.image.copy()
-        self.selected = None
-
-        self.rect = self.image.get_rect(topleft=(0, 0))
-
-        self.stage_select_rect = {"chapter1": self.images["chapter1"].get_rect(
-            center=(252 * self.screen_scale[0], 691 * self.screen_scale[1])),
-            "chapter2": self.images["chapter2"].get_rect(
-                center=(330 * self.screen_scale[0], 285 * self.screen_scale[1])),
-            "chapter3": self.images["chapter3"].get_rect(
-                center=(428 * self.screen_scale[0], 394 * self.screen_scale[1])),
-            "chapter4": self.images["chapter4"].get_rect(
-                center=(438 * self.screen_scale[0], 579 * self.screen_scale[1])),
-            "chapter5": self.images["chapter5"].get_rect(
-                center=(711 * self.screen_scale[0], 645 * self.screen_scale[1])),
-            "chapter6": self.images["chapter6"].get_rect(
-                center=(884 * self.screen_scale[0], 704 * self.screen_scale[1])),
-            "mission1": self.images["mission1"].get_rect(
-                center=(970 * self.screen_scale[0], 801 * self.screen_scale[1])),
-            "mission2": self.images["mission2"].get_rect(
-                center=(1022 * self.screen_scale[0], 497 * self.screen_scale[1])),
-            "mission3": self.images["mission3"].get_rect(
-                center=(1339 * self.screen_scale[0], 382 * self.screen_scale[1])),
-            "mission4": self.images["mission4"].get_rect(
-                center=(1377 * self.screen_scale[0], 629 * self.screen_scale[1])),
-            "mission5": self.images["mission5"].get_rect(
-                center=(1617 * self.screen_scale[0], 436 * self.screen_scale[1]))
-        }
-
-        for image, rect in self.stage_select_rect.items():
-            self.base_image.blit(self.images[image], rect)
-        self.image = self.base_image.copy()
-        self.selected_map = None
-
-    def update(self):
-        cursor_pos = (self.battle.cursor.pos[0] - self.rect.topleft[0],
-                      self.battle.cursor.pos[1] - self.rect.topleft[1])
-        found_select = False
-        self.selected_map = None
-        for image, rect in self.stage_select_rect.items():
-            if rect.collidepoint(cursor_pos):
-                found_select = True
-                self.image = self.base_image.copy()
-                if self.selected_animation_timer:  # already has previous hovering
-                    if self.selected_animation_timer[0] != image:  # different hovering
-                        self.selected_animation_timer = [image, 0]
-                else:
-                    self.selected_animation_timer = [image, 0]
-                self.selected_animation_timer[1] += self.battle.dt / 5
-                zoom_animation_timer = 1 + self.selected_animation_timer[1]
-                if self.selected_animation_timer[1] > 0.2:
-                    zoom_animation_timer = 1.2 - (self.selected_animation_timer[1] - 0.2)
-                    if self.selected_animation_timer[1] > 0.4:
-                        self.selected_animation_timer[1] = 0
-
-                new_image = smoothscale(self.images[image],
-                                        (self.images[image].get_width() * zoom_animation_timer,
-                                         self.images[image].get_height() * zoom_animation_timer))
-                self.image.blit(new_image, new_image.get_rect(center=rect.center))
-
-                if self.battle.player_key_press[self.battle.main_player][
-                    "Weak"] or self.battle.cursor.is_select_just_up:
-                    self.selected_map = image
-                break
-
-        if not found_select:
-            self.selected_animation_timer = []
-            self.image = self.base_image
-
-
 class CharacterInteractPrompt(UIBattle):
     def __init__(self, image):
         """Weak button prompt that indicate player can talk to target"""
-        self._layer = 9999999999999999999998
+        self._layer = 9999999999999999998
         UIBattle.__init__(self, player_cursor_interact=False)
         self.character = None
         self.target = None
         self.target_pos = None
         self.button_image = image
-        font = Font(self.ui_font["manuscript_font"], int(40 * self.screen_scale[1]))
+        font = self.game.character_name_talk_prompt_font
         text_surface = text_render_with_bg("Talk", font)
         self.image = Surface((150 * self.screen_scale[0], 55 * self.screen_scale[1]), SRCALPHA)
         text_rect = text_surface.get_rect(midright=self.image.get_rect().midright)
@@ -984,8 +1044,7 @@ class CharacterInteractPrompt(UIBattle):
         self.character = character
         self.target_pos = target_pos
         self.target = target
-        font = Font(self.ui_font[chapter_font_name[self.battle.chapter]], int(40 * self.screen_scale[1]))
-        text_surface = text_render_with_bg(target.show_name, font)
+        text_surface = text_render_with_bg(target.name, self.game.character_name_talk_prompt_font)
         self.image = Surface((text_surface.get_width() + self.button_image.get_width() +
                               (10 * self.screen_scale[0]), 55 * self.screen_scale[1]), SRCALPHA)
         text_rect = text_surface.get_rect(midright=self.image.get_rect().midright)
@@ -994,8 +1053,8 @@ class CharacterInteractPrompt(UIBattle):
 
         self.rect = self.image.get_rect(midbottom=(self.target_pos[0] * self.screen_scale[0],
                                                    self.target_pos[1] * self.screen_scale[1]))
-        if self not in self.battle.battle_camera:
-            self.battle.battle_camera.add(self)
+        if self not in self.battle.battle_cameras["ui"]:
+            self.battle.battle_cameras["ui"].add(self)
             self.battle.effect_updater.add(self)
 
     def update(self, *args):
@@ -1007,8 +1066,8 @@ class CharacterInteractPrompt(UIBattle):
         self.character = None
         self.target = None
         self.target_pos = None
-        if self in self.battle.battle_camera:
-            self.battle.battle_camera.remove(self)
+        if self in self.battle.battle_cameras["ui"]:
+            self.battle.battle_cameras["ui"].remove(self)
             self.battle.effect_updater.remove(self)
 
 
@@ -1017,69 +1076,119 @@ class CharacterSpeechBox(UIBattle):
     simple_font = False
 
     def __init__(self, character, text, specific_timer=None, player_input_indicator=False, cutscene_event=None,
-                 add_log=None, voice=False, body_part="p1_head", use_big=False, max_text_width=600):
+                 add_log=None, voice=False, font_size=60, max_text_width=800):
         """Speech box that appear from character head"""
         self._layer = 9999999999999999998
         UIBattle.__init__(self, player_cursor_interact=False, has_containers=True)
-        font = self.battle.chapter
+        font = "talk_font"
         if self.simple_font:
             font = "simple"
 
-        self.font_size = int(28 * self.screen_scale[1])
-        self.font = Font(self.ui_font[chapter_font_name[font]], self.font_size)
-        self.max_text_width = max_text_width * self.screen_scale[0]
-        image_height = int((self.font.render(text, True, (0, 0, 0)).get_width()) / self.max_text_width)
-        self.big = False
-        if not image_height and not use_big:  # only one line
-            self.body = self.images["speech_body"]
-            self.left_corner = self.images["speech_start"]
-            self.right_corner = self.images["speech_end"]
-            text_surface = Font(self.ui_font[chapter_font_name[font]], self.font_size).render(text, True, (0, 0, 0))
-            self.max_text_width = text_surface.get_width() + (60 * self.screen_scale[0])
-        else:
-            self.big = True
-            self.body = self.images["big_speech_body"]
-            self.left_corner = self.images["big_speech_start"]
-            self.right_corner = self.images["big_speech_end"]
+        self.font_size = int(font_size * self.screen_scale[1])
+        self.font = Font(self.ui_font[font], self.font_size)
+        max_text_width *= self.screen_scale[0]
 
-        # Find new image height, using code from make_long_text
-        x, y = (self.font_size, self.font_size)
+        # Find text height, using code from make_long_text
+        start_pos = (0, self.font_size / 3)
+        true_max_width = start_pos[0]
+        x, y = start_pos[0], start_pos[1]
         words = [word.split(" ") for word in
                  str(text).splitlines()]  # 2D array where each row is a list of words
         space = self.font.size(" ")[0]  # the width of a space
+        exceed_max_width = False
         for line in words:
             for word in line:
                 word_surface = self.font.render(word, True, (0, 0, 0))
                 word_width, word_height = word_surface.get_size()
-                if x + word_width >= self.max_text_width:
+                if x + word_width >= max_text_width:
+                    exceed_max_width = True
                     x = self.font_size  # reset x
                     y += word_height  # start on new row.
+                if not exceed_max_width:
+                    true_max_width += word_width + space
                 x += word_width + space
             x = self.font_size  # reset x
             y += word_height  # start on new row
-        self.text_surface = Surface((self.max_text_width, y), SRCALPHA)
 
-        self.text_surface.fill((0, 0, 0, 0))
-        make_long_text(self.text_surface, text, (self.font_size, self.font_size), self.font,
-                       specific_width=self.max_text_width)
+        self.text_surface = Surface((true_max_width, y), SRCALPHA)
 
-        self.left_corner_rect = self.left_corner.get_rect(topleft=(0, 0))  # The starting point
+        self.text_surface.fill((224, 224, 224))
+        make_long_text(self.text_surface, text, start_pos, self.font)
+
+        start_top = self.images["speech_start_top"]
+        start_mid = smoothscale(self.images["speech_start_mid"], (self.images["speech_start_mid"].get_width(),
+                                                                  self.text_surface.get_height()))
+        start_bottom = self.images["speech_start_bottom"]
+
+        end_top = self.images["speech_end_top"]
+        end_mid = smoothscale(self.images["speech_end_mid"], (self.images["speech_end_mid"].get_width(),
+                                                              self.text_surface.get_height()))
+        end_bottom = self.images["speech_end_bottom"]
+
+        body_top = smoothscale(self.images["speech_body_top"], (self.text_surface.get_width(),
+                                                                self.images["speech_body_top"].get_height()))
+        body_bottom = smoothscale(self.images["speech_body_bottom"], (self.text_surface.get_width(),
+                                                                      self.images["speech_body_bottom"].get_height()))
+
+        self.base_image = Surface((self.text_surface.get_width() + start_top.get_width() + end_top.get_width(),
+                                   self.text_surface.get_height() + start_top.get_height() + start_bottom.get_height()),
+                                  SRCALPHA)
+
+        start_top_rect = start_top.get_rect(topleft=(0, 0))
+        self.base_image.blit(start_top, start_top_rect)
+
+        start_bottom_rect = start_bottom.get_rect(bottomleft=(0, self.base_image.get_height()))
+        self.base_image.blit(start_bottom, start_bottom_rect)
+
+        start_mid_rect = start_mid.get_rect(topleft=(0, start_top_rect.height))
+        self.base_image.blit(start_mid, start_mid_rect)
+
+        end_top_rect = end_top.get_rect(topright=(self.base_image.get_width(), 0))
+        self.base_image.blit(end_top, end_top_rect)
+
+        end_bottom_rect = end_bottom.get_rect(bottomright=(self.base_image.get_width(), self.base_image.get_height()))
+        self.base_image.blit(end_bottom, end_bottom_rect)
+
+        end_mid_rect = end_mid.get_rect(topright=(self.base_image.get_width(), end_top_rect.height))
+        self.base_image.blit(end_mid, end_mid_rect)
+
+        body_top_rect = body_top.get_rect(topleft=(start_top_rect.width, 0))
+        self.base_image.blit(body_top, body_top_rect)
+
+        body_bottom_rect = body_bottom.get_rect(bottomleft=(start_bottom_rect.width, self.base_image.get_height()))
+        self.base_image.blit(body_bottom, body_bottom_rect)
+
+        self.right_image = self.base_image.copy()
+        self.left_image = flip(self.base_image, 1, 0)
+
+        text_rect = self.text_surface.get_rect(topleft=start_mid_rect.topright)
+        self.right_image.blit(self.text_surface, text_rect)
+
+        text_rect = self.text_surface.get_rect(topright=(self.base_image.get_width() - start_mid_rect.topright[0],
+                                                         start_mid_rect.topright[1]))
+        self.left_image.blit(self.text_surface, text_rect)
+
+        if player_input_indicator:  # add player weak button indicate for closing speech in cutscene
+            rect = self.images["button_weak"].get_rect(topleft=(0, text_rect.height * 1.2))
+            self.left_image.blit(self.images["button_weak"], rect)
+
+            rect = self.images["button_weak"].get_rect(topright=(self.base_image.get_width(),
+                                                                 text_rect.height * 1.2))
+            self.right_image.blit(self.images["button_weak"], rect)
 
         self.character = character
         self.character.speech = self
         self.player_input_indicator = player_input_indicator
         self.cutscene_event = cutscene_event
-        self.head_part = self.character.body_parts[body_part]  # assuming character always has p1 head
         self.base_pos = self.character.base_pos.copy()
         self.finish_unfolding = False
-        self.current_length = self.left_corner.get_width()  # current unfolded length start at 20
+        self.current_length = start_top.get_width()
 
-        self.base_image = Surface((self.text_surface.get_width() + int(self.left_corner.get_width() * 1.5),
-                                   self.left_corner.get_height()), SRCALPHA)
-        self.base_image.blit(self.left_corner, self.left_corner_rect)  # start animation with the left corner
-        self.image = self.base_image
         self.max_length = self.base_image.get_width()  # max length of the body, not counting the end corner
-        self.rect = self.base_image.get_rect(midleft=self.head_part.rect.center)
+
+        self.base_image = self.right_image
+        self.image = self.base_image.subsurface((0, 0, self.current_length, self.base_image.get_height()))
+        self.rect = self.image.get_rect(midleft=self.character.rect.center)
 
         if voice:
             self.battle.add_sound_effect_queue(choice(self.battle.sound_effect_pool[voice[0]]),
@@ -1097,27 +1206,54 @@ class CharacterSpeechBox(UIBattle):
             if len(text) > 20:
                 self.timer += int(len(text) / 20)
         if add_log:
-            for profile in self.battle.all_story_profiles.values():  # add speech text to dialogue log for all save
-                if profile:
-                    profile["dialogue log"].append(("(" + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + ")" +
-                                                    " ch." + self.battle.chapter + "." + self.battle.mission + "." +
-                                                    self.battle.stage + " " + self.character.show_name + ": ", add_log))
-                    if len(profile["dialogue log"]) > 200:
-                        profile["dialogue log"] = profile["dialogue log"][1:]
+            self.battle.save_data.save_profile["dialogue log"].append(
+                ("(" + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + ")" +
+                 " Mission " + self.battle.mission + " " +
+                 self.character.name + ": ", add_log))
+            if len(self.battle.save_data.save_profile["dialogue log"]) > 500:
+                self.battle.save_data.save_profile["dialogue log"] = self.battle.save_data.save_profile["dialogue log"][
+                                                                     1:]
 
     def update(self, dt):
         """Play unfold animation and blit text at the end"""
+        direction_left = False
+        # always use p1 head to place speak
+        head_rect = ((self.character.pos[0] + (self.character.current_animation_direction["head"][0] * self.screen_scale[0])),
+                     (self.character.pos[1] + (self.character.current_animation_direction["head"][1] * self.screen_scale[1])))
+        if self.character.direction == "left":  # left direction facing
+            if self.character.rect.topleft[0] - (
+                    self.battle.shown_camera_pos[0] - self.battle.camera.camera_w_center) < self.base_image.get_width():
+                self.base_image = self.right_image
+                self.rect = self.image.get_rect(bottomleft=head_rect)
+            else:
+                # text will exceed screen, go other way
+                direction_left = True
+                self.base_image = self.left_image
+                self.rect = self.image.get_rect(bottomright=head_rect)
+
+        else:  # right direction facing
+            if (self.battle.shown_camera_pos[0] + self.battle.camera.camera_w_center) - \
+                    self.character.rect.topright[0] < self.base_image.get_width():
+                # text will exceed screen, go other way
+                direction_left = True
+                self.base_image = self.left_image
+                self.rect = self.image.get_rect(bottomright=head_rect)
+            else:
+                self.base_image = self.right_image
+                self.rect = self.image.get_rect(bottomleft=head_rect)
+
+        if self.rect.midtop[1] < 0:  # exceed top scene
+            self.rect = self.image.get_rect(midtop=(self.rect.midtop[0], 0))
+
         if self.current_length < self.max_length:  # keep unfolding if not yet reach max length
-            body_rect = self.body.get_rect(topleft=(self.current_length, 0))  # body of the speech popup
-            self.base_image.blit(self.body, body_rect)
-            self.image = self.base_image.copy()
-            self.current_length += self.body.get_width()
-        elif not self.finish_unfolding:
-            # right corner end
-            right_corner_rect = self.right_corner.get_rect(topright=(self.base_image.get_width(), 0))
-            self.base_image.blit(self.right_corner, right_corner_rect)
-            self.image = self.base_image.copy()
-            self.finish_unfolding = True
+            self.current_length += self.max_length * dt
+            if self.current_length > self.max_length:
+                self.current_length = self.max_length
+            if direction_left:
+                self.image = self.base_image.subsurface((self.max_length - self.current_length, 0,
+                                                         self.current_length, self.image.get_height()))
+            else:
+                self.image = self.base_image.subsurface((0, 0, self.current_length, self.image.get_height()))
 
         else:  # finish animation, count down timer
             self.timer -= dt
@@ -1131,67 +1267,30 @@ class CharacterSpeechBox(UIBattle):
             self.kill()
             return
 
-        left_direction = False
-        if self.character.angle == 90:  # left direction facing
-            if self.head_part.rect.midleft[0] - (
-                    self.battle.shown_camera_pos[0] - self.battle.camera.camera_w_center) < self.base_image.get_width():
-                self.image = self.base_image.copy()
-                self.rect.bottomleft = self.head_part.rect.midright
-            else:
-                # text will exceed screen, go other way
-                self.image = flip(self.base_image, 1, 0)
-                self.rect.bottomright = self.head_part.rect.midleft
-                left_direction = True
-
-        else:  # right direction facing
-            if (self.battle.shown_camera_pos[0] + self.battle.camera.camera_w_center) - \
-                    self.head_part.rect.midright[0] < self.base_image.get_width():
-                # text will exceed screen, go other way
-                self.image = flip(self.base_image, 1, 0)
-                self.rect.bottomright = self.head_part.rect.midleft
-                left_direction = True
-            else:
-                self.image = self.base_image.copy()
-                self.rect.bottomleft = self.head_part.rect.midright
-
-        if self.rect.midtop[1] < 0:  # exceed top scene
-            self.rect.midtop = Vector2(self.rect.midtop[0], 0)
-
-        if self.current_length >= self.max_length:
-            # blit text when finish unfold
-            if not self.big:
-                text_rect = self.text_surface.get_rect(center=(int(self.image.get_width() / 2),
-                                                               int(self.body.get_height() / 1.4)))
-            else:
-                text_rect = self.text_surface.get_rect(center=(int(self.image.get_width() / 2),
-                                                               int(self.body.get_height() / 1.6)))
-            self.image.blit(self.text_surface, text_rect)
-
-            if self.player_input_indicator:  # add player weak button indicate for closing speech in cutscene
-                if left_direction:
-                    rect = self.images["button_weak"].get_rect(topleft=(0, self.right_corner.get_height() * 0.8))
-                else:
-                    rect = self.images["button_weak"].get_rect(topright=(self.base_image.get_width(),
-                                                                         self.right_corner.get_height() * 0.8))
-                self.image.blit(self.images["button_weak"], rect)
-
 
 class DamageNumber(UIBattle):
+    image_cache = {team: {True: {}, False: {}} for team in team_colour}
+
     def __init__(self, value, pos, critical, team, move=True):
-        self._layer = 9999999999999999999
+        self._layer = 9999999999999999997
         UIBattle.__init__(self, has_containers=True)
         self.move = move
-
-        if critical:
-            self.image = text_render_with_bg(str(value),
-                                             Font(self.ui_font["manuscript_font2"], int(76 * self.screen_scale[1])),
-                                             gf_colour=team_colour[team])
-        else:
-            self.image = text_render_with_bg(str(value),
-                                             Font(self.ui_font["manuscript_font"], int(46 * self.screen_scale[1])),
-                                             gf_colour=team_colour[team])
-        self.rect = self.image.get_rect(midbottom=pos)
         self.timer = 0.5
+        if type(value) is str:
+            self.timer = 1
+        str_value = str(value)
+        if str_value not in self.image_cache[team][critical]:
+            if critical:
+                self.image = text_render_with_bg(str_value, self.game.critical_damage_number_font,
+                                                 gf_colour=team_colour[team])
+            else:
+                self.image = text_render_with_bg(str_value, self.game.damage_number_font,
+                                                 gf_colour=team_colour[team])
+            self.image_cache[team][critical][str_value] = self.image
+        else:
+            self.image = self.image_cache[team][critical][str_value]
+
+        self.rect = self.image.get_rect(midbottom=pos)
 
     def update(self, dt):
         self.timer -= dt
@@ -1202,21 +1301,19 @@ class DamageNumber(UIBattle):
 
 
 class WheelUI(UIBattle):
-    command_list = {"Down": "Attack", "Left": "Free", "Up": "Follow", "Right": "Stay"}  # same as in PlayerCharacter
     item_sprite_pool = None
     choice_list_key = {"Down": 1, "Left": 2, "Up": 3, "Right": 4}
     choice_key = tuple(choice_list_key.keys())
 
-    def __init__(self, images, player, pos):
+    def __init__(self, images, pos):
         """Wheel choice ui to select item"""
         self._layer = 11
         UIBattle.__init__(self)
-        self.small_font = Font(self.ui_font["main_button"], int(16 * self.screen_scale[1]))
-        self.font = Font(self.ui_font["main_button"], int(20 * self.screen_scale[1]))
+        self.small_font = Font(self.ui_font["main_button"], int(36 * self.screen_scale[1]))
+        self.font = Font(self.ui_font["main_button"], int(52 * self.screen_scale[1]))
         self.pos = pos
         self.choice_list = ()
         self.selected = "Up"
-        self.player = player
 
         self.wheel_button_image = images["wheel"]
         self.wheel_selected_button_image = images["wheel_selected"]
@@ -1252,7 +1349,7 @@ class WheelUI(UIBattle):
                 self.image.blit(self.wheel_selected_image_with_stuff[index], rect)
             else:
                 self.image.blit(self.wheel_image_with_stuff[index], rect)
-            if self.choice_list[index]:
+            if index + 1 <= len(self.choice_list) and self.choice_list[index]:
                 text_image = self.wheel_text_image.copy()  # blit text again to avoid wheel overlap old text
                 if self.choice_list[index] in self.command_list.values():  # command
                     text_surface = self.small_font.render(self.grab_text(("ui", self.choice_list[index])),
@@ -1283,7 +1380,7 @@ class WheelUI(UIBattle):
             self.wheel_image_with_stuff[index] = self.wheel_button_image.copy()
             self.wheel_selected_image_with_stuff[index] = self.wheel_selected_button_image.copy()
             if value:  # Wheel choice with icon at center
-                surface = self.item_sprite_pool[self.battle.chapter]["Normal"][value]
+                surface = self.item_sprite_pool[value]
                 rect = surface.get_rect(center=(self.wheel_image_with_stuff[index].get_width() / 2,
                                                 self.wheel_image_with_stuff[index].get_height() / 2))
 
@@ -1291,12 +1388,15 @@ class WheelUI(UIBattle):
                 self.wheel_selected_image_with_stuff[index].blit(surface, rect)
 
                 if item_wheel:
+                    number_text_rect = surface.get_rect(center=(self.wheel_image_with_stuff[index].get_width() / 1.3,
+                                                                self.wheel_image_with_stuff[index].get_height() / 2))
                     text_surface = text_render_with_bg(str(self.battle.player_objects[self.player].item_usage[value]),
                                                        self.font)  # add item number
                     self.wheel_image_with_stuff[index].blit(text_surface,
-                                                            text_surface.get_rect(topright=rect.topright))
+                                                            text_surface.get_rect(topright=number_text_rect.center))
                     self.wheel_selected_image_with_stuff[index].blit(text_surface,
-                                                                     text_surface.get_rect(topright=rect.topright))
+                                                                     text_surface.get_rect(
+                                                                         topright=number_text_rect.center))
 
                     text_surface = self.small_font.render(self.grab_text(("item", value, "Name")), True,
                                                           (20, 20, 20))
@@ -1313,26 +1413,6 @@ class WheelUI(UIBattle):
                                                                             text_image.get_height() / 2)))
 
                 self.image.blit(text_image, text_image.get_rect(center=self.wheel_rect[index].midbottom))
-
-
-class EscButton(UIBattle):
-    def __init__(self, images, pos, text="", text_size=16):
-        self._layer = 25
-        UIBattle.__init__(self)
-        self.pos = pos
-        self.images = [image.copy() for image in list(images.values())]
-        self.text = text
-        self.font = Font(self.ui_font["main_button"], text_size)
-
-        if text != "":  # blit menu text into button image
-            text_surface = self.font.render(self.text, True, (20, 20, 20))
-            text_rect = text_surface.get_rect(center=self.images[0].get_rect().center)
-            self.images[0].blit(text_surface, text_rect)  # button idle image
-            self.images[1].blit(text_surface, text_rect)  # button mouse over image
-            self.images[2].blit(text_surface, text_rect)  # button click image
-
-        self.image = self.images[0]
-        self.rect = self.image.get_rect(center=self.pos)
 
 
 class Profiler(cProfile.Profile, UIBattle):

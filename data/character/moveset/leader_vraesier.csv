@@ -1,0 +1,9 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Attack1","Slash Up",,,,300,,,,30,25,20,10,,"Physical",,,,
+"Attack2","Pierce",,,,350,,,,24,30,10,5,0.1,"Physical",,,,
+"Attack3","Slash Down",,,,300,,,,35,27,5,-20,,"Physical",,,,
+"Attack4","Double Slash",,,,300,,4,,42,37,7,9,,"Physical",,,,
+"Skill1","Demonic Slash",,,,500,,8,35,95,80,250,150,0.2,"Physical",,,,
+"Skill2","Bloodletting",,,,350,,6,20,26,14,15,5,0.15,"Physical",,"Bleeding",,
+"Skill3","Second Wind",,,"self:{health<=50}",20000,,30,40,,,,,,"Physical","Second_wind",,,
+"UseItem","Speed Potion",,,,2000,,120,,,,,,,"Physical","Haste",,,

@@ -1,0 +1,8 @@
+"Object ID","ID","Scene","POS","Ground Y POS","Angle","Start Health","Team","Arrive Condition","Stage Property"
+1,"Animal_skydog",1,"1600,300",300,-90,1,1,,"city npc,specific behaviour:move_city_ai"
+2,"Animal_fluffbird",1,"300,1000",1000,-90,1,1,,"city npc,specific behaviour:move_city_ai"
+3,"Animal_fluffbird",1,"900,1000",1000,90,1,1,,"city npc,specific behaviour:move_city_ai"
+4,"Nayedien",1,"1600,1000",1000,90,1,1,,"city npc,idle:Rest"
+5,"Rabbit_spear",1,"500,1000",1000,-90,1,1,,"city npc,idle:Idle"
+6,"Rabbit_cav",1,"800,1000",1000,90,1,1,,"city npc,idle:Idle"
+7,"Vars",1,"1400,1000",1000,-90,1,1,,"city npc,idle:Idle"

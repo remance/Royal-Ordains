@@ -1,11 +1,10 @@
-"""This file contains all class and function that read troop/leader related data
-and save them into dict for in game use """
-
 import copy
 import csv
 import os
 
-from engine.utils.data_loading import stat_convert, load_images
+from engine.utils.data_loading import stat_convert
+
+infinity = float("infinity")
 
 
 class GameData:
@@ -31,269 +30,113 @@ class CharacterData(GameData):
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
-            int_column = ("ID", "Power Bonus", "Speed Bonus",)  # value int only
-            float_column = ("Animation Time Modifier", "Physical Resistance Bonus", "Fire Resistance Bonus",
+            dict_column = ("Property", )
+            percent_column = ("Offence Modifier", "Defence Modifier", "Speed Modifier", "Animation Time Modifier",)
+            float_column = ("Physical Resistance Bonus", "Fire Resistance Bonus",
                             "Water Resistance Bonus", "Air Resistance Bonus", "Earth Resistance Bonus",
                             "Magic Resistance Bonus", "Poison Resistance Bonus", "Magic Resistance Bonus")
             tuple_column = ("Special Effect", "Status Conflict")  # value in tuple only
-            int_column = [index for index, item in enumerate(header) if item in int_column]
+            dict_column = [index for index, item in enumerate(header) if item in dict_column]
+            percent_column = [index for index, item in enumerate(header) if item in percent_column]
             float_column = [index for index, item in enumerate(header) if item in float_column]
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
-                    row = stat_convert(row, n, i, tuple_column=tuple_column, int_column=int_column,
-                                       float_column=float_column)
+                    row = stat_convert(row, n, i, percent_column=percent_column,
+                                       tuple_column=tuple_column, float_column=float_column,
+                                       dict_column=dict_column)
                 self.status_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
         edit_file.close()
 
-        self.status_lore = self.localisation.create_lore_data("status")
+        self.status_apply_funcs = create_status_apply_function_dict(self.status_list)
 
-        self.common_moveset_skill = {}
-        with open(os.path.join(self.data_dir, "character", "playable", "skill.csv"),
+        self.strategy_list = {}
+        with open(os.path.join(self.data_dir, "character", "strategy.csv"),
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
-            tuple_column = ("Buttons", "Status", "Enemy Status")  # value in tuple only
-            dict_column = ("Prepare Animation", "After Animation", "AI Condition", "Property",)
-            tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
+            dict_column = ("Property", )
+            tuple_column = ("Status", "Enemy Status")  # value in tuple only
             dict_column = [index for index, item in enumerate(header) if item in dict_column]
-            moveset_dict = {}
+            tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
-                    row = stat_convert(row, n, i, tuple_column=tuple_column,
-                                       dict_column=dict_column)
-                move_data = {header[index]: stuff for index, stuff in enumerate(row)}
-                if row[header.index("Position")] not in moveset_dict:
-                    # keep moveset in each position dict for easier access
-                    moveset_dict[row[header.index("Position")]] = {}
-                moveset_dict[row[header.index("Position")]][row[0]] = move_data
-            self.common_moveset_skill = moveset_dict
+                    row = stat_convert(row, n, i, tuple_column=tuple_column, dict_column=dict_column)
+                self.strategy_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
         edit_file.close()
 
-        # Character stat dict
-        default_mode = {}
-        with open(os.path.join(self.data_dir, "animation", "template.csv"),
-                  encoding="utf-8", mode="r") as edit_file:
-            rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
-            for index, stuff in enumerate(rd[0]):
-                if "special" in stuff:  # remove number after special
-                    rd[0][index] = "_".join(rd[0][index].split("_")[:-1])
-            default_mode["Normal"] = {stuff: "Normal" for
-                                      index, stuff in enumerate(rd[0]) if stuff[0] == "p"}
 
+
+        # Character dict
         self.character_list = {}
-        folder_list = ("playable", "enemy")
-        for file_index, char_list in enumerate(("playable.csv", "enemy.csv")):
-            with open(os.path.join(self.data_dir, "character", char_list),
-                      encoding="utf-8", mode="r") as edit_file:
-                rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
-                header = rd[0]
-                for row_index, row in enumerate(rd[1:]):
-                    dict_column = ("Drops", "Spawns", "Items", "Property")
-                    dict_column = [index for index, item in enumerate(header) if item in dict_column]
-                    for n, i in enumerate(row):
-                        row = stat_convert(row, n, i, dict_column=dict_column)
-                    self.character_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
-                    self.character_list[row[0]]["Move"] = {}
-
-                    self.character_list[row[0]]["Summon List"] = []
-                    if "Spawns" in header:
-                        self.character_list[row[0]]["Summon List"] = list(row[header.index("Spawns")].keys())
-
-                    summon_list = []
-
-                    # Add character move data
-                    if os.path.exists(
-                            os.path.join(self.data_dir, "character", folder_list[file_index], row[0], "move.csv")):
-                        with open(os.path.join(self.data_dir, "character", folder_list[file_index], row[0], "move.csv"),
-                                  encoding="utf-8", mode="r") as edit_file2:
-                            rd2 = tuple(csv.reader(edit_file2, quoting=csv.QUOTE_ALL))
-                            header2 = rd2[0]
-                            tuple_column = (
-                                "Buttons", "Requirement Move", "Status", "Enemy Status")  # value in tuple only
-                            tuple_column = [index for index, item in enumerate(header2) if item in tuple_column]
-                            dict_column = (
-                                "Stat Requirement", "Prepare Animation", "After Animation", "AI Condition", "Property",)
-                            dict_column = [index for index, item in enumerate(header2) if item in dict_column]
-                            moveset_dict = {}
-                            remain_next_move_loop = []
-                            for row_index2, row2 in enumerate(rd2[1:]):
-                                for n2, i2 in enumerate(row2):
-                                    row2 = stat_convert(row2, n2, i2, tuple_column=tuple_column,
-                                                        dict_column=dict_column)
-
-                                move_data = {header2[index]: stuff for index, stuff in enumerate(row2)}
-                                if row2[header2.index("Position")] not in moveset_dict:
-                                    # keep moveset in each position dict for easier access
-                                    moveset_dict[row2[header2.index("Position")]] = {}
-
-                                if not row2[header2.index("Requirement Move")]:
-                                    # parent move
-                                    moveset_dict[row2[header2.index("Position")]][row2[0]] = move_data
-
-                                # restructure moveset so move that continue from another is in its parent move
-                                parent_move_list = row2[header2.index("Requirement Move")]
-                                if "all child moveset" in move_data["Property"]:
-                                    parent_move_list = [row3[header2.index("Move")] for row3 in rd2 if
-                                                        row3[header2.index("Position")] == move_data["Position"]][1:]
-                                if row2[header2.index("Requirement Move")] or "all child moveset" in move_data[
-                                    "Property"]:
-                                    found = None
-                                    for parent_move in parent_move_list:
-                                        done_check = [False]
-                                        already_check = []
-                                        final_parent_moveset(moveset_dict[row2[header2.index("Position")]],
-                                                             row2[0], move_data, parent_move, done_check,
-                                                             already_check)
-                                        if False in done_check:
-                                            if found:
-                                                remain_next_move_loop.append(
-                                                    (moveset_dict[row2[header2.index("Position")]],
-                                                     row2[0], found, parent_move))
-                                            else:
-                                                remain_next_move_loop.append(
-                                                    (moveset_dict[row2[header2.index("Position")]],
-                                                     row2[0], move_data, parent_move))
-                                        else:
-                                            found = done_check[0]
-
-                                if "summon" in move_data["Property"]:
-                                    if type(move_data["Property"]["summon"]) is str:
-                                        summon_list.append(move_data["Property"]["summon"])
-                                    else:
-                                        summon_list += move_data["Property"]["summon"]
-
-                            for item in remain_next_move_loop:
-                                # one last try to find parent in case it order in data is lower
-                                done_check = ["test"]
-                                already_check = []
-                                final_parent_moveset(item[0], item[1], item[2], item[3], done_check, already_check)
-
-                            self.character_list[row[0]]["Move"] = moveset_dict
-                            self.character_list[row[0]]["Move Original"] = {}
-
-                            for row2 in rd2[1:]:
-                                if row2[header2.index("Position")] not in self.character_list[row[0]]["Move Original"]:
-                                    self.character_list[row[0]]["Move Original"][row2[header2.index("Position")]] = {}
-                                self.character_list[row[0]]["Move Original"][row2[header2.index("Position")]][row2[1]] = \
-                                    {header2[index]: stuff for index, stuff in enumerate(row2)}
-                            edit_file2.close()
-
-                    self.character_list[row[0]]["Skill"] = {}
-                    if os.path.exists(
-                            os.path.join(self.data_dir, "character", folder_list[file_index], row[0], "skill.csv")):
-                        # Add character skill data
-                        with open(
-                                os.path.join(self.data_dir, "character", folder_list[file_index], row[0], "skill.csv"),
-                                encoding="utf-8", mode="r") as edit_file2:
-                            rd = tuple(csv.reader(edit_file2, quoting=csv.QUOTE_ALL))
-                            header2 = rd[0]
-                            tuple_column = (
-                                "Buttons", "Requirement Move", "Status", "Enemy Status")  # value in tuple only
-                            dict_column = ("Prepare Animation", "After Animation", "AI Condition", "Property",)
-                            tuple_column = [index for index, item in enumerate(header2) if item in tuple_column]
-                            dict_column = [index for index, item in enumerate(header2) if item in dict_column]
-                            moveset_dict = {}
-                            moveset_ui_dict = {}
-                            for index2, row2 in enumerate(rd[1:]):
-                                for n2, i2 in enumerate(row2):
-                                    row2 = stat_convert(row2, n2, i2, tuple_column=tuple_column,
-                                                        dict_column=dict_column)
-                                move_data = {header2[index + 1]: stuff for index, stuff in enumerate(row2[1:])}
-                                if row2[header2.index("Position")] not in moveset_dict:
-                                    # keep moveset in each position dict for easier access
-                                    moveset_dict[row2[header2.index("Position")]] = {}
-                                moveset_dict[row2[header2.index("Position")]][row2[0]] = move_data
-                                moveset_ui_dict[row2[0]] = move_data
-                                if "summon" in move_data["Property"]:
-                                    if type(move_data["Property"]["summon"]) is str:
-                                        summon_list.append(move_data["Property"]["summon"])
-                                    else:
-                                        summon_list += move_data["Property"]["summon"]
-                            self.character_list[row[0]]["Skill"] = moveset_dict
-                            self.character_list[row[0]]["Skill UI"] = moveset_ui_dict
-                            self.character_list[row[0]]["Summon List"] = tuple(
-                                self.character_list[row[0]]["Summon List"] + summon_list)
-                        edit_file2.close()
-
-                    # Add character mode data
-                    self.character_list[row[0]]["Mode"] = {"Normal": default_mode["Normal"],
-                                                           "City": default_mode["Normal"]}
-                    if os.path.exists(
-                            os.path.join(self.data_dir, "character", folder_list[file_index], row[0], "mode.csv")):
-                        with open(os.path.join(self.data_dir, "character", folder_list[file_index], row[0], "mode.csv"),
-                                  encoding="utf-8", mode="r") as edit_file2:
-                            rd2 = tuple(csv.reader(edit_file2, quoting=csv.QUOTE_ALL))
-                            header2 = rd2[0]
-                            for row_index2, row2 in enumerate(rd2[1:]):
-                                self.character_list[row[0]]["Mode"][row2[0]] = {header2[index + 1]: stuff for
-                                                                                index, stuff in enumerate(row2[1:])}
-                edit_file.close()
-
-        self.character_portraits = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                               subfolder=("character", "portrait"),
-                                               key_file_name_readable=True)
-
-        # Drop item
-        self.drop_item_list = {}
-        with open(os.path.join(self.data_dir, "character", "drop.csv"),
+        with open(os.path.join(self.data_dir, "character", "character.csv"),
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
-            tuple_column = ("Status", "Property")  # value in tuple only
-            tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
-            for index, row in enumerate(rd[1:]):
-                for n, i in enumerate(row):
-                    row = stat_convert(row, n, i, tuple_column=tuple_column)
-                self.drop_item_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
-        edit_file.close()
-
-        # Equip Item
-        self.equip_item_list = {}
-        with open(os.path.join(self.data_dir, "character", "item.csv"),
-                  encoding="utf-8", mode="r") as edit_file:
-            rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
-            header = rd[0]
-            tuple_column = ("Status", "Enemy Status", "Property")  # value in tuple only
-            tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
-            for index, row in enumerate(rd[1:]):
-                for n, i in enumerate(row):
-                    row = stat_convert(row, n, i, tuple_column=tuple_column)
-                self.equip_item_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
-        edit_file.close()
-
-        self.gear_list = {}
-        with open(os.path.join(self.data_dir, "character", "gear.csv"),
-                  encoding="utf-8", mode="r") as edit_file:
-            rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
-            header = rd[0]
-            dict_column = ("Modifier",)  # value in tuple only
+            dict_column = ("Followers", "Spawns", "Items", "Property", "Sub Characters",)
             dict_column = [index for index, item in enumerate(header) if item in dict_column]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
                     row = stat_convert(row, n, i, dict_column=dict_column)
-                self.gear_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
-        edit_file.close()
+                self.character_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
+                self.character_list[row[0]]["Move"] = {}
+                self.character_list[row[0]]["Summon List"] = ()
+                self.character_list[row[0]]["ai_min_attack_range"] = infinity
+                self.character_list[row[0]]["ai_max_attack_range"] = 0
+                self.character_list[row[0]]["ai_min_effect_range"] = infinity
+                self.character_list[row[0]]["ai_max_effect_range"] = 0
+                self.character_list[row[0]]["max_enemy_range_check"] = 0
+                if "Spawns" in header:
+                    self.character_list[row[0]]["Summon List"] = tuple(row[header.index("Spawns")].keys())
 
-        self.shop_list = self.equip_item_list | self.gear_list
+                summon_list = []
+                # Add character move data
+                if os.path.exists(
+                        os.path.join(self.data_dir, "character", "moveset", str(row[0]) + ".csv")):
+                    with open(os.path.join(self.data_dir, "character", "moveset", str(row[0]) + ".csv"),
+                              encoding="utf-8", mode="r") as edit_file2:
+                        rd2 = tuple(csv.reader(edit_file2, quoting=csv.QUOTE_ALL))
+                        header2 = rd2[0]
+                        tuple_column2 = ("Status", "Enemy Status")  # value in tuple only
+                        tuple_column2 = [index for index, item in enumerate(header2) if item in tuple_column2]
+                        dict_column2 = ("Prepare Animation", "After Animation", "AI Condition", "Property",)
+                        dict_column2 = [index for index, item in enumerate(header2) if item in dict_column2]
+                        moveset_dict = {}
+                        for row_index2, row2 in enumerate(rd2[1:]):
+                            for n2, i2 in enumerate(row2):
+                                row2 = stat_convert(row2, n2, i2, tuple_column=tuple_column2,
+                                                    dict_column=dict_column2)
 
-        gear_mod_list = {}
-        # use structure as gear type: mod id: "rarity", "weight", "chance"  for easier access
-        self.gear_mod_list = {"weapon": {}, "head": {}, "chest": {}, "arm": {}, "leg": {}, "accessory": {}}
-        with open(os.path.join(self.data_dir, "character", "gear_mod.csv"),
-                  encoding="utf-8", mode="r") as edit_file:
-            rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
-            header = rd[0]
-            tuple_column = ("Standard", "Quality", "Master Work", "Enchanted", "Legendary", "Gear Type")
-            tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
-            for index, row in enumerate(rd[1:]):
-                for n, i in enumerate(row):
-                    row = stat_convert(row, n, i, tuple_column=tuple_column)
-                gear_mod_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
-            for gear_type in self.gear_mod_list:
-                for mod in gear_mod_list:
-                    if gear_type in gear_mod_list[mod]["Gear Type"]:
-                        self.gear_mod_list[gear_type][mod] = gear_mod_list[mod]
+                            move_data = {header2[index]: stuff for index, stuff in enumerate(row2)}
+
+                            moveset_dict[row2[0]] = move_data
+
+                            if "summon" in move_data["Property"]:
+                                if type(move_data["Property"]["summon"]) is str:
+                                    summon_list.append(move_data["Property"]["summon"])
+                                else:
+                                    summon_list += move_data["Property"]["summon"]
+
+                        self.character_list[row[0]]["Move"] = moveset_dict
+
+                        # Find max and min range for AI
+                        for move in moveset_dict.values():
+                            if "no max ai range" not in move["Property"] and self.character_list[row[0]]["ai_min_attack_range"] > move["AI Range"]:
+                                self.character_list[row[0]]["ai_min_attack_range"] = move["AI Range"]
+                            if "no max ai range" not in move["Property"] and self.character_list[row[0]]["ai_max_attack_range"] < move["AI Range"]:
+                                self.character_list[row[0]]["ai_max_attack_range"] = move["AI Range"]
+                            if self.character_list[row[0]]["ai_min_effect_range"] > move["Range"] and (
+                                    move["Status"] or move["Enemy Status"]):
+                                self.character_list[row[0]]["ai_min_effect_range"] = move["Range"]
+                            if self.character_list[row[0]]["ai_max_effect_range"] < move["Range"] and (
+                                    move["Status"] or move["Enemy Status"]):
+                                self.character_list[row[0]]["ai_max_effect_range"] = move["Range"]
+                        self.character_list[row[0]]["max_enemy_range_check"] = self.character_list[row[0]]["ai_max_effect_range"]
+                        if self.character_list[row[0]]["ai_max_attack_range"] > self.character_list[row[0]]["max_enemy_range_check"]:
+                            self.character_list[row[0]]["max_enemy_range_check"] = self.character_list[row[0]]["ai_max_attack_range"]
+
+                    self.character_list[row[0]]["Summon List"] = tuple(summon_list)
+                    edit_file2.close()
         edit_file.close()
 
         # Effect that exist as its own sprite in battle
@@ -352,3 +195,75 @@ def recursive_rearrange_moveset(move_data, already_check):
                 recursive_rearrange_moveset(move_data["Next Move"][move], already_check)
     if move_data["Move"] not in already_check:
         already_check.append(move_data["Move"])
+
+
+def create_status_apply_function_dict(status_list):
+    status_apply_funcs = {}
+    for status_name, data in status_list.items():
+        k = status_name
+        func_code = f'''
+def {status_name}(self):'''
+
+        if data["Offence Modifier"] != 1:
+            func_code += f'''
+    self.offence *= {data["Offence Modifier"]}'''
+
+        if data["Defence Modifier"] != 1:
+            func_code += f'''
+    self.defence *= {data["Defence Modifier"]}'''
+
+        if data["Speed Modifier"] != 1:
+            func_code += f'''
+    self.speed *= {data["Speed Modifier"]}'''
+
+        if data["HP Regeneration Bonus"]:
+            func_code += f'''
+    self.health_regen += {data["HP Regeneration Bonus"]}'''
+
+        if data["Resource Regeneration Bonus"]:
+            func_code += f'''
+    self.resource_regen += {data["Resource Regeneration Bonus"]}'''
+
+        if data["Animation Time Modifier"] != 1:
+            func_code += f'''
+    self.animation_play_time *= {data["Animation Time Modifier"]}'''
+
+        # element resistant
+        if data["Physical Resistance Bonus"]:
+            func_code += f'''
+    self.element_resistance["Physical"] += {data["Physical Resistance Bonus"]}'''
+
+        if data["Fire Resistance Bonus"]:
+            func_code += f'''
+    self.element_resistance["Fire"] += {data["Fire Resistance Bonus"]}'''
+
+        if data["Water Resistance Bonus"]:
+            func_code += f'''
+    self.element_resistance["Water"] += {data["Water Resistance Bonus"]}'''
+
+        if data["Air Resistance Bonus"]:
+            func_code += f'''
+    self.element_resistance["Air"] += {data["Air Resistance Bonus"]}'''
+
+        if data["Earth Resistance Bonus"]:
+            func_code += f'''
+    self.element_resistance["Earth"] += {data["Earth Resistance Bonus"]}'''
+
+        if data["Magic Resistance Bonus"]:
+            func_code += f'''
+    self.element_resistance["Magic"] += {data["Magic Resistance Bonus"]}'''
+
+        if data["Poison Resistance Bonus"]:
+            func_code += f'''
+    self.element_resistance["Poison"] += {data["Poison Resistance Bonus"]}'''
+
+        for status_property, value in data["Property"].items():
+            func_code += f'''
+    self.{status_property} = {value}'''
+
+        func_code += f'''
+    return'''
+        func_code += f'''
+status_apply_funcs["{k}"] = {status_name}'''
+        exec(func_code)
+    return status_apply_funcs

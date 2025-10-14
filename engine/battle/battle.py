@@ -1,169 +1,120 @@
 import sys
 import time
 from copy import deepcopy
-from math import sin, cos, radians
 from os import path
 from random import choice, randint
 
 import pygame
-from pygame import Vector2, display, mouse, sprite, Surface, JOYDEVICEADDED, JOYDEVICEREMOVED
+from pygame import Vector2, display, sprite, Surface, SRCALPHA
 from pygame.locals import *
 from pygame.mixer import Sound, Channel
 
 from engine.camera.camera import Camera
 from engine.character.character import Character
 from engine.drama.drama import TextDrama
-from engine.drop.drop import Drop
-from engine.effect.effect import Effect
-from engine.stage.stage import Stage
+from engine.effect.effect import DamageEffect, Effect
+from engine.scene.scene import Scene
 from engine.stageobject.stageobject import StageObject
-from engine.uibattle.uibattle import FPSCount, BattleCursor, YesNo, CharacterSpeechBox, CharacterInteractPrompt, \
-    CourtBook, CityMap, CityMission, ScreenFade, WheelUI
-from engine.uimenu.uimenu import TextPopup, CharacterInterface
-from engine.utils.common import clean_object, clean_group_object
-from engine.utils.data_loading import load_image, load_images, prepare_animation_sprite
-from engine.utils.text_making import number_to_minus_or_plus
+from engine.uibattle.uibattle import (FPSCount, BattleHelper, BattleCursor, YesNo, CharacterSpeechBox,
+                                      PlayerSelectCharacterBand, CharacterInteractPrompt,
+                                      Command, TacticalMap, StrategySelect, ScreenFade, WheelUI)
+from engine.uimenu.uimenu import TextPopup
+
+from engine.game.activate_input_popup import activate_input_popup
+from engine.battle.add_sound_effect_queue import add_sound_effect_queue
+from engine.battle.check_event import check_event
+from engine.battle.cal_shake_value import cal_shake_value
+from engine.battle.call_in_air_group import call_in_air_group
+from engine.battle.change_game_state import change_game_state
+from engine.game.change_pause_update import change_pause_update
+from engine.battle.drama_process import drama_process
+from engine.battle.end_cutscene_event import end_cutscene_event
+from engine.battle.escmenu_process import escmenu_process, back_to_battle_state
+from engine.battle.fix_camera import fix_camera
+from engine.battle.make_esc_menu import make_esc_menu
+from engine.battle.player_input_battle import player_input_battle
+from engine.battle.player_input_cutscene import player_input_cutscene
+from engine.battle.play_sound_effect import play_sound_effect
+from engine.battle.setup_team_characters import setup_team_characters
+from engine.battle.state_battle_process import state_battle_process
+from engine.battle.state_menu_process import state_menu_process
+from engine.battle.shake_camera import shake_camera
+from engine.battle.event_process import event_process
+from engine.lorebook.lorebook import lorebook_process
+
+from engine.constants import *
+from engine.utils.common import clean_group_object
+from engine.utils.data_loading import load_image, load_images, filename_convert_readable as fcv
 from engine.weather.weather import Weather
 
 script_dir = path.split(path.abspath(__file__))[0] + "/"
 
 decision_route = {"yes": "a", "no": "b"}
+team_list = range(4)
 inf = float("inf")
 
 
 def set_start_load(self, what):  # For output asset loading time in terminal
-    globals()['load_timer'] = time.time()
+    globals()["load_timer"] = time.time()
     self.game.loading_screen("Loading " + what)  # change loading screen to display progress
     return "Loading {0}... ".format(what)
 
 
 def set_done_load():
-    duration = time.time() - globals()['load_timer']
+    duration = time.time() - globals()["load_timer"]
     return " DONE ({0}s)\n".format(duration)
 
 
 class Battle:
-    from engine.game.activate_input_popup import activate_input_popup
     activate_input_popup = activate_input_popup
-
-    from engine.battle.add_sound_effect_queue import add_sound_effect_queue
     add_sound_effect_queue = add_sound_effect_queue
-
-    from engine.battle.check_event import check_event
     check_event = check_event
-
-    from engine.battle.cal_civil_war import cal_civil_war
-    cal_civil_war = cal_civil_war
-
-    from engine.battle.cal_shake_value import cal_shake_value
     cal_shake_value = cal_shake_value
-
-    from engine.battle.camera_process import camera_process
-    camera_process = camera_process
-
-    from engine.battle.change_game_state import change_game_state
+    call_in_air_group = call_in_air_group
     change_game_state = change_game_state
-
-    from engine.game.change_pause_update import change_pause_update
     change_pause_update = change_pause_update
-
-    from engine.battle.common_process import common_process
-    common_process = common_process
-
-    from engine.battle.cutscene_player_input import cutscene_player_input
-    cutscene_player_input = cutscene_player_input
-
-    from engine.battle.drama_process import drama_process
     drama_process = drama_process
-
-    from engine.battle.end_cutscene_event import end_cutscene_event
     end_cutscene_event = end_cutscene_event
-
-    from engine.battle.escmenu_process import escmenu_process, back_to_battle_state
     back_to_battle_state = back_to_battle_state
     escmenu_process = escmenu_process
-
-    from engine.battle.fix_camera import fix_camera
     fix_camera = fix_camera
-
-    from engine.battle.increase_team_score import increase_team_score
-    increase_team_score = increase_team_score
-
-    from engine.battle.make_battle_ui import make_battle_ui
-    make_battle_ui = make_battle_ui
-
-    from engine.battle.make_esc_menu import make_esc_menu
     make_esc_menu = make_esc_menu
-
-    from engine.battle.play_sound_effect import play_sound_effect
+    player_input_battle = player_input_battle
+    player_input_cutscene = player_input_cutscene
     play_sound_effect = play_sound_effect
-
-    from engine.battle.spawn_character import spawn_character
-    spawn_character = spawn_character
-
-    from engine.battle.spawn_weather_matter import spawn_weather_matter
-    spawn_weather_matter = spawn_weather_matter
-
-    from engine.battle.state_battle_process import state_battle_process
+    setup_team_characters = setup_team_characters
     state_battle_process = state_battle_process
     state_process = state_battle_process
-
-    from engine.battle.state_court_process import state_court_process
-    state_court_process = state_court_process
-
-    from engine.battle.state_map_process import state_map_process
-    state_map_process = state_map_process
-
-    from engine.battle.state_menu_process import state_menu_process
     state_menu_process = state_menu_process
-
-    from engine.battle.state_reward_process import state_reward_process
-    state_reward_process = state_reward_process
-
-    from engine.battle.state_shop_process import state_shop_process
-    state_shop_process = state_shop_process
-
-    from engine.battle.shake_camera import shake_camera
     shake_camera = shake_camera
-
-    from engine.battle.event_process import event_process
     event_process = event_process
-
-    from engine.lorebook.lorebook import lorebook_process
     lorebook_process = lorebook_process
 
     battle = None
+    battle_cursor = None
     camera = None
     ui_updater = None
     ui_drawer = None
     screen = None
-    battle_camera_size = None
-    battle_camera_min = None
-    battle_camera_max = None
-    start_camera_mode = "Follow"
+    camera_size = None
+    camera_max = None
+    start_camera_mode = "Free"
 
-    base_fall_gravity = 900
-
-    process_list = {"battle": state_battle_process, "menu": state_menu_process, "map": state_map_process,
-                    "court": state_court_process,
-                    "reward": state_reward_process, "shop": state_shop_process, "enchant": state_shop_process}
+    process_list = {"battle": state_battle_process, "menu": state_menu_process}
 
     def __init__(self, game):
         self.game = game
         Battle.battle = self
-
-        # TODO LIST for full chapter 1
-        # add skill/moveset unlockable for enemy (charisma)
-        # add enemy trap with delay and cycle
-        # add one more playable char
-        # add online/lan multiplayer?
-        #  mission select, side mission, feast system
-        # add ranking record system
-        # add pvp mode, follower recruit unlock with all save story progress
-        # add sound type to skill/move for collide and damage sound check
-        # find way to increase speech text size
-        # add no hit for stoppable frame in action property
+        # TODO LIST
+        # add commander strategy, false command function
+        # main camp
+        # finish Rodhinbar
+        # dead general remain in topleft ui removal,
+        # add indicator for player command when click and selected generals
+        # add enemy command AI, skirmish behaviour ai for ranged char/leader/group, camp/commander
+        # add back hold function, for spear pike and stuff
         # finish main menu
+        # blit culling, add remove char every update with battle. same stat (char_id, animation, pos) check, size/base_pos check?
 
         self.clock = pygame.time.Clock()  # Game clock to keep track of realtime pass
 
@@ -175,55 +126,58 @@ class Battle:
         self.play_music_volume = game.play_music_volume
         self.play_effect_volume = game.play_effect_volume
         self.play_voice_volume = game.play_voice_volume
-        self.joystick_bind_name = game.joystick_bind_name
-        self.player_key_control = {player: self.config["USER"]["control player " + str(player)] for player in
-                                   game.player_list}
-        self.player_key_bind = {player: self.game.player_key_bind_list[player][self.player_key_control[player]] for
-                                player in game.player_list}
-        self.player_key_bind_name = {player: {value: key for key, value in self.player_key_bind[player].items()} for
-                                     player in game.player_list}
-        self.player_key_press = {player: {key: False for key in self.player_key_bind[player]} for player in
-                                 game.player_list}
-        self.player_key_hold = {player: {key: False for key in self.player_key_bind[player]} for player in
-                                game.player_list}
-        self.player_joystick = self.game.player_joystick
-        self.joystick_player = self.game.joystick_player
+        self.player_key_bind = self.game.player_key_bind_list
+        self.player_key_bind_name = {value: key for key, value in self.player_key_bind.items()}
+        self.player_key_press = {key: False for key in self.player_key_bind}
+        self.player_key_hold = {key: False for key in self.player_key_bind}
         self.screen_rect = game.screen_rect
         self.screen_width = self.screen_rect.width
         self.screen_height = self.screen_rect.height
         self.corner_screen_width = game.corner_screen_width
         self.corner_screen_height = game.corner_screen_height
 
-        Battle.battle_camera_size = (self.screen_width, self.screen_height)
-        Battle.battle_camera_min = (self.screen_width, 0)
-        Battle.battle_camera_max = (self.screen_width - 1, self.screen_height - 1)
-        self.battle_camera_center = (self.battle_camera_size[0] / 2, self.battle_camera_size[1] / 2)
+        Battle.camera_size = (self.screen_width, self.screen_height)
+        Battle.camera_max = (self.screen_width - 1, self.screen_height - 1)
+        self.camera_center_x = self.camera_size[0] / 2
+        self.camera_center_y = self.camera_size[1] / 2
 
         self.main_dir = game.main_dir
         self.data_dir = game.data_dir
         self.screen_scale = game.screen_scale
-        self.battle_camera = game.battle_camera
+        self.battle_cameras = game.battle_cameras
         Battle.ui_updater = game.battle_ui_updater
         Battle.ui_drawer = game.battle_ui_drawer
-        Battle.cursor_drawer = game.battle_cursor_drawer
 
         self.character_updater = game.character_updater
-        self.all_chars = game.all_chars
+        self.all_characters = game.all_characters
         self.speech_boxes = game.speech_boxes
         self.all_damage_effects = game.all_damage_effects
+        self.player_general_indicators = game.player_general_indicators
         self.stage_objects = game.stage_objects
         self.effect_updater = game.effect_updater
-        self.realtime_ui_updater = game.realtime_ui_updater
+        self.battle_outer_ui_updater = game.battle_outer_ui_updater
 
         self.cursor = game.cursor
-        self.joysticks = game.joysticks
-        self.joystick_name = game.joystick_name
 
         self.button_ui = game.button_ui
 
+        # Music and sound player
+        self.current_music = None
+        self.music_left = Channel(0)
+        self.music_left.set_volume(self.play_music_volume, 0)
+        self.music_right = Channel(1)
+        self.music_right.set_volume(0, self.play_music_volume)
+        self.current_ambient = None
+        self.ambient = Channel(2)
+        self.ambient.set_volume(self.play_effect_volume)
+        self.weather_ambient = Channel(3)
+        self.weather_ambient.set_volume(self.play_effect_volume)
+
+        self.battle_sound_channel = tuple([Channel(ch_num) for ch_num in range(1000)])
+
         # Text popup
         self.text_popup = TextPopup()
-        self.stage_translation_text_popup = TextPopup()  # popup box for text that translate background script
+        self.scene_translation_text_popup = TextPopup()  # popup box for text that translate background script
 
         self.input_box = game.input_box
         self.input_ui = game.input_ui
@@ -234,16 +188,15 @@ class Battle:
         self.all_input_ui_popup = game.all_input_ui_popup
 
         self.weather_matters = game.weather_matters
-        self.weather_effect = game.weather_effect
 
-        self.lorebook = game.lorebook
-        self.lore_name_list = game.lore_name_list
-        self.filter_tag_list = game.filter_tag_list
-        self.lore_buttons = game.lore_buttons
-        self.subsection_name = game.subsection_name
-        self.tag_filter_name = game.tag_filter_name
+        # self.lorebook = game.lorebook
+        # self.lore_name_list = game.lore_name_list
+        # self.filter_tag_list = game.filter_tag_list
+        # self.lore_buttons = game.lore_buttons
+        # self.subsection_name = game.subsection_name
+        # self.tag_filter_name = game.tag_filter_name
 
-        self.lorebook_stuff = game.lorebook_stuff
+        # self.lorebook_stuff = game.lorebook_stuff
 
         self.music_pool = game.music_pool
         self.sound_effect_pool = game.sound_effect_pool
@@ -261,59 +214,45 @@ class Battle:
         self.weather_data = self.battle_map_data.weather_data
         self.weather_matter_images = self.battle_map_data.weather_matter_images
         self.weather_list = self.battle_map_data.weather_list
-        self.char_sprite_chapter = self.game.char_sprite_chapter
+        Weather.weather_data = self.weather_data
+        Weather.weather_matter_images = self.weather_matter_images
+        self.animation_data = self.game.sprite_data
         self.character_animation_data = self.game.character_animation_data
-        self.body_sprite_pool = self.game.body_sprite_pool
-        self.default_body_sprite_pool = self.game.default_body_sprite_pool
-        self.default_effect_animation_pool = self.game.default_effect_animation_pool
-        self.part_sprite_adjust = self.game.part_sprite_adjust
+        self.character_portraits = self.game.character_portraits
         self.effect_animation_pool = self.game.effect_animation_pool
+        self.item_sprite_pool = self.game.item_sprite_pool
+        self.battle_item_sprite_pool = self.game.battle_item_sprite_pool
         self.language = self.game.language
         self.localisation = self.game.localisation
         self.save_data = game.save_data
-        self.main_story_profile = {}
-        self.all_story_profiles = {1: None, 2: None, 3: None, 4: None}
-        self.player_char_interfaces = game.player_char_interfaces
+        self.main_story_profile = self.game.save_data.save_profile
 
         self.game_speed = 1
-        self.all_team_character = {0: sprite.Group(), 1: sprite.Group(), 2: sprite.Group(),
-                                   3: sprite.Group(), 4: sprite.Group(), 5: sprite.Group(), 6: sprite.Group()}
-        self.all_team_enemy = {0: sprite.Group(), 1: sprite.Group(), 2: sprite.Group(),
-                               3: sprite.Group(), 4: sprite.Group(), 5: sprite.Group(),
-                               6: sprite.Group()}  # for AI combo check
-        self.all_team_enemy_check = {0: sprite.Group(), 1: sprite.Group(), 2: sprite.Group(),
-                                     3: sprite.Group(), 4: sprite.Group(), 5: sprite.Group(),
-                                     6: sprite.Group()}  # for victory check
-        self.all_team_enemy_part = {0: sprite.Group(), 1: sprite.Group(), 2: sprite.Group(),
-                                    3: sprite.Group(), 4: sprite.Group(), 5: sprite.Group(), 6: sprite.Group()}
-        self.all_team_drop = {0: sprite.Group(), 1: sprite.Group(), 2: sprite.Group(),
-                              3: sprite.Group(), 4: sprite.Group(), 5: sprite.Group(), 6: sprite.Group()}
-        self.player_damage = {1: 0, 2: 0, 3: 0, 4: 0}
-        self.player_kill = {1: 0, 2: 0, 3: 0, 4: 0}
-        self.player_boss_kill = {1: 0, 2: 0, 3: 0, 4: 0}
-        self.play_time = 0
-        self.stage_gold = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
-        self.stage_score = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
-        self.last_resurrect_stage_score = {1: 5000, 2: 5000, 3: 5000, 4: 5000, 5: 5000, 6: 5000}
-        self.reserve_resurrect_stage_score = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0}
+        self.all_team_general = {index: sprite.Group() for index in team_list}
+        self.all_team_ally = {index: sprite.Group() for index in team_list}
+        self.all_team_enemy_check = {index: sprite.Group() for index in team_list}  # for victory check
 
-        self.players = {}  # player
-        self.player_objects = {}
-        self.player_team = {}
-        self.players_control_input = {1: None, 2: None, 3: None, 4: None}
-        self.existing_playable_characters = []
+        self.all_team_ground_enemy_collision_grids = {index: {} for index in team_list}
+        self.all_team_air_enemy_collision_grids = {index: {} for index in team_list}
+        self.last_grid = None
+
+        self.player_input = self.player_input_battle
+        self.player_damage = 0
+        self.player_kill = 0
+        self.battle_scale = []
+        self.play_time = 0
+        self.battle_time = 0.0
+        self.team_stat = {team: {"strategy_resource": 0, "start_pos": 0, "air_group": [], "strategy": {}} for
+                          team in team_list}
+        self.player_control_generals = []  # for command ui
+        self.player_selected_generals = []  # for player order input
+        self.player_selected_strategy = None
+
         self.later_enemy = {}
-        self.city_mode = False
         self.game_state = "battle"
         self.esc_menu_mode = "menu"
 
-        self.helper = None  # helper character that can be moved via cursor
-        self.score_board = None
-
-        self.chapter = None
         self.mission = None
-        self.stage = None
-        self.scene = None
 
         self.best_depth = display.mode_ok(self.screen_rect.size, self.game.window_style,
                                           32)  # Set the display mode
@@ -321,48 +260,49 @@ class Battle:
                                          self.best_depth)  # set up self screen
 
         # Assign battle variable to some classes
+        Character.collision_grid_width = self.screen_width / Collision_Grid_Per_Scene  # collision grid width based on screen scale
         Character.sound_effect_pool = self.sound_effect_pool
+        DamageEffect.collision_grid_width = self.screen_width / Collision_Grid_Per_Scene
         Effect.sound_effect_pool = self.sound_effect_pool
 
         # Create battle ui
-        cursor_images = load_images(self.data_dir, subfolder=("ui", "cursor_battle"))  # no need to scale cursor
-        self.main_player_battle_cursor = BattleCursor(cursor_images, self.player_key_control[1])
-        self.current_cursor = self.main_player_battle_cursor
-
-        self.fps_count = FPSCount(self)  # FPS number counter
-        if self.game.show_fps:
-            self.realtime_ui_updater.add(self.fps_count)
+        Battle.battle_cursor = BattleCursor(load_images(self.data_dir,
+                                                        subfolder=("ui", "cursor_battle")))  # no need to scale cursor
 
         battle_ui_images = self.game.battle_ui_images
         CharacterSpeechBox.images = battle_ui_images
 
+        self.command_ui = Command()
+        self.player_character_select_band = PlayerSelectCharacterBand()
+        self.tactical_map_ui = TacticalMap(battle_ui_images["tactical_selected"],
+                                           battle_ui_images["tactical_commander_selected"])
+        # self.strategy_select_ui = StrategySelect(self.command_ui.rect.bottomleft, self.animation_data.strategy_icons)
+
+        self.battle_timer_ui = BattleHelper(self.game.weather_icon_images, battle_ui_images["time_select"],
+                                            battle_ui_images["time_selector"])
+        self.battle_outer_ui_updater.add(self.command_ui, self.tactical_map_ui,
+                                         self.battle_timer_ui, self.player_character_select_band)
+
         self.screen_fade = ScreenFade()
         self.speech_prompt = CharacterInteractPrompt(battle_ui_images["button_weak"])
-        self.court_book = CourtBook(load_images(self.data_dir, screen_scale=self.screen_scale,
-                                                subfolder=("ui", "court_ui"), key_file_name_readable=True))
-        self.city_map = CityMap(load_images(self.data_dir, screen_scale=self.screen_scale,
-                                            subfolder=("ui", "map_select_ui")))
-        self.city_mission = CityMission(load_images(self.data_dir, screen_scale=self.screen_scale,
-                                                    subfolder=("ui", "mission_select_ui")))
 
-        battle_ui_dict = self.make_battle_ui(battle_ui_images)
+        self.player_wheel_ui = WheelUI(battle_ui_images, self.command_ui.rect.midbottom)
 
         self.decision_select = YesNo(battle_ui_images)
 
-        self.player_portraits = battle_ui_dict["player_portraits"]
-        self.player_wheel_uis = battle_ui_dict["player_wheel_uis"]
-        self.player_trainings = battle_ui_dict["player_trainings"]
-
-        self.current_weather = Weather(1, 0, 0, None)
+        self.current_weather = Weather(1, 0, 0)
 
         TextDrama.images = load_images(self.data_dir, screen_scale=self.screen_scale,
                                        subfolder=("ui", "popup_ui", "drama_text"))
         self.drama_text = TextDrama(self)  # message at the top of screen that show up for important event
 
+        self.fps_count = FPSCount(self)  # FPS number counter
+        if self.game.show_fps:
+            self.battle_outer_ui_updater.add(self.fps_count)
+
         # Battle ESC menu
         esc_menu_dict = self.make_esc_menu()
 
-        self.player_char_base_interfaces = esc_menu_dict["player_char_base_interfaces"]
         self.battle_menu_button = esc_menu_dict["battle_menu_button"]
         self.esc_option_menu_button = esc_menu_dict["esc_option_menu_button"]
         self.esc_slider_menu = esc_menu_dict["esc_slider_menu"]
@@ -372,347 +312,245 @@ class Battle:
         self.esc_dialogue_button = esc_menu_dict["esc_dialogue_button"]
 
         # Create the game camera
-        self.main_player = 1  # TODO need to add recheck later for when resurrect count run out
-        self.main_player_object = None
         self.camera_mode = "Follow"  # mode of game camera, follow player character or free observation
-        self.camera_pos = Vector2(500, 500)  # camera pos on stage
-        self.base_camera_begin = (self.camera_pos[0] - self.battle_camera_center[0]) / self.screen_scale[0]
-        self.base_camera_end = (self.camera_pos[0] + self.battle_camera_center[0]) / self.screen_scale[0]
+        self.camera_pos = Vector2(500, 500)  # camera pos on scene
+        self.camera_left = (self.camera_pos[0] - self.camera_center_x)
+        self.base_camera_left = (self.camera_pos[0] - self.camera_center_x) / self.screen_scale[0]
 
         self.shown_camera_pos = self.camera_pos  # pos of camera shown to player, in case of screen shaking or other effects
 
         self.clock_time = 0
         self.true_dt = 0
         self.dt = 0  # Realtime used for time calculation
-        self.ui_dt = 0  # Realtime used for ui timer
         self.screen_shake_value = 0  # count for how long to shake camera
 
         self.ui_timer = 0  # This is timer for ui update function, use realtime
         self.drama_timer = 0  # This is timer for combat related function, use self time (realtime * game_speed)
-        self.weather_spawn_timer = 0
 
-        Battle.camera = Camera(self.screen, self.battle_camera_size)
+        Battle.camera = Camera(self.screen, self.camera_size)
+        self.camera_w_center = self.camera.camera_w_center
+        self.camera_h_center = self.camera.camera_h_center
 
         self.base_cursor_pos = [0, 0]  # mouse pos on the map based on camera position
 
-        self.show_cursor_timer = 0
-
-        # music player
-        self.current_music = None
-        self.music_left = Channel(0)
-        self.music_left.set_volume(self.play_music_volume, 0)
-        self.music_right = Channel(1)
-        self.music_right.set_volume(0, self.play_music_volume)
-        self.current_ambient = None
-        self.ambient = Channel(2)
-        self.ambient.set_volume(self.play_effect_volume)
-        self.weather_ambient = Channel(3)
-        self.weather_ambient.set_volume(self.play_effect_volume)
-
         # Battle map object
-        Stage.image = Surface.subsurface(self.camera.image, (0, 0, self.camera.image.get_width(),
+        Scene.image = Surface.subsurface(self.camera.image, (0, 0, self.camera.image.get_width(),
                                                              self.camera.image.get_height()))
-        Stage.camera_center_y = self.battle_camera_center[1]
-        Stage.battle = self
-        self.back_stage = Stage(0)
-        self.battle_stage = Stage(1)
-        self.front_stage = Stage(inf)
-        self.empty_stage_image = load_image(self.data_dir, self.screen_scale, "empty.png",
-                                            ("map", "stage"))  # no scaling yet
+        Scene.battle = self
+        self.scene = Scene()
 
-        Effect.battle_stage = self.battle_stage
-        Character.battle_stage = self.battle_stage  # add battle map to character class
+        self.empty_scene_image = Surface((self.screen_width, self.screen_height), SRCALPHA)
+
         self.base_stage_start = 0
         self.stage_start = 0
-        self.base_stage_end = 0
         self.stage_end = 0
-        self.execute_cutscene = None
-        self.submit_cutscene = None
+        self.base_stage_end = 0
+
         self.start_cutscene = []
         self.reach_scene_event_list = {}  # cutscene that play when camera reach scene
         self.player_interact_event_list = {}
-        self.base_stage_end_list = {}
-        self.stage_end_list = {}
-        self.end_delay = 0  # delay until stage end and continue to next one
+        self.end_delay = 0  # delay until scene end and continue to next one
         self.spawn_delay_timer = {}
         self.cutscene_in_progress = False
         self.cutscene_finish_camera_delay = 0  # delay before camera can move again after cutscene
-        self.survive_timer = 0
-        self.follower_talk_timer = 0  # timer for follower talk based on their action
-        self.stage_end_choice = False
-        self.stage_scene_lock = {}
-        self.lock_objective = None
-        self.next_lock = None
+        self.ai_battle_speak_timer = 0  # timer for follower talk based on their action
+        self.ai_process_list = []
         self.cutscene_playing = None
-        self.cutscene_playing_data = None
+        self.current_scene = 1
 
-    def prepare_new_stage(self, chapter, mission, stage, players, scene):
-        for message in self.inner_prepare_new_stage(chapter, mission, stage, players, scene):
-            self.game.error_log.write("Start Stage:" + str(chapter) + "." + str(mission) + "." + str(stage))
+    def prepare_new_stage(self, mission, battle_data):
+        for message in self.inner_prepare_new_stage(mission, battle_data):
+            self.game.error_log.write("Start Stage:" + "." + str(mission))
             print(message, end="")
 
-    def inner_prepare_new_stage(self, chapter, mission, stage, players, scene):
-        """Setup stuff when start new stage"""
-        self.chapter = chapter
+    def inner_prepare_new_stage(self, mission, battle_data):
+        """Setup stuff when start new battle"""
         self.mission = mission
-        self.stage = stage
-        self.scene = scene
-
-        self.players = players
-        self.existing_playable_characters = [value["ID"] for value in self.players.values()]
 
         # Stop all sound
-        for sound_ch in range(0, 1000):
-            if Channel(sound_ch).get_busy():
-                Channel(sound_ch).stop()
+        for sound_ch in self.battle_sound_channel:
+            if sound_ch.get_busy():
+                sound_ch.stop()
         self.current_music = None
         self.current_ambient = None
 
-        print("Start loading", self.chapter, self.mission, self.stage, scene)
+        print("Start loading", self.mission)
         self.game.loading_lore_text = self.localisation.grab_text(
             ("load", randint(0, len(self.localisation.text[self.language]["load"]) - 1), "Text"))
 
         yield set_start_load(self, "stage setup")
-        self.current_weather.__init__(1, 0, 0, self.weather_data)
 
-        stage_data = self.game.preset_map_data[chapter][mission][stage]
-        self.city_mode = False
-        if scene:  # city stage with only 1 scene
-            stage_data = stage_data[scene]
-            self.city_mode = True
+        stage_data = self.game.preset_map_data[mission]
+
         stage_object_data = stage_data["data"]
         stage_event_data = deepcopy(stage_data["event"])
+
         loaded_item = []
         later_enemy = {}
-        self.stage_scene_lock = {}
-        self.lock_objective = None
-        self.stage_end_choice = False
-        self.next_lock = None
         self.cutscene_playing = None
-        self.cutscene_playing_data = None
-        self.base_stage_end = 0  # for object pos
-        self.base_stage_start = 0  # for camera pos
-        self.stage_start = self.battle_camera_center[0]
-        self.stage_end = -self.battle_camera_center[0]
-        self.execute_cutscene = None
-        self.submit_cutscene = None
+        self.base_stage_end = 0
+        self.base_stage_start = 0
+        self.stage_start = self.camera_center_x
+        self.stage_end = -self.camera_center_x
         self.decision_select.selected = None
         self.end_delay = 0
         self.start_cutscene = []
         self.reach_scene_event_list = {}
         self.player_interact_event_list = {}
-        self.base_stage_end_list = {}
-        self.stage_end_list = {}
         self.stage_music_pool = {}
         self.speech_prompt.clear()
 
-        self.game.animation_data.load_stage_object_data(chapter)  # this will load data if chapter is different
-        first_lock = None
         for value in stage_object_data.values():
-            if value["Object"] not in loaded_item:  # load image
-                if "stage" in value["Type"]:  # load background stage
-                    image = self.empty_stage_image
-
-                    if path.exists(path.join(self.data_dir, "map", "stage", value["Object"] + ".png")):
-                        image = load_image(self.data_dir, self.screen_scale, value["Object"] + ".png",
-                                           ("map", "stage"))  # no scaling yet
-                    if "front" in value["Type"]:
-                        self.front_stage.images[value["Object"]] = image
-                    elif "back" in value["Type"]:
-                        self.back_stage.images[value["Object"]] = image
-                    else:
-                        self.battle_stage.images[value["Object"]] = image
-
+            if "scene" in value["Type"]:  # assign scene data
+                if value["Object"] not in loaded_item:  # load image
+                    image = self.empty_scene_image
+                    if path.exists(path.join(self.data_dir, "map", "stage", "scene",
+                                             fcv(str(value["Object"]), revert=True) + ".png")):
+                        image = load_image(self.data_dir, self.screen_scale,
+                                           fcv(str(value["Object"]), revert=True) + ".png",
+                                           ("map", "stage", "scene"))
+                    self.scene.images[value["Object"]] = image
                     loaded_item.append(value["Object"])
-
-            if "stage" in value["Type"]:  # assign stage data
-                if "front" in value["Type"]:
-                    self.front_stage.data[value["POS"]] = value["Object"]
-                elif "back" in value["Type"]:
-                    self.back_stage.data[value["POS"]] = value["Object"]
-                else:  # battle stage should have data for all scene
-                    self.battle_stage.data[value["POS"]] = value["Object"]
-                    later_enemy[value["POS"]] = []
-            elif "endchoice" in value["Type"]:
-                self.stage_end_choice = True
-            elif "lock" in value["Type"]:
-                first_lock_pos = value["POS"]
-                lock_pos = value["POS"]
-                if type(first_lock_pos) is str:
-                    lock_pos = tuple(
-                        [int(item) for item in value["POS"].split(",")])  # list of stage lock, get last one
-                    first_lock_pos = lock_pos[-1]  # get last one
-                else:
-                    lock_pos = (lock_pos,)
-                if not first_lock:  # change stage end to first lock
-                    first_lock = True
-                    self.base_stage_end = 1920 * first_lock_pos
-                    self.stage_end = (1920 * self.screen_scale[0] * first_lock_pos) - self.battle_camera_center[0]
-                    self.next_lock = lock_pos
-                self.stage_scene_lock[lock_pos] = value["Object"]
+                self.scene.data[value["POS"]] = value["Object"]
             elif value["Type"] == "object":
                 StageObject(value["Object"], value["POS"])
 
-        if stage_event_data:  # add stage if event has stage change event
-            parent_event_run_check = True
+        if stage_event_data:  # add scene if event has a scene change event
             for value in stage_data["event_data"]:
-                event_run_check = True
-                if value["ID"]:
-                    parent_event_run_check = True
-                    if ("once" in value["Trigger"] and
-                            value["ID"] + self.chapter + self.mission + self.stage in
-                            self.main_story_profile["story event"]):  # parent event
-                        parent_event_run_check = False
-                if ("story choice" in value["Property"] and (
-                        value["Property"]["story choice"] != value["Property"]["story choice"].split("_")[0] + "_" +
-                        self.main_story_profile["story choice"][value["Property"]["story choice"].split("_")[0]])):
-                    event_run_check = False
-                if value["Type"] == "bgchange" and event_run_check and parent_event_run_check:
-                    image = self.empty_stage_image
-                    if "front" in value["Type"]:
-                        images = self.front_stage.images
-                    elif "back" in value["Type"]:
-                        images = self.back_stage.images
-                    else:
-                        images = self.battle_stage.images
+                if value["Type"] == "bgchange":
+                    image = self.empty_scene_image
+
+                    images = self.scene.images
 
                     if value["Object"] not in images:
-                        if path.exists(path.join(self.data_dir, "map", "stage", value["Object"] + ".png")):
-                            image = load_image(self.data_dir, self.screen_scale, value["Object"] + ".png",
-                                               ("map", "stage"))  # no scaling yet
+                        if path.exists(
+                                path.join(self.data_dir, "map", "scene", fcv(value["Object"], revert=True) + ".png")):
+                            image = load_image(self.data_dir, self.screen_scale,
+                                               fcv(value["Object"], revert=True) + ".png",
+                                               ("map", "scene"))  # no scaling yet
                         images[value["Object"]] = image
 
-        base_stage_end = 0
-        stage_end = -self.battle_camera_center[0]
-        stage_bg_data = {key: value for key, value in self.battle_stage.data.items() if key != "event"}
-        for key, value in stage_bg_data.items():
-            base_stage_end += 1920  # 1 scene width size always 1920
-            stage_end += self.battle_stage.images[value].get_width()
-            self.base_stage_end_list[key] = base_stage_end
-            self.stage_end_list[key] = stage_end
-        if not self.base_stage_end:  # no stage end from lock, use last stage end value
-            self.base_stage_end = base_stage_end
-            self.stage_end = stage_end
+        stage_bg_data = {}
+        for key in self.scene.data:
+            if key != "event":
+                stage_bg_data[key] = None
+        stage_len = len(stage_bg_data)
+        self.base_stage_end = stage_len * Default_Screen_Width
+        self.stage_end = self.camera_center_x + ((stage_len - 1) * self.screen_width)
+        self.tactical_map_ui.setup()  # setup tactical map ui to scale with stage size
+
+        self.team_stat = {0: {"start_pos": 0, "air_group": []},
+                          1: {"strategy_resource": 0, "start_pos": 0, "air_group": [], "strategy": {"Test": 0}},
+                          2: {"strategy_resource": 0, "start_pos": self.base_stage_end / 2, "air_group": [], "strategy": {}},
+                          3: {"strategy_resource": 0, "start_pos": self.base_stage_end / 2, "air_group": [], "strategy": {}}}
+
+        self.strategy_select_ui.setup()
+
+        self.last_char_game_id = 0
+        self.spawn_delay_timer = {}
+
+        team_data = {0: {},
+                     1: {"controllable": [{"Leader_bigta":
+                         {"Followers": [
+                             {"Small_rabbit_leader_knight": {"Small_rabbit_spear": 20}},
+                             {"Small_rabbit_leader_banner": {"Small_rabbit_spear": 20}},
+                             {"Small_rabbit_leader_banner": {"Small_rabbit_spear": 20}}],
+                             "Start Health": 1, "Start Resource": 1}},
+                         {"Small_rabbit_leader_knight":
+                             {"Followers": [
+                                 {"Small_rabbit_leader_knight": {"Small_rabbit_spear": 20}},
+                                 {"Small_rabbit_leader_banner": {"Small_rabbit_spear": 20}},
+                                 {"Small_rabbit_leader_banner": {"Small_rabbit_spear": 20}}],
+                                 "Start Health": 1, "Start Resource": 1}},
+                         {"Small_rabbit_leader_banner":
+                             {"Followers": [
+                                 {"Small_rabbit_leader_knight": {"Small_rabbit_spear": 20}},
+                                 {"Small_rabbit_leader_banner": {"Small_rabbit_spear": 20}},
+                                 {"Small_rabbit_leader_banner": {"Small_rabbit_spear": 20}}],
+                                 "Start Health": 1, "Start Resource": 1}}
+                     ],
+                         "uncontrollable": [],
+                         "air": [{"Small_eagle_air_stone": 10}, {"Small_eagle_air_stone": 10}],
+                         "camp": {}},
+                     2: {"controllable": [
+
+                     ],
+                         "uncontrollable": [{"Small_rabbit_tower":
+                             {"Followers": [
+                                 {"Small_rabbit_leader_knight": {"Small_rabbit_spear": 20}}],
+                                 "Start Health": 1, "Start Resource": 1}},
+                             {"Small_rabbit_tower":
+                                 {"Followers": [
+                                     {"Small_rabbit_leader_banner": {"Small_rabbit_sling": 20}}],
+                                     "Start Health": 1, "Start Resource": 1}}
+                         ],
+                         "air": [{"Castle_cat_air_rocket_bomb": 5}, {"Castle_cat_air_rocket_bomb": 5}],
+                         "camp": {}},
+                     3: {}}
+
         yield set_done_load()
 
         yield set_start_load(self, "animation setup")
-        character_list = ([this_char["ID"] for this_char in stage_data["character"] if type(this_char["ID"]) is str] +
-                          [player["ID"] for player in self.players.values()])
-        character_list = [char_id if "+" not in char_id else char_id.split("+")[0] for char_id in set(character_list)]
-        if not self.city_mode:
-            character_list.append("Dashisi")
-            for player in self.players:  # add follower
-                character_list += self.all_story_profiles[player]["follower preset"][
-                    self.all_story_profiles[player]["selected follower preset"]]
-            already_check_char = []
-            while character_list:
-                char_id = character_list[0]
-                character_list.remove(char_id)
-                if char_id not in already_check_char:
-                    already_check_char.append(char_id)
-                    if self.character_data.character_list[char_id]["Summon List"]:
-                        character_list += self.character_data.character_list[char_id]["Summon List"]
-                    item_list = ()
-                    if "Item" in self.character_data.character_list[char_id]:
-                        item_list = self.character_data.character_list[char_id]["Item"]
-                    else:  # player char, check in equipped item in object
-                        for player in self.players:
-                            if self.players[player]["ID"] == char_id:
-                                item_list = [item for item in
-                                             self.all_story_profiles[player]["equipment"]["item"].values() if item]
-                                break
-                    if item_list:
-                        for item in item_list:
-                            for this_property in self.character_data.equip_item_list[item]["Property"]:
-                                if "summon" in this_property:  # item capable of summoning character
-                                    if "chaos" in this_property:  # add all characters that can be chaos invasion summon
-                                        character_list += [character for character in self.character_data.character_list
-                                                           if
-                                                           self.character_data.character_list[character]["Invasion"] and
-                                                           character not in character_list]
-                    character_list = [char_id if "+" not in char_id else char_id.split("+")[0] for char_id in
-                                      set(character_list)]
+        character_list = []
+        for team_value in team_data.values():
+            for key, value in team_value.items():
+                if key != "camp":
+                    for value2 in value:
+                        for character, character_data in value2.items():
+                            character_list.append(character)
+                            if type(character_data) is dict and "Followers" in character_data:
+                                for follower_data in character_data["Followers"]:
+                                    for follower_leader, follower_follower in follower_data.items():
+                                        character_list.append(follower_leader)
+                                        for follower in follower_follower:
+                                            character_list.append(follower)
+        character_list = list(set(character_list))
 
-            character_list = already_check_char
+        already_check_char = []
+        while character_list:
+            char_id = character_list[0]
+            character_list.remove(char_id)
+            if char_id not in already_check_char:
+                already_check_char.append(char_id)
+                if self.character_data.character_list[char_id]["Summon List"]:
+                    character_list += self.character_data.character_list[char_id]["Summon List"]
+                if self.character_data.character_list[char_id]["Sub Characters"]:
+                    character_list += self.character_data.character_list[char_id]["Sub Characters"].keys()
+                character_list = [char_id if "+" not in char_id else char_id.split("+")[0] for char_id in
+                                  set(character_list)]
+
+        character_list = already_check_char
 
         if stage_event_data:  # add character if event has character create event
-            parent_event_run_check = True
             for value in stage_data["event_data"]:
-                event_run_check = True
-                if value["ID"]:
-                    parent_event_run_check = True
-                    if ("once" in value["Trigger"] and
-                            value["ID"] + self.chapter + self.mission + self.stage in
-                            self.main_story_profile["story event"]):  # parent event
-                        parent_event_run_check = False
-                if ("story choice" in value["Property"] and (
-                        value["Property"]["story choice"] != value["Property"]["story choice"].split("_")[0] + "_" +
-                        self.main_story_profile["story choice"][value["Property"]["story choice"].split("_")[0]])):
-                    event_run_check = False
-                if value["Type"] == "create" and event_run_check and parent_event_run_check and value[
-                    "Object"] not in character_list:
+                if value["Type"] == "create" and value["Object"] not in character_list:
                     character_list.append(value["Object"])
 
         character_list = tuple(
             [char_id if "+" not in char_id else char_id.split("+")[0] for char_id in set(character_list)])
 
-        if not self.city_mode:  # only remove unused animation data when start battle not city
-            for key in tuple(self.body_sprite_pool.keys()):
-                if key not in character_list:  # remove unused animation data
-                    self.body_sprite_pool.pop(key)
+        self.animation_data.load_character_animation(character_list, battle_only=True)
 
-        self.game.animation_data.load_data(chapter, character_list)  # this will load data if chapter is different
-        Drop.item_sprite_pool = self.default_body_sprite_pool[int(self.chapter)]["Item"]["special"]
-        WheelUI.item_sprite_pool = self.default_body_sprite_pool[int(self.chapter)]["Item"]["special"]
-        CharacterInterface.item_sprite_pool = self.default_body_sprite_pool[int(self.chapter)]["Item"]["special"]
-
-        for char_id in character_list:
-            for part_type in self.part_sprite_adjust[char_id]:
-                for part_name in self.part_sprite_adjust[char_id][part_type]:
-                    for key in self.part_sprite_adjust[char_id][part_type][part_name]:
-                        if part_type == "effect":
-                            animation_pool = self.effect_animation_pool
-                            sprite_chapter = int(self.chapter)
-                            default_pool = self.default_effect_animation_pool
-                        else:
-                            if self.char_sprite_chapter[char_id] not in self.body_sprite_pool:
-                                self.body_sprite_pool[self.char_sprite_chapter[char_id]] = {}
-                            if part_type not in self.body_sprite_pool[self.char_sprite_chapter[char_id]]:
-                                self.body_sprite_pool[self.char_sprite_chapter[char_id]][part_type] = {}
-                            animation_pool = self.body_sprite_pool[self.char_sprite_chapter[char_id]][part_type]
-                            if part_name not in animation_pool:
-                                animation_pool[part_name] = {}
-                            if key not in animation_pool[part_name]:
-                                animation_pool[part_name][key] = {}
-                            animation_pool = animation_pool[part_name][key]
-                            default_pool = self.default_body_sprite_pool
-                            sprite_chapter = self.char_sprite_chapter[char_id]
-                        prepare_animation_sprite(animation_pool, sprite_chapter, part_type, part_name, key,
-                                                 default_pool, self.part_sprite_adjust[char_id])
+        WheelUI.item_sprite_pool = self.item_sprite_pool
         yield set_done_load()
 
         yield set_start_load(self, "common setup")
         self.camera_mode = self.start_camera_mode
-        if not self.players:
-            self.camera_mode = "Free"
 
-        for this_group in self.all_team_character.values():
-            this_group.empty()
-        for this_group in self.all_team_enemy.values():
-            this_group.empty()
-        for this_group in self.all_team_enemy_check.values():
-            this_group.empty()
-        for this_group in self.all_team_enemy_part.values():
-            this_group.empty()
-
-        self.helper = None
-        self.score_board = None
-
-        self.spawn_delay_timer = {}
-        start_enemy = [item for item in stage_data["character"] if "camera_scene" not in item["Arrive Condition"]]
+        self.clean_character_group()
+        self.all_team_ground_enemy_collision_grids = {index: {} for index in team_list}
+        self.all_team_air_enemy_collision_grids = {index: {} for index in team_list}
+        for key in self.all_team_ground_enemy_collision_grids:
+            for grid in range(int(stage_len * Collision_Grid_Per_Scene)):
+                # divide grid per scene
+                self.all_team_ground_enemy_collision_grids[key][grid] = sprite.Group()
+                self.all_team_air_enemy_collision_grids[key][grid] = sprite.Group()
+        self.last_grid = int(stage_len * Collision_Grid_Per_Scene) - 1
+        # start_character = [item for item in stage_data["character"] if "camera_scene" not in item["Arrive Condition"]]
         self.later_enemy = {scene: [item for item in stage_data["character"] if
                                     "camera_scene" in item["Arrive Condition"] and
                                     item["Scene"] == scene] for scene in later_enemy}
+
         for scene, value in self.later_enemy.items():  # rearrange arrival list based on delay
             new_value = {}
             self.spawn_delay_timer[scene] = 0
@@ -728,103 +566,58 @@ class Battle:
                     new_value[0].append(item)
             self.later_enemy[scene] = new_value
 
-        add_helper = True
-        if self.city_mode:  # city stage not add helper
-            add_helper = False
-        self.last_char_id = 0
-        self.spawn_character(self.players, start_enemy, add_helper=add_helper)
+        self.setup_team_characters(team_data)
 
-        for player in self.player_objects:
-            self.realtime_ui_updater.add(self.player_portraits[player])
-            self.player_portraits[player].add_char_portrait(self.player_objects[player])
-            if self.stage == "training":
-                self.realtime_ui_updater.add(self.player_trainings[player])
-
-        self.main_player_object = self.player_objects[self.main_player]
         if stage_event_data:
             self.stage_music_pool = {key: Sound(self.music_pool[key]) for key in stage_event_data["music"] if
                                      key.lower() not in ("none", "resume", "pause")}
             for trigger, value in stage_event_data.items():
-                if ("once" not in value or tuple(value["once"].keys())[0] + self.chapter + self.mission + self.stage
-                    not in self.main_story_profile["story event"]) and \
-                        ("story choice" not in value or
-                         (value["story choice"] == value["story choice"].split("_")[0] + "_" +
-                          self.main_story_profile["story choice"][value["story choice"].split("_")[0]])):
-                    # event with once condition will not be played again if already play once for the save profile
-                    # also check parent event that depend on story choice
-                    if "char" in trigger:  # trigger depend on character
-                        for key, value2 in value.items():
-                            for this_char in self.all_chars:
-                                if this_char.game_id == key:
-                                    if "in_camera" in trigger:  # reach camera event
-                                        this_char.reach_camera_event = value2
-                                    break
-                    elif "start" in trigger:
+                if "char" in trigger:  # trigger depend on character
+                    for key, value2 in value.items():
+                        for this_char in self.all_characters:
+                            if this_char.game_id == key:
+                                if "in_camera" in trigger:  # reach camera event
+                                    this_char.reach_camera_event = value2
+                                break
+                elif "start" in trigger:
+                    for key, value2 in value.items():
+                        for key3, value3 in value2.items():
+                            if value3[0]["Type"]:  # check only parent event type data
+                                self.start_cutscene = value3
+                elif "camera" in trigger:  # trigger depend on camera reaching something
+                    if "reach_scene" in trigger:
                         for key, value2 in value.items():
                             for key3, value3 in value2.items():
-                                if value3[0]["Type"]:  # check only parent event type data
-                                    self.start_cutscene = value3
-                    elif "interact" in trigger:
-                        for key, value2 in value.items():
-                            char_found = None
-                            for char in self.all_chars:
-                                if char.game_id == key:
-                                    char_found = char
-                                    break
-                            for key3, value3 in value2.items():
-                                if "/Any/" in value3[0]["ID"] or "/" + self.main_player_object.char_id + "/" in \
-                                        value3[0][
-                                            "ID"]:
-                                    # only add event involving the character of first player
-                                    if value3[0]["Type"] == "char":
-                                        # must always have char id as second item in trigger
-                                        if char_found:
-                                            if char_found not in self.player_interact_event_list:
-                                                self.player_interact_event_list[char_found] = []
-                                            self.player_interact_event_list[char_found].append(value3)
-                                    elif value3[0]["Type"] == "pos":  # interact with specific pos
-                                        if key not in self.player_interact_event_list:
-                                            self.player_interact_event_list[key] = []
-                                        self.player_interact_event_list[key].append(value3)
-                    elif "camera" in trigger:  # trigger depend on camera reaching something
-                        if "reach_scene" in trigger:
-                            for key, value2 in value.items():
-                                for key3, value3 in value2.items():
-                                    if key not in self.reach_scene_event_list:
-                                        self.reach_scene_event_list[key] = {}
-                                    if value3[0]["Type"] == "cutscene":  # check only parent event type data
-                                        if "cutscene" not in self.reach_scene_event_list[key]:
-                                            self.reach_scene_event_list[key]["cutscene"] = []
-                                        self.reach_scene_event_list[key]["cutscene"].append(value3)
-                                    elif value3[0]["Type"] == "weather":
-                                        weather_strength = 0
-                                        wind_direction = randint(0, 359)
-                                        if "strength" in value3[0]["Property"]:
-                                            weather_strength = value3[0]["Property"]["strength"]
-                                        if "wind direction" in value3[0]["Property"]:
-                                            wind_direction = value3[0]["Property"]["wind direction"]
-                                        self.reach_scene_event_list[key]["weather"] = (
-                                            value3[0]["Object"], wind_direction, weather_strength)
-                                    elif value3[0]["Type"] == "music":
-                                        if value3[0]["Object"] != "stop":
-                                            self.reach_scene_event_list[key]["music"] = str(value3[0]["Object"])
-                                        else:
-                                            self.reach_scene_event_list[key]["music"] = None
-                                    elif value3[0]["Type"] == "sound":
-                                        if "sound" not in self.reach_scene_event_list[key]:
-                                            self.reach_scene_event_list[key]["sound"] = []
-                                        # sound effect must have sound distance and shake value in property
-                                        self.reach_scene_event_list[key]["sound"].append(
-                                            (choice(self.sound_effect_pool[str(value3[0]["Object"])]),
-                                             value3[0]["Property"]["sound distance"],
-                                             value3[0]["Property"]["shake value"]))
-
-                    elif "execute" in trigger:
-                        for key, value2 in value.items():
-                            self.execute_cutscene = value2
-                    elif "submit" in trigger:
-                        for key, value2 in value.items():
-                            self.submit_cutscene = value2
+                                if key not in self.reach_scene_event_list:
+                                    self.reach_scene_event_list[key] = {}
+                                if value3[0]["Type"] == "cutscene":  # check only parent event type data
+                                    if "cutscene" not in self.reach_scene_event_list[key]:
+                                        self.reach_scene_event_list[key]["cutscene"] = []
+                                    self.reach_scene_event_list[key]["cutscene"].append(value3)
+                                elif value3[0]["Type"] == "weather":
+                                    weather_strength = 0
+                                    wind_direction = randint(0, 359)
+                                    if "strength" in value3[0]["Property"]:
+                                        weather_strength = value3[0]["Property"]["strength"]
+                                    if "wind" in value3[0]["Property"]:
+                                        wind_direction = value3[0]["Property"]["wind"]
+                                    self.reach_scene_event_list[key]["weather"] = (
+                                        value3[0]["Object"], wind_direction, weather_strength)
+                                elif value3[0]["Type"] == "music":
+                                    if value3[0]["Object"] != "stop":
+                                        self.reach_scene_event_list[key]["music"] = str(value3[0]["Object"])
+                                    else:
+                                        self.reach_scene_event_list[key]["music"] = None
+                                elif value3[0]["Type"] == "sound":
+                                    if "sound" not in self.reach_scene_event_list[key]:
+                                        self.reach_scene_event_list[key]["sound"] = []
+                                    # sound effect must have sound distance and shake value in property
+                                    self.reach_scene_event_list[key]["sound"].append(
+                                        (choice(self.sound_effect_pool[str(value3[0]["Object"])]),
+                                         value3[0]["Property"]["sound distance"],
+                                         value3[0]["Property"]["shake value"]))
+        self.fix_camera()
+        self.scene.setup(self.camera_left)
         yield set_done_load()
 
     def run_game(self):
@@ -832,14 +625,9 @@ class Battle:
         self.input_popup = None  # no popup asking for user text input state
         self.drama_text.queue = []  # reset drama text popup queue
 
-        if self.main_story_profile["interface event queue"]["inform"]:
-            for item in self.main_story_profile["interface event queue"]["inform"].copy():
-                self.drama_text.queue.append(item)
-                self.main_story_profile["interface event queue"]["inform"].remove(item)
-
         self.camera_mode = self.start_camera_mode
 
-        self.camera_pos = Vector2(500, self.battle_camera_center[1])
+        self.camera_pos = Vector2(500, self.camera_center_y)
         self.fix_camera()
 
         self.shown_camera_pos = self.camera_pos
@@ -847,50 +635,31 @@ class Battle:
         self.screen_shake_value = 0
         self.cutscene_in_progress = 0
         self.cutscene_finish_camera_delay = 0
-        self.follower_talk_timer = 0
+        self.ai_battle_speak_timer = 0
         self.ui_timer = 0
         self.drama_timer = 0
         self.dt = 0
-        self.ui_dt = 0
-        self.weather_spawn_timer = 0
-        self.show_cursor_timer = 0
-        self.main_player_battle_cursor.shown = True
-        self.player_damage = {1: 0, 2: 0, 3: 0, 4: 0}
-        self.player_kill = {1: 0, 2: 0, 3: 0, 4: 0}
-        self.player_boss_kill = {1: 0, 2: 0, 3: 0, 4: 0}
+        self.battle_cursor.shown = True
+        self.player_damage = 0
+        self.player_kill = 0
+        self.battle_scale = []
         self.play_time = 0
-        self.stage_gold = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
-        self.stage_score = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
-        self.last_resurrect_stage_score = {1: 5000, 2: 5000, 3: 5000, 4: 5000,
-                                           5: 5000}  # start at 5000 to get next resurrect reserve
-        self.reserve_resurrect_stage_score = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
 
         self.base_cursor_pos = [0, 0]  # mouse pos on the map based on camera position
-        mouse.set_pos(Vector2(self.camera_pos[0], 140 * self.screen_scale[1]))  # set cursor to midtop screen
+        # mouse.set_pos(Vector2(self.camera_pos[0], self.screen_scale[1] / 2))  # set cursor to center of screen
 
-        self.player_key_control = {player: self.config["USER"]["control player " + str(player)] for player in
-                                   self.game.player_list}
-        self.player_control_keyboard = {player: True for player in self.player_key_control if
-                                        self.player_key_control[player] == "keyboard"}
-        self.player_key_bind = {player: self.game.player_key_bind_list[player][self.player_key_control[player]] for
-                                player in self.game.player_list}
-        self.player_key_bind_name = {player: {value: key for key, value in self.player_key_bind[player].items()} for
-                                     player in self.game.player_list}
-        self.player_key_press = {player: {key: False for key in self.player_key_bind[player]} for player in
-                                 self.game.player_list}
-        self.player_key_hold = {player: {key: False for key in self.player_key_bind[player]} for player in
-                                self.game.player_list}
-        self.player_joystick = self.game.player_joystick
-        self.joystick_player = self.game.joystick_player
+        self.player_key_bind = self.game.player_key_bind_list
+        self.player_key_bind_name = {value: key for key, value in self.player_key_bind.items()}
+        self.player_key_press = {key: False for key in self.player_key_bind}
+        self.player_key_hold = {key: False for key in self.player_key_bind}
 
         self.screen.fill((0, 0, 0))
-        self.realtime_ui_updater.add(self.main_player_battle_cursor)
+        self.battle_outer_ui_updater.add(self.battle_cursor)
         self.remove_ui_updater(self.cursor)
 
         if self.start_cutscene:
             # play start cutscene
             self.cutscene_playing = deepcopy(self.start_cutscene)
-            self.cutscene_playing_data = self.start_cutscene
             self.start_cutscene = []
 
         frame = 0
@@ -902,81 +671,32 @@ class Battle:
                 frame = 0
 
             key_state = pygame.key.get_pressed()
-            esc_press = False
+            self.esc_press = False
+            self.shift_press = False
+            self.ctrl_press = False
+            self.alt_press = False
             self.cursor.scroll_down = False
             self.cursor.scroll_up = False
 
-            self.player_key_press = {key: dict.fromkeys(self.player_key_press[key], False) for key in
-                                     self.player_key_press}
-            self.player_key_hold = {key: dict.fromkeys(self.player_key_hold[key], False) for key in
-                                    self.player_key_hold}
+            self.player_key_press = {key: False for key in self.player_key_press}
+            self.player_key_hold = {key: False for key in self.player_key_hold}
 
             self.clock_time = self.clock.get_time()
             self.true_dt = self.clock_time / 1000  # dt before game_speed
             self.play_time += self.true_dt
 
-            for player in self.player_objects:  # only check for active player
-                if self.player_key_control[player] == "keyboard":
-                    for key in self.player_key_press[player]:  # check for key holding
-                        if type(self.player_key_bind[player][key]) == int and \
-                                key_state[self.player_key_bind[player][key]]:
-                            self.player_key_hold[player][key] = True
-                else:
-                    player_key_bind_name = self.player_key_bind_name[player]
-                    # joystick = self.player_joystick[player]  # TODO rework this later, change id to object
-                    for joystick_id, joystick in self.joysticks.items():  # TODO find way so no need to loop this
-                        if self.player_joystick[player] == joystick_id:
-                            for i in range(joystick.get_numbuttons()):
-                                if joystick.get_button(i) and i in player_key_bind_name:
-                                    self.player_key_hold[player][player_key_bind_name[i]] = True
-
-                            for i in range(joystick.get_numhats()):
-                                if joystick.get_hat(i)[0] > 0.1 or joystick.get_hat(i)[0] < -0.1:
-                                    hat_name = "hat" + number_to_minus_or_plus(joystick.get_hat(i)[0]) + str(0)
-                                    if hat_name in self.player_key_bind_name:
-                                        self.player_key_hold[player][player_key_bind_name[hat_name]] = True
-                                if joystick.get_hat(i)[1] > 0.1 or joystick.get_hat(i)[1] < -0.1:
-                                    hat_name = "hat" + number_to_minus_or_plus(joystick.get_hat(i)[1]) + str(1)
-                                    if hat_name in self.player_key_bind_name:
-                                        self.player_key_hold[player][player_key_bind_name[hat_name]] = True
-
-                            for i in range(joystick.get_numaxes()):
-                                if joystick.get_axis(i) > 0.5 or joystick.get_axis(i) < -0.5:
-                                    if i in (2, 3) and player == 1:  # right axis only for cursor (player 1 only)
-                                        vec = Vector2(joystick.get_axis(2), joystick.get_axis(3))
-                                        radius, angle = vec.as_polar()
-                                        adjusted_angle = (angle + 90) % 360
-                                        new_pos = Vector2(self.current_cursor.pos[0] +
-                                                          (self.clock_time * sin(radians(adjusted_angle))),
-                                                          self.current_cursor.pos[1] -
-                                                          (self.clock_time * cos(radians(adjusted_angle))))
-                                        if new_pos[0] < 0:
-                                            new_pos[0] = 0
-                                        elif new_pos[0] > self.corner_screen_width:
-                                            new_pos[0] = self.corner_screen_width
-                                        if new_pos[1] < 0:
-                                            new_pos[1] = 0
-                                        elif new_pos[1] > self.corner_screen_height:
-                                            new_pos[1] = self.corner_screen_height
-                                        mouse.set_pos(new_pos)
-                                    else:
-                                        axis_name = "axis" + number_to_minus_or_plus(joystick.get_axis(i)) + str(i)
-                                        if axis_name in player_key_bind_name:
-                                            # axis pressing require different way to check than other buttons
-                                            if (joystick.get_axis(i) > 0.9 or joystick.get_axis(i) < -0.9) and \
-                                                    player_key_bind_name[axis_name] in self.player_objects[
-                                                player].player_key_hold_timer:
-                                                self.player_key_hold[player][player_key_bind_name[axis_name]] = True
-                                            else:
-                                                self.player_key_hold[player][player_key_bind_name[axis_name]] = True
-                                                self.player_key_press[player][player_key_bind_name[axis_name]] = True
-                            break
-
+            for key in self.player_key_press:  # check for key holding
+                if type(self.player_key_bind[key]) is int and key_state[self.player_key_bind[key]]:
+                    self.player_key_hold[key] = True
+                elif key_state[pygame.K_LSHIFT] or key_state[pygame.K_RSHIFT]:
+                    self.shift_press = True
+                elif key_state[pygame.K_LALT] or key_state[pygame.K_RALT]:
+                    self.alt_press = True
+                elif key_state[pygame.K_LCTRL] or key_state[pygame.K_RCTRL]:
+                    self.ctrl_press = True
             self.base_cursor_pos = Vector2(
-                (self.main_player_battle_cursor.pos[0] - self.battle_camera_center[0] + self.camera_pos[0]),
-                (self.main_player_battle_cursor.pos[1] - self.battle_camera_center[1] + self.camera_pos[
-                    1]))  # mouse pos on the map based on camera position
-
+                ((self.battle_cursor.pos[0] / self.screen_scale[0]) + self.base_camera_left),
+                (self.battle_cursor.pos[1] / self.screen_scale[1]))  # mouse pos on the map based on camera position
             for event in pygame.event.get():  # get event that happen
                 if event.type == pygame.MOUSEBUTTONUP:
                     if event.button == 4:  # Mouse scroll down
@@ -988,46 +708,37 @@ class Battle:
                     pygame.quit()
                     sys.exit()
 
-                elif event.type == pygame.JOYBUTTONUP:
-                    joystick = event.instance_id
-                    if joystick in self.joystick_player:
-                        player = self.joystick_player[joystick]
-                        if self.player_key_control[player] == "joystick" and \
-                                event.button in self.player_key_bind_name[player]:  # check for key press
-                            self.player_key_press[player][self.player_key_bind_name[player][event.button]] = True
-
                 elif event.type == pygame.KEYDOWN:
                     event_key_press = event.key
-                    if event_key_press == K_ESCAPE:  # accept esc button always
-                        esc_press = True
-                    for player in self.player_control_keyboard:
-                        if event_key_press in self.player_key_bind_name[player]:  # check for key press
-                            self.player_key_press[player][self.player_key_bind_name[player][event_key_press]] = True
+                    if event_key_press in self.player_key_bind_name:  # check for key press
+                        self.player_key_press[self.player_key_bind_name[event_key_press]] = True
+                    if event_key_press == K_ESCAPE or self.player_key_press["Menu/Cancel"]:  # accept esc button always
+                        self.esc_press = True
 
-                    # FOR DEVELOPMENT
+                    # FOR DEVELOPMENT comment out later
                     if event.key == K_F1:
-                        self.drama_text.queue.append(("Hello and welcome to showcase video", "Cannon Shot Medium"))
+                        self.drama_text.queue.append(("Hello and welcome to showcase video", "Dollhi"))
+                    elif event.key == K_F2:
+                        self.call_in_air_group(2, [index for index, _ in enumerate(self.team_stat[2]["air_group"])],
+                                               500)
                     elif event.key == K_F3:
-                        for enemy in self.all_team_enemy[2]:
-                            if not enemy.invincible and int(enemy.base_pos[0] / 1920) in \
-                                    (self.battle_stage.spawn_check_scene - 1, self.battle_stage.spawn_check_scene):
-                                enemy.health = 1
+                        self.drama_text.queue.append(("Current issue: overlapping units", None))
+                        # self.game_speed = 0.5
                     elif event.key == K_F4:
-                        for character in self.player_objects.values():
-                            for follower in character.followers:
-                                follower.cal_loss(None, 500, (50, -200), character.angle, (0, 0), False)
+                        self.drama_text.queue.append(("Hard to discern who is who for control in ui and battle", None))
+                        # self.game_speed = 1
                     elif event.key == K_F5:
-                        for enemy in self.all_chars:
-                            if not enemy.invincible and enemy.is_boss and int(enemy.base_pos[0] / 1920) in \
-                                    (self.battle_stage.spawn_check_scene - 1, self.battle_stage.spawn_check_scene):
-                                enemy.stun_value = enemy.stun_threshold
-                    elif event.key == K_F6:
-                        for enemy in self.all_team_enemy[1]:
-                            if not enemy.invincible and int(enemy.base_pos[0] / 1920) in \
-                                    (self.battle_stage.spawn_check_scene - 1, self.battle_stage.spawn_check_scene):
+                        # self.drama_text.queue.append(("Maybe need to add clear unit selector around here", None))
+                        self.drama_text.queue.append(("All dead.", None))
+                        for enemy in self.player_control_generals:
+                            if not enemy.is_commander:
                                 enemy.health = 0
-                        CharacterSpeechBox(self.player_objects[self.main_player],
-                                           "Die")
+                                break
+                    elif event.key == K_F6:
+                        self.drama_text.queue.append(("Conclusion: big headache but hopeful.", "Meep"))
+                        # self.screen_shake_value = 11111
+                        for enemy in self.player_control_generals:
+                            enemy.broken = True
                     elif event.key == K_F7:  # clear profiler
                         if hasattr(self.game, "profiler"):
                             self.game.profiler.clear()
@@ -1035,47 +746,10 @@ class Battle:
                         if not hasattr(self.game, "profiler"):
                             self.game.setup_profiler()
                         self.game.profiler.switch_show_hide()
-                    # elif event_key_press == pygame.K_k:
-                    #     if self.players:
-                    #         for unit in self.players.alive_leader_follower:
-                    #             unit.health -= unit.health
-                    # self.players.health = 0
-
-                elif event.type == JOYDEVICEADDED:
-                    # Player add new joystick by plug in
-                    joy = pygame.joystick.Joystick(event.device_index)
-                    self.joysticks[joy.get_instance_id()] = joy
-                    joy_name = joy.get_name()
-                    for name in self.joystick_bind_name:
-                        if name in joy_name:  # find common name
-                            self.joystick_name[joy.get_instance_id()] = name
-                    if joy.get_instance_id() not in self.joystick_name:
-                        self.joystick_name[joy.get_instance_id()] = "Other"
-
-                    for player in self.player_key_control:  # check for player with joystick control but no assigned yet
-                        if self.player_key_control[player] == "joystick" and player not in self.player_joystick:
-                            # assign new joystick to player with joystick control setting
-                            self.player_joystick[player] = joy.get_instance_id()
-                            self.joystick_player[joy.get_instance_id()] = player
-                            break  # only one player get assigned
-
-                elif event.type == JOYDEVICEREMOVED:
-                    # Player unplug joystick
-                    del self.joysticks[event.instance_id]
-                    del self.joystick_name[event.instance_id]
-                    for key, value in self.player_joystick.copy().items():
-                        if value == event.instance_id:
-                            self.player_joystick.pop(key)
-                            self.joystick_player.pop(value)
-                            break
-
-            if self.player_key_press[self.main_player]["Menu/Cancel"]:
-                # open/close menu
-                esc_press = True
 
             self.ui_updater.update()  # update ui before more specific update
 
-            return_state = self.state_process(esc_press)  # run code based on current state
+            return_state = self.state_process()  # run code based on current state
             if return_state is not None:
                 return return_state
 
@@ -1090,53 +764,59 @@ class Battle:
         self.ui_updater.remove(*args)
         self.ui_drawer.remove(*args)
 
+    def clean_character_group(self):
+        for this_group in self.all_team_ally.values():
+            this_group.empty()
+        for this_group in self.all_team_general.values():
+            this_group.empty()
+        for this_group in self.all_team_enemy_check.values():
+            this_group.empty()
+
+        # setup grid for collide check
+        for collision_grids in (self.all_team_ground_enemy_collision_grids, self.all_team_air_enemy_collision_grids):
+            for team in collision_grids.values():
+                for grid in team.values():
+                    grid.empty()
+
     def exit_battle(self):
-        # self.ui_updater.clear(self.screen)  # clear all sprite
-        # self.battle_camera.clear(self.screen)  # clear all sprite
-
         # remove menu and ui
-        self.remove_ui_updater(self.battle_menu_button, self.esc_slider_menu.values(),
+        self.remove_ui_updater(self.battle_menu_button.values(), self.esc_slider_menu.values(),
                                self.esc_value_boxes.values(), self.esc_option_text.values(),
-                               self.stage_translation_text_popup, self.player_char_base_interfaces.values(),
-                               self.player_char_interfaces.values())
+                               self.scene_translation_text_popup)
 
-        for key in self.player_objects:
-            self.player_portraits[key].reset_value()
-        self.realtime_ui_updater.remove(self.player_portraits.values(), self.player_wheel_uis.values(),
-                                        self.player_trainings.values(), self.decision_select)
+        self.battle_outer_ui_updater.remove(self.player_wheel_ui, self.decision_select)
+        self.battle_cursor.change_image("normal")
 
-        for helper in self.player_trainings.values():
-            helper.reset()
+        self.command_ui.reset()
 
         # stop all sounds
-        for sound_ch in range(0, 1000):
-            if Channel(sound_ch).get_busy():
-                Channel(sound_ch).stop()
+        for sound_ch in self.battle_sound_channel:
+            if sound_ch.get_busy():
+                sound_ch.stop()
         self.current_music = None
         self.current_ambient = None
         self.stage_music_pool = {}
 
         # remove all reference from battle object
-        self.players = {}
-        self.player_objects = {}
-
-        if self.score_board:
-            clean_object(self.score_board)
-        self.helper = None
-        self.score_board = None
-        self.main_player_object = None
-
+        self.team_stat = {0: {"start_pos": 0, "air_group": []},
+                          1: {"strategy_resource": 0, "start_pos": 0, "air_group": [], "strategy": {}},
+                          2: {"strategy_resource": 0, "start_pos": 0, "air_group": [], "strategy": {}},
+                          3: {"strategy_resource": 0, "start_pos": 0, "air_group": [], "strategy": {}}}
+        self.ai_process_list = []
+        self.player_control_generals = []
+        self.player_selected_generals = []
+        self.player_selected_strategy = None
+        self.tactical_map_ui.character_rect = {}
         self.speech_prompt.clear()  # clear speech prompt from updater to avoid being deleted
 
-        clean_group_object((self.all_chars, self.effect_updater, self.weather_matters))
+        self.clean_character_group()
+
+        clean_group_object((self.all_characters, self.character_updater, self.effect_updater, self.weather_matters,
+                            self.player_general_indicators))
 
         self.sound_effect_queue = {}
 
-        self.battle_stage.clear_image()
-        self.front_stage.clear_image()
-        self.back_stage.clear_image()
-
         self.drama_timer = 0  # reset drama text popup
-        self.follower_talk_timer = 0
-        self.realtime_ui_updater.remove(self.drama_text)
+        self.ai_battle_speak_timer = 0
+        self.battle_outer_ui_updater.remove(self.drama_text)
         self.remove_ui_updater(self.drama_text)

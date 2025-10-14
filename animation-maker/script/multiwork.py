@@ -1,31 +1,76 @@
 import csv
 import os
 import sys
+from os.path import join, split, normpath, abspath
+from pathlib import Path
 
 import pool
 
-current_dir = os.path.split(os.path.abspath(__file__))[0]
+current_dir = split(abspath(__file__))[0]
 main_dir = current_dir[:current_dir.rfind("\\") + 1].split("\\")
 main_dir = ''.join(stuff + "\\" for stuff in main_dir[:-2])  # one folder further back
 sys.path.insert(1, main_dir)
 
+data_dir = join(main_dir, "data")
+animation_dir = join(main_dir, "animation-maker", "data", "animation")
+
 read_anim_data = pool.read_anim_data
 
 pool = []
-with open(os.path.join(main_dir, "data", "animation", "side.csv"), encoding="utf-8",
+file_list = []
+
+for x in Path(join(animation_dir)).iterdir():  # grab char with sprite
+    if ".csv" in normpath(x).split(os.sep)[-1]:
+        file_list.append(normpath(x).split(os.sep)[-1])
+
+# for file_name in file_list:
+file_name = "nice_bear_cub.csv"
+with open(join(main_dir, "animation-maker", "data", "animation", file_name), encoding="utf-8",
           mode="r") as edit_file:
     rd = csv.reader(edit_file, quoting=csv.QUOTE_MINIMAL)
     rd = [row for row in rd]
     part_name_header = rd[0]
-    animation_pool = {}
+    final_save = []
     for row_index, row in enumerate(rd):
         if row_index > 0:
             key = row[0]
-            row = row[1:]
-            animation_pool[key] = {part_name_header[1:][item_index]: item.split(",") for item_index, item in
-                                   enumerate(row)}
-    pool = animation_pool
+            for col_index, column in enumerate(row):
+                if len(column.split(",")) > 4 and "sound" not in part_name_header[col_index] and column:
+                    new_column = column.split(",")
+                    # if float(new_column[2]) > 180:
+                    new_column[2] = str(round(float(new_column[2]) * 0.5, 1))
+                    # if float(new_column[3]) < -180:
+                    new_column[3] = str(round(float(new_column[3]) * 0.5, 1))
+                    new_column = ",".join(new_column)
+                    row[col_index] = new_column
+        final_save.append(row)
+    print(final_save)
 edit_file.close()
+
+with open(os.path.join(main_dir, "animation-maker", "data", "animation", file_name), mode="w",
+          encoding='utf-8',
+          newline="") as edit_file:
+    filewriter = csv.writer(edit_file, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    for row in final_save:
+        filewriter.writerow(row)
+    edit_file.close()
+
+
+def frame_scale(rd, final_save, scale):
+    """Scale all parts and move position accordingly"""
+    for row_index, row in enumerate(rd):
+        if row_index > 0:
+            key = row[0]
+            if "Small" in key:
+                for col_index, column in enumerate(row):
+                    if "p1" in part_name_header[col_index] and column:
+                        new_column = column.split(",")
+                        new_column[2] = str(round(float(new_column[2]) * scale, 1))
+                        new_column[3] = str(round(float(new_column[3]) * scale, 1))
+                        new_column[7] = str(scale)
+                        new_column = ",".join(new_column)
+                        row[col_index] = new_column
+        final_save.append(row)
 
 
 def frame_adjust(pool, pool_name, header, filter_list, part_anchor, exclude_filter_list=()):

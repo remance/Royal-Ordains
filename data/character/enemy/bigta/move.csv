@@ -1,4 +1,0 @@
-"Buttons","Move","Name","Position","Stat Requirement","Requirement Move","Prepare Animation","After Animation","AI Range","AI Delay","AI Condition","Range","Cooldown","Resource Cost","Power","Push Impact","Pull Impact","Up Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"Weak","sweak1","Pierce","Stand",,,,,300,3,,,4,,70,30,,,50,,"Physical",,,,
-"Strong","sstrong1","Bash","Stand","Strength:25",,,,300,3,,,7,,105,,,,90,,"Physical",,,,
-"Special","sspecial1","Spinspin","Stand","Agility:42",,,,300,4,,,10,,34,55,,,,,"Physical",,,,"multiple hits"

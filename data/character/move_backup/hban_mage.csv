@@ -1,0 +1,3 @@
+"Buttons","Move","Name","Requirement Move","Prepare Animation","After Animation","AI Range","AI Delay","AI Condition","Range","Resource Cost","Power","Push Impact","Pull Impact","Down Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Weak","weak1","Fire Bolt",,,,400,5,,500,,8,10,,20,,"Fire",,,,
+"Strong","strong1","Fire Ball",,,,800,5,,1000,20,10,50,,30,,"Fire",,,,
