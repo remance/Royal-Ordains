@@ -36,7 +36,7 @@ def observer_ai(self):
 
 def common_ai(self, attack_range):
     if not self.command_action:
-        if self.leader or self.is_general:
+        if (self.leader and self.leader.alive) or self.is_general:
             if self.general_order != "attack":
                 follow_leader(self)
             else:

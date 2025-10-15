@@ -444,7 +444,7 @@ class Battle:
                           2: {"strategy_resource": 0, "start_pos": self.base_stage_end / 2, "air_group": [], "strategy": {}},
                           3: {"strategy_resource": 0, "start_pos": self.base_stage_end / 2, "air_group": [], "strategy": {}}}
 
-        self.strategy_select_ui.setup()
+        # self.strategy_select_ui.setup()
 
         self.last_char_game_id = 0
         self.spawn_delay_timer = {}
@@ -717,28 +717,31 @@ class Battle:
 
                     # FOR DEVELOPMENT comment out later
                     if event.key == K_F1:
-                        self.drama_text.queue.append(("Hello and welcome to showcase video", "Dollhi"))
+                        self.drama_text.queue.append(("Hello and welcome to showcase video", "Dollhello"))
                     elif event.key == K_F2:
-                        self.call_in_air_group(2, [index for index, _ in enumerate(self.team_stat[2]["air_group"])],
-                                               500)
+                        self.drama_text.queue.append(("Show case: Air combat", None))
                     elif event.key == K_F3:
-                        self.drama_text.queue.append(("Current issue: overlapping units", None))
+                        self.drama_text.queue.append(
+                            ("System is similar to Wargame series, air unit is called for a mission", None))
                         # self.game_speed = 0.5
                     elif event.key == K_F4:
-                        self.drama_text.queue.append(("Hard to discern who is who for control in ui and battle", None))
+                        self.drama_text.queue.append(
+                            ("They will return when out of resource and require rest to be ready again", None))
                         # self.game_speed = 1
                     elif event.key == K_F5:
                         # self.drama_text.queue.append(("Maybe need to add clear unit selector around here", None))
-                        self.drama_text.queue.append(("All dead.", None))
-                        for enemy in self.player_control_generals:
-                            if not enemy.is_commander:
-                                enemy.health = 0
-                                break
+                        self.drama_text.queue.append(("Each has different role for fighting air/ground units.", None))
+                        # self.drama_text.queue.append(("All dead.", None))
+                        # for enemy in self.player_control_generals:
+                        #     if not enemy.is_commander:
+                        #         enemy.health = 0
+                        #         break
                     elif event.key == K_F6:
-                        self.drama_text.queue.append(("Conclusion: big headache but hopeful.", "Meep"))
+                        self.call_in_air_group(2, [index for index, _ in enumerate(self.team_stat[2]["air_group"])],
+                                               500)
                         # self.screen_shake_value = 11111
-                        for enemy in self.player_control_generals:
-                            enemy.broken = True
+                        # for enemy in self.player_control_generals:
+                        #     enemy.broken = True
                     elif event.key == K_F7:  # clear profiler
                         if hasattr(self.game, "profiler"):
                             self.game.profiler.clear()
