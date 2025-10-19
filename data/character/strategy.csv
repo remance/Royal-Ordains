@@ -120,8 +120,8 @@
 "Spell_earth_domain",,,,10,,,,,,,,,,,,,,
 "Spell_poison_domain",,,,10,,,,,,,,,,,,,,
 "Spell_air_domain",,,,10,,,,,,,,,,,,,,
-"Spell_huge_stone",1500,500,25,1,15,90,1000,1200,1000,,"Earth",,"(Huge Stone;Speed;0;-500;-180;0;1;1;1)",,,,,"direct"
-"Spell_stone_rain",2000,1000,10,25,50,30,10,5,-30,,"Earth",,,,,,,"direct"
+"Spell_huge_stone",1500,500,25,1,40,90,1000,1200,1000,,"Earth",,"(Huge Stone;Speed;0;-500;-180;0;1;1;1)",,,,,"direct"
+"Spell_stone_rain",2000,1000,10,25,25,30,10,5,-30,,"Earth",,,,,,,"direct"
 ,,,,,,,,,,,,,,,,,,
 ,,,,,,,,,,,,,,,,,,
 ,,,,,,,,,,,,,,,,,,

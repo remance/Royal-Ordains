@@ -54,12 +54,13 @@ def play_battle_animation(self, dt, hold_check):
                         start_pos = (self.base_pos[0] + (part_data[2]),
                                      self.base_ground_pos)
                         (engine.character.character.
-                         BattleCharacter(None, self.character_data.character_list[
+                         BattleCharacter(self.battle.last_char_game_id, self.character_data.character_list[
                                              self.current_moveset["Property"]["summon"]] |
                                          {"ID": self.current_moveset["Property"]["summon"], "Direction": self.direction,
                                           "Team": self.team, "POS": start_pos,
                                           "Arrive Condition": (), "Start Health": 1,
                                           "Start Resource": 1}, leader=self))
+                        self.battle.last_char_game_id += 1
 
                     elif "trap" in self.effect_list[part_data[0]]["Property"]:
                         TrapEffect(self, part_data, part_data[6], self.current_moveset)

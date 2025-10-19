@@ -754,12 +754,12 @@ class Battle:
                         #         break
                     elif event.key == K_F6:
                         self.drama_text.queue.append(
-                            ("Some will just cast spells that do damage", None))
+                            ("Some will change weather or cast spells to do damage", None))
                         # self.call_in_air_group(2, [index for index, _ in enumerate(self.team_stat[2]["air_group"])],
                         #                        500)
-                        self.screen_shake_value = 11111
-                        for enemy in self.player_control_generals:
-                            enemy.broken = True
+                        # self.screen_shake_value = 11111
+                        # for enemy in self.player_control_generals:
+                        #     enemy.broken = True
                     elif event.key == K_F7:
                         self.activate_strategy(2, "Spell_huge_stone", 1000)
                         # self.screen_shake_value = 11111

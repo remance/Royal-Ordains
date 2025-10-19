@@ -78,22 +78,24 @@ def die(self):
                     if chance >= uniform(0, 100):
                         start_pos = (self.base_pos[0] + uniform(-200, 200),
                                      self.base_pos[1])
-                        engine.character.character.BattleCharacter(None,
+                        engine.character.character.BattleCharacter(self.battle.last_char_game_id,
                                                                    self.character_data.character_list[spawn_name] |
                                                                    {"ID": spawn_name,
                                                                     "Angle": self.angle,
                                                                     "Team": self.team, "POS": start_pos,
                                                                     "Arrive Condition": ()})
+                        self.battle.last_char_game_id += 1
             else:
                 if chance >= uniform(0, 100):
                     start_pos = (self.base_pos[0] + uniform(-200, 200),
                                  self.base_pos[1])
-                    engine.character.character.BattleCharacter(None,
+                    engine.character.character.BattleCharacter(self.battle.last_char_game_id,
                                                                self.character_data.character_list[spawn_name] |
                                                                {"ID": spawn_name,
                                                                 "Angle": self.angle,
                                                                 "Team": self.team, "POS": start_pos,
                                                                 "Arrive Condition": ()})
+                    self.battle.last_char_game_id += 1
 
     self.status_effect = {}
     self.status_duration = {}

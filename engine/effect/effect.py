@@ -152,42 +152,43 @@ class Effect(Sprite):
         self.current_moveset = moveset
 
         self.speed = 0
-        if self.effect_name in self.effect_list:
-            self.effect_stat = self.effect_list[self.effect_name]
-            self.speed = self.effect_stat["Travel Speed"]
-            self.reach_effect = self.effect_stat["After Reach Effect"]
-            self.remain_reach = self.effect_stat["Reach Effect"]
-            self.duration = self.effect_stat["Duration"]
-            self.shake_value = self.effect_stat["Shake Value"]
-            self.max_duration = self.duration
-            if self.max_duration:
-                self.repeat_animation = True
-            if self.effect_stat["Sound Effect"] and self.effect_stat["Sound Effect"] in self.sound_effect_pool:
-                self.sound_distance = self.effect_stat["Sound Distance"]
-                self.sound_effect = choice(self.sound_effect_pool[self.effect_stat["Sound Effect"]])
-                self.sound_duration = self.sound_effect.get_length()
-                self.sound_timer = self.sound_duration
-                if self.sound_duration > 2 and self.travel_distance:
-                    self.sound_timer = self.sound_duration / 0.5
 
-            if moveset:
-                self.other_property = moveset["Property"]
-                if self.current_moveset["Range"] and "no travel" not in self.effect_stat["Property"]:
-                    # effect in moveset with range mean the effect can move on its own
-                    self.travel = True
-                    self.travel_distance = self.current_moveset["Range"]
-                if "random move" in moveset["Property"]:
-                    self.random_move = True
-                if "one hit per enemy" in moveset["Property"]:
-                    self.one_hit_per_enemy = True
+        # it is required that independent effect must exist in effect stat data
+        self.effect_stat = self.effect_list[self.effect_name]
+        self.speed = self.effect_stat["Travel Speed"]
+        self.reach_effect = self.effect_stat["After Reach Effect"]
+        self.remain_reach = self.effect_stat["Reach Effect"]
+        self.duration = self.effect_stat["Duration"]
+        self.shake_value = self.effect_stat["Shake Value"]
+        self.max_duration = self.duration
+        if self.max_duration:
+            self.repeat_animation = True
+        if self.effect_stat["Sound Effect"] and self.effect_stat["Sound Effect"] in self.sound_effect_pool:
+            self.sound_distance = self.effect_stat["Sound Distance"]
+            self.sound_effect = choice(self.sound_effect_pool[self.effect_stat["Sound Effect"]])
+            self.sound_duration = self.sound_effect.get_length()
+            self.sound_timer = self.sound_duration
+            if self.sound_duration > 2 and self.travel_distance:
+                self.sound_timer = self.sound_duration / 0.5
 
-                if ("enemy" in self.current_moveset["AI Condition"] and
-                        "target_type" in self.current_moveset["AI Condition"]["enemy"] and
-                        self.current_moveset["AI Condition"]["enemy"]["target_type"] == "air"):
-                    # effect intend to hit air enemy only
-                    self.enemy_collision_grids = self.battle.all_team_air_enemy_collision_grids[self.team]
+        if moveset:
+            self.other_property = moveset["Property"]
+            if self.current_moveset["Range"] and "no travel" not in self.effect_stat["Property"]:
+                # effect in moveset with range mean the effect can move on its own
+                self.travel = True
+                self.travel_distance = self.current_moveset["Range"]
+            if "random move" in moveset["Property"]:
+                self.random_move = True
+            if "one hit per enemy" in moveset["Property"]:
+                self.one_hit_per_enemy = True
 
-        if self.base_target_pos:
+            if ("enemy" in self.current_moveset["AI Condition"] and
+                    "target_type" in self.current_moveset["AI Condition"]["enemy"] and
+                    self.current_moveset["AI Condition"]["enemy"]["target_type"] == "air"):
+                # effect intend to hit air enemy only
+                self.enemy_collision_grids = self.battle.all_team_air_enemy_collision_grids[self.team]
+
+        if self.base_target_pos and "no travel" not in self.effect_stat["Property"]:
             if "no target" not in self.current_moveset["Property"]:
                 target_distance = self.base_target_pos[0] - self.base_pos[0]
                 if self.travel_distance > target_distance:
