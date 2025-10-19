@@ -1,10 +1,10 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"Attack1","Shortsword Stab","name:Attack_ready","name:Attack_end",,150,,,,10,5,10,,,"Physical",,,,
-"Attack2","Shortsword Stabup","name:Attack_ready","name:Attack_end",,150,,,,12,5,2,3,,"Physical",,,,
-"Attack3","Shortsword Stabdown","name:Attack_ready","name:Attack_end",,150,,,,8,5,,-15,,"Physical",,,,
-"Attack4","Throw Bladed Spinner",,,,1000,1000,,,18,5,5,,,"Physical",,,,
+"Attack1","Shortsword Stab","name:Attack_ready","name:Attack_end",,150,,,,10,5,10,,,"Stab",,,,
+"Attack2","Shortsword Stabup","name:Attack_ready","name:Attack_end",,150,,,,12,5,2,3,,"Slash",,,,
+"Attack3","Shortsword Stabdown","name:Attack_ready","name:Attack_end",,150,,,,8,5,,-15,,"Crush",,,,
+"Attack4","Throw Bladed Spinner",,,,1000,1000,,,18,5,5,,,"Slash",,,,
 "Skill1","Throw Small Bomb",,,,800,800,1,25,53,175,250,250,,"Fire",,,,"no damage"
 "Skill2","Napalm Trap",,,,3000,,10,28,,,,,,"Fire",,,,
-"Skill3","Scorpion Deploy",,,,4000,,10,40,,,,,,"Physical",,,,"summon:Summon_scorpion"
-"Useitem1","Small Healing Kit",,,"self:{health<=50}",100000,1500,60,,,,,,,"Physical","Small_healing_kit",,,
-"Useitem2","Resource Kit",,,"self:{resource<=30}",100000,1500,60,,,,,,,"Physical","Resource_kit",,,
+"Skill3","Scorpion Deploy",,,,4000,,10,40,,,,,,,,,,"summon:Summon_scorpion"
+"Useitem1","Small Healing Kit",,,"self:{health<=50}",100000,1500,60,,,,,,,,"Small_healing_kit",,,
+"Useitem2","Resource Kit",,,"self:{resource<=30}",100000,1500,60,,,,,,,,"Resource_kit",,,

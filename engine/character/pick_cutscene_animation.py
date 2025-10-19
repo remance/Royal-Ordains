@@ -50,4 +50,5 @@ def pick_cutscene_animation(self, action):
         self.battle.add_sound_effect_queue(self.sound_effect_pool[sound[0]][0],
                                            self.pos, sound[1], sound[2])
 
+    self.animation_name = animation_name
     self.update_sprite = True

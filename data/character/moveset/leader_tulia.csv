@@ -1,8 +1,8 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"Attack1","Axe Slash",,,,300,,,,18,10,10,10,,"Earth",,,,
-"Attack2","Axe Spin",,,,300,,4,,29,20,25,25,,"Earth",,,,
-"Attack3","Aim Shot",,,"self:{no_engage=1000}",7000,7500,2,,20,,8,,5,"Physical",,,,"arc"
+"Attack1","Axe Slash",,,,300,,,,18,10,10,10,,"Slash",,,,
+"Attack2","Axe Spin",,,,300,,4,,29,20,25,25,,"Slash",,,,
+"Attack3","Aim Shot",,,"self:{no_engage=1000}",7000,7500,2,,20,,8,,5,"Stab",,,,"arc"
 "Skill1","Poison Arrow",,,"self:{no_engage=500}",4000,4000,5,10,20,,8,,,"Poison",,"Poison",,
-"Skill2","Rain Shots",,,"self:{no_engage=1000}",6000,6500,15,50,13,,,-10,,"Physical",,,,"arc"
-"Skill3","Pump Up",,,"self:{no_status=Excited}",5000,0,30,80,,,,,,"Physical","Excited",,,
-"UseItem","Medium Healing Kit",,,"self:{health<50}",6000,700,120,,,,,,,"Physical","Medium_healing_kit",,,
+"Skill2","Rain Shots",,,"self:{no_engage=1000}",6000,6500,15,50,13,,,-10,,"Stab",,,,"arc"
+"Skill3","Pump Up",,,"self:{no_status=Excited}",5000,0,30,80,,,,,,,"Excited",,,
+"UseItem","Medium Healing Kit",,,"self:{health<50}",6000,700,120,,,,,,,,"Medium_healing_kit",,,

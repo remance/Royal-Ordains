@@ -26,6 +26,7 @@ def create_config(self):
                                      "Select 5": pygame.K_5,
                                      "Menu/Cancel": pygame.K_ESCAPE,
                                      "Retreat": pygame.K_l,
+                                     "Clear": pygame.K_o,
                                      "Strategy 1": pygame.K_q,
                                      "Strategy 2": pygame.K_e,
                                      "Strategy 3": pygame.K_r,

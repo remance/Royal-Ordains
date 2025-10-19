@@ -19,6 +19,9 @@ def move_logic(self, dt):
 
     if self.x_momentum or self.y_momentum:  # has movement
         if "movable" in self.current_action:
+            # if self.current_moveset:
+            #     if self.team == 1:
+            #         print(self.name, self.current_moveset, self.current_action, self.x_momentum, self.interrupt_animation)
             new_pos = self.base_pos + Vector2(self.x_momentum, -self.y_momentum)
             move = new_pos - self.base_pos
             if move.length():
@@ -61,7 +64,6 @@ def move_logic(self, dt):
                         self.x_momentum += dt * self.move_speed
                     if self.x_momentum > 0.1:
                         self.x_momentum = 0
-
             if self.y_momentum > 0:  # climbing through air
                 if self.base_pos[1] < self.base_ground_pos:
                     self.y_momentum -= dt * self.move_speed
@@ -141,7 +143,7 @@ def air_move_logic(self, dt):
                     self.x_momentum = 0
                     if "back" in self.commander_order:
                         self.active = False
-                        self.battle_camera.remove(self)
+                        self.battle_camera_drawer.remove(self)
 
                 self.pos = Vector2((self.base_pos[0] * self.screen_scale[0],
                                     self.base_pos[1] * self.screen_scale[1]))

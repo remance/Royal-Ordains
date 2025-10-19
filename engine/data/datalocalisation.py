@@ -27,6 +27,7 @@ class Localisation:
         self.read_localisation("item")
         self.read_localisation("status")
         self.read_localisation("mission")
+        self.read_localisation("strategy")
         self.read_localisation("event")
         self.read_localisation("load")
 

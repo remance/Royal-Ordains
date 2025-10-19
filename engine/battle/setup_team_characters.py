@@ -39,11 +39,17 @@ def setup_team_characters(self, unit_list, in_battle=True):
                                     add_battle_char = CommanderBattleCharacter(self.last_char_game_id,
                                                                       data | self.character_data.character_list[character])
                                     commander_char = add_battle_char
+                                    self.team_commander[team] = commander_char
                                 else:
+                                    add_layer = 0
+                                    if control:
+                                        add_layer = 1000000
                                     add_battle_char = BattleCharacter(self.last_char_game_id,
                                                                       data | self.character_data.character_list[character],
-                                                                      None, is_general=True, is_controllable=control)
-
+                                                                      None, additional_layer=add_layer,
+                                                                      is_general=True, is_controllable=control)
+                                if team == 1 and control:
+                                    self.character_command_indicator[general_count].setup(add_battle_char)
                                 self.last_char_game_id += 1
                                 general_count += 1
                                 for value in data["Followers"]:

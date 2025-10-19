@@ -23,6 +23,7 @@ class TextDrama(UIBattle):
         self.blit_text = False
         self.current_length = 0
         self.max_length = 0
+        self.timer = 0
         self.text_input = ""
         self.left_corner_rect = self.left_corner.get_rect(topleft=(0, 0))  # The starting point
 
@@ -47,6 +48,7 @@ class TextDrama(UIBattle):
         self.image.blit(self.left_corner, self.left_corner_rect)  # start animation with the left corner
         self.rect = self.image.get_rect(center=self.pos)
         self.max_length = self.image.get_width() - self.left_corner.get_width()  # max length of the body, not counting the end corner
+        self.timer = 3 + (len(self.text_input) / 20)  # timer to last is 3 seconds + 1 seconds per 20 characters
 
     def play_animation(self):
         """Play unfold animation and blit drama text at the end"""

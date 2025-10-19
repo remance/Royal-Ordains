@@ -8,7 +8,7 @@ def drama_process(self):
     elif self.drama_timer:
         self.drama_text.play_animation()
         self.drama_timer += self.true_dt
-        if self.drama_timer > 3:  # drama popup last for 3 seconds
+        if self.drama_timer > self.drama_text.timer:
             self.drama_timer = 0
             self.battle_outer_ui_updater.remove(self.drama_text)
             self.remove_ui_updater(self.drama_text)

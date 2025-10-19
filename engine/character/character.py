@@ -34,7 +34,7 @@ from engine.character.reset_sprite import reset_sprite
 from engine.character.rotate_logic import rotate_logic
 from engine.character.status_update import status_update
 
-from engine.effect.cal_dmg import cal_dmg
+from engine.effect.cal_damage import cal_damage
 from engine.effect.hit_collide_check import hit_collide_check
 from engine.effect.hit_register import hit_register
 
@@ -109,7 +109,7 @@ class Character(sprite.Sprite):
     rotate_logic = rotate_logic
     status_update = status_update
 
-    cal_dmg = cal_dmg
+    cal_damage = cal_damage
     hit_collide_check = hit_collide_check
     hit_register = hit_register
 
@@ -146,9 +146,11 @@ class Character(sprite.Sprite):
         self.walk_command_action = {"name": "Walk", "movable": True, "walk": True, "interruptable": True}
         self.run_command_action = {"name": "Run", "movable": True, "run": True, "interruptable": True}
 
+        self.in_drawer = False
+        self.blit_culling_check = self.battle.blit_culling_check
         self.screen_scale = self.battle.screen_scale
         self.battle_scale = (self.screen_scale[0] * 0.2, self.screen_scale[1] * 0.2)
-        self.battle_camera = self.battle.battle_cameras["battle"]
+        self.battle_camera_drawer = self.battle.battle_camera_object_drawer
         self.weather = self.battle.current_weather
 
         # Variable related to sprite
@@ -160,7 +162,7 @@ class Character(sprite.Sprite):
         self.sprite_height = self.animation_pool["Default"][0]["right"]["sprite"].get_height() * 1.5
         self.sprite_width = self.animation_pool["Default"][0]["right"]["sprite"].get_width() * 0.5
 
-        self._layer = (10000 - self.sprite_height) + additional_layer
+        self._layer = (10000 - self.sprite_height + self.game_id) + additional_layer
         self.name = self.battle.localisation.grab_text(("character", stat["ID"], "Name"))
         self.cutscene_event = None
         self.speech = None
@@ -179,6 +181,7 @@ class Character(sprite.Sprite):
         self.max_show_frame = 0
         self.replace_idle_animation = None
         self.interrupt_animation = False
+        self.animation_name = None
 
         self.alive = True
         self.reach_camera_event = {}
@@ -192,7 +195,6 @@ class Character(sprite.Sprite):
         self.final_animation_play_time = self.animation_play_time
 
         self.commander_order = ()
-        self.false_commander_order = ()
         self.true_commander_order = ()
         self.base_pos = Vector2(stat["POS"][0],
                                 stat["POS"][1])  # true position of character in battle
@@ -380,6 +382,7 @@ class BattleCharacter(Character):
 
         self.invisible = False
         self.blind = False
+        self.false_order = False  # check whether character is given false order by status effect
         self.invincible = False
         self.shield = False  # check whether character is shielded for defence bonus against frontal attack
         self.no_forced_move = False  # check whether character can be forcefully move via knockback/die
@@ -411,6 +414,10 @@ class BattleCharacter(Character):
 
         self.character_type = stat["Type"]
         self.team = stat["Team"]
+        self.enemy_team = 1
+        if self.team == 1:
+            self.enemy_team = 2
+
         self.enter_pos = self.battle.team_stat[self.team]["start_pos"]
 
         # Get char stat
@@ -432,6 +439,7 @@ class BattleCharacter(Character):
         self.base_defence = stat["Defence"] + (stat["Defence"] * (leader_charisma / 200)) + stat_boost
         self.base_speed = stat["Speed"]
         self.leadership = stat["Leadership"] + (stat["Leadership"] * (leader_charisma / 200)) + stat_boost
+        self.strategy_regen = stat["Leadership"] / 100
 
         self.base_health = stat["Health"]  # max health of character
         self.base_resource = 100 + (100 * (leader_charisma / 200))
@@ -453,10 +461,7 @@ class BattleCharacter(Character):
         self.body_mass = stat["Mass"]
         self.knockdown_mass = self.body_mass * 3
 
-        self.base_impact_modifier = 1  # extra impact for weapon attack
-
         # Final stat after receiving stat effect from various sources, reset every time status is updated
-        self.impact_modifier = self.base_impact_modifier
         self.critical_chance = self.base_critical_chance
         self.offence = self.base_offence
         self.defence = self.base_defence
@@ -478,8 +483,8 @@ class BattleCharacter(Character):
         self.health = self.base_health * start_health
         self.resource = self.base_resource * start_resource
 
-        self.run_speed = 10 * self.speed
-        self.walk_speed = 4 * self.speed
+        self.run_speed = 7 * self.speed
+        self.walk_speed = 3 * self.speed
 
         # Variables related to sound
         self.knock_down_sound_distance = self.knock_down_sound_distance + self.body_mass
@@ -530,16 +535,16 @@ class BattleCharacter(Character):
         self.near_ally = []
         self.near_enemy = []
 
-        ai_speak = self.battle.localisation.grab_text(("ai_speak", stat["ID"]))
-        if type(ai_speak) is dict:
-            self.ai_speak_list = ai_speak
+        ai_speak_data = self.battle.localisation.grab_text(("ai_speak", stat["ID"]))
+        if type(ai_speak_data) is dict:
+            self.ai_speak_list = ai_speak_data
 
         # variable for attack cross function check
         self.remain_reach = None
         self.remain_timer = None
         self.is_effect_type = False
         self.owner = self
-        self.dmg = 0
+        self.power = 0
         self.penetrate = 0
         self.element = None
         self.impact = None
@@ -623,19 +628,21 @@ class BattleCharacter(Character):
             if self.update_sprite:
                 self.reset_sprite()
                 self.update_sprite = False
-
-            if self.reach_camera_event and self.battle.base_camera_begin < self.base_pos[
-                0] < self.battle.base_camera_end:
-                # play event related to character reach inside camera
-                for key, value in self.reach_camera_event.items():
-                    for item in value:
-                        self.character_event_process(item, item["Property"])
-                        break  # play one child event at a time
-                    if "repeat" not in item["Property"]:  # always have item in event data
-                        value.remove(item)
-                    break  # play one event at a time
-                if not value:  # last event no longer have child event left, remove from dict
-                    self.reach_camera_event.pop(key)
+            if not self.invisible:  # 238
+                blit_check = (self.char_id, int(self.base_pos[0] / 10), int(self.base_pos[1] / 10),
+                              self.direction, self.animation_name)
+                if blit_check not in self.blit_culling_check:
+                    self.blit_culling_check.add(blit_check)
+                    if not self.in_drawer:
+                        self.battle_camera_drawer.add(self)
+                        self.in_drawer = True
+                else:  # other character with exact same location and animation exist no need to blit it
+                    if self.in_drawer:
+                        self.battle_camera_drawer.remove(self)
+                        self.in_drawer = False
+            elif self.in_drawer:
+                self.battle_camera_drawer.remove(self)
+                self.in_drawer = False
 
             if ((self.broken or "broken" in self.commander_order) and
                     (self.base_pos[0] > self.retreat_stage_end or self.base_pos[0] < self.retreat_stage_start)):
@@ -649,6 +656,9 @@ class BattleCharacter(Character):
 
         else:  # die
             if self.alive:  # enter dead state
+                if not self.in_drawer:  # always add dying character to camera
+                    self.battle_camera_drawer.add(self)
+
                 self.alive = False  # enter dead state
                 for sub_character in self.sub_characters:
                     sub_character.health = 0
@@ -785,5 +795,5 @@ class CommanderBattleCharacter(BattleCharacter):
         They will no longer fight and instead retreat from battle.
         """
         BattleCharacter.__init__(self, game_id, stat, is_commander=True, is_general=True, is_controllable=True,
-                                 additional_layer=10000000000000)
+                                 additional_layer=100000000)
 

@@ -2,24 +2,25 @@
 "Movement",,0,,,,,,,,,,,"no travel"
 "Sound Burst Medium",,0,,,,,,,,,,,"no travel"
 "Blood Pull",,0,,,,,,,,,,,"no travel"
-"Light Burst Medium",,0,TRUE,,,,,,,,,,"no travel"
-"Rodhinbar Arrow",,3300,TRUE,,,,,"stick",,"Arrow",400,,
-"Arrow",,3000,TRUE,,,,,"stick",,"Arrow",400,,
-"Adaqua Arrow",,3000,TRUE,,,,,"stick",,"Arrow",400,,
-"Bolt",,3400,TRUE,,,,,"stick",,"Bolt",400,,
-"Nayedien Spear",,4500,TRUE,,,,,"stick",,"Javelin",500,,
-"Fast Stone",,2700,TRUE,,,,,"bounce",,"Stone",400,,
-"Stone",,2200,TRUE,,,,,"bounce",,"Stone",400,,
-"Toxic Beard",,1800,TRUE,,,,,"stick",,"Arrow",250,,
-"Small Fire",6,0,TRUE,,,,,,,,300,,"no travel,no effect collision"
-"Small Persist Fire",15,0,TRUE,,"Hot",,,,,,300,,"no travel,no effect collision"
-"Medium Persist Fire",15,0,TRUE,,"Hot",,,,,,500,,"no travel,no effect collision"
-"Small Air Burst",,5400,TRUE,,,,,,,,500,2,
-"Large Air Burst",,6750,TRUE,,,,,,,,700,5,
+"Light Burst Medium",,0,"TRUE",,,,,,,,,,"no travel"
+"Rodhinbar Arrow",,3300,"TRUE",,,,,,,"Arrow",400,,
+"Arrow",,3000,"TRUE",,,,,,,"Arrow",400,,
+"Adaqua Arrow",,3000,"TRUE",,,,,,,"Arrow",400,,
+"Bolt",,3400,"TRUE",,,,,,,"Bolt",400,,
+"Nayedien Spear",,4500,"TRUE",,,,,,,"Javelin",500,,
+"Fast Stone",,2700,"TRUE",,,,,"bounce",,"Stone",400,,
+"Stone",,2200,"TRUE",,,,,"bounce",,"Stone",400,,
+"Huge Stone",,1000,"TRUE",,,,,"stay",,"Stone",5000,100,
+"Toxic Beard",,1800,"TRUE",,,,,,,"Arrow",250,,
+"Small Fire",6,0,"TRUE",,,,,,,,300,,"no travel,no effect collision"
+"Small Persist Fire",15,0,"TRUE",,"Hot",,,,,,300,,"no travel,no effect collision"
+"Medium Persist Fire",15,0,"TRUE",,"Hot",,,,,,500,,"no travel,no effect collision"
+"Small Air Burst",,5400,"TRUE",,,,,,,,500,2,
+"Large Air Burst",,6750,"TRUE",,,,,,,,700,5,
 "Light",,0,,,"Blind",,,,,,600,3,"no travel,no effect collision"
-"Cold Air",3,0,TRUE,,"Cold",,,,,,,,"no travel"
-"Ice Branch",,0,TRUE,,,,,,,,,,"no travel"
-"Earth Spike",,0,TRUE,,,,,,,,,,"no travel"
+"Cold Air",3,0,"TRUE",,"Cold",,,,,,,,"no travel"
+"Ice Branch",,0,"TRUE",,,,,,,,,,"no travel"
+"Earth Spike",,0,"TRUE",,,,,,,,,,"no travel"
 "Snare Bite",,0,,,"Slow",,,,,,,,"no travel"
 "Stink Cloud",3,0,,,"Disorient",,,,,,,,"no travel,no effect collision"
 "Poison Cloud",3,0,,,"Poison",,,,,,,,"no travel,no effect collision"
@@ -27,21 +28,21 @@
 "Snaretrap",10,0,,,,,,,"Snare Bite.1","Snare Trap",400,,"trap,reach spawn ground"
 "Stinktrap",10,0,,,,,,,"Stink Cloud.1","Smoke Puff",400,,"trap,reach spawn ground"
 "Poisontrap",10,0,,,,,,,"Poison Cloud.1","Glass Trap",400,,"trap,reach spawn ground"
-"Sand",,1620,TRUE,,"Disrupt",,,,,,,,
-"Shock Stone",,1350,TRUE,,"Shock",,,"bounce",,,,,
-"Firework",,1350,TRUE,,,,,,"Firework Explosion",,,,
+"Sand",,1620,"TRUE",,"Disrupt",,,,,,,,
+"Shock Stone",,1350,"TRUE",,"Shock",,,"bounce",,,,,
+"Firework",,1350,"TRUE",,,,,,"Firework Explosion",,,,
 "Acid Bomb",,1350,,,,,,,,,,,
 "Frost Bomb",,1350,,,,,,,"Frost Explosion",,,,
 "Flashbang",,1350,,,,,,,"Light",,,,
-"Caltrops",10,0,TRUE,,,,,,,,,,
-"Bladed Spinner",,2160,TRUE,,"Bleeding",,,"stick",,,,,
+"Caltrops",10,0,"TRUE",,,,,,,,,,
+"Bladed Spinner",,2160,"TRUE",,"Bleeding",,,"stick",,,,,
 "Shrapnel Bomb",,1350,,,,,,,"Shrapnel",,,,"spawn all angle,spawn number:15"
 "Small Bomb",,1350,,,,,,,"Small Explosion",,,,
-"Firework Explosion",,0,TRUE,,"Blind",,,,,"Firework Explosion",6000,40,"no travel"
-"Shrapnel",,2970,TRUE,,,,,,,"Shrapnel",800,10,
-"Small Explosion",,0,TRUE,,,,,,,"Explosion",5000,30,"no travel"
-"Frost Explosion",,0,TRUE,,,,,,,"Frost Explosion",2500,20,"no travel"
+"Firework Explosion",,0,"TRUE",,"Blind",,,,,"Firework Explosion",6000,40,"no travel"
+"Shrapnel",,2970,"TRUE",,,,,,,"Shrapnel",800,10,
+"Small Explosion",,0,"TRUE",,,,,,,"Explosion",5000,30,"no travel"
+"Frost Explosion",,0,"TRUE",,,,,,,"Frost Explosion",2500,20,"no travel"
 "Golden Day",,0,,,,,,,,,,,
-"Cannonball",,4000,TRUE,,,,,"bounce",,"Cannon Ball Small",700,1,
-"Boulder",,2500,TRUE,,,,,,,"Stone",600,,
-"Big Stone",,3000,TRUE,,,,,"bounce",,"Stone Big",1000,,
+"Cannonball",,4000,"TRUE",,,,,"bounce",,"Cannon Ball Small",700,1,
+"Boulder",,2500,"TRUE",,,,,,,"Stone",600,,
+"Big Stone",,3000,"TRUE",,,,,"bounce",,"Stone Big",1000,,

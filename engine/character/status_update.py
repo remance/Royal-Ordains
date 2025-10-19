@@ -11,6 +11,7 @@ def status_update(self):
                                element, value in self.base_element_resistance.items()}
     self.resource_cost_modifier = self.base_resource_cost_modifier
     self.blind = False
+    self.false_order = False
 
     self.status_duration = {key: value - 0.1 for key, value in self.status_duration.items() if value > 0.1}
     self.move_cooldown = {key: value - 0.1 for key, value in self.move_cooldown.items() if value > 0.1}
@@ -32,24 +33,24 @@ def status_update(self):
                 for status in self.weather.status_effect:
                     self.apply_status(status)
 
-    # Remove status that reach 0 duration or status with conflict to the other status before apply effect
-    if "Invisible" in self.status_duration:  # invisible effect
-        self.invisible = True
-        self.battle.battle_camera.remove(self)
-    elif self.invisible:  # stop being invisible
-        self.invisible = False
-        self.battle.battle_camera.add(self)
-
     # Apply effect and modifier from status effect
     if self.status_duration:
         for status in self.status_duration:
             self.status_apply_funcs[status](self)
 
+    if not self.false_order:
+        self.commander_order = self.true_commander_order
+
     if self.defence < 0:  # seem like using if is faster than min()
         self.defence = 0
 
-    self.run_speed = 10 * self.speed
-    self.walk_speed = 4 * self.speed
+    self.run_speed = 5 * self.speed
+    self.walk_speed = 3 * self.speed
+
+    if self.nearest_enemy_distance and self.nearest_enemy_distance < self.sprite_width:
+        # enemy potentially collide with this character, consider having trouble moving around because of congestion
+        self.run_speed *= 0.5
+        self.walk_speed *= 0.5
 
     if self.run_speed < 0:
         self.run_speed = 0

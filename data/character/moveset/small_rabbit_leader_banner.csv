@@ -1,3 +1,3 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"Skill1","Banner",,,,5000,1500,30,70,,,,,,"Physical","Hope",,,
-"Skill2","Combat Banner",,,"self:{no_status=Hope}",1000,1500,15,40,,,,,,"Physical","Hope",,,
+"Skill1","Banner",,,,5000,1500,30,70,,,,,,,"Hope",,,
+"Skill2","Combat Banner",,,"self:{no_status=Hope}",1000,1500,15,40,,,,,,,"Hope",,,

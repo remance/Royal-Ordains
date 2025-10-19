@@ -9,6 +9,7 @@ from pygame import Vector2, Surface, SRCALPHA, Color, Rect, draw, mouse
 from pygame.font import Font
 from pygame.transform import smoothscale, flip
 
+from engine.battle.player_input_battle import key_select_strategy
 from engine.utils.common import keyboard_mouse_press_check
 from engine.constants import *
 from engine.uimenu.uimenu import UIMenu, MenuCursor
@@ -65,12 +66,17 @@ class BattleCursor(UIBattle, MenuCursor):
         if self.is_select_down:
             self.image = self.images["click"]
         else:
-            if self.mouse_over or not self.battle.player_selected_generals:
+            if self.mouse_over or (not self.battle.player_selected_generals and not self.battle.player_selected_strategy):
                 if self.is_alt_select_down:
                     self.image = self.images["click"]
                 else:
                     self.image = self.images["normal"]
-            elif self.battle.player_selected_generals:  # change cursor to match for player input right click
+            elif self.battle.player_selected_strategy:   # change cursor for strategy
+                if self.is_alt_select_down:
+                    self.image = self.images["strategy_click"]
+                else:
+                    self.image = self.images["strategy"]
+            elif self.battle.player_selected_generals:  # change cursor to match for character input right click
                 if self.battle.alt_press:
                     if self.is_alt_select_down:
                         self.image = self.images["attack_click"]
@@ -213,7 +219,7 @@ class Command(UIBattle):
 
     def __init__(self):
         self._layer = 9
-        UIBattle.__init__(self, player_cursor_interact=True)
+        UIBattle.__init__(self)
         self.number_font = self.game.character_indicator_font
         self.image = Surface((700 * self.screen_scale[0], 300 * self.screen_scale[1]), SRCALPHA)
         self.image.fill((0, 0, 0, 125))
@@ -254,10 +260,10 @@ class Command(UIBattle):
                     (self.air_active_icon.get_width() / 2, self.air_active_icon.get_height() / 2),
                     (self.air_active_icon.get_width() / 2.5), width=int(8 * self.screen_scale[0]))
 
-        self.air_dead_icon = Surface((100 * self.screen_scale[0], 100 * self.screen_scale[1]), SRCALPHA)
-        draw.circle(self.air_dead_icon, (0, 0, 0),
-                    (self.air_dead_icon.get_width() / 2, self.air_dead_icon.get_height() / 2),
-                    (self.air_dead_icon.get_width() / 2.5))
+        self.dead_icon = Surface((100 * self.screen_scale[0], 100 * self.screen_scale[1]), SRCALPHA)
+        draw.circle(self.dead_icon, (0, 0, 0),
+                    (self.dead_icon.get_width() / 2, self.dead_icon.get_height() / 2),
+                    (self.dead_icon.get_width() / 2.5))
 
         self.font = self.game.generic_ui_font
         self.player_air_group_number = [None, None, None, None, None]
@@ -265,7 +271,9 @@ class Command(UIBattle):
         self.air_group_resource = [None, None, None, None, None]
         self.air_bar_width = 100 * self.screen_scale[0]
         self.air_bar_height = 15 * self.screen_scale[0]
+        self.len_player_control_generals = None
         self.selected_air_group_indexes = []
+        self.icon_status = {}
 
         self.base_image = self.image.copy()
 
@@ -279,72 +287,107 @@ class Command(UIBattle):
         self.update_timer += self.battle.true_dt
         if self.update_timer > 0.2:
             self.update_timer -= 0.2
+            if len(self.battle.player_control_generals) != self.len_player_control_generals:
+                # reset some stuffs to recreate image
+                self.image = self.base_image.copy()
+                self.icon_status = {}
+                self.air_group_health = [None, None, None, None, None]
+                self.air_group_resource = [None, None, None, None, None]
+                self.player_air_group_number = [None, None, None, None, None]
+                self.len_player_control_generals = len(self.battle.player_control_generals)
             for index, character in enumerate(self.battle.player_control_generals):
                 # add general portrait
-                self.image.blit(character.command_icon_right, self.ground_portrait_rect[index])
-                self.character_rect[character] = self.ground_portrait_rect[index]
+                if character.alive:
+                    check = (character in self.battle.player_selected_generals, character.broken,
+                             "broken" in character.commander_order)
+                    if character not in self.icon_status or self.icon_status[character] != check:
+                        self.icon_status[character] = check
+                        self.image.blit(character.command_icon_right, self.ground_portrait_rect[index])
+                        self.character_rect[character] = self.ground_portrait_rect[index]
 
-                if character in self.battle.player_selected_generals:  # add selected circle on portrait
-                    self.image.blit(self.selected_icon, self.ground_portrait_rect[index])
+                        if check[0]:  # add selected circle on portrait
+                            self.image.blit(self.selected_icon, self.ground_portrait_rect[index])
+                        if check[1]:  # broken
+                            self.image.blit(self.broken_icon, self.ground_portrait_rect[index])
+                        elif check[2]:
+                            self.image.blit(self.retreat_icon, self.ground_portrait_rect[index])
 
-                if character.broken:
-                    self.image.blit(self.broken_icon, self.ground_portrait_rect[index])
-                elif "broken" in character.commander_order:
-                    self.image.blit(self.retreat_icon, self.ground_portrait_rect[index])
-
-                health_bar_rect = character.indicator.health_bar.get_rect(midtop=self.ground_portrait_rect[index].midbottom)
-                self.image.blit(character.indicator.health_bar, health_bar_rect)
-                self.image.blit(character.indicator.follower_bar,
-                                character.indicator.follower_bar.get_rect(midtop=health_bar_rect.midbottom))
+                        health_bar_rect = character.indicator.health_bar.get_rect(
+                            midtop=self.ground_portrait_rect[index].midbottom)
+                        self.image.blit(character.indicator.health_bar, health_bar_rect)
+                        self.image.blit(character.indicator.follower_bar,
+                                        character.indicator.follower_bar.get_rect(midtop=health_bar_rect.midbottom))
+                else:
+                    check = (False, False, False)
+                    if character not in self.icon_status or self.icon_status[character] != check:
+                        self.icon_status[character] = check
+                        self.image.blit(self.dead_icon, self.ground_portrait_rect[index])
 
             for index, air_group in enumerate(self.battle.team_stat[1]["air_group"]):  # add air unit group
-                health_bar_percentage = 0
-                resource_bar_percentage = 0
+                health_bar_percentage = (0, 0)
+                resource_bar_percentage = (0, 0)
                 if air_group:
-                    health_bar_percentage = min([character.health / character.base_health for character in air_group])
-                    resource_bar_percentage = min([character.resource / character.base_resource for character in air_group])
+                    health_bar_percentage = [character.health / character.base_health for character in air_group]
+                    health_bar_percentage = (min(health_bar_percentage), max(health_bar_percentage))
+                    resource_bar_percentage = [character.resource / character.base_resource for character in air_group]
+                    resource_bar_percentage = (min(resource_bar_percentage), max(resource_bar_percentage))
 
-                    self.image.blit(air_group[0].command_icon_right, self.air_portrait_rect[index])
+                check = (index in self.selected_air_group_indexes,
+                         air_group and "back" in air_group[0].commander_order,
+                         any([air_character.active for air_character in air_group]),
+                         len(air_group) != self.player_air_group_number[index])
+                if index not in self.icon_status or self.icon_status[index] != check:
+                    self.icon_status[index] = check
+                    if air_group:  # air group completely dead, blit black circle over
+                        self.image.blit(air_group[0].command_icon_right, self.air_portrait_rect[index])
+                    else:
+                        self.image.blit(self.dead_icon, self.air_portrait_rect[index])
                     self.air_group_rect[index] = self.air_portrait_rect[index]
-                    if index in self.selected_air_group_indexes:
+                    if check[0]:  # selected
                         self.image.blit(self.selected_icon, self.air_portrait_rect[index])
-                    elif "back" in air_group[0].commander_order:
+                    elif check[1]:  # returning
                         self.image.blit(self.air_return_icon, self.air_portrait_rect[index])
-                    elif any([air_character.active for air_character in air_group]):
+                    elif check[2]:  # active
                         self.image.blit(self.air_active_icon, self.air_portrait_rect[index])
 
-                if len(air_group) != self.player_air_group_number[index]:
-                    if not air_group:  # air group completely dead, blit black circle over
-                        self.image.blit(self.air_dead_icon, self.air_portrait_rect[index])
-                    self.player_air_group_number[index] = len(air_group)
+                    if check[3]:  # number in group change
+                        self.player_air_group_number[index] = len(air_group)
 
-                if len(air_group) not in self.number_text_cache:
-                    number_text = text_render_with_bg(str(len(air_group)),
-                                                      self.number_font, o_colour=(200, 200, 100))
-                    self.number_text_cache[len(air_group)] = number_text
-                else:
-                    number_text = self.number_text_cache[len(air_group)]
-                number_rect = number_text.get_rect(midbottom=self.air_portrait_rect[index].bottomright)
-                self.image.blit(number_text, number_rect)
+                    if len(air_group) not in self.number_text_cache:
+                        number_text = text_render_with_bg(str(len(air_group)),
+                                                          self.number_font, o_colour=(200, 200, 100))
+                        self.number_text_cache[len(air_group)] = number_text
+                    else:
+                        number_text = self.number_text_cache[len(air_group)]
+                    number_rect = number_text.get_rect(midbottom=self.air_portrait_rect[index].bottomright)
+                    self.image.blit(number_text, number_rect)
 
                 if self.air_group_health[index] != health_bar_percentage:
                     self.air_group_health[index] = health_bar_percentage
                     self.image.fill((0, 0, 0), (self.air_portrait_rect[index].bottomleft[0],
                                                 self.air_portrait_rect[index].bottomleft[1],
                                                 self.air_bar_width, self.air_bar_height))
-                    self.image.fill((150, 50, 50), (self.air_portrait_rect[index].bottomleft[0],
-                                                    self.air_portrait_rect[index].bottomleft[1],
-                                                    self.air_bar_width * health_bar_percentage,
-                                                    self.air_bar_height))
+                    self.image.fill((250, 100, 100), (self.air_portrait_rect[index].bottomleft[0],
+                                                         self.air_portrait_rect[index].bottomleft[1],
+                                                         self.air_bar_width * health_bar_percentage[1],
+                                                         self.air_bar_height))
+                    self.image.fill((100, 20, 20, 125), (self.air_portrait_rect[index].bottomleft[0],
+                                                 self.air_portrait_rect[index].bottomleft[1],
+                                                 self.air_bar_width * health_bar_percentage[0],
+                                                 self.air_bar_height))
 
                 if self.air_group_resource[index] != resource_bar_percentage:
                     self.air_group_resource[index] = resource_bar_percentage
                     self.image.fill((0, 0, 0), (self.air_portrait_rect[index].bottomleft[0],
                                                 self.air_portrait_rect[index].bottomleft[1] + self.air_bar_height,
                                                 self.air_bar_width, self.air_bar_height))
-                    self.image.fill((200, 100, 200), (self.air_portrait_rect[index].bottomleft[0],
+                    self.image.fill((100, 250, 100), (self.air_portrait_rect[index].bottomleft[0],
                                                       self.air_portrait_rect[index].bottomleft[1] + self.air_bar_height,
-                                                      self.air_bar_width * resource_bar_percentage,
+                                                      self.air_bar_width * resource_bar_percentage[1],
+                                                      self.air_bar_height))
+                    self.image.fill((20, 100, 20, 125), (self.air_portrait_rect[index].bottomleft[0],
+                                                      self.air_portrait_rect[index].bottomleft[1] + self.air_bar_height,
+                                                      self.air_bar_width * resource_bar_percentage[0],
                                                       self.air_bar_height))
 
         UIMenu.update(self)
@@ -397,6 +440,8 @@ class Command(UIBattle):
     def reset(self):
         self.image = self.base_image.copy()
         self.selected_air_group_indexes = []
+        self.icon_status = {}
+        self.len_player_control_generals = None
         self.air_group_health = [None, None, None, None, None]
         self.air_group_resource = [None, None, None, None, None]
         self.player_air_group_number = [None, None, None, None, None]
@@ -517,7 +562,8 @@ class BattleHelper(UIBattle):
 class TacticalMap(UIBattle):
     def __init__(self, selected_image, selected_commander_image):
         self._layer = 10
-        UIBattle.__init__(self, player_cursor_interact=True)
+        UIBattle.__init__(self)
+        self.battle_camera = self.battle.camera
         self.update_timer = 0
         self.map_scale_width = 1
         self.base_image = Surface((2400 * self.screen_scale[0], 300 * self.screen_scale[1]), SRCALPHA)
@@ -529,6 +575,9 @@ class TacticalMap(UIBattle):
         self.image = self.base_image.copy()
         self.image_width = self.image.get_width()
         self.image_height = self.image.get_height()
+        self.current_strategy_base_range = None
+        self.current_strategy_base_activate_range = None
+        self.strategy_line_width = int(20 * self.screen_scale[0])
         self.rect = self.image.get_rect(midtop=(self.battle.screen_width / 2, 0))
         self.team_icon_border = {team: {"unselected": self.make_icon_border(team, False),
                                         "noselect": self.make_icon_border(team, Surface((100 * self.screen_scale[0],
@@ -617,6 +666,41 @@ class TacticalMap(UIBattle):
                         icon = active_list[0].command_icon[active_list[0].direction]
                         self.image.blit(icon, icon.get_rect(midbottom=scaled_pos))
 
+            if self.battle.player_selected_strategy:
+                # draw activation line
+                line_start = ((self.battle.team_commander[1].base_pos[0] - self.current_strategy_base_activate_range) /
+                              self.map_scale_width)
+                line_end = ((self.battle.team_commander[1].base_pos[0] + self.current_strategy_base_activate_range) /
+                            self.map_scale_width)
+                if line_start < 0:
+                    line_start = 0
+                if line_end > self.image_width:
+                    line_end = self.image_width
+                draw.line(self.image, (80, 120, 200),
+                          (line_start, 0),
+                          (line_start, self.image_height), width=self.strategy_line_width)
+
+                draw.line(self.image, (80, 120, 200),
+                          (line_end, 0),
+                          (line_end, self.image_height), width=self.strategy_line_width)
+
+                if self.battle.player_battle_interact.show_strategy_activate_line:
+                    # draw strategy range if player cursor is within activation range, mean strategy can be used
+                    line_start = (self.battle.base_cursor_pos[0] - self.current_strategy_base_range) / self.map_scale_width
+                    line_end = (self.battle.base_cursor_pos[0] + self.current_strategy_base_range) / self.map_scale_width
+                    if line_start < 0:
+                        line_start = 0
+                    if line_end > self.image_width:
+                        line_end = self.image_width
+
+                    draw.line(self.image, (120, 180, 80),
+                              (line_start, 0),
+                              (line_start, self.image_height), width=self.strategy_line_width)
+
+                    draw.line(self.image, (120, 180, 80),
+                              (line_end, 0),
+                              (line_end, self.image_height), width=self.strategy_line_width)
+
         UIMenu.update(self)
         if self.event_press:
             inside_mouse_pos = pygame.Vector2(
@@ -639,16 +723,30 @@ class TacticalMap(UIBattle):
 
 
 class StrategySelect(UIBattle):
+    icon_cache = {}
+    number_text_cache = {}
+    strategy_text_cache = {}
+
     def __init__(self, pos, strategy_icons):
         self._layer = 10
-        UIBattle.__init__(self, player_cursor_interact=True)
+        UIBattle.__init__(self)
         self.strategy_icons = strategy_icons
         self.font = self.game.battle_timer_font
         self.update_timer = 0
-        self.original_image = Surface((200 * self.screen_scale[0], 1000 * self.screen_scale[1]), SRCALPHA)
+        self.strategy_status = {}
+        self.selected_strategy_icon = Surface((150 * self.screen_scale[0], 150 * self.screen_scale[1]), SRCALPHA)
+        draw.circle(self.selected_strategy_icon, (200, 200, 50),
+                    (self.selected_strategy_icon.get_width() / 2, self.selected_strategy_icon.get_height() / 2),
+                    (self.selected_strategy_icon.get_width() / 2), width=int(20 * self.screen_scale[0]))
+
+        self.cooldown_strategy_icon = Surface((150 * self.screen_scale[0], 150 * self.screen_scale[1]), SRCALPHA)
+        draw.circle(self.cooldown_strategy_icon, (0, 0, 0, 200),
+                    (self.cooldown_strategy_icon.get_width() / 2, self.cooldown_strategy_icon.get_height() / 2),
+                    (self.cooldown_strategy_icon.get_width() / 2))
+
+        self.base_image = Surface((200 * self.screen_scale[0], 1000 * self.screen_scale[1]), SRCALPHA)
         self.image_width_center = 100 * self.screen_scale[0]
-        self.original_image.fill((0, 0, 0, 125))
-        self.base_image = self.original_image.copy()
+        self.base_image.fill((0, 0, 0, 125))
         self.image = self.base_image.copy()
         self.image_width = self.image.get_width()
         self.image_height = self.image.get_height()
@@ -657,32 +755,85 @@ class StrategySelect(UIBattle):
         self.strategy_rect = {}
 
     def setup(self):
-        self.base_image = self.original_image.copy()
-        pos_y = 0
+        self.strategy_status = {}
+        self.image = self.base_image.copy()
+        pos_y = 80 * self.screen_scale[1]
         for index, strategy in enumerate(self.battle.team_stat[1]["strategy"]):
-            icon_image = self.strategy_icons[strategy]
+            icon_image = self.strategy_icons[strategy].copy()
             rect = icon_image.get_rect(midtop=(self.image_width_center, pos_y))
-            self.base_image.blit(icon_image, rect)
-            print(self.battle.player_key_bind_name)
             shortcut_text = text_render_with_bg(pygame.key.name(self.battle.player_key_bind[
                                                                     "Strategy " + str(index + 1)]).capitalize(),
                                                 self.font)
-            text_rect = shortcut_text.get_rect(bottomright=rect.bottomright)
-            self.base_image.blit(shortcut_text, text_rect)
-            pos_y += 200 * self.screen_scale[1]
+            text_rect = shortcut_text.get_rect(bottomright=(icon_image.get_width(), icon_image.get_height()))
+            icon_image.blit(shortcut_text, text_rect)
+            pos_y += 180 * self.screen_scale[1]
             self.strategy_rect[index] = rect
+            self.icon_cache[strategy] = icon_image
 
     def update(self):
         self.update_timer += self.battle.true_dt
         if self.update_timer > 0.1:
-            self.image = self.base_image.copy()
+            text = text_render_with_bg(str(int(self.battle.team_stat[1]["strategy_resource"])), self.font)
+            text_bg = Surface((text.get_size()))
+            text_bg.blit(text, text.get_rect(topleft=(0, 0)))
+            text_rect = text.get_rect(midtop=(self.image_width_center, 0))
+            self.image.blit(text_bg, text_rect)
+            for index, strategy in enumerate(self.battle.team_stat[1]["strategy"]):
+                cooldown = self.battle.team_stat[1]["strategy"][strategy]
+                check = (cooldown, strategy == self.battle.player_selected_strategy)
+                if strategy not in self.strategy_status or self.strategy_status[strategy] != check:
+                    self.strategy_status[strategy] = check
+                    self.image.blit(self.icon_cache[strategy], self.strategy_rect[index])
+
+                    if cooldown:  # in cooldown
+                        self.image.blit(self.cooldown_strategy_icon, self.strategy_rect[index])
+                        if int(cooldown) in self.number_text_cache:
+                            number_text = self.number_text_cache[int(cooldown)]
+                        else:
+                            number_text = text_render_with_bg(str(int(cooldown)), self.font, gf_colour=(255, 255, 255),
+                                                              o_colour=(0, 0, 0))
+                            self.number_text_cache[int(cooldown)] = number_text
+                        self.image.blit(number_text, number_text.get_rect(center=self.strategy_rect[index].center))
+                    elif strategy == self.battle.player_selected_strategy:
+                        self.image.blit(self.selected_strategy_icon, self.strategy_rect[index])
             self.update_timer -= 0.1
 
+        UIMenu.update(self)
+        if self.mouse_over:
+            inside_mouse_pos = pygame.Vector2(
+                (self.cursor.pos[0] - self.rect.topleft[0]),
+                (self.cursor.pos[1] - self.rect.topleft[1]))
+            for index, rect in self.strategy_rect.items():
+                if rect.collidepoint(inside_mouse_pos):
+                    this_strategy = tuple(self.battle.team_stat[1]["strategy"].keys())[index]
+                    if this_strategy not in self.strategy_text_cache:
+                        text = (self.localisation.grab_text(("strategy", this_strategy, "Name")),
+                                self.localisation.grab_text(("strategy", this_strategy, "Description")),
+                                self.localisation.grab_text(("ui", "Strategy Cost")) +
+                                str(self.battle.strategy_list[this_strategy]["Resource Cost"]),
+                                self.localisation.grab_text(("ui", "Activate Range")) +
+                                str(self.battle.strategy_list[this_strategy]["Activate Range"]),
+                                self.localisation.grab_text(("ui", "Strategy Range")) +
+                                str(self.battle.strategy_list[this_strategy]["Range"])
+                                )
+                        self.strategy_text_cache[this_strategy] = text
+                    else:
+                        text = self.strategy_text_cache[this_strategy]
+                    self.battle.text_popup.popup(rect, text)  # this rect only work if ui is at corner left of screen
+                    self.battle.battle_outer_ui_updater.add(self.battle.text_popup)
+                    if self.event_press:
+                        if not self.battle.team_stat[1]["strategy"][this_strategy]:
+                            key_select_strategy(self.battle, index)
+                    break
+        else:
+            self.battle.battle_outer_ui_updater.remove(self.battle.text_popup)
 
-class PlayerSelectCharacterBand(UIBattle):
+
+class PlayerBattleInteract(UIBattle):
     def __init__(self):
         self._layer = 9999999999999999999
         UIBattle.__init__(self, player_cursor_interact=False)
+        self.battle_camera = self.battle.camera
         self.selection_start_pos = pygame.Vector2()
         self.current_pos = pygame.Vector2()
         self.line_size = int(10 * self.screen_scale[0])
@@ -691,6 +842,16 @@ class PlayerSelectCharacterBand(UIBattle):
             self.line_size = 1
         self.image = None
         self.rect = None
+        self.current_strategy_base_range = None
+        self.current_strategy_base_activate_range = None
+        self.current_strategy_range = None
+        self.current_strategy_activate_range = None
+        self.strategy_line_top = 500 * self.screen_scale[1]
+        self.strategy_line_bottom = 2160 * self.screen_scale[1]
+        self.strategy_line_width = int(20 * self.screen_scale[0])
+        self.strategy_line_inner_width = int(self.strategy_line_width / 2)
+        self.strategy_line_center = 900 * self.screen_scale[1]
+        self.show_strategy_activate_line = False
 
     def reset(self):
         self.current_pos = None
@@ -702,6 +863,7 @@ class PlayerSelectCharacterBand(UIBattle):
         self.event_hold = False  # some UI differentiates between press release or holding, if not just use event
         self.event_alt_press = False
         self.event_alt_hold = True
+        self.show_strategy_activate_line = False
 
         if not self.cursor.mouse_over:
             if self.cursor.is_alt_select_just_up:  # put alt (right) click first to prioritise it
@@ -716,6 +878,54 @@ class PlayerSelectCharacterBand(UIBattle):
             elif self.cursor.is_select_down:
                 self.event_hold = True
                 self.cursor.is_select_just_down = False  # reset select button to prevent overlap interaction
+            else:  # no mouse activity
+                if self.battle.player_selected_strategy:
+                    # draw activation line
+                    line_start = (self.battle.team_commander[1].pos[0] - self.current_strategy_activate_range) - (
+                            self.battle.shown_camera_pos[0] - self.battle_camera.camera_w_center)
+                    line_end = (self.battle.team_commander[1].pos[0] + self.current_strategy_activate_range) - (
+                            self.battle.shown_camera_pos[0] - self.battle_camera.camera_w_center)
+                    if line_start > 0:
+                        draw.line(self.battle.camera.image, (80, 120, 200),
+                                  (line_start, self.strategy_line_top),
+                                  (line_start, self.strategy_line_bottom), width=self.strategy_line_width)
+                        draw.line(self.battle.camera.image, (20, 70, 50),
+                                  (line_start, self.strategy_line_top),
+                                  (line_start, self.strategy_line_bottom), width=self.strategy_line_inner_width)
+                    if line_end > 0:
+                        draw.line(self.battle.camera.image, (80, 120, 200),
+                                  (line_end, self.strategy_line_top),
+                                  (line_end, self.strategy_line_bottom), width=self.strategy_line_width)
+                        draw.line(self.battle.camera.image, (20, 70, 50),
+                                  (line_end, self.strategy_line_top),
+                                  (line_end, self.strategy_line_bottom), width=self.strategy_line_inner_width)
+
+                    if (abs(self.battle.team_commander[1].base_pos[0] - self.battle.base_cursor_pos[0]) <
+                            self.current_strategy_base_activate_range):
+                        self.show_strategy_activate_line = True
+                        # draw strategy range if player cursor is within activation range, mean strategy can be used
+                        line_start = (self.battle.cursor_pos[0] - self.current_strategy_range) - (
+                                self.battle.shown_camera_pos[0] - self.battle_camera.camera_w_center)
+                        line_end = (self.battle.cursor_pos[0] + self.current_strategy_range) - (
+                                self.battle.shown_camera_pos[0] - self.battle_camera.camera_w_center)
+                        if line_start > 0:
+                            draw.line(self.battle.camera.image, (120, 180, 80),
+                                      (line_start, self.strategy_line_top),
+                                      (line_start, self.strategy_line_bottom), width=self.strategy_line_width)
+                            draw.line(self.battle.camera.image, (70, 20, 50),
+                                      (line_start, self.strategy_line_top),
+                                      (line_start, self.strategy_line_bottom), width=self.strategy_line_inner_width)
+                        if line_end > 0:
+                            draw.line(self.battle.camera.image, (120, 180, 80),
+                                      (line_start, self.strategy_line_center),
+                                      (line_end, self.strategy_line_center), width=self.strategy_line_width)
+
+                            draw.line(self.battle.camera.image, (120, 180, 80),
+                                      (line_end, self.strategy_line_top),
+                                      (line_end, self.strategy_line_bottom), width=self.strategy_line_width)
+                            draw.line(self.battle.camera.image, (70, 20, 50),
+                                      (line_end, self.strategy_line_top),
+                                      (line_end, self.strategy_line_bottom), width=self.strategy_line_inner_width)
 
         if not self.event_hold and not self.event_press:
             if self.selection_start_pos:  # release hold while band exist
@@ -739,18 +949,28 @@ class PlayerSelectCharacterBand(UIBattle):
                 self.reset()
 
             if self.event_alt_press:  # right click order selected general to do something
-                if self.battle.player_selected_generals:
-                    for general in self.battle.player_selected_generals:
-                        if self.battle.alt_press:  # order to move and attack enemy in range along the way
-                            general.issue_commander_order(("attack", self.battle.base_cursor_pos[0]))
-                        else:  # order to move to area, no attack at all until reach
-                            general.issue_commander_order(("move", self.battle.base_cursor_pos[0]))
-                if self.battle.command_ui.selected_air_group_indexes:
-                    self.battle.call_in_air_group(1, self.battle.command_ui.selected_air_group_indexes,
-                                                  self.battle.base_cursor_pos[0])
-                    self.battle.command_ui.selected_air_group_indexes = []
-
+                if self.battle.player_selected_strategy:
+                    # has strategy selected, prioritise activate strategy for this input
+                    if self.battle.activate_strategy(1, self.battle.player_selected_strategy,
+                                                     self.battle.base_cursor_pos[0]):
+                        # successfully activate strategy
+                        self.battle.player_selected_strategy = None
+                else:
+                    if self.battle.player_selected_generals:
+                        for general in self.battle.player_selected_generals:
+                            if self.battle.alt_press:  # order to move and attack enemy in range along the way
+                                general.issue_commander_order(("attack", self.battle.base_cursor_pos[0]))
+                            else:  # order to move to area, no attack at all until reach
+                                general.issue_commander_order(("move", self.battle.base_cursor_pos[0]))
+                    if self.battle.command_ui.selected_air_group_indexes:
+                        self.battle.call_in_air_group(1, self.battle.command_ui.selected_air_group_indexes,
+                                                      self.battle.base_cursor_pos[0])
+                        self.battle.command_ui.selected_air_group_indexes = []
         else:  # holding left click, manipulate band
+            if self.event_press and self.battle.player_selected_strategy:
+                # deactivate strategy when there is one selected
+                self.battle.player_selected_strategy = None
+
             self.current_pos = self.cursor.pos
             if not self.selection_start_pos:
                 self.selection_start_pos = self.current_pos
@@ -766,8 +986,8 @@ class PlayerSelectCharacterBand(UIBattle):
                     selection_rect = Rect(left, top, width, height)
                     self.rect = Rect(left - self.battle.camera_center_x + self.battle.camera_pos[0],
                                      top, width, height)  # rect for collision unit selection check
-                    draw.rect(self.battle.camera.image, (0, 0, 0), selection_rect, self.inner_line_size)
-                    draw.rect(self.battle.camera.image, (255, 255, 255), selection_rect, self.line_size)
+                    draw.rect(self.battle_camera.image, (0, 0, 0), selection_rect, self.inner_line_size)
+                    draw.rect(self.battle_camera.image, (255, 255, 255), selection_rect, self.line_size)
                 else:
                     self.rect = Rect(left - self.battle.camera_center_x + self.battle.camera_pos[0],
                                      top, 1, 1)  # rect for collision unit selection check
@@ -856,23 +1076,46 @@ class YesNo(UIBattle):
 
 
 class CharacterCommandIndicator(UIBattle):
-    def __init__(self):
+    def __init__(self, index, pos_y, move_image, attack_image):
         self._layer = 9999999999999999998
         UIBattle.__init__(self, player_cursor_interact=False, has_containers=True)
+        self.battle_camera_drawer = self.battle.battle_camera_ui_drawer
+        self.move_image = move_image.copy()
+        self.attack_image = attack_image.copy()
+        self.command_dict = {"move": self.move_image, "attack": self.attack_image}
+        self.image = self.move_image
+        self.pos_y = pos_y * self.screen_scale[1]
+        self.rect = self.image.get_rect(center=(0, 0))
+        self.index = index
+        self.check_order = None
+        self.general = None
 
-    def update(self):
-        # Draw general character
-        x = 0
-        y = 0
-        for character in self.battle.player_selected_generals:
-            scaled_pos = (character.base_pos[0] / self.map_scale_width, self.icon_pos_y)
-            rect = character.icon[character.direction].get_rect(center=scaled_pos)
-            self.image.blit(character.icon[character.direction], rect)
-            self.character_rect[character] = rect
-            x += 1
-            if x :
-                x = 0
-                y += 1
+    def setup(self, general=None):
+        if general:
+            self.general = general
+            self.move_image.blit(self.general.icon["right"], self.general.icon["right"].get_rect(topleft=(0, 0)))
+            self.attack_image.blit(self.general.icon["right"], self.general.icon["right"].get_rect(topleft=(0, 0)))
+            self.battle.effect_updater.add(self)
+        else:
+            self.battle.effect_updater.remove(self)
+
+    def update(self, dt):
+        if self.general.alive:
+            order_check = self.general.true_commander_order
+            if order_check and "broken" not in order_check:  # only show move and attack command
+                if self not in self.battle_camera_drawer:
+                    self.battle_camera_drawer.add(self)
+                if self.check_order != order_check:
+                    self.check_order = order_check
+                    self.image = self.command_dict[order_check[0]]
+                    self.rect.center = (order_check[1] * self.screen_scale[0], self.pos_y)
+            else:
+                if self in self.battle_camera_drawer:
+                    self.battle_camera_drawer.remove(self)
+
+        else:
+            if self in self.battle_camera_drawer:
+                self.battle_camera_drawer.remove(self)
 
 
 class CharacterGeneralIndicator(UIBattle):
@@ -1053,8 +1296,8 @@ class CharacterInteractPrompt(UIBattle):
 
         self.rect = self.image.get_rect(midbottom=(self.target_pos[0] * self.screen_scale[0],
                                                    self.target_pos[1] * self.screen_scale[1]))
-        if self not in self.battle.battle_cameras["ui"]:
-            self.battle.battle_cameras["ui"].add(self)
+        if self not in self.battle.battle_camera_ui_drawer:
+            self.battle.battle_camera_ui_drawer.add(self)
             self.battle.effect_updater.add(self)
 
     def update(self, *args):
@@ -1066,8 +1309,8 @@ class CharacterInteractPrompt(UIBattle):
         self.character = None
         self.target = None
         self.target_pos = None
-        if self in self.battle.battle_cameras["ui"]:
-            self.battle.battle_cameras["ui"].remove(self)
+        if self in self.battle.battle_camera_ui_drawer:
+            self.battle.battle_camera_ui_drawer.remove(self)
             self.battle.effect_updater.remove(self)
 
 
@@ -1299,120 +1542,120 @@ class DamageNumber(UIBattle):
         if self.timer <= 0:
             self.kill()
 
-
-class WheelUI(UIBattle):
-    item_sprite_pool = None
-    choice_list_key = {"Down": 1, "Left": 2, "Up": 3, "Right": 4}
-    choice_key = tuple(choice_list_key.keys())
-
-    def __init__(self, images, pos):
-        """Wheel choice ui to select item"""
-        self._layer = 11
-        UIBattle.__init__(self)
-        self.small_font = Font(self.ui_font["main_button"], int(36 * self.screen_scale[1]))
-        self.font = Font(self.ui_font["main_button"], int(52 * self.screen_scale[1]))
-        self.pos = pos
-        self.choice_list = ()
-        self.selected = "Up"
-
-        self.wheel_button_image = images["wheel"]
-        self.wheel_selected_button_image = images["wheel_selected"]
-        self.wheel_text_image = images["wheel_text"]
-
-        self.base_image2 = Surface((self.wheel_button_image.get_width() * 5,
-                                    self.wheel_button_image.get_height() * 4), SRCALPHA)  # empty image
-        self.rect = self.base_image2.get_rect(midtop=self.pos)
-
-        image_center = (self.base_image2.get_width() / 2, self.base_image2.get_height() / 2)
-        self.wheel_image_with_stuff = []
-        self.wheel_selected_image_with_stuff = []
-        self.wheel_rect = []
-        angle_space = 360 / 4
-        angle = 0
-        for wheel_button in range(4):
-            base_target = Vector2(image_center[0] - (image_center[0] / 2 *
-                                                     sin(radians(angle))),
-                                  image_center[1] + (image_center[1] / 1.6 *
-                                                     cos(radians(angle))))
-            angle += angle_space
-
-            self.wheel_image_with_stuff.append(self.wheel_button_image.copy())
-            self.wheel_selected_image_with_stuff.append(self.wheel_selected_button_image.copy())
-            self.wheel_rect.append(self.wheel_button_image.get_rect(center=base_target))
-            self.base_image2.blit(self.wheel_image_with_stuff[wheel_button], self.wheel_rect[wheel_button])
-        self.image = self.base_image2.copy()
-
-    def selection(self, key_input):
-        self.selected = key_input
-        for index, rect in enumerate(self.wheel_rect):
-            if self.selected == self.choice_key[index]:
-                self.image.blit(self.wheel_selected_image_with_stuff[index], rect)
-            else:
-                self.image.blit(self.wheel_image_with_stuff[index], rect)
-            if index + 1 <= len(self.choice_list) and self.choice_list[index]:
-                text_image = self.wheel_text_image.copy()  # blit text again to avoid wheel overlap old text
-                if self.choice_list[index] in self.command_list.values():  # command
-                    text_surface = self.small_font.render(self.grab_text(("ui", self.choice_list[index])),
-                                                          True,
-                                                          (20, 20, 20))
-                else:
-                    text_surface = text_render_with_bg(
-                        str(self.battle.player_objects[self.player].item_usage[self.choice_list[index]]),
-                        self.font)  # add item number
-                    self.wheel_image_with_stuff[index].blit(text_surface,
-                                                            text_surface.get_rect(topright=rect.topright))
-                    self.wheel_selected_image_with_stuff[index].blit(text_surface,
-                                                                     text_surface.get_rect(topright=rect.topright))
-
-                    text_surface = self.small_font.render(self.grab_text(("item", self.choice_list[index],
-                                                                          "Name")), True, (20, 20, 20))
-
-                text_image.blit(text_surface, text_surface.get_rect(center=(text_image.get_width() / 2,
-                                                                            text_image.get_height() / 2)))
-
-                self.image.blit(text_image, text_image.get_rect(center=self.wheel_rect[index].midbottom))
-
-    def change_text_icon(self, blit_list, item_wheel=False):
-        """Add icon or text to the wheel choice"""
-        self.image = self.base_image2.copy()
-        self.choice_list = blit_list
-        for index, value in enumerate(blit_list):
-            self.wheel_image_with_stuff[index] = self.wheel_button_image.copy()
-            self.wheel_selected_image_with_stuff[index] = self.wheel_selected_button_image.copy()
-            if value:  # Wheel choice with icon at center
-                surface = self.item_sprite_pool[value]
-                rect = surface.get_rect(center=(self.wheel_image_with_stuff[index].get_width() / 2,
-                                                self.wheel_image_with_stuff[index].get_height() / 2))
-
-                self.wheel_image_with_stuff[index].blit(surface, rect)
-                self.wheel_selected_image_with_stuff[index].blit(surface, rect)
-
-                if item_wheel:
-                    number_text_rect = surface.get_rect(center=(self.wheel_image_with_stuff[index].get_width() / 1.3,
-                                                                self.wheel_image_with_stuff[index].get_height() / 2))
-                    text_surface = text_render_with_bg(str(self.battle.player_objects[self.player].item_usage[value]),
-                                                       self.font)  # add item number
-                    self.wheel_image_with_stuff[index].blit(text_surface,
-                                                            text_surface.get_rect(topright=number_text_rect.center))
-                    self.wheel_selected_image_with_stuff[index].blit(text_surface,
-                                                                     text_surface.get_rect(
-                                                                         topright=number_text_rect.center))
-
-                    text_surface = self.small_font.render(self.grab_text(("item", value, "Name")), True,
-                                                          (20, 20, 20))
-                else:
-                    text_surface = self.small_font.render(self.grab_text(("ui", value)), True,
-                                                          (20, 20, 20))
-
-                if self.selected == self.choice_key[index]:
-                    self.image.blit(self.wheel_selected_image_with_stuff[index], self.wheel_rect[index])
-                else:
-                    self.image.blit(self.wheel_image_with_stuff[index], self.wheel_rect[index])
-                text_image = self.wheel_text_image.copy()
-                text_image.blit(text_surface, text_surface.get_rect(center=(text_image.get_width() / 2,
-                                                                            text_image.get_height() / 2)))
-
-                self.image.blit(text_image, text_image.get_rect(center=self.wheel_rect[index].midbottom))
+#
+# class WheelUI(UIBattle):
+#     item_sprite_pool = None
+#     choice_list_key = {"Down": 1, "Left": 2, "Up": 3, "Right": 4}
+#     choice_key = tuple(choice_list_key.keys())
+#
+#     def __init__(self, images, pos):
+#         """Wheel choice ui to select item"""
+#         self._layer = 11
+#         UIBattle.__init__(self)
+#         self.small_font = Font(self.ui_font["main_button"], int(36 * self.screen_scale[1]))
+#         self.font = Font(self.ui_font["main_button"], int(52 * self.screen_scale[1]))
+#         self.pos = pos
+#         self.choice_list = ()
+#         self.selected = "Up"
+#
+#         self.wheel_button_image = images["wheel"]
+#         self.wheel_selected_button_image = images["wheel_selected"]
+#         self.wheel_text_image = images["wheel_text"]
+#
+#         self.base_image2 = Surface((self.wheel_button_image.get_width() * 5,
+#                                     self.wheel_button_image.get_height() * 4), SRCALPHA)  # empty image
+#         self.rect = self.base_image2.get_rect(midtop=self.pos)
+#
+#         image_center = (self.base_image2.get_width() / 2, self.base_image2.get_height() / 2)
+#         self.wheel_image_with_stuff = []
+#         self.wheel_selected_image_with_stuff = []
+#         self.wheel_rect = []
+#         angle_space = 360 / 4
+#         angle = 0
+#         for wheel_button in range(4):
+#             base_target = Vector2(image_center[0] - (image_center[0] / 2 *
+#                                                      sin(radians(angle))),
+#                                   image_center[1] + (image_center[1] / 1.6 *
+#                                                      cos(radians(angle))))
+#             angle += angle_space
+#
+#             self.wheel_image_with_stuff.append(self.wheel_button_image.copy())
+#             self.wheel_selected_image_with_stuff.append(self.wheel_selected_button_image.copy())
+#             self.wheel_rect.append(self.wheel_button_image.get_rect(center=base_target))
+#             self.base_image2.blit(self.wheel_image_with_stuff[wheel_button], self.wheel_rect[wheel_button])
+#         self.image = self.base_image2.copy()
+#
+#     def selection(self, key_input):
+#         self.selected = key_input
+#         for index, rect in enumerate(self.wheel_rect):
+#             if self.selected == self.choice_key[index]:
+#                 self.image.blit(self.wheel_selected_image_with_stuff[index], rect)
+#             else:
+#                 self.image.blit(self.wheel_image_with_stuff[index], rect)
+#             if index + 1 <= len(self.choice_list) and self.choice_list[index]:
+#                 text_image = self.wheel_text_image.copy()  # blit text again to avoid wheel overlap old text
+#                 if self.choice_list[index] in self.command_list.values():  # command
+#                     text_surface = self.small_font.render(self.grab_text(("ui", self.choice_list[index])),
+#                                                           True,
+#                                                           (20, 20, 20))
+#                 else:
+#                     text_surface = text_render_with_bg(
+#                         str(self.battle.player_objects[self.player].item_usage[self.choice_list[index]]),
+#                         self.font)  # add item number
+#                     self.wheel_image_with_stuff[index].blit(text_surface,
+#                                                             text_surface.get_rect(topright=rect.topright))
+#                     self.wheel_selected_image_with_stuff[index].blit(text_surface,
+#                                                                      text_surface.get_rect(topright=rect.topright))
+#
+#                     text_surface = self.small_font.render(self.grab_text(("item", self.choice_list[index],
+#                                                                           "Name")), True, (20, 20, 20))
+#
+#                 text_image.blit(text_surface, text_surface.get_rect(center=(text_image.get_width() / 2,
+#                                                                             text_image.get_height() / 2)))
+#
+#                 self.image.blit(text_image, text_image.get_rect(center=self.wheel_rect[index].midbottom))
+#
+#     def change_text_icon(self, blit_list, item_wheel=False):
+#         """Add icon or text to the wheel choice"""
+#         self.image = self.base_image2.copy()
+#         self.choice_list = blit_list
+#         for index, value in enumerate(blit_list):
+#             self.wheel_image_with_stuff[index] = self.wheel_button_image.copy()
+#             self.wheel_selected_image_with_stuff[index] = self.wheel_selected_button_image.copy()
+#             if value:  # Wheel choice with icon at center
+#                 surface = self.item_sprite_pool[value]
+#                 rect = surface.get_rect(center=(self.wheel_image_with_stuff[index].get_width() / 2,
+#                                                 self.wheel_image_with_stuff[index].get_height() / 2))
+#
+#                 self.wheel_image_with_stuff[index].blit(surface, rect)
+#                 self.wheel_selected_image_with_stuff[index].blit(surface, rect)
+#
+#                 if item_wheel:
+#                     number_text_rect = surface.get_rect(center=(self.wheel_image_with_stuff[index].get_width() / 1.3,
+#                                                                 self.wheel_image_with_stuff[index].get_height() / 2))
+#                     text_surface = text_render_with_bg(str(self.battle.player_objects[self.player].item_usage[value]),
+#                                                        self.font)  # add item number
+#                     self.wheel_image_with_stuff[index].blit(text_surface,
+#                                                             text_surface.get_rect(topright=number_text_rect.center))
+#                     self.wheel_selected_image_with_stuff[index].blit(text_surface,
+#                                                                      text_surface.get_rect(
+#                                                                          topright=number_text_rect.center))
+#
+#                     text_surface = self.small_font.render(self.grab_text(("item", value, "Name")), True,
+#                                                           (20, 20, 20))
+#                 else:
+#                     text_surface = self.small_font.render(self.grab_text(("ui", value)), True,
+#                                                           (20, 20, 20))
+#
+#                 if self.selected == self.choice_key[index]:
+#                     self.image.blit(self.wheel_selected_image_with_stuff[index], self.wheel_rect[index])
+#                 else:
+#                     self.image.blit(self.wheel_image_with_stuff[index], self.wheel_rect[index])
+#                 text_image = self.wheel_text_image.copy()
+#                 text_image.blit(text_surface, text_surface.get_rect(center=(text_image.get_width() / 2,
+#                                                                             text_image.get_height() / 2)))
+#
+#                 self.image.blit(text_image, text_image.get_rect(center=self.wheel_rect[index].midbottom))
 
 
 class Profiler(cProfile.Profile, UIBattle):

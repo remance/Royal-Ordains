@@ -5,10 +5,10 @@ from pygame import quit as pg_quit
 
 def state_menu_process(self):
     # update battle scene first here
-    self.scene.update(self.camera_left, self.camera_y_shift)
-    self.camera.update(self.shown_camera_pos, self.battle_cameras["battle"])
+    self.scene.update()
+    self.camera.update(self.battle_camera_object_drawer)
 
-    self.camera.update(self.shown_camera_pos, self.battle_cameras["ui"])
+    self.camera.update(self.battle_camera_ui_drawer)
     self.camera.out_update(self.battle_outer_ui_updater)
     self.ui_drawer.draw(self.screen)  # draw the UI
 

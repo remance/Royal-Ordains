@@ -12,4 +12,16 @@ def apply_status(self, effect):
         if conflict_check and effect in conflict_check:
             self.status_duration.remove(current_status)
 
+    if "false_order" in effect_stat["Property"]:  # apply false order
+        if effect_stat["Property"]["false_order"] == "advance":
+            # move command to enemy camp
+            self.issue_commander_order(("move", self.battle.team_stat[self.enemy_team]["start_pos"]),
+                                       issue_to_follower=False, false_order=True)
+        elif effect_stat["Property"]["false_order"] == "attack":
+            # attack command to enemy camp
+            self.issue_commander_order(("attack", self.battle.team_stat[self.enemy_team]["start_pos"]),
+                                       issue_to_follower=False, false_order=True)
+        elif effect_stat["Property"]["false_order"] == "retreat":
+            # retreat from battle
+            self.issue_commander_order(("broken", ), issue_to_follower=False, false_order=True)
     self.status_duration[effect] = effect_stat["Duration"]

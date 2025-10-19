@@ -23,8 +23,8 @@ class Scene(Sprite):
         self.full_scene_image = None
         self.current_scene_image = None
         self.shown_camera_pos = None
-        self.camera_left = None
         self.camera_y_shift = None
+        self.camera_left = None
         self.rect = None
 
         self.alpha = 0
@@ -36,24 +36,24 @@ class Scene(Sprite):
         self.size_width = self.screen_width
         self.size_height = self.screen_height
 
-    def setup(self, camera_left):
+    def setup(self):
         self.full_scene_image = Surface((self.screen_width * len(self.data), self.size_height), SRCALPHA)
         for scene_index, image in self.data.items():
             x = (scene_index - 1) * self.images[image].get_width()
             rect = self.images[image].get_rect(topleft=(x, 0))
             self.full_scene_image.blit(self.images[image], rect)
-        self.current_scene_image = Surface.subsurface(self.full_scene_image, (camera_left, 0,
+        self.current_scene_image = Surface.subsurface(self.full_scene_image, (self.battle.camera_left, 0,
                                                                               self.size_width, self.size_height))
 
-    def update(self, camera_left, camera_y_shift):
-        if self.camera_left != camera_left:
-            self.camera_left = camera_left
-            self.current_scene_image = Surface.subsurface(self.full_scene_image, (camera_left, 0,
+    def update(self):
+        if self.camera_left != self.battle.camera_left:
+            self.camera_left = self.battle.camera_left
+            self.current_scene_image = Surface.subsurface(self.full_scene_image, (self.camera_left, 0,
                                                                                   self.size_width, self.size_height))
-        if self.camera_y_shift != camera_y_shift:
-            self.camera_y_shift = camera_y_shift
+        if self.camera_y_shift != self.battle.camera_y_shift:
+            self.camera_y_shift = self.battle.camera_y_shift
             self.rect = self.current_scene_image.get_rect(midtop=(self.current_scene_image.get_width() / 2,
-                                                                  camera_y_shift))
+                                                                  self.camera_y_shift))
         self.image.blit(self.current_scene_image, self.rect)
 
         if self.fade_start:

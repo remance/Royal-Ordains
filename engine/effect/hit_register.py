@@ -12,18 +12,18 @@ def hit_register(self, target):
     elif target.direction == "left":
         front_hit = True
 
-    if self.dmg:
+    if self.power:
         critical = False
         if self.critical_chance >= uniform(0, 1):
             critical = True
-        final_dmg = self.cal_dmg(target, critical, front_hit)
+        final_dmg = self.cal_damage(target, critical, front_hit)
 
-        if self.dmg:  # effect has damage to deal (some may simply be for apply status)
+        if self.power:  # effect has damage to deal (some may simply be for apply status)
             target.cal_loss(self.owner, final_dmg, self.impact, hit_angle, critical)
 
         if not self.penetrate:
-            if self.remain_reach == "bounce":
-                self.remain_timer = 5
+            if self.remain_reach:
+                self.remain_check = True
         if self.enemy_status_effect:
             for effect in self.enemy_status_effect:
                 target.apply_status(effect)

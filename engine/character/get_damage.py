@@ -1,9 +1,9 @@
 def get_damage(self):
-    self.dmg = self.current_moveset["Power"]
+    self.power = self.current_moveset["Power"]
     self.penetrate = self.current_moveset["Penetrate"]
     self.element = self.current_moveset["Element"]
-    self.impact = (self.current_moveset["Impact X"] * self.impact_modifier,
-                   self.current_moveset["Impact Y"] * self.impact_modifier)
+    self.impact = (self.current_moveset["Impact X"],
+                   self.current_moveset["Impact Y"])
     self.impact_sum = abs(self.impact[0]) + abs(self.impact[1])
 
     self.critical_chance = self.critical_chance + self.current_moveset["Critical Chance Bonus"]

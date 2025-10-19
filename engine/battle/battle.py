@@ -16,11 +16,12 @@ from engine.effect.effect import DamageEffect, Effect
 from engine.scene.scene import Scene
 from engine.stageobject.stageobject import StageObject
 from engine.uibattle.uibattle import (FPSCount, BattleHelper, BattleCursor, YesNo, CharacterSpeechBox,
-                                      PlayerSelectCharacterBand, CharacterInteractPrompt,
-                                      Command, TacticalMap, StrategySelect, ScreenFade, WheelUI)
+                                      CharacterCommandIndicator, PlayerBattleInteract, CharacterInteractPrompt,
+                                      Command, TacticalMap, StrategySelect, ScreenFade)
 from engine.uimenu.uimenu import TextPopup
 
 from engine.game.activate_input_popup import activate_input_popup
+from engine.battle.activate_strategy import activate_strategy
 from engine.battle.add_sound_effect_queue import add_sound_effect_queue
 from engine.battle.check_event import check_event
 from engine.battle.cal_shake_value import cal_shake_value
@@ -50,7 +51,7 @@ from engine.weather.weather import Weather
 script_dir = path.split(path.abspath(__file__))[0] + "/"
 
 decision_route = {"yes": "a", "no": "b"}
-team_list = range(4)
+team_list = range(3)
 inf = float("inf")
 
 
@@ -67,6 +68,7 @@ def set_done_load():
 
 class Battle:
     activate_input_popup = activate_input_popup
+    activate_strategy = activate_strategy
     add_sound_effect_queue = add_sound_effect_queue
     check_event = check_event
     cal_shake_value = cal_shake_value
@@ -106,15 +108,12 @@ class Battle:
         self.game = game
         Battle.battle = self
         # TODO LIST
-        # add commander strategy, false command function
-        # main camp
-        # finish Rodhinbar
-        # dead general remain in topleft ui removal,
-        # add indicator for player command when click and selected generals
-        # add enemy command AI, skirmish behaviour ai for ranged char/leader/group, camp/commander
+        # add reinforcement, both control and no control
+        # finish Rodhinbar, test iri, vraesier, cat crossbow, human troops, tulia, nice animal
+        # add enemy command AI, skirmish behaviour ai for ranged char/leader/group, commander
         # add back hold function, for spear pike and stuff
+        # think how to deal center battle map start retreat point
         # finish main menu
-        # blit culling, add remove char every update with battle. same stat (char_id, animation, pos) check, size/base_pos check?
 
         self.clock = pygame.time.Clock()  # Game clock to keep track of realtime pass
 
@@ -144,14 +143,14 @@ class Battle:
         self.main_dir = game.main_dir
         self.data_dir = game.data_dir
         self.screen_scale = game.screen_scale
-        self.battle_cameras = game.battle_cameras
+        self.battle_camera_object_drawer = game.battle_camera_object_drawer
+        self.battle_camera_ui_drawer = game.battle_camera_ui_drawer
         Battle.ui_updater = game.battle_ui_updater
         Battle.ui_drawer = game.battle_ui_drawer
 
         self.character_updater = game.character_updater
         self.all_characters = game.all_characters
         self.speech_boxes = game.speech_boxes
-        self.all_damage_effects = game.all_damage_effects
         self.player_general_indicators = game.player_general_indicators
         self.stage_objects = game.stage_objects
         self.effect_updater = game.effect_updater
@@ -210,6 +209,7 @@ class Battle:
         self.bottom_corner = self.screen_height - (5 * self.screen_scale[1])
 
         self.character_data = self.game.character_data
+        self.strategy_list = self.character_data.strategy_list
         self.battle_map_data = self.game.battle_map_data
         self.weather_data = self.battle_map_data.weather_data
         self.weather_matter_images = self.battle_map_data.weather_matter_images
@@ -220,8 +220,6 @@ class Battle:
         self.character_animation_data = self.game.character_animation_data
         self.character_portraits = self.game.character_portraits
         self.effect_animation_pool = self.game.effect_animation_pool
-        self.item_sprite_pool = self.game.item_sprite_pool
-        self.battle_item_sprite_pool = self.game.battle_item_sprite_pool
         self.language = self.game.language
         self.localisation = self.game.localisation
         self.save_data = game.save_data
@@ -245,6 +243,7 @@ class Battle:
         self.team_stat = {team: {"strategy_resource": 0, "start_pos": 0, "air_group": [], "strategy": {}} for
                           team in team_list}
         self.player_control_generals = []  # for command ui
+        self.team_commander = {team: None for team in team_list}
         self.player_selected_generals = []  # for player order input
         self.player_selected_strategy = None
 
@@ -258,6 +257,20 @@ class Battle:
                                           32)  # Set the display mode
         Battle.screen = display.set_mode(self.screen_rect.size, self.game.window_style,
                                          self.best_depth)  # set up self screen
+
+        # Create the game camera
+        self.camera_mode = "Follow"  # mode of game camera, follow player character or free observation
+        self.camera_pos = Vector2(500, 500)  # camera pos on scene
+        self.camera_left = (self.camera_pos[0] - self.camera_center_x)
+
+        self.base_camera_left = (self.camera_pos[0] - self.camera_center_x) / self.screen_scale[0]
+
+        self.shown_camera_pos = self.camera_pos  # pos of camera shown to player, in case of screen shaking or other effects
+
+        Battle.camera = Camera(self.screen, self.camera_size)
+        self.camera_w_center = self.camera.camera_w_center
+        self.camera_h_center = self.camera.camera_h_center
+        self.camera_left_shift = self.shown_camera_pos[0] - self.camera_w_center
 
         # Assign battle variable to some classes
         Character.collision_grid_width = self.screen_width / Collision_Grid_Per_Scene  # collision grid width based on screen scale
@@ -273,20 +286,23 @@ class Battle:
         CharacterSpeechBox.images = battle_ui_images
 
         self.command_ui = Command()
-        self.player_character_select_band = PlayerSelectCharacterBand()
+        self.player_battle_interact = PlayerBattleInteract()
         self.tactical_map_ui = TacticalMap(battle_ui_images["tactical_selected"],
                                            battle_ui_images["tactical_commander_selected"])
-        # self.strategy_select_ui = StrategySelect(self.command_ui.rect.bottomleft, self.animation_data.strategy_icons)
+        self.strategy_select_ui = StrategySelect(self.command_ui.rect.bottomleft, self.animation_data.strategy_icons)
 
         self.battle_timer_ui = BattleHelper(self.game.weather_icon_images, battle_ui_images["time_select"],
                                             battle_ui_images["time_selector"])
-        self.battle_outer_ui_updater.add(self.command_ui, self.tactical_map_ui,
-                                         self.battle_timer_ui, self.player_character_select_band)
+        self.battle_outer_ui_updater.add(self.command_ui, self.tactical_map_ui, self.strategy_select_ui,
+                                         self.battle_timer_ui, self.player_battle_interact)
+        self.character_command_indicator = tuple([CharacterCommandIndicator(
+            index, 600 + (100 * index), battle_ui_images["player_order_move"], battle_ui_images["player_order_attack"])
+            for index in range(5)])
 
         self.screen_fade = ScreenFade()
         self.speech_prompt = CharacterInteractPrompt(battle_ui_images["button_weak"])
-
-        self.player_wheel_ui = WheelUI(battle_ui_images, self.command_ui.rect.midbottom)
+        #
+        # self.player_wheel_ui = WheelUI(battle_ui_images, self.command_ui.rect.midbottom)
 
         self.decision_select = YesNo(battle_ui_images)
 
@@ -311,14 +327,6 @@ class Battle:
         self.dialogue_box = esc_menu_dict["dialogue_box"]
         self.esc_dialogue_button = esc_menu_dict["esc_dialogue_button"]
 
-        # Create the game camera
-        self.camera_mode = "Follow"  # mode of game camera, follow player character or free observation
-        self.camera_pos = Vector2(500, 500)  # camera pos on scene
-        self.camera_left = (self.camera_pos[0] - self.camera_center_x)
-        self.base_camera_left = (self.camera_pos[0] - self.camera_center_x) / self.screen_scale[0]
-
-        self.shown_camera_pos = self.camera_pos  # pos of camera shown to player, in case of screen shaking or other effects
-
         self.clock_time = 0
         self.true_dt = 0
         self.dt = 0  # Realtime used for time calculation
@@ -327,11 +335,8 @@ class Battle:
         self.ui_timer = 0  # This is timer for ui update function, use realtime
         self.drama_timer = 0  # This is timer for combat related function, use self time (realtime * game_speed)
 
-        Battle.camera = Camera(self.screen, self.camera_size)
-        self.camera_w_center = self.camera.camera_w_center
-        self.camera_h_center = self.camera.camera_h_center
-
-        self.base_cursor_pos = [0, 0]  # mouse pos on the map based on camera position
+        self.base_cursor_pos = [0, 0]  # mouse base pos on the map based on camera position
+        self.cursor_pos = [0, 0]
 
         # Battle map object
         Scene.image = Surface.subsurface(self.camera.image, (0, 0, self.camera.image.get_width(),
@@ -351,6 +356,7 @@ class Battle:
         self.player_interact_event_list = {}
         self.end_delay = 0  # delay until scene end and continue to next one
         self.spawn_delay_timer = {}
+        self.blit_culling_check = set()
         self.cutscene_in_progress = False
         self.cutscene_finish_camera_delay = 0  # delay before camera can move again after cutscene
         self.ai_battle_speak_timer = 0  # timer for follower talk based on their action
@@ -399,6 +405,8 @@ class Battle:
         self.player_interact_event_list = {}
         self.stage_music_pool = {}
         self.speech_prompt.clear()
+        for character_command_indicator in self.character_command_indicator:
+            character_command_indicator.setup()
 
         for value in stage_object_data.values():
             if "scene" in value["Type"]:  # assign scene data
@@ -439,12 +447,13 @@ class Battle:
         self.stage_end = self.camera_center_x + ((stage_len - 1) * self.screen_width)
         self.tactical_map_ui.setup()  # setup tactical map ui to scale with stage size
 
-        self.team_stat = {0: {"start_pos": 0, "air_group": []},
-                          1: {"strategy_resource": 0, "start_pos": 0, "air_group": [], "strategy": {"Test": 0}},
-                          2: {"strategy_resource": 0, "start_pos": self.base_stage_end / 2, "air_group": [], "strategy": {}},
-                          3: {"strategy_resource": 0, "start_pos": self.base_stage_end / 2, "air_group": [], "strategy": {}}}
+        self.team_stat = {0: {"strategy_resource": 0, "start_pos": 0, "air_group": [], "strategy": {}},
+                          1: {"strategy_resource": 0, "start_pos": 0, "air_group": [],
+                              "strategy": {"Test": 0, "Test2": 0, "Spell_huge_stone": 0}},
+                          2: {"strategy_resource": 100, "start_pos": self.base_stage_end / 2, "air_group": [],
+                              "strategy": {"Test": 0, "Test2": 0, "Spell_huge_stone": 0}}}
 
-        # self.strategy_select_ui.setup()
+        self.strategy_select_ui.setup()
 
         self.last_char_game_id = 0
         self.spawn_delay_timer = {}
@@ -531,7 +540,6 @@ class Battle:
 
         self.animation_data.load_character_animation(character_list, battle_only=True)
 
-        WheelUI.item_sprite_pool = self.item_sprite_pool
         yield set_done_load()
 
         yield set_start_load(self, "common setup")
@@ -617,7 +625,7 @@ class Battle:
                                          value3[0]["Property"]["sound distance"],
                                          value3[0]["Property"]["shake value"]))
         self.fix_camera()
-        self.scene.setup(self.camera_left)
+        self.scene.setup()
         yield set_done_load()
 
     def run_game(self):
@@ -646,6 +654,7 @@ class Battle:
         self.play_time = 0
 
         self.base_cursor_pos = [0, 0]  # mouse pos on the map based on camera position
+        self.cursor_pos = [0, 0]
         # mouse.set_pos(Vector2(self.camera_pos[0], self.screen_scale[1] / 2))  # set cursor to center of screen
 
         self.player_key_bind = self.game.player_key_bind_list
@@ -697,6 +706,8 @@ class Battle:
             self.base_cursor_pos = Vector2(
                 ((self.battle_cursor.pos[0] / self.screen_scale[0]) + self.base_camera_left),
                 (self.battle_cursor.pos[1] / self.screen_scale[1]))  # mouse pos on the map based on camera position
+            self.cursor_pos = Vector2(self.battle_cursor.pos[0] + self.camera_left,
+                                      self.battle_cursor.pos[1])
             for event in pygame.event.get():  # get event that happen
                 if event.type == pygame.MOUSEBUTTONUP:
                     if event.button == 4:  # Mouse scroll down
@@ -717,35 +728,47 @@ class Battle:
 
                     # FOR DEVELOPMENT comment out later
                     if event.key == K_F1:
-                        self.drama_text.queue.append(("Hello and welcome to showcase video", "Dollhello"))
+                        self.drama_text.queue.append(("Hello and welcome to showcase video", "Dollhi"))
                     elif event.key == K_F2:
-                        self.drama_text.queue.append(("Show case: Air combat", None))
+                        self.drama_text.queue.append(("Show case: Commander Strategy", None))
                     elif event.key == K_F3:
                         self.drama_text.queue.append(
-                            ("System is similar to Wargame series, air unit is called for a mission", None))
-                        # self.game_speed = 0.5
+                            ("Command can activate strategy or spell in battle", None))
                     elif event.key == K_F4:
                         self.drama_text.queue.append(
-                            ("They will return when out of resource and require rest to be ready again", None))
-                        # self.game_speed = 1
+                            ("UI here show the range that strategy can be activated and its effect range", None))
+                        # for enemy in self.player_control_generals:
+                        #     for follower in enemy.followers:
+                        #         follower.health = 0
+                        # self.drama_text.queue.append(
+                        #     ("They will return when out of resource and require rest to be ready again", None))
                     elif event.key == K_F5:
                         # self.drama_text.queue.append(("Maybe need to add clear unit selector around here", None))
-                        self.drama_text.queue.append(("Each has different role for fighting air/ground units.", None))
+                        # self.drama_text.queue.append(("Each has different role for fighting air/ground units.", None))
                         # self.drama_text.queue.append(("All dead.", None))
+                        self.drama_text.queue.append(
+                            ("Some may grant buffs to ally or debuff to enemy, it can even give false command", None))
                         # for enemy in self.player_control_generals:
                         #     if not enemy.is_commander:
                         #         enemy.health = 0
                         #         break
                     elif event.key == K_F6:
-                        self.call_in_air_group(2, [index for index, _ in enumerate(self.team_stat[2]["air_group"])],
-                                               500)
+                        self.drama_text.queue.append(
+                            ("Some will just cast spells that do damage", None))
+                        # self.call_in_air_group(2, [index for index, _ in enumerate(self.team_stat[2]["air_group"])],
+                        #                        500)
+                        self.screen_shake_value = 11111
+                        for enemy in self.player_control_generals:
+                            enemy.broken = True
+                    elif event.key == K_F7:
+                        self.activate_strategy(2, "Spell_huge_stone", 1000)
                         # self.screen_shake_value = 11111
                         # for enemy in self.player_control_generals:
                         #     enemy.broken = True
-                    elif event.key == K_F7:  # clear profiler
+                    elif event.key == K_F11:  # clear profiler
                         if hasattr(self.game, "profiler"):
                             self.game.profiler.clear()
-                    elif event.key == K_F8:  # show/hide profiler
+                    elif event.key == K_F12:  # show/hide profiler
                         if not hasattr(self.game, "profiler"):
                             self.game.setup_profiler()
                         self.game.profiler.switch_show_hide()
@@ -787,7 +810,7 @@ class Battle:
                                self.esc_value_boxes.values(), self.esc_option_text.values(),
                                self.scene_translation_text_popup)
 
-        self.battle_outer_ui_updater.remove(self.player_wheel_ui, self.decision_select)
+        self.battle_outer_ui_updater.remove(self.decision_select)
         self.battle_cursor.change_image("normal")
 
         self.command_ui.reset()
@@ -801,16 +824,18 @@ class Battle:
         self.stage_music_pool = {}
 
         # remove all reference from battle object
-        self.team_stat = {0: {"start_pos": 0, "air_group": []},
-                          1: {"strategy_resource": 0, "start_pos": 0, "air_group": [], "strategy": {}},
-                          2: {"strategy_resource": 0, "start_pos": 0, "air_group": [], "strategy": {}},
-                          3: {"strategy_resource": 0, "start_pos": 0, "air_group": [], "strategy": {}}}
+        self.team_stat = {team: {"strategy_resource": 0, "start_pos": 0, "air_group": [], "strategy": {}} for
+                          team in team_list}
         self.ai_process_list = []
+        self.team_commander = {team: None for team in team_list}
         self.player_control_generals = []
         self.player_selected_generals = []
         self.player_selected_strategy = None
         self.tactical_map_ui.character_rect = {}
         self.speech_prompt.clear()  # clear speech prompt from updater to avoid being deleted
+        for character_command_indicator in self.character_command_indicator:
+            character_command_indicator.setup()
+        self.blit_culling_check.clear()
 
         self.clean_character_group()
 

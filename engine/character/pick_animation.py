@@ -6,16 +6,6 @@ def pick_animation(self):
         if "direction" in self.current_action:
             self.new_direction = self.current_action["direction"]
 
-        # new action property
-        if "x_momentum" in self.current_action and not isinstance(self.current_action["x_momentum"], bool):
-            # action with specific x_momentum from data like attack action that move player, not for AI move
-            if self.new_direction == "right":
-                self.x_momentum = self.current_action["x_momentum"]
-            else:
-                self.x_momentum = -self.current_action["x_momentum"]
-        if "y_momentum" in self.current_action and not isinstance(self.current_action["y_momentum"], bool):
-            self.y_momentum = self.current_action["y_momentum"]
-
         if "moveset" in self.current_action:
             animation_name = None
 
@@ -80,9 +70,18 @@ def pick_animation(self):
         else:
             animation_name = self.replace_idle_animation
 
+    # new action property
+    if "x_momentum" in self.current_action:
+        if self.new_direction == "right":
+            self.x_momentum = self.current_action["x_momentum"]
+        else:
+            self.x_momentum = -self.current_action["x_momentum"]
+    if "y_momentum" in self.current_action:
+        self.y_momentum = self.current_action["y_momentum"]
+
     if animation_name in self.animation_pool:
         self.current_animation = self.animation_pool[animation_name]
-    else:  # animation not found, use default
+    else:  # animation not found, use default  # TODO remove this in stable
         print("notfound", self.name, animation_name, self.current_action, self.command_action, self.alive,
               self.invincible, self.health)
         self.current_animation = self.animation_pool["Default"]
@@ -107,4 +106,5 @@ def pick_animation(self):
         self.battle.add_sound_effect_queue(self.sound_effect_pool[sound[0]][0],
                                            self.pos, sound[1], sound[2])
 
+    self.animation_name = animation_name
     self.update_sprite = True

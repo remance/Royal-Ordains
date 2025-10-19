@@ -3,7 +3,6 @@ from pygame import Vector2
 
 def enter_stage(self):
     self.pick_animation()
-    self.battle_camera.add(self)
 
 
 def battle_character_enter_stage(self):
@@ -19,7 +18,6 @@ def battle_character_enter_stage(self):
                     self.battle.all_team_enemy_check[team].add(self)
 
     self.pick_animation()
-    self.battle_camera.add(self)
 
 
 def delayed_enter_stage(self, dt):
@@ -40,4 +38,3 @@ def battle_air_character_enter_stage(self):
     # Add character to list, but not in victory condition list
     if self.active:
         self.pick_animation()
-        self.battle_camera.add(self)

@@ -1303,10 +1303,10 @@ class CampaignListAdapter(ListAdapterHideExpand):
                               self.game.localisation.grab_text(("preset_map", "info",
                                                                 self.campaign_name_index[item_name])).items()]
 
-            self.game.text_popup.popup(self.game.cursor.rect, popup_text, shown_id=item_id,
+            self.game.text_popup.popup(self.game.cursor.rect, popup_text,
                                        width_text_wrapper=1000 * self.game.screen_scale[0])
         else:  # already showing this leader no need to create text again
-            self.game.text_popup.popup(self.game.cursor.rect, None, shown_id=item_id,
+            self.game.text_popup.popup(self.game.cursor.rect, None,
                                        width_text_wrapper=1000 * self.game.screen_scale[0])
         self.game.add_ui_updater(self.game.text_popup)
 
@@ -1346,102 +1346,112 @@ class TextPopup(UIMenu):
         self.font_size = int(font_size * self.screen_scale[1])
         self.font = Font(self.ui_font["main_button"], self.font_size)
         self.pos = (0, 0)
+        self.black_border_size = 6 * self.screen_scale[0]
+        self.black_border_size_x2 = self.black_border_size * 2
+        self.black_border_size_x4 = self.black_border_size * 4
         self.last_shown_id = None
+        self.popup_rect = None
         self.text_input = ""
 
-    def popup(self, popup_rect, text_input, shown_id=None, width_text_wrapper=None, custom_screen_size=None,
+    def popup(self, popup_rect, text_input, width_text_wrapper=None, custom_screen_size=None,
               bg_colour=(220, 220, 220), font_colour=(30, 30, 30)):
         """Pop out text box with input text list in multiple line, one item equal to one paragraph"""
-        self.last_shown_id = shown_id
-
-        if text_input is not None and (self.text_input != text_input or self.last_shown_id != shown_id):
-            self.text_input = text_input
-            if type(text_input) == str:
-                self.text_input = [text_input]
-            text_surface = []
-            if width_text_wrapper:  # has specific popup width size
-                max_height = 0
-                max_width = width_text_wrapper
-                for text in self.text_input:
-                    image_height = int(((self.font.render(text, True, (0, 0, 0)).get_width()) +
-                                        self.font_size) / width_text_wrapper)
-                    if not image_height:  # only one line
-                        text_image = Surface((width_text_wrapper, self.font_size))
-                        text_image.fill(bg_colour)
-                        surface = self.font.render(text, True, font_colour)
-                        text_image.blit(surface, (self.font_size, 0))
-                        text_surface.append(text_image)  # text input font surface
-                        max_height += surface.get_height()
-                    else:
-                        # Find new image height, using code from make_long_text
-                        x, y = (self.font_size, self.font_size)
-                        words = [word.split(" ") for word in
-                                 str(text).splitlines()]  # 2D array where each row is a list of words
-                        space = self.font.size(" ")[0]  # the width of a space
-                        for line in words:
-                            for word in line:
-                                word_surface = self.font.render(word, True, font_colour)
-                                word_width, word_height = word_surface.get_size()
-                                if x + word_width >= max_width:
-                                    x = self.font_size  # reset x
-                                    y += word_height  # start on new row.
-                                x += word_width + space
-                            x = self.font_size  # reset x
-                            y += word_height  # start on new row
-                        text_image = Surface((width_text_wrapper, y))
-                        text_image.fill(bg_colour)
-                        make_long_text(text_image, text, (self.font_size, self.font_size), self.font,
-                                       color=font_colour, specific_width=width_text_wrapper)
-                        text_surface.append(text_image)
-                        max_height += text_image.get_height()
-            else:
-                max_width = 0
-                max_height = 0
-                for text in self.text_input:
-                    surface = self.font.render(text, True, font_colour)
-                    text_surface.append(surface)  # text input font surface
-                    text_rect = surface.get_rect(
-                        topleft=(self.font_size, self.font_size))  # text input position at (1,1) on white box image
-                    if text_rect.width > max_width:
-                        max_width = text_rect.width
-                    max_height += self.font_size + int(self.font_size / 5)
-
-            self.image = Surface((max_width, max_height))  # white Box
-            self.image.fill(bg_colour)
-
-            height = 0
-            for surface in text_surface:
-                text_rect = surface.get_rect(topleft=(0, height))
-                self.image.blit(surface, text_rect)  # blit text
-                height += surface.get_height()
-
-        if hasattr(popup_rect, "bottomright"):  # popup_rect is rect
-            self.rect = self.image.get_rect(bottomleft=popup_rect.bottomright)
-
-            screen_size = self.screen_size
-            if custom_screen_size:
-                screen_size = custom_screen_size
-            exceed_right = False
-            if popup_rect.bottomright[0] + self.image.get_width() > screen_size[0]:  # exceed right screen
-                self.rect = self.image.get_rect(topright=popup_rect.bottomleft)
-                exceed_right = True
-            elif popup_rect.bottomleft[0] - self.image.get_width() < 0:  # exceed left side screen
-                self.rect = self.image.get_rect(topleft=popup_rect.bottomright)
-
-            if popup_rect.bottomright[1] + self.image.get_height() > screen_size[1]:  # exceed bottom screen
-                self.rect = self.image.get_rect(bottomleft=popup_rect.topright)
-                if exceed_right:
-                    self.rect = self.image.get_rect(bottomright=popup_rect.topleft)
-            elif popup_rect.bottomright[1] - self.image.get_height() < 0:  # exceed top screen
-                self.rect = self.image.get_rect(topleft=popup_rect.bottomright)
-                if exceed_right:
-                    self.rect = self.image.get_rect(topright=popup_rect.bottomleft)
-        else:  # popup_rect is pos
-            if type(popup_rect) is tuple:
-                if type(popup_rect[0]) is str:
-                    exec(f"self.rect = self.image.get_rect({popup_rect[0]}=popup_rect[1])")
+        if self.popup_rect != popup_rect or self.text_input != text_input:
+            if self.text_input != text_input:
+                self.text_input = text_input
+                if type(text_input) == str:
+                    self.text_input = [text_input]
+                text_surface = []
+                if width_text_wrapper:  # has specific popup width size
+                    max_height = 0
+                    max_width = width_text_wrapper
+                    for text in self.text_input:
+                        image_height = int(((self.font.render(text, True, (0, 0, 0)).get_width()) +
+                                            self.font_size) / width_text_wrapper)
+                        if not image_height:  # only one line
+                            text_image = Surface((width_text_wrapper, self.font_size))
+                            text_image.fill(bg_colour)
+                            surface = self.font.render(text, True, font_colour)
+                            text_image.blit(surface, (self.font_size, 0))
+                            text_surface.append(text_image)  # text input font surface
+                            max_height += surface.get_height()
+                        else:
+                            # Find new image height, using code from make_long_text
+                            x, y = (self.font_size, self.font_size)
+                            words = [word.split(" ") for word in
+                                     str(text).splitlines()]  # 2D array where each row is a list of words
+                            space = self.font.size(" ")[0]  # the width of a space
+                            for line in words:
+                                for word in line:
+                                    word_surface = self.font.render(word, True, font_colour)
+                                    word_width, word_height = word_surface.get_size()
+                                    if x + word_width >= max_width:
+                                        x = self.font_size  # reset x
+                                        y += word_height  # start on new row.
+                                    x += word_width + space
+                                x = self.font_size  # reset x
+                                y += word_height  # start on new row
+                            text_image = Surface((width_text_wrapper, y))
+                            make_long_text(text_image, text, (self.font_size, self.font_size), self.font,
+                                           color=font_colour, specific_width=width_text_wrapper)
+                            text_surface.append(text_image)
+                            max_height += text_image.get_height()
                 else:
-                    self.rect = self.image.get_rect(topleft=popup_rect)
+                    max_width = 0
+                    max_height = 0
+                    for text in self.text_input:
+                        surface = self.font.render(text, True, font_colour)
+                        text_surface.append(surface)  # text input font surface
+                        text_rect = surface.get_rect(
+                            topleft=(self.font_size, self.font_size))  # text input position at (1,1) on white box image
+                        if text_rect.width > max_width:
+                            max_width = text_rect.width
+                        max_height += self.font_size + int(self.font_size / 5)
+
+                self.image = Surface((max_width + self.black_border_size_x4,
+                                      max_height + self.black_border_size_x4))  # white Box
+                self.image.fill((0, 0, 0))  # black border
+                self.image.fill(bg_colour, (self.black_border_size,
+                                            self.black_border_size,
+                                            self.image.get_width() - self.black_border_size_x2,
+                                            self.image.get_height() - self.black_border_size_x2
+                                            ))
+
+                height = self.black_border_size
+                for surface in text_surface:
+                    text_rect = surface.get_rect(topleft=(self.black_border_size_x2, height))
+                    self.image.blit(surface, text_rect)  # blit text
+                    height += surface.get_height()
+
+            if hasattr(popup_rect, "bottomright"):  # popup_rect is rect
+                self.rect = self.image.get_rect(bottomleft=popup_rect.bottomright)
+
+                screen_size = self.screen_size
+                if custom_screen_size:
+                    screen_size = custom_screen_size
+                exceed_right = False
+                if popup_rect.bottomright[0] + self.image.get_width() > screen_size[0]:  # exceed right screen
+                    self.rect = self.image.get_rect(topright=popup_rect.bottomleft)
+                    exceed_right = True
+                elif popup_rect.bottomleft[0] - self.image.get_width() < 0:  # exceed left side screen
+                    self.rect = self.image.get_rect(topleft=popup_rect.bottomright)
+
+                if popup_rect.bottomright[1] + self.image.get_height() > screen_size[1]:  # exceed bottom screen
+                    self.rect = self.image.get_rect(bottomleft=popup_rect.topright)
+                    if exceed_right:
+                        self.rect = self.image.get_rect(bottomright=popup_rect.topleft)
+                elif popup_rect.bottomright[1] - self.image.get_height() < 0:  # exceed top screen
+                    self.rect = self.image.get_rect(topleft=popup_rect.bottomright)
+                    if exceed_right:
+                        self.rect = self.image.get_rect(topright=popup_rect.bottomleft)
+            else:  # popup_rect is pos
+                if type(popup_rect) is tuple:
+                    if type(popup_rect[0]) is str:
+                        exec(f"self.rect = self.image.get_rect({popup_rect[0]}=popup_rect[1])")
+                    else:
+                        self.rect = self.image.get_rect(topleft=popup_rect)
+
+            self.popup_rect = popup_rect
 
 
 class BoxUI(UIMenu, Containable, Container):

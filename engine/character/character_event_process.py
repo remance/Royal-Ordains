@@ -13,12 +13,12 @@ def character_event_process(self, event, event_property):
 
     if event["Type"] == "hide":
         if self.indicator:  # also hide indicator
-            self.battle_camera.remove(self.indicator)
+            self.battle_camera_ui_drawer.remove(self.indicator)
         self.update = MethodType(Character.inactive_update, self)
         self.battle.cutscene_playing.remove(event)
     elif event["Type"] == "show":
         if self.indicator:
-            self.battle_camera.add(self.indicator)
+            self.battle_camera_ui_drawer.add(self.indicator)
         self.update = MethodType(Character.update, self)
         self.battle.cutscene_playing.remove(event)
     elif event["Type"] == "idle":  # replace idle animation, note that it replace even after cutscene finish

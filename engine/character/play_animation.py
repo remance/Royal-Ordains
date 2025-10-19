@@ -65,10 +65,10 @@ def play_battle_animation(self, dt, hold_check):
                         TrapEffect(self, part_data, part_data[6], self.current_moveset)
                     else:
                         if self.effect_list[part_data[0]]["Damage"]:  # damage effect
-                            DamageEffect(self, part_data, part_data[6], self.current_moveset,
+                            DamageEffect(self, part_data, self.current_moveset,
                                          base_target_pos=self.current_action["target"])
                         else:  # no damage effect
-                            Effect(self, part_data, part_data[6], self.current_moveset,
+                            Effect(self, part_data, self.current_moveset,
                                    base_target_pos=self.current_action["target"])
             if "sprite_deal_damage" in self.current_animation_frame["property"] and self.current_moveset:
                 self.sprite_deal_damage = True

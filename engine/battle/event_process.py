@@ -181,8 +181,7 @@ def event_process(self):
                         game_id = event_property["Game ID"]
                     if "Layer ID" in event_property:
                         layer_id = event_property["Layer ID"]
-                    Character(self.battle_camera["battle"],
-                              game_id, layer_id,
+                    Character(game_id, layer_id,
                               event_property | self.character_data.character_list[
                                   child_event["Object"]] |
                               {"ID": child_event["Object"],

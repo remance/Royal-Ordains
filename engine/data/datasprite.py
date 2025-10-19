@@ -20,8 +20,6 @@ class SpriteData(GameData):
         self.character_portraits = {}
         self.strategy_icons = {}
         self.effect_animation_pool = None
-        self.item_sprite_pool = None
-        self.battle_item_sprite_pool = None
         self.stage_object_animation_pool = None
         self.effect_animation_pool = load_pickle_with_surfaces(
             join(self.data_dir, "animation", "effect_animation.xz"),

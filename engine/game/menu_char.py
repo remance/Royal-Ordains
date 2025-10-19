@@ -109,7 +109,6 @@ def menu_char(self):
                                                                     "): " + interface.grab_text(
                                                                         ("ui", "toggle_description"))
                                                                     ),
-                                                                   shown_id=key_press,
                                                                    width_text_wrapper=500 * self.screen_scale[0])
                                     elif interface.mode == "followers":
                                         interface.add_remove_text_popup()
@@ -144,7 +143,6 @@ def menu_char(self):
                                                                         "Inventory Menu"] +
                                                                     "): " + interface.grab_text(
                                                                         ("ui", "toggle_description"))),
-                                                                   shown_id=key_press,
                                                                    width_text_wrapper=500 * self.screen_scale[0])
                                     elif interface.mode == "empty":
                                         interface.add_remove_text_popup()
@@ -156,7 +154,6 @@ def menu_char(self):
                                                                         interface.player][
                                                                         "Special"] +
                                                                     "): " + interface.grab_text(("ui", "add_player"))),
-                                                                   shown_id=key_press,
                                                                    width_text_wrapper=500 * self.screen_scale[0])
                                 elif key_press == "Inventory Menu":
                                     interface.input_delay = 0.2
@@ -171,7 +168,6 @@ def menu_char(self):
                                                                     " ",
                                                                     interface.grab_text(
                                                                         ("character", character, "Description"))),
-                                                                   shown_id=key_press,
                                                                    width_text_wrapper=500 * self.screen_scale[0])
                                     elif interface.mode == "followers":
                                         interface.add_remove_text_popup()
@@ -182,7 +178,6 @@ def menu_char(self):
                                                                     " ",
                                                                     interface.grab_text(
                                                                         ("followers", followers, "Description"))),
-                                                                   shown_id=key_press,
                                                                    width_text_wrapper=500 * self.screen_scale[0])
                                 elif key_press == "Special":  # add/remove favourite
                                     interface.input_delay = 0.2

@@ -47,6 +47,14 @@ def state_battle_process(self):
 
             self.ai_process_list = self.ai_process_list[limit:]
 
+        for team, team_stat in self.team_stat.items():
+            team_stat["strategy"] = {key: value - self.dt if value > self.dt else 0 for
+                                     key, value in team_stat["strategy"].items()}
+            if self.team_commander[team] and self.team_commander[team].alive:
+                team_stat["strategy_resource"] += self.dt * self.team_commander[team].strategy_regen
+                if team_stat["strategy_resource"] > 100:
+                    team_stat["strategy_resource"] = 100
+
         if self.cutscene_finish_camera_delay and not self.cutscene_playing:
             self.cutscene_finish_camera_delay -= self.true_dt
             if self.cutscene_finish_camera_delay < 0:
@@ -151,8 +159,13 @@ def state_battle_process(self):
         #             return True
 
     self.camera_y_shift = self.camera_center_y - self.shown_camera_pos[1]
-    self.scene.update(self.camera_left, self.camera_y_shift)
-    self.camera.update(self.shown_camera_pos, self.battle_cameras["battle"])
+    self.camera_left_shift = self.shown_camera_pos[0] - self.camera_w_center  # camera topleft x
+    # camera_right_x = pos[0] + self.camera_w_center  # camera topleft x
+    self.camera_y = self.shown_camera_pos[1] - self.camera_h_center  # camera topleft y
+    self.camera.camera_left_shift = self.camera_left_shift
+    self.camera.camera_y_shift = self.camera_y_shift
+    self.scene.update()
+    self.camera.update(self.battle_camera_object_drawer)
     self.battle_outer_ui_updater.update()
 
     current_frame = self.camera_pos[0] / self.screen_width
@@ -169,5 +182,6 @@ def state_battle_process(self):
         self.spawn_check_scene = self.current_scene + 1
         self.reach_scene = self.current_scene
 
-    self.camera.update(self.shown_camera_pos, self.battle_cameras["ui"])
+    self.camera.update(self.battle_camera_ui_drawer)
     self.camera.out_update(self.battle_outer_ui_updater)
+    self.blit_culling_check.clear()

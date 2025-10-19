@@ -2,9 +2,9 @@ infinity = float("inf")
 from random import uniform
 
 
-def cal_dmg(self, target, critical: bool, front_hit: bool):
+def cal_damage(self, target, critical: bool, front_hit: bool):
     """
-    Calculate dmg on target
+    Calculate damage on target
     :param self: DamageEffect object
     :param target: Target character object
     :param critical: Critical damage or not
@@ -26,7 +26,7 @@ def cal_dmg(self, target, critical: bool, front_hit: bool):
             target_defence = 0.9
         elif target_defence < 0:  # defence dmg reduction can not be negative
             target_defence = 0
-    damage = int((self.dmg - (self.dmg * target_defence)) * (1 - target.element_resistance[self.element]))
+    damage = int((self.power - (self.power * target_defence)) * (1 - target.element_resistance[self.element]))
 
     if critical:
         damage *= 2

@@ -246,44 +246,23 @@ def stat_convert(row, n, i, percent_column=(), list_column=(), tuple_column=(), 
     :param str_column: list of value header that should be in str type
     :return: converted row
     """
-    # print(dict_column, n)
     if n in percent_column:
         if not i:
             row[n] = 1
         else:
             row[n] = float(i) + 1
 
-    elif n in list_column:
-        if "," in i:
-            if "." in i:
-                row[n] = [float(item) if re.search("[a-zA-Z]", item) is None else str(item) for item in i.split(",")]
-            else:
-                row[n] = [int(item) if item.lstrip("-").isdigit() else item for item in i.split(",")]
-        elif i.lstrip("-").isdigit():
-            if "." in i:
-                row[n] = [float(i)]
-            else:
-                row[n] = [int(i)]
-        else:
-            row[n] = [i]
+    elif n in list_column or n in tuple_column:
+        if "," not in i:  # single item
             if i == "":
                 row[n] = []
-
-    elif n in tuple_column:
-        if "," in i:
-            if "(" in i:  # tuple item
-                i = i.split("(")
-                i = [item.replace(")", "") for item in i if item]
-                i = [item.strip(";").split(";") for item in i]  # item with item1;item2 instead of ","
-                for k_index, k in enumerate(i):
-                    i[k_index] = tuple([item_conversion(item2) for item2 in k])
-                row[n] = tuple(i)
-
-            row[n] = tuple([item_conversion(item) for item in i.split(",")])
+            else:
+                row[n] = [i, ]
         else:
-            row[n] = tuple([item_conversion(i)])
-            if i == "":
-                row[n] = ()
+            row[n] = [item for item in i.split(",")]
+        row[n] = [item_conversion(k) for k in row[n]]
+        if n in tuple_column:
+            row[n] = tuple(row[n])
 
     elif n in int_column:
         if i:
@@ -345,19 +324,33 @@ def stat_convert(row, n, i, percent_column=(), list_column=(), tuple_column=(), 
 
 
 def item_conversion(i):
-    if i == "":
-        return 0
-    elif i.lower() == "none":
-        return None
-    elif i.lower() == "true":
-        return True
-    elif i.lower() == "false":
-        return False
-    elif i.isdigit() or i.lstrip("-").isdigit():
-        return int(i)
-    elif ("." in i and re.search("[a-zA-Z]", i) is None) or i == "inf":
-        return float(i)
-    elif "," in i:
-        return tuple(i.split(","))
+    if type(i) is str:
+        if i == "":
+            return 0
+        elif i[0] == "(" and i[-1] == ")":
+            i = i[1:-1]
+            i = i.split(";")  # item with item1;item2 instead of ","
+            for index_c, c in enumerate(i):
+                i[index_c] = item_conversion(c)
+            return i
+        elif i.lower() == "none":
+            return None
+        elif i.lower() == "true":
+            return True
+        elif i.lower() == "false":
+            return False
+        elif ("." in i and re.search("[a-zA-Z]", i) is None) or i == "inf":
+            return float(i)
+        elif "," in i:
+            return tuple([item_conversion(k) for k in i.split(",")])
+        elif i.isdigit() or i.lstrip("-").isdigit():
+            return int(i)
+        else:
+            return i
+    elif type(i) is tuple or type(i) is list:  # tuple/list item
+        i = [item.strip(";").split(";") for item in i]  # item with item1;item2 instead of ","
+        for index_c, c in enumerate(i):
+            i[index_c] = item_conversion(c)
+        return i
     else:
         return i

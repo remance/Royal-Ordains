@@ -17,8 +17,8 @@ class StageObject(sprite.Sprite):
         """Stage object with animation"""
         self._layer = 1
         sprite.Sprite.__init__(self, self.containers)
-        self.battle_camera = self.battle.battle_cameras["battle"]
-        self.battle_camera.add(self)
+        self.battle_camera_drawer = self.battle.battle_camera_object_drawer
+        self.battle_camera_drawer.add(self)
         self.game_id = game_id
         self.show_frame = 0
         self.frame_timer = 0

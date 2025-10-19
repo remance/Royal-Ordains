@@ -900,7 +900,7 @@ class Model:
             if bodypart_list[stuff] and bodypart_list[stuff][1]:
                 if "effect_" in stuff:
                     self.sprite_image[stuff] = effect_sprite_pool[bodypart_list[stuff][0]][
-                        bodypart_list[stuff][1]][0].copy()
+                        str(bodypart_list[stuff][1])][0].copy()
                 else:
                     new_part_name = stuff
                     if any(ext in stuff for ext in p_list):
@@ -915,7 +915,7 @@ class Model:
                     if "r_" in part_name[0:2] or "l_" in part_name[0:2]:
                         new_part_name = part_name[2:]  # remove part side
                     self.sprite_image[stuff] = body_sprite_pool[bodypart_list[stuff][0]][new_part_name][
-                        bodypart_list[stuff][1]].copy()
+                        str(bodypart_list[stuff][1])].copy()
 
     def click_part(self, mouse_pos, shift_press, ctrl_press, part=None):
         if part is None:

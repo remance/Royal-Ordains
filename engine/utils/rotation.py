@@ -1,6 +1,16 @@
-from math import cos, sin, atan2, degrees
+from math import cos, sin, atan2, degrees, radians
 
 from pygame import Vector2
+
+
+def find_target_point(start_x, start_y, distance, angle_degrees):
+    """
+    Find target point from start by a given distance at a specified angle.
+    """
+    # Convert angle from degrees to radians
+    angle_radians = radians(convert_projectile_degree_angle(angle_degrees))
+
+    return start_x + (distance * cos(angle_radians)), start_y + (distance * sin(angle_radians))
 
 
 def rotation_xy(origin, point, angle):

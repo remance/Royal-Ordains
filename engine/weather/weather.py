@@ -29,12 +29,12 @@ class Weather(UIBattle):
             self.level = 0
         cal_level = self.level + 1
 
-        self.offence_modifier = stat["Offence Modifier"] * cal_level
-        self.defence_modifier = stat["Defence Modifier"] * cal_level
-        self.speed_modifier = stat["Speed Modifier"] * cal_level
-        self.air_offence_modifier = stat["Air Offence Modifier"] * cal_level
-        self.air_defence_modifier = stat["Air Defence Modifier"] * cal_level
-        self.air_speed_modifier = stat["Air Speed Modifier"] * cal_level
+        self.offence_modifier = stat["Offence Modifier"] ** cal_level
+        self.defence_modifier = stat["Defence Modifier"] ** cal_level
+        self.speed_modifier = stat["Speed Modifier"] ** cal_level
+        self.air_offence_modifier = stat["Air Offence Modifier"] ** cal_level
+        self.air_defence_modifier = stat["Air Defence Modifier"] ** cal_level
+        self.air_speed_modifier = stat["Air Speed Modifier"] ** cal_level
         self.health_regen_bonus = stat["Health Regeneration Bonus"] * cal_level
         self.resource_regen_bonus = stat["Resource Regeneration Bonus"] * cal_level
         self.element = tuple([(element, cal_level) for element in stat["Element"] if element])

@@ -15,8 +15,6 @@ def die(self):
         if self.team == 1 and self.is_controllable:
             if self in self.battle.player_selected_generals:
                 self.battle.player_selected_generals.remove(self)
-            if self in self.battle.player_control_generals:  # remove from player control generals list
-                self.battle.player_control_generals.remove(self)
 
     for team in self.battle.all_team_enemy_check:
         if team != self.team:
@@ -47,6 +45,7 @@ def die(self):
             follower.base_defence = follower.original_defence * (self.leader.leadership / 200)
             follower.leadership = follower.original_leadership * (self.leader.leadership / 200)
             follower.leader = self.leader
+            self.leader.followers.append(follower)
         else:  # revert follower stat to no leadership when it die and no general to transfer
             follower.base_offence = follower.original_offence
             follower.base_defence = follower.original_defence

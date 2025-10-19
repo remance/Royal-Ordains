@@ -1,14 +1,15 @@
-from math import radians
+from __future__ import annotations
+from math import radians, cos, sin, tan
 from random import choice, uniform
 
 from pygame import Vector2
 from pygame.sprite import Sprite, collide_mask
 
 from engine.constants import *
+import engine.character.character
 from engine.character.apply_status import apply_status
-
 from engine.effect.adjust_sprite import adjust_sprite, damage_effect_adjust_sprite
-from engine.effect.cal_dmg import cal_dmg
+from engine.effect.cal_damage import cal_damage
 from engine.effect.find_random_direction import find_random_direction
 from engine.effect.hit_collide_check import hit_collide_check
 from engine.effect.hit_register import hit_register
@@ -35,7 +36,7 @@ class Effect(Sprite):
     height_map = None
 
     adjust_sprite = adjust_sprite
-    cal_dmg = cal_dmg
+    cal_damage = cal_damage
     find_random_direction = find_random_direction
     hit_collide_check = hit_collide_check
     hit_register = hit_register
@@ -47,20 +48,18 @@ class Effect(Sprite):
     Base_Animation_Play_Time = Base_Animation_Play_Time
     Default_Ground_Pos = Default_Ground_Pos
 
-    def __init__(self, owner, part_stat, layer, moveset=None, base_target_pos=None, from_owner=True,
+    def __init__(self, owner: (dict, engine.character.character.BattleCharacter),
+                 part_stat: (list, tuple), moveset=None, base_target_pos=None, from_owner=True,
                  reach_effect=None):
         """Effect sprite that does not affect character on its own but can travel and
         create other Effect when reach target"""
         # TODO add end effect animation before removal
 
-        self.y_move = False
-        if layer:  # use layer for checking if effect move in vertical angle as well
-            self.y_move = True
         self._layer = 999999999999999999999997
 
         Sprite.__init__(self, self.containers)
-        self.battle_camera = self.battle.battle_cameras["battle"]
-        self.battle_camera.add(self)
+        self.battle_camera_drawer = self.battle.battle_camera_object_drawer
+        self.battle_camera_drawer.add(self)
         self.show_frame = 0
         self.frame_timer = 0
         self.renew_sprite = True
@@ -76,13 +75,50 @@ class Effect(Sprite):
         if self.part_name.split("_")[-1].isdigit():
             self.part_name = " ".join(self.part_name.split("_")[:-1])
 
-        if self.owner and from_owner:
+        self.owner_data = {}
+        if self.owner:
+            # any change made here for effect stat must be adjust in strategy data and below
+            if type(self.owner) is not dict:
+                self.offence = self.owner.offence
+                self.power = self.owner.power
+                self.element = self.owner.element
+                self.impact = self.owner.impact
+                self.impact_sum = self.owner.impact_sum
+                self.critical_chance = self.owner.critical_chance
+                self.enemy_status_effect = self.owner.enemy_status_effect
+                self.no_defence = self.owner.no_defence
+                self.no_dodge = self.owner.no_dodge
+                self.team = self.owner.team
+                self.penetrate = self.owner.penetrate
+                self.enemy_collision_grids = self.owner.ground_enemy_collision_grids
+            else:  # "owner" as dict data
+                self.offence = self.owner["offence"]
+                self.power = self.owner["power"]
+                self.element = self.owner["element"]
+                self.impact = self.owner["impact"]
+                self.impact_sum = self.owner["impact_sum"]
+                self.critical_chance = self.owner["critical_chance"]
+                self.enemy_status_effect = self.owner["enemy_status_effect"]
+                self.no_defence = self.owner["no_defence"]
+                self.no_dodge = self.owner["no_dodge"]
+                self.team = self.owner["team"]
+                self.penetrate = self.owner["penetrate"]
+                self.enemy_collision_grids = self.battle.all_team_ground_enemy_collision_grids[self.team]
+
+            self.owner_data = {"offence": self.offence, "power": self.power, "element": self.element,
+                               "impact": self.impact, "impact_sum": self.impact_sum,
+                               "critical_chance": self.critical_chance,
+                               "enemy_status_effect": self.enemy_status_effect,
+                               "no_defence": self.no_defence, "no_dodge": self.no_dodge,
+                               "team": self.team, "penetrate": self.penetrate}
+        if from_owner:
             self.pos = Vector2(self.owner.pos[0] + (self.part_stat[2] * self.screen_scale[0]),
                                self.owner.pos[1] + (self.part_stat[3] * self.screen_scale[1]))
             self.base_ground_pos = self.owner.base_ground_pos
         else:
             self.pos = Vector2(self.part_stat[2], self.part_stat[3])
             self.base_ground_pos = self.Default_Ground_Pos
+
         self.grid_range = range(0, 1)
         self.base_pos = Vector2(self.pos[0] / self.screen_scale[0], self.pos[1] / self.screen_scale[1])
         self.start_pos = Vector2(self.base_pos)
@@ -91,13 +127,14 @@ class Effect(Sprite):
         self.width_scale = self.part_stat[7]
         self.height_scale = self.part_stat[8]
         self.remain_reach = False
-        self.remain_timer = 0
+        self.remain_check = False
         self.reach_effect = reach_effect
         self.one_hit_per_enemy = False
 
         self.travel_distance = 0
         self.travel_progress = 0
         self.travel = False
+        self.direct_shot = False  # determine what method to use for sprite movement
 
         self.sound_effect = None
         self.sound_timer = 0
@@ -111,19 +148,7 @@ class Effect(Sprite):
         self.random_move = False
 
         self.other_property = None
-        if self.owner:
-            self.offence = self.owner.offence
-            self.dmg = self.owner.dmg
-            self.element = self.owner.element
-            self.impact = self.owner.impact
-            self.impact_sum = self.owner.impact_sum
-            self.critical_chance = self.owner.critical_chance
-            self.enemy_status_effect = self.owner.enemy_status_effect
-            self.no_defence = self.owner.no_defence
-            self.no_dodge = self.owner.no_dodge
-            self.team = self.owner.team
-            self.enemy_collision_grids = self.owner.ground_enemy_collision_grids
-            self.penetrate = self.owner.penetrate
+
         self.current_moveset = moveset
 
         self.speed = 0
@@ -160,46 +185,49 @@ class Effect(Sprite):
                         "target_type" in self.current_moveset["AI Condition"]["enemy"] and
                         self.current_moveset["AI Condition"]["enemy"]["target_type"] == "air"):
                     # effect intend to hit air enemy only
-                    self.enemy_collision_grids = self.owner.air_enemy_collision_grids
+                    self.enemy_collision_grids = self.battle.all_team_air_enemy_collision_grids[self.team]
 
         if self.base_target_pos:
             if "no target" not in self.current_moveset["Property"]:
                 target_distance = self.base_target_pos[0] - self.base_pos[0]
                 if self.travel_distance > target_distance:
                     self.travel_distance = target_distance
-            if "arc" in self.current_moveset["Property"]:
-                # arc effect destination is enemy target rather than as far as it can travel
-                if self.current_moveset["Property"]["arc"] == "high":  # change angle for arc projectile effect
-                    self.angle = uniform(60, 85)
-                else:
-                    self.angle = uniform(30, 55)
-                if self.owner.direction == "left":
-                    self.angle *= -1
-
-                if self.current_moveset:
-                    offence_mistake = self.offence
-                    if offence_mistake > 100:
-                        offence_mistake = 100
-                    offence_mistake = 1 - (offence_mistake / 100)
-                    if offence_mistake < 0:
-                        offence_mistake = 0
-                    offence_mistake = self.travel_distance / 2 * offence_mistake
-                    self.travel_distance = uniform(self.travel_distance - offence_mistake,
-                                                   self.travel_distance + offence_mistake)
+            if "direct" in self.current_moveset["Property"]:  # direct shot, not use projectile movement with gravity
+                self.angle = self.set_rotate(self.base_target_pos)
+                self.sin_angle = sin(radians(self.angle))
+                self.cos_angle = cos(radians(self.angle))
+                self.direct_shot = True
             else:
-                # convert from data angle to projectile calculable
-                self.angle = convert_projectile_degree_angle(self.angle)
+                if "arc" in self.current_moveset["Property"]:
+                    # arc effect destination is enemy target rather than as far as it can travel
+                    if self.current_moveset["Property"]["arc"] == "high":  # change angle for arc projectile effect
+                        self.angle = uniform(60, 85)
+                    else:
+                        self.angle = uniform(30, 55)
+                    if self.owner.direction == "left":
+                        self.angle *= -1
+
+                    if self.current_moveset:
+                        offence_mistake = self.offence
+                        if offence_mistake > 100:
+                            offence_mistake = 100
+                        offence_mistake = 1 - (offence_mistake / 100)
+                        if offence_mistake < 0:
+                            offence_mistake = 0
+                        offence_mistake = self.travel_distance / 2 * offence_mistake
+                        self.travel_distance = uniform(self.travel_distance - offence_mistake,
+                                                       self.travel_distance + offence_mistake)
+                else:
+                    # convert from data angle to projectile calculable
+                    self.angle = convert_projectile_degree_angle(self.angle)
+                self.tan_angle = sin(radians(self.angle))
+                self.cos_angle = cos(radians(self.angle))
 
             self.velocity = calculate_projectile_velocity(self.angle, self.travel_distance)
             if type(self.velocity) is complex:
                 self.velocity = 10000
-            # print(self.velocity, self.angle, self.travel_distance)
-
         if not self.speed:  # reset travel distance for effect with no speed
             self.travel_distance = 0
-
-        self.projectile_angle = radians(self.angle)
-
         self.animation_pool = self.effect_animation_pool[self.effect_name]
         self.current_animation = self.animation_pool[self.part_name][self.sprite_flip][self.width_scale][
             self.height_scale]
@@ -213,7 +241,7 @@ class Effect(Sprite):
         self.adjust_sprite()
 
     def update(self, dt):
-        if self.remain_timer:  # already reach target and now either sticking or bouncing off
+        if self.remain_check:  # already reach target and now remain in some way like bouncing off
             self.remain_logic(dt)
 
         else:
@@ -239,8 +267,8 @@ class DamageEffect(Effect):
     adjust_sprite = damage_effect_adjust_sprite
     collision_grid_width = 0
 
-    def __init__(self, owner, stat, layer, moveset, base_target_pos=None, from_owner=True):
-        Effect.__init__(self, owner, stat, layer, moveset=moveset, base_target_pos=base_target_pos,
+    def __init__(self, owner, stat, moveset, base_target_pos=None, from_owner=True):
+        Effect.__init__(self, owner, stat, moveset=moveset, base_target_pos=base_target_pos,
                         from_owner=from_owner)
         self.impact_effect = None
         self.already_hit = []  # list of character already got hit with time by sprite for sprite with no duration
@@ -248,7 +276,7 @@ class DamageEffect(Effect):
         self.enemy_status_effect = self.current_moveset["Enemy Status"]
 
     def update(self, dt):
-        if self.remain_timer:  # already reach target and now either sticking or bouncing off
+        if self.remain_check:  # already reach target and now either sticking or bouncing off
             self.remain_logic(dt)
         else:
             if self.sound_effect:
@@ -277,16 +305,13 @@ class DamageEffect(Effect):
 class TrapEffect(Effect):
     adjust_sprite = damage_effect_adjust_sprite
 
-    def __init__(self, owner, stat, layer, moveset, from_owner=True):
+    def __init__(self, owner, stat, moveset, from_owner=True):
         """Trap sprite generated from moveset rather than its own character that can trigger when character come near,
         the trap sprite itself does no damage"""
-        Effect.__init__(self, owner, stat, layer, moveset=moveset, from_owner=from_owner)
+        Effect.__init__(self, owner, stat, moveset=moveset, from_owner=from_owner)
         self.activate = False
         self.impact_effect = None
         self.moveset = moveset
-        # self.travel_distance = 0
-        # if not layer:  # layer 0 in animation part data mean the effect can move on its own
-        #     self.travel_distance = self.moveset["Range"]
 
         self.other_property = self.moveset["Property"]
 
@@ -329,8 +354,8 @@ class TrapEffect(Effect):
 
 
 class StatusEffect(Effect):
-    def __init__(self, owner, stat, layer):
-        Effect.__init__(self, owner, stat, layer, None)
+    def __init__(self, owner, stat):
+        Effect.__init__(self, owner, stat, None)
         self.pos = self.owner.pos
         self.rect.midbottom = self.owner.pos
 

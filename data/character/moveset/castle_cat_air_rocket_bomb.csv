@@ -1,2 +1,2 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"Attack1","Drop Bomb",,,"enemy:{target_type=ground}",1500,1300,8,35,45,120,100,200,,"Fire",,,,"walk,movable,end_when_done,x_momentum:1000"
+"Attack1","Drop Bomb",,,"enemy:{target_type=ground}",1500,1300,8,35,45,120,100,200,,"Fire",,,,"walk,movable,end_when_done,x_momentum:1000,direct"

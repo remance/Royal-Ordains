@@ -22,6 +22,19 @@ def follow_leader(self):
             self.command_action["direction"] = "left"
 
 
+def move_to_target_order(self):
+    command_target = self.commander_order[1]
+    distance_to_target = abs(self.base_pos[0] - command_target)
+    if distance_to_target > self.run_speed:
+        if not self.command_action:
+            self.command_action = self.run_command_action
+            self.command_action["x_momentum"] = self.run_speed
+            if command_target > self.base_pos[0]:
+                self.command_action["direction"] = "right"
+            else:
+                self.command_action["direction"] = "left"
+
+
 def stationary_ai(self):
     pass
 
@@ -36,22 +49,13 @@ def observer_ai(self):
 
 def common_ai(self, attack_range):
     if not self.command_action:
-        if (self.leader and self.leader.alive) or self.is_general:
-            if self.general_order != "attack":
+        if self.leader:
+            if self.general_order == "follow":
                 follow_leader(self)
             else:
                 if not self.nearest_enemy or self.nearest_enemy_distance > attack_range:
                     # keep moving to attack target point, stop moving if there are enemy to attack
-                    command_target = self.commander_order[1]
-                    distance_to_target = abs(self.base_pos[0] - command_target)
-                    if distance_to_target > self.run_speed:
-                        if not self.command_action:
-                            self.command_action = self.run_command_action
-                            self.command_action["x_momentum"] = self.run_speed
-                            if command_target > self.base_pos[0]:
-                                self.command_action["direction"] = "right"
-                            else:
-                                self.command_action["direction"] = "left"
+                    move_to_target_order(self)
 
         else:  # follower with no leader, attack nearby enemy or walk randomly
             if self.nearest_enemy:
@@ -77,6 +81,21 @@ def melee_ai(self):
 
 def range_ai(self):
     common_ai(self, self.ai_max_attack_range)
+
+
+def general_common_ai(self, attack_range):
+    if not self.command_action:
+        if not self.nearest_enemy or self.nearest_enemy_distance > attack_range:
+            # keep moving to attack target point, stop moving if there are enemy to attack
+            move_to_target_order(self)
+
+
+def general_melee_ai(self):
+    general_common_ai(self, self.ai_min_attack_range)
+
+
+def general_range_ai(self):
+    general_common_ai(self, self.ai_max_attack_range)
 
 
 def air_ai(self):
@@ -112,10 +131,13 @@ def general_ai(self):
                         self.command_action["direction"] = "left"
             else:  # reach move target, remove order
                 self.issue_commander_order(())
-        elif "attack" in self.commander_order:  # use normal behaviour to move
-            ai_move_dict[self.ai_behaviour](self)
+        elif "attack" in self.commander_order:  # use normal general behaviour to move
+            general_inner_move_dict[self.ai_behaviour](self)
 
 
 ai_move_dict = {"default": stationary_ai, "melee": melee_ai, "range": range_ai,
                 "trap": stationary_ai, "boss_cheer": observer_ai, "general": general_ai,
                 "interceptor": air_ai, "fighter": air_ai, "bomber": air_ai}
+
+
+general_inner_move_dict = {"melee": general_melee_ai, "range": general_range_ai}

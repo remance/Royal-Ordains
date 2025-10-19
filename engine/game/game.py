@@ -22,8 +22,8 @@ from engine.effect.effect import Effect, DamageEffect
 from engine.lorebook.lorebook import Lorebook, lorebook_process
 from engine.menubackground.menubackground import MenuActor, MenuRotate, StaticImage
 from engine.stageobject.stageobject import StageObject
-from engine.uibattle.uibattle import Profiler, FPSCount, DamageNumber, CharacterSpeechBox, \
-    CharacterGeneralIndicator
+from engine.uibattle.uibattle import (Profiler, FPSCount, DamageNumber, CharacterSpeechBox,
+                                      CharacterGeneralIndicator, CharacterCommandIndicator)
 from engine.uimenu.uimenu import (OptionMenuText, SliderMenu, MenuCursor, BoxUI, BrownMenuButton,
                                   TextPopup, CharacterSelector, CharacterInterface,
                                   MapTitle, ListUI, CampaignListAdapter)
@@ -73,7 +73,7 @@ class Game:
     screen_scale = (1, 1)
     screen_size = ()
 
-    game_version = "0.2.3.1"
+    game_version = "0.2.3.2"
 
     # import from game
     activate_input_popup = activate_input_popup
@@ -241,11 +241,13 @@ class Game:
         self.tag_filter_name = sprite.Group()  # tag filter objects group in lorebook blit on filter_name_list
 
         # battle object group
-        self.battle_cameras = {"ui": sprite.LayeredUpdates(), "battle": sprite.LayeredUpdates()}
+        self.battle_camera_object_drawer = sprite.LayeredUpdates()
+        self.battle_camera_ui_drawer = sprite.LayeredUpdates()  # this is drawer for ui in battle, does not move alonge with camera
         self.battle_ui_updater = ReversedLayeredUpdates()  # this is updater and drawer for ui, all image pos should be based on the screen
         self.battle_ui_drawer = sprite.LayeredUpdates()
 
-        self.character_updater = sprite.Group()  # updater for character objects
+        self.character_updater = ReversedLayeredUpdates()  # updater for character objects,
+        # higher layer characters got update first for the purpose of blit culling check
         self.character_updater.cutscene_update = types.MethodType(cutscene_update, self.character_updater)
         # for battle UI stuff that need to be updated in real time like drama and weather objects, also used as drawer
         self.battle_outer_ui_updater = sprite.Group()
@@ -253,7 +255,6 @@ class Game:
         self.effect_updater.cutscene_update = types.MethodType(cutscene_update, self.effect_updater)
 
         self.all_characters = sprite.Group()  # group for all character objects for cleaning
-        self.all_damage_effects = sprite.Group()  # group for all damage objects for collision check
         self.stage_objects = sprite.Group()  # group for all scene objects for event delete check
         self.player_general_indicators = sprite.Group()  # group for select check of all indicator of player general
 
@@ -277,12 +278,13 @@ class Game:
         # SubsectionName.containers = self.ui_updater, self.ui_drawer, self.battle_ui_updater, self.battle_ui_drawer
 
         # battle containers
-        CharacterSpeechBox.containers = self.effect_updater, self.battle_cameras["ui"], self.speech_boxes
-        CharacterGeneralIndicator.containers = self.effect_updater, self.battle_cameras["ui"]
-        DamageNumber.containers = self.effect_updater, self.battle_cameras["ui"]
+        CharacterSpeechBox.containers = self.effect_updater, self.battle_camera_ui_drawer, self.speech_boxes
+        CharacterGeneralIndicator.containers = self.effect_updater, self.battle_camera_ui_drawer
+        CharacterCommandIndicator.containers = self.effect_updater
+        DamageNumber.containers = self.effect_updater, self.battle_camera_ui_drawer
         Effect.containers = self.effect_updater
         StageObject.containers = self.effect_updater, self.stage_objects
-        DamageEffect.containers = self.all_damage_effects, self.effect_updater
+        DamageEffect.containers = self.effect_updater
         MatterSprite.containers = self.weather_matters, self.battle_outer_ui_updater
 
         Character.containers = self.character_updater, self.all_characters
@@ -318,8 +320,6 @@ class Game:
         self.character_portraits = self.sprite_data.character_portraits
         self.stage_object_animation_pool = self.sprite_data.stage_object_animation_pool
         self.effect_animation_pool = self.sprite_data.effect_animation_pool  # effect sprite animation pool
-        self.item_sprite_pool = self.sprite_data.item_sprite_pool
-        self.battle_item_sprite_pool = self.sprite_data.battle_item_sprite_pool
 
         Effect.effect_animation_pool = self.effect_animation_pool
         StageObject.stage_object_animation_pool = self.stage_object_animation_pool

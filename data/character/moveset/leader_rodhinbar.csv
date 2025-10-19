@@ -1,7 +1,7 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"Attack1","Melee Attack",,,,200,,,,15,15,20,,,"Physical",,,,
-"Attack2","Aim Shot",,,"self:{no_engage=500}",6000,6200,3,,24,10,15,10,,"Physical",,,,
-"Skill1","Volley",,,"self:{no_engage=500}",3500,3600,5,20,32,10,10,5,,"Physical",,,,
-"Skill2","Great Shot",,,"self:{no_engage=500}",4300,4400,10,35,35,100,70,40,0.5,"Physical",,,,
-"Skill3","Arrow Storm",,,"self:{no_engage=500}",4000,4000,20,80,10,10,10,,,"Physical",,"Suppressed",,
-"UseItem","Resource Kit",,,"self:{resource<=30}",5000,1500,120,,,,,,,"Physical","Resource_kit",,,
+"Attack1","Melee Attack",,,,200,,,,15,15,20,,,"Slash",,,,
+"Attack2","Aim Shot",,,"self:{no_engage=500}",6000,6200,3,,24,10,15,10,,"Stab",,,,
+"Skill1","Volley",,,"self:{no_engage=500}",3500,3600,5,20,32,10,10,5,,"Stab",,,,
+"Skill2","Great Shot",,,"self:{no_engage=500}",4300,4400,10,35,35,100,70,40,0.5,"Stab",,,,
+"Skill3","Arrow Storm",,,"self:{no_engage=500}",4000,4000,20,80,10,10,10,,,"Stab",,"Suppressed",,
+"UseItem","Resource Kit",,,"self:{resource<=30}",5000,1500,120,,,,,,,,"Resource_kit",,,
