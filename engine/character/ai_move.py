@@ -39,6 +39,33 @@ def stationary_ai(self):
     pass
 
 
+def nice_ai(self):
+    """Just walk around doing nothing"""
+    if not self.ai_movement_timer:
+        random_walk(self)
+
+
+def curious_ai(self):
+    """Run to nearby enemy within range"""
+    if not self.ai_movement_timer:
+        if self.nearest_enemy:
+            # keep moving to attack target point, stop moving if there are enemy to attack
+            command_target = self.nearest_enemy_pos[0]
+            distance_to_target = abs(self.base_pos[0] - command_target)
+            if 200 < distance_to_target < 1000:
+                if not self.command_action:
+                    self.command_action = self.run_command_action
+                    self.command_action["x_momentum"] = self.run_speed
+                    if command_target > self.base_pos[0]:
+                        self.command_action["direction"] = "right"
+                    else:
+                        self.command_action["direction"] = "left"
+            else:
+                random_walk(self)
+        else:
+            random_walk(self)
+
+
 def observer_ai(self):
     """Keep facing target"""
     if self.target.base_pos[0] >= self.base_pos[0]:
@@ -135,7 +162,8 @@ def general_ai(self):
             general_inner_move_dict[self.ai_behaviour](self)
 
 
-ai_move_dict = {"default": stationary_ai, "melee": melee_ai, "range": range_ai,
+ai_move_dict = {"default": stationary_ai, "nice": nice_ai, "curious": curious_ai,
+                "territorial": nice_ai, "melee": melee_ai, "range": range_ai,
                 "trap": stationary_ai, "boss_cheer": observer_ai, "general": general_ai,
                 "interceptor": air_ai, "fighter": air_ai, "bomber": air_ai}
 

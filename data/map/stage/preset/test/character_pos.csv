@@ -1,1 +1,4 @@
-"Object ID","ID","Scene","POS","Angle","Team","Behaviour","Followers","Arrive Condition","Stage Property"
+"ID","POS","Team","AI Behaviour","Arrive Condition","Stage Property"
+"Nice_bear_cub",500,0,,,
+"Nice_cloud_dog",1500,0,,,
+"Nice_fluffy_bird",2000,0,,,

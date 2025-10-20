@@ -115,7 +115,8 @@ def find_move_to_attack(self):
         return True
 
 
-def training_ai(self):
+def no_ai(self):
+    """No attack at all"""
     pass
 
 
@@ -177,6 +178,7 @@ def air_ai(self):
             self.ai_timer = 0.2
 
 
-ai_combat_dict = {"default": training_ai, "melee": common_ai, "range": common_ai,
+ai_combat_dict = {"default": no_ai, "melee": common_ai, "range": common_ai, "nice": no_ai,
+                  "curious": common_ai, "territorial": common_ai,
                   "trap": common_ai, "boss_cheer": cheer_ai,
                   "general": general_ai, "interceptor": air_ai, "fighter": air_ai, "bomber": air_ai}

@@ -27,7 +27,8 @@ def move_logic(self, dt, done):
             move.normalize_ip()
             move *= self.speed * dt
             new_pos = self.base_pos + move
-            self.angle = self.set_rotate(new_pos)
+            new_angle = self.set_rotate(new_pos)
+            self.angle = new_angle
             self.base_pos = new_pos
             self.travel_progress += move[0]
             self.pos = Vector2(self.base_pos[0] * self.screen_scale[0], self.base_pos[1] * self.screen_scale[1])

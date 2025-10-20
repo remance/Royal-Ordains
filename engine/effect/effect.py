@@ -33,8 +33,6 @@ class Effect(Sprite):
     battle = None
     screen_scale = (1, 1)
 
-    height_map = None
-
     adjust_sprite = adjust_sprite
     cal_damage = cal_damage
     find_random_direction = find_random_direction
@@ -60,6 +58,7 @@ class Effect(Sprite):
         Sprite.__init__(self, self.containers)
         self.battle_camera_drawer = self.battle.battle_camera_object_drawer
         self.battle_camera_drawer.add(self)
+        self.last_grid = self.battle.last_grid
         self.show_frame = 0
         self.frame_timer = 0
         self.renew_sprite = True
@@ -189,10 +188,6 @@ class Effect(Sprite):
                 self.enemy_collision_grids = self.battle.all_team_air_enemy_collision_grids[self.team]
 
         if self.base_target_pos and "no travel" not in self.effect_stat["Property"]:
-            if "no target" not in self.current_moveset["Property"]:
-                target_distance = self.base_target_pos[0] - self.base_pos[0]
-                if self.travel_distance > target_distance:
-                    self.travel_distance = target_distance
             if "direct" in self.current_moveset["Property"]:  # direct shot, not use projectile movement with gravity
                 self.angle = self.set_rotate(self.base_target_pos)
                 self.sin_angle = sin(radians(self.angle))
@@ -200,6 +195,14 @@ class Effect(Sprite):
                 self.direct_shot = True
             else:
                 if "arc" in self.current_moveset["Property"]:
+                    target_distance = self.base_target_pos[0] - self.base_pos[0]
+                    self.travel_distance = target_distance
+                    if abs(self.travel_distance) > self.current_moveset["Range"]:  # can not travel more than range
+                        if self.travel_distance < 0:
+                            self.travel_distance = -self.current_moveset["Range"]
+                        else:
+                            self.travel_distance = self.current_moveset["Range"]
+
                     # arc effect destination is enemy target rather than as far as it can travel
                     if self.current_moveset["Property"]["arc"] == "high":  # change angle for arc projectile effect
                         self.angle = uniform(60, 85)
@@ -220,6 +223,9 @@ class Effect(Sprite):
                                                        self.travel_distance + offence_mistake)
                 else:
                     # convert from data angle to projectile calculable
+                    self.travel_distance = self.current_moveset["Range"]
+                    if self.base_target_pos[0] - self.base_pos[0] < 0:
+                        self.travel_distance = -self.travel_distance
                     self.angle = convert_projectile_degree_angle(self.angle)
                 self.tan_angle = sin(radians(self.angle))
                 self.cos_angle = cos(radians(self.angle))

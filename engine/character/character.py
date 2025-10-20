@@ -16,6 +16,7 @@ from engine.character.ai_logic import ai_logic
 from engine.character.apply_status import apply_status
 from engine.character.cal_loss import cal_loss
 from engine.character.character_event_process import character_event_process
+from engine.character.check_draw import check_draw
 from engine.character.die import commander_die, die, air_die
 from engine.character.enter_stage import (enter_stage, battle_character_enter_stage, battle_air_character_enter_stage,
                                           delayed_enter_stage)
@@ -30,7 +31,7 @@ from engine.character.move_logic import move_logic, sub_move_logic, air_move_log
 from engine.character.pick_animation import pick_animation
 from engine.character.pick_cutscene_animation import pick_cutscene_animation
 from engine.character.play_animation import next_animation_frame, play_battle_animation, play_cutscene_animation
-from engine.character.reset_sprite import reset_sprite
+from engine.character.reset_sprite import reset_sprite, battle_reset_sprite
 from engine.character.rotate_logic import rotate_logic
 from engine.character.status_update import status_update
 
@@ -79,6 +80,8 @@ class Character(sprite.Sprite):
     sound_effect_pool = None
 
     image = Surface((0, 0))  # start with empty surface
+    mask = from_surface(image)
+    rect = image.get_rect(topleft=(0, 0))
     collision_grid_width = 0
 
     ai_speak = ai_speak
@@ -88,6 +91,7 @@ class Character(sprite.Sprite):
     cal_loss = cal_loss
     character_event_process = character_event_process
     check_ai_condition = check_ai_condition
+    check_draw = check_draw
     delayed_enter_stage = delayed_enter_stage
     die = die
     enter_stage = enter_stage
@@ -118,17 +122,16 @@ class Character(sprite.Sprite):
 
     moveset_command_action = {"moveset": True}
 
-    damaged_command_action = {"name": "Damaged", "damaged": True, "movable": True, "hold": True,
-                                   "forced move": True}
+    damaged_command_action = {"name": "Damaged", "damaged": True, "movable": True, "hold": True, "forced move": True}
     standup_command_action = {"name": "Standup"}
     knockdown_command_action = {"name": "Knockdown", "movable": True, "forced move": True,
-                                     "knockdown": True, "hold": True, "next action": standup_command_action}
+                                "knockdown": True, "hold": True, "next action": standup_command_action}
 
     die_command_action = {"name": "Die", "uninterruptible": True,
-                               "movable": True, "forced move": True, "hold": True, "die": True}
+                          "movable": True, "forced move": True, "hold": True, "die": True}
 
     spirit_command_action = {"name": "Spirit", "uninterruptible": True,
-                                  "movable": True, "forced move": True, "hold": True, "spirit": True}
+                             "movable": True, "forced move": True, "hold": True, "spirit": True}
 
     # static variable
     Base_Animation_Play_Time = Base_Animation_Play_Time
@@ -136,12 +139,12 @@ class Character(sprite.Sprite):
     Default_Ground_Pos = Default_Ground_Pos
     Character_Gravity = Character_Gravity
 
-    def __init__(self, game_id: int, stat: dict, additional_layer: int = 0) -> None:
+    def __init__(self, game_id: int, stat: dict, additional_layer: int = 0, is_commander: bool = False,
+                 is_general: bool = False, is_controllable: bool = False) -> None:
         """
         Character object represent a character that may or may not fight in battle
         """
         sprite.Sprite.__init__(self, self.containers)
-
         # these two commands require replacement of x_momentum and direction, faster to use it as object variable
         self.walk_command_action = {"name": "Walk", "movable": True, "walk": True, "interruptable": True}
         self.run_command_action = {"name": "Run", "movable": True, "run": True, "interruptable": True}
@@ -153,8 +156,6 @@ class Character(sprite.Sprite):
         self.battle_camera_drawer = self.battle.battle_camera_object_drawer
         self.weather = self.battle.current_weather
 
-        # Variable related to sprite
-        # use for pseudo sprite size of character for positioning of effect and ui
         self.char_id = stat["ID"]
         self.game_id = game_id  # object ID for reference
 
@@ -166,7 +167,9 @@ class Character(sprite.Sprite):
         self.name = self.battle.localisation.grab_text(("character", stat["ID"], "Name"))
         self.cutscene_event = None
         self.speech = None
-        self.ai_lock = False
+        self.is_commander = is_commander
+        self.is_general = is_general
+        self.is_controllable = is_controllable
 
         self.current_action = {}  # action being performed
         self.command_action = {}  # next action to be performed
@@ -179,10 +182,16 @@ class Character(sprite.Sprite):
         self.frame_timer = 0
         self.show_frame = 0  # current animation frame
         self.max_show_frame = 0
+        self.ai_timer = 0  # for whatever timer require for AI action
+        self.ai_movement_timer = 0  # timer to move for AI
         self.replace_idle_animation = None
         self.interrupt_animation = False
         self.animation_name = None
 
+        self.invisible = False  # can not be seen nor detected, will not be drawn on camera
+        self.invincible = False  # can not be hurt
+        self.no_target = False  # can not be target
+        self.broken = False  # broken and no longer fight, will only retreat
         self.alive = True
         self.reach_camera_event = {}
 
@@ -190,6 +199,9 @@ class Character(sprite.Sprite):
 
         self.y_momentum = 0
         self.x_momentum = 0
+        self.move_speed = 0  # speed of current movement
+        self.run_speed = 7 * stat["Speed"]
+        self.walk_speed = 3 * stat["Speed"]
 
         self.animation_play_time = self.Base_Animation_Play_Time
         self.final_animation_play_time = self.animation_play_time
@@ -209,13 +221,9 @@ class Character(sprite.Sprite):
         self.cutscene_target_pos = None
         self.grid_range = []
 
-        self.rect = self.image.get_rect(topleft=(0, 0))
-        self.mask = from_surface(self.image)
-
         self.update_sprite = False
 
-        self.move_speed = 0  # speed of current movement
-
+        # apply property as variable
         char_property = {}
         if "Property" in stat:
             char_property = {key: value for key, value in stat["Property"].items()}
@@ -237,6 +245,24 @@ class Character(sprite.Sprite):
             else:
                 self.__setattr__(stuff, char_property[stuff])
 
+        self.ai_behaviour = stat["AI Behaviour"]
+
+        self.ai_move = MethodType(ai_move_dict["default"], self)
+        if self.is_general and self.is_controllable:  # controllable general use behaviour that move based on commander order
+            self.ai_move = MethodType(ai_move_dict["general"], self)
+        elif self.ai_behaviour in ai_move_dict:
+            self.ai_move = MethodType(ai_move_dict[self.ai_behaviour], self)
+
+        self.ai_combat = MethodType(ai_combat_dict["default"], self)
+        if self.is_general and self.is_controllable:
+            self.ai_combat = MethodType(ai_combat_dict["general"], self)
+        elif self.ai_behaviour in ai_combat_dict:
+            self.ai_combat = MethodType(ai_combat_dict[self.ai_behaviour], self)
+
+        self.ai_retreat = MethodType(ai_retreat_dict["default"], self)
+        if self.ai_behaviour in ai_retreat_dict:
+            self.ai_retreat = MethodType(ai_retreat_dict[self.ai_behaviour], self)
+
         self.base_ground_pos = self.Default_Ground_Pos
         if "Ground Y POS" in stat and stat["Ground Y POS"]:  # replace ground pos based on data in stage
             self.base_ground_pos = stat["Ground Y POS"]
@@ -245,8 +271,8 @@ class Character(sprite.Sprite):
 
     def update(self, dt: float):
         if self.alive:  # only run these when not dead
+            self.ai_logic(dt)
             self.rotate_logic()  # Rotate Function
-            self.move_logic(dt)  # Move function
 
             # Animation and sprite system
             hold_check = False
@@ -258,9 +284,13 @@ class Character(sprite.Sprite):
             done = self.play_battle_animation(dt, hold_check)
             self.finish_animation(done)
 
+            self.move_logic(dt)  # Move function
+
             if self.update_sprite:
                 self.reset_sprite()
                 self.update_sprite = False
+
+            self.check_draw()
 
     @staticmethod
     def inactive_update(*args):
@@ -348,6 +378,7 @@ class BattleCharacter(Character):
     show_dmg_number = False
 
     enter_stage = battle_character_enter_stage
+    reset_sprite = battle_reset_sprite
 
     # static variable
     knock_down_sound_distance = 1000
@@ -376,14 +407,9 @@ class BattleCharacter(Character):
         self.general = None
         self.sub_characters = []
         self.leader = leader
-        self.is_commander = is_commander
-        self.is_general = is_general
-        self.is_controllable = is_controllable
 
-        self.invisible = False
         self.blind = False
         self.false_order = False  # check whether character is given false order by status effect
-        self.invincible = False
         self.shield = False  # check whether character is shielded for defence bonus against frontal attack
         self.no_forced_move = False  # check whether character can be forcefully move via knockback/die
         self.active_without_sub_character = True  # check whether character remain active after all subs die
@@ -396,8 +422,6 @@ class BattleCharacter(Character):
         self.is_summon = False
         if stat["Is Summon"]:
             self.is_summon = True
-        self.spawns = {}
-        self.broken = False
         self.indicator = None
 
         self.current_moveset = None
@@ -492,30 +516,7 @@ class BattleCharacter(Character):
         self.dmg_sound_distance = self.dmg_sound_distance + self.body_mass
         self.hit_volume_mod = self.body_mass / 10
 
-        self.event_ai_lock = False  # lock AI until event unlock it only
-
-        self.ai_timer = 0  # for whatever timer require for AI action
-        self.ai_movement_timer = 0  # timer to move for AI
-
         self.general_order = "follow"
-
-        self.ai_behaviour = stat["AI Behaviour"]
-
-        self.ai_move = MethodType(ai_move_dict["default"], self)
-        if self.is_general and self.is_controllable:  # controllable general use behaviour that move based on commander order
-            self.ai_move = MethodType(ai_move_dict["general"], self)
-        elif self.ai_behaviour in ai_move_dict:
-            self.ai_move = MethodType(ai_move_dict[self.ai_behaviour], self)
-
-        self.ai_combat = MethodType(ai_combat_dict["default"], self)
-        if self.is_general and self.is_controllable:
-            self.ai_combat = MethodType(ai_combat_dict["general"], self)
-        elif self.ai_behaviour in ai_combat_dict:
-            self.ai_combat = MethodType(ai_combat_dict[self.ai_behaviour], self)
-
-        self.ai_retreat = MethodType(ai_retreat_dict["default"], self)
-        if self.ai_behaviour in ai_retreat_dict:
-            self.ai_retreat = MethodType(ai_retreat_dict[self.ai_behaviour], self)
 
         self.ai_min_attack_range = stat["ai_min_attack_range"]
         self.ai_max_attack_range = stat["ai_max_attack_range"]
@@ -523,7 +524,6 @@ class BattleCharacter(Character):
         self.ai_max_effect_range = stat["ai_max_effect_range"]
         self.max_enemy_range_check = stat["max_enemy_range_check"]
 
-        self.ai_timer = 0  # for whatever timer require for AI action
         self.ai_movement_timer = 0  # timer to move for AI
 
         self.all_team_enemy_collision_grids = self.battle.all_team_ground_enemy_collision_grids
@@ -552,7 +552,8 @@ class BattleCharacter(Character):
         self.enemy_status_effect = ()
         self.no_defence = False
         self.no_dodge = False
-        Character.__init__(self, game_id, stat, additional_layer=additional_layer)
+        Character.__init__(self, game_id, stat, additional_layer=additional_layer, is_commander=is_commander,
+                           is_general=is_general, is_controllable=is_controllable)
 
         self.retreat_stage_end = self.battle.base_stage_end + self.sprite_width
         self.retreat_stage_start = -self.sprite_width
@@ -563,8 +564,7 @@ class BattleCharacter(Character):
                     SubBattleCharacter(self.battle.last_char_game_id, self.character_data.character_list[character] |
                                        {"ID": character, "Team": self.team,
                                         "Start Health": stat["Start Health"], "Start Resource": stat["Start Resource"],
-                                        "POS": self.base_pos, "Anchor POS": sub_character_pos,
-                                        "Arrive Condition": ()}, self)
+                                        "POS": self.base_pos, "Anchor POS": sub_character_pos}, self)
                     self.battle.last_char_game_id += 1
 
         if stat["ID"] in self.battle.character_portraits:
@@ -628,21 +628,8 @@ class BattleCharacter(Character):
             if self.update_sprite:
                 self.reset_sprite()
                 self.update_sprite = False
-            if not self.invisible:  # 238
-                blit_check = (self.char_id, int(self.base_pos[0] / 10), int(self.base_pos[1] / 10),
-                              self.direction, self.animation_name)
-                if blit_check not in self.blit_culling_check:
-                    self.blit_culling_check.add(blit_check)
-                    if not self.in_drawer:
-                        self.battle_camera_drawer.add(self)
-                        self.in_drawer = True
-                else:  # other character with exact same location and animation exist no need to blit it
-                    if self.in_drawer:
-                        self.battle_camera_drawer.remove(self)
-                        self.in_drawer = False
-            elif self.in_drawer:
-                self.battle_camera_drawer.remove(self)
-                self.in_drawer = False
+
+            self.check_draw()
 
             if ((self.broken or "broken" in self.commander_order) and
                     (self.base_pos[0] > self.retreat_stage_end or self.base_pos[0] < self.retreat_stage_start)):
@@ -678,9 +665,11 @@ class BattleCharacter(Character):
                     hold_check = True
                 done = self.play_battle_animation(dt, hold_check)
                 self.move_logic(dt)
+
                 if self.update_sprite:
                     self.reset_sprite()
                     self.update_sprite = False
+
                 if done and not self.x_momentum and not self.y_momentum:
                     # finish die animation and no momentum left
                     if not self.is_sub_character:

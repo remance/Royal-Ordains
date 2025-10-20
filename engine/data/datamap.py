@@ -124,19 +124,14 @@ class BattleMapData(GameData):
                                    "character_pos.csv"), encoding="utf-8", mode="r") as unit_file:
                 rd = list(csv.reader(unit_file, quoting=csv.QUOTE_ALL))
                 header = rd[0]
-                int_column = ("Team", "Angle")  # value int only
-                list_column = ("POS",)  # value in list only
-                dict_column = ("Behaviour", "Stage Property", "Arrive Condition")
-                str_column = ("Followers",)
+                int_column = ("Team", )  # value int only
+                dict_column = ("Followers", "Behaviour", "Stage Property", "Arrive Condition")
                 int_column = [index for index, item in enumerate(header) if item in int_column]
-                list_column = [index for index, item in enumerate(header) if item in list_column]
                 dict_column = [index for index, item in enumerate(header) if item in dict_column]
-                str_column = [index for index, item in enumerate(header) if item in str_column]
 
                 for data_index, data in enumerate(rd[1:]):  # skip header
                     for n, i in enumerate(data):
-                        data = stat_convert(data, n, i, list_column=list_column, int_column=int_column,
-                                            dict_column=dict_column, str_column=str_column)
+                        data = stat_convert(data, n, i, int_column=int_column, dict_column=dict_column)
                     rd[data_index + 1] = {header[index]: stuff for index, stuff in enumerate(data)}
                 char_data = rd[1:]
             unit_file.close()

@@ -15,13 +15,12 @@ def move_logic(self, dt):
         elif "speed" in self.current_action:
             self.move_speed = self.current_action["speed"]
         else:
-            self.move_speed = 1000 + abs(self.x_momentum * 2)
+            self.move_speed = abs(self.x_momentum * 2) + abs(self.y_momentum * 2)
+            if self.move_speed < 500:
+                self.move_speed = 500
 
     if self.x_momentum or self.y_momentum:  # has movement
         if "movable" in self.current_action:
-            # if self.current_moveset:
-            #     if self.team == 1:
-            #         print(self.name, self.current_moveset, self.current_action, self.x_momentum, self.interrupt_animation)
             new_pos = self.base_pos + Vector2(self.x_momentum, -self.y_momentum)
             move = new_pos - self.base_pos
             if move.length():

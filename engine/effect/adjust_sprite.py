@@ -26,8 +26,13 @@ def adjust_sprite(self):
 
 def damage_effect_adjust_sprite(self):
     adjust_sprite(self)
-    grid_range = range(int(self.rect.topleft[0] / self.collision_grid_width),
-                       int(self.rect.topright[0] / self.collision_grid_width) + 1)
+    grid_left = int(self.rect.topleft[0] / self.collision_grid_width)
+    if grid_left < 0:
+        grid_left = 0
+    grid_right = int(self.rect.topright[0] / self.collision_grid_width) + 1
+    if grid_right > self.last_grid:
+        grid_right = self.last_grid
+    grid_range = range(grid_left, grid_right)
     if self.grid_range != grid_range:
         self.grid_range = grid_range
 

@@ -490,7 +490,7 @@ class BattleHelper(UIBattle):
         self.time_select_image = time_select_image
         self.base_time_select_image = time_select_image.copy()
         self.time_selector_image = time_selector_image
-        self.time_choice = (0, 0.5, 1, 2, 4)
+        self.time_choice = (0, 0.5, 1, 2, 3)
         self.time_select_rect = self.time_select_image.get_rect(midtop=(self.image.get_width() / 2,
                                                                    self.image.get_height() / 2))
         self.time_select_width = self.time_select_image.get_width()

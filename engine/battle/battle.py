@@ -447,7 +447,7 @@ class Battle:
         self.stage_end = self.camera_center_x + ((stage_len - 1) * self.screen_width)
         self.tactical_map_ui.setup()  # setup tactical map ui to scale with stage size
 
-        self.team_stat = {0: {"strategy_resource": 0, "start_pos": 0, "air_group": [], "strategy": {}},
+        self.team_stat = {0: {"strategy_resource": 0, "start_pos": self.base_stage_end, "air_group": [], "strategy": {}},
                           1: {"strategy_resource": 0, "start_pos": 0, "air_group": [],
                               "strategy": {"Test": 0, "Test2": 0, "Spell_huge_stone": 0}},
                           2: {"strategy_resource": 100, "start_pos": self.base_stage_end / 2, "air_group": [],
@@ -458,7 +458,9 @@ class Battle:
         self.last_char_game_id = 0
         self.spawn_delay_timer = {}
 
-        team_data = {0: {},
+        team_data = {0: {"uncontrollable": [{"Castle_cat_shield_crossbow": {
+            "Followers": [{"Castle_cat_shield_crossbow": {"Castle_cat_shield_crossbow": 10}}],
+            "Start Health": 1, "Start Resource": 1}}]},
                      1: {"controllable": [{"Leader_bigta":
                          {"Followers": [
                              {"Small_rabbit_leader_knight": {"Small_rabbit_spear": 20}},
@@ -470,17 +472,17 @@ class Battle:
                                  {"Small_rabbit_leader_knight": {"Small_rabbit_spear": 20}},
                                  {"Small_rabbit_leader_banner": {"Small_rabbit_spear": 20}},
                                  {"Small_rabbit_leader_banner": {"Small_rabbit_spear": 20}}],
-                                 "Start Health": 1, "Start Resource": 1}},
-                         {"Small_rabbit_leader_banner":
-                             {"Followers": [
-                                 {"Small_rabbit_leader_knight": {"Small_rabbit_spear": 20}},
-                                 {"Small_rabbit_leader_banner": {"Small_rabbit_spear": 20}},
-                                 {"Small_rabbit_leader_banner": {"Small_rabbit_spear": 20}}],
                                  "Start Health": 1, "Start Resource": 1}}
                      ],
                          "uncontrollable": [],
                          "air": [{"Small_eagle_air_stone": 10}, {"Small_eagle_air_stone": 10}],
-                         "camp": {}},
+                         "reinforcement": [
+                         {"Small_rabbit_snail_cav":
+                             {"Followers": [
+                                 {"Small_rabbit_leader_hero": {"Small_rabbit_snail_cav": 10}},
+                                 {"Small_rabbit_leader_hero": {"Small_rabbit_snail_cav": 10}},
+                                 {"Small_rabbit_leader_hero": {"Small_rabbit_hound_cav": 10}}],
+                                 "Start Health": 1, "Start Resource": 1}}]},
                      2: {"controllable": [
 
                      ],
@@ -494,25 +496,24 @@ class Battle:
                                      "Start Health": 1, "Start Resource": 1}}
                          ],
                          "air": [{"Castle_cat_air_rocket_bomb": 5}, {"Castle_cat_air_rocket_bomb": 5}],
-                         "camp": {}},
-                     3: {}}
+                         "reinforcement": []}}
 
         yield set_done_load()
 
         yield set_start_load(self, "animation setup")
-        character_list = []
+        character_list = [character["ID"] for character in stage_data["character"]]
+
         for team_value in team_data.values():
             for key, value in team_value.items():
-                if key != "camp":
-                    for value2 in value:
-                        for character, character_data in value2.items():
-                            character_list.append(character)
-                            if type(character_data) is dict and "Followers" in character_data:
-                                for follower_data in character_data["Followers"]:
-                                    for follower_leader, follower_follower in follower_data.items():
-                                        character_list.append(follower_leader)
-                                        for follower in follower_follower:
-                                            character_list.append(follower)
+                for value2 in value:
+                    for character, character_data in value2.items():
+                        character_list.append(character)
+                        if type(character_data) is dict and "Followers" in character_data:
+                            for follower_data in character_data["Followers"]:
+                                for follower_leader, follower_follower in follower_data.items():
+                                    character_list.append(follower_leader)
+                                    for follower in follower_follower:
+                                        character_list.append(follower)
         character_list = list(set(character_list))
 
         already_check_char = []
@@ -535,8 +536,7 @@ class Battle:
                 if value["Type"] == "create" and value["Object"] not in character_list:
                     character_list.append(value["Object"])
 
-        character_list = tuple(
-            [char_id if "+" not in char_id else char_id.split("+")[0] for char_id in set(character_list)])
+        character_list = tuple([char_id for char_id in set(character_list)])
 
         self.animation_data.load_character_animation(character_list, battle_only=True)
 
@@ -574,7 +574,7 @@ class Battle:
                     new_value[0].append(item)
             self.later_enemy[scene] = new_value
 
-        self.setup_team_characters(team_data)
+        self.setup_team_characters(team_data, stage_data)
 
         if stage_event_data:
             self.stage_music_pool = {key: Sound(self.music_pool[key]) for key in stage_event_data["music"] if
@@ -730,13 +730,13 @@ class Battle:
                     if event.key == K_F1:
                         self.drama_text.queue.append(("Hello and welcome to showcase video", "Dollhi"))
                     elif event.key == K_F2:
-                        self.drama_text.queue.append(("Show case: Commander Strategy", None))
+                        self.drama_text.queue.append(("Show case: Neutral Enemy", None))
                     elif event.key == K_F3:
                         self.drama_text.queue.append(
-                            ("Command can activate strategy or spell in battle", None))
+                            ("In some maps, there may be neutral animals that appear based on specific condition", None))
                     elif event.key == K_F4:
                         self.drama_text.queue.append(
-                            ("UI here show the range that strategy can be activated and its effect range", None))
+                            ("Each typically has different behaviour, some just move around doing nothing", None))
                         # for enemy in self.player_control_generals:
                         #     for follower in enemy.followers:
                         #         follower.health = 0
@@ -747,14 +747,14 @@ class Battle:
                         # self.drama_text.queue.append(("Each has different role for fighting air/ground units.", None))
                         # self.drama_text.queue.append(("All dead.", None))
                         self.drama_text.queue.append(
-                            ("Some may grant buffs to ally or debuff to enemy, it can even give false command", None))
+                            ("Some may be curious like bear cub that will follow any coming close", None))
                         # for enemy in self.player_control_generals:
                         #     if not enemy.is_commander:
                         #         enemy.health = 0
                         #         break
                     elif event.key == K_F6:
                         self.drama_text.queue.append(
-                            ("Some will change weather or cast spells to do damage", None))
+                            ("Some will even attack, buff, debuff or even summon enemies", None))
                         # self.call_in_air_group(2, [index for index, _ in enumerate(self.team_stat[2]["air_group"])],
                         #                        500)
                         # self.screen_shake_value = 11111

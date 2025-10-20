@@ -69,33 +69,16 @@ def die(self):
         self.general = None
 
     if self.spawns:
-        for spawn, chance in self.spawns.items():
-            spawn_name = spawn
-            if "+" in spawn_name:  # + indicate number of possible drop
-                spawn_num = int(spawn_name.split("+")[1])
-                spawn_name = spawn_name.split("+")[0]
-                for _ in range(spawn_num):
-                    if chance >= uniform(0, 100):
-                        start_pos = (self.base_pos[0] + uniform(-200, 200),
-                                     self.base_pos[1])
-                        engine.character.character.BattleCharacter(self.battle.last_char_game_id,
-                                                                   self.character_data.character_list[spawn_name] |
-                                                                   {"ID": spawn_name,
-                                                                    "Angle": self.angle,
-                                                                    "Team": self.team, "POS": start_pos,
-                                                                    "Arrive Condition": ()})
-                        self.battle.last_char_game_id += 1
-            else:
-                if chance >= uniform(0, 100):
-                    start_pos = (self.base_pos[0] + uniform(-200, 200),
-                                 self.base_pos[1])
-                    engine.character.character.BattleCharacter(self.battle.last_char_game_id,
-                                                               self.character_data.character_list[spawn_name] |
-                                                               {"ID": spawn_name,
-                                                                "Angle": self.angle,
-                                                                "Team": self.team, "POS": start_pos,
-                                                                "Arrive Condition": ()})
-                    self.battle.last_char_game_id += 1
+        for spawn_name, spawn_num in self.spawns.items():
+            for _ in range(spawn_num):
+                start_pos = (self.base_pos[0] + uniform(-200, 200),
+                             self.base_pos[1])
+                engine.character.character.BattleCharacter(self.battle.last_char_game_id,
+                                                           self.character_data.character_list[spawn_name] |
+                                                           {"ID": spawn_name,
+                                                            "Team": self.team, "POS": start_pos,
+                                                            "Start Health": 1, "Start Resource": 1})
+                self.battle.last_char_game_id += 1
 
     self.status_effect = {}
     self.status_duration = {}

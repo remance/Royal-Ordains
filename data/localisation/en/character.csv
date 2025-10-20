@@ -1,14 +1,4 @@
 "ID","Name","Description","Tag"
-"Aerlnarn","Aerlnarn",,"Playable"
-"Amunsa","Amunsa",,"Playable"
-"Animal_bird","Bird Lookout",,"Playable"
-"Animal_boar","Boar Charger",,"Playable"
-"Animal_flypig","Flying Pig",,"Playable"
-"Animal_fox","Fox Trickster",,"Playable"
-"Animal_hound","Trained Hound","A trained hound for hunting by the Bandit Houndmaster. Good at biting and smacking.","Playable"
-"Animal_turtle","Turtle Frogs Tower",,"Rabbitman"
-"Animal_wolf","Wolf Guardian",,"Rabbitman"
-"Barman_one","Barman",,"Rabbitman"
 "Bigtahound","Dog","Formerly, The white guard dog of Nalina Fortress’s armoury. The leader and champion of the Rabbitmen tribe alliance after winning the tournament with her rabbitman husband, Sertors. ","Rabbitman"
 "Castle_cat_air_rocket_bomb","Rocket Cat",,
 "Castle_cat_shield_crossbow","Shielded Crossbowcat",,
@@ -31,20 +21,7 @@
 "Dban_axe","Dwarf Marauder",,
 "Dban_crossbow","Dwarf Bandit Crossbowman",,
 "Dban_hammer","Dwarf Thug",,
-"Duhon","Duhon",,"Rabbitman"
-"Eban_bow","Elf Rogue Scout",,
-"Eban_mage","Elf Taint Druid",,"Boss"
-"Eban_sword","Elf Bandit Fighter",,"Test"
-"Elghest","Elghest",,"Bandit"
-"Furlest","Furlest",,"Bandit"
-"Hermanos","Hermanos",,"Bandit"
-"Jurmon","Jurmon",,"Bandit"
-"Kemilsz","Kemilsz",,"Animal"
-"Kervos","Kervos",,"Animal"
-"Kervos","Kervos",,"Animal"
 "King","King","The king of Masendor.","Animal"
-"Knedhel","Knedhel",,"Animal"
-"Laguasangte","Laguasangte",,"Animal"
 "Leader_adaqua","Adaqua","Leader of the Red Leaf Bandit but later became friend with the Rabbit Forest Alliance. Quite skilled with bow. Unable to perform melee attacks.","Playable"
 "Leader_bauqah","Bauqah",,"Rabbitman"
 "Leader_bigta","Bigta and Sertors","A bizarre cavalry pair of rabbit and dog. Champion of the Rabbitmen alliance, later Hound Keeper. Deliver strong charge with lance and bolster many support skills.","Rabbitman"
@@ -62,31 +39,13 @@
 "Leader_vraesier","Vraesier","This bandit has one thing really going, and that is her skill in weapons of most varieties. Her rough manner and appearance did not help to avoid being held in contempt by most in the courts. This marauder was perhaps the most controversial selection among the Royal Ordains. Still, this so-called ""knave"" can easily take down even the most skilled Kingdom knight with ease.","Test"
 "Leader_vurus","Vurus",,"Test"
 "Leader_yuawies","Yuawies",,"Test"
-"Lisha","Lisha",,"Animal"
-"Luriel","Luriel",,"Animal"
-"Maelsen","Maelsen",,"Animal"
-"Merlaros","Merlaros",,"Animal"
-"Micorte","Micorte",,"Test"
-"Minara","Minara",,"Test"
-"Monnirl","Monnirl",,"Test"
-"Orgatonion","Orgatonion",,"Test"
-"Peurrus","Peurrus",,"Test"
-"Picrieas","Picrieas",,"Test"
-"Quivenly","Quivenly",,"Test"
-"Roeveo","Roeveo",,"Test"
-"Rudehst","Rudehst",,"Test"
-"Sasinola","Sasinola",,"Test"
-"Serlon","Serlon",,"Test"
-"Severn","Severn",,"Test"
-"Shopper_one","Shopper",,"Test"
-"Sihest","Sihest",,"Test"
 "Small_eagle_air_stone","Eagle","An eagle eager for prays. Fast and cheap air fighter with great versatility.","Playable"
 "Small_rabbit_cannon","Rabbit Revenge","A cheap small cannon for many purposes. Rabbitmen can be innovative with good guidance.","Test"
 "Small_rabbit_hole","Rabbit Role","A rabbit in a hole waiting to stab a passerby in the rear.","Test"
 "Small_rabbit_home","Rabbit Rarren Ratcher","A warren guard. No home means no purpose.","Test"
 "Small_rabbit_hound_cav","Rabbit Ruddy","A rabbit hound cavalry. Light enough to quickly run through the enemy line.","Test"
 "Small_rabbit_killer","Rabbit Roney","A rabbit of death. Fast and deadly.","Test"
-"Small_rabbit_leader_banner","Rabbit Rannerman","A rabbit banner bearer. Bringer of field menaces.",
+"Small_rabbit_leader_banner","Rabbit Rannermate","A rabbit banner bearer. Bringer of field menaces.",
 "Small_rabbit_leader_hero","Rabbit Rero","A rabbit hero. As good as a rabbit can be.",
 "Small_rabbit_leader_knight","Rabbit Rnight","A rabbit knight. Not so bad as a frontline leader but expect no grand performance.","Test"
 "Small_rabbit_sling","Rabbit Rooligan","A footsoldier rabbit slinger. Decent skirmisher in its own right and can dig the ground to lay trap against approaching enemies.","Test"
@@ -103,7 +62,17 @@
 "Toodles","Toodles Galore",,"Test"
 "Towncrier","Towncrier",,"Test"
 "Vars","Vars",,"Test"
-"Velmidas","Velmidas",,"Test"
-"Vigumatik","Vigumatik",,"Test"
-"Viskes","Viskes",,"Test"
-"Wigorsein","Wigorsein",,"Test"
+,,,
+,,,
+,,,
+,,,
+"Nice_bear_cub","Bear Cub","A small bear cub that seems to roll around like it owns the place. Cute but extremely dangerous. Do not attack under any circumstance.",
+"Nice_cloud_dog","Cloud Dog",,
+"Nice_bird","Bird",,
+"Nice_fluffy_bird","Fluffy Bird",,
+"Nice_butterfly","Butterfly",,
+"Nice_living_book","Living Book",,
+"Nice_bunny","Bunny",,
+"Nice_slime","Slime",,
+"Nice_wisp","Wisp",,
+"Nice_snake","Snake",,

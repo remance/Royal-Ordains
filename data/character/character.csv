@@ -235,7 +235,7 @@
 "Small_snail_sword","Vertkin",250,8,55,5,,,0.5,-0.25,,-0.3,0.3,,0.15,,0.1,,,,18,10,,,,,"ground","melee","shield"
 "Summon_ballista","Machine",300,,,,,,0.3,,0.3,-0.1,,,,,,,,,,,,"TRUE",,,"ground","trap","no_forced_move,no_spirit"
 "Summon_scorpion","Machine",500,28,1,1,,,0.3,,0.3,-0.35,,,,,,,,,,,,"TRUE",,,"ground","trap","no_forced_move,no_spirit"
-"Wood_bear","Vertkin",860,,,,,,0.15,,,,,0.1,,,0.15,,,,40,,,,,,"ground","common",
+"Wood_bear","Vertkin",860,35,50,25,,,0.35,0.65,0.25,-0.1,0.25,0.1,,,0.15,,,,50,,,,,,"ground","melee",
 "Wood_boar","Vertkin",555,,,,,,0.1,,,0.15,0.1,0.05,0.1,,,,,,30,,,,,,"ground","melee",
 "Wood_elf_bow","Sun Elf",300,,,,,,,,,0.1,,0.1,,,,,,,,,,,,,"ground","common",
 "Wood_elf_dualswords","Sun Elf",,,,,,,,,,,,,,,,,,,,,,,,,,,
@@ -268,13 +268,13 @@
 "Neutral_raptor",,,,,,,,,,,,,,,,,,,,,,,,,,,,
 "Neutral_stalker",,,,,,,,,,,,,,,,,,,,,,,,,,,,
 "Neutral_evil_eye",,,,,,,,,,,,,,,,,,,,,,,,,,,,
-"Nice_bear_cub","Animal",,,,17,,,,,,,,,,,,,,,,,,,,,,,
-"Nice_cloud_dog","Animal",,,,20,,,,,,,,,,,,,,,,,,,,,,,"invincible"
-"Nice_bird","Animal",,,,60,,,,,,,,,,,,,,,,,,,,,,,"invincible"
-"Nice_fluffy_bird","Animal",,,,12,,,,,,,,,,,,,,,,,,,,,,,"invincible"
-"Nice_butterfly","Animal",,,,29,,,,,,,,,,,,,,,,,,,,,,,"invincible"
-"Nice_living_book","Animal",,,,8,,,,,,,,,,,,,,,,,,,,,,,"invincible"
-"Nice_bunny","Animal",,,,20,,,,,,,,,,,,,,,,,,,,,,,"invincible"
-"Nice_slime","Animal",,,,10,,,,,,,,,,,,,,,,,,,,,,,"invincible"
-"Nice_wisp","Animal",,,,8,,,,,,,,,,,,,,,,,,,,,,,"invincible"
-"Nice_snake","Animal",,10,,5,,,,,,,,,,,,,,,,,,,,,,,"invincible"
+"Nice_bear_cub","Animal",100,,,8,,,,,,,,,,,,,,,,,,,,"Wood_bear:10","ground","curious","no_target"
+"Nice_cloud_dog","Animal",1000,,,20,,,,,,,,,,,,,,,,,,,,,"air","nice","invincible,no_battle,fly"
+"Nice_bird","Animal",1000,,,60,,,,,,,,,,,,,,,,,,,,,"air","nice","invincible,no_battle,fly"
+"Nice_fluffy_bird","Animal",1000,,,12,,,,,,,,,,,,,,,,,,,,,"ground","nice","invincible,no_battle"
+"Nice_butterfly","Animal",1000,,,29,,,,,,,,,,,,,,,,,,,,,"air","nice","invincible,no_battle,float"
+"Nice_living_book","Animal",1000,,,8,,,,,,,,,,,,,,,,,,,,,"air","nice","invincible,no_battle"
+"Nice_bunny","Animal",1000,,,20,,,,,,,,,,,,,,,,,,,,,"ground","territorial","invincible"
+"Nice_slime","Animal",1000,,,10,,,,,,,,,,,,,,,,,,,,,"ground","nice","invincible,no_battle"
+"Nice_wisp","Animal",1000,,,8,,,,,,,,,,,,,,,,,,,,,"air","territorial","invincible,no_target"
+"Nice_snake","Animal",1000,10,,5,,,,,,,,,,,,,,,,,,,,,"ground","territorial","invincible,no_target"

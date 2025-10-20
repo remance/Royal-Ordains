@@ -52,8 +52,7 @@ def add_reinforcement(self, unit_list):
                                                                   {"ID": leader, "Team": add_battle_char.team,
                                                                    "Start Health": data["Start Health"],
                                                                    "Start Resource": data["Start Resource"],
-                                                                   "POS": random_pos,
-                                                                   "Arrive Condition": ()}, leader=add_battle_char)
+                                                                   "POS": random_pos}, leader=add_battle_char)
                                     self.last_char_game_id += 1
                                     for key, number in follower.items():
                                         for _ in range(int(number)):
@@ -69,7 +68,6 @@ def add_reinforcement(self, unit_list):
                                                             {"ID": key, "Team": add_battle_char.team,
                                                              "Start Health": data["Start Health"],
                                                              "Start Resource": data["Start Resource"],
-                                                             "POS": random_pos,
-                                                             "Arrive Condition": ()}, leader=leader_char)
+                                                             "POS": random_pos}, leader=leader_char)
                                             self.last_char_game_id += 1
                             add_battle_char.reset_general_variables()

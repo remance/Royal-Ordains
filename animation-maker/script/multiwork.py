@@ -24,7 +24,7 @@ for x in Path(join(animation_dir)).iterdir():  # grab char with sprite
         file_list.append(normpath(x).split(os.sep)[-1])
 
 # for file_name in file_list:
-file_name = "nice_bear_cub.csv"
+file_name = "nice_cloud_dog.csv"
 with open(join(main_dir, "animation-maker", "data", "animation", file_name), encoding="utf-8",
           mode="r") as edit_file:
     rd = csv.reader(edit_file, quoting=csv.QUOTE_MINIMAL)
@@ -38,9 +38,9 @@ with open(join(main_dir, "animation-maker", "data", "animation", file_name), enc
                 if len(column.split(",")) > 4 and "sound" not in part_name_header[col_index] and column:
                     new_column = column.split(",")
                     # if float(new_column[2]) > 180:
-                    new_column[2] = str(round(float(new_column[2]) * 0.5, 1))
+                    new_column[2] = str(round(float(new_column[2]) * 1.5, 1))
                     # if float(new_column[3]) < -180:
-                    new_column[3] = str(round(float(new_column[3]) * 0.5, 1))
+                    new_column[3] = str(round(float(new_column[3]) * 1.5, 1))
                     new_column = ",".join(new_column)
                     row[col_index] = new_column
         final_save.append(row)

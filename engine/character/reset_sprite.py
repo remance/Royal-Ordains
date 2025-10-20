@@ -6,7 +6,10 @@ def reset_sprite(self):
         self.offset_pos = self.pos - (offset[0], offset[1])
     self.rect = self.image.get_rect(midbottom=self.offset_pos)
 
+
+def battle_reset_sprite(self):
     # grid check does not check pass existing stage
+    reset_sprite(self)
     grid_left = int(self.rect.topleft[0] / self.collision_grid_width)
     if grid_left < 0:
         grid_left = 0

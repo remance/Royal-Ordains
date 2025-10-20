@@ -47,7 +47,8 @@ def follower_ai_prepare(self):
     self.nearest_enemy_distance = None
     self.nearest_enemy_pos = None
     grid_range = find_grid_range(self.base_pos[0], self.max_enemy_range_check, self.last_grid)
-    near_enemy = [enemy for grid in grid_range for enemy in self.ground_enemy_collision_grids[grid] if not enemy.invisible]
+    near_enemy = [enemy for grid in grid_range for enemy in self.ground_enemy_collision_grids[grid] if
+                  not enemy.invisible and not enemy.no_target]
     self.get_near_enemy(near_enemy)
 
 
@@ -68,7 +69,8 @@ def interceptor_ai_prepare(self):
     self.nearest_enemy_distance = None
     self.nearest_enemy_pos = None
     grid_range = find_grid_range(self.base_pos[0], self.max_enemy_range_check, self.last_grid)
-    near_enemy = [enemy for grid in grid_range for enemy in self.air_enemy_collision_grids[grid] if not enemy.invisible]
+    near_enemy = [enemy for grid in grid_range for enemy in self.air_enemy_collision_grids[grid] if
+                  not enemy.invisible and not enemy.no_target]
     self.get_near_enemy(near_enemy)
 
 
@@ -78,7 +80,8 @@ def bomber_ai_prepare(self):
     self.nearest_enemy_distance = None
     self.nearest_enemy_pos = None
     grid_range = find_grid_range(self.base_pos[0], self.max_enemy_range_check, self.last_grid)
-    near_enemy = [enemy for grid in grid_range for enemy in self.ground_enemy_collision_grids[grid] if not enemy.invisible]
+    near_enemy = [enemy for grid in grid_range for enemy in self.ground_enemy_collision_grids[grid] if
+                  not enemy.invisible and not enemy.no_target]
     self.get_near_enemy(near_enemy)
 
 
@@ -89,5 +92,5 @@ def fighter_ai_prepare(self):
     self.nearest_enemy_pos = None
     grid_range = find_grid_range(self.base_pos[0], self.max_enemy_range_check, self.last_grid)
     near_enemy = [enemy for grid_list in (self.ground_enemy_collision_grids, self.air_enemy_collision_grids) for grid
-                  in grid_range for enemy in grid_list[grid] if not enemy.invisible]
+                  in grid_range for enemy in grid_list[grid] if not enemy.invisible and not enemy.no_target]
     self.get_near_enemy(near_enemy)
