@@ -464,6 +464,7 @@ class BattleCharacter(Character):
         self.base_speed = stat["Speed"]
         self.leadership = stat["Leadership"] + (stat["Leadership"] * (leader_charisma / 200)) + stat_boost
         self.strategy_regen = stat["Leadership"] / 100
+        self.status_immunity = stat["Status Immunity"]
 
         self.base_health = stat["Health"]  # max health of character
         self.base_resource = 100 + (100 * (leader_charisma / 200))
