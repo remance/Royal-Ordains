@@ -13,6 +13,8 @@ def die(self):
     if self.is_general:
         self.battle.all_team_general[self.team].remove(self)
         if self.team == 1 and self.is_controllable:
+            if not self.is_commander:
+                self.battle.player_control_generals.remove(self)
             if self in self.battle.player_selected_generals:
                 self.battle.player_selected_generals.remove(self)
 

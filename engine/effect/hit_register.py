@@ -22,7 +22,7 @@ def hit_register(self, target):
             target.cal_loss(self.owner, final_dmg, self.impact, hit_angle, critical)
 
         if not self.penetrate:
-            if self.remain_reach:
+            if self.after_reach:
                 self.remain_check = True
         if self.enemy_status_effect:
             for effect in self.enemy_status_effect:

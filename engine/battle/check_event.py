@@ -4,16 +4,6 @@ from pygame.mixer import Sound
 
 
 def check_event(self):
-    # if self.later_enemy[self.spawn_check_scene]:
-    #     # check for enemy arriving based on camera pos
-    #     self.spawn_delay_timer[self.spawn_check_scene] += self.dt
-    #     first_delay = tuple(self.later_enemy[self.spawn_check_scene].keys())[0]
-    #     if self.spawn_delay_timer[self.spawn_check_scene] >= first_delay:
-    #         # spawn based on delay timer
-    #         self.spawn_character((), self.later_enemy[self.spawn_check_scene][
-    #             first_delay], add_helper=False)
-    #         self.later_enemy[self.spawn_check_scene].pop(first_delay)
-
     if self.reach_scene_event_list:
         # check for event with camera reaching
         if self.reach_scene in self.reach_scene_event_list:

@@ -8,11 +8,11 @@ team_start_x_distance = (600, 1200, 1800, 2400, 3000, 3600)
 team_start_middle_x_distance = (600, -600, 1200, -1200, 1800, -1800, 2400, -2400)
 
 
-def setup_team_characters(self, team_data, stage_data):
+def setup_team_characters(self, stage_data):
     """Setup all characters at the start of battle, not used for character spawn afterward"""
-    for team, team_unit in team_data.items():
-        if team_unit:
-            for key_type, key_data in team_unit.items():
+    for team, team_unit in self.team_stat.items():
+        for key_type, key_data in team_unit["unit"].items():
+            if key_data:
                 commander_char = None
                 if key_type in ("controllable", "uncontrollable"):
                     general_count = 0
@@ -69,26 +69,29 @@ def setup_team_characters(self, team_data, stage_data):
                                 self.last_char_game_id += 1
                         self.team_stat[team]["air_group"].append(this_group)
 
-    for character in stage_data["character"]:
-        data = character.copy()
-        data["Start Health"] = 1
-        data["Start Resource"] = 1
-        character_data = self.character_data.character_list[data["ID"]]
-        if "fly" in character_data["Property"]:
-            data["POS"] = (data["POS"], Default_Air_Pos)
-            data["Ground Y POS"] = Default_Air_Pos
-        elif "float" in character_data["Property"]:
-            data["POS"] = (data["POS"], Default_Float_Pos)
-            data["Ground Y POS"] = Default_Float_Pos
-        else:
-            data["POS"] = (data["POS"], Default_Ground_Pos)
-        if "no_battle" in data["Stage Property"] or "no_battle" in character_data["Property"]:
-            add_battle_char = Character(self.last_char_game_id,
-                                        data | self.character_data.character_list[data["ID"]])
-            self.last_char_game_id += 1
-        else:
-            add_battle_char = BattleCharacter(self.last_char_game_id, data | self.character_data.character_list[data["ID"]])
-            self.last_char_game_id += 1
+    for data in stage_data["character"]:
+        if not data["Arrive Condition"]:  # neutral character with arrive condition got added via check_reinforcement
+            add_neutral_character(self, data)
+
+
+def add_neutral_character(self, input_data):
+    data = input_data.copy()
+    character_data = self.character_data.character_list[data["ID"]]
+    if "fly" in character_data["Property"]:
+        data["POS"] = (data["POS"], Default_Air_Pos)
+        data["Ground Y POS"] = Default_Air_Pos
+    elif "float" in character_data["Property"]:
+        data["POS"] = (data["POS"], Default_Float_Pos)
+        data["Ground Y POS"] = Default_Float_Pos
+    else:
+        data["POS"] = (data["POS"], Default_Ground_Pos)
+    if "no_battle" in data["Stage Property"] or "no_battle" in character_data["Property"]:
+        add_battle_char = Character(self.last_char_game_id,
+                                    data | self.character_data.character_list[data["ID"]])
+        self.last_char_game_id += 1
+    else:
+        add_battle_char = BattleCharacter(self.last_char_game_id, data | self.character_data.character_list[data["ID"]])
+        self.last_char_game_id += 1
 
 
 def add_followers(self, general, value, data, battle_char=True):

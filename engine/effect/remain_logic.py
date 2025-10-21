@@ -2,7 +2,7 @@ from pygame import Vector2
 
 
 def remain_logic(self, dt):
-    if self.remain_reach == "move":  # keep moving until reach ground or out of map
+    if self.after_reach == "move":  # keep moving until reach ground or out of map
         self.move_logic(dt, False)
     else:
         if self.x_momentum or self.y_momentum:  # sprite bounce after reach

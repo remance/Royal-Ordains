@@ -47,6 +47,12 @@ def state_battle_process(self):
 
             self.ai_process_list = self.ai_process_list[limit:]
 
+        if self.later_reinforcement:
+            self.reinforcement_check_timer += self.dt
+            if self.reinforcement_check_timer > 1:
+                self.check_reinforcement()
+                self.reinforcement_check_timer -= 1
+
         for team, team_stat in self.team_stat.items():
             team_stat["strategy"] = {key: value - self.dt if value > self.dt else 0 for
                                      key, value in team_stat["strategy"].items()}

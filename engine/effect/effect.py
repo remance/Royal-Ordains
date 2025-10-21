@@ -125,9 +125,9 @@ class Effect(Sprite):
         self.sprite_flip = self.part_stat[5]
         self.width_scale = self.part_stat[7]
         self.height_scale = self.part_stat[8]
-        self.remain_reach = False
+        self.after_reach = False
         self.remain_check = False
-        self.reach_effect = reach_effect
+        self.after_reach_effect = reach_effect
         self.one_hit_per_enemy = False
 
         self.travel_distance = 0
@@ -155,8 +155,8 @@ class Effect(Sprite):
         # it is required that independent effect must exist in effect stat data
         self.effect_stat = self.effect_list[self.effect_name]
         self.speed = self.effect_stat["Travel Speed"]
-        self.reach_effect = self.effect_stat["After Reach Effect"]
-        self.remain_reach = self.effect_stat["Reach Effect"]
+        self.after_reach_effect = self.effect_stat["After Reach Effect"]
+        self.after_reach = self.effect_stat["After Reach"]
         self.duration = self.effect_stat["Duration"]
         self.shake_value = self.effect_stat["Shake Value"]
         self.max_duration = self.duration
@@ -172,13 +172,13 @@ class Effect(Sprite):
 
         if moveset:
             self.other_property = moveset["Property"]
-            if self.current_moveset["Range"] and "no travel" not in self.effect_stat["Property"]:
+            if self.current_moveset["Range"] and "no_travel" not in self.effect_stat["Property"]:
                 # effect in moveset with range mean the effect can move on its own
                 self.travel = True
                 self.travel_distance = self.current_moveset["Range"]
-            if "random move" in moveset["Property"]:
+            if "random_move" in moveset["Property"]:
                 self.random_move = True
-            if "one hit per enemy" in moveset["Property"]:
+            if "one_hit_per_enemy" in moveset["Property"]:
                 self.one_hit_per_enemy = True
 
             if ("enemy" in self.current_moveset["AI Condition"] and

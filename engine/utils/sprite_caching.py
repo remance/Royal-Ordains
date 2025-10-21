@@ -93,7 +93,8 @@ def recursive_cast_pickleable_surface_to_surface(data, screen_scale, already_don
                                                  effect_sprite_adjust=False, parent_data=None, parent_key=None):
     f = recursive_cast_pickleable_surface_to_surface
     if type(data) is dict:
-        for k, v in data.copy().items():
+        for k in tuple(data.keys()):
+            v = data[k]
             if type(v) is dict:
                 f(v, screen_scale, already_done, battle_only=battle_only, effect_sprite_adjust=effect_sprite_adjust,
                   parent_data=data, parent_key=k)

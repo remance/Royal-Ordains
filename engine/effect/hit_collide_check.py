@@ -31,7 +31,7 @@ def hit_collide_check(self):
                         if not self.penetrate:
                             if self.is_effect_type:
                                 if self.remain_check:
-                                    if self.remain_reach == "bounce":
+                                    if self.after_reach == "bounce":
                                         sprite_bounce(self)
                                 elif len(self.current_animation) == 1:
                                     self.reach_target()

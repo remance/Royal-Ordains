@@ -28,6 +28,7 @@ from engine.battle.cal_shake_value import cal_shake_value
 from engine.battle.call_in_air_group import call_in_air_group
 from engine.battle.change_game_state import change_game_state
 from engine.game.change_pause_update import change_pause_update
+from engine.battle.check_reinforcement import check_reinforcement
 from engine.battle.drama_process import drama_process
 from engine.battle.end_cutscene_event import end_cutscene_event
 from engine.battle.escmenu_process import escmenu_process, back_to_battle_state
@@ -75,6 +76,7 @@ class Battle:
     call_in_air_group = call_in_air_group
     change_game_state = change_game_state
     change_pause_update = change_pause_update
+    check_reinforcement = check_reinforcement
     drama_process = drama_process
     end_cutscene_event = end_cutscene_event
     back_to_battle_state = back_to_battle_state
@@ -108,8 +110,9 @@ class Battle:
         self.game = game
         Battle.battle = self
         # TODO LIST
-        # add reinforcement, both control and no control
-        # finish Rodhinbar, test iri, vraesier, cat crossbow, human troops, tulia, nice animal
+        # add reinforcement
+        # link character to outside battle stat somewhere for when add grand strategy
+        # finish Rodhinbar, test iri, vraesier, human troops, tulia
         # add enemy command AI, skirmish behaviour ai for ranged char/leader/group, commander
         # add back hold function, for spear pike and stuff
         # think how to deal center battle map start retreat point
@@ -240,14 +243,14 @@ class Battle:
         self.battle_scale = []
         self.play_time = 0
         self.battle_time = 0.0
-        self.team_stat = {team: {"strategy_resource": 0, "start_pos": 0, "air_group": [], "strategy": {}} for
+        self.team_stat = {team: {"strategy_resource": 0, "start_pos": 0, "air_group": [], "strategy": {}, "unit": {}} for
                           team in team_list}
         self.player_control_generals = []  # for command ui
         self.team_commander = {team: None for team in team_list}
         self.player_selected_generals = []  # for player order input
         self.player_selected_strategy = None
 
-        self.later_enemy = {}
+        self.later_reinforcement = {"weather": {}, "time": {}, "team": {}}
         self.game_state = "battle"
         self.esc_menu_mode = "menu"
 
@@ -334,6 +337,7 @@ class Battle:
 
         self.ui_timer = 0  # This is timer for ui update function, use realtime
         self.drama_timer = 0  # This is timer for combat related function, use self time (realtime * game_speed)
+        self.reinforcement_check_timer = 0
 
         self.base_cursor_pos = [0, 0]  # mouse base pos on the map based on camera position
         self.cursor_pos = [0, 0]
@@ -392,7 +396,6 @@ class Battle:
         stage_event_data = deepcopy(stage_data["event"])
 
         loaded_item = []
-        later_enemy = {}
         self.cutscene_playing = None
         self.base_stage_end = 0
         self.base_stage_start = 0
@@ -447,64 +450,61 @@ class Battle:
         self.stage_end = self.camera_center_x + ((stage_len - 1) * self.screen_width)
         self.tactical_map_ui.setup()  # setup tactical map ui to scale with stage size
 
-        self.team_stat = {0: {"strategy_resource": 0, "start_pos": self.base_stage_end, "air_group": [], "strategy": {}},
+        self.team_stat = {0: {"strategy_resource": 0, "start_pos": self.base_stage_end, "air_group": [], "strategy": {},
+                              "unit": {
+                                  "uncontrollable": [{"Castle_cat_shield_crossbow": {
+                                      "Followers": [{"Castle_cat_shield_crossbow": {"Castle_cat_shield_crossbow": 10}}],
+                                      "Start Health": 1, "Start Resource": 1}}],
+                                  "reinforcement": {}}
+                              },
                           1: {"strategy_resource": 0, "start_pos": 0, "air_group": [],
-                              "strategy": {"Test": 0, "Test2": 0, "Spell_huge_stone": 0}},
+                              "strategy": {"Test": 0, "Test2": 0, "Spell_huge_stone": 0},
+                              "unit": {
+                                  "controllable": [
+                                      {"Leader_bigta": {"Followers": [
+                                          {"Small_rabbit_leader_knight": {"Small_rabbit_spear": 20}},
+                                          {"Small_rabbit_leader_banner": {"Small_rabbit_spear": 20}},
+                                          {"Small_rabbit_leader_banner": {"Small_rabbit_spear": 20}}],
+                                          "Start Health": 1, "Start Resource": 1}},
+                                      {"Small_rabbit_leader_knight": {"Followers": [
+                                          {"Small_rabbit_leader_knight": {"Small_rabbit_spear": 20}},
+                                          {"Small_rabbit_leader_banner": {"Small_rabbit_spear": 20}},
+                                          {"Small_rabbit_leader_banner": {"Small_rabbit_spear": 20}}],
+                                          "Start Health": 1, "Start Resource": 1}}],
+                                  "uncontrollable": [],
+                                  "air": [{"Small_eagle_air_stone": 10}, {"Small_eagle_air_stone": 10}],
+                              "reinforcement": {"controllable": [{"Small_rabbit_snail_cav": {"Followers": [
+                                  {"Small_rabbit_leader_hero": {"Small_rabbit_snail_cav": 10}},
+                                  {"Small_rabbit_leader_hero": {"Small_rabbit_snail_cav": 10}},
+                                  {"Small_rabbit_leader_hero": {"Small_rabbit_hound_cav": 10}}],
+                                  "Start Health": 1, "Start Resource": 1}}], "air": [{"Small_eagle_air_stone": 10}]}}},
                           2: {"strategy_resource": 100, "start_pos": self.base_stage_end / 2, "air_group": [],
-                              "strategy": {"Test": 0, "Test2": 0, "Spell_huge_stone": 0}}}
+                              "strategy": {"Test": 0, "Test2": 0, "Spell_huge_stone": 0},
+                              "unit": {
+                                  "controllable": [],
+                                  "uncontrollable": [{"Small_rabbit_tower": {"Followers": [
+                                      {"Small_rabbit_leader_knight": {"Small_rabbit_spear": 20}}],
+                                      "Start Health": 1, "Start Resource": 1}},
+                                      {"Small_rabbit_tower":
+                                          {"Followers": [{"Small_rabbit_leader_banner": {"Small_rabbit_sling": 20}}],
+                                           "Start Health": 1, "Start Resource": 1}}],
+                                  "air": [{"Castle_cat_air_rocket_bomb": 5}, {"Castle_cat_air_rocket_bomb": 5}],
+                                  "reinforcement": {"controllable": [], "air": []}}}}
 
         self.strategy_select_ui.setup()
 
         self.last_char_game_id = 0
         self.spawn_delay_timer = {}
 
-        team_data = {0: {"uncontrollable": [{"Castle_cat_shield_crossbow": {
-            "Followers": [{"Castle_cat_shield_crossbow": {"Castle_cat_shield_crossbow": 10}}],
-            "Start Health": 1, "Start Resource": 1}}]},
-                     1: {"controllable": [{"Leader_bigta":
-                         {"Followers": [
-                             {"Small_rabbit_leader_knight": {"Small_rabbit_spear": 20}},
-                             {"Small_rabbit_leader_banner": {"Small_rabbit_spear": 20}},
-                             {"Small_rabbit_leader_banner": {"Small_rabbit_spear": 20}}],
-                             "Start Health": 1, "Start Resource": 1}},
-                         {"Small_rabbit_leader_knight":
-                             {"Followers": [
-                                 {"Small_rabbit_leader_knight": {"Small_rabbit_spear": 20}},
-                                 {"Small_rabbit_leader_banner": {"Small_rabbit_spear": 20}},
-                                 {"Small_rabbit_leader_banner": {"Small_rabbit_spear": 20}}],
-                                 "Start Health": 1, "Start Resource": 1}}
-                     ],
-                         "uncontrollable": [],
-                         "air": [{"Small_eagle_air_stone": 10}, {"Small_eagle_air_stone": 10}],
-                         "reinforcement": [
-                         {"Small_rabbit_snail_cav":
-                             {"Followers": [
-                                 {"Small_rabbit_leader_hero": {"Small_rabbit_snail_cav": 10}},
-                                 {"Small_rabbit_leader_hero": {"Small_rabbit_snail_cav": 10}},
-                                 {"Small_rabbit_leader_hero": {"Small_rabbit_hound_cav": 10}}],
-                                 "Start Health": 1, "Start Resource": 1}}]},
-                     2: {"controllable": [
-
-                     ],
-                         "uncontrollable": [{"Small_rabbit_tower":
-                             {"Followers": [
-                                 {"Small_rabbit_leader_knight": {"Small_rabbit_spear": 20}}],
-                                 "Start Health": 1, "Start Resource": 1}},
-                             {"Small_rabbit_tower":
-                                 {"Followers": [
-                                     {"Small_rabbit_leader_banner": {"Small_rabbit_sling": 20}}],
-                                     "Start Health": 1, "Start Resource": 1}}
-                         ],
-                         "air": [{"Castle_cat_air_rocket_bomb": 5}, {"Castle_cat_air_rocket_bomb": 5}],
-                         "reinforcement": []}}
-
         yield set_done_load()
 
         yield set_start_load(self, "animation setup")
         character_list = [character["ID"] for character in stage_data["character"]]
 
-        for team_value in team_data.values():
-            for key, value in team_value.items():
+        for team_value in self.team_stat.values():
+            to_check = ([value for key, value in team_value["unit"].items() if key != "reinforcement"] +
+                        [value for value in team_value["unit"]["reinforcement"].values()])
+            for value in to_check:
                 for value2 in value:
                     for character, character_data in value2.items():
                         character_list.append(character)
@@ -554,27 +554,22 @@ class Battle:
                 self.all_team_ground_enemy_collision_grids[key][grid] = sprite.Group()
                 self.all_team_air_enemy_collision_grids[key][grid] = sprite.Group()
         self.last_grid = int(stage_len * Collision_Grid_Per_Scene) - 1
-        # start_character = [item for item in stage_data["character"] if "camera_scene" not in item["Arrive Condition"]]
-        self.later_enemy = {scene: [item for item in stage_data["character"] if
-                                    "camera_scene" in item["Arrive Condition"] and
-                                    item["Scene"] == scene] for scene in later_enemy}
 
-        for scene, value in self.later_enemy.items():  # rearrange arrival list based on delay
-            new_value = {}
-            self.spawn_delay_timer[scene] = 0
-            for item in value:
-                if "delay" in item["Arrive Condition"]:  # character has delay for arrival
-                    timer = float(item["Arrive Condition"]["delay"])
-                    if timer not in new_value:
-                        new_value[timer] = []
-                    new_value[timer].append(item)
-                else:
-                    if 0 not in new_value:
-                        new_value[0] = []
-                    new_value[0].append(item)
-            self.later_enemy[scene] = new_value
+        for item in stage_data["character"]:
+            if item["Arrive Condition"]:
+                for key, value in item["Arrive Condition"].items():
+                    # use only first condition
+                    if value not in self.later_reinforcement[key]:
+                        self.later_reinforcement[key][value] = []
+                    self.later_reinforcement[key][value].append(item)
+                    break
 
-        self.setup_team_characters(team_data, stage_data)
+        for team in self.team_stat:
+            team_reinforcement = self.team_stat[team]["unit"]["reinforcement"]
+            if team_reinforcement:
+                self.later_reinforcement["team"][team] = team_reinforcement
+
+        self.setup_team_characters(stage_data)
 
         if stage_event_data:
             self.stage_music_pool = {key: Sound(self.music_pool[key]) for key in stage_event_data["music"] if
@@ -646,6 +641,7 @@ class Battle:
         self.ai_battle_speak_timer = 0
         self.ui_timer = 0
         self.drama_timer = 0
+        self.reinforcement_check_timer = 0
         self.dt = 0
         self.battle_cursor.shown = True
         self.player_damage = 0
@@ -824,8 +820,9 @@ class Battle:
         self.stage_music_pool = {}
 
         # remove all reference from battle object
-        self.team_stat = {team: {"strategy_resource": 0, "start_pos": 0, "air_group": [], "strategy": {}} for
+        self.team_stat = {team: {"strategy_resource": 0, "start_pos": 0, "air_group": [], "strategy": {}, "unit": {}} for
                           team in team_list}
+        self.later_reinforcement = {"weather": {}, "time": {}, "team": {}}
         self.ai_process_list = []
         self.team_commander = {team: None for team in team_list}
         self.player_control_generals = []

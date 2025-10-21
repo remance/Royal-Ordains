@@ -11,7 +11,7 @@ class EnemyCommanderAI:
     def __init__(self, team):
         self.general_list = self.battle.all_team_general[team]
         self.commander = self.battle.team_commander[team]
-        self.ai_group = self.battle.team_stat[team]["air_group"]
+        self.air_group = self.battle.team_stat[team]["air_group"]
         self.strategy = self.battle.team_stat[team]["strategy"]
 
     def order(self):
