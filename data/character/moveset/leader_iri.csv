@@ -1,10 +1,10 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"Attack1","Shortsword Stab","name:Attack_ready","name:Attack_end",,150,,,,10,5,10,,,"Stab",,,,
-"Attack2","Shortsword Stabup","name:Attack_ready","name:Attack_end",,150,,,,12,5,2,3,,"Slash",,,,
-"Attack3","Shortsword Stabdown","name:Attack_ready","name:Attack_end",,150,,,,8,5,,-15,,"Crush",,,,
-"Attack4","Throw Bladed Spinner",,,,1000,1000,,,18,5,5,,,"Slash",,,,
-"Skill1","Throw Small Bomb",,,,800,800,1,25,53,175,250,250,,"Fire",,,,"no damage"
-"Skill2","Napalm Trap",,,,3000,,10,28,,,,,,"Fire",,,,
-"Skill3","Scorpion Deploy",,,,4000,,10,40,,,,,,,,,,"summon:Summon_scorpion"
-"Useitem1","Small Healing Kit",,,"self:{health<=50}",100000,1500,60,,,,,,,,"Small_healing_kit",,,
-"Useitem2","Resource Kit",,,"self:{resource<=30}",100000,1500,60,,,,,,,,"Resource_kit",,,
+"Attack1","Shortsword Stab","name:Attack_ready","name:Attack_end",,150,,,,10,9,15,,,"Stab",,,,
+"Attack2","Shortsword Stabup","name:Attack_ready","name:Attack_end",,150,,,,12,9,4,8,,"Slash",,,,
+"Attack3","Shortsword Stabdown","name:Attack_ready","name:Attack_end",,150,,,,8,9,,-25,,"Crush",,,,
+"Attack4","Throw Bladed Spinner",,,"self:{no_engage=400}",1500,1700,,,18,5,5,,,"Slash",,,,
+"Skill1","Throw Small Bomb",,,"self:{no_engage=400}",1000,1100,2,25,53,175,250,250,,"Fire",,,,"arc"
+"Skill2","Napalm Trap",,,,2000,,10,28,7,20,,,,"Fire",,,,
+"Skill3","Scorpion Deploy",,,,3000,,10,40,,,,,,,,,,"summon:Summon_scorpion"
+"UseItem1","Small Healing Kit",,,"self:{health<=50}",4000,1500,60,,,,,,,,"Small_healing_kit",,,"no_ai_range_check_setup"
+"UseItem2","Resource Kit",,,"self:{resource<=30}",3000,1500,60,,,,,,,,"Resource_kit",,,"no_ai_range_check_setup"

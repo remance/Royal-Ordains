@@ -44,6 +44,8 @@ def status_update(self):
     if self.defence < 0:  # seem like using if is faster than min()
         self.defence = 0
 
+    self.low_offence = self.offence * 0.5
+    self.low_speed = self.speed * 0.5
     self.run_speed = 5 * self.speed
     self.walk_speed = 3 * self.speed
 

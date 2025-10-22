@@ -296,7 +296,7 @@ class Command(UIBattle):
                 self.player_air_group_number = [None, None, None, None, None]
                 self.len_player_control_generals = len(self.battle.player_control_generals)
             for index, character in enumerate(self.battle.player_control_generals):
-                # add general portrait
+                # add general character_ui
                 if character.alive:
                     check = (character in self.battle.player_selected_generals, character.broken,
                              "broken" in character.commander_order)
@@ -305,7 +305,7 @@ class Command(UIBattle):
                         self.image.blit(character.command_icon_right, self.ground_portrait_rect[index])
                         self.character_rect[character] = self.ground_portrait_rect[index]
 
-                        if check[0]:  # add selected circle on portrait
+                        if check[0]:  # add selected circle on character_ui
                             self.image.blit(self.selected_icon, self.ground_portrait_rect[index])
                         if check[1]:  # broken
                             self.image.blit(self.broken_icon, self.ground_portrait_rect[index])
@@ -658,7 +658,7 @@ class TacticalMap(UIBattle):
                 for index, air_group in enumerate(team_stat["air_group"]):
                     active_list = [character for character in air_group if character.active]
                     if active_list:
-                        # use first character in group for portrait and position
+                        # use first character in group for character_ui and position
                         scaled_pos = (active_list[0].base_pos[0] / self.map_scale_width, self.air_icon_pos_y)
                         back_icon = self.team_icon_border[active_list[0].team]["noselect"]
                         rect = back_icon.get_rect(midbottom=scaled_pos)

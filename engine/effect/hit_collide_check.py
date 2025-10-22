@@ -23,10 +23,11 @@ def hit_collide_check(self):
                         return True
                 if enemy not in self.already_hit:
                     self.already_hit.append(enemy)
-                    if uniform(self.offence * 0.5, self.offence) > uniform(0, enemy.speed):  # check for dodge
-                        self.penetrate -= enemy.body_mass
-                        if self.penetrate < 0:
-                            self.penetrate = 0
+                    if uniform(self.low_offence, self.offence) > uniform(0, enemy.low_speed):  # check for dodge
+                        if not self.duration:
+                            self.penetrate -= enemy.body_mass
+                            if self.penetrate < 0:
+                                self.penetrate = 0
                         self.hit_register(enemy)
                         if not self.penetrate:
                             if self.is_effect_type:
@@ -49,11 +50,11 @@ def melee_impact_crash_check(self, enemy):
         enemy_impact = log2(enemy.impact_sum)
     impact_diff = impact - enemy_impact
     if -1 < impact_diff < 1:  # both impact quite near in value
-        engine.effect.effect.Effect(None, ("Crash Player", "Base", self.base_pos[0],
-                                     self.base_pos[1], direction_to_angle[self.direction], 0, 0, 1, 1),
+        engine.effect.effect.Effect(None, ("Crash Player", "Base", self.rect.centerx,
+                                     self.rect.centery, direction_to_angle[self.direction], 0, 0, 1, 1),
                                     from_owner=False)
-        engine.effect.effect.Effect(None, ("Crash Enemy", "Base", enemy.base_pos[0],
-                                     enemy.base_pos[1], direction_to_angle[enemy.direction], 0, 0, 1, 1),
+        engine.effect.effect.Effect(None, ("Crash Enemy", "Base", enemy.rect.centerx,
+                                     enemy.rect.centery, direction_to_angle[enemy.direction], 0, 0, 1, 1),
                                     from_owner=False)
         self.interrupt_animation = True
         self.command_action = self.damaged_command_action
@@ -62,15 +63,15 @@ def melee_impact_crash_check(self, enemy):
         enemy.command_action = enemy.damaged_command_action
         enemy.sprite_deal_damage = False
     elif impact_diff > 1:  # collided enemy damage is much lower than this object, enemy lose
-        engine.effect.effect.Effect(None, ("Crash Player", "Base", self.base_pos[0],
-                                     self.base_pos[1], direction_to_angle[self.direction], 0, 0, 1, 1),
+        engine.effect.effect.Effect(None, ("Crash Player", "Base", self.rect.centerx,
+                                     self.rect.centery, direction_to_angle[self.direction], 0, 0, 1, 1),
                                     from_owner=False)
         enemy.interrupt_animation = True
         enemy.command_action = enemy.damaged_command_action
         enemy.sprite_deal_damage = False
     else:  # this object dmg is much lower, enemy win
-        engine.effect.effect.Effect(None, ("Crash Enemy", "Base", enemy.base_pos[0],
-                                           enemy.base_pos[1], direction_to_angle[enemy.direction], 0, 0, 1, 1),
+        engine.effect.effect.Effect(None, ("Crash Enemy", "Base", enemy.rect.centerx,
+                                           enemy.rect.centery, direction_to_angle[enemy.direction], 0, 0, 1, 1),
                                     from_owner=False)
         self.interrupt_animation = True
         self.command_action = self.damaged_command_action

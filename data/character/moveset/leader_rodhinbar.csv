@@ -4,4 +4,4 @@
 "Skill1","Volley",,,"self:{no_engage=500}",3500,3600,5,20,32,10,10,5,,"Stab",,,,
 "Skill2","Great Shot",,,"self:{no_engage=500}",4300,4400,10,35,35,100,70,40,0.5,"Stab",,,,
 "Skill3","Arrow Storm",,,"self:{no_engage=500}",4000,4000,20,80,10,10,10,,,"Stab",,"Suppressed",,
-"UseItem","Resource Kit",,,"self:{resource<=30}",5000,1500,120,,,,,,,,"Resource_kit",,,
+"UseItem","Resource Kit",,,"self:{resource<=30}",5000,1500,120,,,,,,,,"Resource_kit",,,"no_ai_range_check_setup"

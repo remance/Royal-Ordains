@@ -10,9 +10,9 @@ def get_damage(self):
     self.enemy_status_effect = self.current_moveset["Enemy Status"]
 
     self.no_defence = False
-    if "no defence" in self.current_moveset["Property"]:
+    if "no_defence" in self.current_moveset["Property"]:
         self.no_defence = True
 
     self.no_dodge = False
-    if "no dodge" in self.current_moveset["Property"]:
+    if "no_dodge" in self.current_moveset["Property"]:
         self.no_dodge = True

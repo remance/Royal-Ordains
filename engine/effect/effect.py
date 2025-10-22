@@ -79,6 +79,7 @@ class Effect(Sprite):
             # any change made here for effect stat must be adjust in strategy data and below
             if type(self.owner) is not dict:
                 self.offence = self.owner.offence
+                self.low_offence = self. owner.low_offence
                 self.power = self.owner.power
                 self.element = self.owner.element
                 self.impact = self.owner.impact
@@ -90,8 +91,9 @@ class Effect(Sprite):
                 self.team = self.owner.team
                 self.penetrate = self.owner.penetrate
                 self.enemy_collision_grids = self.owner.ground_enemy_collision_grids
-            else:  # "owner" as dict data
+            else:  # "owner" as dict data, typically for after effect or strategy
                 self.offence = self.owner["offence"]
+                self.low_offence = self.owner["low_offence"]
                 self.power = self.owner["power"]
                 self.element = self.owner["element"]
                 self.impact = self.owner["impact"]
@@ -104,7 +106,8 @@ class Effect(Sprite):
                 self.penetrate = self.owner["penetrate"]
                 self.enemy_collision_grids = self.battle.all_team_ground_enemy_collision_grids[self.team]
 
-            self.owner_data = {"offence": self.offence, "power": self.power, "element": self.element,
+            self.owner_data = {"offence": self.offence, "low_offence": self.low_offence,
+                               "power": self.power, "element": self.element,
                                "impact": self.impact, "impact_sum": self.impact_sum,
                                "critical_chance": self.critical_chance,
                                "enemy_status_effect": self.enemy_status_effect,
@@ -140,6 +143,7 @@ class Effect(Sprite):
         self.sound_duration = 0
         self.shake_value = 0
         self.duration = 0
+        self.duration_hit_reset = 0
         self.max_duration = 0
         self.x_momentum = 0  # only use for reach bouncing off
         self.y_momentum = 0
@@ -172,7 +176,7 @@ class Effect(Sprite):
 
         if moveset:
             self.other_property = moveset["Property"]
-            if self.current_moveset["Range"] and "no_travel" not in self.effect_stat["Property"]:
+            if self.current_moveset["Range"] and self.speed:
                 # effect in moveset with range mean the effect can move on its own
                 self.travel = True
                 self.travel_distance = self.current_moveset["Range"]
@@ -210,23 +214,22 @@ class Effect(Sprite):
                         self.angle = uniform(30, 55)
                     if self.owner.direction == "left":
                         self.angle *= -1
-
-                    if self.current_moveset:
-                        offence_mistake = self.offence
-                        if offence_mistake > 100:
-                            offence_mistake = 100
-                        offence_mistake = 1 - (offence_mistake / 100)
-                        if offence_mistake < 0:
-                            offence_mistake = 0
-                        offence_mistake = self.travel_distance / 2 * offence_mistake
-                        self.travel_distance = uniform(self.travel_distance - offence_mistake,
-                                                       self.travel_distance + offence_mistake)
                 else:
                     # convert from data angle to projectile calculable
                     self.travel_distance = self.current_moveset["Range"]
                     if self.base_target_pos[0] - self.base_pos[0] < 0:
                         self.travel_distance = -self.travel_distance
                     self.angle = convert_projectile_degree_angle(self.angle)
+                # apply inaccuracy using offence
+                offence_mistake = self.offence
+                if offence_mistake > 100:
+                    offence_mistake = 100
+                offence_mistake = 1 - (offence_mistake / 100)
+                if offence_mistake < 0:
+                    offence_mistake = 0
+                offence_mistake = self.travel_distance / 2 * offence_mistake
+                self.travel_distance = uniform(self.travel_distance - offence_mistake,
+                                               self.travel_distance + offence_mistake)
                 self.tan_angle = sin(radians(self.angle))
                 self.cos_angle = cos(radians(self.angle))
 
@@ -292,30 +295,32 @@ class DamageEffect(Effect):
                 else:  # play sound
                     self.battle.add_sound_effect_queue(self.sound_effect, self.pos,
                                                        self.sound_distance, self.shake_value)
-                    self.sound_effect = None
-
+                    if self.travel:  # remove sound for moving effect
+                        self.sound_effect = None
             if not self.hit_collide_check():
                 if self.duration:  # only clear for sprite with duration
+                    if not self.one_hit_per_enemy:
+                        # reset already hit every 1 second for effect with duration and not with one hit condition
+                        self.duration_hit_reset += dt
+                        if self.duration_hit_reset >= 1:
+                            self.duration_hit_reset -= 1
+                            self.already_hit = []
                     self.duration -= dt
                     if self.duration <= 0:
                         self.reach_target()
                         return
 
                 done, just_start = self.play_animation(self.animation_play_time, dt, False)
-
-                if just_start and self.duration and not self.one_hit_per_enemy:
-                    # reset already hit every animation frame for effect with duration and not with one hit condition
-                    self.already_hit = []
                 self.move_logic(dt, done)
 
 
-class TrapEffect(Effect):
+class TrapEffect(DamageEffect):
     adjust_sprite = damage_effect_adjust_sprite
 
     def __init__(self, owner, stat, moveset, from_owner=True):
         """Trap sprite generated from moveset rather than its own character that can trigger when character come near,
         the trap sprite itself does no damage"""
-        Effect.__init__(self, owner, stat, moveset=moveset, from_owner=from_owner)
+        DamageEffect.__init__(self, owner, stat, moveset=moveset, from_owner=from_owner)
         self.activate = False
         self.impact_effect = None
         self.moveset = moveset
@@ -341,11 +346,12 @@ class TrapEffect(Effect):
             if self.duration <= 0:  # activate when trap duration run out
                 self.activate_trap()
 
-        for enemy in self.enemy_collision_grids:
-            if enemy.health and collide_mask(self, enemy):
-                # activate when enemy collide
-                self.activate_trap()
-                break
+        for grid in self.grid_range:
+            for enemy in self.enemy_collision_grids[grid]:
+                if enemy.alive and collide_mask(self, enemy):
+                    # activate when enemy collide
+                    self.activate_trap()
+                    break
 
     def activate_trap(self):
         # change image to activate
@@ -383,4 +389,3 @@ class StatusEffect(Effect):
 
         if done:  # no duration, kill effect when animation end
             self.clean_object()
-            return

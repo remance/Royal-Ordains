@@ -4,5 +4,5 @@
 "Attack3","Aim Shot",,,"self:{no_engage=1000}",7000,7500,2,,20,,8,,5,"Stab",,,,"arc"
 "Skill1","Poison Arrow",,,"self:{no_engage=500}",4000,4000,5,10,20,,8,,,"Poison",,"Poison",,
 "Skill2","Rain Shots",,,"self:{no_engage=1000}",6000,6500,15,50,13,,,-10,,"Stab",,,,"arc"
-"Skill3","Pump Up",,,"self:{no_status=Excited}",5000,0,30,80,,,,,,,"Excited",,,
-"UseItem","Medium Healing Kit",,,"self:{health<50}",6000,700,120,,,,,,,,"Medium_healing_kit",,,
+"Skill3","Pump Up",,,"self:{no_status=Excited}",5000,0,30,80,,,,,,,"Excited",,,"no_ai_range_check_setup"
+"UseItem","Medium Healing Kit",,,"self:{health<=50}",6000,700,120,,,,,,,,"Medium_healing_kit",,,"no_ai_range_check_setup"

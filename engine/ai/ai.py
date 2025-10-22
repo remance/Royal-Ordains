@@ -8,11 +8,14 @@ from time import sleep
 class EnemyCommanderAI:
     battle = None
 
-    def __init__(self, team):
+    def __init__(self, team, aggressive, clever):
         self.general_list = self.battle.all_team_general[team]
         self.commander = self.battle.team_commander[team]
         self.air_group = self.battle.team_stat[team]["air_group"]
         self.strategy = self.battle.team_stat[team]["strategy"]
+        self.reinforcement = self.battle.later_reinforcement[team]
+        self.aggressive = aggressive
+        self.clever = clever
 
     def order(self):
         for general in self.general_list:

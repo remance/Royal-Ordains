@@ -661,9 +661,9 @@ class CharacterSelector(UIMenu):
 #                               width=int(3 * self.screen_scale[0]))
 #
 #                 if item in self.game.character_data.character_list:  # follower reward
-#                     portrait = self.game.animation_data.character_portraits[item]
-#                     rect = portrait.get_rect(topleft=(0, row_index * 100 * self.screen_scale[1]))
-#                     self.image.blit(portrait, rect)
+#                     character_ui = self.game.animation_data.character_portraits[item]
+#                     rect = character_ui.get_rect(topleft=(0, row_index * 100 * self.screen_scale[1]))
+#                     self.image.blit(character_ui, rect)
 #                     make_long_text(self.image, self.grab_text(("character", item, "Name")),
 #                                    (110 * self.screen_scale[0],
 #                                     row_index * 100 * self.screen_scale[1]), self.font, color=(30, 30, 30),
@@ -871,7 +871,7 @@ class CharacterInterface(UIMenu):
             if self.followers_list[number] == "None":
                 portrait = self.game.sprite_data.character_portraits[self.followers_list[number]]
             else:
-                # Use first follower character in data as portrait
+                # Use first follower character in data as character_ui
                 portrait = \
                     tuple(self.game.character_data.followers_list[self.followers_list[number]]["Followers"].keys())[0]
                 portrait = self.game.sprite_data.character_portraits[portrait]

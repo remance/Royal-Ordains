@@ -157,6 +157,7 @@ class Character(sprite.Sprite):
         self.weather = self.battle.current_weather
 
         self.char_id = stat["ID"]
+        self.race = stat["Race"]
         self.game_id = game_id  # object ID for reference
 
         self.animation_pool = self.battle.character_animation_data[self.char_id]  # list of animation this character
@@ -489,9 +490,11 @@ class BattleCharacter(Character):
         # Final stat after receiving stat effect from various sources, reset every time status is updated
         self.critical_chance = self.base_critical_chance
         self.offence = self.base_offence
+        self.low_offence = self.offence * 0.5
         self.defence = self.base_defence
         self.element_resistance = self.base_element_resistance.copy()
         self.speed = self.base_speed
+        self.low_speed = self.speed * 0.5
         self.health_regen = self.base_health_regen
         self.resource_regen = self.base_resource_regen
         self.animation_play_time = self.Base_Animation_Play_Time
@@ -541,9 +544,8 @@ class BattleCharacter(Character):
             self.ai_speak_list = ai_speak_data
 
         # variable for attack cross function check
-        self.remain_reach = None
-        self.remain_timer = None
         self.is_effect_type = False
+        self.duration = 0
         self.owner = self
         self.power = 0
         self.penetrate = 0

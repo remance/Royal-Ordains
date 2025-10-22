@@ -1,2 +1,2 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"Attack1","Fire","name:Attack1_ready",,"self:{no_engage=800}",10000,11000,15,,75,100,1000,500,0.15,"Crush",,,,"arc,no defence"
+"Attack1","Fire","name:Attack1_ready",,"self:{no_engage=800}",10000,11000,15,,75,100,1000,500,0.15,"Crush",,,,"arc,no_defence"

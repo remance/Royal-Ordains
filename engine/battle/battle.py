@@ -110,12 +110,12 @@ class Battle:
         self.game = game
         Battle.battle = self
         # TODO LIST
-        # add reinforcement
-        # link character to outside battle stat somewhere for when add grand strategy
-        # finish Rodhinbar, test iri, vraesier, human troops, tulia
         # add enemy command AI, skirmish behaviour ai for ranged char/leader/group, commander
-        # add back hold function, for spear pike and stuff
         # think how to deal center battle map start retreat point
+        # add custom battle setup menu
+        # link character to outside battle stat somewhere for when add grand strategy and results
+        # finish Rodhinbar
+        # add back hold function, for spear pike and stuff
         # finish main menu
 
         self.clock = pygame.time.Clock()  # Game clock to keep track of realtime pass
@@ -463,16 +463,16 @@ class Battle:
                                   "controllable": [
                                       {"Leader_bigta": {"Followers": [
                                           {"Small_rabbit_leader_knight": {"Small_rabbit_spear": 20}},
-                                          {"Small_rabbit_leader_banner": {"Small_rabbit_spear": 20}},
-                                          {"Small_rabbit_leader_banner": {"Small_rabbit_spear": 20}}],
+                                          {"Small_rabbit_trebuchet": {"Small_rabbit_spear": 20}},
+                                          {"Small_rabbit_cannon": {"Small_rabbit_spear": 20}}],
                                           "Start Health": 1, "Start Resource": 1}},
-                                      {"Small_rabbit_leader_knight": {"Followers": [
+                                      {"Leader_iri": {"Followers": [
                                           {"Small_rabbit_leader_knight": {"Small_rabbit_spear": 20}},
                                           {"Small_rabbit_leader_banner": {"Small_rabbit_spear": 20}},
                                           {"Small_rabbit_leader_banner": {"Small_rabbit_spear": 20}}],
                                           "Start Health": 1, "Start Resource": 1}}],
                                   "uncontrollable": [],
-                                  "air": [{"Small_eagle_air_stone": 10}, {"Small_eagle_air_stone": 10}],
+                                  "air": [{"Castle_human_air_flying_monk": 10}, {"Small_eagle_air_stone": 10}],
                               "reinforcement": {"controllable": [{"Small_rabbit_snail_cav": {"Followers": [
                                   {"Small_rabbit_leader_hero": {"Small_rabbit_snail_cav": 10}},
                                   {"Small_rabbit_leader_hero": {"Small_rabbit_snail_cav": 10}},
@@ -481,12 +481,16 @@ class Battle:
                           2: {"strategy_resource": 100, "start_pos": self.base_stage_end / 2, "air_group": [],
                               "strategy": {"Test": 0, "Test2": 0, "Spell_huge_stone": 0},
                               "unit": {
-                                  "controllable": [],
+                                  "controllable": [{"Leader_tulia": {"Followers": [
+                                          {"Small_rabbit_leader_knight": {"Small_rabbit_spear": 20}},
+                                          {"Small_rabbit_leader_banner": {"Small_rabbit_spear": 20}},
+                                          {"Small_rabbit_leader_banner": {"Small_rabbit_spear": 20}}],
+                                          "Start Health": 1, "Start Resource": 1}}],
                                   "uncontrollable": [{"Small_rabbit_tower": {"Followers": [
                                       {"Small_rabbit_leader_knight": {"Small_rabbit_spear": 20}}],
                                       "Start Health": 1, "Start Resource": 1}},
                                       {"Small_rabbit_tower":
-                                          {"Followers": [{"Small_rabbit_leader_banner": {"Small_rabbit_sling": 20}}],
+                                          {"Followers": [],
                                            "Start Health": 1, "Start Resource": 1}}],
                                   "air": [{"Castle_cat_air_rocket_bomb": 5}, {"Castle_cat_air_rocket_bomb": 5}],
                                   "reinforcement": {"controllable": [], "air": []}}}}
@@ -751,8 +755,8 @@ class Battle:
                     elif event.key == K_F6:
                         self.drama_text.queue.append(
                             ("Some will even attack, buff, debuff or even summon enemies", None))
-                        # self.call_in_air_group(2, [index for index, _ in enumerate(self.team_stat[2]["air_group"])],
-                        #                        500)
+                        self.call_in_air_group(2, [index for index, _ in enumerate(self.team_stat[2]["air_group"])],
+                                               500)
                         # self.screen_shake_value = 11111
                         # for enemy in self.player_control_generals:
                         #     enemy.broken = True

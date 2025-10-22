@@ -6,8 +6,8 @@ from engine.data.datastat import GameData
 
 empty_game_save = {"playtime": 0, "stats": {}, "game state": {}, "map state": {}, "dialogue log": []}
 
-empty_main_save = {"playtime": 0, "unlock": {"character": [], "faction": [], "timeline": []},
-                   "new": {"character": [], "faction": [], "timeline": []}}
+empty_main_save = {"playtime": 0, "unlock": {"character": [], "faction_ui": [], "timeline": []},
+                   "new": {"character": [], "faction_ui": [], "timeline": []}}
 
 
 class SaveData(GameData):

@@ -59,19 +59,19 @@ class SpriteData(GameData):
                     join(self.data_dir, "animation", file),
                     screen_scale=self.screen_scale, battle_only=battle_only)
 
-                my_file = Path(join(self.data_dir, "character\\portrait\\" + file_name + ".png"))
+                my_file = Path(join(self.data_dir, "ui", "character_ui", file_name + ".png"))
                 if my_file.is_file():
-                    self.character_portraits[file_data_name] = {"portrait": load_image(self.data_dir, self.screen_scale,
+                    self.character_portraits[file_data_name] = {"character_ui": load_image(self.data_dir, self.screen_scale,
                                                                                        file_name + ".png",
-                                                                                       subfolder=("character", "portrait"))}
+                                                                                       subfolder=("ui", "character_ui"))}
                     mini_portrait = smoothscale(
-                        self.character_portraits[file_data_name]["portrait"], (170 * self.screen_scale[0],
+                        self.character_portraits[file_data_name]["character_ui"], (170 * self.screen_scale[0],
                                                                                170 * self.screen_scale[1]))
                     self.character_portraits[file_data_name]["tactical"] = {"right": mini_portrait,
                                                                             "left": flip(mini_portrait, True, False)}
 
                     mini_portrait = smoothscale(
-                        self.character_portraits[file_data_name]["portrait"], (100 * self.screen_scale[0],
+                        self.character_portraits[file_data_name]["character_ui"], (100 * self.screen_scale[0],
                                                                                100 * self.screen_scale[1]))
                     self.character_portraits[file_data_name]["command"] = {"right": mini_portrait,
                                                                            "left": flip(mini_portrait, True, False)}

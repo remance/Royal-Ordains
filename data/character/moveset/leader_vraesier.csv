@@ -5,5 +5,5 @@
 "Attack4","Double Slash",,,,300,,4,,19,68,7,9,,"Slash",,,,
 "Skill1","Demonic Strike",,,,500,,8,35,95,80,250,150,0.2,"Crush",,,,
 "Skill2","Bloodletting",,,,350,,6,20,26,14,15,5,0.15,"Slash",,"Bleeding",,
-"Skill3","Second Wind",,,"self:{health<=50}",20000,,30,40,,,,,,,"Second_wind",,,
-"UseItem","Speed Potion",,,,2000,,120,,,,,,,,"Haste",,,
+"Skill3","Second Wind",,,"self:{health<=50}",20000,,30,40,,,,,,,"Second_wind",,,"no_ai_range_check_setup"
+"UseItem","Speed Potion",,,,2000,,120,,,,,,,,"Haste",,,"no_ai_range_check_setup"

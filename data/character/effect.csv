@@ -1,39 +1,41 @@
 "Name","Duration","Travel Speed","Damage","Status","Enemy Status","Special Effect","Damage Sprite Effect","After Reach","After Reach Effect","Sound Effect","Sound Distance","Shake Value","Property"
 "Acid Bomb",,1350,,,,,,,,,,,
-"Adaqua Arrow",,3000,"TRUE",,,,,,,"Arrow",400,,
-"Arrow",,3000,"TRUE",,,,,,,"Arrow",400,,
+"Adaqua Arrow",,3000,"TRUE",,,,,"stick",,"Arrow",400,,
+"Arrow",,3000,"TRUE",,,,,"stick",,"Arrow",400,,
 "Big Stone",,3000,"TRUE",,,,,"bounce",,"Stone Big",1000,,
 "Bladed Spinner",,2160,"TRUE",,"Bleeding",,,"stick",,,,,
-"Blood Pull",,0,,,,,,,,,,,"no_travel"
-"Bolt",,3400,"TRUE",,,,,,,"Bolt",400,,
-"Boulder",,2500,"TRUE",,,,,,,"Stone",600,,
-"Caltrops",10,0,"TRUE",,,,,,,,,,
+"Bleeding",,,,,,,,,,,,,
+"Blood Pull",,,,,,,,,,,,,
+"Bolt",,3400,"TRUE",,,,,"stick",,"Bolt",400,,
+"Boulder",,2500,"TRUE",,,,,"stick",,"Stone",600,,
+"Caltrops",30,,"TRUE",,,,,,,,,,
 "Cannonball",,4000,"TRUE",,,,,"bounce",,"Cannon Ball Small",700,1,
-"Cold Air",3,0,"TRUE",,"Cold",,,,,,,,"no_travel"
-"Crash Enemy",,,,,,,,,,,,,"no_travel"
-"Crash Player",,,,,,,,,,,,,"no_travel"
-"Damaged",,,,,,,,,,,,,"no_travel"
-"Earth Spike",,0,"TRUE",,,,,,,,,,"no_travel"
+"Central Arrow",,2800,"TRUE",,,,,"stick",,"Arrow",400,,
+"Cold Air",5,,"TRUE",,"Cold",,,,,,,,
+"Crash Enemy",,,,,,,,,,,,,
+"Crash Player",,,,,,,,,,,,,
+"Damaged",,,,,,,,,,,,,
+"Earth Spike",,,"TRUE",,,,,,,,,,
 "Fast Stone",,2700,"TRUE",,,,,"bounce",,"Stone",400,,
-"Firetrap",10,0,,,,,,,"Small Fire","Glass Trap",400,,"trap,reach_spawn_ground"
+"Firetrap",30,,,,,,,,"Small Fire","Glass Trap",800,,"trap,reach_effect_spawn_ground:bottom"
 "Firework",,1350,"TRUE",,,,,,"Firework Explosion",,,,
-"Firework Explosion",,0,"TRUE",,"Blind",,,,,"Firework Explosion",6000,40,"no_travel"
+"Firework Explosion",,,"TRUE",,"Blind",,,,,"Firework Explosion",6000,40,
 "Flashbang",,1350,,,,,,,"Light",,,,
 "Frost Bomb",,1350,,,,,,,"Frost Explosion",,,,
-"Frost Explosion",,0,"TRUE",,,,,,,"Frost Explosion",2500,20,"no_travel"
-"Golden Day",,0,,,,,,,,,,,
-"Huge Land",,,"FALSE",,,,,,,,10000,10000,"no_travel"
-"Huge Stone",,1000,"TRUE",,"Stun",,,"move","Huge Land","Stone Huge",5000,5000,"reach_spawn_ground"
-"Ice Branch",,0,"TRUE",,,,,,,,,,"no_travel"
-"Land",,,,,,,,,,,5000,5000,"no_travel"
+"Frost Explosion",,,"TRUE",,,,,,,"Frost Explosion",2500,20,
+"Golden Day",,,,,,,,,,,,,
+"Huge Land",,,"FALSE",,,,,,,,10000,10000,
+"Huge Stone",,1000,"TRUE",,"Stun",,,"move","Huge Land","Stone Huge",5000,5000,"reach_effect_spawn_ground"
+"Ice Branch",,,"TRUE",,,,,,,,,,
+"Land",,,,,,,,,,,5000,5000,
 "Large Air Burst",,6750,"TRUE",,,,,,,,700,5,
-"Light",,0,,,"Blind",,,,,,600,3,"no_travel"
-"Light Burst Medium",,0,"TRUE",,,,,,,,,,"no_travel"
-"Medium Persist Fire",15,0,"TRUE",,"Hot",,,,,,500,,"no_travel"
-"Movement",,0,,,,,,,,,,,"no_travel"
-"Nayedien Spear",,4500,"TRUE",,,,,,,"Javelin",500,,
-"Poison Cloud",3,0,,,"Poison",,,,,,,,"no_travel"
-"Poisontrap",10,0,,,,,,,"Poison Cloud.1","Glass Trap",400,,"trap,reach_spawn_ground"
+"Light",,,,,"Blind",,,,,,600,3,
+"Light Burst Medium",,,"TRUE",,,,,,,,,,
+"Medium Persist Fire",25,,"TRUE",,"Hot",,,,,,500,,
+"Movement",,,,,,,,,,,,,
+"Nayedien Spear",,4500,"TRUE",,,,,"stick",,"Javelin",500,,
+"Poison Cloud",3,,,,"Poison",,,,,,,,
+"Poisontrap",30,,,,,,,,"Poison Cloud.1","Glass Trap",400,,"trap,reach_effect_spawn_ground:bottom"
 "Rodhinbar Arrow",,3300,"TRUE",,,,,,,"Arrow",400,,
 "Sand",,1620,"TRUE",,"Disrupt",,,,,,,,
 "Shock Stone",,1350,"TRUE",,"Shock",,,"bounce",,,,,
@@ -41,14 +43,15 @@
 "Shrapnel Bomb",,1350,,,,,,,"Shrapnel",,,,"spawn_all_angle,spawn_number:15"
 "Small Air Burst",,5400,"TRUE",,,,,,,,500,2,
 "Small Bomb",,1350,,,,,,,"Small Explosion",,,,
-"Small Explosion",,0,"TRUE",,,,,,,"Explosion",5000,30,"no_travel"
-"Small Fire",6,0,"TRUE",,,,,,,,300,,"no_travel"
-"Small Persist Fire",15,0,"TRUE",,"Hot",,,,,,300,,"no_travel"
-"Snare Bite",,0,,,"Slow",,,,,,,,"no_travel"
-"Snaretrap",10,0,,,,,,,"Snare Bite.1","Snare Trap",400,,"trap,reach_spawn_ground"
-"Sound Burst Medium",,0,,,,,,,,,,,"no_travel"
-"Stink Cloud",3,0,,,"Disorient",,,,,,,,"no_travel"
-"Stinktrap",10,0,,,,,,,"Stink Cloud.1","Smoke Puff",400,,"trap,reach_spawn_ground"
+"Small Explosion",,,"TRUE",,,,,,,"Explosion",5000,30,
+"Small Fire",10,,"TRUE",,,,,,,,300,,
+"Small Persist Fire",25,,"TRUE",,"Hot",,,,,,300,,
+"Snare Bite",,,,,"Slow",,,,,,,,
+"Snaretrap",30,,,,,,,,"Snare Bite.1","Snare Trap",400,,"trap,reach_effect_spawn_ground"
+"Sound Burst Medium",,,,,,,,,,,,,
+"Stink Cloud",3,,,,"Disorient",,,,,,,,
+"Stinktrap",30,,,,,,,,"Stink Cloud.1","Smoke Puff",400,,"trap,reach_effect_spawn_ground"
 "Stone",,2200,"TRUE",,,,,"bounce",,"Stone",400,,
-"Test Effect",,,,,,,,,,,,,"no_travel"
-"Toxic Beard",,1800,"TRUE",,,,,,,"Arrow",250,,
+"Test Effect",,,,,,,,,,,,,
+"Tulia Poison Arrow",,2700,"TRUE",,,,,"stick",,"Arrow",400,,
+"Toxic Beard",,1800,"TRUE",,,,,"stick",,"Arrow",250,,

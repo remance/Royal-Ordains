@@ -62,7 +62,7 @@ def play_battle_animation(self, dt, hold_check):
                         self.battle.last_char_game_id += 1
 
                     elif "trap" in self.effect_list[part_data[0]]["Property"]:
-                        TrapEffect(self, part_data, part_data[6], self.current_moveset)
+                        TrapEffect(self, part_data, self.current_moveset)
                     else:
                         if self.effect_list[part_data[0]]["Damage"]:  # damage effect
                             DamageEffect(self, part_data, self.current_moveset,

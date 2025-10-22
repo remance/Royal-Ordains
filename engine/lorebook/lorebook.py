@@ -115,12 +115,12 @@ class Lorebook(UIMenu):
             self.subsection = self.index_data[self.subsection]
         self.image = self.base_image.copy()
 
-        self.portrait = None  # reset portrait, possible for subsection to not have portrait
+        self.portrait = None  # reset character_ui, possible for subsection to not have character_ui
 
-        # self.portrait = self.portrait_data[self.section][self.subsection]
-        # self.portrait = pygame.transform.smoothscale(self.portrait,
-        #                                              (int(self.portrait.get_width() * self.screen_scale[0]),
-        #                                               int(self.portrait.get_height() * self.screen_scale[1])))
+        # self.character_ui = self.portrait_data[self.section][self.subsection]
+        # self.character_ui = pygame.transform.smoothscale(self.character_ui,
+        #                                              (int(self.character_ui.get_width() * self.screen_scale[0]),
+        #                                               int(self.character_ui.get_height() * self.screen_scale[1])))
 
         self.page_design()
 

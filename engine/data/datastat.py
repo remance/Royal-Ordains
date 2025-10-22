@@ -66,6 +66,7 @@ class CharacterData(GameData):
                 self.strategy_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
                 self.strategy_list[row[0]]["owner data"] = {
                     "offence": self.strategy_list[row[0]]["Offence"],
+                    "low_offence": self.strategy_list[row[0]]["Offence"] * 0.5,
                     "power": self.strategy_list[row[0]]["Power"], "element": self.strategy_list[row[0]]["Element"],
                     "impact": (self.strategy_list[row[0]]["Impact X"], self.strategy_list[row[0]]["Impact Y"]),
                     "impact_sum": abs(self.strategy_list[row[0]]["Impact X"]) + abs(self.strategy_list[row[0]]["Impact Y"]),
@@ -132,17 +133,17 @@ class CharacterData(GameData):
 
                         # Find max and min range for AI
                         for move in moveset_dict.values():
-                            if "no max ai range" not in move["Property"] and self.character_list[row[0]][
+                            if "no_ai_range_check_setup" not in move["Property"] and self.character_list[row[0]][
                                 "ai_min_attack_range"] > move["AI Range"]:
                                 self.character_list[row[0]]["ai_min_attack_range"] = move["AI Range"]
-                            if "no max ai range" not in move["Property"] and self.character_list[row[0]][
+                            if "no_ai_range_check_setup" not in move["Property"] and self.character_list[row[0]][
                                 "ai_max_attack_range"] < move["AI Range"]:
                                 self.character_list[row[0]]["ai_max_attack_range"] = move["AI Range"]
-                            if self.character_list[row[0]]["ai_min_effect_range"] > move["Range"] and (
-                                    move["Status"] or move["Enemy Status"]):
+                            if "no_ai_range_check_setup" not in move["Property"] and self.character_list[row[0]][
+                                "ai_min_effect_range"] > move["Range"] and (move["Status"] or move["Enemy Status"]):
                                 self.character_list[row[0]]["ai_min_effect_range"] = move["Range"]
-                            if self.character_list[row[0]]["ai_max_effect_range"] < move["Range"] and (
-                                    move["Status"] or move["Enemy Status"]):
+                            if "no_ai_range_check_setup" not in move["Property"] and self.character_list[row[0]][
+                                "ai_max_effect_range"] < move["Range"] and (move["Status"] or move["Enemy Status"]):
                                 self.character_list[row[0]]["ai_max_effect_range"] = move["Range"]
                         self.character_list[row[0]]["max_enemy_range_check"] = self.character_list[row[0]][
                             "ai_max_effect_range"]
