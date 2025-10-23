@@ -3,6 +3,7 @@ from operator import itemgetter
 from random import randint, uniform
 from pygame import sprite
 
+from engine.character.character import BattleCharacter
 from engine.effect.effect import Effect, DamageEffect
 
 from engine.utils.rotation import find_target_point
@@ -52,46 +53,48 @@ def activate_strategy(self, team, strategy, base_pos_x):
                               effect_stat[5], effect_stat[6], effect_stat[7], effect_stat[8]),
                              moveset=stat, base_target_pos=base_target_pos, from_owner=False)
 
-        #     for spawn_type in ("chaos summon", "chaos invasion", "summon"):
-        #         if spawn_type in stat["Property"]:
-        #             team = self.team
-        #             if "chaos" in spawn_type:  # chaos summon enemy with neutral team
-        #                 team = 0
-        #             for spawn, chance in stat["Property"][spawn_type].items():
-        #                 spawn_name = spawn
-        #                 if "+" in spawn_name:  # + indicate number of possible drop
-        #                     spawn_num = int(spawn_name.split("+")[1])
-        #                     spawn_name = spawn_name.split("+")[0]
-        #                     for _ in range(spawn_num):
-        #                         if chance >= uniform(0, 100):
-        #                             if "invasion" in spawn_type:
-        #                                 start_pos = (self.base_pos[0] + uniform(-2000, 2000),
-        #                                              self.base_pos[1])
-        #                             else:
-        #                                 start_pos = (self.base_pos[0] + uniform(-200, 200),
-        #                                              self.base_pos[1])
-        #                             BattleCharacter(None,
-        #                                             self.character_data.character_list[spawn_name] |
-        #                                             {"ID": spawn_name,
-        #                                              "Angle": self.angle,
-        #                                              "Team": team, "POS": start_pos,
-        #                                              "Arrive Condition": ()})
-        #                             Effect(None, ("Movement", "Summon", start_pos[0],
-        #                                           start_pos[1], -self.angle, 1, 0, 1, 1), 0)
-        #                 else:
-        #                     if chance >= uniform(0, 100):
-        #                         if "invasion" in spawn_type:
-        #                             start_pos = (self.base_pos[0] + uniform(-2000, 2000),
-        #                                          self.base_pos[1])
-        #                         else:
-        #                             start_pos = (self.base_pos[0] + uniform(-200, 200),
-        #                                          self.base_pos[1])
-        #                         BattleCharacter(None,
-        #                                         self.character_data.character_list[spawn_name] |
-        #                                         {"ID": spawn_name, "Angle": self.angle,
-        #                                          "Team": team, "POS": start_pos,
-        #                                          "Arrive Condition": ()})
-        #
+        if stat["Summon"]:
+            team = self.team
+            if "chaos summon" in stat["Property"]:  # chaos summon enemy with neutral team
+                team = 0
+            for spawn in stat["Summon"]:
+                spawn_name = spawn
+                if "+" in spawn_name:  # + indicate number of possible summon number
+                    spawn_num = int(spawn_name.split("+")[1])
+                    spawn_name = spawn_name.split("+")[0]
+                    for _ in range(spawn_num):
+                        if chance >= uniform(0, 100):
+                            if "invasion" in spawn_type:
+                                start_pos = (self.base_pos[0] + uniform(-2000, 2000),
+                                             self.base_pos[1])
+                            else:
+                                start_pos = (self.base_pos[0] + uniform(-200, 200),
+                                             self.base_pos[1])
+
+                            start_pos = (self.base_pos[0] + (part_data[2]),
+                                         self.base_ground_pos)
+
+                            BattleCharacter(self.battle.last_char_game_id,
+                                            self.character_data.character_list[spawn_name] |
+                                            {"ID": spawn_name,
+                                             "Direction": self.direction,
+                                             "Team": team, "POS": start_pos, "Start Health": 1,
+                                             "Start Resource": 1}, is_summon=True)
+                            self.battle.last_char_game_id += 1
+                            Effect(None, ("Movement", "Summon", start_pos[0],
+                                          start_pos[1], -self.angle, 1, 0, 1, 1), 0)
+                else:
+                    start_pos = (self.base_pos[0] + uniform(-200, 200),
+                                 self.base_pos[1])
+                    BattleCharacter(self.battle.last_char_game_id,
+                                    self.character_data.character_list[spawn_name] |
+                                    {"ID": spawn_name,
+                                     "Direction": self.direction,
+                                     "Team": team, "POS": start_pos, "Start Health": 1,
+                                     "Start Resource": 1}, is_summon=True)
+
+                    self.battle.last_char_game_id += 1
+
         range_check = stat["Range"]
         if stat["Enemy Status"]:
             grid_left = int((base_pos_x - range_check) / grid_width)

@@ -9,6 +9,7 @@ from pygame import Vector2, display, sprite, Surface, SRCALPHA
 from pygame.locals import *
 from pygame.mixer import Sound, Channel
 
+from engine.ai.battle_commander_ai import BattleCommanderAI
 from engine.camera.camera import Camera
 from engine.character.character import Character
 from engine.drama.drama import TextDrama
@@ -116,6 +117,7 @@ class Battle:
         # link character to outside battle stat somewhere for when add grand strategy and results
         # finish Rodhinbar
         # add back hold function, for spear pike and stuff
+        # add back battle cutscene
         # finish main menu
 
         self.clock = pygame.time.Clock()  # Game clock to keep track of realtime pass
@@ -250,7 +252,11 @@ class Battle:
         self.player_selected_generals = []  # for player order input
         self.player_selected_strategy = None
 
-        self.later_reinforcement = {"weather": {}, "time": {}, "team": {}}
+        self.later_reinforcement = {"weather": {}, "time": {}, "team": {team: [] for team in team_list}}
+        BattleCommanderAI.battle = self
+        self.battle_team1_commander = BattleCommanderAI(1, 0, 0, 0)
+        self.battle_team2_commander = BattleCommanderAI(2, 0, 0, 0)
+
         self.game_state = "battle"
         self.esc_menu_mode = "menu"
 
@@ -453,7 +459,7 @@ class Battle:
         self.team_stat = {0: {"strategy_resource": 0, "start_pos": self.base_stage_end, "air_group": [], "strategy": {},
                               "unit": {
                                   "uncontrollable": [{"Castle_cat_shield_crossbow": {
-                                      "Followers": [{"Castle_cat_shield_crossbow": {"Castle_cat_shield_crossbow": 10}}],
+                                      "Followers": [{"Castle_cat_shield_crossbow": 10}],
                                       "Start Health": 1, "Start Resource": 1}}],
                                   "reinforcement": {}}
                               },
@@ -461,37 +467,34 @@ class Battle:
                               "strategy": {"Test": 0, "Test2": 0, "Spell_huge_stone": 0},
                               "unit": {
                                   "controllable": [
-                                      {"Leader_bigta": {"Followers": [
-                                          {"Small_rabbit_leader_knight": {"Small_rabbit_spear": 20}},
-                                          {"Small_rabbit_trebuchet": {"Small_rabbit_spear": 20}},
-                                          {"Small_rabbit_cannon": {"Small_rabbit_spear": 20}}],
-                                          "Start Health": 1, "Start Resource": 1}},
-                                      {"Leader_iri": {"Followers": [
-                                          {"Small_rabbit_leader_knight": {"Small_rabbit_spear": 20}},
-                                          {"Small_rabbit_leader_banner": {"Small_rabbit_spear": 20}},
-                                          {"Small_rabbit_leader_banner": {"Small_rabbit_spear": 20}}],
-                                          "Start Health": 1, "Start Resource": 1}}],
+                                      {"Leader_bigta": {"Followers": [{"Small_rabbit_spear": 20},
+                                                                      {"Small_rabbit_spear": 20},
+                                                                      {"Small_rabbit_spear": 20}],
+                                                        "Start Health": 1, "Start Resource": 1}},
+                                      {"Leader_iri": {"Followers": [{"Small_rabbit_spear": 20},
+                                                                    {"Small_rabbit_spear": 20},
+                                                                    {"Small_rabbit_spear": 20}],
+                                                      "Start Health": 1, "Start Resource": 1}}],
                                   "uncontrollable": [],
                                   "air": [{"Castle_human_air_flying_monk": 10}, {"Small_eagle_air_stone": 10}],
-                              "reinforcement": {"controllable": [{"Small_rabbit_snail_cav": {"Followers": [
-                                  {"Small_rabbit_leader_hero": {"Small_rabbit_snail_cav": 10}},
-                                  {"Small_rabbit_leader_hero": {"Small_rabbit_snail_cav": 10}},
-                                  {"Small_rabbit_leader_hero": {"Small_rabbit_hound_cav": 10}}],
+                              "reinforcement": {"controllable": [{"Small_rabbit_leader_hero": {"Followers": [
+                                  {"Small_rabbit_snail_cav": 10},
+                                  {"Small_rabbit_snail_cav": 10},
+                                  {"Small_rabbit_snail_cav": 10}],
                                   "Start Health": 1, "Start Resource": 1}}], "air": [{"Small_eagle_air_stone": 10}]}}},
                           2: {"strategy_resource": 100, "start_pos": self.base_stage_end / 2, "air_group": [],
                               "strategy": {"Test": 0, "Test2": 0, "Spell_huge_stone": 0},
                               "unit": {
-                                  "controllable": [{"Leader_tulia": {"Followers": [
-                                          {"Small_rabbit_leader_knight": {"Small_rabbit_spear": 20}},
-                                          {"Small_rabbit_leader_banner": {"Small_rabbit_spear": 20}},
-                                          {"Small_rabbit_leader_banner": {"Small_rabbit_spear": 20}}],
-                                          "Start Health": 1, "Start Resource": 1}}],
-                                  "uncontrollable": [{"Small_rabbit_tower": {"Followers": [
-                                      {"Small_rabbit_leader_knight": {"Small_rabbit_spear": 20}}],
-                                      "Start Health": 1, "Start Resource": 1}},
-                                      {"Small_rabbit_tower":
-                                          {"Followers": [],
-                                           "Start Health": 1, "Start Resource": 1}}],
+                                  "controllable": [{"Leader_tulia": {"Followers": [{"Small_rabbit_spear": 20},
+                                                                                   {"Small_rabbit_spear": 20},
+                                                                                   {"Small_rabbit_spear": 20}],
+                                                                     "Start Health": 1, "Start Resource": 1}}],
+                                  "uncontrollable": [{"Small_rabbit_tower": {"Followers": [{"Small_rabbit_spear": 20},
+                                                                                   {"Small_rabbit_spear": 20},
+                                                                                   {"Small_rabbit_spear": 20}],
+                                                                             "Start Health": 1, "Start Resource": 1}},
+                                                     {"Small_rabbit_tower": {"Followers": [],
+                                                                             "Start Health": 1, "Start Resource": 1}}],
                                   "air": [{"Castle_cat_air_rocket_bomb": 5}, {"Castle_cat_air_rocket_bomb": 5}],
                                   "reinforcement": {"controllable": [], "air": []}}}}
 
@@ -514,10 +517,8 @@ class Battle:
                         character_list.append(character)
                         if type(character_data) is dict and "Followers" in character_data:
                             for follower_data in character_data["Followers"]:
-                                for follower_leader, follower_follower in follower_data.items():
-                                    character_list.append(follower_leader)
-                                    for follower in follower_follower:
-                                        character_list.append(follower)
+                                for follower in follower_data:
+                                    character_list.append(follower)
         character_list = list(set(character_list))
 
         already_check_char = []
@@ -826,7 +827,7 @@ class Battle:
         # remove all reference from battle object
         self.team_stat = {team: {"strategy_resource": 0, "start_pos": 0, "air_group": [], "strategy": {}, "unit": {}} for
                           team in team_list}
-        self.later_reinforcement = {"weather": {}, "time": {}, "team": {}}
+        self.later_reinforcement = {"weather": {}, "time": {}, "team": {team: [] for team in team_list}}
         self.ai_process_list = []
         self.team_commander = {team: None for team in team_list}
         self.player_control_generals = []

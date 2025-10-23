@@ -846,62 +846,6 @@ class CharacterInterface(UIMenu):
         text_rect = text_surface.get_rect(topleft=(150 * self.screen_scale[0], 0))
         self.image.blit(text_surface, text_rect)
 
-    def make_followers_list(self):
-        self.followers_list = [item for item in self.game.save_data.save_profile["favourite"][self.player]["followers"]]
-        self.followers_list += [item for item in self.game.start_followers if item not in self.followers_list]
-        self.followers_list += [item for item in self.game.save_data.save_profile["unlock"]["followers"] if
-                                item not in self.followers_list]
-        self.portrait_list_rects = {}
-        start = 0
-        max_number = 12
-        if len(self.followers_list) < max_number:
-            max_number = len(self.followers_list)
-        elif self.current_select > 11:
-            start = int(self.current_select / 4) * 4
-            max_number = start + 12
-            if len(self.followers_list) < max_number:
-                max_number = len(self.followers_list)
-        true_count = 0
-        count = 0
-        start_x = 20 * self.screen_scale[0]
-        start_y = 100 * self.screen_scale[1]
-        x = start_x
-        y = start_y
-        for number in range(start, max_number):
-            if self.followers_list[number] == "None":
-                portrait = self.game.sprite_data.character_portraits[self.followers_list[number]]
-            else:
-                # Use first follower character in data as character_ui
-                portrait = \
-                    tuple(self.game.character_data.followers_list[self.followers_list[number]]["Followers"].keys())[0]
-                portrait = self.game.sprite_data.character_portraits[portrait]
-            self.portrait_list_rects[true_count] = portrait.get_rect(topleft=(x, y))
-            if number == self.current_select:
-                draw.circle(self.image, (140, 140, 220), self.portrait_list_rects[true_count].center,
-                            90 * self.screen_scale[0])
-            elif self.followers_list[number] in self.game.save_data.save_profile["favourite"][self.player]["followers"]:
-                draw.circle(self.image, (220, 140, 140), self.portrait_list_rects[true_count].center,
-                            90 * self.screen_scale[0])
-            self.image.blit(portrait, self.portrait_list_rects[number])
-            count += 1
-            true_count += 1
-            x += 180 * self.screen_scale[0]
-            if count == 4:
-                x = start_x
-                y += 180 * self.screen_scale[1]
-                count = 0
-
-        text_surface = text_render_with_bg(self.localisation.grab_text(("character",
-                                                                        self.game.player_char_select[self.player][
-                                                                            "character"],
-                                                                        "Name")) + " + " +
-                                           self.localisation.grab_text(("followers",
-                                                                        self.followers_list[self.current_select],
-                                                                        "Name")),
-                                           self.header_font, Color("black"))
-        text_rect = text_surface.get_rect(topleft=(150 * self.screen_scale[0], 0))
-        self.image.blit(text_surface, text_rect)
-
     def add_remove_text_popup(self):
         if self.text_popup not in self.game.ui_updater:
             self.game.add_ui_updater(self.text_popup)

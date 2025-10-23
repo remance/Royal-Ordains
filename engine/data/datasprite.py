@@ -29,11 +29,32 @@ class SpriteData(GameData):
         for file in listdir(part_folder):
             file_name = file.split(".")[0]
             file_data_name = fcv(file_name)
-            my_file = Path(join(self.data_dir, "ui\\strategy_ui\\" + file_name + ".png"))
+            my_file = Path(join(self.data_dir, "ui", "strategy_ui", file))
             if my_file.is_file():
                 self.strategy_icons[file_data_name] = load_image(self.data_dir, self.screen_scale,
-                                                                 file_name + ".png",
+                                                                 file,
                                                                  subfolder=("ui", "strategy_ui"))
+
+        part_folder = Path(join(self.data_dir, "ui", "character_ui"))
+        for file in listdir(part_folder):
+            file_name = file.split(".")[0]
+            file_data_name = fcv(file_name)
+            my_file = Path(join(self.data_dir, "ui", "character_ui", file))
+            if my_file.is_file():
+                self.character_portraits[file_data_name] = {"character_ui": load_image(self.data_dir, self.screen_scale,
+                                                                                       file,
+                                                                                       subfolder=("ui", "character_ui"))}
+                mini_portrait = smoothscale(
+                    self.character_portraits[file_data_name]["character_ui"], (170 * self.screen_scale[0],
+                                                                               170 * self.screen_scale[1]))
+                self.character_portraits[file_data_name]["tactical"] = {"right": mini_portrait,
+                                                                        "left": flip(mini_portrait, True, False)}
+
+                mini_portrait = smoothscale(
+                    self.character_portraits[file_data_name]["character_ui"], (100 * self.screen_scale[0],
+                                                                           100 * self.screen_scale[1]))
+                self.character_portraits[file_data_name]["command"] = {"right": mini_portrait,
+                                                                       "left": flip(mini_portrait, True, False)}
 
         # self.stage_object_animation_pool = load_pickle_with_surfaces(
         #     join(self.data_dir, "animation", "stage_object.xz"),
@@ -58,21 +79,3 @@ class SpriteData(GameData):
                 self.character_animation_data[file_data_name] = load_pickle_with_surfaces(
                     join(self.data_dir, "animation", file),
                     screen_scale=self.screen_scale, battle_only=battle_only)
-
-                my_file = Path(join(self.data_dir, "ui", "character_ui", file_name + ".png"))
-                if my_file.is_file():
-                    self.character_portraits[file_data_name] = {"character_ui": load_image(self.data_dir, self.screen_scale,
-                                                                                       file_name + ".png",
-                                                                                       subfolder=("ui", "character_ui"))}
-                    mini_portrait = smoothscale(
-                        self.character_portraits[file_data_name]["character_ui"], (170 * self.screen_scale[0],
-                                                                               170 * self.screen_scale[1]))
-                    self.character_portraits[file_data_name]["tactical"] = {"right": mini_portrait,
-                                                                            "left": flip(mini_portrait, True, False)}
-
-                    mini_portrait = smoothscale(
-                        self.character_portraits[file_data_name]["character_ui"], (100 * self.screen_scale[0],
-                                                                               100 * self.screen_scale[1]))
-                    self.character_portraits[file_data_name]["command"] = {"right": mini_portrait,
-                                                                           "left": flip(mini_portrait, True, False)}
-

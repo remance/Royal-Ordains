@@ -42,18 +42,11 @@ def die(self):
         self.ai_speak("die")
 
     for follower in self.followers:
-        if self.leader and self.leader.alive:  # transfer leadership to its leader, use less leadership to boost stat
-            follower.base_offence = follower.original_offence * (self.leader.leadership / 200)
-            follower.base_defence = follower.original_defence * (self.leader.leadership / 200)
-            follower.leadership = follower.original_leadership * (self.leader.leadership / 200)
-            follower.leader = self.leader
-            self.leader.followers.append(follower)
-        else:  # revert follower stat to no leadership when it die and no general to transfer
-            follower.base_offence = follower.original_offence
-            follower.base_defence = follower.original_defence
-            follower.leadership = follower.original_leadership
-            follower.leader = None
-            follower.general = None
+        # revert follower stat to no leadership when it die and no general to transfer
+        follower.base_offence = follower.original_offence
+        follower.base_defence = follower.original_defence
+        follower.leadership = follower.original_leadership
+        follower.leader = None
 
     self.followers = []
     for sub_character in self.sub_characters:
@@ -63,12 +56,8 @@ def die(self):
     if self.leader:  # remove self from leader stuff
         if self.leader.alive and self in self.leader.followers:
             self.leader.followers.remove(self)
+            self.leader.reset_general_variables()
         self.leader = None
-
-    if self.general:
-        if self.general.alive:
-            self.general.reset_general_variables()
-        self.general = None
 
     if self.spawns:
         for spawn_name, spawn_num in self.spawns.items():

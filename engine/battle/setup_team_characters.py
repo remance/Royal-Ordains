@@ -98,30 +98,16 @@ def add_followers(self, general, value, data, battle_char=True):
     char_class = Character
     if battle_char:
         char_class = BattleCharacter
-    for leader, follower in value.items():
-        random_pos = Vector2(uniform(general.base_pos[0] - 300,
-                                     general.base_pos[0] + 300),
-                             general.base_pos[1])
-        if random_pos[0] < 0:
-            random_pos[0] = 1
-        elif random_pos[0] > self.base_stage_end:
-            random_pos[0] = self.base_stage_end - 1
-        leader_char = char_class(self.last_char_game_id, self.character_data.character_list[leader] |
-                                 {"ID": leader, "Team": general.team,
-                                  "Start Health": data["Start Health"],
-                                  "Start Resource": data["Start Resource"],
-                                  "POS": random_pos}, leader=general)
-        self.last_char_game_id += 1
-        for key, number in follower.items():
-            for _ in range(int(number)):
-                random_pos = Vector2(uniform(leader_char.base_pos[0] - 300,
-                                             leader_char.base_pos[0] + 300), leader_char.base_pos[1])
-                if random_pos[0] < 0:
-                    random_pos[0] = 1
-                elif random_pos[0] > self.base_stage_end:
-                    random_pos[0] = self.base_stage_end - 1
-                char_class(self.last_char_game_id, self.character_data.character_list[key] |
-                           {"ID": key, "Team": general.team,
-                            "Start Health": data["Start Health"], "Start Resource": data["Start Resource"],
-                            "POS": random_pos}, leader=leader_char)
-                self.last_char_game_id += 1
+    for key, number in value.items():
+        for _ in range(int(number)):
+            random_pos = Vector2(uniform(general.base_pos[0] - 300,
+                                         general.base_pos[0] + 300), general.base_pos[1])
+            if random_pos[0] < 0:
+                random_pos[0] = 1
+            elif random_pos[0] > self.base_stage_end:
+                random_pos[0] = self.base_stage_end - 1
+            char_class(self.last_char_game_id, self.character_data.character_list[key] |
+                       {"ID": key, "Team": general.team,
+                        "Start Health": data["Start Health"], "Start Resource": data["Start Resource"],
+                        "POS": random_pos}, leader=general)
+            self.last_char_game_id += 1

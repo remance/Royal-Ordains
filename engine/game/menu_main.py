@@ -5,6 +5,12 @@ browser = webbrowser.get()
 
 def menu_main(self):
     if self.custom_battle_button.event:
+        self.menu_state = "custom"
+        self.remove_ui_updater(self.mainmenu_button, self.main_menu_actor)
+        self.add_ui_updater(self.custom_battle_menu_buttons)
+        pass
+
+    elif self.test_battle_button.event:
         self.start_battle("test")
 
     # if self.start_game_button.event:  # start new game

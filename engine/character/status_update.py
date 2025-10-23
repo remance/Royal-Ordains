@@ -50,9 +50,14 @@ def status_update(self):
     self.walk_speed = 3 * self.speed
 
     if self.nearest_enemy_distance and self.nearest_enemy_distance < self.sprite_width:
-        # enemy potentially collide with this character, consider having trouble moving around because of congestion
-        self.run_speed *= 0.5
-        self.walk_speed *= 0.5
+        # enemy collide with this character, make it have trouble moving around because of traffic congestion
+        if (self.base_pos[0] >= self.nearest_enemy_pos[0] and self.direction == "left") or (
+                self.base_pos[0] < self.nearest_enemy_pos[0] and self.direction == "right"):  # running toward enemy
+            self.run_speed *= 0.25
+            self.walk_speed *= 0.25
+        else:  # running from enemy, less penalty
+            self.run_speed *= 0.5
+            self.walk_speed *= 0.5
 
     if self.run_speed < 0:
         self.run_speed = 0

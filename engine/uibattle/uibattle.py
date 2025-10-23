@@ -274,6 +274,7 @@ class Command(UIBattle):
         self.len_player_control_generals = None
         self.selected_air_group_indexes = []
         self.icon_status = {}
+        self.health_follower_status = {}
 
         self.base_image = self.image.copy()
 
@@ -291,6 +292,7 @@ class Command(UIBattle):
                 # reset some stuffs to recreate image
                 self.image = self.base_image.copy()
                 self.icon_status = {}
+                self.health_follower_status = {}
                 self.air_group_health = [None, None, None, None, None]
                 self.air_group_resource = [None, None, None, None, None]
                 self.player_air_group_number = [None, None, None, None, None]
@@ -312,6 +314,9 @@ class Command(UIBattle):
                         elif check[2]:
                             self.image.blit(self.retreat_icon, self.ground_portrait_rect[index])
 
+                    check = (character.health, character.followers_len_check)
+                    if character not in self.health_follower_status or self.health_follower_status[character] != check:
+                        self.health_follower_status[character] = check
                         health_bar_rect = character.indicator.health_bar.get_rect(
                             midtop=self.ground_portrait_rect[index].midbottom)
                         self.image.blit(character.indicator.health_bar, health_bar_rect)
@@ -441,6 +446,7 @@ class Command(UIBattle):
         self.image = self.base_image.copy()
         self.selected_air_group_indexes = []
         self.icon_status = {}
+        self.health_follower_status = {}
         self.len_player_control_generals = None
         self.air_group_health = [None, None, None, None, None]
         self.air_group_resource = [None, None, None, None, None]

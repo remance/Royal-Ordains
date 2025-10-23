@@ -154,19 +154,6 @@ def common_ai(self):
                 self.ai_timer = 0.2
 
 
-def general_ai(self):
-    if self.followers:  # has follower to command
-        if "attack" in self.commander_order:
-            if self.general_order != "attack":  # follower not in attack mode already
-                self.issue_general_order("attack")
-
-        else:
-            if self.general_order != "follow":  # follower not in follow mode already
-                self.issue_general_order("follow")
-
-    common_ai(self)
-
-
 def air_ai(self):
     """air type combat AI"""
     if self.nearest_enemy_pos and self.nearest_enemy_distance <= self.ai_max_attack_range:
@@ -181,4 +168,4 @@ def air_ai(self):
 ai_combat_dict = {"default": no_ai, "melee": common_ai, "range": common_ai, "nice": no_ai,
                   "curious": common_ai, "territorial": common_ai,
                   "trap": common_ai, "boss_cheer": cheer_ai,
-                  "general": general_ai, "interceptor": air_ai, "fighter": air_ai, "bomber": air_ai}
+                  "general": common_ai, "interceptor": air_ai, "fighter": air_ai, "bomber": air_ai}

@@ -58,7 +58,7 @@ def play_battle_animation(self, dt, hold_check):
                                              self.current_moveset["Property"]["summon"]] |
                                          {"ID": self.current_moveset["Property"]["summon"], "Direction": self.direction,
                                           "Team": self.team, "POS": start_pos, "Start Health": 1,
-                                          "Start Resource": 1}, leader=self))
+                                          "Start Resource": 1}, leader=self, is_summon=True))
                         self.battle.last_char_game_id += 1
 
                     elif "trap" in self.effect_list[part_data[0]]["Property"]:

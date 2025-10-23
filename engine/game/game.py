@@ -44,7 +44,7 @@ from engine.game.loading_screen import loading_screen
 from engine.game.make_input_box import make_input_box
 from engine.game.make_lorebook import make_lorebook
 from engine.game.make_option_menu import make_option_menu
-from engine.game.menu_char import menu_char
+from engine.game.menu_custom_setup import menu_custom_setup
 from engine.game.menu_keybind import menu_keybind
 from engine.game.menu_main import menu_main
 from engine.game.menu_option import menu_option
@@ -88,7 +88,7 @@ class Game:
     make_input_box = make_input_box
     make_lorebook = make_lorebook
     make_option_menu = make_option_menu
-    menu_char = menu_char
+    menu_custom_setup = menu_custom_setup
     menu_keybind = menu_keybind
     menu_main = menu_main
     menu_option = menu_option
@@ -340,8 +340,6 @@ class Game:
                                             subfolder=("ui", "battle_ui"))
         self.weather_icon_images = load_images(self.data_dir, screen_scale=self.screen_scale,
                                                subfolder=("ui", "weather_ui"), key_file_name_readable=True)
-        self.char_selector_images = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                                subfolder=("ui", "char_ui"))
         self.option_menu_images = load_images(self.data_dir, screen_scale=self.screen_scale,
                                               subfolder=("ui", "option_ui"))
         # Main menu interface
@@ -357,16 +355,17 @@ class Game:
                                                   "new_button.png", ("ui", "mainmenu_ui"))
         main_menu_buttons_box = BoxUI((1600 * self.screen_scale[0], 300 * self.screen_scale[1]), parent=self.screen)
 
-        self.custom_battle_button = BrownMenuButton((-2, 1), key_name="main_menu_custom_game",
-                                                    parent=main_menu_buttons_box)
-        self.lore_button = BrownMenuButton((-0.75, 1), key_name="game_lorebook",
+        self.test_battle_button = BrownMenuButton((-2, 1), key_name="main_menu_test_battle",
                                            parent=main_menu_buttons_box)
+        self.custom_battle_button = BrownMenuButton((-0.75, 1), key_name="main_menu_custom_game",
+                                                    parent=main_menu_buttons_box)
         self.option_button = BrownMenuButton((0.75, 1), key_name="game_option",
                                              parent=main_menu_buttons_box)
         self.quit_button = BrownMenuButton((2, 1), key_name="game_quit",
                                            parent=main_menu_buttons_box)
 
-        self.mainmenu_button = (self.custom_battle_button, self.lore_button, self.option_button, self.quit_button)
+        self.mainmenu_button = (self.custom_battle_button, self.test_battle_button,
+                                self.option_button, self.quit_button)
 
         # self.start_game_button = BrownMenuButton((-2.4, 1), key_name="main_menu_start_game",
         #                                          parent=main_menu_buttons_box)
@@ -468,7 +467,8 @@ class Game:
         #                        self.lore_name_list.scroll, self.filter_tag_list.scroll, self.lore_buttons.values())
 
         self.custom_battle_setting = {"map": "", "weather": 1, "fund": {1: 10000, 2: 10000}, "event": None,
-                                      "team": {1: {}, 2: {}}}
+                                      "team": {1: {"faction": "Small", "units": {}},
+                                               2: {"faction": "Small", "units": {}}}}
 
         self.battle = Battle(self)
 
@@ -649,8 +649,8 @@ class Game:
                 if self.menu_state == "main_menu":
                     self.menu_main()
 
-                elif self.menu_state == "char":
-                    self.menu_char()
+                elif self.menu_state == "custom":
+                    self.menu_custom_setup()
 
                 elif self.menu_state == "option":
                     self.menu_option()

@@ -13,9 +13,13 @@ def random_walk(self):
 
 def follow_leader(self):
     leader_distance = self.leader.base_pos[0] - self.base_pos[0]
-    if abs(leader_distance) > 500:  # follow leader
+    abs_leader_distance = abs(leader_distance)
+    if abs_leader_distance > self.follow_leader_distance:  # follow leader
         self.command_action = self.run_command_action
-        self.command_action["x_momentum"] = self.run_speed + uniform(-100, 100)
+        move_speed = self.run_speed
+        if self.run_speed > abs_leader_distance:
+            move_speed = abs_leader_distance
+        self.command_action["x_momentum"] = move_speed
         if leader_distance > 0:  # move to right
             self.command_action["direction"] = "right"
         else:
@@ -77,7 +81,7 @@ def observer_ai(self):
 def common_ai(self, attack_range):
     if not self.command_action:
         if self.leader:
-            if self.general_order == "follow":
+            if "attack" not in self.commander_order:
                 follow_leader(self)
             else:
                 if not self.nearest_enemy or self.nearest_enemy_distance > attack_range:
@@ -88,7 +92,6 @@ def common_ai(self, attack_range):
             if self.nearest_enemy:
                 if self.followers and (not self.commander_order or self.commander_order[1] != self.nearest_enemy_pos[0]):
                     self.issue_commander_order(("attack", self.nearest_enemy_pos[0]))
-                    self.issue_general_order("attack")
                 if self.nearest_enemy_distance > attack_range:
                     # run to enemy within attack range
                     self.command_action = self.run_command_action

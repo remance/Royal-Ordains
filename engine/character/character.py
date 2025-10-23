@@ -1,5 +1,6 @@
 from __future__ import annotations
 from types import MethodType
+from random import uniform
 
 from pygame import sprite, Vector2, Surface
 from pygame.mask import from_surface
@@ -25,7 +26,6 @@ from engine.character.get_damage import get_damage
 from engine.character.finish_animation import finish_animation
 from engine.character.health_resource_logic import health_resource_logic, air_health_resource_logic
 from engine.character.issue_commander_order import issue_commander_order
-from engine.character.issue_general_order import issue_general_order
 from engine.character.reset_general_variables import reset_general_variables
 from engine.character.move_logic import move_logic, sub_move_logic, air_move_logic
 from engine.character.pick_animation import pick_animation
@@ -101,7 +101,6 @@ class Character(sprite.Sprite):
     finish_animation = finish_animation
     health_resource_logic = health_resource_logic
     issue_commander_order = issue_commander_order
-    issue_general_order = issue_general_order
     reset_general_variables = reset_general_variables
     move_logic = move_logic
     pick_animation = pick_animation
@@ -390,7 +389,7 @@ class BattleCharacter(Character):
 
     def __init__(self, game_id: int, stat: dict, leader: BattleCharacter = None,
                  additional_layer: int = 0, is_commander: bool = False,
-                 is_general: bool = False, is_controllable: bool = False) -> None:
+                 is_general: bool = False, is_controllable: bool = False, is_summon: bool = False) -> None:
         """
         BattleCharacter object represent a character that take part in the battle in stage
         Character has three different stage of stat;
@@ -405,7 +404,6 @@ class BattleCharacter(Character):
             self.follower_form = stat["Followers"]
 
         self.main_character = None
-        self.general = None
         self.sub_characters = []
         self.leader = leader
 
@@ -420,9 +418,7 @@ class BattleCharacter(Character):
         self.hit_resource_regen = False
         self.sprite_deal_damage = False
         self.no_clip = False
-        self.is_summon = False
-        if stat["Is Summon"]:
-            self.is_summon = True
+        self.is_summon = is_summon
         self.indicator = None
 
         self.current_moveset = None
@@ -443,19 +439,25 @@ class BattleCharacter(Character):
         if self.team == 1:
             self.enemy_team = 2
 
+        self.total_range_power_score = 0
+        self.total_melee_power_score = 0
+        self.total_power_score = 0
         self.enter_pos = self.battle.team_stat[self.team]["start_pos"]
 
         # Get char stat
         stat_boost = 0
         leader_charisma = 0
         self.leader = None
+        self.follow_leader_distance = 0
         if leader:  # character with leader get stat boost from leader charisma
+            self.follow_leader_distance = uniform(100, 1000)
             self.leader = leader
             if self.character_type != "air":  # air character does not add into followers list
                 self.leader.followers.append(self)
             leader_charisma = self.leader.leadership
             stat_boost = int(leader_charisma / 5)
             self.ai_prepare = MethodType(follower_ai_prepare, self)
+        self.power_score = stat["Power Score"]
         self.original_offence = stat["Offence"]
         self.original_defence = stat["Defence"]
         self.original_leadership = stat["Leadership"]
@@ -520,8 +522,6 @@ class BattleCharacter(Character):
         self.dmg_sound_distance = self.dmg_sound_distance + self.body_mass
         self.hit_volume_mod = self.body_mass / 10
 
-        self.general_order = "follow"
-
         self.ai_min_attack_range = stat["ai_min_attack_range"]
         self.ai_max_attack_range = stat["ai_max_attack_range"]
         self.ai_min_effect_range = stat["ai_min_effect_range"]
@@ -560,6 +560,10 @@ class BattleCharacter(Character):
 
         self.retreat_stage_end = self.battle.base_stage_end + self.sprite_width
         self.retreat_stage_start = -self.sprite_width
+        if self.enter_pos:
+            self.retreat_pos = self.retreat_stage_end
+        else:
+            self.retreat_pos = self.retreat_stage_start
 
         if stat["Sub Characters"]:  # add sub characters
             for character, anchor_pos in stat["Sub Characters"].items():
