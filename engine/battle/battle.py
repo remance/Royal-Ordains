@@ -738,10 +738,10 @@ class Battle:
                         self.drama_text.queue.append(("Show case: Neutral Enemy", None))
                     elif event.key == K_F3:
                         self.drama_text.queue.append(
-                            ("In some maps, there may be neutral animals that appear based on specific condition", None))
+                            ("In some maps, neutral animals may appear based on specific condition", None))
                     elif event.key == K_F4:
                         self.drama_text.queue.append(
-                            ("Each typically has different behaviour, some just move around doing nothing", None))
+                            ("Each can have a different behaviour, some just move around doing nothing", None))
                         # for enemy in self.player_control_generals:
                         #     for follower in enemy.followers:
                         #         follower.health = 0
@@ -752,7 +752,7 @@ class Battle:
                         # self.drama_text.queue.append(("Each has different role for fighting air/ground units.", None))
                         # self.drama_text.queue.append(("All dead.", None))
                         self.drama_text.queue.append(
-                            ("Some may be curious like bear cub that will follow any coming close", None))
+                            ("Some may be curious like bear cub that will follow any coming close, very dangerous", None))
                         # for enemy in self.player_control_generals:
                         #     if not enemy.is_commander:
                         #         enemy.health = 0

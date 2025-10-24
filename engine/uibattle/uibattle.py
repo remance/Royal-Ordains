@@ -726,6 +726,7 @@ class TacticalMap(UIBattle):
         elif self.event_alt_press:
             self.battle.camera_pos[0] = ((self.cursor.pos[0] - self.rect.topleft[0]) * self.map_scale_width *
                                          self.screen_scale[0])
+            self.battle.fix_camera()
 
 
 class StrategySelect(UIBattle):
