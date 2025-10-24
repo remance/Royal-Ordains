@@ -7,7 +7,7 @@ from engine.character.character import BattleCharacter
 from engine.effect.effect import Effect, DamageEffect
 
 from engine.utils.rotation import find_target_point
-from engine.constants import Default_Screen_Width, Collision_Grid_Per_Scene
+from engine.constants import Default_Screen_Width, Collision_Grid_Per_Scene, Default_Ground_Pos
 
 grid_width = Default_Screen_Width / Collision_Grid_Per_Scene
 
@@ -59,41 +59,23 @@ def activate_strategy(self, team, strategy, base_pos_x):
                 team = 0
             for spawn in stat["Summon"]:
                 spawn_name = spawn
+                spawn_num = 1
                 if "+" in spawn_name:  # + indicate number of possible summon number
                     spawn_num = int(spawn_name.split("+")[1])
                     spawn_name = spawn_name.split("+")[0]
-                    for _ in range(spawn_num):
-                        if chance >= uniform(0, 100):
-                            if "invasion" in spawn_type:
-                                start_pos = (self.base_pos[0] + uniform(-2000, 2000),
-                                             self.base_pos[1])
-                            else:
-                                start_pos = (self.base_pos[0] + uniform(-200, 200),
-                                             self.base_pos[1])
+                for _ in range(spawn_num):
+                    start_pos = (base_pos_x + uniform(-stat["Range"], stat["Range"]),
+                                 Default_Ground_Pos)
 
-                            start_pos = (self.base_pos[0] + (part_data[2]),
-                                         self.base_ground_pos)
-
-                            BattleCharacter(self.battle.last_char_game_id,
-                                            self.character_data.character_list[spawn_name] |
-                                            {"ID": spawn_name,
-                                             "Direction": self.direction,
-                                             "Team": team, "POS": start_pos, "Start Health": 1,
-                                             "Start Resource": 1}, is_summon=True)
-                            self.battle.last_char_game_id += 1
-                            Effect(None, ("Movement", "Summon", start_pos[0],
-                                          start_pos[1], -self.angle, 1, 0, 1, 1), 0)
-                else:
-                    start_pos = (self.base_pos[0] + uniform(-200, 200),
-                                 self.base_pos[1])
                     BattleCharacter(self.battle.last_char_game_id,
                                     self.character_data.character_list[spawn_name] |
                                     {"ID": spawn_name,
                                      "Direction": self.direction,
                                      "Team": team, "POS": start_pos, "Start Health": 1,
                                      "Start Resource": 1}, is_summon=True)
-
                     self.battle.last_char_game_id += 1
+                    Effect(None, ("Movement", "Summon", start_pos[0],
+                                  start_pos[1], -self.angle, 1, 0, 1, 1), 0)
 
         range_check = stat["Range"]
         if stat["Enemy Status"]:

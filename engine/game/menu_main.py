@@ -11,7 +11,7 @@ def menu_main(self):
         pass
 
     elif self.test_battle_button.event:
-        self.start_battle("test")
+        self.start_battle("test", ai_retreat=False)
 
     # if self.start_game_button.event:  # start new game
     #     self.menu_state = "char"

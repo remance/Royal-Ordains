@@ -26,17 +26,17 @@ def clever2_gather_info(self):
     return info_dict | gather_info_power(self)
 
 
-clever_gather_info_level = {0: clever0_gather_info, 1: clever1_gather_info, 2: clever1_gather_info}
+# TODO keep add below until ai reach level 10
+clever_gather_info_level = ({0: clever0_gather_info, 1: clever1_gather_info, 2: clever2_gather_info} |
+                            {index: clever1_gather_info for index in range(3, 11)})
 
 
 def gather_info_basic(self):
     """Gather basic information of their own commander"""
     return {"commander_health": self.commander.health / self.commander.base_health,
-            "own_air_group": self.check_air_group(self.team),
-            "available_strategy": [strategy for strategy, timer in self.strategy.items() if not timer and
+            "own_air_group": check_air_group(self, self.team),
+            "available_strategy": [strategy for strategy, timer in self.own_strategy.items() if not timer and
                                    self.strategy_list[strategy]["Resource Cost"] <= self.team_stat["strategy_resource"]],
-            "closest_enemy_distance": self.team_commander.nearest_enemy_distance,
-            "closest_enemy_pos": self.team_commander.nearest_enemy_pos
             }
 
 
@@ -78,22 +78,24 @@ def gather_info_density(self):
     enemy_air_density = {key: len(value) for key, value in
                          self.battle.all_team_air_enemy_collision_grids[self.team].items()}
     # below own variable roughly work only with 2 teams, will also count team 0 neutral as ally = enemy of enemy
-    own_ground_density = {key: len(value) for key, value in
-                          self.battle.all_team_ground_enemy_collision_grids[self.enemy_team].items()}
-    own_air_density = {key: len(value) for key, value in
-                       self.battle.all_team_air_enemy_collision_grids[self.enemy_team].items()}
+    own_density = {key: len(value) for key, value in
+                   self.battle.all_team_ground_enemy_collision_grids[self.enemy_team].items()}
+    own_density = {key: value + len(self.battle.all_team_air_enemy_collision_grids[self.enemy_team][key]) for key, value in
+                   own_density.items()}
     combat_ground_density = {key: value + own_ground_density[key] for key, value in enemy_ground_density}
     combat_air_density = {key: value + own_air_density[key] for key, value in enemy_air_density}
 
 
 def gather_info_advance(self):
     return {"weather": self.battle.current_weather.weather_type,
-            "enemy_air_group": self.check_air_group(self.team)}
+            "enemy_air_group": self.check_air_group(self, self.enemy_team)}
 
 
 def check_air_group(self, team):
-    air_group = {"interceptor": {True: {}, False: {}}, "bomber": {True: {}, False: {}}}
-    for group in self.battle.team_stat[team]["air_group"]:
-        air_group[group[0].ai_behaviour][group[0].active] = {
-            group: (len(group), sum([character.power_score for character in group]))}
+    air_group = {("interceptor", "fighter"): {True: {}, False: {}}, ("bomber", "fighter"): {True: {}, False: {}}}
+    for index, group in enumerate(self.battle.team_stat[team]["air_group"]):
+        for air_type in air_group:
+            if group[0].ai_behaviour in air_type:
+                air_group[air_type][group[0].active] = {
+                    index: (len(group), sum([character.power_score for character in group]), group)}
     return air_group

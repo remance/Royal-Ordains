@@ -440,7 +440,9 @@ class BattleCharacter(Character):
             self.enemy_team = 2
 
         self.total_range_power_score = 0
-        self.total_melee_power_score = 0
+        self.total_offence_power_score = 0
+        self.total_defence_power_score = 0
+        self.total_flank_power_score = 0
         self.total_power_score = 0
         self.enter_pos = self.battle.team_stat[self.team]["start_pos"]
 
@@ -458,9 +460,14 @@ class BattleCharacter(Character):
             stat_boost = int(leader_charisma / 5)
             self.ai_prepare = MethodType(follower_ai_prepare, self)
         self.power_score = stat["Power Score"]
+        self.flank_power_score = (stat["Power Score"] + stat["Speed"]) / 2
         self.original_offence = stat["Offence"]
         self.original_defence = stat["Defence"]
         self.original_leadership = stat["Leadership"]
+
+        self.melee_type = "offence"
+        if self.original_offence < self.original_defence:
+            self.melee_type = "defence"
 
         self.base_offence = stat["Offence"] + (stat["Offence"] * (leader_charisma / 200)) + stat_boost
         self.base_defence = stat["Defence"] + (stat["Defence"] * (leader_charisma / 200)) + stat_boost
@@ -792,4 +799,4 @@ class CommanderBattleCharacter(BattleCharacter):
         """
         BattleCharacter.__init__(self, game_id, stat, is_commander=True, is_general=True, is_controllable=True,
                                  additional_layer=100000000)
-
+        self.max_enemy_range_check = self.last_grid * Default_Screen_Width  # commander check enemy at all range instead

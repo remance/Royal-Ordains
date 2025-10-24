@@ -9,7 +9,7 @@ from pygame import Vector2, display, sprite, Surface, SRCALPHA
 from pygame.locals import *
 from pygame.mixer import Sound, Channel
 
-from engine.ai.battle_commander_ai import BattleCommanderAI
+from engine.aibattle.battle_commander_ai import BattleCommanderAI
 from engine.camera.camera import Camera
 from engine.character.character import Character
 from engine.drama.drama import TextDrama
@@ -254,8 +254,8 @@ class Battle:
 
         self.later_reinforcement = {"weather": {}, "time": {}, "team": {team: [] for team in team_list}}
         BattleCommanderAI.battle = self
-        self.battle_team1_commander = BattleCommanderAI(1, 0, 0, 0)
-        self.battle_team2_commander = BattleCommanderAI(2, 0, 0, 0)
+        self.battle_team1_commander = BattleCommanderAI(1)
+        self.battle_team2_commander = BattleCommanderAI(2)
 
         self.game_state = "battle"
         self.esc_menu_mode = "menu"
@@ -374,12 +374,12 @@ class Battle:
         self.cutscene_playing = None
         self.current_scene = 1
 
-    def prepare_new_stage(self, mission, battle_data):
-        for message in self.inner_prepare_new_stage(mission, battle_data):
+    def prepare_new_stage(self, mission, battle_data, ai_retreat):
+        for message in self.inner_prepare_new_stage(mission, battle_data, ai_retreat):
             self.game.error_log.write("Start Stage:" + "." + str(mission))
             print(message, end="")
 
-    def inner_prepare_new_stage(self, mission, battle_data):
+    def inner_prepare_new_stage(self, mission, battle_data, ai_retreat):
         """Setup stuff when start new battle"""
         self.mission = mission
 
@@ -507,6 +507,10 @@ class Battle:
 
         yield set_start_load(self, "animation setup")
         character_list = [character["ID"] for character in stage_data["character"]]
+        for team in self.team_stat:
+            for strategy in self.team_stat[team]["strategy"]:
+                if self.strategy_list[strategy]["Summon"]:
+                    character_list += self.strategy_list[strategy]["Summon"]
 
         for team_value in self.team_stat.values():
             to_check = ([value for key, value in team_value["unit"].items() if key != "reinforcement"] +
@@ -519,29 +523,28 @@ class Battle:
                             for follower_data in character_data["Followers"]:
                                 for follower in follower_data:
                                     character_list.append(follower)
-        character_list = list(set(character_list))
 
-        already_check_char = []
+        already_check_char = set()
+        character_list = list(set([char_id if "+" not in char_id else char_id.split("+")[0] for char_id in
+                                    character_list]))
         while character_list:
             char_id = character_list[0]
             character_list.remove(char_id)
             if char_id not in already_check_char:
-                already_check_char.append(char_id)
+                already_check_char.add(char_id)
                 if self.character_data.character_list[char_id]["Summon List"]:
-                    character_list += self.character_data.character_list[char_id]["Summon List"]
+                    character_list += (self.character_data.character_list[char_id]["Summon List"])
                 if self.character_data.character_list[char_id]["Sub Characters"]:
-                    character_list += self.character_data.character_list[char_id]["Sub Characters"].keys()
-                character_list = [char_id if "+" not in char_id else char_id.split("+")[0] for char_id in
-                                  set(character_list)]
+                    character_list += set(self.character_data.character_list[char_id]["Sub Characters"])
+                character_list = list(set([char_id if "+" not in char_id else char_id.split("+")[0] for char_id in
+                                           character_list]))
 
         character_list = already_check_char
 
         if stage_event_data:  # add character if event has character create event
             for value in stage_data["event_data"]:
                 if value["Type"] == "create" and value["Object"] not in character_list:
-                    character_list.append(value["Object"])
-
-        character_list = tuple([char_id for char_id in set(character_list)])
+                    character_list.add(value["Object"])
 
         self.animation_data.load_character_animation(character_list, battle_only=True)
 
@@ -575,6 +578,7 @@ class Battle:
                 self.later_reinforcement["team"][team] = team_reinforcement
 
         self.setup_team_characters(stage_data)
+        self.battle_team2_commander.__init__(2, can_retreat=ai_retreat)
 
         if stage_event_data:
             self.stage_music_pool = {key: Sound(self.music_pool[key]) for key in stage_event_data["music"] if
@@ -838,6 +842,8 @@ class Battle:
         for character_command_indicator in self.character_command_indicator:
             character_command_indicator.setup()
         self.blit_culling_check.clear()
+        self.battle_team1_commander.clear()
+        self.battle_team2_commander.clear()
 
         self.clean_character_group()
 

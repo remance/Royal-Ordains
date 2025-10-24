@@ -98,7 +98,7 @@
 "Spell_fire_barrage",,,,,,,,,,,"Fire",,,,,,,
 "Spell_great_fireball",,,,,,,,,,,"Fire",,,,,,,
 "Spell_air_vacuum",,,,40,,,,,,,"Air",,,,,,,
-"Spell_airburst",,,,,,,,,,,"Air",,,,,,,
+"Spell_airburst",,,,,,,,,,,"Air",,,,,,"air",
 "Spell_lightning_strike",,,,50,,,,,,,"Air",,,,,,,"weather:6"
 "Spell_meteor",,,,90,,,,,,,"Fire",,,,,,,"weather:1"
 "Spell_earth_wall",,,,40,,,,,,,"Earth",,,,,,,

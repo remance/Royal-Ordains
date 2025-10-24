@@ -6,7 +6,7 @@ from engine.constants import Default_Screen_Width, Collision_Grid_Per_Scene
 grid_width = Default_Screen_Width / Collision_Grid_Per_Scene
 
 
-@lru_cache(maxsize=2000)
+@lru_cache(maxsize=10000)
 def find_grid_range(base_pos_x, max_enemy_range_check, last_grid):
     grid_left = int((base_pos_x - max_enemy_range_check) / grid_width)
     if grid_left < 0:

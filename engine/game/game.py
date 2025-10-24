@@ -423,10 +423,17 @@ class Game:
             self.back_button, self.default_button, self.keybind_button, self.resolution_drop,
             self.fullscreen_box, self.fps_box, self.easy_text_box, self.show_dmg_box)
 
+        # Grand strategy select menu button
+        self.setup_back_button = BrownMenuButton((-2, 1.8),
+                                                 key_name="back_button", parent=main_menu_buttons_box)
+        self.grand_setup_start_battle_button = BrownMenuButton((2, 1.8), key_name="start_button",
+                                                               parent=main_menu_buttons_box)
+        self.grand_menu_buttons = (self.setup_back_button,
+                                   self.grand_setup_start_battle_button)
+
         # Custom battle select menu button
-        self.custom_battle_setup_back_button = BrownMenuButton((-2, 1.8),
-                                                               key_name="back_button", parent=main_menu_buttons_box)
-        self.custom_battle_setup_start_battle_button = BrownMenuButton((2, 1.8), key_name="start_button", parent=main_menu_buttons_box)
+        self.custom_battle_setup_start_battle_button = BrownMenuButton((2, 1.8), key_name="start_button",
+                                                                       parent=main_menu_buttons_box)
 
         # self.char_interface_text_popup = {index: TextPopup() for index in range(1, 3)}
         #
@@ -439,7 +446,7 @@ class Game:
         #                                                          index, self.char_interface_text_popup[index]) for index
         #                                in range(1, 3)}
         #
-        self.custom_battle_menu_buttons = (self.custom_battle_setup_back_button,
+        self.custom_battle_menu_buttons = (self.setup_back_button,
                                            self.custom_battle_setup_start_battle_button)
 
         # User input popup ui
