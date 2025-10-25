@@ -766,7 +766,10 @@ class StrategySelect(UIBattle):
         self.image = self.base_image.copy()
         pos_y = 80 * self.screen_scale[1]
         for index, strategy in enumerate(self.battle.team_stat[1]["strategy"]):
-            icon_image = self.strategy_icons[strategy].copy()
+            if strategy not in self.strategy_icons:
+                icon_image = self.strategy_icons["Default"].copy()
+            else:
+                icon_image = self.strategy_icons[strategy].copy()
             rect = icon_image.get_rect(midtop=(self.image_width_center, pos_y))
             shortcut_text = text_render_with_bg(pygame.key.name(self.battle.player_key_bind[
                                                                     "Strategy " + str(index + 1)]).capitalize(),
@@ -775,7 +778,7 @@ class StrategySelect(UIBattle):
             icon_image.blit(shortcut_text, text_rect)
             pos_y += 180 * self.screen_scale[1]
             self.strategy_rect[index] = rect
-            self.icon_cache[strategy] = icon_image
+            self.icon_cache[index] = icon_image
 
     def update(self):
         self.update_timer += self.battle.true_dt
@@ -786,11 +789,11 @@ class StrategySelect(UIBattle):
             text_rect = text.get_rect(midtop=(self.image_width_center, 0))
             self.image.blit(text_bg, text_rect)
             for index, strategy in enumerate(self.battle.team_stat[1]["strategy"]):
-                cooldown = self.battle.team_stat[1]["strategy"][strategy]
-                check = (cooldown, strategy == self.battle.player_selected_strategy)
-                if strategy not in self.strategy_status or self.strategy_status[strategy] != check:
-                    self.strategy_status[strategy] = check
-                    self.image.blit(self.icon_cache[strategy], self.strategy_rect[index])
+                cooldown = self.battle.team_stat[1]["strategy_cooldown"][index]
+                check = (cooldown, (strategy, index) == self.battle.player_selected_strategy)
+                if index not in self.strategy_status or self.strategy_status[index] != check:
+                    self.strategy_status[index] = check
+                    self.image.blit(self.icon_cache[index], self.strategy_rect[index])
 
                     if cooldown:  # in cooldown
                         self.image.blit(self.cooldown_strategy_icon, self.strategy_rect[index])
@@ -801,7 +804,7 @@ class StrategySelect(UIBattle):
                                                               o_colour=(0, 0, 0))
                             self.number_text_cache[int(cooldown)] = number_text
                         self.image.blit(number_text, number_text.get_rect(center=self.strategy_rect[index].center))
-                    elif strategy == self.battle.player_selected_strategy:
+                    elif self.battle.player_selected_strategy and index == self.battle.player_selected_strategy[1]:
                         self.image.blit(self.selected_strategy_icon, self.strategy_rect[index])
             self.update_timer -= 0.1
 
@@ -812,7 +815,7 @@ class StrategySelect(UIBattle):
                 (self.cursor.pos[1] - self.rect.topleft[1]))
             for index, rect in self.strategy_rect.items():
                 if rect.collidepoint(inside_mouse_pos):
-                    this_strategy = tuple(self.battle.team_stat[1]["strategy"].keys())[index]
+                    this_strategy = self.battle.team_stat[1]["strategy"][index]
                     if this_strategy not in self.strategy_text_cache:
                         text = (self.localisation.grab_text(("strategy", this_strategy, "Name")),
                                 self.localisation.grab_text(("strategy", this_strategy, "Description")),
@@ -829,7 +832,7 @@ class StrategySelect(UIBattle):
                     self.battle.text_popup.popup(rect, text)  # this rect only work if ui is at corner left of screen
                     self.battle.battle_outer_ui_updater.add(self.battle.text_popup)
                     if self.event_press:
-                        if not self.battle.team_stat[1]["strategy"][this_strategy]:
+                        if not self.battle.team_stat[1]["strategy_cooldown"][index]:
                             key_select_strategy(self.battle, index)
                     break
         else:
@@ -958,7 +961,8 @@ class PlayerBattleInteract(UIBattle):
             if self.event_alt_press:  # right click order selected general to do something
                 if self.battle.player_selected_strategy:
                     # has strategy selected, prioritise activate strategy for this input
-                    if self.battle.activate_strategy(1, self.battle.player_selected_strategy,
+                    if self.battle.activate_strategy(1, self.battle.player_selected_strategy[0],
+                                                     self.battle.player_selected_strategy[1],
                                                      self.battle.base_cursor_pos[0]):
                         # successfully activate strategy
                         self.battle.player_selected_strategy = None

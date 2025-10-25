@@ -53,5 +53,6 @@ def analyse_info(self):
         recommended_plan_score[key] *= self.priority_modifier[key] * uniform(0.5, 1)
     recommended_plan_score = {key: value for key, value in recommended_plan_score.items() if value}
     recommended_plan_score = dict(sorted(recommended_plan_score.items(), key=itemgetter(1), reverse=True))
+    print(self.priority_modifier)
     print(recommended_plan_score)
     return recommended_plan_score

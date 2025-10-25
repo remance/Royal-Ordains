@@ -3,13 +3,13 @@ import gc
 from pygame.mixer import music
 
 
-def start_battle(self, mission, ai_retreat):
+def start_battle(self, mission, team_stat, ai_retreat):
     # self.error_log.write("\n Map: " + str(self.map_selected) + "\n")
     self.loading_screen("start")
 
     music.stop()
 
-    self.battle.prepare_new_stage(mission, {}, ai_retreat=ai_retreat)
+    self.battle.prepare_new_stage(mission, team_stat, ai_retreat=ai_retreat)
     result = self.battle.run_game()  # run next scene
     self.battle.exit_battle()  # run exit battle for previous one
 

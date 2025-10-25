@@ -374,12 +374,12 @@ class Battle:
         self.cutscene_playing = None
         self.current_scene = 1
 
-    def prepare_new_stage(self, mission, battle_data, ai_retreat):
-        for message in self.inner_prepare_new_stage(mission, battle_data, ai_retreat):
+    def prepare_new_stage(self, mission, team_stat, ai_retreat):
+        for message in self.inner_prepare_new_stage(mission, team_stat, ai_retreat):
             self.game.error_log.write("Start Stage:" + "." + str(mission))
             print(message, end="")
 
-    def inner_prepare_new_stage(self, mission, battle_data, ai_retreat):
+    def inner_prepare_new_stage(self, mission, team_stat, ai_retreat):
         """Setup stuff when start new battle"""
         self.mission = mission
 
@@ -456,47 +456,21 @@ class Battle:
         self.stage_end = self.camera_center_x + ((stage_len - 1) * self.screen_width)
         self.tactical_map_ui.setup()  # setup tactical map ui to scale with stage size
 
-        self.team_stat = {0: {"strategy_resource": 0, "start_pos": self.base_stage_end, "air_group": [], "strategy": {},
-                              "unit": {
-                                  "uncontrollable": [{"Castle_cat_shield_crossbow": {
-                                      "Followers": [{"Castle_cat_shield_crossbow": 10}],
-                                      "Start Health": 1, "Start Resource": 1}}],
-                                  "reinforcement": {}}
-                              },
-                          1: {"strategy_resource": 0, "start_pos": 0, "air_group": [],
-                              "strategy": {"Test": 0, "Test2": 0, "Spell_huge_stone": 0},
-                              "unit": {
-                                  "controllable": [
-                                      {"Leader_bigta": {"Followers": [{"Small_rabbit_spear": 20},
-                                                                      {"Small_rabbit_spear": 20},
-                                                                      {"Small_rabbit_spear": 20}],
-                                                        "Start Health": 1, "Start Resource": 1}},
-                                      {"Leader_iri": {"Followers": [{"Small_rabbit_spear": 20},
-                                                                    {"Small_rabbit_spear": 20},
-                                                                    {"Small_rabbit_spear": 20}],
-                                                      "Start Health": 1, "Start Resource": 1}}],
-                                  "uncontrollable": [],
-                                  "air": [{"Castle_human_air_flying_monk": 10}, {"Small_eagle_air_stone": 10}],
-                              "reinforcement": {"controllable": [{"Small_rabbit_leader_hero": {"Followers": [
-                                  {"Small_rabbit_snail_cav": 10},
-                                  {"Small_rabbit_snail_cav": 10},
-                                  {"Small_rabbit_snail_cav": 10}],
-                                  "Start Health": 1, "Start Resource": 1}}], "air": [{"Small_eagle_air_stone": 10}]}}},
-                          2: {"strategy_resource": 100, "start_pos": self.base_stage_end / 2, "air_group": [],
-                              "strategy": {"Test": 0, "Test2": 0, "Spell_huge_stone": 0},
-                              "unit": {
-                                  "controllable": [{"Leader_tulia": {"Followers": [{"Small_rabbit_spear": 20},
-                                                                                   {"Small_rabbit_spear": 20},
-                                                                                   {"Small_rabbit_spear": 20}],
-                                                                     "Start Health": 1, "Start Resource": 1}}],
-                                  "uncontrollable": [{"Small_rabbit_tower": {"Followers": [{"Small_rabbit_spear": 20},
-                                                                                   {"Small_rabbit_spear": 20},
-                                                                                   {"Small_rabbit_spear": 20}],
-                                                                             "Start Health": 1, "Start Resource": 1}},
-                                                     {"Small_rabbit_tower": {"Followers": [],
-                                                                             "Start Health": 1, "Start Resource": 1}}],
-                                  "air": [{"Castle_cat_air_rocket_bomb": 5}, {"Castle_cat_air_rocket_bomb": 5}],
-                                  "reinforcement": {"controllable": [], "air": []}}}}
+        self.team_stat = team_stat
+
+        for team_stat in self.team_stat.values():
+            if team_stat["start_pos"] < 0:
+                team_stat["start_pos"] *= -self.base_stage_end
+            # add available strategies to team stat
+            if team_stat["unit"]["controllable"]:
+                commander_stat = self.character_data.character_list[tuple(team_stat["unit"]["controllable"][0].keys())[0]]
+                if commander_stat["Strategy"]:
+                    team_stat["strategy_cooldown"][len(team_stat["strategy"])] = 0
+                    team_stat["strategy"].append(commander_stat["Strategy"])
+            if team_stat["retinue"]:
+                for retinue in team_stat["retinue"]:
+                    team_stat["strategy_cooldown"][len(team_stat["strategy"])] = 0
+                    team_stat["strategy"].append(self.character_data.retinue_list[retinue]["Strategy"])
 
         self.strategy_select_ui.setup()
 

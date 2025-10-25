@@ -11,7 +11,50 @@ def menu_main(self):
         pass
 
     elif self.test_battle_button.event:
-        self.start_battle("test", ai_retreat=False)
+        team_stat = {0: {"strategy_resource": 0, "start_pos": -1, "air_group": [], "retinue": (),
+                         "strategy": [], "strategy_cooldown": {},
+                         "unit": {
+                             "controllable": [],
+                             "uncontrollable": [{"Castle_cat_shield_crossbow": {
+                                 "Followers": [{"Castle_cat_shield_crossbow": 10}],
+                                 "Start Health": 1, "Start Resource": 1}}],
+                             "reinforcement": {}}},
+                     1: {"strategy_resource": 0, "start_pos": 0, "air_group": [], "retinue": ("Test", "Test", "Test2", "Test2"),
+                         "strategy": [], "strategy_cooldown": {},
+                         "unit": {
+                             "controllable": [
+                                 {"Leader_bigta": {"Followers": [{"Small_rabbit_spear": 20},
+                                                     {"Small_rabbit_sling": 20},
+                                                     {"Small_rabbit_spear": 20}],
+                                       "Start Health": 1, "Start Resource": 1}},
+                     {"Leader_iri": {"Followers": [{"Small_rabbit_spear": 20},
+                                                   {"Small_rabbit_spear": 20},
+                                                   {"Small_rabbit_spear": 20}],
+                                     "Start Health": 1, "Start Resource": 1}}],
+                             "uncontrollable": [],
+                             "air": [{"Castle_human_air_flying_monk": 10}, {"Small_eagle_air_stone": 10}],
+                             "reinforcement": {"controllable": [{"Small_rabbit_leader_hero": {"Followers": [
+                     {"Small_rabbit_snail_cav": 10},
+                     {"Small_rabbit_snail_cav": 10},
+                     {"Small_rabbit_snail_cav": 10}],
+                     "Start Health": 1, "Start Resource": 1}}], "air": [{"Small_eagle_air_stone": 10}]}}},
+         2: {"strategy_resource": 100, "start_pos": -0.5, "air_group": [],
+             "retinue": (), "strategy": [], "strategy_cooldown": {},
+             "unit": {
+                 "controllable": [{"Leader_tulia": {"Followers": [{"Small_rabbit_spear": 20},
+                                                                  {"Small_rabbit_spear": 20},
+                                                                  {"Small_rabbit_spear": 20}],
+                                                    "Start Health": 1, "Start Resource": 1}}],
+                 "uncontrollable": [{"Small_rabbit_tower": {"Followers": [{"Small_rabbit_spear": 20},
+                                                                          {"Small_rabbit_spear": 20},
+                                                                          {"Small_rabbit_spear": 20}],
+                                                            "Start Health": 1, "Start Resource": 1}},
+                                    {"Small_rabbit_tower": {"Followers": [],
+                                                            "Start Health": 1, "Start Resource": 1}}],
+                 "air": [{"Castle_cat_air_rocket_bomb": 5}, {"Castle_cat_air_rocket_bomb": 5}],
+                 "reinforcement": {"controllable": [], "air": []}}}}
+
+        self.start_battle("test", team_stat, ai_retreat=False)
 
     # if self.start_game_button.event:  # start new game
     #     self.menu_state = "char"

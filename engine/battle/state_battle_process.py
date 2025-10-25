@@ -56,8 +56,8 @@ def state_battle_process(self):
                 self.reinforcement_check_timer -= 1
 
         for team, team_stat in self.team_stat.items():
-            team_stat["strategy"] = {key: value - self.dt if value > self.dt else 0 for
-                                     key, value in team_stat["strategy"].items()}
+            team_stat["strategy_cooldown"] = {key: value - self.dt if value > self.dt else 0 for
+                                              key, value in team_stat["strategy_cooldown"].items()}
             if self.team_commander[team] and self.team_commander[team].alive:
                 team_stat["strategy_resource"] += self.dt * self.team_commander[team].strategy_regen
                 if team_stat["strategy_resource"] > 100:

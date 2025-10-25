@@ -12,7 +12,7 @@ from engine.constants import Default_Screen_Width, Collision_Grid_Per_Scene, Def
 grid_width = Default_Screen_Width / Collision_Grid_Per_Scene
 
 
-def activate_strategy(self, team, strategy, base_pos_x):
+def activate_strategy(self, team, strategy, strategy_index, base_pos_x):
     stat = self.strategy_list[strategy]
     if (self.team_stat[team]["strategy_resource"] > stat["Resource Cost"] and (not self.team_commander[team] or
             abs(self.team_commander[team].base_pos[0] - base_pos_x) < stat["Activate Range"])):
@@ -24,7 +24,7 @@ def activate_strategy(self, team, strategy, base_pos_x):
         else:
             self.drama_text.queue.append((self.localisation.grab_text(("strategy", strategy, "Enemy")),
                                           None))
-        self.battle.team_stat[team]["strategy"][strategy] = stat["Cooldown"]
+        self.battle.team_stat[team]["strategy_cooldown"][strategy_index] = stat["Cooldown"]
 
         if stat["Property"]:
             if "weather" in stat["Property"]:  # strategy that change weather

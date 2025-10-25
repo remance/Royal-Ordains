@@ -77,6 +77,19 @@ class CharacterData(GameData):
                     "penetrate": self.strategy_list[row[0]]["Penetrate"]}
         edit_file.close()
 
+        self.retinue_list = {}
+        with open(os.path.join(self.data_dir, "character", "retinue.csv"),
+                  encoding="utf-8", mode="r") as edit_file:
+            rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
+            header = rd[0]
+            dict_column = ("Army Effect",)
+            dict_column = [index for index, item in enumerate(header) if item in dict_column]
+            for index, row in enumerate(rd[1:]):
+                for n, i in enumerate(row):
+                    row = stat_convert(row, n, i, dict_column=dict_column)
+                self.retinue_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
+        edit_file.close()
+
         # Character dict
         self.character_list = {}
         with open(os.path.join(self.data_dir, "character", "character.csv"),

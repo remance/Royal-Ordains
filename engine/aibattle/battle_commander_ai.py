@@ -8,7 +8,7 @@ from engine.aibattle.conduct_plan import conduct_plan
 from engine.utils.common import clean_object
 
 # TODO add condition for ai command retreat or go to specific pos when added
-# how to move attack strategy air unit retreat, stratety to change weather, protect commander, consider enemy strategy
+# how to move attack strategy air unit retreat, strategy to change weather, protect commander, consider enemy strategy
 
 
 class BattleCommanderAI:
