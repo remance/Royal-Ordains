@@ -11,48 +11,46 @@ def menu_main(self):
         pass
 
     elif self.test_battle_button.event:
-        team_stat = {0: {"strategy_resource": 0, "start_pos": -1, "air_group": [], "retinue": (),
-                         "strategy": [], "strategy_cooldown": {},
-                         "unit": {
-                             "controllable": [],
-                             "uncontrollable": [{"Castle_cat_shield_crossbow": {
-                                 "Followers": [{"Castle_cat_shield_crossbow": 10}],
-                                 "Start Health": 1, "Start Resource": 1}}],
-                             "reinforcement": {}}},
-                     1: {"strategy_resource": 0, "start_pos": 0, "air_group": [], "retinue": ("Test", "Test", "Test2", "Test2"),
-                         "strategy": [], "strategy_cooldown": {},
-                         "unit": {
-                             "controllable": [
-                                 {"Leader_bigta": {"Followers": [{"Small_rabbit_spear": 20},
-                                                     {"Small_rabbit_sling": 20},
-                                                     {"Small_rabbit_spear": 20}],
-                                       "Start Health": 1, "Start Resource": 1}},
-                     {"Leader_iri": {"Followers": [{"Small_rabbit_spear": 20},
-                                                   {"Small_rabbit_spear": 20},
-                                                   {"Small_rabbit_spear": 20}],
-                                     "Start Health": 1, "Start Resource": 1}}],
-                             "uncontrollable": [],
-                             "air": [{"Castle_human_air_flying_monk": 10}, {"Small_eagle_air_stone": 10}],
-                             "reinforcement": {"controllable": [{"Small_rabbit_leader_hero": {"Followers": [
-                     {"Small_rabbit_snail_cav": 10},
-                     {"Small_rabbit_snail_cav": 10},
-                     {"Small_rabbit_snail_cav": 10}],
-                     "Start Health": 1, "Start Resource": 1}}], "air": [{"Small_eagle_air_stone": 10}]}}},
-         2: {"strategy_resource": 100, "start_pos": -0.5, "air_group": [],
-             "retinue": (), "strategy": [], "strategy_cooldown": {},
-             "unit": {
-                 "controllable": [{"Leader_tulia": {"Followers": [{"Small_rabbit_spear": 20},
-                                                                  {"Small_rabbit_spear": 20},
-                                                                  {"Small_rabbit_spear": 20}],
-                                                    "Start Health": 1, "Start Resource": 1}}],
-                 "uncontrollable": [{"Small_rabbit_tower": {"Followers": [{"Small_rabbit_spear": 20},
+        self.custom_team0_garrison_army.__init__([{"Castle_cat_shield_crossbow": [{"Castle_cat_shield_crossbow": 10}]}],
+                                                 [], [])
+        self.custom_team1_army.__init__([{"Leader_bigta": [{"Small_rabbit_spear": 20},
+                                                          {"Small_rabbit_sling": 20},
+                                                          {"Small_rabbit_spear": 20}]},
+                                         {"Leader_iri": [{"Small_rabbit_spear": 20},
+                                                         {"Small_rabbit_spear": 20},
+                                                         {"Small_rabbit_spear": 20}]}],
+                                        [{"Castle_human_air_flying_monk": 10}, {"Small_eagle_air_stone": 10}],
+                                        ["Test", "Test", "Test2", "Test2"]
+                                        )
+        self.custom_team2_army.__init__([{"Leader_tulia": [{"Small_rabbit_spear": 20},
+                                                           {"Small_rabbit_spear": 20},
+                                                           {"Small_rabbit_spear": 20}]}],
+                                        [{"Castle_cat_air_rocket_bomb": 5}, {"Castle_cat_air_rocket_bomb": 5}],
+                                        [])
+        self.custom_team1_reinforcement_army.__init__([{"Small_rabbit_leader_hero": [{"Small_rabbit_snail_cav": 10},
+                                                                                     {"Small_rabbit_snail_cav": 10},
+                                                                                     {"Small_rabbit_snail_cav": 10}]}],
+                                                      [{"Small_eagle_air_stone": 10}], [])
+        self.custom_team2_reinforcement_army.__init__([], [], [])
+        self.custom_team1_garrison_army.__init__([], [], [])
+        self.custom_team2_garrison_army.__init__([{"Small_rabbit_tower": [{"Small_rabbit_spear": 20},
                                                                           {"Small_rabbit_spear": 20},
-                                                                          {"Small_rabbit_spear": 20}],
-                                                            "Start Health": 1, "Start Resource": 1}},
-                                    {"Small_rabbit_tower": {"Followers": [],
-                                                            "Start Health": 1, "Start Resource": 1}}],
-                 "air": [{"Castle_cat_air_rocket_bomb": 5}, {"Castle_cat_air_rocket_bomb": 5}],
-                 "reinforcement": {"controllable": [], "air": []}}}}
+                                                                          {"Small_rabbit_spear": 20}]},
+                                                  {"Small_rabbit_tower": {}}], [], [])
+
+        team_stat = {0: {"strategy_resource": 0, "start_pos": 1, "air_group": [], "retinue": (),
+                         "strategy": [], "strategy_cooldown": {},
+                         "main_army": None, "garrison_army": self.custom_team0_garrison_army,
+                         "reinforcement_army": []},
+                     1: {"strategy_resource": 0, "start_pos": 0, "air_group": [], "retinue": (),
+                         "strategy": [], "strategy_cooldown": {},
+                         "main_army": self.custom_team1_army, "garrison_army": self.custom_team1_garrison_army,
+                         "reinforcement_army": [self.custom_team1_reinforcement_army]},
+                     2: {"strategy_resource": 100, "start_pos": 0.5, "air_group": [],
+                         "retinue": (), "strategy": [], "strategy_cooldown": {},
+                         "main_army": self.custom_team2_army,
+                         "garrison_army": self.custom_team2_garrison_army,
+                         "reinforcement_army": [self.custom_team2_reinforcement_army]}}
 
         self.start_battle("test", team_stat, ai_retreat=False)
 

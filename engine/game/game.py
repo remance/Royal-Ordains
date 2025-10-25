@@ -10,6 +10,7 @@ from pygame.font import Font
 from pygame.locals import *
 from pygame.mixer import music
 
+from engine.army.army import Army, GarrisonArmy
 from engine.battle.battle import Battle
 from engine.character.character import Character, BattleCharacter
 from engine.data.datalocalisation import Localisation
@@ -308,6 +309,7 @@ class Game:
 
         if self.show_dmg_number:
             BattleCharacter.show_dmg_number = True
+        Army.character_list = self.character_data.character_list
         Character.character_data = self.character_data
         Character.status_list = self.character_data.status_list
         Character.status_apply_funcs = self.character_data.status_apply_funcs
@@ -448,6 +450,14 @@ class Game:
         #
         self.custom_battle_menu_buttons = (self.setup_back_button,
                                            self.custom_battle_setup_start_battle_button)
+
+        self.custom_team1_army = Army([], [], [])
+        self.custom_team2_army = Army([], [], [])
+        self.custom_team1_reinforcement_army = Army([], [], [])
+        self.custom_team2_reinforcement_army = Army([], [], [])
+        self.custom_team0_garrison_army = GarrisonArmy([], [], [])
+        self.custom_team1_garrison_army = GarrisonArmy([], [], [])
+        self.custom_team2_garrison_army = GarrisonArmy([], [], [])
 
         # User input popup ui
         input_ui_dict = self.make_input_box(base_button_image_list)

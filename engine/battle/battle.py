@@ -459,18 +459,21 @@ class Battle:
         self.team_stat = team_stat
 
         for team_stat in self.team_stat.values():
-            if team_stat["start_pos"] < 0:
-                team_stat["start_pos"] *= -self.base_stage_end
+            team_stat["start_pos"] *= self.base_stage_end
             # add available strategies to team stat
-            if team_stat["unit"]["controllable"]:
-                commander_stat = self.character_data.character_list[tuple(team_stat["unit"]["controllable"][0].keys())[0]]
+            if team_stat["main_army"]:
+                commander_stat = self.character_data.character_list[team_stat["main_army"].commander_id]
                 if commander_stat["Strategy"]:
                     team_stat["strategy_cooldown"][len(team_stat["strategy"])] = 0
                     team_stat["strategy"].append(commander_stat["Strategy"])
-            if team_stat["retinue"]:
-                for retinue in team_stat["retinue"]:
-                    team_stat["strategy_cooldown"][len(team_stat["strategy"])] = 0
-                    team_stat["strategy"].append(self.character_data.retinue_list[retinue]["Strategy"])
+            retinue_list = []
+            if team_stat["main_army"]:
+                retinue_list += team_stat["main_army"].retinue
+            if team_stat["garrison_army"][0]:
+                retinue_list += team_stat["garrison_army"].retinue
+            for retinue in retinue_list:
+                team_stat["strategy_cooldown"][len(team_stat["strategy"])] = 0
+                team_stat["strategy"].append(self.character_data.retinue_list[retinue]["Strategy"])
 
         self.strategy_select_ui.setup()
 
