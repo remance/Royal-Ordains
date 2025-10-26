@@ -252,7 +252,7 @@ class Battle:
         self.player_selected_generals = []  # for player order input
         self.player_selected_strategy = None
 
-        self.later_reinforcement = {"weather": {}, "time": {}, "team": {team: [] for team in team_list}}
+        self.later_reinforcement = {"weather": {}, "time": {}, "team": {team: {"air": [], "ground": {}} for team in team_list}}
         BattleCommanderAI.battle = self
         self.battle_team1_commander = BattleCommanderAI(1)
         self.battle_team2_commander = BattleCommanderAI(2)
@@ -469,7 +469,7 @@ class Battle:
             retinue_list = []
             if team_stat["main_army"]:
                 retinue_list += team_stat["main_army"].retinue
-            if team_stat["garrison_army"][0]:
+            if team_stat["garrison_army"]:
                 retinue_list += team_stat["garrison_army"].retinue
             for retinue in retinue_list:
                 team_stat["strategy_cooldown"][len(team_stat["strategy"])] = 0
@@ -490,16 +490,16 @@ class Battle:
                     character_list += self.strategy_list[strategy]["Summon"]
 
         for team_value in self.team_stat.values():
-            to_check = ([value for key, value in team_value["unit"].items() if key != "reinforcement"] +
-                        [value for value in team_value["unit"]["reinforcement"].values()])
+            to_check = ([team_value["main_army"], team_value["garrison_army"]] + team_value["reinforcement_army"])
+            to_check = [item for item in to_check if item]
             for value in to_check:
-                for value2 in value:
-                    for character, character_data in value2.items():
-                        character_list.append(character)
-                        if type(character_data) is dict and "Followers" in character_data:
-                            for follower_data in character_data["Followers"]:
-                                for follower in follower_data:
-                                    character_list.append(follower)
+                for air_group in value.air_group:
+                    character_list.append(tuple(air_group.keys())[0])
+                for general, follower in value.generals.items():
+                    character_list.append(general.char_id)
+                    for follower_data in follower:
+                        for follower_id in follower_data:
+                            character_list.append(follower_id)
 
         already_check_char = set()
         character_list = list(set([char_id if "+" not in char_id else char_id.split("+")[0] for char_id in
@@ -550,9 +550,14 @@ class Battle:
                     break
 
         for team in self.team_stat:
-            team_reinforcement = self.team_stat[team]["unit"]["reinforcement"]
+            team_reinforcement = {}
+            for army in self.team_stat[team]["reinforcement_army"]:
+                team_reinforcement |= army.generals
             if team_reinforcement:
-                self.later_reinforcement["team"][team] = team_reinforcement
+                self.later_reinforcement["team"][team]["ground"] = team_reinforcement
+            air_reinforcement = [air_group for army in self.team_stat[team]["reinforcement_army"] for air_group in army.air_group]
+            if air_reinforcement:
+                self.later_reinforcement["team"][team]["air"] = air_reinforcement
 
         self.setup_team_characters(stage_data)
         self.battle_team2_commander.__init__(2, can_retreat=ai_retreat)
@@ -808,7 +813,8 @@ class Battle:
         # remove all reference from battle object
         self.team_stat = {team: {"strategy_resource": 0, "start_pos": 0, "air_group": [], "strategy": {}, "unit": {}} for
                           team in team_list}
-        self.later_reinforcement = {"weather": {}, "time": {}, "team": {team: [] for team in team_list}}
+        self.later_reinforcement = {"weather": {}, "time": {},
+                                    "team": {team: {"air": [], "ground": {}} for team in team_list}}
         self.ai_process_list = []
         self.team_commander = {team: None for team in team_list}
         self.player_control_generals = []

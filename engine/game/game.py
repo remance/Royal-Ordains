@@ -451,13 +451,13 @@ class Game:
         self.custom_battle_menu_buttons = (self.setup_back_button,
                                            self.custom_battle_setup_start_battle_button)
 
-        self.custom_team1_army = Army([], [], [])
-        self.custom_team2_army = Army([], [], [])
-        self.custom_team1_reinforcement_army = Army([], [], [])
-        self.custom_team2_reinforcement_army = Army([], [], [])
-        self.custom_team0_garrison_army = GarrisonArmy([], [], [])
-        self.custom_team1_garrison_army = GarrisonArmy([], [], [])
-        self.custom_team2_garrison_army = GarrisonArmy([], [], [])
+        self.custom_team1_army = Army({}, [], [])
+        self.custom_team2_army = Army({}, [], [])
+        self.custom_team1_reinforcement_army = Army({}, [], [])
+        self.custom_team2_reinforcement_army = Army({}, [], [])
+        self.custom_team0_garrison_army = GarrisonArmy({}, [], [])
+        self.custom_team1_garrison_army = GarrisonArmy({}, [], [])
+        self.custom_team2_garrison_army = GarrisonArmy({}, [], [])
 
         # User input popup ui
         input_ui_dict = self.make_input_box(base_button_image_list)

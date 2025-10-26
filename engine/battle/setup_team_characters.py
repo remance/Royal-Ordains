@@ -10,64 +10,54 @@ team_start_middle_x_distance = (600, -600, 1200, -1200, 1800, -1800, 2400, -2400
 
 def setup_team_characters(self, stage_data):
     """Setup all characters at the start of battle, not used for character spawn afterward"""
-    for team, team_unit in self.team_stat.items():
-        for key_type, key_data in team_unit["unit"].items():
-            if key_data:
-                commander_char = None
-                if key_type in ("controllable", "uncontrollable"):
-                    general_count = 0
-                    control = False
-                    if key_type == "controllable":
-                        control = True
-                    for value2 in key_data:
-                        for character, data in value2.items():
-                            is_commander = False
-                            if not general_count and control:  # first controllable general is commander
-                                is_commander = True
-                            if self.team_stat[team]["start_pos"] == 0:
-                                start_x = team_start_x_distance[general_count]
-                            elif self.team_stat[team]["start_pos"] == self.base_stage_end:
-                                start_x = self.base_stage_end - team_start_x_distance[general_count]
-                            else:
-                                start_x = self.team_stat[team]["start_pos"] + team_start_middle_x_distance[general_count]
-                            data["Team"] = team
-                            data["ID"] = character
-                            if "POS" not in data:
-                                data["POS"] = (start_x, Default_Ground_Pos)
-                            if is_commander:
-                                add_battle_char = CommanderBattleCharacter(self.last_char_game_id,
-                                                                  data | self.character_data.character_list[character])
-                                commander_char = add_battle_char
-                                self.team_commander[team] = commander_char
-                            else:
-                                add_layer = 0
-                                if control:
-                                    add_layer = 1000000
-                                add_battle_char = BattleCharacter(self.last_char_game_id,
-                                                                  data | self.character_data.character_list[character],
-                                                                  None, additional_layer=add_layer,
-                                                                  is_general=True, is_controllable=control)
-                            if team == 1 and control:
-                                self.character_command_indicator[general_count].setup(add_battle_char)
+    for team, team_stat in self.team_stat.items():
+        for army in (team_stat["main_army"], team_stat["garrison_army"]):
+            if army:
+                for general_index, general in enumerate(army.generals):
+                    data = {"Start Health": general.start_health}
+                    if self.team_stat[team]["start_pos"] == 0:
+                        start_x = team_start_x_distance[general_index]
+                    elif self.team_stat[team]["start_pos"] == self.base_stage_end:
+                        start_x = self.base_stage_end - team_start_x_distance[general_index]
+                    else:
+                        start_x = self.team_stat[team]["start_pos"] + team_start_middle_x_distance[general_index]
+                    data["Team"] = team
+                    data["ID"] = general.char_id
+                    if "POS" not in data:
+                        data["POS"] = (start_x, Default_Ground_Pos)
+                    if not general_index and army.controllable:
+                        add_battle_char = CommanderBattleCharacter(self.last_char_game_id,
+                                                                   data | self.character_data.character_list[general.char_id])
+                        commander_char = add_battle_char
+                        self.team_commander[team] = commander_char
+                    else:
+                        additional_layer = 1000000
+                        if not army.controllable:
+                            additional_layer = 0
+                        add_battle_char = BattleCharacter(self.last_char_game_id,
+                                                          data | self.character_data.character_list[general.char_id],
+                                                          None, additional_layer=additional_layer,
+                                                          is_general=True, is_controllable=army.controllable)
+                    if team == 1:
+                        self.character_command_indicator[general_index].setup(add_battle_char)
+                    add_battle_char.general_object = general
+                    self.last_char_game_id += 1
+                    for value in army.generals[general]:
+                        add_followers(self, add_battle_char, value, data)
+                    add_battle_char.reset_general_variables()
+                for squad in army.air_group:
+                    this_group = []
+                    for key, number in squad.items():
+                        for _ in range(int(number)):
+                            # leader of air units are commander
+                            this_group.append(
+                                AirBattleCharacter(self.last_char_game_id, self.character_data.character_list[key] |
+                                                   {"ID": key, "Team": team,
+                                                    "Start Health": 1,
+                                                    "POS": (-10000, 0)},
+                                                   leader=commander_char))
                             self.last_char_game_id += 1
-                            general_count += 1
-                            for value in data["Followers"]:
-                                add_followers(self, add_battle_char, value, data)
-                            add_battle_char.reset_general_variables()
-                if key_type == "air":
-                    for squad in key_data:
-                        this_group = []
-                        for key, number in squad.items():
-                            for _ in range(int(number)):
-                                # leader of air units are commander
-                                this_group.append(
-                                    AirBattleCharacter(self.last_char_game_id, self.character_data.character_list[key] |
-                                                       {"ID": key, "Team": team,
-                                                        "Start Health": 1, "Start Resource": 1,
-                                                        "POS": (-10000, 0)},
-                                                       leader=commander_char))
-                                self.last_char_game_id += 1
-                        self.team_stat[team]["air_group"].append(this_group)
+                    self.team_stat[team]["air_group"].append(this_group)
 
     for data in stage_data["character"]:
         if not data["Arrive Condition"]:  # neutral character with arrive condition got added via check_reinforcement
@@ -108,6 +98,6 @@ def add_followers(self, general, value, data, battle_char=True):
                 random_pos[0] = self.base_stage_end - 1
             char_class(self.last_char_game_id, self.character_data.character_list[key] |
                        {"ID": key, "Team": general.team,
-                        "Start Health": data["Start Health"], "Start Resource": data["Start Resource"],
+                        "Start Health": data["Start Health"],
                         "POS": random_pos}, leader=general)
             self.last_char_game_id += 1

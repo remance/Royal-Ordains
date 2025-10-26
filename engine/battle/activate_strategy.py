@@ -71,8 +71,7 @@ def activate_strategy(self, team, strategy, strategy_index, base_pos_x):
                                     self.character_data.character_list[spawn_name] |
                                     {"ID": spawn_name,
                                      "Direction": self.direction,
-                                     "Team": team, "POS": start_pos, "Start Health": 1,
-                                     "Start Resource": 1}, is_summon=True)
+                                     "Team": team, "POS": start_pos, "Start Health": 1}, is_summon=True)
                     self.battle.last_char_game_id += 1
                     Effect(None, ("Movement", "Summon", start_pos[0],
                                   start_pos[1], -self.angle, 1, 0, 1, 1), 0)

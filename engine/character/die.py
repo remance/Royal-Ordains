@@ -68,7 +68,7 @@ def die(self):
                                                            self.character_data.character_list[spawn_name] |
                                                            {"ID": spawn_name,
                                                             "Team": self.team, "POS": start_pos,
-                                                            "Start Health": 1, "Start Resource": 1})
+                                                            "Start Health": 1})
                 self.battle.last_char_game_id += 1
 
     self.status_effect = {}

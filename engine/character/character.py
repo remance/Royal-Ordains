@@ -512,13 +512,12 @@ class BattleCharacter(Character):
         self.resource_cost_modifier = self.base_resource_cost_modifier
 
         start_health = stat["Start Health"]
-        start_resource = stat["Start Resource"]
 
         self.health1 = self.base_health * 0.01
         self.health10 = self.base_health * 0.10
 
         self.health = self.base_health * start_health
-        self.resource = self.base_resource * start_resource
+        self.resource = 0
 
         self.run_speed = 7 * self.speed
         self.walk_speed = 3 * self.speed
@@ -577,7 +576,7 @@ class BattleCharacter(Character):
                 for sub_character_pos in anchor_pos:
                     SubBattleCharacter(self.battle.last_char_game_id, self.character_data.character_list[character] |
                                        {"ID": character, "Team": self.team,
-                                        "Start Health": stat["Start Health"], "Start Resource": stat["Start Resource"],
+                                        "Start Health": stat["Start Health"],
                                         "POS": self.base_pos, "Anchor POS": sub_character_pos}, self)
                     self.battle.last_char_game_id += 1
 
