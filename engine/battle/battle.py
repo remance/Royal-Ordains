@@ -114,7 +114,6 @@ class Battle:
         # add enemy command AI, skirmish behaviour ai for ranged char/leader/group, commander
         # think how to deal center battle map start retreat point
         # add custom battle setup menu
-        # link character to outside battle stat somewhere for when add grand strategy and results
         # finish Rodhinbar
         # add back hold function, for spear pike and stuff
         # add back battle cutscene
@@ -163,7 +162,7 @@ class Battle:
 
         self.cursor = game.cursor
 
-        self.button_ui = game.button_ui
+        self.button_ui = game.button_uis
 
         # Music and sound player
         self.current_music = None
@@ -187,9 +186,9 @@ class Battle:
         self.input_ui = game.input_ui
         self.input_ok_button = game.input_ok_button
         self.input_cancel_button = game.input_cancel_button
-        self.input_ui_popup = game.input_ui_popup
-        self.confirm_ui_popup = game.confirm_ui_popup
-        self.all_input_ui_popup = game.all_input_ui_popup
+        self.input_popup_uis = game.input_popup_uis
+        self.confirm_popup_uis = game.confirm_popup_uis
+        self.all_input_popup_uis = game.all_input_popup_uis
 
         self.weather_matters = game.weather_matters
 
@@ -495,7 +494,7 @@ class Battle:
             for value in to_check:
                 for air_group in value.air_group:
                     character_list.append(tuple(air_group.keys())[0])
-                for general, follower in value.generals.items():
+                for general, follower in value.group.items():
                     character_list.append(general.char_id)
                     for follower_data in follower:
                         for follower_id in follower_data:
@@ -552,7 +551,7 @@ class Battle:
         for team in self.team_stat:
             team_reinforcement = {}
             for army in self.team_stat[team]["reinforcement_army"]:
-                team_reinforcement |= army.generals
+                team_reinforcement |= army.group
             if team_reinforcement:
                 self.later_reinforcement["team"][team]["ground"] = team_reinforcement
             air_reinforcement = [air_group for army in self.team_stat[team]["reinforcement_army"] for air_group in army.air_group]

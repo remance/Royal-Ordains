@@ -41,10 +41,10 @@ def escmenu_process(self):
                                         self.esc_value_boxes.values(), self.esc_option_text.values())
 
                 elif key == "end":  # end battle
-                    self.activate_input_popup(("confirm_input", "end_battle"), "Leave Battle?", self.confirm_ui_popup)
+                    self.activate_input_popup(("confirm_input", "end_battle"), "Leave Battle?", self.confirm_popup_uis)
 
                 elif key == "quit":  # quit game
-                    self.activate_input_popup(("confirm_input", "quit"), "Quit Game?", self.confirm_ui_popup)
+                    self.activate_input_popup(("confirm_input", "quit"), "Quit Game?", self.confirm_popup_uis)
                 break  # found clicked button, break loop
 
     elif self.esc_menu_mode == "dialogue":  # dialogue log

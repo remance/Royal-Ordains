@@ -15,10 +15,10 @@ def state_menu_process(self):
     if self.input_popup:  # currently, have input pop up on screen, stop everything else until done
         if self.input_ok_button.event_press:
             self.change_pause_update(False)
-            self.input_box.text_start("")
+            self.input_box.render_text("")
             input_popup = self.input_popup[1]
             self.input_popup = None
-            self.remove_ui_updater(self.input_ui_popup, self.confirm_ui_popup)
+            self.remove_ui_updater(self.input_popup_uis, self.confirm_popup_uis)
 
             if input_popup == "quit":  # quit game
                 pg_quit()
@@ -31,9 +31,9 @@ def state_menu_process(self):
 
         elif self.input_cancel_button.event_press or self.esc_press:
             self.change_pause_update(False)
-            self.input_box.text_start("")
+            self.input_box.render_text("")
             self.input_popup = None
-            self.remove_ui_updater(self.input_ui_popup, self.confirm_ui_popup)
+            self.remove_ui_updater(self.input_popup_uis, self.confirm_popup_uis)
 
     else:
         self.escmenu_process()

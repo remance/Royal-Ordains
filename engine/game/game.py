@@ -26,7 +26,7 @@ from engine.stageobject.stageobject import StageObject
 from engine.uibattle.uibattle import (Profiler, FPSCount, DamageNumber, CharacterSpeechBox,
                                       CharacterGeneralIndicator, CharacterCommandIndicator)
 from engine.uimenu.uimenu import (OptionMenuText, SliderMenu, MenuCursor, BoxUI, BrownMenuButton,
-                                  TextPopup, CharacterSelector, CharacterInterface,
+                                  TextPopup, PresetSelectInterface,
                                   MapTitle, ListUI, CampaignListAdapter)
 from engine.updater.updater import ReversedLayeredUpdates
 from engine.utils.common import cutscene_update
@@ -259,18 +259,18 @@ class Game:
         self.stage_objects = sprite.Group()  # group for all scene objects for event delete check
         self.player_general_indicators = sprite.Group()  # group for select check of all indicator of player general
 
-        self.button_ui = sprite.Group()  # ui button group in battle
+        self.button_uis = sprite.Group()  # ui button group in battle
 
         self.speech_boxes = sprite.Group()
         self.ui_boxes = sprite.Group()
 
-        self.slider_menu = sprite.Group()  # volume slider in esc option menu
+        self.slider_menus = sprite.Group()  # volume slider in esc option menu
 
         self.weather_matters = sprite.Group()  # sprite of weather effect group such as rain sprite
 
         # Assign containers
         OptionMenuText.containers = self.menu_icon
-        SliderMenu.containers = self.menu_slider, self.slider_menu
+        SliderMenu.containers = self.menu_slider, self.slider_menus
 
         StaticImage.containers = self.ui_updater, self.ui_drawer
         MenuRotate.containers = self.ui_updater, self.ui_drawer
@@ -351,23 +351,22 @@ class Game:
         if self.use_easy_text:
             CharacterSpeechBox.simple_font = True
 
-        base_button_image_list = load_base_button(self.data_dir, self.screen_scale)
-
         BrownMenuButton.button_frame = load_image(self.game.data_dir, (1, 1),
                                                   "new_button.png", ("ui", "mainmenu_ui"))
-        main_menu_buttons_box = BoxUI((1600 * self.screen_scale[0], 300 * self.screen_scale[1]), parent=self.screen)
+        main_menu_buttons_box = BoxUI((0, -12),
+                                      (self.screen_width, 100 * self.screen_scale[1]), parent=self.screen)
 
-        self.test_battle_button = BrownMenuButton((-2, 1), key_name="main_menu_test_battle",
-                                           parent=main_menu_buttons_box)
-        self.custom_battle_button = BrownMenuButton((-0.75, 1), key_name="main_menu_custom_game",
+        self.test_battle_button = BrownMenuButton((.15, 1), (-0.7, 0), key_name="main_menu_test_battle",
+                                                  parent=main_menu_buttons_box)
+        self.custom_battle_button = BrownMenuButton((.15, 1), (-0.25, 0), key_name="main_menu_custom_game",
                                                     parent=main_menu_buttons_box)
-        self.option_button = BrownMenuButton((0.75, 1), key_name="game_option",
+        self.option_button = BrownMenuButton((.15, 1), (0.25, 0), key_name="game_option",
                                              parent=main_menu_buttons_box)
-        self.quit_button = BrownMenuButton((2, 1), key_name="game_quit",
+        self.quit_button = BrownMenuButton((.15, 1), (0.7, 0), key_name="game_quit",
                                            parent=main_menu_buttons_box)
 
-        self.mainmenu_button = (self.custom_battle_button, self.test_battle_button,
-                                self.option_button, self.quit_button)
+        self.main_menu_buttons = (self.custom_battle_button, self.test_battle_button,
+                                  self.option_button, self.quit_button)
 
         # self.start_game_button = BrownMenuButton((-2.4, 1), key_name="main_menu_start_game",
         #                                          parent=main_menu_buttons_box)
@@ -421,34 +420,32 @@ class Game:
         self.option_text_list = tuple(
             [self.resolution_text, self.fullscreen_text, self.fps_text, self.easy_text, self.show_dmg_text] +
             [value for value in self.volume_texts.values()])
-        self.option_menu_button = (
+        self.option_menu_buttons = (
             self.back_button, self.default_button, self.keybind_button, self.resolution_drop,
             self.fullscreen_box, self.fps_box, self.easy_text_box, self.show_dmg_box)
 
         # Grand strategy select menu button
-        self.setup_back_button = BrownMenuButton((-2, 1.8),
+        self.setup_back_button = BrownMenuButton((.15, 1), (-0.6, 0),
                                                  key_name="back_button", parent=main_menu_buttons_box)
-        self.grand_setup_start_battle_button = BrownMenuButton((2, 1.8), key_name="start_button",
-                                                               parent=main_menu_buttons_box)
+        self.grand_setup_confirm_battle_button = BrownMenuButton((.15, 1), (0.6, 0), key_name="start_button",
+                                                                 parent=main_menu_buttons_box)
         self.grand_menu_buttons = (self.setup_back_button,
-                                   self.grand_setup_start_battle_button)
+                                   self.grand_setup_confirm_battle_button)
 
         # Custom battle select menu button
-        self.custom_battle_setup_start_battle_button = BrownMenuButton((2, 1.8), key_name="start_button",
+        self.custom_battle_setup_start_battle_button = BrownMenuButton((.15, 1), (0.6, 0), key_name="start_button",
                                                                        parent=main_menu_buttons_box)
-
+        self.custom_battle_preset_button = BrownMenuButton((.15, 1), (0, 0), key_name="custom_preset_button",
+                                                           parent=main_menu_buttons_box)
         # self.char_interface_text_popup = {index: TextPopup() for index in range(1, 3)}
-        #
-        # self.player_char_selectors = {
-        #     1: CharacterSelector((self.screen_width / 12, self.screen_height / 3.5), self.char_selector_images),
-        #     2: CharacterSelector((self.screen_width / 1.8, self.screen_height / 3.5), self.char_selector_images)}
+
         # self.player_char_interfaces = {index: CharacterInterface((self.player_char_selectors[index].rect.topleft[0],
         #                                                           self.player_char_selectors[index].rect.topleft[1] -
         #                                                           (60 * self.screen_scale[1])),
         #                                                          index, self.char_interface_text_popup[index]) for index
         #                                in range(1, 3)}
-        #
-        self.custom_battle_menu_buttons = (self.setup_back_button,
+
+        self.custom_battle_menu_buttons = (self.setup_back_button, self.custom_battle_preset_button,
                                            self.custom_battle_setup_start_battle_button)
 
         self.custom_team1_army = Army({}, [], [])
@@ -459,18 +456,26 @@ class Game:
         self.custom_team1_garrison_army = GarrisonArmy({}, [], [])
         self.custom_team2_garrison_army = GarrisonArmy({}, [], [])
 
+        self.preset_back_button = BrownMenuButton((.15, 1), (-2, 1),
+                                                 key_name="back_button", parent=main_menu_buttons_box)
+        self.preset_save_button = BrownMenuButton((.15, 1), (2, 1), key_name="save_button",
+                                                               parent=main_menu_buttons_box)
+
+        self.custom_preset_menu_buttons = (self.setup_back_button,
+                                           self.custom_battle_setup_start_battle_button)
+
         # User input popup ui
-        input_ui_dict = self.make_input_box(base_button_image_list)
+        input_ui_dict = self.make_input_box()
         self.input_ui = input_ui_dict["input_ui"]
         self.input_ok_button = input_ui_dict["input_ok_button"]
         self.input_close_button = input_ui_dict["input_close_button"]
         self.input_cancel_button = input_ui_dict["input_cancel_button"]
         self.input_box = input_ui_dict["input_box"]
-        self.input_ui_popup = (self.input_ok_button, self.input_cancel_button, self.input_ui, self.input_box)
-        self.confirm_ui_popup = (self.input_ok_button, self.input_cancel_button, self.input_ui)
-        self.inform_ui_popup = (self.input_close_button, self.input_ui, self.input_box)
-        self.all_input_ui_popup = (self.input_ok_button, self.input_cancel_button, self.input_close_button,
-                                   self.input_ui, self.input_box)
+        self.input_popup_uis = (self.input_ok_button, self.input_cancel_button, self.input_ui, self.input_box)
+        self.confirm_popup_uis = (self.input_ok_button, self.input_cancel_button, self.input_ui)
+        self.inform_popup_uis = (self.input_close_button, self.input_ui, self.input_box)
+        self.all_input_popup_uis = (self.input_ok_button, self.input_cancel_button, self.input_close_button,
+                                    self.input_ui, self.input_box)
 
         # Encyclopedia interface
         # Lorebook.history_lore = self.localisation.create_lore_data("history")
@@ -526,7 +531,7 @@ class Game:
 
         self.dt = 0
         self.text_delay = 0
-        self.add_ui_updater(self.mainmenu_button)
+        self.add_ui_updater(self.main_menu_buttons)
 
         self.menu_state = "main_menu"
         self.input_popup = None  # popup for text input state
@@ -625,7 +630,7 @@ class Game:
             self.screen.blit(self.background, (0, 0))  # blit background over instead of clear() to reset screen
 
             if self.input_popup:  # currently, have input text pop up on screen, stop everything else until done
-                if self.input_ok_button.event_press or key_press[pygame.K_RETURN] or key_press[pygame.K_KP_ENTER]:
+                if self.input_ok_button.event or key_press[pygame.K_RETURN] or key_press[pygame.K_KP_ENTER]:
                     done = True
                     if "replace key" in self.input_popup[1]:  # swap between 2 keys
                         old_key = self.player_key_bind[self.input_popup[1][1]]
@@ -642,15 +647,15 @@ class Game:
 
                     if done:
                         self.change_pause_update(False)
-                        self.input_box.text_start("")
+                        self.input_box.render_text("")
                         self.input_popup = None
-                        self.remove_ui_updater(self.all_input_ui_popup)
+                        self.remove_ui_updater(self.all_input_popup_uis)
 
-                elif self.input_cancel_button.event_press or self.input_close_button.event_press or self.esc_press:
+                elif self.input_cancel_button.event or self.input_close_button.event or self.esc_press:
                     self.change_pause_update(False)
-                    self.input_box.text_start("")
+                    self.input_box.render_text("")
                     self.input_popup = None
-                    self.remove_ui_updater(self.all_input_ui_popup)
+                    self.remove_ui_updater(self.all_input_popup_uis)
 
                 elif self.input_popup[0] == "text_input":
                     if self.text_delay == 0:

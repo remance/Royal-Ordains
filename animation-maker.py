@@ -693,7 +693,7 @@ class NameBox(pygame.sprite.Sprite):
 
 class ColourWheel(pygame.sprite.Sprite):
     def __init__(self, image, pos):
-        self._layer = 30
+        self._layer = 50
         pygame.sprite.Sprite.__init__(self)
         self.image = image
         self.pos = pos
@@ -1748,13 +1748,13 @@ input_ui = InputUI(load_image(data_dir, screen_scale, "input_ui.png", ("ui", "ma
 
 image_list = load_base_button(data_dir, screen_scale)
 
-input_ok_button = MenuButton(image_list, pos=(input_ui.rect.midleft[0] + image_list[0].get_width(),
+input_ok_button = MenuButton(image_list, pos=(input_ui.rect.midright[0] - image_list[0].get_width(),
                                               input_ui.rect.midleft[1] + image_list[0].get_height()),
-                             key_name="confirm_button", layer=31)
+                             key_name="confirm_button", layer=41)
 input_cancel_button = MenuButton(image_list,
-                                 pos=(input_ui.rect.midright[0] - image_list[0].get_width(),
+                                 pos=(input_ui.rect.midleft[0] + image_list[0].get_width(),
                                       input_ui.rect.midright[1] + image_list[0].get_height()),
-                                 key_name="cancel_button", layer=31)
+                                 key_name="cancel_button", layer=41)
 input_button = (input_ok_button, input_cancel_button)
 input_box = InputBox(input_ui.rect.center, input_ui.image.get_width())  # user text input box
 
@@ -1772,13 +1772,13 @@ colour_wheel = ColourWheel(load_image(current_data_dir, screen_scale, "rgb.png",
 colour_input_box = InputBox((colour_ui.rect.center[0], colour_ui.rect.center[1] * 1.15),
                             input_ui.image.get_width())  # user text input box
 
-colour_ok_button = MenuButton(image_list, pos=(input_ui.rect.midleft[0] + image_list[0].get_width(),
+colour_ok_button = MenuButton(image_list, pos=(input_ui.rect.midright[0] - image_list[0].get_width(),
                                               input_ui.rect.midleft[1] + image_list[0].get_height()),
-                             key_name="confirm_button", layer=31)
+                             key_name="confirm_button", layer=41)
 colour_cancel_button = MenuButton(image_list,
-                                 pos=(input_ui.rect.midright[0] - image_list[0].get_width(),
+                                 pos=(input_ui.rect.midleft[0] + image_list[0].get_width(),
                                       input_ui.rect.midright[1] + image_list[0].get_height()),
-                                 key_name="cancel_button", layer=31)
+                                 key_name="cancel_button", layer=41)
 colour_ui_popup = (colour_ui, colour_wheel, colour_input_box, colour_ok_button, colour_cancel_button)
 
 box_img = load_image(current_data_dir, screen_scale, "property_box.png", "animation_maker_ui")
@@ -1915,8 +1915,8 @@ while True:
     ui.remove(text_popup)
 
     if text_delay > 0:
-        text_delay += ui_dt
-        if text_delay >= 0.3:
+        text_delay -= ui_dt
+        if text_delay < 0:
             text_delay = 0
 
     if input_ui not in ui and colour_ui not in ui:
@@ -2112,7 +2112,7 @@ while True:
                                 if name.name == "New Character":
                                     text_input_popup = ("text_input", "new_character")
                                     input_ui.change_instruction("Enter Name:")
-                                    input_box.text_start("")
+                                    input_box.render_text("")
                                     ui.add(input_ui_popup)
                                 elif animation_character != name.name:
                                     text_input_popup = ("confirm_input", "save_first", name.name)
@@ -2213,7 +2213,7 @@ while True:
                                         text_input_popup = ("text_input", "new_anim_prop")
                                         input_ui.change_instruction("Custom Property:")
                                         ui.add(input_ui_popup)
-                                    elif name.name[-1] == "_" or float_check(name.name.split("_")[-1]):
+                                    elif name.name[-1] == "_" or re.search("[a-zA-Z]", name.name.split("_")[-1]) is None:
                                         # property that need number value
                                         if not name.selected:
                                             if "colour" in name.name:
@@ -2466,7 +2466,7 @@ while True:
                     elif rename_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("text_input", "new_name")
                         input_ui.change_instruction("Rename Animation:")
-                        input_box.text_start(animation_name)
+                        input_box.render_text(animation_name)
                         ui.add(input_ui_popup)
 
                     elif duplicate_button.rect.collidepoint(mouse_pos):
@@ -2478,7 +2478,7 @@ while True:
                                 last_char = str(int(last_char) + 1)
                         elif "(copy" in animation_name and animation_name[-2].isdigit() and animation_name[-1] == ")":
                             last_char = str(int(animation_name[-2]) + 1)
-                        input_box.text_start(animation_name + "(copy" + last_char + ")")
+                        input_box.render_text(animation_name + "(copy" + last_char + ")")
 
                         ui.add(input_ui_popup)
 
@@ -2489,7 +2489,7 @@ while True:
                         for character in "'[]":
                             input_filter = input_filter.replace(character, "")
                         input_filter = input_filter.replace(", ", ",")
-                        input_box.text_start(input_filter)
+                        input_box.render_text(input_filter)
                         ui.add(input_ui_popup)
 
                     elif export_button.rect.collidepoint(mouse_pos):
@@ -2596,6 +2596,7 @@ while True:
                     elif new_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("text_input", "new_animation")
                         input_ui.change_instruction("New Animation Name:")
+                        input_box.render_text("")
                         ui.add(input_ui_popup)
 
                     elif save_button.rect.collidepoint(mouse_pos):
@@ -2621,6 +2622,7 @@ while True:
                     elif size_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("text_input", "change_size")
                         input_ui.change_instruction("Input Size Number:")
+                        input_box.render_text("")
                         ui.add(input_ui_popup)
 
                     elif animation_selector.rect.collidepoint(mouse_pos):
@@ -3036,14 +3038,14 @@ while True:
                 pygame.time.wait(1000)
                 pygame.quit()
 
-            input_box.text_start("")
+            input_box.render_text("")
             text_input_popup = (None, None)
             ui.remove(*input_ui_popup, *colour_ui_popup)
 
         elif colour_wheel in ui and mouse_left_up and colour_wheel.rect.collidepoint(mouse_pos):
             colour = str(colour_wheel.get_colour())
             colour = colour[1:-1]  # remove bracket ()
-            colour_input_box.text_start(colour[:colour.rfind(",")])  # keep only 3 first colour value not transparent
+            colour_input_box.render_text(colour[:colour.rfind(",")])  # keep only 3 first colour value not transparent
 
         elif (input_cancel_button in ui and input_cancel_button.event) or (
                 colour_cancel_button in ui and colour_cancel_button.event) or input_esc:
@@ -3051,7 +3053,7 @@ while True:
                 change_animation_character(text_input_popup[2])
             input_cancel_button.event = False
             colour_cancel_button.event = False
-            input_box.text_start("")
+            input_box.render_text("")
             text_input_popup = (None, None)
             ui.remove(*input_ui_popup, *confirm_ui_popup, *colour_ui_popup)
 

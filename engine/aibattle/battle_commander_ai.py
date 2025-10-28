@@ -28,7 +28,9 @@ class BattleCommanderAI:
             self.enemy_team = 2
         self.can_retreat = can_retreat
         self.commander = self.battle.team_commander[team]
+        self.enemy_commander = self.battle.team_commander[self.enemy_team]
         self.team_stat = self.battle.team_stat[team]
+        self.enemy_team_stat = self.battle.team_stat[self.enemy_team]
         self.strategy_list = self.battle.strategy_list
         self.last_grid = self.battle.last_grid
         self.air_group = self.team_stat["air_group"]
@@ -110,6 +112,9 @@ class BattleCommanderAI:
         if self.act_timer >= self.act_timer:
             self.act_timer -= self.act_timer
             self.conduct_plan()
+
+    def kill(self):
+        pass
 
     def clear(self):
         clean_object(self)

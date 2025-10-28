@@ -186,6 +186,19 @@ class CharacterData(GameData):
                 self.effect_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
         edit_file.close()
 
+        self.preset_list = {}
+        with open(os.path.join(self.data_dir, "character", "preset.csv"),
+                  encoding="utf-8", mode="r") as edit_file:
+            rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
+            header = rd[0]
+            dict_column = ("Group 1", "Group 2", "Group 3", "Group 4", "Group 5",)
+            dict_column = [index for index, item in enumerate(header) if item in dict_column]
+            for index, row in enumerate(rd[1:]):
+                for n, i in enumerate(row):
+                    row = stat_convert(row, n, i, dict_column=dict_column)
+                if row[0]:
+                    self.preset_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
+        edit_file.close()
 
 def final_parent_moveset(parent_move_data, move_key, move_data, parent_move_name, done_check, already_check):
     try:

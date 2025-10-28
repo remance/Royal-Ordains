@@ -21,7 +21,7 @@ def menu_option(self):
         self.remove_ui_updater(self.resolution_bar)
 
     if self.back_button.event or self.esc_press:  # back to start_set menu
-        self.remove_ui_updater(self.option_menu_button, self.option_text_list, self.option_menu_sliders.values(),
+        self.remove_ui_updater(self.option_menu_buttons, self.option_text_list, self.option_menu_sliders.values(),
                                self.value_boxes.values(), self.resolution_bar)
         self.back_mainmenu()
 
@@ -29,7 +29,7 @@ def menu_option(self):
         self.menu_state = "keybind"
 
         self.remove_ui_updater(*self.option_text_list, *self.option_menu_sliders.values(),
-                               *self.value_boxes.values(), self.option_menu_button)
+                               *self.value_boxes.values(), self.option_menu_buttons)
         self.add_ui_updater(*self.keybind_text.values(), *self.keybind_icon.values(),
                             self.back_button, self.default_button)
 

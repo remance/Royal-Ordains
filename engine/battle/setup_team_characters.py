@@ -13,7 +13,7 @@ def setup_team_characters(self, stage_data):
     for team, team_stat in self.team_stat.items():
         for army in (team_stat["main_army"], team_stat["garrison_army"]):
             if army:
-                for general_index, general in enumerate(army.generals):
+                for general_index, general in enumerate(army.group):
                     data = {"Start Health": general.start_health}
                     if self.team_stat[team]["start_pos"] == 0:
                         start_x = team_start_x_distance[general_index]
@@ -42,7 +42,7 @@ def setup_team_characters(self, stage_data):
                         self.character_command_indicator[general_index].setup(add_battle_char)
                     add_battle_char.general_object = general
                     self.last_char_game_id += 1
-                    for value in army.generals[general]:
+                    for value in army.group[general]:
                         add_followers(self, add_battle_char, value, data)
                     add_battle_char.reset_general_variables()
                 for squad in army.air_group:

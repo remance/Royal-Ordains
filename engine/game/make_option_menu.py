@@ -12,11 +12,11 @@ def make_option_menu(self, main_menu_buttons_box):
     keybind = self.player_key_bind_list
     font_size = int(64 * self.screen_scale[1])
 
-    back_button = BrownMenuButton((-2, 1), key_name="back_button",
+    back_button = BrownMenuButton((.15, 1), (-0.6, 0), key_name="back_button",
                                   parent=main_menu_buttons_box)
-    keybind_button = BrownMenuButton((0, 1), key_name="option_menu_keybind",
+    keybind_button = BrownMenuButton((.15, 1), (0, 0), key_name="option_menu_keybind",
                                      parent=main_menu_buttons_box)
-    default_button = BrownMenuButton((2, 1), key_name="option_menu_default",
+    default_button = BrownMenuButton((.15, 1), (0.6, 0), key_name="option_menu_default",
                                      parent=main_menu_buttons_box)
 
     fullscreen_box = TickBox((self.screen_rect.width / 3, self.screen_rect.height / 6.5),

@@ -266,7 +266,7 @@ class SliderMenu(UIMenu):
 
 class InputUI(UIMenu):
     def __init__(self, image, pos):
-        self._layer = 30
+        self._layer = 40
         UIMenu.__init__(self, player_cursor_interact=False)
 
         self.pos = pos
@@ -284,10 +284,12 @@ class InputUI(UIMenu):
 
 
 class InputBox(UIMenu):
-    def __init__(self, pos, width, text="", click_input=False):
-        UIMenu.__init__(self, player_cursor_interact=False)
-        self._layer = 31
+    def __init__(self, pos, width, text="", click_input=False, layer=41):
+        UIMenu.__init__(self)
+        self._layer = layer
         self.font = Font(self.ui_font["main_button"], int(60 * self.screen_scale[1]))
+        self.font_width = self.font.size("a")[0]
+        self.typer_image = self.font.render("|", True, (150, 80, 80))
         self.pos = pos
         self.image = Surface((width - 10, int(68 * self.screen_scale[1])))
         self.max_text = int((self.image.get_width() / int(60 * self.screen_scale[1])) * 2)
@@ -296,11 +298,15 @@ class InputBox(UIMenu):
         self.base_image = self.image.copy()
 
         self.text = text
-        text_surface = self.font.render(text, True, (30, 30, 30))
-        text_rect = text_surface.get_rect(center=(self.image.get_width() / 2, self.image.get_height() / 2))
-        self.image.blit(text_surface, text_rect)
+        self.text_surface = self.font.render(text, True, (30, 30, 30))
+        self.text_rect = self.text_surface.get_rect(center=(self.image.get_width() / 2, self.image.get_height() / 2))
+        self.base_text_surface = self.text_surface.copy()
+        self.image.blit(self.text_surface, self.text_rect)
         self.current_pos = 0
+        self.select_start_pos = None
+        self.select_end_pos = None
 
+        self.typer_tick = 0.2
         self.hold_key = 0
         self.hold_key_unicode = ""
 
@@ -312,20 +318,66 @@ class InputBox(UIMenu):
 
         self.rect = self.image.get_rect(center=self.pos)
 
-    def text_start(self, text):
+    def render_text(self, text, current_to_end_pos=True):
         """Add starting text to input box"""
-        self.image = self.base_image.copy()
         self.text = text
-        self.current_pos = len(self.text)  # start input at the end
-        show_text = self.text[:self.current_pos] + "|" + self.text[self.current_pos:]
-        text_surface = self.font.render(show_text, True, (30, 30, 30))
-        text_rect = text_surface.get_rect(center=(self.image.get_width() / 2, self.image.get_height() / 2))
-        self.image.blit(text_surface, text_rect)
+        if current_to_end_pos:
+            self.current_pos = len(self.text)  # start input at the end
+        show_text = self.text[:self.current_pos] + self.text[self.current_pos:]
+
+        if self.current_pos > self.max_text:
+            if self.current_pos + self.max_text > len(show_text):
+                show_text = show_text[len(show_text) - self.max_text:]
+            else:
+                show_text = show_text[self.current_pos:]
+        if show_text:
+            self.text_surface = self.font.render(show_text, True, (30, 30, 30))
+        else:  # prevent text surface being empty surface so it can be typer
+            self.text_surface = self.font.render(" ", True, (30, 30, 30))
+
+        self.typer_rect = self.typer_image.get_rect(midtop=(self.current_pos * self.font_width, 0))
+
+        self.text_rect = self.text_surface.get_rect(midleft=(0, self.image.get_height() / 2))
+        if self.select_end_pos is not None:
+            selected_add = Surface(((self.select_end_pos - self.select_start_pos) * self.font_width,
+                                    self.text_surface.get_height()), SRCALPHA)
+            selected_add.fill((100, 100, 100, 100))
+            selected_add_rect = selected_add.get_rect(midleft=(self.select_start_pos * self.font_width,
+                                                               self.text_surface.get_height() / 2))
+            self.text_surface.blit(selected_add, selected_add_rect)
+
+        self.base_text_surface = self.text_surface.copy()
+        self.image = self.base_image.copy()
+        self.text_surface.blit(self.typer_image, self.typer_rect)
+        self.image.blit(self.text_surface, self.text_rect)
+
+    def update(self):
+        if self.active:
+            UIMenu.update(self)
+            if self.event_press:
+                self.current_pos = 0
+                self.player_input(None, None)
+
+            if self.typer_tick > 0.1:
+                self.typer_tick += 1
+                if self.typer_tick > 15:
+                    self.typer_tick = -0.2
+                    self.image = self.base_image.copy()
+                    self.text_surface = self.base_text_surface.copy()
+                    self.text_surface.blit(self.typer_image, self.typer_rect)
+                    self.image.blit(self.text_surface, self.text_rect)
+
+            if self.typer_tick < -0.1:
+                self.typer_tick -= 1
+                if self.typer_tick < -15:
+                    self.typer_tick = 0.2
+                    self.image = self.base_image.copy()
+                    self.text_surface = self.base_text_surface.copy()
+                    self.image.blit(self.text_surface, self.text_rect)
 
     def player_input(self, input_event, key_press):
         """register user keyboard and mouse input"""
         if self.active:  # text input
-            self.image = self.base_image.copy()
             event = input_event
             event_key = None
             event_unicode = ""
@@ -336,49 +388,95 @@ class InputBox(UIMenu):
                 self.hold_key_unicode = event_unicode
 
             if event_key == pygame.K_BACKSPACE or self.hold_key == pygame.K_BACKSPACE:
-                if self.current_pos > 0:
-                    if self.current_pos > len(self.text):
-                        self.text = self.text[:-1]
-                    else:
-                        self.text = self.text[:self.current_pos - 1] + self.text[self.current_pos:]
-                    self.current_pos -= 1
-                    if self.current_pos < 0:
-                        self.current_pos = 0
+                if self.select_start_pos is None:
+                    if self.current_pos > 0:
+                        if self.current_pos > len(self.text):  # at the last character
+                            self.text = self.text[:-1]
+                        else:  # delete between text
+                            self.text = self.text[:self.current_pos - 1] + self.text[self.current_pos:]
+                        self.current_pos -= 1
+                        if self.current_pos < 0:
+                            self.current_pos = 0
+                else:
+                    self.text = self.text[:self.select_start_pos] + self.text[self.select_end_pos:]
+                    self.current_pos = self.select_start_pos
+                    self.select_start_pos = None
+                    self.select_end_pos = None
             elif event_key == pygame.K_RETURN or event_key == pygame.K_KP_ENTER:  # use external code instead for enter press
                 pass
             elif event_key == pygame.K_RIGHT or self.hold_key == pygame.K_RIGHT:
-                self.current_pos += 1
-                if self.current_pos > len(self.text):
-                    self.current_pos = len(self.text)
+                if self.current_pos < len(self.text):
+                    if key_press[pygame.K_LSHIFT] or key_press[pygame.K_RSHIFT]:
+                        if self.select_start_pos is None:  # start select text
+                            self.select_start_pos = self.current_pos
+                            self.select_end_pos = self.select_start_pos + 1
+                        else:
+                            if self.current_pos < self.select_end_pos:
+                                self.select_start_pos += 1
+                                if self.select_start_pos == self.select_end_pos:
+                                    self.select_start_pos = None
+                                    self.select_end_pos = None
+                            else:
+                                self.select_end_pos += 1
+                        if self.current_pos > len(self.text):
+                            self.select_end_pos = len(self.text)
+                    else:
+                        self.select_start_pos = None
+                        self.select_end_pos = None
+                    self.current_pos += 1
             elif event_key == pygame.K_LEFT or self.hold_key == pygame.K_LEFT:
-                self.current_pos -= 1
-                if self.current_pos < 0:
-                    self.current_pos = 0
-            elif key_press[pygame.K_LCTRL] or key_press[pygame.K_RCTRL]:
+                if self.current_pos - 1 >= 0:
+                    if key_press[pygame.K_LSHIFT] or key_press[pygame.K_RSHIFT]:
+                        if self.select_end_pos is None:  # start select text
+                            self.select_end_pos = self.current_pos
+                            self.select_start_pos = self.select_end_pos - 1
+                        else:
+                            if self.current_pos > self.select_start_pos:
+                                self.select_end_pos -= 1
+                                if self.select_start_pos == self.select_end_pos:
+                                    self.select_start_pos = None
+                                    self.select_end_pos = None
+                            else:
+                                self.select_start_pos -= 1
+                        if self.current_pos < 0:
+                            self.select_start_pos = 0
+                    else:
+                        self.select_start_pos = None
+                        self.select_end_pos = None
+                    self.current_pos -= 1
+
+            elif key_press and (key_press[pygame.K_LCTRL] or key_press[pygame.K_RCTRL]):
                 # use keypress for ctrl as is has no effect on its own
                 if event_key == pygame.K_c:
-                    pyperclip.copy(self.text)
+                    pyperclip.copy(self.text[self.select_start_pos:self.select_end_pos])
                 elif event_key == pygame.K_v:
                     paste_text = pyperclip.paste()
-                    self.text = self.text[:self.current_pos] + paste_text + self.text[self.current_pos:]
-                    self.current_pos = self.current_pos + len(paste_text)
+                    if self.select_start_pos is None:
+                        self.text = self.text[:self.current_pos] + paste_text + self.text[self.current_pos:]
+                        self.current_pos = self.current_pos + len(paste_text)
+                    else:
+                        self.text = self.text[:self.select_start_pos] + paste_text + self.text[self.select_end_pos:]
+                        self.current_pos = self.select_start_pos + len(paste_text)
+                        self.select_start_pos = None
+                        self.select_end_pos = None
+
             elif event_unicode != "" or self.hold_key_unicode != "":
                 if event_unicode != "":  # input event_unicode first before holding one
                     input_unicode = event_unicode
                 elif self.hold_key_unicode != "":
                     input_unicode = self.hold_key_unicode
-                self.text = self.text[:self.current_pos] + input_unicode + self.text[self.current_pos:]
-                self.current_pos += 1
-            # Re-render the text
-            show_text = self.text[:self.current_pos] + "|" + self.text[self.current_pos:]
-            if self.current_pos > self.max_text:
-                if self.current_pos + self.max_text > len(show_text):
-                    show_text = show_text[len(show_text) - self.max_text:]
+
+                if self.select_start_pos is None:
+                    self.text = self.text[:self.current_pos] + input_unicode + self.text[self.current_pos:]
+                    self.current_pos += 1
                 else:
-                    show_text = show_text[self.current_pos:]
-            text_surface = self.font.render(show_text, True, (30, 30, 30))
-            text_rect = text_surface.get_rect(midleft=(0, self.image.get_height() / 2))
-            self.image.blit(text_surface, text_rect)
+                    self.text = self.text[:self.select_start_pos] + input_unicode + self.text[self.select_end_pos:]
+                    self.current_pos = self.select_start_pos + 1
+                    self.select_start_pos = None
+                    self.select_end_pos = None
+
+            # Re-render the text
+            self.render_text(self.text, current_to_end_pos=False)
 
 
 class TextBox(UIMenu):
@@ -534,11 +632,19 @@ class Containable:
 class BrownMenuButton(UIMenu, Containable):  # NOTE: the button is not brown anymore, it is white/yellow
     button_frame = None
 
-    def __init__(self, pos, key_name="", parent=None):
-        self._layer = 100
-        UIMenu.__init__(self)
-        self.pos = pos
+    def __init__(self, size, pos, key_name, parent):
+        """
+        Create dynamic button
+        @param size: tuple of relative size to parent
+        @param pos: relative position inside parent surface
+        @param key_name: localisation key name for ui
+        @param parent: parent sprite object
+        """
         self.parent = parent
+        self._layer = parent.layer + 10000
+        UIMenu.__init__(self)
+        self.size = size
+        self.pos = pos
         self.key_name = key_name
         self.rect = self.get_adjusted_rect_to_be_inside_container(self.parent)
         self.mouse_over = False
@@ -560,7 +666,7 @@ class BrownMenuButton(UIMenu, Containable):  # NOTE: the button is not brown any
         return normal_button, hover_button
 
     def get_relative_size_inside_container(self):
-        return (.5, .1)
+        return self.size
 
     def refresh(self):
         self.image = self.images[0]
@@ -614,23 +720,6 @@ class OptionMenuText(UIMenu):
         self.rect = self.image.get_rect(center=(self.pos[0] - (self.image.get_width() / 2), self.pos[1]))
 
 
-class CharacterSelector(UIMenu):
-    def __init__(self, pos, images):
-        UIMenu.__init__(self, player_cursor_interact=False)
-        self.pos = pos
-        self.images = images
-        self.mode = "empty"
-        self.image = self.images[self.mode]
-        self.rect = self.image.get_rect(topleft=self.pos)
-
-    def change_mode(self, mode, delay=True):
-        if mode != "ready":
-            self.image = self.images["empty"]
-        else:
-            self.image = self.images["ready"]
-        self.mode = mode
-
-
 # class RewardInterface(UIMenu):
 #     def __init__(self, pos, base_image):
 #         self.header_font = Font(self.ui_font["main_button"], int(36 * self.screen_scale[1]))
@@ -680,140 +769,52 @@ class CharacterSelector(UIMenu):
 #             index += 1
 
 
-class CharacterInterface(UIMenu):
+class PresetSelectInterface(UIMenu):
     base_image = None
 
-    def __init__(self, pos, player, text_popup):
+    def __init__(self, pos, text_popup):
         UIMenu.__init__(self)
         self.header_font = Font(self.ui_font["main_button"], int(36 * self.screen_scale[1]))
         self.font = Font(self.ui_font["main_button"], int(22 * self.screen_scale[1]))
         self.small_font = Font(self.ui_font["main_button"], int(18 * self.screen_scale[1]))
-        self.current_select = 0
+        self.current_select_rect = None
         self.input_delay = 0
         self.pos = pos
-        self.player = player
-        self.mode = "empty"
         self.text_popup = text_popup
 
+        self.all_preset_list = []
+        self.shown_preset_list = []
         self.portrait_list_rects = {}
 
-        guard_button = pygame.key.name(self.game.player_key_bind_list["Guard"])
+        self.base_image = Surface((1000 * self.screen_scale[0], 1000 * self.screen_scale[1]), SRCALPHA)
+        self.base_image.fill((0, 0, 0, 170))
 
-        text_surface = text_render_with_bg(self.localisation.grab_text(("ui", "press")) + " " + guard_button + " " +
-                                           self.localisation.grab_text(("ui", "help")),
-                                           self.font, Color("black"))
-
-        button_image = self.game.battle_ui_images["button_guard"]
-        helper_image = Surface((button_image.get_width() + (5 * self.screen_scale[0]) +
-                                text_surface.get_width(), button_image.get_height()), SRCALPHA)
-        text_rect = text_surface.get_rect(topright=(helper_image.get_width(), 0))
-        helper_image.blit(text_surface, text_rect)
-        button_rect = button_image.get_rect(topleft=(0, 0))
-        helper_image.blit(button_image, button_rect)
-        helper_image_rect = helper_image.get_rect(topleft=(0, 680 * self.screen_scale[1]))
-        self.base_image = Surface((800 * self.screen_scale[0], 750 * self.screen_scale[1]), SRCALPHA)
-        self.base_image.blit(helper_image, helper_image_rect)
-
-        text_surface = text_render_with_bg(self.localisation.grab_text(("ui", "Player")) + str(self.player) + ": ",
-                                           self.header_font, Color("black"))
-        text_rect = text_surface.get_rect(topleft=(0, 0))
-        self.base_image.blit(text_surface, text_rect)
         self.image = self.base_image.copy()
 
         self.rect = self.image.get_rect(topleft=self.pos)
-        self.change_mode("empty")
-
-    def remake(self):
-        if self.game.config["USER"]["control player " + str(self.player)] == "joystick":
-            name_list = self.game.joystick_bind_name[self.game.joystick_name[self.game.player_joystick[self.player]]]
-            guard_button = self.game.player_key_bind_list[self.player]["joystick"]["Guard"]
-            guard_button = name_list[guard_button]
-        else:
-            guard_button = pygame.key.name(self.game.player_key_bind_list[self.player]["keyboard"]["Guard"])
-
-        text_surface = text_render_with_bg(self.localisation.grab_text(("ui", "press")) + " " + guard_button + " " +
-                                           self.localisation.grab_text(("ui", "help")),
-                                           self.font, Color("black"))
-
-        button_image = self.game.battle_ui_images["button_guard"]
-        helper_image = Surface((button_image.get_width() + (5 * self.screen_scale[0]) +
-                                text_surface.get_width(), button_image.get_height()), SRCALPHA)
-        text_rect = text_surface.get_rect(topright=(helper_image.get_width(), 0))
-        helper_image.blit(text_surface, text_rect)
-        button_rect = button_image.get_rect(topleft=(0, 0))
-        helper_image.blit(button_image, button_rect)
-        helper_image_rect = helper_image.get_rect(topleft=(0, 680 * self.screen_scale[1]))
-        self.base_image = Surface((800 * self.screen_scale[0], 750 * self.screen_scale[1]), SRCALPHA)
-        self.base_image.blit(helper_image, helper_image_rect)
-
-        text_surface = text_render_with_bg(self.localisation.grab_text(("ui", "Player")) + str(self.player) + ": ",
-                                           self.header_font, Color("black"))
-        text_rect = text_surface.get_rect(topleft=(0, 0))
-        self.base_image.blit(text_surface, text_rect)
-        self.image = self.base_image.copy()
-        self.change_mode("empty")
 
     def update(self):
+        UIMenu.update(self)
         if self.input_delay > 0:
             self.input_delay -= self.game.true_dt
             if self.input_delay < 0:
                 self.input_delay = 0
 
-    def change_portrait_list(self):
-        self.input_delay = 0.15
-        self.image = self.base_image.copy()
-        current_list = {"character": self.character_list, "followers": self.followers_list}[self.mode]
-        if self.current_select == -1:
-            self.current_select = len(current_list) - 1
-        elif self.current_select < 0:
-            self.current_select += (int(len(current_list) / 4) * 4) + 4
-        elif self.current_select == len(current_list):
-            self.current_select = 0
-        elif self.current_select > len(current_list):
-            self.current_select -= (int(len(current_list) / 4) * 4) + 4
-        if self.mode == "character":
-            self.make_character_list()
-            if self.character_list[self.current_select] in self.game.save_data.save_profile["new"]["character"]:
-                self.game.save_data.save_profile["new"]["character"].remove(self.character_list[self.current_select])
-        else:
-            self.make_followers_list()
-            if self.followers_list[self.current_select] in self.game.save_data.save_profile["new"]["followers"]:
-                self.game.save_data.save_profile["new"]["followers"].remove(self.followers_list[self.current_select])
-
-    def change_mode(self, mode):
-        self.input_delay = 0.3
-        self.mode = mode
-        self.current_select = 0
-        self.game.remove_ui_updater(self.text_popup)
-        self.image = self.base_image.copy()
-        if self.mode == "character":
-            self.make_character_list()
-        elif self.mode == "empty":
-            weak_button = pygame.key.name(self.game.player_key_bind_list["Confirm"])
-
-            text_surface = text_render_with_bg(self.localisation.grab_text(("ui", "press")) + " " + weak_button + " " +
-                                               self.localisation.grab_text(("ui", "to_join")),
-                                               self.header_font, Color("black"))
-            text_rect = text_surface.get_rect(topleft=(150 * self.screen_scale[0], 0))
-            self.image.blit(text_surface, text_rect)
-        elif self.mode == "followers":
-            self.make_followers_list()
-
-    def make_character_list(self):
-        self.character_list = [item for item in self.game.save_data.save_profile["favourite"]["character"]]
-        self.character_list += [item for item in self.game.start_playable_character if item not in self.character_list]
-        self.character_list += [item for item in self.game.save_data.save_profile["unlock"]["character"] if
-                                item not in self.character_list]
+    def make_preset_list(self):
+        self.current_select_rect = None
+        self.preset_list = [item for item in self.game.save_data.save_profile["favourite"]["character"]]
+        self.preset_list += [item for item in self.game.save_data.save_profile["unlock"]["character"] if
+                                item not in self.preset_list]
         self.portrait_list_rects = {}
         start = 0
         max_number = 12
-        if len(self.character_list) < max_number:
-            max_number = len(self.character_list)
+        if len(self.preset_list) < max_number:
+            max_number = len(self.preset_list)
         elif self.current_select > 11:
             start = int(self.current_select / 4) * 4
             max_number = start + 12
-            if len(self.character_list) < max_number:
-                max_number = len(self.character_list)
+            if len(self.preset_list) < max_number:
+                max_number = len(self.preset_list)
         true_count = 0
         count = 0
         start_x = 20 * self.screen_scale[0]
@@ -822,14 +823,11 @@ class CharacterInterface(UIMenu):
         y = start_y
         for number in range(start, max_number):
             self.portrait_list_rects[true_count] = self.game.sprite_data.character_portraits[
-                self.character_list[number]].get_rect(topleft=(x, y))
+                self.preset_list[number]].get_rect(topleft=(x, y))
             if number == self.current_select:
                 draw.circle(self.image, (140, 140, 220), self.portrait_list_rects[true_count].center,
                             90 * self.screen_scale[0])
-            elif self.character_list[number] in self.game.save_data.save_profile["favourite"][self.player]["character"]:
-                draw.circle(self.image, (220, 140, 140), self.portrait_list_rects[true_count].center,
-                            90 * self.screen_scale[0])
-            self.image.blit(self.game.sprite_data.character_portraits[self.character_list[number]],
+            self.image.blit(self.game.sprite_data.character_portraits[self.preset_list[number]],
                             self.portrait_list_rects[number])
             count += 1
             true_count += 1
@@ -839,12 +837,12 @@ class CharacterInterface(UIMenu):
                 y += 180 * self.screen_scale[1]
                 count = 0
 
-        text_surface = text_render_with_bg(self.localisation.grab_text(("character",
-                                                                        self.character_list[self.current_select],
-                                                                        "Name")),
-                                           self.header_font, Color("black"))
-        text_rect = text_surface.get_rect(topleft=(150 * self.screen_scale[0], 0))
-        self.image.blit(text_surface, text_rect)
+            text_surface = text_render_with_bg(self.localisation.grab_text(("character",
+                                                                            self.preset_list[self.current_select],
+                                                                            "Name")),
+                                               self.header_font, Color("black"))
+            text_rect = text_surface.get_rect(topleft=(150 * self.screen_scale[0], 0))
+            self.image.blit(text_surface, text_rect)
 
     def add_remove_text_popup(self):
         if self.text_popup not in self.game.ui_updater:
@@ -1399,24 +1397,39 @@ class TextPopup(UIMenu):
 
 
 class BoxUI(UIMenu, Containable, Container):
-
-    def __init__(self, size, parent):
+    def __init__(self, pos, size, parent, layer=-1):
+        self._layer = layer
         UIMenu.__init__(self, player_cursor_interact=False)
+        self.font = Font(self.ui_font["main_button"], int(120 * self.screen_scale[1]))
+        self.black_border_size = 6 * self.screen_scale[0]
+        self.black_border_size_x2 = self.black_border_size * 2
+        self.black_border_size_x4 = self.black_border_size * 4
         self.parent = parent
         self.size = size
-        self._layer = -1
-        self.pos = (0, 0)
+        self.pos = pos
         self.rect = self.get_adjusted_rect_to_be_inside_container(self.parent)
         self.image = Surface(self.rect[2:], SRCALPHA)
-        # self.image.fill("#302d2ce0")
+        self.image.fill((0, 0, 0))
+        self.image.fill((200, 180, 150), (self.black_border_size,
+                                         self.black_border_size,
+                                         self.image.get_width() - self.black_border_size_x2,
+                                         self.image.get_height() - self.black_border_size_x2
+                                         ))
 
-    def update(self):
-        self.rect = self.get_adjusted_rect_to_be_inside_container(self.parent)
-        self.image = Surface(self.rect[2:], SRCALPHA)
-        # self.image.fill("#bbbbaabb")
+    def change_instruction(self, text):
+        self.image.fill((0, 0, 0))
+        self.image.fill((200, 180, 150), (self.black_border_size,
+                                         self.black_border_size,
+                                         self.image.get_width() - self.black_border_size_x2,
+                                         self.image.get_height() - self.black_border_size_x2
+                                         ))
+
+        text_surface = text_render_with_bg(text, self.font)
+        text_rect = text_surface.get_rect(center=(self.image.get_width() / 2, self.image.get_height() / 4))
+        self.image.blit(text_surface, text_rect)
 
     def get_relative_size_inside_container(self):
-        return (0.3, 0.5)
+        return self.size[0] / self.parent.get_width(), self.size[1] / self.parent.get_height()
 
     def get_relative_position_inside_container(self):
         return {

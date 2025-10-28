@@ -538,7 +538,9 @@ class BattleHelper(UIBattle):
 
         if self.weather != self.battle.current_weather.weather_now:
             self.weather = self.battle.current_weather.weather_now
-            icon_image = self.weather_icon_images[self.weather]
+            icon_image = self.weather_icon_images[self.weather.split("_")[0]].copy()
+            strength_text = text_render_with_bg(str(int(self.weather.split("_")[1]) + 1), self.font)
+            icon_image.blit(strength_text, strength_text.get_rect(bottomright=icon_image.get_size()))
             icon_rect = icon_image.get_rect(topleft=(0, self.base_battle_scale_image_height))
             self.image.blit(icon_image, icon_rect)
 
