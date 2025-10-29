@@ -6,7 +6,7 @@ def menu_main(self):
         self.menu_state = "custom"
         self.background = self.background_image["empty_background"]
         self.remove_ui_updater(self.main_menu_buttons, self.main_menu_actor)
-        self.add_ui_updater(self.custom_battle_menu_buttons)
+        self.add_ui_updater(self.custom_battle_menu_uis)
         pass
 
     elif self.test_battle_button.event:

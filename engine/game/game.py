@@ -26,8 +26,8 @@ from engine.stageobject.stageobject import StageObject
 from engine.uibattle.uibattle import (Profiler, FPSCount, DamageNumber, CharacterSpeechBox,
                                       CharacterGeneralIndicator, CharacterCommandIndicator)
 from engine.uimenu.uimenu import (OptionMenuText, SliderMenu, MenuCursor, BoxUI, BrownMenuButton,
-                                  TextPopup, PresetSelectInterface,
-                                  MapTitle, ListUI, CampaignListAdapter)
+                                  TextPopup, PresetSelectInterface, FactionSelector, CustomArmySetupUI,
+                                  MapTitle, ListUI, CustomPresetListAdapter)
 from engine.updater.updater import ReversedLayeredUpdates
 from engine.utils.common import cutscene_update
 from engine.utils.data_loading import load_image, load_images, csv_read, load_base_button
@@ -45,6 +45,7 @@ from engine.game.loading_screen import loading_screen
 from engine.game.make_input_box import make_input_box
 from engine.game.make_lorebook import make_lorebook
 from engine.game.make_option_menu import make_option_menu
+from engine.game.menu_custom_preset import menu_custom_preset
 from engine.game.menu_custom_setup import menu_custom_setup
 from engine.game.menu_keybind import menu_keybind
 from engine.game.menu_main import menu_main
@@ -89,6 +90,7 @@ class Game:
     make_input_box = make_input_box
     make_lorebook = make_lorebook
     make_option_menu = make_option_menu
+    menu_custom_preset = menu_custom_preset
     menu_custom_setup = menu_custom_setup
     menu_keybind = menu_keybind
     menu_main = menu_main
@@ -383,15 +385,14 @@ class Game:
         #                         self.lore_button, self.option_button, self.quit_button)
 
         # Battle map select menu button
+        self.faction_selector = FactionSelector((self.screen_width / 2, self.screen_height * 0.05))
         self.map_title = MapTitle((self.screen_rect.width / 2, 0))
-        self.preset_map_list_box = ListUI(pivot=(-0.9, -0.9), origin=(-1, -1), size=(.2, .8),
-                                          items=CampaignListAdapter(),
-                                          parent=self.screen, item_size=20)
 
         # self.map_preview = MapPreview(self.preset_map_list_box.rect.topright)
 
         # UIScroll(self.unit_selector, self.unit_selector.rect.topright)  # scroll bar for character pick
 
+        self.text_popup = TextPopup(font_size=50)
         self.loading_lore_text_popup = TextPopup(font_size=70)
         self.loading_lore_text = ""
 
@@ -429,14 +430,16 @@ class Game:
                                                  key_name="back_button", parent=main_menu_buttons_box)
         self.grand_setup_confirm_battle_button = BrownMenuButton((.15, 1), (0.6, 0), key_name="start_button",
                                                                  parent=main_menu_buttons_box)
-        self.grand_menu_buttons = (self.setup_back_button,
-                                   self.grand_setup_confirm_battle_button)
+        self.grand_menu_uis = (self.setup_back_button,
+                               self.grand_setup_confirm_battle_button)
 
         # Custom battle select menu button
         self.custom_battle_setup_start_battle_button = BrownMenuButton((.15, 1), (0.6, 0), key_name="start_button",
                                                                        parent=main_menu_buttons_box)
         self.custom_battle_preset_button = BrownMenuButton((.15, 1), (0, 0), key_name="custom_preset_button",
                                                            parent=main_menu_buttons_box)
+
+
         # self.char_interface_text_popup = {index: TextPopup() for index in range(1, 3)}
 
         # self.player_char_interfaces = {index: CharacterInterface((self.player_char_selectors[index].rect.topleft[0],
@@ -445,8 +448,8 @@ class Game:
         #                                                          index, self.char_interface_text_popup[index]) for index
         #                                in range(1, 3)}
 
-        self.custom_battle_menu_buttons = (self.setup_back_button, self.custom_battle_preset_button,
-                                           self.custom_battle_setup_start_battle_button)
+        self.custom_battle_menu_uis = (self.setup_back_button, self.custom_battle_preset_button,
+                                       self.custom_battle_setup_start_battle_button)
 
         self.custom_team1_army = Army({}, [], [])
         self.custom_team2_army = Army({}, [], [])
@@ -456,13 +459,17 @@ class Game:
         self.custom_team1_garrison_army = GarrisonArmy({}, [], [])
         self.custom_team2_garrison_army = GarrisonArmy({}, [], [])
 
-        self.preset_back_button = BrownMenuButton((.15, 1), (-2, 1),
-                                                 key_name="back_button", parent=main_menu_buttons_box)
-        self.preset_save_button = BrownMenuButton((.15, 1), (2, 1), key_name="save_button",
-                                                               parent=main_menu_buttons_box)
+        self.preset_back_button = BrownMenuButton((.15, 1), (-0.2, 0),
+                                                  key_name="back_button", parent=main_menu_buttons_box)
+        self.preset_save_button = BrownMenuButton((.15, 1), (0.2, 0), key_name="save_button",
+                                                  parent=main_menu_buttons_box)
+        self.custom_preset_list_box = ListUI(pivot=(-0.95, -0.6), origin=(-1, -1), size=(0.2, 0.5),
+                                             items=CustomPresetListAdapter(),
+                                             parent=self.screen, item_size=20)
+        self.custom_army_setup = CustomArmySetupUI((self.screen_width * 0.6, self.screen_height * 0.2))
 
-        self.custom_preset_menu_buttons = (self.setup_back_button,
-                                           self.custom_battle_setup_start_battle_button)
+        self.custom_preset_menu_uis = (self.preset_back_button, self.preset_save_button, self.custom_preset_list_box,
+                                       self.faction_selector, self.custom_army_setup)
 
         # User input popup ui
         input_ui_dict = self.make_input_box()
@@ -471,11 +478,12 @@ class Game:
         self.input_close_button = input_ui_dict["input_close_button"]
         self.input_cancel_button = input_ui_dict["input_cancel_button"]
         self.input_box = input_ui_dict["input_box"]
+        self.static_input_box = input_ui_dict["static_input_box"]
         self.input_popup_uis = (self.input_ok_button, self.input_cancel_button, self.input_ui, self.input_box)
         self.confirm_popup_uis = (self.input_ok_button, self.input_cancel_button, self.input_ui)
-        self.inform_popup_uis = (self.input_close_button, self.input_ui, self.input_box)
+        self.inform_popup_uis = (self.input_close_button, self.input_ui, self.static_input_box)
         self.all_input_popup_uis = (self.input_ok_button, self.input_cancel_button, self.input_close_button,
-                                    self.input_ui, self.input_box)
+                                    self.input_ui, self.input_box, self.static_input_box)
 
         # Encyclopedia interface
         # Lorebook.history_lore = self.localisation.create_lore_data("history")
@@ -534,6 +542,10 @@ class Game:
         self.add_ui_updater(self.main_menu_buttons)
 
         self.menu_state = "main_menu"
+        self.menu_state_methods = {"main_menu": self.menu_main, "custom": self.menu_custom_setup,
+                                   "preset": self.menu_custom_preset, "option": self.menu_option,
+                                   "keybind": self.menu_keybind}
+
         self.input_popup = None  # popup for text input state
 
         self.loading_screen("end")
@@ -658,28 +670,19 @@ class Game:
                     self.remove_ui_updater(self.all_input_popup_uis)
 
                 elif self.input_popup[0] == "text_input":
-                    if self.text_delay == 0:
+                    if not self.text_delay:
                         if key_press[self.input_box.hold_key]:
                             self.input_box.player_input(None, key_press)
                             self.text_delay = 0.1
                     else:
-                        self.text_delay += self.dt
-                        if self.text_delay >= 0.3:
+                        self.text_delay -= self.dt
+                        if self.text_delay < 0:
                             self.text_delay = 0
 
-            elif not self.input_popup:
-                if self.menu_state == "main_menu":
-                    self.menu_main()
-
-                elif self.menu_state == "custom":
-                    self.menu_custom_setup()
-
-                elif self.menu_state == "option":
-                    self.menu_option()
-
-                elif self.menu_state == "keybind":
-                    self.menu_keybind()
+            else:
+                self.menu_state_methods[self.menu_state]()
 
             self.ui_drawer.draw(self.screen)
             display.update()
             self.clock.tick(1000)
+

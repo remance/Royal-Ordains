@@ -13,12 +13,8 @@ def change_keybind(self):
     self.player_key_hold = {key: False for key in self.player_key_bind}  # key that consider holding
     self.player_key_bind_button_name = self.get_keybind_button_name()
 
-    edit_config("USER", "control", self.config["USER"]["control"],
-                self.config_path, self.config)
     edit_config("USER", "keybind", self.config["USER"]["keybind"],
                 self.config_path, self.config)
 
     for key, value in self.keybind_icon.items():
-        value.change_key(self.config["USER"]["control"],
-                         self.player_key_bind_list[self.config["USER"]["control"]][key],
-                         None)
+        value.change_key(self.player_key_bind_list[key])

@@ -5,7 +5,7 @@ from pathlib import Path
 from pygame.transform import smoothscale, flip
 
 from engine.data.datastat import GameData
-from engine.utils.data_loading import load_image, filename_convert_readable as fcv
+from engine.utils.data_loading import load_images, filename_convert_readable as fcv
 from engine.utils.sprite_caching import load_pickle_with_surfaces
 
 
@@ -18,6 +18,7 @@ class SpriteData(GameData):
         self.character_animation_data = {}
         self.stage_object_animation_pool = {}
         self.character_portraits = {}
+        self.faction_coas = {}
         self.strategy_icons = {}
         self.effect_animation_pool = None
         self.stage_object_animation_pool = None
@@ -25,36 +26,33 @@ class SpriteData(GameData):
             join(self.data_dir, "animation", "effect_animation.xz"),
             screen_scale=self.screen_scale, battle_only=True, effect_sprite_adjust=True)
 
-        part_folder = Path(join(self.data_dir, "ui", "strategy_ui"))
-        for file in listdir(part_folder):
-            file_name = file.split(".")[0]
-            file_data_name = fcv(file_name)
-            my_file = Path(join(self.data_dir, "ui", "strategy_ui", file))
-            if my_file.is_file():
-                self.strategy_icons[file_data_name] = load_image(self.data_dir, self.screen_scale,
-                                                                 file,
-                                                                 subfolder=("ui", "strategy_ui"))
+        self.strategy_icons = load_images(self.data_dir, screen_scale=self.screen_scale,
+                                          subfolder=("ui", "strategy_ui"),
+                                          key_file_name_readable=True)
+        self.character_portraits = load_images(self.data_dir, screen_scale=self.screen_scale,
+                                               subfolder=("ui", "character_ui"),
+                                               key_file_name_readable=True)
+        for file in self.character_portraits:
+            self.character_portraits[file] = {"character_ui": self.character_portraits[file]}
+            mini_portrait = smoothscale(
+                self.character_portraits[file]["character_ui"], (170 * self.screen_scale[0],
+                                                                 170 * self.screen_scale[1]))
+            self.character_portraits[file]["tactical"] = {"right": mini_portrait,
+                                                          "left": flip(mini_portrait, True, False)}
 
-        part_folder = Path(join(self.data_dir, "ui", "character_ui"))
-        for file in listdir(part_folder):
-            file_name = file.split(".")[0]
-            file_data_name = fcv(file_name)
-            my_file = Path(join(self.data_dir, "ui", "character_ui", file))
-            if my_file.is_file():
-                self.character_portraits[file_data_name] = {"character_ui": load_image(self.data_dir, self.screen_scale,
-                                                                                       file,
-                                                                                       subfolder=("ui", "character_ui"))}
-                mini_portrait = smoothscale(
-                    self.character_portraits[file_data_name]["character_ui"], (170 * self.screen_scale[0],
-                                                                               170 * self.screen_scale[1]))
-                self.character_portraits[file_data_name]["tactical"] = {"right": mini_portrait,
-                                                                        "left": flip(mini_portrait, True, False)}
+            mini_portrait = smoothscale(
+                self.character_portraits[file]["character_ui"], (100 * self.screen_scale[0],
+                                                                 100 * self.screen_scale[1]))
+            self.character_portraits[file]["command"] = {"right": mini_portrait,
+                                                         "left": flip(mini_portrait, True, False)}
 
-                mini_portrait = smoothscale(
-                    self.character_portraits[file_data_name]["character_ui"], (100 * self.screen_scale[0],
-                                                                           100 * self.screen_scale[1]))
-                self.character_portraits[file_data_name]["command"] = {"right": mini_portrait,
-                                                                       "left": flip(mini_portrait, True, False)}
+        self.faction_coas = load_images(self.data_dir, screen_scale=self.screen_scale,
+                                        subfolder=("ui", "faction_ui"), key_file_name_readable=True)
+        for file in self.faction_coas:
+            self.faction_coas[file] = {"faction_ui": self.faction_coas[file]}
+            self.faction_coas[file]["mini"] = smoothscale(
+                self.faction_coas[file]["faction_ui"], (200 * self.screen_scale[0],
+                                                        200 * self.screen_scale[1]))
 
         # self.stage_object_animation_pool = load_pickle_with_surfaces(
         #     join(self.data_dir, "animation", "stage_object.xz"),

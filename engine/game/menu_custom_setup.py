@@ -1,9 +1,12 @@
 def menu_custom_setup(self):
     if self.setup_back_button.event or self.esc_press:  # back to start_set menu
-        self.background = self.background_image["background"]
-        self.add_ui_updater(self.main_menu_actor)
-        self.remove_ui_updater(self.custom_battle_menu_buttons)
+        self.remove_ui_updater(self.custom_battle_menu_uis)
         self.back_mainmenu()
+
+    elif self.custom_battle_preset_button.event:
+        self.menu_state = "preset"
+        self.add_ui_updater(self.custom_preset_menu_uis)
+        self.remove_ui_updater(self.custom_battle_menu_uis)
 
     elif self.custom_battle_setup_start_battle_button.event:
         pass

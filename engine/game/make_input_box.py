@@ -12,6 +12,8 @@ def make_input_box(self):
     input_cancel_button = BrownMenuButton((.25, 1), (-0.65, 0), key_name="cancel_button", parent=input_button_box)
 
     input_box = InputBox(input_ui.rect.center, input_ui.image.get_width(), layer=10001)  # user text input box
+    static_input_box = InputBox(input_ui.rect.center, input_ui.image.get_width(), layer=10001,
+                                text_input=False)  # text output box, no input
 
     return {"input_ui": input_ui, "input_ok_button": input_ok_button, "input_close_button": input_close_button,
-            "input_cancel_button": input_cancel_button, "input_box": input_box}
+            "input_cancel_button": input_cancel_button, "input_box": input_box, "static_input_box": static_input_box}

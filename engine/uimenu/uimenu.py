@@ -283,8 +283,142 @@ class InputUI(UIMenu):
         self.image.blit(text_surface, text_rect)
 
 
+class FactionSelector(UIMenu):
+    def __init__(self, pos):
+        UIMenu.__init__(self)
+        self.faction_coas = self.game.sprite_data.faction_coas
+        self.font = Font(self.ui_font["main_button"], int(60 * self.screen_scale[1]))
+        self.font_width = self.font.size("a")[0]
+        self.pos = pos
+        self.image = Surface((int(3800 * self.screen_scale[0]), int(300 * self.screen_scale[1])), SRCALPHA)
+        self.image.fill((100, 100, 100))
+        self.faction_coa_rects = {}
+        x = self.image.get_width() / 2
+        y = 50 * self.screen_scale[1]
+        rect_placement = sorted([(-220 * self.screen_scale[0]) * item for item in range(1, 8)] + [0] +
+                                [(220 * self.screen_scale[0]) * item for item in range(1, 8)],
+                                key=lambda x: abs(x))
+        x_index = 0
+        for faction, coa_dict in self.faction_coas.items():
+            coa = coa_dict["mini"]
+            x = (self.image.get_width() / 2) + rect_placement[x_index]
+            rect = coa.get_rect(midtop=(x, y))
+            self.image.blit(coa, rect)
+            self.faction_coa_rects[faction] = rect
+            x_index += 1
+            if x_index == len(rect_placement) - 1:
+                y = 220 * self.screen_scale[1]
+                x_index = 0
+        self.selected_faction = None
+
+        self.rect = self.image.get_rect(midtop=pos)
+        self.update_coa("Castle")
+
+    def update_coa(self, new_select):
+        for faction, rect in self.faction_coa_rects.items():
+            if faction == new_select:
+                coa = self.faction_coas[faction]["mini"].copy()
+                draw.circle(coa, (200, 200, 50),
+                            (coa.get_width() / 2, coa.get_height() / 2),
+                            (coa.get_width() / 2), width=int(12 * self.screen_scale[0]))
+                self.image.blit(coa, self.faction_coa_rects[faction])
+            elif faction == self.selected_faction:  # unselected old one
+                self.image.blit(self.faction_coas[faction]["mini"], self.faction_coa_rects[faction])
+        self.selected_faction = new_select
+
+    def update(self):
+        UIMenu.update(self)
+        if self.mouse_over:
+            inside_mouse_pos = pygame.Vector2(
+                (self.cursor.pos[0] - self.rect.topleft[0]),
+                (self.cursor.pos[1] - self.rect.topleft[1]))
+            for faction, rect in self.faction_coa_rects.items():
+                if rect.collidepoint(inside_mouse_pos):
+                    self.game.text_popup.popup(rect, faction)  # this rect only work if ui is at corner left of screen
+                    if self.event_press:
+                        self.update_coa(faction)
+
+
+class CustomArmySetupUI(UIMenu):
+    def __init__(self, pos):
+        UIMenu.__init__(self)
+        self.character_portraits = self.game.sprite_data.character_portraits
+        self.font = Font(self.ui_font["main_button"], int(60 * self.screen_scale[1]))
+        self.font_width = self.font.size("a")[0]
+        self.pos = pos
+        self.image = Surface((int(2800 * self.screen_scale[0]), int(1080 * self.screen_scale[1])), SRCALPHA)
+        self.image.fill((180, 100, 180))
+        self.portrait_rects = []
+        self.portrait_type_rects = {"general": {index: None for index in range(4)},
+                                    "unit": {index: None for index in range(16)},
+                                    "air": {index: None for index in range(4)}}
+
+        self.locked_circle = Surface((170 * self.screen_scale[0], 170 * self.screen_scale[1]), SRCALPHA)
+        draw.circle(self.locked_circle, (0, 0, 0),
+                    (self.locked_circle.get_width() / 2, self.locked_circle.get_height() / 2),
+                    (self.locked_circle.get_width() / 2))
+
+        self.circle = Surface((170 * self.screen_scale[0], 170 * self.screen_scale[1]), SRCALPHA)
+        draw.circle(self.circle, (255, 255, 255),
+                    (self.circle.get_width() / 2, self.circle.get_height() / 2),
+                    (self.circle.get_width() / 2))
+
+        for index in ((300, 150), (1000, 150), (1700, 150), (650, 650), (1350, 650)):
+            rect = self.circle.get_rect(center=(index[0] * self.screen_scale[0], index[1] * self.screen_scale[1]))
+            self.portrait_rects.append(rect)
+
+            self.image.blit(self.circle, rect)
+
+        # for index in [200 * index for index in range(16)]:
+        #     rect = self.locked_circle.get_rect(center=(index * self.screen_scale[0], 350 * self.screen_scale[1]))
+        #     self.portrait_rects.append(rect)
+        #
+        #     self.image.blit(self.locked_circle, rect)
+
+        # x_index = 0
+        # for faction, coa_dict in self.faction_coas.items():
+        #     coa = coa_dict["mini"]
+        #     x = (self.image.get_width() / 2) + rect_placement[x_index]
+        #     rect = coa.get_rect(midtop=(x, y))
+        #     self.image.blit(coa, rect)
+        #     self.faction_coa_rects[faction] = rect
+        #     x_index += 1
+        #     if x_index == len(rect_placement) - 1:
+        #         y = 220 * self.screen_scale[1]
+        #         x_index = 0
+        # self.selected_faction = None
+
+        self.rect = self.image.get_rect(midtop=pos)
+        # self.update_coa("Castle")
+
+    def update_coa(self, new_select):
+        for faction, rect in self.faction_coa_rects.items():
+            if faction == new_select:
+                coa = self.faction_coas[faction]["mini"].copy()
+                draw.circle(coa, (200, 200, 50),
+                            (coa.get_width() / 2, coa.get_height() / 2),
+                            (coa.get_width() / 2), width=int(12 * self.screen_scale[0]))
+                self.image.blit(coa, self.faction_coa_rects[faction])
+            elif faction == self.selected_faction:  # unselected old one
+                self.image.blit(self.faction_coas[faction]["mini"], self.faction_coa_rects[faction])
+        self.selected_faction = new_select
+
+    def update(self):
+        UIMenu.update(self)
+        if self.mouse_over:
+            inside_mouse_pos = pygame.Vector2(
+                (self.cursor.pos[0] - self.rect.topleft[0]),
+                (self.cursor.pos[1] - self.rect.topleft[1]))
+            # for faction, rect in self.faction_coa_rects.items():
+            #     if rect.collidepoint(inside_mouse_pos):
+            #         self.game.text_popup.popup(rect, faction)  # this rect only work if ui is at corner left of screen
+            #         if self.event_press:
+            #             print(faction)
+            #             self.update_coa(faction)
+
+
 class InputBox(UIMenu):
-    def __init__(self, pos, width, text="", click_input=False, layer=41):
+    def __init__(self, pos, width, text="", layer=41, text_input=True):
         UIMenu.__init__(self)
         self._layer = layer
         self.font = Font(self.ui_font["main_button"], int(60 * self.screen_scale[1]))
@@ -292,7 +426,7 @@ class InputBox(UIMenu):
         self.typer_image = self.font.render("|", True, (150, 80, 80))
         self.pos = pos
         self.image = Surface((width - 10, int(68 * self.screen_scale[1])))
-        self.max_text = int((self.image.get_width() / int(60 * self.screen_scale[1])) * 2)
+        self.max_text = int(self.image.get_width() / self.font_width)
         self.image.fill((220, 220, 220))
 
         self.base_image = self.image.copy()
@@ -305,16 +439,15 @@ class InputBox(UIMenu):
         self.current_pos = 0
         self.select_start_pos = None
         self.select_end_pos = None
+        self.text_input = text_input
 
         self.typer_tick = 0.2
+        self.typer_tick_limit = 15
+        if self.game:
+            self.typer_tick_limit = 0.5
+        self.typer_tick_limit_negative = -self.typer_tick_limit
         self.hold_key = 0
         self.hold_key_unicode = ""
-
-        self.active = True
-        self.click_input = False
-        if click_input:  # active only when click
-            self.active = False
-            self.click_input = click_input
 
         self.rect = self.image.get_rect(center=self.pos)
 
@@ -323,160 +456,169 @@ class InputBox(UIMenu):
         self.text = text
         if current_to_end_pos:
             self.current_pos = len(self.text)  # start input at the end
-        show_text = self.text[:self.current_pos] + self.text[self.current_pos:]
+        show_text = self.text
 
+        typer_pos = self.current_pos * self.font_width
         if self.current_pos > self.max_text:
-            if self.current_pos + self.max_text > len(show_text):
-                show_text = show_text[len(show_text) - self.max_text:]
-            else:
-                show_text = show_text[self.current_pos:]
+            pos_adjust = len(show_text) - self.max_text
+            typer_pos = (self.current_pos - pos_adjust) * self.font_width
+            show_text = show_text[len(show_text) - self.max_text:]
         if show_text:
             self.text_surface = self.font.render(show_text, True, (30, 30, 30))
-        else:  # prevent text surface being empty surface so it can be typer
+        else:  # prevent text surface being empty surface so it can add typer
             self.text_surface = self.font.render(" ", True, (30, 30, 30))
 
-        self.typer_rect = self.typer_image.get_rect(midtop=(self.current_pos * self.font_width, 0))
+        self.typer_rect = self.typer_image.get_rect(midtop=(typer_pos, 0))
 
         self.text_rect = self.text_surface.get_rect(midleft=(0, self.image.get_height() / 2))
         if self.select_end_pos is not None:
-            selected_add = Surface(((self.select_end_pos - self.select_start_pos) * self.font_width,
-                                    self.text_surface.get_height()), SRCALPHA)
-            selected_add.fill((100, 100, 100, 100))
-            selected_add_rect = selected_add.get_rect(midleft=(self.select_start_pos * self.font_width,
-                                                               self.text_surface.get_height() / 2))
+            if self.current_pos > self.max_text:
+                selected_add = Surface(((self.select_end_pos - self.select_start_pos) * self.font_width,
+                                        self.text_surface.get_height()), SRCALPHA)
+                selected_add.fill((100, 100, 100, 100))
+                selected_add_rect = selected_add.get_rect(midleft=((self.select_start_pos - pos_adjust) * self.font_width,
+                                                                   self.text_surface.get_height() / 2))
+            else:
+                selected_add = Surface(((self.select_end_pos - self.select_start_pos) * self.font_width,
+                                        self.text_surface.get_height()), SRCALPHA)
+                selected_add.fill((100, 100, 100, 100))
+                selected_add_rect = selected_add.get_rect(midleft=(self.select_start_pos * self.font_width,
+                                                                   self.text_surface.get_height() / 2))
             self.text_surface.blit(selected_add, selected_add_rect)
 
         self.base_text_surface = self.text_surface.copy()
         self.image = self.base_image.copy()
-        self.text_surface.blit(self.typer_image, self.typer_rect)
+        if self.text_input:
+            self.text_surface.blit(self.typer_image, self.typer_rect)
         self.image.blit(self.text_surface, self.text_rect)
 
     def update(self):
-        if self.active:
-            UIMenu.update(self)
-            if self.event_press:
-                self.current_pos = 0
-                self.player_input(None, None)
-
+        if self.text_input:
+            # add blipping typer
             if self.typer_tick > 0.1:
-                self.typer_tick += 1
-                if self.typer_tick > 15:
-                    self.typer_tick = -0.2
+                if self.game:
+                    self.typer_tick += self.game.dt
+                else:
+                    self.typer_tick += 1
+                if self.typer_tick > self.typer_tick_limit:
+                    self.typer_tick = -0.11
                     self.image = self.base_image.copy()
                     self.text_surface = self.base_text_surface.copy()
                     self.text_surface.blit(self.typer_image, self.typer_rect)
                     self.image.blit(self.text_surface, self.text_rect)
 
             if self.typer_tick < -0.1:
-                self.typer_tick -= 1
-                if self.typer_tick < -15:
-                    self.typer_tick = 0.2
+                if self.game:
+                    self.typer_tick -= self.game.dt
+                else:
+                    self.typer_tick -= 1
+                if self.typer_tick < self.typer_tick_limit_negative:
+                    self.typer_tick = 0.11
                     self.image = self.base_image.copy()
                     self.text_surface = self.base_text_surface.copy()
                     self.image.blit(self.text_surface, self.text_rect)
 
     def player_input(self, input_event, key_press):
         """register user keyboard and mouse input"""
-        if self.active:  # text input
-            event = input_event
-            event_key = None
-            event_unicode = ""
-            if event:
-                event_key = input_event.key
-                event_unicode = event.unicode
-                self.hold_key = event_key  # save last holding press key
-                self.hold_key_unicode = event_unicode
+        event = input_event
+        event_key = None
+        event_unicode = ""
+        if event:
+            event_key = input_event.key
+            event_unicode = event.unicode
+            self.hold_key = event_key  # save last holding press key
+            self.hold_key_unicode = event_unicode
 
-            if event_key == pygame.K_BACKSPACE or self.hold_key == pygame.K_BACKSPACE:
-                if self.select_start_pos is None:
-                    if self.current_pos > 0:
-                        if self.current_pos > len(self.text):  # at the last character
-                            self.text = self.text[:-1]
-                        else:  # delete between text
-                            self.text = self.text[:self.current_pos - 1] + self.text[self.current_pos:]
-                        self.current_pos -= 1
-                        if self.current_pos < 0:
-                            self.current_pos = 0
-                else:
-                    self.text = self.text[:self.select_start_pos] + self.text[self.select_end_pos:]
-                    self.current_pos = self.select_start_pos
-                    self.select_start_pos = None
-                    self.select_end_pos = None
-            elif event_key == pygame.K_RETURN or event_key == pygame.K_KP_ENTER:  # use external code instead for enter press
-                pass
-            elif event_key == pygame.K_RIGHT or self.hold_key == pygame.K_RIGHT:
-                if self.current_pos < len(self.text):
-                    if key_press[pygame.K_LSHIFT] or key_press[pygame.K_RSHIFT]:
-                        if self.select_start_pos is None:  # start select text
-                            self.select_start_pos = self.current_pos
-                            self.select_end_pos = self.select_start_pos + 1
-                        else:
-                            if self.current_pos < self.select_end_pos:
-                                self.select_start_pos += 1
-                                if self.select_start_pos == self.select_end_pos:
-                                    self.select_start_pos = None
-                                    self.select_end_pos = None
-                            else:
-                                self.select_end_pos += 1
-                        if self.current_pos > len(self.text):
-                            self.select_end_pos = len(self.text)
-                    else:
-                        self.select_start_pos = None
-                        self.select_end_pos = None
-                    self.current_pos += 1
-            elif event_key == pygame.K_LEFT or self.hold_key == pygame.K_LEFT:
-                if self.current_pos - 1 >= 0:
-                    if key_press[pygame.K_LSHIFT] or key_press[pygame.K_RSHIFT]:
-                        if self.select_end_pos is None:  # start select text
-                            self.select_end_pos = self.current_pos
-                            self.select_start_pos = self.select_end_pos - 1
-                        else:
-                            if self.current_pos > self.select_start_pos:
-                                self.select_end_pos -= 1
-                                if self.select_start_pos == self.select_end_pos:
-                                    self.select_start_pos = None
-                                    self.select_end_pos = None
-                            else:
-                                self.select_start_pos -= 1
-                        if self.current_pos < 0:
-                            self.select_start_pos = 0
-                    else:
-                        self.select_start_pos = None
-                        self.select_end_pos = None
+        if event_key == pygame.K_BACKSPACE or self.hold_key == pygame.K_BACKSPACE:
+            if self.select_start_pos is None:
+                if self.current_pos > 0:
+                    if self.current_pos > len(self.text):  # at the last character
+                        self.text = self.text[:-1]
+                    else:  # delete between text
+                        self.text = self.text[:self.current_pos - 1] + self.text[self.current_pos:]
                     self.current_pos -= 1
-
-            elif key_press and (key_press[pygame.K_LCTRL] or key_press[pygame.K_RCTRL]):
-                # use keypress for ctrl as is has no effect on its own
-                if event_key == pygame.K_c:
-                    pyperclip.copy(self.text[self.select_start_pos:self.select_end_pos])
-                elif event_key == pygame.K_v:
-                    paste_text = pyperclip.paste()
-                    if self.select_start_pos is None:
-                        self.text = self.text[:self.current_pos] + paste_text + self.text[self.current_pos:]
-                        self.current_pos = self.current_pos + len(paste_text)
+                    if self.current_pos < 0:
+                        self.current_pos = 0
+            else:
+                self.text = self.text[:self.select_start_pos] + self.text[self.select_end_pos:]
+                self.current_pos = self.select_start_pos
+                self.select_start_pos = None
+                self.select_end_pos = None
+        elif event_key == pygame.K_RETURN or event_key == pygame.K_KP_ENTER:  # use external code instead for enter press
+            pass
+        elif event_key == pygame.K_RIGHT or self.hold_key == pygame.K_RIGHT:
+            if self.current_pos < len(self.text):
+                if key_press[pygame.K_LSHIFT] or key_press[pygame.K_RSHIFT]:
+                    if self.select_start_pos is None:  # start select text
+                        self.select_start_pos = self.current_pos
+                        self.select_end_pos = self.select_start_pos + 1
                     else:
-                        self.text = self.text[:self.select_start_pos] + paste_text + self.text[self.select_end_pos:]
-                        self.current_pos = self.select_start_pos + len(paste_text)
-                        self.select_start_pos = None
-                        self.select_end_pos = None
-
-            elif event_unicode != "" or self.hold_key_unicode != "":
-                if event_unicode != "":  # input event_unicode first before holding one
-                    input_unicode = event_unicode
-                elif self.hold_key_unicode != "":
-                    input_unicode = self.hold_key_unicode
-
-                if self.select_start_pos is None:
-                    self.text = self.text[:self.current_pos] + input_unicode + self.text[self.current_pos:]
-                    self.current_pos += 1
+                        if self.current_pos < self.select_end_pos:
+                            self.select_start_pos += 1
+                            if self.select_start_pos == self.select_end_pos:
+                                self.select_start_pos = None
+                                self.select_end_pos = None
+                        else:
+                            self.select_end_pos += 1
+                    if self.current_pos > len(self.text):
+                        self.select_end_pos = len(self.text)
                 else:
-                    self.text = self.text[:self.select_start_pos] + input_unicode + self.text[self.select_end_pos:]
-                    self.current_pos = self.select_start_pos + 1
+                    self.select_start_pos = None
+                    self.select_end_pos = None
+                self.current_pos += 1
+        elif event_key == pygame.K_LEFT or self.hold_key == pygame.K_LEFT:
+            if self.current_pos - 1 >= 0:
+                if key_press[pygame.K_LSHIFT] or key_press[pygame.K_RSHIFT]:
+                    if self.select_end_pos is None:  # start select text
+                        self.select_end_pos = self.current_pos
+                        self.select_start_pos = self.select_end_pos - 1
+                    else:
+                        if self.current_pos > self.select_start_pos:
+                            self.select_end_pos -= 1
+                            if self.select_start_pos == self.select_end_pos:
+                                self.select_start_pos = None
+                                self.select_end_pos = None
+                        else:
+                            self.select_start_pos -= 1
+                    if self.current_pos < 0:
+                        self.select_start_pos = 0
+                else:
+                    self.select_start_pos = None
+                    self.select_end_pos = None
+                self.current_pos -= 1
+
+        elif key_press and (key_press[pygame.K_LCTRL] or key_press[pygame.K_RCTRL]):
+            # use keypress for ctrl as is has no effect on its own
+            if event_key == pygame.K_c:
+                pyperclip.copy(self.text[self.select_start_pos:self.select_end_pos])
+            elif event_key == pygame.K_v:
+                paste_text = pyperclip.paste()
+                if self.select_start_pos is None:
+                    self.text = self.text[:self.current_pos] + paste_text + self.text[self.current_pos:]
+                    self.current_pos = self.current_pos + len(paste_text)
+                else:
+                    self.text = self.text[:self.select_start_pos] + paste_text + self.text[self.select_end_pos:]
+                    self.current_pos = self.select_start_pos + len(paste_text)
                     self.select_start_pos = None
                     self.select_end_pos = None
 
-            # Re-render the text
-            self.render_text(self.text, current_to_end_pos=False)
+        elif event_unicode != "" or self.hold_key_unicode != "":
+            if event_unicode != "":  # input event_unicode first before holding one
+                input_unicode = event_unicode
+            elif self.hold_key_unicode != "":
+                input_unicode = self.hold_key_unicode
+
+            if self.select_start_pos is None:
+                self.text = self.text[:self.current_pos] + input_unicode + self.text[self.current_pos:]
+                self.current_pos += 1
+            else:
+                self.text = self.text[:self.select_start_pos] + input_unicode + self.text[self.select_end_pos:]
+                self.current_pos = self.select_start_pos + 1
+                self.select_start_pos = None
+                self.select_end_pos = None
+
+        # Re-render the text
+        self.render_text(self.text, current_to_end_pos=False)
 
 
 class TextBox(UIMenu):
@@ -1165,92 +1307,75 @@ class ListAdapterHideExpand(ListAdapter):
         self.actual_list_open_index[actual_index] = not self.actual_list_open_index[actual_index]
 
 
-class CampaignListAdapter(ListAdapterHideExpand):
-
+class CustomPresetListAdapter(ListAdapterHideExpand):
     def __init__(self):
         from engine.game.game import Game
         self.game = Game.game
-        self.map_source_index = dict()
-        localisation = Game.localisation
-        map_data = self.game.preset_map_data
-        actual_level_list = []
 
-        self.map_name_index = {}
-        self.map_source_name_index = {}
-
-        for mission_name in map_data:
-            if "event" not in mission_name:
-                map_name = localisation.grab_text(key=("mission", mission_name, "Name"))
-                actual_level_list.append((0, map_name))
-                self.map_name_index[map_name] = mission_name
-                # for map_file_name in map_data[mission_name]:  # add map
-                #     map_name = localisation.grab_text(key=("preset_map", mission_name, "info", map_file_name, "Name"))
-                #     actual_level_list.append((1, "> " + map_name))
-                #     self.map_name_index[map_name] = map_file_name
-                #     for source_file_name in map_data[mission_name][map_file_name]["source"]:  # add source
-                #         source_name = localisation.grab_text(key=(
-                #             "preset_map", mission_name, map_file_name, "source", int(source_file_name), "Source"))
-                #         self.map_source_name_index[source_name] = source_file_name
-                #         current_index = len(actual_level_list)
-                #         self.map_source_index[(map_file_name, source_file_name)] = current_index
-                #         actual_level_list.append((2, ">> " + source_name))
+        actual_level_list = [(0, "New Preset", )] + [
+            [index + 1, item] for index, item in enumerate(list(self.game.save_data.custom_army_preset_save.keys()))]
 
         ListAdapterHideExpand.__init__(self, actual_level_list)
 
-    def get_highlighted_index(self):
-        if not hasattr(self.game, 'map_selected'):
-            return None
-        return self.get_actual_index_visible_index().get(
-            self.map_source_index[self.game.map_selected])
+    # def get_highlighted_index(self):
+    #     if not hasattr(self.game, 'map_selected'):
+    #         return None
+    #     return self.get_actual_index_visible_index().get(
+    #         self.map_source_index[self.game.map_selected])
+
+    def update_list(self):
+        actual_level_list = [(0, "New Preset", )] + [
+            [index + 1, item] for index, item in enumerate(list(self.game.save_data.custom_army_preset_save.keys()))]
+        ListAdapterHideExpand.__init__(self, actual_level_list)
 
     def on_select(self, item_index, item_text):
 
         actual_index = self.get_visible_index_actual_index()[item_index]
 
         # if click on a source then load it
-        self.game.map_selected = item_text
+        self.game.custom_preset_army_edit_selected = item_text
 
-    def on_mouse_over(self, item_index, item_text):
-        """
-        Method for campaign map list where player hovering over item will display historical information of campaign, map,
-        or map source
-        :param self: Listui object
-        :param item_index: Index of selected item in list
-        :param item_text: Text of selected item
-        """
-        item_name = item_text.replace(">", "")
-        item_name = item_name.replace("|", "")
-        item_id = (item_text, item_index)
-        if item_id != self.game.text_popup.last_shown_id:
-            if item_name[0] == " ":  # remove space from subsection name
-                item_name = item_name[1:]
-            if ">>" in item_text or "||" in item_text:  # source item
-                actual_index = self.get_visible_index_actual_index()[item_index]
-
-                _map, source = {v: k for k, v in self.map_source_index.items()}[actual_index]
-                popup_text = [value for key, value in
-                              self.game.localisation.grab_text(("preset_map",
-                                                                self.game.battle_campaign[_map],
-                                                                _map, "source",
-                                                                source)).items()]
-            elif ">" in item_text or "|" in item_text:  # map item
-                popup_text = [value for key, value in
-                              self.game.localisation.grab_text(("preset_map",
-                                                                self.game.battle_campaign[
-                                                                    self.map_name_index[item_name]],
-                                                                "info", self.map_name_index[item_name])).items()]
-
-            else:  # campaign item
-                popup_text = [value for key, value in
-                              self.game.localisation.grab_text(("preset_map", "info",
-                                                                self.campaign_name_index[item_name])).items()]
-
-            self.game.text_popup.popup(self.game.cursor.rect, popup_text,
-                                       width_text_wrapper=1000 * self.game.screen_scale[0])
-        else:  # already showing this leader no need to create text again
-            self.game.text_popup.popup(self.game.cursor.rect, None,
-                                       width_text_wrapper=1000 * self.game.screen_scale[0])
-        self.game.add_ui_updater(self.game.text_popup)
+    # def on_mouse_over(self, item_index, item_text):
+    #     """
+    #     Method for campaign map list where player hovering over item will display historical information of campaign, map,
+    #     or map source
+    #     :param self: Listui object
+    #     :param item_index: Index of selected item in list
+    #     :param item_text: Text of selected item
+    #     """
+        # item_name = item_text.replace(">", "")
+        # item_name = item_name.replace("|", "")
+        # item_id = (item_text, item_index)
+        # if item_id != self.game.text_popup.last_shown_id:
+        #     if item_name[0] == " ":  # remove space from subsection name
+        #         item_name = item_name[1:]
+        #     if ">>" in item_text or "||" in item_text:  # source item
+        #         actual_index = self.get_visible_index_actual_index()[item_index]
+        #
+        #         _map, source = {v: k for k, v in self.map_source_index.items()}[actual_index]
+        #         popup_text = [value for key, value in
+        #                       self.game.localisation.grab_text(("preset_map",
+        #                                                         self.game.battle_campaign[_map],
+        #                                                         _map, "source",
+        #                                                         source)).items()]
+        #     elif ">" in item_text or "|" in item_text:  # map item
+        #         popup_text = [value for key, value in
+        #                       self.game.localisation.grab_text(("preset_map",
+        #                                                         self.game.battle_campaign[
+        #                                                             self.data_name_index[item_name]],
+        #                                                         "info", self.data_name_index[item_name])).items()]
+        #
+        #     else:  # campaign item
+        #         popup_text = [value for key, value in
+        #                       self.game.localisation.grab_text(("preset_map", "info",
+        #                                                         self.campaign_name_index[item_name])).items()]
+        #
+        #     self.game.text_popup.popup(self.game.cursor.rect, popup_text,
+        #                                width_text_wrapper=1000 * self.game.screen_scale[0])
+        # else:  # already showing this leader no need to create text again
+        #     self.game.text_popup.popup(self.game.cursor.rect, None,
+        #                                width_text_wrapper=1000 * self.game.screen_scale[0])
+        # self.game.add_ui_updater(self.game.text_popup)
 
 
 class TickBox(UIMenu):
