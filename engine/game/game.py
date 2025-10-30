@@ -463,13 +463,19 @@ class Game:
                                                   key_name="back_button", parent=main_menu_buttons_box)
         self.preset_save_button = BrownMenuButton((.15, 1), (0.2, 0), key_name="save_button",
                                                   parent=main_menu_buttons_box)
-        self.custom_preset_list_box = ListUI(pivot=(-0.95, -0.6), origin=(-1, -1), size=(0.2, 0.5),
+        self.preset_clear_button = BrownMenuButton((.15, 1), (0.2, 0), key_name="clear_button",
+                                                  parent=main_menu_buttons_box)
+        self.preset_revert_all_button = BrownMenuButton((.15, 1), (0.2, 0), key_name="revert_all_button",
+                                                  parent=main_menu_buttons_box)
+        self.custom_preset_list_box = ListUI(pivot=(-0.8, -0.6), origin=(-1, -1), size=(0.2, 0.5),
                                              items=CustomPresetListAdapter(),
                                              parent=self.screen, item_size=20)
         self.custom_army_setup = CustomArmySetupUI((self.screen_width * 0.6, self.screen_height * 0.2))
 
         self.custom_preset_menu_uis = (self.preset_back_button, self.preset_save_button, self.custom_preset_list_box,
                                        self.faction_selector, self.custom_army_setup)
+
+        self.before_save_preset_army_setup = {}
 
         # User input popup ui
         input_ui_dict = self.make_input_box()

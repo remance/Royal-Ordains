@@ -36,10 +36,9 @@ class SaveData(GameData):
         self.custom_army_preset_save = self.load_save_file(os.path.join(self.main_dir, "save", "custom_army.dat"))
 
     @staticmethod
-    def make_save_file(file_name, profile_data):
-        data = profile_data  # remove unrelated stuff
+    def make_save_file(file_name, save_data):
         with open(file_name, "wb") as f:
-            pickle.dump(data, f, protocol=2)
+            pickle.dump(save_data, f, protocol=2)
 
     @staticmethod
     def load_save_file(file_name):

@@ -339,6 +339,62 @@ class FactionSelector(UIMenu):
                         self.update_coa(faction)
 
 
+class CharacterSelectorPopup(UIMenu):
+    def __init__(self, pos):
+        UIMenu.__init__(self)
+        self.custom_character_setup = self.game.character_data.custom_character_setup
+        self.faction_coas = self.game.sprite_data.faction_coas
+        self.font = Font(self.ui_font["main_button"], int(60 * self.screen_scale[1]))
+        self.font_width = self.font.size("a")[0]
+        self.pos = pos
+        self.image = Surface((int(3800 * self.screen_scale[0]), int(300 * self.screen_scale[1])), SRCALPHA)
+        self.image.fill((100, 100, 100))
+        self.faction_coa_rects = {}
+        x = self.image.get_width() / 2
+        y = 50 * self.screen_scale[1]
+        rect_placement = sorted([(-220 * self.screen_scale[0]) * item for item in range(1, 8)] + [0] +
+                                [(220 * self.screen_scale[0]) * item for item in range(1, 8)],
+                                key=lambda x: abs(x))
+        x_index = 0
+        for faction, coa_dict in self.faction_coas.items():
+            coa = coa_dict["mini"]
+            x = (self.image.get_width() / 2) + rect_placement[x_index]
+            rect = coa.get_rect(midtop=(x, y))
+            self.image.blit(coa, rect)
+            self.faction_coa_rects[faction] = rect
+            x_index += 1
+            if x_index == len(rect_placement) - 1:
+                y = 220 * self.screen_scale[1]
+                x_index = 0
+        self.selected_faction = None
+
+        self.rect = self.image.get_rect(midtop=pos)
+
+    def popup(self, faction, type, exist_general_check):
+        if type in ("leader", "troop"):
+            custom_character_setup = [item for item in
+                                      self.custom_character_setup[faction]["ground"][type]["leader"]["unique"] if item
+                                      not in exist_general_check]
+            custom_character_setup += self.custom_character_setup[faction]["ground"][type]["leader"]["generic"]
+        else:
+            custom_character_setup = self.custom_character_setup[faction]["air"]
+
+    def update(self):
+        UIMenu.update(self)
+        if self.mouse_over:
+            inside_mouse_pos = pygame.Vector2(
+                (self.cursor.pos[0] - self.rect.topleft[0]),
+                (self.cursor.pos[1] - self.rect.topleft[1]))
+            for faction, rect in self.faction_coa_rects.items():
+                if rect.collidepoint(inside_mouse_pos):
+                    self.game.text_popup.popup(rect, faction)  # this rect only work if ui is at corner left of screen
+                    if self.event_press:
+                        self.update_coa(faction)
+        else:
+            if self.cursor.is_select_just_up or self.cursor.is_alt_select_just_up:
+                self.game.remove_ui_updater(self)
+
+
 class CustomArmySetupUI(UIMenu):
     def __init__(self, pos):
         UIMenu.__init__(self)
@@ -346,7 +402,7 @@ class CustomArmySetupUI(UIMenu):
         self.font = Font(self.ui_font["main_button"], int(60 * self.screen_scale[1]))
         self.font_width = self.font.size("a")[0]
         self.pos = pos
-        self.image = Surface((int(2800 * self.screen_scale[0]), int(1080 * self.screen_scale[1])), SRCALPHA)
+        self.image = Surface((int(2200 * self.screen_scale[0]), int(1080 * self.screen_scale[1])), SRCALPHA)
         self.image.fill((180, 100, 180))
         self.portrait_rects = []
         self.portrait_type_rects = {"general": {index: None for index in range(4)},
@@ -363,7 +419,20 @@ class CustomArmySetupUI(UIMenu):
                     (self.circle.get_width() / 2, self.circle.get_height() / 2),
                     (self.circle.get_width() / 2))
 
-        for index in ((300, 150), (1000, 150), (1700, 150), (650, 650), (1350, 650)):
+        for index in ((300, 150), (300, 350), (300, 550), (300, 750), (300, 950)):
+            rect = self.circle.get_rect(center=(index[0] * self.screen_scale[0], index[1] * self.screen_scale[1]))
+            self.portrait_rects.append(rect)
+
+            self.image.blit(self.circle, rect)
+
+        for y in (150, 350, 550, 750, 950):
+            for x in (650, 950, 1250):
+                rect = self.locked_circle.get_rect(center=(x * self.screen_scale[0], y * self.screen_scale[1]))
+                self.portrait_rects.append(rect)
+
+                self.image.blit(self.locked_circle, rect)
+
+        for index in ((1900, 150), (1900, 350), (1900, 550), (1900, 750), (1900, 950)):
             rect = self.circle.get_rect(center=(index[0] * self.screen_scale[0], index[1] * self.screen_scale[1]))
             self.portrait_rects.append(rect)
 
@@ -445,6 +514,7 @@ class InputBox(UIMenu):
         self.typer_tick_limit = 15
         if self.game:
             self.typer_tick_limit = 0.5
+        self.typer_rect = self.typer_image.get_rect(midtop=(0, 0))
         self.typer_tick_limit_negative = -self.typer_tick_limit
         self.hold_key = 0
         self.hold_key_unicode = ""
@@ -468,8 +538,6 @@ class InputBox(UIMenu):
         else:  # prevent text surface being empty surface so it can add typer
             self.text_surface = self.font.render(" ", True, (30, 30, 30))
 
-        self.typer_rect = self.typer_image.get_rect(midtop=(typer_pos, 0))
-
         self.text_rect = self.text_surface.get_rect(midleft=(0, self.image.get_height() / 2))
         if self.select_end_pos is not None:
             if self.current_pos > self.max_text:
@@ -489,6 +557,7 @@ class InputBox(UIMenu):
         self.base_text_surface = self.text_surface.copy()
         self.image = self.base_image.copy()
         if self.text_input:
+            self.typer_rect = self.typer_image.get_rect(midtop=(typer_pos, 0))
             self.text_surface.blit(self.typer_image, self.typer_rect)
         self.image.blit(self.text_surface, self.text_rect)
 

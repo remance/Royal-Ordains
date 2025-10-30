@@ -169,6 +169,26 @@ class CharacterData(GameData):
                     edit_file2.close()
         edit_file.close()
 
+        self.custom_character_setup = {}
+        for character, character_data in self.character_list.items():
+            if character_data["Faction"]:
+                if character_data["Faction"] not in self.custom_character_setup:
+                    self.custom_character_setup[character_data["Faction"]] = {
+                        "air": [], "ground": {"leader": {"unique": [], "generic": []}, "troop": []}}
+                if character_data["Can Setup"]:
+                    if character_data["Type"] == "ground":
+                        if character_data["Is General"]:
+                            if character_data["Is Unique"]:
+                                self.custom_character_setup[character_data["Faction"]][character_data["Type"]][
+                                    "leader"]["unique"].append(character)
+                            else:
+                                self.custom_character_setup[character_data["Faction"]][character_data["Type"]][
+                                    "leader"]["generic"].append(character)
+                        else:
+                            self.custom_character_setup[character_data["Faction"]][character_data["Type"]]["troop"].append(character)
+                    else:
+                        self.custom_character_setup[character_data["Faction"]][character_data["Type"]].append(character)
+
         # Effect that exist as its own sprite in battle
         self.effect_list = {}
         with open(os.path.join(self.data_dir, "character", "effect.csv"),
@@ -199,45 +219,6 @@ class CharacterData(GameData):
                 if row[0]:
                     self.preset_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
         edit_file.close()
-
-def final_parent_moveset(parent_move_data, move_key, move_data, parent_move_name, done_check, already_check):
-    try:
-        recursive_find_parent_moveset(parent_move_data, move_key, move_data, parent_move_name, done_check,
-                                      already_check)
-        return
-    except ValueError:
-        return
-
-
-def recursive_find_parent_moveset(parent_move_data, move_key, move_data, parent_move_name, done_check, already_check):
-    for k, v in parent_move_data.items():
-        if v["Move"] == parent_move_name:  # found parent move
-            if "Next Move" not in v:
-                v["Next Move"] = {}
-            # if move_data not in v["Next Move"][move_key]:
-            v["Next Move"][move_key] = move_data
-            done_check[0] = move_data
-            raise ValueError("Found, end recursive")
-        else:  # not yet search deeper
-            if "Next Move" in v and v["Move"] not in already_check:
-                already_check.append(v["Move"])  # add move to already check to prevent unending loop
-                recursive_find_parent_moveset(v["Next Move"], move_key, move_data, parent_move_name, done_check,
-                                              already_check)
-
-
-def recursive_rearrange_moveset(move_data, already_check):
-    if "Next Move" in move_data and move_data["Next Move"] and move_data["Move"] not in already_check:
-        already_check.append(move_data["Move"])
-        old_v = copy.deepcopy(move_data["Next Move"])
-        for key in move_data["Next Move"].copy():  # remove to keep old dict reference
-            move_data["Next Move"].pop(key)
-        for key in sorted(old_v, key=lambda key: len(key), reverse=True):
-            move_data["Next Move"][key] = old_v[key]
-        for move in move_data["Next Move"]:
-            if move not in already_check:
-                recursive_rearrange_moveset(move_data["Next Move"][move], already_check)
-    if move_data["Move"] not in already_check:
-        already_check.append(move_data["Move"])
 
 
 def create_status_apply_function_dict(status_list):

@@ -12,6 +12,8 @@
 "option_menu_keybind","Keybind"
 "option_menu_default","Default"
 "custom_preset_button","Create Preset"
+"clear_button","Clear"
+"revert_all_button","Revert to Saved"
 "save_button","Save"
 "delete_button","Delete"
 "start_button","Start"

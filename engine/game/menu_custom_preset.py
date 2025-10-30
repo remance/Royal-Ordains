@@ -1,3 +1,6 @@
+from copy import deepcopy
+
+
 def menu_custom_preset(self):
     if self.preset_back_button.event or self.esc_press:  # back to start_set menu
         self.menu_state = "custom"
@@ -6,4 +9,5 @@ def menu_custom_preset(self):
         self.faction_selector.update_coa("Castle")
 
     elif self.preset_save_button.event:
-        pass
+        self.save_data.custom_army_preset_save = deepcopy(self.before_save_preset_army_setup)
+        self.save_data.make_save_file("custom_army.dat", self.save_data.custom_army_preset_save)
