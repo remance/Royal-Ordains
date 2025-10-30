@@ -27,3 +27,7 @@
 "Shaman_fog",,,,,
 "Transporter",,,,"Speed:1.25",
 "Adminstrator",,,,"Upkeep:0.75",
+"Scout",,,,"Sight:2",
+"Alchemist",,,,"Heal:1.5",
+"Quartermaster",,,,"Supply:0.75",
+"Surgeon",,,,"Survive:1.25",

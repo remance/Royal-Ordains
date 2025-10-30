@@ -1,78 +1,70 @@
-"ID","Name","Description","Tag"
-"Bigtahound","Dog","Formerly, The white guard dog of Nalina Fortress’s armoury. The leader and champion of the Rabbitmen tribe alliance after winning the tournament with her rabbitman husband, Sertors. ","Rabbitman"
-"Castle_cat_air_rocket_bomb","Rocket Cat",,
-"Castle_cat_shield_crossbow","Shielded Crossbowcat",,
-"Castle_dog_catapult","Catapult",,
-"Castle_dog_flail","Flaildog",,
-"Castle_human_air_flying_monk","Flying Monk",,
-"Castle_human_castle","Castle",,
-"Castle_human_castle_crossbow","Castle Crossbowman",,
-"Castle_human_castle_horn","Castle Horn Blower",,
-"Castle_human_flower_knight","Flower Knight",,
-"Castle_human_knight","Foot Knight",,
-"Castle_human_knight_cav","Knight",,
-"Castle_human_leader_banner","Banner Bearer",,
-"Castle_human_leader_lord","Lord",,
-"Castle_human_leader_mage","Mage",,
-"Castle_human_leader_priest","Priest",,
-"Castle_human_leader_ranger","Ranger",,
-"Castle_human_militia_bow","Bow Militia",,
-"Castle_human_militia_spear","Militia",,
-"Dban_axe","Dwarf Marauder",,
-"Dban_crossbow","Dwarf Bandit Crossbowman",,
-"Dban_hammer","Dwarf Thug",,
-"King","King","The king of Masendor.","Animal"
-"Leader_adaqua","Adaqua","Leader of the Red Leaf Bandit but later became friend with the Rabbit Forest Alliance. Quite skilled with bow. Unable to perform melee attacks.","Playable"
-"Leader_bauqah","Bauqah",,"Rabbitman"
-"Leader_bigta","Bigta and Sertors","A bizarre cavalry pair of rabbit and dog. Champion of the Rabbitmen alliance, later Hound Keeper. Deliver strong charge with lance and bolster many support skills.","Rabbitman"
-"Leader_dashisi","Dashisi",,
-"Leader_duskuksa","Duskuksa","A man of tradition and faith. This Rune Journeyman intended to carry his forebears' legacy to the utmost. But with his lack of lineage, he will never leave a lot of common rune priests in the dwarf nepotistic society. That is until he joins the Royal Ordains with the promise of untold wealth and rewards that he can use to leap the cruel ladder of social standing, the only thing that matters next to tradition and blood ties to most dwarfs.",
-"Leader_elmaliern","Elmaliern",,"Bandit"
-"Leader_iri","Iri","No one really understands why this hearty halfling travelled so far to this land, but it seems to be that only our King knows the answer. Her skill in trap and gadget engineering is closer to none, gathered during her vast journey, no doubt. A good of character, possibly the most friendly in the Royal Ordains. Very much of the common folks seem to adore her.","Bandit"
-"Leader_kapuni","Kapuni",,"Boss"
-"Leader_nayedien","Nayedien","An elf of peerless beauty and ambiguity. No one knows where this elf is from or any past-of-self. For reasons unknown, the King saw fit to assign this person of unknown origin a hero of Royal Ordains and close aide. Court rumour that the King was charmed by such beauty, their dubious relationship, and the implication of elvish intervention aside, no one can verily deny the mastery in martial prowess of this elven warrior.","Test"
-"Leader_nraesier","Nraesier","Older sister of Vagrant Marauder. Talker and thinker of the pair. Unmatched in scouting skills, and packed many throwing knives to dispatch enemies from a distance.","Test"
-"Leader_orsanoas","Orsanoas","A great carnyx warrior from the Hlilitan tribal alliance who will stop at nothing to become stronger. He accepts the invitation from the King to join Royal Ordains with the intention to meet stronger foes and friends. The song he plays can instil fear in enemies and courage in allies.","Test"
-"Leader_pasgelo","Pasgelo",,"Test"
-"Leader_rodhinbar","Rodhinbar","A chief of a distant land with unmatched skill in archery. He seemed to arrive with a heavy conflict in his heart after receiving the invitation from the king to join the Royal Ordains. Many in the court speculated that he came to spy on our Kingdom and may jeopardise our land's safety. Such worry did not seem to cloud over our King's mind in the least however.","Test"
-"Leader_tulia","Tulia","Ranger captain of the Northern Verts. Have a long, bitter history with the Red Leaf Bandits. Skilled in both melee and ranged combat. ","Test"
-"Leader_vraesier","Vraesier","This bandit has one thing really going, and that is her skill in weapons of most varieties. Her rough manner and appearance did not help to avoid being held in contempt by most in the courts. This marauder was perhaps the most controversial selection among the Royal Ordains. Still, this so-called ""knave"" can easily take down even the most skilled Kingdom knight with ease.","Test"
-"Leader_vurus","Vurus",,"Test"
-"Leader_yuawies","Yuawies",,"Test"
-"Small_eagle_air_stone","Eagle","An eagle eager for prays. Fast and cheap air fighter with great versatility.","Playable"
-"Small_rabbit_cannon","Rabbit Revenge","A cheap small cannon for many purposes. Rabbitmen can be innovative with good guidance.","Test"
-"Small_rabbit_hole","Rabbit Role","A rabbit in a hole waiting to stab a passerby in the rear.","Test"
-"Small_rabbit_home","Rabbit Rarren Ratcher","A warren guard. No home means no purpose.","Test"
-"Small_rabbit_hound_cav","Rabbit Ruddy","A rabbit hound cavalry. Light enough to quickly run through the enemy line.","Test"
-"Small_rabbit_killer","Rabbit Roney","A rabbit of death. Fast and deadly.","Test"
-"Small_rabbit_leader_banner","Rabbit Rannermate","A rabbit banner bearer. Bringer of field menaces.",
-"Small_rabbit_leader_hero","Rabbit Rero","A rabbit hero. As good as a rabbit can be.",
-"Small_rabbit_leader_knight","Rabbit Rnight","A rabbit knight. Not so bad as a frontline leader but expect no grand performance.","Test"
-"Small_rabbit_sling","Rabbit Rooligan","A footsoldier rabbit slinger. Decent skirmisher in its own right and can dig the ground to lay trap against approaching enemies.","Test"
-"Small_rabbit_snail_cav","Rabbit Rhell Rompanion","A rabbit snail cavalry. Slow but tough.","Test"
-"Small_rabbit_spear","Rabbit Raider","A footsoldier rabbit spearman. Weak but strong in number.","Test"
-"Small_rabbit_tower","Rabbit Rower","A small stone tower with a lone stone thrower rabbit. Solid but not by much. When earth fail, stone will prevail.","Test"
-"Small_rabbit_tower_thrower","Rabbit Rower Rhrower",,
-"Small_rabbit_trebuchet","Rabbit Roulder","A flimsy cheap trebuchet good for small siege. Very slow but deal good damage to buildings.","Test"
-"Small_snail_old","Toxic Mollusk","A wise old snail that retains only disdain for other creatures after living for so long. Will throw his toxic beard at anyone he deems annoying.","Playable"
-"Small_snail_sword","Snail Defender","A young snail armed with a sword and shield. An eternal enemy to all knights.","Playable"
-"Solhatar","Solhatar",,"Test"
-"Tanrsakt","Tanrsakt",,"Test"
-"Tom","Tom Cat",,"Test"
-"Toodles","Toodles Galore",,"Test"
-"Towncrier","Towncrier",,"Test"
-"Vars","Vars",,"Test"
-,,,
-,,,
-,,,
-,,,
-"Nice_bear_cub","Bear Cub","A small bear cub that seems to roll around like it owns the place. Cute but extremely dangerous. Do not attack under any circumstance.",
-"Nice_cloud_dog","Cloud Dog",,
-"Nice_bird","Bird",,
-"Nice_fluffy_bird","Fluffy Bird",,
-"Nice_butterfly","Butterfly",,
-"Nice_living_book","Living Book",,
-"Nice_bunny","Bunny",,
-"Nice_slime","Slime",,
-"Nice_wisp","Wisp",,
-"Nice_snake","Snake",,
+"ID","Name","Description","Lore","Tag"
+"Castle_cat_air_rocket_bomb","Rocket Cat","A flying cat with the aid of a jar rocket. Can rain down powerful explosives but completely helpless against air enemies.",,
+"Castle_cat_shield_crossbow","Shielded Crossbowcat","A cat armed with a light crossbow and a tower shield. Can delivery high damage bolts but at shorter range than bows and slings.",,
+"Castle_dog_catapult","Catapult",,,
+"Castle_dog_flail","Flaildog",,,
+"Castle_human_air_flying_monk","Flying Monk","A monk equipped with artificial wings. No one really know how it work but one thing is certain, these monks will smack anyone down with impunity.",,
+"Castle_human_castle","Castle",,,
+"Castle_human_castle_crossbow","Castle Crossbowman",,,
+"Castle_human_castle_horn","Castle Horn Blower",,,
+"Castle_human_flower_knight","Flower Knight",,,
+"Castle_human_knight","Foot Knight",,,
+"Castle_human_knight_cav","Knight",,,
+"Castle_human_leader_banner","Banner Bearer",,,
+"Castle_human_leader_lord","Lord",,,
+"Castle_human_leader_mage","Mage",,,
+"Castle_human_leader_priest","Priest",,,
+"Castle_human_leader_ranger","Ranger",,,
+"Castle_human_militia_bow","Bow Militia",,,
+"Castle_human_militia_spear","Militia",,,
+"King","King","The king of the Central Kingdom. Too kingly to fight in battles and prefer to observe the worldly state of affair from afar.",,"Animal"
+"Leader_adaqua","Adaqua","Leader of the Red Leaf Bandit but later became friend with the Rabbit Forest Alliance. Quite skilled with bow. Unable to perform melee attacks.",,"Playable"
+"Leader_bauqah","Bauqah",,,"Rabbitman"
+"Leader_bigta","Bigta and Sertors","A bizarre cavalry pair of rabbit and dog. Champion and leader of the Wee Alliance. Deliver strong charge with a lance and bolster many support skills.",,"Rabbitman"
+"Leader_dashisi","Dashisi",,,
+"Leader_duskuksa","Duskuksa","A dwarf of tradition and faith. This Rune Journeyman intended to carry his forebears' legacy to the utmost. He can use rune smithing to provide buffs to allies and unleash powerful explosion on enemies.",,
+"Leader_elmaliern","Elmaliern",,,"Bandit"
+"Leader_iri","Iri","No one really understands why this hearty halfling travelled so far to this land, but it seems to be that only our King knows the answer. Her skill in trap and gadget engineering is closer to none, gathered during her vast journey, no doubt.",,"Bandit"
+"Leader_kapuni","Kapuni",,,"Boss"
+"Leader_nayedien","Nayedien","An elf of peerless beauty and ambiguity. No one knows where this elf is from or any past-of-self. For reasons unknown, the King saw fit to assign this person of unknown origin a hero of Royal Ordains and close aide. Court rumour that the King was charmed by such beauty, their dubious relationship, and the implication of elvish intervention aside, no one can verily deny the mastery in martial prowess of this elven warrior.",,"Test"
+"Leader_nraesier","Nraesier","Older sister of Vagrant Marauder. Talker and thinker of the pair. Unmatched in scouting skills, and packed many throwing knives to dispatch enemies from a distance.",,"Test"
+"Leader_orsanoas","Orsanoas","A great carnyx warrior from the Hlilitan Highland Alliance who will stop at nothing to become stronger. The song he plays can instil fear in enemies and courage in allies.",,"Test"
+"Leader_pasgelo","Pasgelo",,,"Test"
+"Leader_rodhinbar","Rodhinbar","A chief of a distant land with unmatched skill in archery. He seemed to arrive with a heavy conflict in his heart after receiving the invitation from the king to join the Royal Ordains. Many in the court speculated that he came to spy on our Kingdom and may jeopardise our land's safety. Such worry did not seem to cloud over our King's mind in the least however.",,"Test"
+"Leader_tulia","Tulia","Ranger captain of the Northern Verts. Have a long, bitter history with the Red Leaf Bandits. Skilled in both melee and ranged combat.",,"Test"
+"Leader_vraesier","Vraesier","This bandit has one thing really going, and that is her skill in battle. Her rough manner and appearance did not help to avoid being held in contempt by most in the civilised world. Still, this so-called ""knave"" can easily take down even the most skilled knight with ease.",,"Test"
+"Leader_vurus","Vurus","Accomplished commander and strategist of the Central Kingdom. Absolutely brilliant in warfare. Defeat is rarely possible with him as the commander. Can provide support to his troops with numerous buffs but is rather unkeen in direct combat.",,"Test"
+"Leader_yuawies","Yuawies",,,"Test"
+"Nice_bear_cub","Bear Cub","A small bear cub that seems to roll around like it owns the place. Cute but extremely dangerous. Do not attack under any circumstance.",,
+"Nice_bird","Bird",,,
+"Nice_bunny","Bunny","A tiny bunny. Will meep at anyone nearby and distract them.",,
+"Nice_butterfly","Butterfly",,,
+"Nice_cloud_dog","Cloud Dog","A dog that float around enjoying life. No one is certain if it bite.",,
+"Nice_fluffy_bird","Fluffy Bird","A very nice looking white fluffy bird. Like to jump around and look cute. ",,
+"Nice_living_book","Living Book",,,
+"Nice_slime","Slime",,,
+"Nice_snake","Snake","A snake. This animal will certainly bite and inflict poison to anyone dare crossing its path.",,
+"Nice_wisp","Wisp",,,
+"Small_eagle_air_stone","Eagle","An eagle eager for prays. Fast and cheap air fighter with great versatility.",,"Playable"
+"Small_rabbit_cannon","Rabbit Revenge","A cheap small cannon for many purposes. Rabbitmen can be innovative with good guidance.",,"Test"
+"Small_rabbit_hole","Rabbit Role","A rabbit in a hole waiting to stab a passerby in the rear.",,"Test"
+"Small_rabbit_home","Rabbit Rarren Ratcher","A warren guard. No home means no purpose.",,"Test"
+"Small_rabbit_hound_cav","Rabbit Ruddy","A rabbit hound cavalry. Light enough to quickly run through the enemy line.",,"Test"
+"Small_rabbit_killer","Rabbit Roney","A rabbit of death. Fast and deadly. Can jump into the enemy group and quickly wreck havoc.",,"Test"
+"Small_rabbit_leader_banner","Rabbit Rannermate","A rabbit banner bearer. Bringer of field menaces. Can raise banner to buff nearby friends but cannot attack anyone.",,
+"Small_rabbit_leader_hero","Rabbit Rero","A rabbit hero. As good as a rabbit can be. Very fast and can debuff nearby enemies.",,
+"Small_rabbit_leader_knight","Rabbit Rnight","A rabbit knight. Not so bad as a frontline leader but expect no grand performance. Somewhat strong in defence but very slow.",,"Test"
+"Small_rabbit_sling","Rabbit Rooligan","A footsoldier rabbit slinger. Decent skirmisher in its own right and can dig the ground to lay trap against approaching enemies.",,"Test"
+"Small_rabbit_snail_cav","Rabbit Rhell Rompanion","A rabbit snail cavalry. Slow but tough.",,"Test"
+"Small_rabbit_spear","Rabbit Raider","A footsoldier rabbit spearman. Weak but strong in number. Can inflict slow and charge enemies.",,"Test"
+"Small_rabbit_tower","Rabbit Rower","A small stone tower with a lone stone thrower rabbit. Solid but not by much. When earth fail, stone will prevail.",,"Test"
+"Small_rabbit_tower_thrower","Rabbit Rower Rhrower",,,
+"Small_rabbit_trebuchet","Rabbit Roulder","A flimsy cheap trebuchet good for small siege. Very slow but deal good damage to buildings.",,"Test"
+"Small_snail_old","Toxic Mollusk","A bitter old snail that retains only disdain for other creatures after living for so long. Will throw his toxic beard at anyone he deems annoying.",,"Playable"
+"Small_snail_sword","Snail Defender","A young snail armed with a sword and shield. An eternal enemy to all knights.",,"Playable"
+"Solhatar","Solhatar",,,"Test"
+"Tanrsakt","Tanrsakt",,,"Test"
+"Tom","Tom Cat",,,"Test"
+"Toodles","Toodles Galore",,,"Test"
+"Towncrier","Towncrier",,,"Test"
+"Vars","Vars",,,"Test"

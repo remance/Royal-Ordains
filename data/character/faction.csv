@@ -1,3 +1,3 @@
-"ID","Ruler","Ground Unit","Air Unit"
-"Castle","Leader_king","Castle_cat_shield_crossbow,Castle_dog_catapult,Castle_dog_flail,Castle_human_,Castle,Castle_human_,Castle_crossbow,Castle_human_,Castle_horn,Castle_human_flower_knight,Castle_human_knight,Castle_human_knight_cav,Castle_human_leader_banner,Castle_human_leader_jester,Castle_human_leader_lord,Castle_human_leader_mage,Castle_human_leader_ranger,Castle_human_militia_bow,Castle_human_militia_spear","Castle_human_air_flying_monk,Castle_cat_air_rocket_bomb"
-"Small","Leader_bigta",,
+"ID","Ruler"
+"Castle","Leader_king"
+"Small","Leader_bigta"
