@@ -112,10 +112,7 @@ class Battle:
         Battle.battle = self
         # TODO LIST
         # add enemy command AI, skirmish behaviour ai for ranged char/leader/group, commander
-        # think how to deal center battle map start retreat point
         # add custom battle setup menu
-        # finish Rodhinbar
-        # add back hold function, for spear pike and stuff
         # add back battle cutscene
         # finish main menu
 
@@ -244,7 +241,8 @@ class Battle:
         self.battle_scale = []
         self.play_time = 0
         self.battle_time = 0.0
-        self.team_stat = {team: {"strategy_resource": 0, "start_pos": 0, "air_group": [], "strategy": {}, "unit": {}} for
+        self.team_stat = {team: {"strategy_resource": 0, "start_pos": 0, "retreat_pos": 0,
+                                 "air_group": [], "strategy": {}, "unit": {}} for
                           team in team_list}
         self.player_control_generals = []  # for command ui
         self.team_commander = {team: None for team in team_list}
@@ -459,6 +457,9 @@ class Battle:
 
         for team_stat in self.team_stat.values():
             team_stat["start_pos"] *= self.base_stage_end
+            team_stat["retreat_pos"] = -self.base_stage_end * 2
+            if team_stat["start_pos"] >= self.base_stage_end / 2:
+                team_stat["retreat_pos"] = -team_stat["retreat_pos"]
             # add available strategies to team stat
             if team_stat["main_army"]:
                 commander_stat = self.character_data.character_list[team_stat["main_army"].commander_id]
@@ -734,10 +735,11 @@ class Battle:
                         # self.drama_text.queue.append(("All dead.", None))
                         self.drama_text.queue.append(
                             ("Some may be curious like bear cub that will follow any coming close, very dangerous", None))
-                        # for enemy in self.player_control_generals:
-                        #     if not enemy.is_commander:
-                        #         enemy.health = 0
-                        #         break
+                        for team_data in self.all_team_general.values():
+                            for enemy in team_data:
+                                if enemy.is_commander:
+                                    enemy.health = 0
+                                    break
                     elif event.key == K_F6:
                         self.drama_text.queue.append(
                             ("Some will even attack, buff, debuff or even summon enemies", None))
@@ -810,7 +812,8 @@ class Battle:
         self.stage_music_pool = {}
 
         # remove all reference from battle object
-        self.team_stat = {team: {"strategy_resource": 0, "start_pos": 0, "air_group": [], "strategy": {}, "unit": {}} for
+        self.team_stat = {team: {"strategy_resource": 0, "start_pos": 0, "retreat_pos": 0,
+                                 "air_group": [], "strategy": {}, "unit": {}} for
                           team in team_list}
         self.later_reinforcement = {"weather": {}, "time": {},
                                     "team": {team: {"air": [], "ground": {}} for team in team_list}}

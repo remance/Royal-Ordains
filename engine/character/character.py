@@ -444,7 +444,8 @@ class BattleCharacter(Character):
         self.total_defence_power_score = 0
         self.total_flank_power_score = 0
         self.total_power_score = 0
-        self.enter_pos = self.battle.team_stat[self.team]["start_pos"]
+        self.start_pos = self.battle.team_stat[self.team]["start_pos"]
+        self.retreat_pos = self.battle.team_stat[self.team]["retreat_pos"]
 
         # Get char stat
         stat_boost = 0
@@ -566,10 +567,6 @@ class BattleCharacter(Character):
 
         self.retreat_stage_end = self.battle.base_stage_end + self.sprite_width
         self.retreat_stage_start = -self.sprite_width
-        if self.enter_pos:
-            self.retreat_pos = self.retreat_stage_end
-        else:
-            self.retreat_pos = self.retreat_stage_start
 
         if stat["Sub Characters"]:  # add sub characters
             for character, anchor_pos in stat["Sub Characters"].items():
@@ -585,7 +582,7 @@ class BattleCharacter(Character):
             self.command_icon = self.battle.character_portraits[stat["ID"]]["command"]
             self.command_icon_right = self.battle.character_portraits[stat["ID"]]["command"]["right"]
 
-        if is_controllable and self.team == 1:
+        if is_general and is_controllable and self.team == 1:
             self.battle.player_control_generals.append(self)
             self.indicator = CharacterGeneralIndicator(self)
 
@@ -624,17 +621,25 @@ class BattleCharacter(Character):
             hold_check = False
             if "hold" in self.current_animation_frame["property"] and \
                     "hold" in self.current_action and \
-                    ("forced move" not in self.current_action or (self.x_momentum or self.y_momentum)):
+                    ((self.x_momentum or self.y_momentum) or (
+                    self.current_moveset and self.nearest_enemy_distance < self.current_moveset["AI Range"])):
+                # keep holding in moving action or moveset that hold when enemy in range
                 hold_check = True
-
-            done = self.play_battle_animation(dt, hold_check)
-            self.finish_animation(done)
 
             if self.sprite_deal_damage and self.penetrate:
                 self.hit_collide_check()
                 if not self.penetrate and "run" in self.current_action:
                     # remove momentum in running attack animation when penetrate run out
                     self.x_momentum = 0
+
+            if hold_check and not self.x_momentum and not self.y_momentum and self.already_hit:
+                # end hold check for standing hold attack when hit enemy
+                hold_check = False
+
+            done = self.play_battle_animation(dt, hold_check)
+            self.finish_animation(done)
+
+
 
             self.move_logic(dt)  # Movement function, have to be here
 

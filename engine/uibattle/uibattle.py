@@ -440,7 +440,7 @@ class Command(UIBattle):
                         # right click on active air group order it to exit the battle
                         for character in self.battle.team_stat[1]["air_group"][air_group]:
                             if character.alive:
-                                character.issue_commander_order(("back", character.enter_pos))
+                                character.issue_commander_order(("back", character.start_pos))
 
     def reset(self):
         self.image = self.base_image.copy()
