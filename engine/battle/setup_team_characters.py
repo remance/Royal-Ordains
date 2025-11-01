@@ -99,5 +99,5 @@ def add_followers(self, general, value, data, battle_char=True):
             char_class(self.last_char_game_id, self.character_data.character_list[key] |
                        {"ID": key, "Team": general.team,
                         "Start Health": data["Start Health"],
-                        "POS": random_pos}, leader=general)
+                        "POS": random_pos}, leader=general, is_controllable=general.is_controllable)
             self.last_char_game_id += 1

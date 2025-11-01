@@ -20,7 +20,7 @@ def conduct_plan(self):
             elif self.current_info["commander_health"] > 0.3:  # move to back line
                 self.commander.issue_commander_order(("move", ))
             else:  # move back to retreat point
-                self.commander.issue_commander_order(("move", self.start_pos))
+                self.commander.issue_commander_order(("move", self.retreat_pos))
             already_assigned_general.append(self.commander)
 
         elif plan in ("attack", "defend", "skirmish", "flank"):  # general related plan

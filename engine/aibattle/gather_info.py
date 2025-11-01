@@ -167,8 +167,9 @@ def gather_info_enemy_type_density(self):
 def check_air_group(self, team):
     air_group = {("interceptor", "fighter"): {True: {}, False: {}}, ("bomber", "fighter"): {True: {}, False: {}}}
     for index, group in enumerate(self.battle.team_stat[team]["air_group"]):
-        for air_type in air_group:
-            if group[0].ai_behaviour in air_type:
-                air_group[air_type][group[0].active] = {
-                    index: (len(group), sum([character.power_score for character in group]), group)}
+        if group:
+            for air_type in air_group:
+                if group[0].ai_behaviour in air_type:
+                    air_group[air_type][group[0].active] = {
+                        index: (len(group), sum([character.power_score for character in group]), group)}
     return air_group

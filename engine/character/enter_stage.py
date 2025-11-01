@@ -27,9 +27,9 @@ def delayed_enter_stage(self, dt):
         self.enter_delay = 0
         self.active = True
         if self.character_type == "air":
-            self.base_pos = Vector2(self.enter_pos, self.Default_Air_Pos)
+            self.base_pos = Vector2(self.start_pos, self.Default_Air_Pos)
         else:
-            self.base_pos = Vector2(self.enter_pos, self.Default_Ground_Pos)
+            self.base_pos = Vector2(self.start_pos, self.Default_Ground_Pos)
         self.enter_stage()
 
 

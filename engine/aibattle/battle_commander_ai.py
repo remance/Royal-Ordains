@@ -99,19 +99,21 @@ class BattleCommanderAI:
             self.higher_act_time = 10 / self.swift
             self.act_time = uniform(self.lower_act_time, self.higher_act_time)
         self.start_pos = self.battle.team_stat[self.team]["start_pos"]
+        self.retreat_pos = self.battle.team_stat[self.team]["retreat_pos"]
 
     def update(self, dt):
-        self.think_timer += dt
-        if self.think_timer >= self.think_time:
-            self.think_timer -= self.think_time
-            self.current_info = self.gather_info()
-            self.recommended_plan_score = self.analyse_info()
-            self.think_time = uniform(self.lower_think_time, self.higher_think_time)
+        if self.commander.alive:
+            self.think_timer += dt
+            if self.think_timer >= self.think_time:
+                self.think_timer -= self.think_time
+                self.current_info = self.gather_info()
+                self.recommended_plan_score = self.analyse_info()
+                self.think_time = uniform(self.lower_think_time, self.higher_think_time)
 
-        self.act_timer += dt
-        if self.act_timer >= self.act_timer:
-            self.act_timer -= self.act_timer
-            self.conduct_plan()
+            self.act_timer += dt
+            if self.act_timer >= self.act_timer:
+                self.act_timer -= self.act_timer
+                self.conduct_plan()
 
     def kill(self):
         pass
