@@ -1,0 +1,23 @@
+"ID","Ruler","Leader",,,,,,,,,"Note"
+"Barren","Leader_vok","Leader_dook","Leader_dunbi","Leader_tehcu","Leader_ahaddi","Leader_gillasis","Leader_pao_la_sin","Leader_mengkja","Leader_esluoya","Leader_semeyawa","Extremely simple city build, units can be created from mainline building. Inferior quality overall. Long build time."
+"Castle","Leader_king","Leader_champion","Leader_tulia","Leader_monnirl","Leader_nayedien","Leader_hermanos","Leader_vurus","Leader_quivenly","Leader_aquanturas","Leader_savalorse","Moderate at everything, Castle main building is the core for strong unit recruit instead of specialise buildings"
+"Death","Leader_avalkari","Leader_kadeloner","Leader_forgotten","Leader_laggail","Leader_emlai","Leader_mounniley","Leader_duvdup","Leader_rinini","Leader_negkoi","Leader_amupadeble","Low supply generation, humanity vs terror, humanity unlock 5 heroes and diplomacy/integration with other factions,"
+"Desert","Leader_saltun","Leader_rodhinbar","Leader_kaweina","Leader_cheermaker","Leader_abubaba","Leader_entaguz","Leader_gajik","Leader_bajiniri","Leader_bajumiji","Leader_kumaisheh","Low tech upgrade, low supply, most focus on magic, extremely high gold generate"
+"Doll","Leader_doll_king","Leader_doll_prince","Leader_doll_princess","Leader_doll_queen","Leader_doll_maker","Leader_hus","Leader_verlindas","Leader_taladamun","Leader_tensimpho","Leader_noxbox_201","Cannot integrate other factions except Death and Undead race unit."
+"Demon","Leader_tolhhunn","Leader_rulmtae","Leader_alkumsen","Leader_kalimny","Leader_nalluqqeiyt","Leader_sapianou","Leader_tolzarnkan","Leader_littleboy","Leader_littlegirl","Leader_lamorkul","No units and building of its own. Require integration of other factions. "
+"Highland","Leader_garun","Leader_orsanoas","Leader_ozna","Leader_kadamyas","Leader_entium","Leader_shumeyu","Leader_bej","Leader_hokem","Leader_lesenyre","Leader_mcpubba",
+"Marsh","Leader_janiggys","Leader_motji'aa","Leader_lukukpo","Leader_boggod","Leader_lepgusd","Leader_kifid","Leader_mahunsijee","Leader_tuojesa","Leader_glomuk","Leader_laguasangte","No natural happiness and gold generation of its own, require trigger of events from buildings and battles."
+"Mountain","Leader_asgane","Leader_duskuksa","Leader_lohvroh","Leader_minara","Leader_augtual","Leader_oodoo","Leader_zakalanirn","Leader_gsunper","Leader_lanslina","Leader_salansan","Focus on tradition and dark elf integration Dark elf building bring light units variety and high happiness increase at some gold upkeep cost."
+"Port","Leader_ehi","Leader_peva","Leader_motdasis","Leader_vanmaggas","Leader_kirnharl","Leader_kaddun","Leader_ikkanwi","Leader_soheh","Leader_nass","Leader_sino","Focus on tech vs low, high tech unit come from trade port that cost a lot to hire, will require many gold buildings to sustain"
+"Small","Leader_bigta","Leader_adaqua","Leader_yuawies","Leader_iri","Leader_buikuuh","Leader_nalana","Leader_olsilin","Leader_vasla","Leader_nadvalin","Leader_peltino","Focus on war vs peace, most war buildings cost happiness, low gold and supply generation"
+"Wood","Leader_pakakvadi","Leader_armina","Leader_bauqah","Leader_erkevhern","Leader_qeunci","Leader_dimwa","Leader_jumu","Leader_shedna","Leader_mashalue","Leader_kak","Almost no gold generation, require getting gold from battle victory"
+,,,,,,,,,,,
+,,,,,,,,,,,
+"Free",,"Leader_elmaliern","Leader_amunsa","Leader_parna","Leader_eona","Leader_filia","Leader_unsi_ed","Leader_sonagsha","Leader_entaguz","Leader_kapuni",
+,,"Leader_dashisi","Leader_amgarn","Leader_oanogoht","Leader_remance","Leader_vraesier","Leader_nraesier","Leader_kutip'aeh",,,
+,,,,,,,,,,,
+,,,,,,,,,,,
+"Holy","Leader_aarlindei","Leader_aunnial","Leader_niavesia","Leader_veno",,,,,,,
+"Great","Leader_bavala","Leader_pasgelo","Leader_piaerlun","Leader_namena","Leader_vinellan","Leader_pakakvadi",,,,,
+"Magic",,,,,,,,,,,
+"Sea",,,,,,,,,,,

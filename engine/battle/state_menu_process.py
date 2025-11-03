@@ -13,7 +13,7 @@ def state_menu_process(self):
     self.ui_drawer.draw(self.screen)  # draw the UI
 
     if self.input_popup:  # currently, have input pop up on screen, stop everything else until done
-        if self.input_ok_button.event:
+        if self.input_ok_button.event_press:
             self.change_pause_update(False)
             self.input_box.render_text("")
             input_popup = self.input_popup[1]
@@ -29,7 +29,7 @@ def state_menu_process(self):
                     return True
                 return False
 
-        elif self.input_cancel_button.event or self.esc_press:
+        elif self.input_cancel_button.event_press or self.esc_press:
             self.change_pause_update(False)
             self.input_box.render_text("")
             self.input_popup = None

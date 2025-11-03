@@ -650,7 +650,7 @@ class Game:
             self.screen.blit(self.background, (0, 0))  # blit background over instead of clear() to reset screen
 
             if self.input_popup:  # currently, have input text pop up on screen, stop everything else until done
-                if self.input_ok_button.event or key_press[pygame.K_RETURN] or key_press[pygame.K_KP_ENTER]:
+                if self.input_ok_button.event_press or key_press[pygame.K_RETURN] or key_press[pygame.K_KP_ENTER]:
                     done = True
                     if "replace key" in self.input_popup[1]:  # swap between 2 keys
                         old_key = self.player_key_bind[self.input_popup[1][1]]
@@ -671,7 +671,7 @@ class Game:
                         self.input_popup = None
                         self.remove_ui_updater(self.all_input_popup_uis)
 
-                elif self.input_cancel_button.event or self.input_close_button.event or self.esc_press:
+                elif self.input_cancel_button.event_press or self.input_close_button.event_press or self.esc_press:
                     self.change_pause_update(False)
                     self.input_box.render_text("")
                     self.input_popup = None

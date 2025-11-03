@@ -2,14 +2,14 @@ from engine.army.general import General
 
 
 def menu_main(self):
-    if self.custom_battle_button.event:
+    if self.custom_battle_button.event_press:
         self.menu_state = "custom"
         self.background = self.background_image["empty_background"]
         self.remove_ui_updater(self.main_menu_buttons, self.main_menu_actor)
         self.add_ui_updater(self.custom_battle_menu_uis)
         pass
 
-    elif self.test_battle_button.event:
+    elif self.test_battle_button.event_press:
         self.custom_team0_garrison_army.__init__({General("Castle_cat_shield_crossbow"): [{"Castle_cat_shield_crossbow": 10}]},
                                                  [], [])
         self.custom_team1_army.__init__({General("Leader_bigta"): [{"Small_rabbit_spear": 20},
@@ -58,12 +58,12 @@ def menu_main(self):
     # elif self.load_game_button.event:  # load save
     #     self.start_battle(self.mission_selected)
 
-    elif self.option_button.event:  # change main menu to option menu
+    elif self.option_button.event_press:  # change main menu to option menu
         self.menu_state = "option"
         self.remove_ui_updater(self.main_menu_buttons)
 
         self.add_ui_updater(self.option_menu_buttons, self.option_menu_sliders.values(), self.value_boxes.values(),
                             self.option_text_list, self.hide_background)
 
-    elif self.quit_button.event or self.esc_press:  # open quit game confirmation input
+    elif self.quit_button.event_press or self.esc_press:  # open quit game confirmation input
         self.activate_input_popup(("confirm_input", "quit"), "Quit Game?", self.confirm_popup_uis)

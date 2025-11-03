@@ -15,7 +15,7 @@ def escmenu_process(self):
 
     elif self.esc_menu_mode == "menu":  # esc menu
         for key, button in self.battle_menu_button.items():
-            if button.event:
+            if button.event_press:
                 if key == "resume":  # resume battle
                     self.back_to_battle_state()
 
@@ -48,7 +48,7 @@ def escmenu_process(self):
                 break  # found clicked button, break loop
 
     elif self.esc_menu_mode == "dialogue":  # dialogue log
-        if self.esc_dialogue_button.event or self.esc_press:  # confirm or esc, close option menu
+        if self.esc_dialogue_button.event_press or self.esc_press:  # confirm or esc, close option menu
             self.esc_menu_mode = "menu"  # go back to start_set esc menu
             self.remove_ui_updater(self.esc_dialogue_button, self.dialogue_box)  # remove option menu sprite
             self.add_ui_updater(self.battle_menu_button.values(),
@@ -62,7 +62,7 @@ def escmenu_process(self):
                             self.config)
                 self.game.change_sound_volume()
 
-        if self.esc_option_menu_button.event or self.esc_press:  # confirm or esc, close option menu
+        if self.esc_option_menu_button.event_press or self.esc_press:  # confirm or esc, close option menu
             self.esc_menu_mode = "menu"  # go back to start_set esc menu
             self.remove_ui_updater(self.esc_option_menu_button, self.esc_slider_menu.values(),
                                    self.esc_value_boxes.values(),

@@ -1,23 +1,23 @@
 "ID","Name","Description","Lore","Tag"
 "Castle_cat_air_rocket_bomb","Rocket Cat","A flying cat with the aid of a jar rocket. Can rain down powerful explosives but completely helpless against air enemies.",,
 "Castle_cat_shield_crossbow","Shielded Crossbowcat","A cat armed with a light crossbow and a tower shield. Can delivery high damage bolts but at shorter range than bows and slings.",,
-"Castle_dog_catapult","Catapult",,,
-"Castle_dog_flail","Flaildog",,,
+"Castle_dog_catapult","Catapult","A self-propelled catapult operated by a dog engineer. A reliable weapon of siege warfare.",,
+"Castle_dog_flail","Flaildog","A dog soldier with a flail. Quite capable in melee. Can unleash devastating long reach melee attack and stun enemy.",,
+"Castle_flower_castle","Flower Castle",,,
 "Castle_human_air_flying_monk","Flying Monk","A monk equipped with artificial wings. No one really know how it work but one thing is certain, these monks will smack anyone down with impunity.",,
-"Castle_human_castle","Castle",,,
+"Castle_human_castle","Castle","A feudal castle is an essential foundation to all settlements of the Central Realm. Only with an overwhelming offence can this castle be breached.",,
 "Castle_human_castle_crossbow","Castle Crossbowman",,,
 "Castle_human_castle_horn","Castle Horn Blower",,,
 "Castle_human_flower_knight","Flower Knight",,,
-"Castle_human_knight","Foot Knight",,,
-"Castle_human_knight_cav","Knight",,,
-"Castle_human_leader_banner","Banner Bearer",,,
-"Castle_human_leader_lord","Lord",,,
-"Castle_human_leader_mage","Mage",,,
-"Castle_human_leader_priest","Priest",,,
-"Castle_human_leader_ranger","Ranger",,,
-"Castle_human_militia_bow","Bow Militia",,,
-"Castle_human_militia_spear","Militia",,,
-"King","King","The king of the Central Kingdom. Too kingly to fight in battles and prefer to observe the worldly state of affair from afar.",,"Animal"
+"Castle_human_knight","Foot Knight","Elite of the Central Realm. This human knight excels in both offence and defence.",,
+"Castle_human_knight_cav","Knight","The ultimate shock troop of the Central Realm. Will trample most with a devastating charge.",,
+"Castle_human_leader_banner","Banner Bearer","A human bannerman. Extremely important for all armies of great renown. Can raise banner to provide buffs to nearby friends but cannot attack anyone.",,
+"Castle_human_leader_jester","Lord",,,
+"Castle_human_leader_lord","Mage",,,
+"Castle_human_leader_mage","Priest",,,
+"Castle_human_leader_ranger","Ranger","A ranger equipped with bow and fast feet. Can use a healing kit to heal self and nearby allies. ",,
+"Castle_human_militia_bow","Bow Militia","Drafted hunter and the like. Can use bow to some effects. Useful for mass long-range barrage. ",,
+"Castle_human_militia_spear","Militia","Lowly drafted peasant with inferior equipment. Weak overall but good enough to protect the countryside from minor raids.",,
 "Leader_adaqua","Adaqua","Leader of the Red Leaf Bandit but later became friend with the Rabbit Forest Alliance. Quite skilled with bow. Unable to perform melee attacks.",,"Playable"
 "Leader_bauqah","Bauqah",,,"Rabbitman"
 "Leader_bigta","Bigta and Sertors","A bizarre cavalry pair of rabbit and dog. Champion and leader of the Wee Alliance. Deliver strong charge with a lance and bolster many support skills.",,"Rabbitman"
@@ -26,6 +26,7 @@
 "Leader_elmaliern","Elmaliern",,,"Bandit"
 "Leader_iri","Iri","No one really understands why this hearty halfling travelled so far to this land, but it seems to be that only our King knows the answer. Her skill in trap and gadget engineering is closer to none, gathered during her vast journey, no doubt.",,"Bandit"
 "Leader_kapuni","Kapuni",,,"Boss"
+"Leader_king","King","The king of the Central Realm. Too kingly to fight in battles and prefer to observe the worldly state of affair from afar.",,"Animal"
 "Leader_nayedien","Nayedien","An elf of peerless beauty and ambiguity. No one knows where this elf is from or any past-of-self. For reasons unknown, the King saw fit to assign this person of unknown origin a hero of Royal Ordains and close aide. Court rumour that the King was charmed by such beauty, their dubious relationship, and the implication of elvish intervention aside, no one can verily deny the mastery in martial prowess of this elven warrior.",,"Test"
 "Leader_nraesier","Nraesier","Older sister of Vagrant Marauder. Talker and thinker of the pair. Unmatched in scouting skills, and packed many throwing knives to dispatch enemies from a distance.",,"Test"
 "Leader_orsanoas","Orsanoas","A great carnyx warrior from the Hlilitan Highland Alliance who will stop at nothing to become stronger. The song he plays can instil fear in enemies and courage in allies.",,"Test"
@@ -62,9 +63,3 @@
 "Small_rabbit_trebuchet","Rabbit Roulder","A flimsy cheap trebuchet good for small siege. Very slow but deal good damage to buildings.",,"Test"
 "Small_snail_old","Toxic Mollusk","A bitter old snail that retains only disdain for other creatures after living for so long. Will throw his toxic beard at anyone he deems annoying.",,"Playable"
 "Small_snail_sword","Snail Defender","A young snail armed with a sword and shield. An eternal enemy to all knights.",,"Playable"
-"Solhatar","Solhatar",,,"Test"
-"Tanrsakt","Tanrsakt",,,"Test"
-"Tom","Tom Cat",,,"Test"
-"Toodles","Toodles Galore",,,"Test"
-"Towncrier","Towncrier",,,"Test"
-"Vars","Vars",,,"Test"

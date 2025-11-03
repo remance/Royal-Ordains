@@ -2,16 +2,13 @@ import pygame
 
 
 def menu_keybind(self):
-    if self.back_button.event or self.esc_press:  # back to start_set menu
-        self.back_button.event = False
-
+    if self.back_button.event_press or self.esc_press:  # back to start_set menu
         self.menu_state = "option"
         self.remove_ui_updater(self.keybind_text.values(), self.keybind_icon.values())
         self.add_ui_updater(self.option_menu_buttons, self.option_menu_sliders.values(), self.value_boxes.values())
         self.add_ui_updater(self.option_text_list)
 
-    elif self.default_button.event:  # revert all keybind of current player to default setting
-        self.default_button.event = False
+    elif self.default_button.event_press:  # revert all keybind of current player to default setting
         for setting in self.config["DEFAULT"]:
             if setting == "keybind":
                 self.config["USER"][setting] = self.config["DEFAULT"][setting]

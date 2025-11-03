@@ -2,17 +2,17 @@ from copy import deepcopy
 
 
 def menu_custom_setup(self):
-    if self.setup_back_button.event or self.esc_press:  # back to start_set menu
+    if self.setup_back_button.event_press or self.esc_press:  # back to start_set menu
         self.remove_ui_updater(self.custom_battle_menu_uis)
         self.back_mainmenu()
 
-    elif self.custom_battle_preset_button.event:
+    elif self.custom_battle_preset_button.event_press:
         self.menu_state = "preset"
         self.before_save_preset_army_setup = deepcopy(self.save_data.custom_army_preset_save)
         self.add_ui_updater(self.custom_preset_menu_uis)
         self.remove_ui_updater(self.custom_battle_menu_uis)
 
-    elif self.custom_battle_setup_start_battle_button.event:
+    elif self.custom_battle_setup_start_battle_button.event_press:
         pass
         # all_ready = True
         # if len([player for player in self.player_char_selectors.values() if player.mode == "empty"]) == 2:  # all empty

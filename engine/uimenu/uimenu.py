@@ -155,11 +155,12 @@ class UIMenu(Sprite):
                 self.cursor.mouse_over = True
                 if self.cursor.is_select_just_up:
                     self.event_press = True
+                    self.event = True
                     self.cursor.is_select_just_up = False  # reset select button to prevent overlap interaction
                 elif self.cursor.is_select_down:
+                    self.event = True
                     self.event_hold = True
                     self.cursor.is_select_just_down = False  # reset select button to prevent overlap interaction
-
                 elif self.cursor.is_alt_select_just_up:
                     self.event_alt_press = True
                     self.cursor.is_alt_select_just_up = False  # reset select button to prevent overlap interaction
@@ -923,18 +924,8 @@ class BrownMenuButton(UIMenu, Containable):  # NOTE: the button is not brown any
         }
 
     def update(self):
-        mouse_pos = self.cursor.pos
-        sju = self.cursor.is_select_just_up
-        self.event = False
+        UIMenu.update(self)
 
-        self.mouse_over = False
-        if not self.pause and self.rect.collidepoint(mouse_pos):
-            self.mouse_over = True
-            if sju:
-                self.event = True
-                self.cursor.is_select_just_up = False  # reset select button to prevent overlap interaction
-
-        self.rect = self.get_adjusted_rect_to_be_inside_container(self.parent)
         self.refresh()
 
     def get_size(self):
