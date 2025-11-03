@@ -15,8 +15,8 @@
 "Barren_troll_ram","Barren","Troll",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"siege",,,,
 "Castle_cat_air_rocket_bomb","Castle","Cat",40,20,10,75,,,,,,-0.5,-0.25,,0.1,,,,,,7,5,,,,,,,,,"air","bomber","bomber",,"TRUE",
 "Castle_cat_shield_crossbow","Castle","Cat",65,37,40,12,,0.3,0.2,0.4,0.25,-0.1,0.15,-0.25,-0.25,,,,,,13,10,,,,,,,,,"ground","heavy_range","range",,"TRUE","shield"
-"Castle_dog_catapult","Castle","Dog",230,7,3,4,,0.4,,0.7,-0.4,,0.15,,,,,,,,150,3,,,,,,,,,"ground","siege","range",,,"no_forced_move"
-"Castle_dog_flail","Castle","Dog",125,32,29,30,,,,,,-0.1,0.1,,,,,,,,,13,,,,,,,,,"ground","medium_melee","melee",,,
+"Castle_dog_catapult","Castle","Dog",230,7,3,4,,0.4,,0.7,-0.4,,0.15,,,,,,,,150,3,,,,,,,,,"ground","siege","range",,"TRUE","no_forced_move"
+"Castle_dog_flail","Castle","Dog",125,32,29,30,,,,,,-0.1,0.1,,,,,,,,,13,,,,,,,,,"ground","medium_melee","melee",,"TRUE",
 "Castle_human_air_flying_monk","Castle","Human",280,60,60,55,,0.1,0.3,,-0.15,,0.25,,0.3,0.2,,,,,35,4,,,,,,,,,"air","interceptor","interceptor",,"TRUE",
 "Castle_human_castle","Castle","Construct",6000,,,,,,,,,,,,,,,,,,,,,,,,,,,,"ground","structure",,,,
 "Castle_human_castle_crossbow","Castle","Human",,,,,,,,,,,,,,,,,,,,,,,,,,,,,"ground","sub",,,,
@@ -28,7 +28,7 @@
 "Castle_human_leader_jester","Castle","Human",,,,,,,,,,,,,,,"Strategy_minor_false_advance",,,,,,"TRUE",,2,2,5,,,,"ground","support",,,,
 "Castle_human_leader_lord","Castle","Human",,,,,,,,,,,,,,,"Strategy_minor_discipline",,,,,,"TRUE",,5,5,4,,,,"ground","medium_cavalry",,,,
 "Castle_human_leader_mage","Castle","Human",,,,,,,,,,,,,,,"Spell_magic_bolts",,,,,,"TRUE",,4,4,3,,,,"ground","support",,,,
-"Castle_human_leader_ranger","Castle","Human",,,,,,,,,,,,,,,"Strategy_minor_rally",,,,,,"TRUE",,3,3,4,,,,"ground","light_range",,,,
+"Castle_human_leader_ranger","Castle","Human",,,,,,,,,,,,,,,"Strategy_minor_rally",,,,,,"TRUE",,3,3,4,,,,"ground","light_range",,,"TRUE",
 "Castle_human_militia_bow","Castle","Human",70,21,5,36,,,,,,,,,,,,,,,20,17,,,,,,,,,"ground","light_range","range",,"TRUE",
 "Castle_human_militia_spear","Castle","Human",100,30,22,32,,,,,,,,,,,,,,,28,17,,,,,,,,,"ground","light_melee","melee",,"TRUE",
 "Death_bat_air_bite","Death","Bat",,,,,,,,,,,,,,,,,,,,,,,,,,,,,"air","interceptor","interceptor",,,

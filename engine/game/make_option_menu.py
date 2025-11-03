@@ -200,6 +200,6 @@ def make_bar_list(main_dir, screen_scale, list_to_do, menu_image):
     for index, bar in enumerate(list_to_do):
         bar_image = (image.copy(), image2.copy(), image3.copy())
         bar = uimenu.MenuButton(bar_image, (menu_image.pos[0], menu_image.pos[1] + image.get_height() * (index + 1)),
-                                key_name=bar, layer=150)
+                                key_name=bar, layer=100000000000)
         bar_list.append(bar)
     return bar_list

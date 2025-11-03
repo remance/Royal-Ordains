@@ -10,7 +10,7 @@ def start_battle(self, mission, team_stat, ai_retreat):
     music.stop()
 
     self.battle.prepare_new_stage(mission, team_stat, ai_retreat=ai_retreat)
-    result = self.battle.run_game()  # run next scene
+    result = self.battle.run_battle()  # run next scene
     self.battle.exit_battle()  # run exit battle for previous one
 
     music.play()

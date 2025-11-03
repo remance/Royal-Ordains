@@ -27,7 +27,7 @@ from engine.uibattle.uibattle import (Profiler, FPSCount, DamageNumber, Characte
                                       CharacterGeneralIndicator, CharacterCommandIndicator)
 from engine.uimenu.uimenu import (OptionMenuText, SliderMenu, MenuCursor, BoxUI, BrownMenuButton,
                                   TextPopup, PresetSelectInterface, FactionSelector, CustomArmySetupUI,
-                                  MapTitle, ListUI, CustomPresetListAdapter)
+                                  CharacterSelector, MapTitle, ListUI, CustomPresetListAdapter)
 from engine.updater.updater import ReversedLayeredUpdates
 from engine.utils.common import cutscene_update
 from engine.utils.data_loading import load_image, load_images, csv_read, load_base_button
@@ -384,14 +384,6 @@ class Game:
         # self.mainmenu_button = (self.start_game_button, self.load_game_button, self.custom_battle_button,
         #                         self.lore_button, self.option_button, self.quit_button)
 
-        # Battle map select menu button
-        self.faction_selector = FactionSelector((self.screen_width / 2, self.screen_height * 0.05))
-        self.map_title = MapTitle((self.screen_rect.width / 2, 0))
-
-        # self.map_preview = MapPreview(self.preset_map_list_box.rect.topright)
-
-        # UIScroll(self.unit_selector, self.unit_selector.rect.topright)  # scroll bar for character pick
-
         self.text_popup = TextPopup(font_size=50)
         self.loading_lore_text_popup = TextPopup(font_size=70)
         self.loading_lore_text = ""
@@ -467,15 +459,24 @@ class Game:
                                                   parent=main_menu_buttons_box)
         self.preset_revert_all_button = BrownMenuButton((.15, 1), (0.2, 0), key_name="revert_all_button",
                                                   parent=main_menu_buttons_box)
-        self.custom_preset_list_box = ListUI(pivot=(-0.8, -0.6), origin=(-1, -1), size=(0.2, 0.5),
+        self.custom_preset_list_box = ListUI(pivot=(-0.9, -0.6), origin=(-1, -1), size=(0.15, 0.5),
                                              items=CustomPresetListAdapter(),
                                              parent=self.screen, item_size=20)
-        self.custom_army_setup = CustomArmySetupUI((self.screen_width * 0.6, self.screen_height * 0.2))
-
+        self.custom_army_setup = CustomArmySetupUI((self.screen_width * 0.4, self.screen_height * 0.2))
+        self.custom_character_selector = CharacterSelector((self.screen_width * 0.78, self.screen_height * 0.2))
+        self.faction_selector = FactionSelector((self.screen_width / 2, self.screen_height * 0.05))
         self.custom_preset_menu_uis = (self.preset_back_button, self.preset_save_button, self.custom_preset_list_box,
-                                       self.faction_selector, self.custom_army_setup)
+                                       self.faction_selector, self.custom_army_setup, self.custom_character_selector)
 
         self.before_save_preset_army_setup = {}
+
+        # Battle map select menu button
+        self.map_title = MapTitle((self.screen_rect.width / 2, 0))
+
+        # self.map_preview = MapPreview(self.preset_map_list_box.rect.topright)
+
+        # UIScroll(self.unit_selector, self.unit_selector.rect.topright)  # scroll bar for character pick
+
 
         # User input popup ui
         input_ui_dict = self.make_input_box()
@@ -556,7 +557,7 @@ class Game:
 
         self.loading_screen("end")
 
-        self.run()
+        self.run_game()
 
     def game_intro(self, intro):
         timer = 0
@@ -590,9 +591,10 @@ class Game:
         self.profiler.enable()
         self.battle.battle_outer_ui_updater.add(self.profiler)
 
-    def run(self):
+    def run_game(self):
         while True:
             # Get user input
+            self.remove_ui_updater(self.text_popup)
             self.dt = self.clock.get_time() / 1000  # dt before game_speed
             self.cursor.scroll_down = False
             self.cursor.scroll_up = False

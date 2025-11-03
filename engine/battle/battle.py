@@ -614,7 +614,7 @@ class Battle:
         self.scene.setup()
         yield set_done_load()
 
-    def run_game(self):
+    def run_battle(self):
         # Create Starting Values
         self.input_popup = None  # no popup asking for user text input state
         self.drama_text.queue = []  # reset drama text popup queue

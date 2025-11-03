@@ -9,12 +9,15 @@ def menu_option(self):
     bar_press = False
     for bar in self.resolution_bar:
         # loop to find which resolution bar is selected, this happens outside of clicking check below
-        if bar.event_press:
-            self.resolution_drop.change_state(bar.text)  # change button value based on new selected value
-            resolution_change = bar.text.split()
-            change_resolution(self, resolution_change=resolution_change)
-            self.remove_ui_updater(self.resolution_bar)
-            bar_press = True
+        if bar.mouse_over:
+            # print(bar.text)
+            if bar.event:
+                self.resolution_drop.change_state(bar.text)  # change button value based on new selected value
+                resolution_change = bar.text.split()
+
+                change_resolution(self, resolution_change=resolution_change)
+                self.remove_ui_updater(self.resolution_bar)
+                bar_press = True
             break
 
     if not bar_press and self.cursor.is_select_just_up:
