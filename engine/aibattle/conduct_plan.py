@@ -6,9 +6,9 @@ from engine.character.ai_prepare import find_grid_range
 
 def conduct_plan(self):
     task_list = {}
-    control_general_list = [general for general in self.battle.all_team_general[self.team] if general.is_controllable]
+    control_leader_list = [leader for leader in self.battle.all_team_leader[self.team] if leader.is_controllable]
 
-    already_assigned_general = []
+    already_assigned_leader = []
     for plan in self.recommended_plan_score:
         if plan == "commander_danger":
             # if ("move" not in self.commander.commander_order and
@@ -21,10 +21,10 @@ def conduct_plan(self):
                 self.commander.issue_commander_order(("move", ))
             else:  # move back to retreat point
                 self.commander.issue_commander_order(("move", self.retreat_pos))
-            already_assigned_general.append(self.commander)
+            already_assigned_leader.append(self.commander)
 
-        elif plan in ("attack", "defend", "skirmish", "flank"):  # general related plan
-            general_plan[plan](self, control_general_list, already_assigned_general)
+        elif plan in ("attack", "defend", "skirmish", "flank"):  # leader related plan
+            leader_plan[plan](self, control_leader_list, already_assigned_leader)
 
         # elif plan == "strategy at ally":
         #     if uniform(0, 100) < self.recommended_plan_score[plan]:
@@ -72,63 +72,63 @@ def conduct_plan(self):
         #             self.battle.activate_strategy(self.team, strategy, best_pos_x_to_use)
 
 
-def conduct_attack_plan(self, control_general_list, already_assigned_general):
+def conduct_attack_plan(self, control_leader_list, already_assigned_leader):
     attack_point = self.commander.nearest_enemy_pos[0]
-    attack_general = dict(sorted({general: general.total_offence_power_score for
-                                  general in control_general_list if general not in already_assigned_general}.items(),
+    attack_leader = dict(sorted({leader: leader.total_offence_power_score for
+                                  leader in control_leader_list if leader not in already_assigned_leader}.items(),
                                  key=itemgetter(1), reverse=True))
-    for general in attack_general:
-        general.issue_commander_order(("attack", attack_point))
-        self.recommended_plan_score["attack"] -= general.total_offence_power_score
-        already_assigned_general.append(general)
+    for leader in attack_leader:
+        leader.issue_commander_order(("attack", attack_point))
+        self.recommended_plan_score["attack"] -= leader.total_offence_power_score
+        already_assigned_leader.append(leader)
         if self.recommended_plan_score["attack"] <= 0:
             break
 
 
-def conduct_defend_plan(self, control_general_list, already_assigned_general):
+def conduct_defend_plan(self, control_leader_list, already_assigned_leader):
     defend_point = self.commander.base_pos[0]
-    defend_general = dict(sorted({general: general.total_defend_power_score for
-                                  general in control_general_list if general not in already_assigned_general}.items(),
+    defend_leader = dict(sorted({leader: leader.total_defend_power_score for
+                                  leader in control_leader_list if leader not in already_assigned_leader}.items(),
                                  key=itemgetter(1), reverse=True))
-    for general in defend_general:
-        general.issue_commander_order(("move", defend_point))
-        self.recommended_plan_score["defend"] -= general.total_defence_power_score
-        already_assigned_general.append(general)
+    for leader in defend_leader:
+        leader.issue_commander_order(("move", defend_point))
+        self.recommended_plan_score["defend"] -= leader.total_defence_power_score
+        already_assigned_leader.append(leader)
         if self.recommended_plan_score["defend"] <= 0:
             break
 
 
-def conduct_skirmish_plan(self, control_general_list, already_assigned_general):
+def conduct_skirmish_plan(self, control_leader_list, already_assigned_leader):
     attack_point = self.commander.nearest_enemy_pos[0]
-    skirmish_general = dict(sorted({general: general.total_range_power_score for
-                                    general in control_general_list if general not in already_assigned_general}.items(),
+    skirmish_leader = dict(sorted({leader: leader.total_range_power_score for
+                                    leader in control_leader_list if leader not in already_assigned_leader}.items(),
                                    key=itemgetter(1), reverse=True))
-    for general in skirmish_general:
-        overall_max_attack_range = [follower.ai_max_attack_range for follower in general.followers]
-        overall_max_attack_range.append(general.ai_max_attack_range)
+    for leader in skirmish_leader:
+        overall_max_attack_range = [follower.ai_max_attack_range for follower in leader.followers]
+        overall_max_attack_range.append(leader.ai_max_attack_range)
         if attack_point > self.commander.base_pos[0]:
-            general_attack_point = attack_point + max(overall_max_attack_range)
+            leader_attack_point = attack_point + max(overall_max_attack_range)
         else:
-            general_attack_point = attack_point - max(overall_max_attack_range)
-        general.issue_commander_order(("attack", general_attack_point))
-        self.recommended_plan_score["skirmish"] -= general.total_range_power_score
-        already_assigned_general.append(general)
+            leader_attack_point = attack_point - max(overall_max_attack_range)
+        leader.issue_commander_order(("attack", leader_attack_point))
+        self.recommended_plan_score["skirmish"] -= leader.total_range_power_score
+        already_assigned_leader.append(leader)
         if self.recommended_plan_score["skirmish"] <= 0:
             break
 
 
-def conduct_flank_plan(self, control_general_list, already_assigned_general):
+def conduct_flank_plan(self, control_leader_list, already_assigned_leader):
     attack_point = self.commander.nearest_enemy_pos[0]
-    attack_general = dict(sorted({general: general.total_flank_power_score for
-                                  general in control_general_list if general not in already_assigned_general}.items(),
+    attack_leader = dict(sorted({leader: leader.total_flank_power_score for
+                                  leader in control_leader_list if leader not in already_assigned_leader}.items(),
                                  key=itemgetter(1), reverse=True))
-    for general in attack_general:
-        general.issue_commander_order(("move", attack_point))
-        self.recommended_plan_score["flank"] -= general.total_flank_power_score
-        already_assigned_general.append(general)
+    for leader in attack_leader:
+        leader.issue_commander_order(("move", attack_point))
+        self.recommended_plan_score["flank"] -= leader.total_flank_power_score
+        already_assigned_leader.append(leader)
         if self.recommended_plan_score["flank"] <= 0:
             break
 
 
-general_plan = {"attack": conduct_attack_plan, "skirmish": conduct_defend_plan,
+leader_plan = {"attack": conduct_attack_plan, "skirmish": conduct_defend_plan,
                 "defend": conduct_skirmish_plan, "flank": conduct_flank_plan}

@@ -174,10 +174,10 @@ class CharacterData(GameData):
             if character_data["Faction"]:
                 if character_data["Faction"] not in self.custom_character_setup:
                     self.custom_character_setup[character_data["Faction"]] = {
-                        "air": [], "ground": {"leader": {"unique": [], "generic": []}, "troop": []}}
+                        "air": [], "ground": {"leader": {"unique": [], "generic": []}, "follower": []}}
                 if character_data["Can Setup"]:
                     if character_data["Type"] == "ground":
-                        if character_data["Is General"]:
+                        if character_data["Is Leader"]:
                             if character_data["Is Unique"]:
                                 self.custom_character_setup[character_data["Faction"]][character_data["Type"]][
                                     "leader"]["unique"].append(character)
@@ -185,7 +185,7 @@ class CharacterData(GameData):
                                 self.custom_character_setup[character_data["Faction"]][character_data["Type"]][
                                     "leader"]["generic"].append(character)
                         else:
-                            self.custom_character_setup[character_data["Faction"]][character_data["Type"]]["troop"].append(character)
+                            self.custom_character_setup[character_data["Faction"]][character_data["Type"]]["follower"].append(character)
                     else:
                         self.custom_character_setup[character_data["Faction"]][character_data["Type"]].append(character)
 

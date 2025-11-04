@@ -1,7 +1,7 @@
 import uuid
 
 
-class General:
+class Leader:
     character_list = None
 
     def __init__(self, char_id):

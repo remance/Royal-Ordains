@@ -113,19 +113,19 @@ def range_ai(self):
     common_ai(self, self.ai_max_attack_range)
 
 
-def general_common_ai(self, attack_range):
+def leader_common_ai(self, attack_range):
     if not self.command_action:
         if not self.nearest_enemy or self.nearest_enemy_distance > attack_range:
             # keep moving to attack target point, stop moving if there are enemy to attack
             move_to_target_order(self)
 
 
-def general_melee_ai(self):
-    general_common_ai(self, self.ai_min_attack_range)
+def leader_melee_ai(self):
+    leader_common_ai(self, self.ai_min_attack_range)
 
 
-def general_range_ai(self):
-    general_common_ai(self, self.ai_max_attack_range)
+def leader_range_ai(self):
+    leader_common_ai(self, self.ai_max_attack_range)
 
 
 def air_ai(self):
@@ -146,7 +146,7 @@ def air_ai(self):
             self.command_action["direction"] = "left"
 
 
-def general_ai(self):
+def leader_ai(self):
     if self.commander_order:
         if "move" in self.commander_order:
             command_target = self.commander_order[1]
@@ -161,14 +161,14 @@ def general_ai(self):
                         self.command_action["direction"] = "left"
             else:  # reach move target, remove order
                 self.issue_commander_order(())
-        elif "attack" in self.commander_order:  # use normal general behaviour to move
-            general_inner_move_dict[self.ai_behaviour](self)
+        elif "attack" in self.commander_order:  # use normal leader behaviour to move
+            leader_inner_move_dict[self.ai_behaviour](self)
 
 
 ai_move_dict = {"default": stationary_ai, "nice": nice_ai, "curious": curious_ai,
                 "territorial": nice_ai, "melee": melee_ai, "range": range_ai,
-                "trap": stationary_ai, "boss_cheer": observer_ai, "general": general_ai,
+                "trap": stationary_ai, "boss_cheer": observer_ai, "leader": leader_ai,
                 "interceptor": air_ai, "fighter": air_ai, "bomber": air_ai}
 
 
-general_inner_move_dict = {"melee": general_melee_ai, "range": general_range_ai}
+leader_inner_move_dict = {"melee": leader_melee_ai, "range": leader_range_ai}

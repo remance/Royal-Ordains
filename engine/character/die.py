@@ -10,13 +10,13 @@ def die(self):
     if self in self.battle.ai_process_list:
         self.battle.ai_process_list.remove(self)
     self.ally_list.remove(self)
-    if self.is_general:
-        self.battle.all_team_general[self.team].remove(self)
+    if self.is_leader:
+        self.battle.all_team_leader[self.team].remove(self)
         if self.team == 1 and self.is_controllable:
             if not self.is_commander:
-                self.battle.player_control_generals.remove(self)
-            if self in self.battle.player_selected_generals:
-                self.battle.player_selected_generals.remove(self)
+                self.battle.player_control_leaders.remove(self)
+            if self in self.battle.player_selected_leaders:
+                self.battle.player_selected_leaders.remove(self)
 
     for team in self.battle.all_team_enemy_check:
         if team != self.team:
@@ -42,7 +42,7 @@ def die(self):
         self.ai_speak("die")
 
     for follower in self.followers:
-        # revert follower stat to no leadership when it die and no general to transfer
+        # revert follower stat to no leadership when leader die
         follower.base_offence = follower.original_offence
         follower.base_defence = follower.original_defence
         follower.leadership = follower.original_leadership
@@ -56,7 +56,7 @@ def die(self):
     if self.leader:  # remove self from leader stuff
         if self.leader.alive and self in self.leader.followers:
             self.leader.followers.remove(self)
-            self.leader.reset_general_variables()
+            self.leader.reset_leader_variables()
         self.leader = None
 
     if self.spawns:

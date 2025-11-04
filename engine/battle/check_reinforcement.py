@@ -21,31 +21,31 @@ def check_reinforcement(self):
                     if self.team_commander[condition] and self.team_commander[condition].alive:
                         # team reinforcement allow only if commander exist and alive
                         if "ground" in reinforcement:
-                            for general, follower_data in reinforcement["ground"].copy().items():
-                                if len([general for general in self.all_team_general[condition] if
-                                        general.is_controllable]) >= 5:
-                                    # No more than 5 controllable generals can be active in battle
+                            for leader, follower_data in reinforcement["ground"].copy().items():
+                                if len([leader for leader in self.all_team_leader[condition] if
+                                        leader.is_controllable]) >= 5:
+                                    # No more than 5 controllable leaders can be active in battle
                                     break
-                                data = {"Start Health": general.start_health, "Team": condition, "ID": general.char_id}
+                                data = {"Start Health": leader.start_health, "Team": condition, "ID": leader.char_id}
                                 if "POS" not in data:
                                     data["POS"] = (self.team_stat[condition]["start_pos"], Default_Ground_Pos)
 
                                 add_battle_char = BattleCharacter(self.last_char_game_id,
-                                                                  data | self.character_data.character_list[general.char_id],
+                                                                  data | self.character_data.character_list[leader.char_id],
                                                                   None, additional_layer=1000000,
-                                                                  is_general=True, is_controllable=True)
-                                add_battle_char.general_object = general
+                                                                  is_leader=True, is_controllable=True)
+                                add_battle_char.leader_object = leader
                                 self.last_char_game_id += 1
                                 for value in follower_data:
                                     add_followers(self, add_battle_char, value, data)
-                                add_battle_char.reset_general_variables()
+                                add_battle_char.reset_leader_variables()
                                 # auto order command to move from edge of battle when arrive
                                 if not self.team_stat[condition]["start_pos"]:
                                     add_battle_char.issue_commander_order(("attack", 300))
                                 elif self.team_stat[condition]["start_pos"] == self.base_stage_end:
                                     add_battle_char.issue_commander_order(("attack", self.base_stage_end - 300))
 
-                                reinforcement["ground"].pop(general)  # remove reinforcement from list
+                                reinforcement["ground"].pop(leader)  # remove reinforcement from list
 
                             if not reinforcement["ground"]:
                                 reinforcement.pop("ground")

@@ -13,21 +13,21 @@ def setup_team_characters(self, stage_data):
     for team, team_stat in self.team_stat.items():
         for army in (team_stat["main_army"], team_stat["garrison_army"]):
             if army:
-                for general_index, general in enumerate(army.group):
-                    data = {"Start Health": general.start_health}
+                for leader_index, leader in enumerate(army.group):
+                    data = {"Start Health": leader.start_health}
                     if self.team_stat[team]["start_pos"] == 0:
-                        start_x = team_start_x_distance[general_index]
+                        start_x = team_start_x_distance[leader_index]
                     elif self.team_stat[team]["start_pos"] == self.base_stage_end:
-                        start_x = self.base_stage_end - team_start_x_distance[general_index]
+                        start_x = self.base_stage_end - team_start_x_distance[leader_index]
                     else:
-                        start_x = self.team_stat[team]["start_pos"] + team_start_middle_x_distance[general_index]
+                        start_x = self.team_stat[team]["start_pos"] + team_start_middle_x_distance[leader_index]
                     data["Team"] = team
-                    data["ID"] = general.char_id
+                    data["ID"] = leader.char_id
                     if "POS" not in data:
                         data["POS"] = (start_x, Default_Ground_Pos)
-                    if not general_index and army.controllable:
+                    if not leader_index and army.controllable:
                         add_battle_char = CommanderBattleCharacter(self.last_char_game_id,
-                                                                   data | self.character_data.character_list[general.char_id])
+                                                                   data | self.character_data.character_list[leader.char_id])
                         commander_char = add_battle_char
                         self.team_commander[team] = commander_char
                     else:
@@ -35,16 +35,16 @@ def setup_team_characters(self, stage_data):
                         if not army.controllable:
                             additional_layer = 0
                         add_battle_char = BattleCharacter(self.last_char_game_id,
-                                                          data | self.character_data.character_list[general.char_id],
+                                                          data | self.character_data.character_list[leader.char_id],
                                                           None, additional_layer=additional_layer,
-                                                          is_general=True, is_controllable=army.controllable)
+                                                          is_leader=True, is_controllable=army.controllable)
                     if team == 1:
-                        self.character_command_indicator[general_index].setup(add_battle_char)
-                    add_battle_char.general_object = general
+                        self.character_command_indicator[leader_index].setup(add_battle_char)
+                    add_battle_char.leader_object = leader
                     self.last_char_game_id += 1
-                    for value in army.group[general]:
+                    for value in army.group[leader]:
                         add_followers(self, add_battle_char, value, data)
-                    add_battle_char.reset_general_variables()
+                    add_battle_char.reset_leader_variables()
                 for squad in army.air_group:
                     this_group = []
                     for key, number in squad.items():
@@ -84,20 +84,20 @@ def add_neutral_character(self, input_data):
         self.last_char_game_id += 1
 
 
-def add_followers(self, general, value, data, battle_char=True):
+def add_followers(self, leader, value, data, battle_char=True):
     char_class = Character
     if battle_char:
         char_class = BattleCharacter
     for key, number in value.items():
         for _ in range(int(number)):
-            random_pos = Vector2(uniform(general.base_pos[0] - 300,
-                                         general.base_pos[0] + 300), general.base_pos[1])
+            random_pos = Vector2(uniform(leader.base_pos[0] - 300,
+                                         leader.base_pos[0] + 300), leader.base_pos[1])
             if random_pos[0] < 0:
                 random_pos[0] = 1
             elif random_pos[0] > self.base_stage_end:
                 random_pos[0] = self.base_stage_end - 1
             char_class(self.last_char_game_id, self.character_data.character_list[key] |
-                       {"ID": key, "Team": general.team,
+                       {"ID": key, "Team": leader.team,
                         "Start Health": data["Start Health"],
-                        "POS": random_pos}, leader=general, is_controllable=general.is_controllable)
+                        "POS": random_pos}, leader=leader, is_controllable=leader.is_controllable)
             self.last_char_game_id += 1

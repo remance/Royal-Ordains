@@ -31,7 +31,7 @@ def create_config(self):
                                      "Strategy 2": pygame.K_e,
                                      "Strategy 3": pygame.K_r,
                                      "Strategy 4": pygame.K_t,
-                                     "Strategy 5": pygame.K_y,
+                                     "Strategy 5": pygame.K_y
                                      }
                          }
 

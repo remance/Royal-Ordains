@@ -18,9 +18,9 @@ class Army:
         self.reset_stat()
 
     def reset_stat(self):
-        for general, follower_list in self.group.items():
-            self.upkeep += self.character_list[general.char_id]["Upkeep"]
-            self.supply += self.character_list[general.char_id]["Supply"]
+        for leader, follower_list in self.group.items():
+            self.upkeep += self.character_list[leader.char_id]["Upkeep"]
+            self.supply += self.character_list[leader.char_id]["Supply"]
             for follower in follower_list:
                 for key, follower_number in follower.items():
                     self.upkeep += (self.character_list[key]["Upkeep"] * follower_number)
@@ -36,7 +36,7 @@ class Army:
 
 class GarrisonArmy(Army):
     def __init__(self, group: dict, air_group: list, retinue: list):
-        """Garrison in city, has no upkeep and supply use, generals will appear as uncontrollable in battle while
+        """Garrison in city, has no upkeep and supply use, leaders will appear as uncontrollable in battle while
         air_group appear as reinforcement"""
         Army.__init__(self, group, air_group, retinue)
         self.controllable = False

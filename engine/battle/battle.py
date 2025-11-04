@@ -152,7 +152,7 @@ class Battle:
         self.character_updater = game.character_updater
         self.all_characters = game.all_characters
         self.speech_boxes = game.speech_boxes
-        self.player_general_indicators = game.player_general_indicators
+        self.player_leader_indicators = game.player_leader_indicators
         self.stage_objects = game.stage_objects
         self.effect_updater = game.effect_updater
         self.battle_outer_ui_updater = game.battle_outer_ui_updater
@@ -227,7 +227,7 @@ class Battle:
         self.main_story_profile = self.game.save_data.save_profile
 
         self.game_speed = 1
-        self.all_team_general = {index: sprite.Group() for index in team_list}
+        self.all_team_leader = {index: sprite.Group() for index in team_list}
         self.all_team_ally = {index: sprite.Group() for index in team_list}
         self.all_team_enemy_check = {index: sprite.Group() for index in team_list}  # for victory check
 
@@ -244,9 +244,9 @@ class Battle:
         self.team_stat = {team: {"strategy_resource": 0, "start_pos": 0, "retreat_pos": 0,
                                  "air_group": [], "strategy": {}, "unit": {}} for
                           team in team_list}
-        self.player_control_generals = []  # for command ui
+        self.player_control_leaders = []  # for command ui
         self.team_commander = {team: None for team in team_list}
-        self.player_selected_generals = []  # for player order input
+        self.player_selected_leaders = []  # for player order input
         self.player_selected_strategy = None
 
         self.later_reinforcement = {"weather": {}, "time": {}, "team": {team: {"air": [], "ground": {}} for team in team_list}}
@@ -495,8 +495,8 @@ class Battle:
             for value in to_check:
                 for air_group in value.air_group:
                     character_list.append(tuple(air_group.keys())[0])
-                for general, follower in value.group.items():
-                    character_list.append(general.char_id)
+                for leader, follower in value.group.items():
+                    character_list.append(leader.char_id)
                     for follower_data in follower:
                         for follower_id in follower_data:
                             character_list.append(follower_id)
@@ -724,7 +724,7 @@ class Battle:
                     elif event.key == K_F4:
                         self.drama_text.queue.append(
                             ("Each can have a different behaviour, some just move around doing nothing", None))
-                        # for enemy in self.player_control_generals:
+                        # for enemy in self.player_control_leaders:
                         #     for follower in enemy.followers:
                         #         follower.health = 0
                         # self.drama_text.queue.append(
@@ -735,7 +735,7 @@ class Battle:
                         # self.drama_text.queue.append(("All dead.", None))
                         self.drama_text.queue.append(
                             ("Some may be curious like bear cub that will follow any coming close, very dangerous", None))
-                        for team_data in self.all_team_general.values():
+                        for team_data in self.all_team_leader.values():
                             for enemy in team_data:
                                 if enemy.is_commander:
                                     enemy.health = 0
@@ -746,12 +746,12 @@ class Battle:
                         self.call_in_air_group(2, [index for index, _ in enumerate(self.team_stat[2]["air_group"])],
                                                500)
                         # self.screen_shake_value = 11111
-                        # for enemy in self.player_control_generals:
+                        # for enemy in self.player_control_leaders:
                         #     enemy.broken = True
                     elif event.key == K_F7:
                         self.activate_strategy(2, "Spell_huge_stone", 1000)
                         # self.screen_shake_value = 11111
-                        # for enemy in self.player_control_generals:
+                        # for enemy in self.player_control_leaders:
                         #     enemy.broken = True
                     elif event.key == K_F11:  # clear profiler
                         if hasattr(self.game, "profiler"):
@@ -781,7 +781,7 @@ class Battle:
     def clean_character_group(self):
         for this_group in self.all_team_ally.values():
             this_group.empty()
-        for this_group in self.all_team_general.values():
+        for this_group in self.all_team_leader.values():
             this_group.empty()
         for this_group in self.all_team_enemy_check.values():
             this_group.empty()
@@ -819,8 +819,8 @@ class Battle:
                                     "team": {team: {"air": [], "ground": {}} for team in team_list}}
         self.ai_process_list = []
         self.team_commander = {team: None for team in team_list}
-        self.player_control_generals = []
-        self.player_selected_generals = []
+        self.player_control_leaders = []
+        self.player_selected_leaders = []
         self.player_selected_strategy = None
         self.tactical_map_ui.character_rect = {}
         self.speech_prompt.clear()  # clear speech prompt from updater to avoid being deleted
@@ -833,7 +833,7 @@ class Battle:
         self.clean_character_group()
 
         clean_group_object((self.all_characters, self.character_updater, self.effect_updater, self.weather_matters,
-                            self.player_general_indicators))
+                            self.player_leader_indicators))
 
         self.sound_effect_queue = {}
 

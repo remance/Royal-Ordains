@@ -1,4 +1,4 @@
-"ID","Faction","Race","Health","Offence","Defence","Speed","Leadership","Slash Resistance","Crush Resistance","Stab Resistance","Fire Resistance","Water Resistance","Air Resistance","Earth Resistance","Magic Resistance","Poison Resistance","Strategy","Build Time","Cost","Upkeep","Supply","Mass","Capacity","Is General","Is Unique","Commander AI Aggressiveness","Commander AI Cleverness","Commander AI Swiftness","Sub Characters","Spawns","Status Immunity","Type","Class","AI Behaviour","Power Score","Can Setup","Property"
+"ID","Faction","Race","Health","Offence","Defence","Speed","Leadership","Slash Resistance","Crush Resistance","Stab Resistance","Fire Resistance","Water Resistance","Air Resistance","Earth Resistance","Magic Resistance","Poison Resistance","Strategy","Build Time","Cost","Upkeep","Supply","Mass","Capacity","Is Leader","Is Unique","Commander AI Aggressiveness","Commander AI Cleverness","Commander AI Swiftness","Sub Characters","Spawns","Status Immunity","Type","Class","AI Behaviour","Power Score","Can Setup","Property"
 "Barren_orc_axe","Barren","Orc",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"medium_melee",,,,
 "Barren_orc_berserker","Barren","Orc",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"light_melee",,,,
 "Barren_orc_drum","Barren","Orc",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"support",,,,
@@ -29,7 +29,7 @@
 "Castle_human_leader_jester","Castle","Human",300,25,60,78,23,,,,-0.25,,0.25,,0.25,0.5,"Strategy_minor_false_advance",,,,,,,"TRUE",,2,2,5,,,,"ground","support",,,,
 "Castle_human_leader_lord","Castle","Human",550,40,30,45,50,0.25,,0.25,,,,,,-0.25,"Strategy_minor_discipline",,,,,,,"TRUE",,5,5,4,,,,"ground","medium_cavalry",,,,
 "Castle_human_leader_mage","Castle","Human",250,38,15,29,14,-0.5,,,,0.25,,,0.5,,"Spell_magic_bolts",,,,,,,"TRUE",,4,4,3,,,,"ground","support",,,,
-"Castle_human_leader_ranger","Castle","Human",250,64,28,63,31,,,0.25,,,0.25,0.25,,0.5,"Strategy_minor_rally",,,,,,,"TRUE",,3,3,4,,,,"ground","light_range",,,,
+"Castle_human_leader_ranger","Castle","Human",250,64,28,63,31,,,0.25,,,0.25,0.25,,0.5,"Strategy_minor_rally",,,,,,,"TRUE",,3,3,4,,,,"ground","light_range",,,"TRUE",
 "Castle_human_militia_bow","Castle","Human",70,21,5,24,,,,,,,,,,,,,,,,20,16,,,,,,,,,"ground","light_range","range",,"TRUE",
 "Castle_human_militia_spear","Castle","Human",100,30,22,22,,,,,,,,,,,,,,,,28,16,,,,,,,,,"ground","light_melee","melee",,"TRUE",
 "Death_bat_air_bite","Death","Bat",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"air","interceptor","interceptor",,,

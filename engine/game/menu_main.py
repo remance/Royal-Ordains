@@ -1,4 +1,4 @@
-from engine.army.general import General
+from engine.army.leader import Leader
 
 
 def menu_main(self):
@@ -10,34 +10,34 @@ def menu_main(self):
         pass
 
     elif self.test_battle_button.event_press:
-        self.custom_team0_garrison_army.__init__({General("Castle_cat_shield_crossbow"): [{"Castle_cat_shield_crossbow": 10}]},
+        self.custom_team0_garrison_army.__init__({Leader("Castle_cat_shield_crossbow"): [{"Castle_cat_shield_crossbow": 10}]},
                                                  [], [])
-        self.custom_team1_army.__init__({General("Leader_bigta"): [{"Small_rabbit_spear": 20},
+        self.custom_team1_army.__init__({Leader("Leader_bigta"): [{"Small_rabbit_spear": 20},
                                                                    {"Small_rabbit_sling": 20},
                                                                    {"Small_rabbit_spear": 20}],
-                                        General("Leader_iri"): [{"Small_rabbit_spear": 20},
+                                        Leader("Leader_iri"): [{"Small_rabbit_spear": 20},
                                                                  {"Small_rabbit_spear": 20},
                                                                  {"Small_rabbit_spear": 20}]},
                                         [{"Castle_human_air_flying_monk": 10}, {"Small_eagle_air_stone": 10}],
                                         ["Test", "Test", "Test2", "Test2"]
                                         )
-        self.custom_team2_army.__init__({General("Leader_tulia"): [{"Small_rabbit_spear": 20},
+        self.custom_team2_army.__init__({Leader("Leader_tulia"): [{"Small_rabbit_spear": 20},
                                                            {"Small_rabbit_spear": 20},
                                                            {"Small_rabbit_spear": 20}]},
                                         [{"Castle_cat_air_rocket_bomb": 5}, {"Castle_cat_air_rocket_bomb": 5}],
                                         [])
-        self.custom_team1_reinforcement_army.__init__({General("Small_rabbit_leader_hero"):
+        self.custom_team1_reinforcement_army.__init__({Leader("Small_rabbit_leader_hero"):
                                                             [{"Small_rabbit_snail_cav": 10},
                                                              {"Small_rabbit_snail_cav": 10},
                                                              {"Small_rabbit_snail_cav": 10}]},
                                                       [{"Small_eagle_air_stone": 10}], [])
         self.custom_team2_reinforcement_army.__init__({}, [], [])
         self.custom_team1_garrison_army.__init__({}, [], [])
-        self.custom_team2_garrison_army.__init__({General("Small_rabbit_tower"):
+        self.custom_team2_garrison_army.__init__({Leader("Small_rabbit_tower"):
                                                        [{"Small_rabbit_spear": 20},
                                                         {"Small_rabbit_spear": 20},
                                                         {"Small_rabbit_spear": 20}],
-                                                  General("Small_rabbit_tower"): {}}, [], [])
+                                                  Leader("Small_rabbit_tower"): {}}, [], [])
 
         team_stat = {0: {"strategy_resource": 0, "start_pos": 1, "air_group": [], "retinue": (),
                          "strategy": [], "strategy_cooldown": {},

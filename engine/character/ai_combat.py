@@ -168,4 +168,4 @@ def air_ai(self):
 ai_combat_dict = {"default": no_ai, "melee": common_ai, "range": common_ai, "nice": no_ai,
                   "curious": common_ai, "territorial": common_ai,
                   "trap": common_ai, "boss_cheer": cheer_ai,
-                  "general": common_ai, "interceptor": air_ai, "fighter": air_ai, "bomber": air_ai}
+                  "leader": common_ai, "interceptor": air_ai, "fighter": air_ai, "bomber": air_ai}

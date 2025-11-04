@@ -8,8 +8,8 @@ def enter_stage(self):
 def battle_character_enter_stage(self):
     """run once when scene start or character just get created"""
     # Add character to list
-    if self.is_general:
-        self.battle.all_team_general[self.team].add(self)
+    if self.is_leader:
+        self.battle.all_team_leader[self.team].add(self)
     self.ally_list.add(self)
     if not self.invincible:  # not add to list if can't take damage
         for team in self.battle.all_team_enemy_check:

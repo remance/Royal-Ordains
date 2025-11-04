@@ -26,7 +26,7 @@ from engine.character.get_damage import get_damage
 from engine.character.finish_animation import finish_animation
 from engine.character.health_resource_logic import health_resource_logic, air_health_resource_logic
 from engine.character.issue_commander_order import issue_commander_order
-from engine.character.reset_general_variables import reset_general_variables
+from engine.character.reset_leader_variables import reset_leader_variables
 from engine.character.move_logic import move_logic, sub_move_logic, air_move_logic
 from engine.character.pick_animation import pick_animation
 from engine.character.pick_cutscene_animation import pick_cutscene_animation
@@ -39,7 +39,7 @@ from engine.effect.cal_damage import cal_damage
 from engine.effect.hit_collide_check import hit_collide_check
 from engine.effect.hit_register import hit_register
 
-from engine.uibattle.uibattle import DamageNumber, CharacterGeneralIndicator
+from engine.uibattle.uibattle import DamageNumber, CharacterLeaderIndicator
 
 from engine.utils.text_making import text_render_with_bg
 from engine.utils.common import clean_object
@@ -101,7 +101,7 @@ class Character(sprite.Sprite):
     finish_animation = finish_animation
     health_resource_logic = health_resource_logic
     issue_commander_order = issue_commander_order
-    reset_general_variables = reset_general_variables
+    reset_leader_variables = reset_leader_variables
     move_logic = move_logic
     pick_animation = pick_animation
     pick_cutscene_animation = pick_cutscene_animation
@@ -139,7 +139,7 @@ class Character(sprite.Sprite):
     Character_Gravity = Character_Gravity
 
     def __init__(self, game_id: int, stat: dict, additional_layer: int = 0, is_commander: bool = False,
-                 is_general: bool = False, is_controllable: bool = False) -> None:
+                 is_leader: bool = False, is_controllable: bool = False) -> None:
         """
         Character object represent a character that may or may not fight in battle
         """
@@ -168,7 +168,7 @@ class Character(sprite.Sprite):
         self.cutscene_event = None
         self.speech = None
         self.is_commander = is_commander
-        self.is_general = is_general
+        self.is_leader = is_leader
         self.is_controllable = is_controllable
 
         self.current_action = {}  # action being performed
@@ -248,14 +248,14 @@ class Character(sprite.Sprite):
         self.ai_behaviour = stat["AI Behaviour"]
 
         self.ai_move = MethodType(ai_move_dict["default"], self)
-        if self.is_general and self.is_controllable:  # controllable general use behaviour that move based on commander order
-            self.ai_move = MethodType(ai_move_dict["general"], self)
+        if self.is_leader and self.is_controllable:  # controllable leader use behaviour that move based on commander order
+            self.ai_move = MethodType(ai_move_dict["leader"], self)
         elif self.ai_behaviour in ai_move_dict:
             self.ai_move = MethodType(ai_move_dict[self.ai_behaviour], self)
 
         self.ai_combat = MethodType(ai_combat_dict["default"], self)
-        if self.is_general and self.is_controllable:
-            self.ai_combat = MethodType(ai_combat_dict["general"], self)
+        if self.is_leader and self.is_controllable:
+            self.ai_combat = MethodType(ai_combat_dict["leader"], self)
         elif self.ai_behaviour in ai_combat_dict:
             self.ai_combat = MethodType(ai_combat_dict[self.ai_behaviour], self)
 
@@ -389,7 +389,7 @@ class BattleCharacter(Character):
 
     def __init__(self, game_id: int, stat: dict, leader: BattleCharacter = None,
                  additional_layer: int = 0, is_commander: bool = False,
-                 is_general: bool = False, is_controllable: bool = False, is_summon: bool = False) -> None:
+                 is_leader: bool = False, is_controllable: bool = False, is_summon: bool = False) -> None:
         """
         BattleCharacter object represent a character that take part in the battle in stage
         Character has three different stage of stat;
@@ -563,7 +563,7 @@ class BattleCharacter(Character):
         self.no_defence = False
         self.no_dodge = False
         Character.__init__(self, game_id, stat, additional_layer=additional_layer, is_commander=is_commander,
-                           is_general=is_general, is_controllable=is_controllable)
+                           is_leader=is_leader, is_controllable=is_controllable)
 
         self.retreat_stage_end = self.battle.base_stage_end + self.sprite_width
         self.retreat_stage_start = -self.sprite_width
@@ -582,15 +582,15 @@ class BattleCharacter(Character):
             self.command_icon = self.battle.character_portraits[stat["ID"]]["command"]
             self.command_icon_right = self.battle.character_portraits[stat["ID"]]["command"]["right"]
 
-        if is_general and is_controllable and self.team == 1:
-            self.battle.player_control_generals.append(self)
-            self.indicator = CharacterGeneralIndicator(self)
+        if is_leader and is_controllable and self.team == 1:
+            self.battle.player_control_leaders.append(self)
+            self.indicator = CharacterLeaderIndicator(self)
 
-            index = self.battle.player_control_generals.index(self) + 1
+            index = self.battle.player_control_leaders.index(self) + 1
             if "control" not in self.battle.character_portraits[stat["ID"]] or \
                     index not in self.battle.character_portraits[stat["ID"]]["control"]:
                 self.icon = {key: value.copy() for key, value in self.icon.items()}
-                text = text_render_with_bg(str(self.battle.player_control_generals.index(self) + 1),
+                text = text_render_with_bg(str(self.battle.player_control_leaders.index(self) + 1),
                                            self.battle.game.character_indicator_font,
                                            gf_colour=(0, 0, 0),
                                            o_colour=(255, 255, 255))
@@ -692,12 +692,12 @@ class BattleCharacter(Character):
                     # finish die animation and no momentum left
                     if not self.is_sub_character:
                         self.battle.scene.full_scene_image.blit(self.image, self.rect)  # blit corpse into main scene
-                    if self.is_general and not self.no_spirit:
+                    if self.is_leader and not self.no_spirit:
                         self.current_action = self.spirit_command_action
                         self.show_frame = 0
                         self.frame_timer = 0
                         self.pick_animation()
-                    else:  # non-general or those with no_spirit property do not play spirit animation
+                    else:  # non-leader or those with no_spirit property do not play spirit animation
                         if not self.is_summon:  # play float "cross" symbol for non-summon
                             DamageNumber("t", self.rect.midtop, True, self.team)
                         self.erase()  # remove character
@@ -801,6 +801,6 @@ class CommanderBattleCharacter(BattleCharacter):
         When the commander character die, every character in that team will enter broken state.
         They will no longer fight and instead retreat from battle.
         """
-        BattleCharacter.__init__(self, game_id, stat, is_commander=True, is_general=True, is_controllable=True,
+        BattleCharacter.__init__(self, game_id, stat, is_commander=True, is_leader=True, is_controllable=True,
                                  additional_layer=100000000)
         self.max_enemy_range_check = self.last_grid * Default_Screen_Width  # commander check enemy at all range instead

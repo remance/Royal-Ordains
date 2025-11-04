@@ -83,29 +83,29 @@ def gather_info_basic(self):
 
 def gather_info_power(self):
     battle_scale = self.battle.battle_scale[self.team] / sum(self.battle.battle_scale)
-    own_general_power = {}
-    own_general_health = {}
+    own_leader_power = {}
+    own_leader_health = {}
 
     melee_power_comparison = [0, 0]
     range_power_comparison = [0, 0]
     total_power_comparison = [0, 0]
     total_enemy = 0
 
-    for team in self.battle.all_team_general:
+    for team in self.battle.all_team_leader:
         if team != self.team:
-            for general in self.battle.all_team_general[team]:
-                total_enemy += 1 + general.max_followers_len_check
-                melee_power_comparison[1] += general.total_melee_power_score
-                range_power_comparison[1] += general.total_range_power_score
-                total_power_comparison[1] += general.total_power_score
+            for leader in self.battle.all_team_leader[team]:
+                total_enemy += 1 + leader.max_followers_len_check
+                melee_power_comparison[1] += leader.total_melee_power_score
+                range_power_comparison[1] += leader.total_range_power_score
+                total_power_comparison[1] += leader.total_power_score
         else:
-            for general in self.battle.all_team_general[team]:
-                melee_power_comparison[0] += general.total_melee_power_score
-                range_power_comparison[0] += general.total_range_power_score
-                total_power_comparison[0] += general.total_power_score
-                own_general_power[general] = (general.total_melee_power_score, general.total_range_power_score,
-                                              general.total_power_score)
-                own_general_health[general] = general.health / general.base_health
+            for leader in self.battle.all_team_leader[team]:
+                melee_power_comparison[0] += leader.total_melee_power_score
+                range_power_comparison[0] += leader.total_range_power_score
+                total_power_comparison[0] += leader.total_power_score
+                own_leader_power[leader] = (leader.total_melee_power_score, leader.total_range_power_score,
+                                              leader.total_power_score)
+                own_leader_health[leader] = leader.health / leader.base_health
 
     melee_power_comparison = melee_power_comparison[0] / melee_power_comparison[1]
     range_power_comparison = range_power_comparison[0] / range_power_comparison[1]

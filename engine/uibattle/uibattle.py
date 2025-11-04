@@ -66,7 +66,7 @@ class BattleCursor(UIBattle, MenuCursor):
         if self.is_select_down:
             self.image = self.images["click"]
         else:
-            if self.mouse_over or (not self.battle.player_selected_generals and not self.battle.player_selected_strategy):
+            if self.mouse_over or (not self.battle.player_selected_leaders and not self.battle.player_selected_strategy):
                 if self.is_alt_select_down:
                     self.image = self.images["click"]
                 else:
@@ -76,7 +76,7 @@ class BattleCursor(UIBattle, MenuCursor):
                     self.image = self.images["strategy_click"]
                 else:
                     self.image = self.images["strategy"]
-            elif self.battle.player_selected_generals:  # change cursor to match for character input right click
+            elif self.battle.player_selected_leaders:  # change cursor to match for character input right click
                 if self.battle.alt_press:
                     if self.is_alt_select_down:
                         self.image = self.images["attack_click"]
@@ -271,7 +271,7 @@ class Command(UIBattle):
         self.air_group_resource = [None, None, None, None, None]
         self.air_bar_width = 100 * self.screen_scale[0]
         self.air_bar_height = 15 * self.screen_scale[0]
-        self.len_player_control_generals = None
+        self.len_player_control_leaders = None
         self.selected_air_group_indexes = []
         self.icon_status = {}
         self.health_follower_status = {}
@@ -288,7 +288,7 @@ class Command(UIBattle):
         self.update_timer += self.battle.true_dt
         if self.update_timer > 0.2:
             self.update_timer -= 0.2
-            if len(self.battle.player_control_generals) != self.len_player_control_generals:
+            if len(self.battle.player_control_leaders) != self.len_player_control_leaders:
                 # reset some stuffs to recreate image
                 self.image = self.base_image.copy()
                 self.icon_status = {}
@@ -296,11 +296,11 @@ class Command(UIBattle):
                 self.air_group_health = [None, None, None, None, None]
                 self.air_group_resource = [None, None, None, None, None]
                 self.player_air_group_number = [None, None, None, None, None]
-                self.len_player_control_generals = len(self.battle.player_control_generals)
-            for index, character in enumerate(self.battle.player_control_generals):
-                # add general character_ui
+                self.len_player_control_leaders = len(self.battle.player_control_leaders)
+            for index, character in enumerate(self.battle.player_control_leaders):
+                # add leader character_ui
                 if character.alive:
-                    check = (character in self.battle.player_selected_generals, character.broken,
+                    check = (character in self.battle.player_selected_leaders, character.broken,
                              "broken" in character.commander_order)
                     if character not in self.icon_status or self.icon_status[character] != check:
                         self.icon_status[character] = check
@@ -403,13 +403,13 @@ class Command(UIBattle):
             for character, rect in self.character_rect.items():
                 if rect.collidepoint(inside_mouse_pos):
                     if self.battle.shift_press:
-                        self.battle.player_selected_generals.append(character)
+                        self.battle.player_selected_leaders.append(character)
                     elif self.battle.ctrl_press:
-                        if character in self.battle.player_selected_generals:
-                            self.battle.player_selected_generals.remove(character)
+                        if character in self.battle.player_selected_leaders:
+                            self.battle.player_selected_leaders.remove(character)
                     else:
-                        self.battle.player_selected_generals = [character]
-                    self.battle.player_selected_generals = list(set(self.battle.player_selected_generals))
+                        self.battle.player_selected_leaders = [character]
+                    self.battle.player_selected_leaders = list(set(self.battle.player_selected_leaders))
                     return
 
             for air_group, rect in self.air_group_rect.items():
@@ -447,7 +447,7 @@ class Command(UIBattle):
         self.selected_air_group_indexes = []
         self.icon_status = {}
         self.health_follower_status = {}
-        self.len_player_control_generals = None
+        self.len_player_control_leaders = None
         self.air_group_health = [None, None, None, None, None]
         self.air_group_resource = [None, None, None, None, None]
         self.player_air_group_number = [None, None, None, None, None]
@@ -634,22 +634,22 @@ class TacticalMap(UIBattle):
             self.image.blit(self.camera_border_image,
                             self.camera_border_image.get_rect(topleft=(self.battle.base_camera_left / self.map_scale_width, 0)))
 
-            # Draw general character
-            for team, general_list in self.battle.all_team_general.items():
-                revamp_list = [general for general in general_list]
+            # Draw leader character
+            for team, leader_list in self.battle.all_team_leader.items():
+                revamp_list = [leader for leader in leader_list]
                 # sort list by priority of being shown in tactical map
                 revamp_list.sort(key=lambda x: (not x.is_controllable, x.is_commander, x.is_controllable))
                 for character in revamp_list:
                     back_icon = self.team_icon_border[character.team]["unselected"]
                     icon = character.icon[character.direction]
-                    if not character.is_controllable:  # use smaller icon at bottom for uncontrollable general
+                    if not character.is_controllable:  # use smaller icon at bottom for uncontrollable leader
                         scaled_pos = (character.base_pos[0] / self.map_scale_width, self.ground_noselect_icon_pos_y)
                         icon = character.command_icon[character.direction]
                         back_icon = self.team_icon_border[character.team]["noselect"]
                     else:
                         scaled_pos = (character.base_pos[0] / self.map_scale_width, self.ground_icon_pos_y)
                         if character.team == 1:
-                            if character in self.battle.player_selected_generals:
+                            if character in self.battle.player_selected_leaders:
                                 if character.is_commander:
                                     back_icon = self.team_icon_border[character.team]["commander_selected"]
                                 else:
@@ -717,14 +717,14 @@ class TacticalMap(UIBattle):
             for character, rect in self.character_rect.items():
                 if rect.collidepoint(inside_mouse_pos) and character.is_controllable:
                     if self.battle.shift_press:
-                        self.battle.player_selected_generals.append(character)
+                        self.battle.player_selected_leaders.append(character)
                     elif self.battle.ctrl_press:
-                        if character in self.battle.player_selected_generals:
-                            self.battle.player_selected_generals.remove(character)
+                        if character in self.battle.player_selected_leaders:
+                            self.battle.player_selected_leaders.remove(character)
                     else:
-                        self.battle.player_selected_generals = [character]
+                        self.battle.player_selected_leaders = [character]
                         break
-            self.battle.player_selected_generals = list(set(self.battle.player_selected_generals))
+            self.battle.player_selected_leaders = list(set(self.battle.player_selected_leaders))
         elif self.event_alt_press:
             self.battle.camera_pos[0] = ((self.cursor.pos[0] - self.rect.topleft[0]) * self.map_scale_width *
                                          self.screen_scale[0])
@@ -941,26 +941,26 @@ class PlayerBattleInteract(UIBattle):
 
         if not self.event_hold and not self.event_press:
             if self.selection_start_pos:  # release hold while band exist
-                rect_list = list(set([character for index, character in enumerate(self.battle.all_team_general[1]) if
+                rect_list = list(set([character for index, character in enumerate(self.battle.all_team_leader[1]) if
                                       index in self.rect.collidelistall([
                                           character.rect for
-                                          character in self.battle.all_team_general[1] if character.is_controllable])]
+                                          character in self.battle.all_team_leader[1] if character.is_controllable])]
                                      + [indicator.character for index, indicator in
-                                        enumerate(self.battle.player_general_indicators) if index in
+                                        enumerate(self.battle.player_leader_indicators) if index in
                                         self.rect.collidelistall([indicator.rect for indicator in
-                                                                       self.battle.player_general_indicators])]))
+                                                                       self.battle.player_leader_indicators])]))
                 if self.battle.shift_press:
-                    self.battle.player_selected_generals += rect_list
-                    self.battle.player_selected_generals = list(set(self.battle.player_selected_generals))
+                    self.battle.player_selected_leaders += rect_list
+                    self.battle.player_selected_leaders = list(set(self.battle.player_selected_leaders))
                 elif self.battle.ctrl_press:
                     for character in rect_list:
-                        if character in self.battle.player_selected_generals:
-                            self.battle.player_selected_generals.remove(character)
+                        if character in self.battle.player_selected_leaders:
+                            self.battle.player_selected_leaders.remove(character)
                 else:
-                    self.battle.player_selected_generals = rect_list
+                    self.battle.player_selected_leaders = rect_list
                 self.reset()
 
-            if self.event_alt_press:  # right click order selected general to do something
+            if self.event_alt_press:  # right click order selected leader to do something
                 if self.battle.player_selected_strategy:
                     # has strategy selected, prioritise activate strategy for this input
                     if self.battle.activate_strategy(1, self.battle.player_selected_strategy[0],
@@ -969,12 +969,12 @@ class PlayerBattleInteract(UIBattle):
                         # successfully activate strategy
                         self.battle.player_selected_strategy = None
                 else:
-                    if self.battle.player_selected_generals:
-                        for general in self.battle.player_selected_generals:
+                    if self.battle.player_selected_leaders:
+                        for leader in self.battle.player_selected_leaders:
                             if self.battle.alt_press:  # order to move and attack enemy in range along the way
-                                general.issue_commander_order(("attack", self.battle.base_cursor_pos[0]))
+                                leader.issue_commander_order(("attack", self.battle.base_cursor_pos[0]))
                             else:  # order to move to area, no attack at all until reach
-                                general.issue_commander_order(("move", self.battle.base_cursor_pos[0]))
+                                leader.issue_commander_order(("move", self.battle.base_cursor_pos[0]))
                     if self.battle.command_ui.selected_air_group_indexes:
                         self.battle.call_in_air_group(1, self.battle.command_ui.selected_air_group_indexes,
                                                       self.battle.base_cursor_pos[0])
@@ -1101,20 +1101,20 @@ class CharacterCommandIndicator(UIBattle):
         self.rect = self.image.get_rect(center=(0, 0))
         self.index = index
         self.check_order = None
-        self.general = None
+        self.leader = None
 
-    def setup(self, general=None):
-        if general:
-            self.general = general
-            self.move_image.blit(self.general.icon["right"], self.general.icon["right"].get_rect(topleft=(0, 0)))
-            self.attack_image.blit(self.general.icon["right"], self.general.icon["right"].get_rect(topleft=(0, 0)))
+    def setup(self, leader=None):
+        if leader:
+            self.leader = leader
+            self.move_image.blit(self.leader.icon["right"], self.leader.icon["right"].get_rect(topleft=(0, 0)))
+            self.attack_image.blit(self.leader.icon["right"], self.leader.icon["right"].get_rect(topleft=(0, 0)))
             self.battle.effect_updater.add(self)
         else:
             self.battle.effect_updater.remove(self)
 
     def update(self, dt):
-        if self.general.alive:
-            order_check = self.general.true_commander_order
+        if self.leader.alive:
+            order_check = self.leader.true_commander_order
             if order_check and "broken" not in order_check:  # only show move and attack command
                 if self not in self.battle_camera_drawer:
                     self.battle_camera_drawer.add(self)
@@ -1131,7 +1131,7 @@ class CharacterCommandIndicator(UIBattle):
                 self.battle_camera_drawer.remove(self)
 
 
-class CharacterGeneralIndicator(UIBattle):
+class CharacterLeaderIndicator(UIBattle):
     indicator_select_image = None
     text_image_cache = {team: {} for team in team_colour}
 
@@ -1142,13 +1142,13 @@ class CharacterGeneralIndicator(UIBattle):
         self.height_adjust = character.sprite_height
         font = self.game.character_indicator_font
 
-        index = self.battle.player_control_generals.index(character)
-        text = "g" + str(index + 1)
+        index = self.battle.player_control_leaders.index(character)
+        text = "L" + str(index + 1)
         if character.is_commander:
             text = "C" + str(index + 1)
 
         if character.team == 1:
-            self.battle.player_general_indicators.add(self)
+            self.battle.player_leader_indicators.add(self)
 
         if text not in self.text_image_cache[self.character.team]:
             self.text_image_cache[self.character.team][text] = {}
@@ -1208,10 +1208,10 @@ class CharacterGeneralIndicator(UIBattle):
                     percent_scale += self.image_width * percent
 
             self.image.blit(self.follower_bar, self.follower_bar_rect)
-        if self.character in self.battle.player_selected_generals and not self.selected:
+        if self.character in self.battle.player_selected_leaders and not self.selected:
             self.image.blit(self.selected_text_image, self.text_rect)
             self.selected = True
-        elif self.character not in self.battle.player_selected_generals and self.selected:
+        elif self.character not in self.battle.player_selected_leaders and self.selected:
             self.image.blit(self.base_text_image, self.text_rect)
             self.selected = False
 

@@ -1,7 +1,7 @@
 infinity = float("inf")
 
 
-def reset_general_variables(self):
+def reset_leader_variables(self):
     """Update variable related to leader AI"""
     self.followers_len_check = [0, 0]
     self.total_range_power_score = 0

@@ -24,7 +24,7 @@ from engine.lorebook.lorebook import Lorebook, lorebook_process
 from engine.menubackground.menubackground import MenuActor, MenuRotate, StaticImage
 from engine.stageobject.stageobject import StageObject
 from engine.uibattle.uibattle import (Profiler, FPSCount, DamageNumber, CharacterSpeechBox,
-                                      CharacterGeneralIndicator, CharacterCommandIndicator)
+                                      CharacterLeaderIndicator, CharacterCommandIndicator)
 from engine.uimenu.uimenu import (OptionMenuText, SliderMenu, MenuCursor, BoxUI, BrownMenuButton,
                                   TextPopup, PresetSelectInterface, FactionSelector, CustomArmySetupUI,
                                   CharacterSelector, MapTitle, ListUI, CustomPresetListAdapter)
@@ -259,7 +259,7 @@ class Game:
 
         self.all_characters = sprite.Group()  # group for all character objects for cleaning
         self.stage_objects = sprite.Group()  # group for all scene objects for event delete check
-        self.player_general_indicators = sprite.Group()  # group for select check of all indicator of player general
+        self.player_leader_indicators = sprite.Group()  # group for select check of all indicator of player leader
 
         self.button_uis = sprite.Group()  # ui button group in battle
 
@@ -282,7 +282,7 @@ class Game:
 
         # battle containers
         CharacterSpeechBox.containers = self.effect_updater, self.battle_camera_ui_drawer, self.speech_boxes
-        CharacterGeneralIndicator.containers = self.effect_updater, self.battle_camera_ui_drawer
+        CharacterLeaderIndicator.containers = self.effect_updater, self.battle_camera_ui_drawer
         CharacterCommandIndicator.containers = self.effect_updater
         DamageNumber.containers = self.effect_updater, self.battle_camera_ui_drawer
         Effect.containers = self.effect_updater
@@ -545,6 +545,7 @@ class Game:
         self.remove_ui_updater(self.hide_background)
 
         self.dt = 0
+        self.input_delay = 0
         self.text_delay = 0
         self.add_ui_updater(self.main_menu_buttons)
 
@@ -596,6 +597,10 @@ class Game:
             # Get user input
             self.remove_ui_updater(self.text_popup)
             self.dt = self.clock.get_time() / 1000  # dt before game_speed
+            if self.input_delay:
+                self.input_delay -= self.dt
+                if self.input_delay < 0:
+                    self.input_delay = 0
             self.cursor.scroll_down = False
             self.cursor.scroll_up = False
             self.esc_press = False

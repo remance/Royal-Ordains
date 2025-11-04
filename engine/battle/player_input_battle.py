@@ -22,51 +22,51 @@ def camera_go_right(self):
 
 
 def key_retreat(self):
-    """Order retreat to selected generals"""
-    for general in self.player_selected_generals:
-        if "broken" not in general.commander_order:
-            general.issue_commander_order(("broken", ))
+    """Order retreat to selected leaders"""
+    for leader in self.player_selected_leaders:
+        if "broken" not in leader.commander_order:
+            leader.issue_commander_order(("broken", ))
         else:
-            general.issue_commander_order(("move", general.base_pos[0]))
+            leader.issue_commander_order(("move", leader.base_pos[0]))
 
 
 def key_clear(self):
-    """Remove current order to selected generals"""
-    for general in self.player_selected_generals:
-        general.issue_commander_order(())
+    """Remove current order to selected leaders"""
+    for leader in self.player_selected_leaders:
+        leader.issue_commander_order(())
 
 
-def key_select_general(self, index):
-    if index <= len(self.player_control_generals):
-        general = self.player_control_generals[index - 1]
+def key_select_leader(self, index):
+    if index <= len(self.player_control_leaders):
+        leader = self.player_control_leaders[index - 1]
         if self.shift_press:
-            if general not in self.player_selected_generals:
-                self.player_selected_generals.append(general)
+            if leader not in self.player_selected_leaders:
+                self.player_selected_leaders.append(leader)
         elif self.ctrl_press:
-            if general in self.player_selected_generals:
-                self.player_selected_generals.remove(general)
+            if leader in self.player_selected_leaders:
+                self.player_selected_leaders.remove(leader)
         else:
-            self.player_selected_generals = [general]
+            self.player_selected_leaders = [leader]
 
 
-def key_select_general_1(self):
-    key_select_general(self, 1)
+def key_select_leader_1(self):
+    key_select_leader(self, 1)
 
 
-def key_select_general_2(self):
-    key_select_general(self, 2)
+def key_select_leader_2(self):
+    key_select_leader(self, 2)
 
 
-def key_select_general_3(self):
-    key_select_general(self, 3)
+def key_select_leader_3(self):
+    key_select_leader(self, 3)
 
 
-def key_select_general_4(self):
-    key_select_general(self, 4)
+def key_select_leader_4(self):
+    key_select_leader(self, 4)
 
 
-def key_select_general_5(self):
-    key_select_general(self, 5)
+def key_select_leader_5(self):
+    key_select_leader(self, 5)
 
 
 def key_select_strategy(self, index):
@@ -108,9 +108,9 @@ def key_select_strategy_5(self):
 battle_key_hold = {"Left": camera_go_left, "Right": camera_go_right}
 
 battle_key_input = {"Retreat": key_retreat, "Clear": key_clear,
-                    "Select 1": key_select_general_1, "Select 2": key_select_general_2,
-                    "Select 3": key_select_general_3, "Select 4": key_select_general_4,
-                    "Select 5": key_select_general_5, "Strategy 1": key_select_strategy_1,
+                    "Select 1": key_select_leader_1, "Select 2": key_select_leader_2,
+                    "Select 3": key_select_leader_3, "Select 4": key_select_leader_4,
+                    "Select 5": key_select_leader_5, "Strategy 1": key_select_strategy_1,
                     "Strategy 2": key_select_strategy_2,
                     "Strategy 3": key_select_strategy_3, "Strategy 4": key_select_strategy_4,
                     "Strategy 5": key_select_strategy_5}
