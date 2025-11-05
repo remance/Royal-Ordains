@@ -10,8 +10,8 @@ from pygame.sprite import Sprite
 
 from engine.utils.common import keyboard_mouse_press_check
 from engine.utils.data_loading import load_image
-from engine.utils.text_making import text_render_with_bg, make_long_text
-
+from engine.utils.text_making import text_render_with_bg, make_long_text, add_comma_number
+from engine.constants import Custom_Default_Faction
 none_type = type(None)
 
 
@@ -311,12 +311,12 @@ class FactionSelector(UIMenu):
             if x_index == len(rect_placement) - 1:
                 y = 220 * self.screen_scale[1]
                 x_index = 0
-        self.selected_faction = None
+        self.selected_faction = Custom_Default_Faction
 
         self.rect = self.image.get_rect(midtop=pos)
-        self.update_coa("Castle")
+        self.change_coa(Custom_Default_Faction)
 
-    def update_coa(self, new_select_faction):
+    def change_coa(self, new_select_faction):
         for faction, rect in self.faction_coa_rects.items():
             if faction == new_select_faction:
                 coa = self.faction_coas[faction]["mini"].copy()
@@ -327,7 +327,9 @@ class FactionSelector(UIMenu):
             elif faction == self.selected_faction:  # unselected old one
                 self.image.blit(self.faction_coas[faction]["mini"], self.faction_coa_rects[faction])
         self.selected_faction = new_select_faction
-        self.game.custom_army_setup.update_coa(new_select_faction)
+        self.game.custom_army_setup.change_coa(new_select_faction)
+        if self.selected_faction not in self.game.before_save_preset_army_setup:
+            self.game.before_save_preset_army_setup[self.selected_faction] = {}
 
     def update(self):
         UIMenu.update(self)
@@ -337,10 +339,8 @@ class FactionSelector(UIMenu):
                 (self.cursor.pos[1] - self.rect.topleft[1]))
             for faction, rect in self.faction_coa_rects.items():
                 if rect.collidepoint(inside_mouse_pos):
-                    # print(faction)
-                    # self.game.text_popup.popup(rect, faction)  # this rect only work if ui is at corner left of screen
                     if self.event_press:
-                        self.update_coa(faction)
+                        self.change_coa(faction)
                     break
 
 
@@ -355,7 +355,7 @@ class CharacterSelector(UIMenu):
         self.font_width = self.font.size("a")[0]
         self.image = Surface((int(1300 * self.screen_scale[0]), int(1080 * self.screen_scale[1])), SRCALPHA)
         self.image.fill((100, 100, 100))
-        self.selected_faction = None
+        self.selected_faction = Custom_Default_Faction
         self.portrait_rects = []
         self.shown_character_list = []
         temp_rect_image = Surface((int(170 * self.screen_scale[0]), int(170 * self.screen_scale[1])))
@@ -386,7 +386,7 @@ class CharacterSelector(UIMenu):
 
         self.shown_character_list = custom_character_setup
         for index, character in enumerate(self.shown_character_list):
-            self.image.blit(self.character_portraits[character]["tactical"]["right"], self.portrait_rects[index])
+            self.image.blit(self.character_portraits[character]["setup_ui"], self.portrait_rects[index])
 
     def update(self):
         UIMenu.update(self)
@@ -410,7 +410,7 @@ class CharacterSelector(UIMenu):
                                      self.localisation.grab_text(("ui", "Offence:")) + str(character_data["Offence"]),
                                      self.localisation.grab_text(("ui", "Defence:")) + str(character_data["Defence"]),
                                      self.localisation.grab_text(("ui", "Speed:")) + str(character_data["Speed"]),
-                                     self.localisation.grab_text(("ui", "Cost:")) + str(character_data["Cost"]))
+                                     self.localisation.grab_text(("ui", "Cost:")) + add_comma_number(character_data["Cost"]))
                         self.game.text_popup.popup((self.cursor.pos[0] - (1000 * self.screen_scale[1]),
                                                     self.cursor.pos[1] + (150 * self.screen_scale[1])), char_stat,
                                                    width_text_wrapper=int(1000 * self.screen_scale[0]))
@@ -471,28 +471,23 @@ class CustomArmySetupUI(UIMenu):
             self.portrait_type_rects["air"].append(rect)
 
         self.army_preset = self.empty_army_preset.copy()
-        self.selected_faction = None
+        self.selected_faction = Custom_Default_Faction
+        self.current_preset = ""
         self.selected_portrait_index = ()
         self.rect = self.image.get_rect(midtop=pos)
 
-    def update_coa(self, selected_faction):
+    def change_coa(self, selected_faction):
         """Reset army preset when player change faction"""
+        self.current_preset = ""
         self.total_gold_cost = 0
         self.total_character_number = 0
         self.army_preset = deepcopy(self.empty_army_preset)
         self.selected_faction = selected_faction
         self.selected_portrait_index = ()
-        for index, rect in enumerate(self.portrait_rects):
-            if rect in self.portrait_type_rects["ground"]:
-                leader_index = int(index / 4)
-                char = self.army_preset["ground"][leader_index][index - (leader_index * 4)]
-            else:
-                char = self.army_preset["air"][index - 20]
-            image = self.circle
-            if char == "custom_lock":
-                image = self.locked_circle
-            self.image.blit(image, rect)
         self.game.custom_character_selector.add(None, "")
+        self.game.custom_army_title.change_text(self.current_preset, self.total_gold_cost)
+        self.game.custom_preset_list_box.adapter.__init__()  # reset custom preset list as well
+        self.reset()
 
     def change_character(self, character):
         rect_index = self.get_rect_index(self.selected_portrait_index)
@@ -509,31 +504,14 @@ class CustomArmySetupUI(UIMenu):
             self.army_preset["air"][self.selected_portrait_index[0]] = character
             self.game.custom_character_selector.add(self.selected_faction, "air")
 
-        self.image.blit(self.character_portraits[character]["tactical"]["right"],
-                        self.portrait_rects[rect_index])
-        self.reset_lock()
+        self.image.blit(self.character_portraits[character]["setup_ui"], self.portrait_rects[rect_index])
+        self.reset()
 
     def change_portrait_selection(self, new_index_list):
         if ((len(new_index_list) == 2 and self.army_preset["ground"][new_index_list[0]][new_index_list[1]] != "custom_lock") or
                 (len(new_index_list) == 1 and self.army_preset["air"][new_index_list[0]] != "custom_lock")):
-            if self.selected_portrait_index:  # remove selected circle from old portrait first
-                if len(self.selected_portrait_index) > 1:  # ground character
-                    character = self.army_preset["ground"][self.selected_portrait_index[0]][self.selected_portrait_index[1]]
-                else:  # air character
-                    character = self.army_preset["air"][self.selected_portrait_index[0]]
-                old_rect_index = self.get_rect_index(self.selected_portrait_index)
-
-                self.image.blit(self.circle, self.portrait_rects[old_rect_index])
-                if character == "custom_lock":
-                    self.image.blit(self.locked_circle, self.portrait_rects[old_rect_index])
-                elif character:
-                    self.image.blit(self.character_portraits[character]["tactical"]["right"], self.portrait_rects[old_rect_index])
-
             self.selected_portrait_index = new_index_list
-
-            rect_index = self.get_rect_index(self.selected_portrait_index)
-            self.image.blit(self.selected_circle, self.portrait_rects[rect_index])
-
+            self.reset()
             if len(new_index_list) == 1:
                 self.game.custom_character_selector.add(self.selected_faction, "air")
             else:
@@ -552,59 +530,109 @@ class CustomArmySetupUI(UIMenu):
         else:  # air character
             return selected_portrait_index[0] + 20
 
-    def reset_lock(self):
-        if not self.army_preset["ground"][0][0]:  # no commander, reset everything
-            self.update_coa(self.selected_faction)
-        else:
-            self.total_gold_cost = 0
-            for key_group, group in self.army_preset["ground"].items():
-                for key_unit, unit in group.items():
-                    rect_index = self.get_rect_index((key_group, key_unit))
-                    if key_unit or key_group:  # not commander
-                        if not key_unit:  # leader, check precede leader
-                            if self.army_preset["ground"][key_group - 1][key_unit] in (None, "custom_lock"):
-                                # locked, require added precede leader/follower to be unlocked
-                                self.army_preset["ground"][key_group][key_unit] = "custom_lock"
-                                self.image.blit(self.locked_circle, self.portrait_rects[rect_index])
-                            elif (self.army_preset["ground"][key_group][key_unit] == "custom_lock" or
-                                  not self.army_preset["ground"][key_group][key_unit]):
-                                self.army_preset["ground"][key_group][key_unit] = None
-                                self.image.blit(self.circle, self.portrait_rects[rect_index])
+    def reset(self):
+        self.image.fill((180, 100, 180))
+
+        self.total_gold_cost = 0
+        for key_group, group in self.army_preset["ground"].items():
+            for key_unit, unit in group.items():
+                rect_index = self.get_rect_index((key_group, key_unit))
+                if not key_unit:  # leader, check precede leader
+                    if not key_group:  # commander, always not locked
+                        self.image.blit(self.circle, self.portrait_rects[rect_index])
+                        if unit not in (None, "custom_lock"):
+                            self.image.blit(self.character_portraits[unit]["setup_ui"],
+                                            self.portrait_rects[rect_index])
+                        if (self.selected_portrait_index and len(self.selected_portrait_index) == 2 and
+                                self.selected_portrait_index == (key_group, key_unit)):
+                            rect_index = self.get_rect_index(self.selected_portrait_index)
+                            self.image.blit(self.selected_circle, self.portrait_rects[rect_index])
+                    else:
+                        if self.army_preset["ground"][key_group - 1][key_unit] in (None, "custom_lock"):
+                            # locked, require added precede leader/follower to be unlocked
+                            self.army_preset["ground"][key_group][key_unit] = "custom_lock"
+                            self.image.blit(self.locked_circle, self.portrait_rects[rect_index])
                         else:
-                            if self.army_preset["ground"][key_group][key_unit - 1] in (None, "custom_lock"):
-                                # locked, require added precede leader/follower to be unlocked
-                                self.army_preset["ground"][key_group][key_unit] = "custom_lock"
-                                self.image.blit(self.locked_circle, self.portrait_rects[rect_index])
-                            elif (self.army_preset["ground"][key_group][key_unit] == "custom_lock" or
+                            self.image.blit(self.circle, self.portrait_rects[rect_index])
+                            if (self.army_preset["ground"][key_group][key_unit] == "custom_lock" or
                                   not self.army_preset["ground"][key_group][key_unit]):
+                                # become unlocked
                                 self.army_preset["ground"][key_group][key_unit] = None
-                                self.image.blit(self.circle, self.portrait_rects[rect_index])
-                    if self.army_preset["ground"][key_group][key_unit] not in (None, "custom_lock"):
-                        self.total_gold_cost += self.character_list[self.army_preset["ground"][key_group][key_unit]]["Cost"]
-                        if self.character_list[self.army_preset["ground"][key_group][key_unit]]["Capacity"]:
-                            self.total_character_number += self.character_list[self.army_preset["ground"][key_group][
-                                key_unit]]["Capacity"]
-                        else:
-                            self.total_character_number += 1
-            for key_group, group in self.army_preset["air"].items():
-                rect_index = self.get_rect_index((key_group,))
-                if not key_group:  # first group
+                            if (self.selected_portrait_index and len(self.selected_portrait_index) == 2 and
+                                    self.selected_portrait_index == (key_group, key_unit)):
+                                rect_index = self.get_rect_index(self.selected_portrait_index)
+                                self.image.blit(self.selected_circle, self.portrait_rects[rect_index])
+                            if unit not in (None, "custom_lock"):
+                                self.image.blit(self.character_portraits[unit]["setup_ui"],
+                                                self.portrait_rects[rect_index])
+
+                else:  # follower
+                    if self.army_preset["ground"][key_group][key_unit - 1] in (None, "custom_lock"):
+                        # locked, require added precede leader/follower to be unlocked
+                        self.army_preset["ground"][key_group][key_unit] = "custom_lock"
+                        self.image.blit(self.locked_circle, self.portrait_rects[rect_index])
+                    else:
+                        self.image.blit(self.circle, self.portrait_rects[rect_index])
+                        if (self.army_preset["ground"][key_group][key_unit] == "custom_lock" or
+                              not self.army_preset["ground"][key_group][key_unit]):
+                            self.army_preset["ground"][key_group][key_unit] = None
+                        if (self.selected_portrait_index and len(self.selected_portrait_index) == 2 and
+                                self.selected_portrait_index == (key_group, key_unit)):
+                            rect_index = self.get_rect_index(self.selected_portrait_index)
+                            self.image.blit(self.selected_circle, self.portrait_rects[rect_index])
+                        if unit not in (None, "custom_lock"):
+                            self.image.blit(self.character_portraits[unit]["setup_ui"],
+                                            self.portrait_rects[rect_index])
+
+                if self.army_preset["ground"][key_group][key_unit] not in (None, "custom_lock"):
+                    self.total_gold_cost += self.character_list[self.army_preset["ground"][key_group][key_unit]]["Cost"]
+                    if self.character_list[self.army_preset["ground"][key_group][key_unit]]["Capacity"]:
+                        self.total_character_number += self.character_list[self.army_preset["ground"][key_group][
+                            key_unit]]["Capacity"]
+                    else:
+                        self.total_character_number += 1
+
+        for key_group, group in self.army_preset["air"].items():
+            rect_index = self.get_rect_index((key_group,))
+            if not key_group:  # first group
+                if self.army_preset["ground"][0][0]:  # commander exist
+                    self.image.blit(self.circle, self.portrait_rects[rect_index])
                     if (self.army_preset["air"][key_group] == "custom_lock" or
                             not self.army_preset["air"][key_group]):  # unlock this slot
                         self.army_preset["air"][key_group] = None
-                        self.image.blit(self.circle, self.portrait_rects[rect_index])
+                    if (self.selected_portrait_index and len(self.selected_portrait_index) == 1 and
+                            self.selected_portrait_index == (key_group,)):
+                        rect_index = self.get_rect_index(self.selected_portrait_index)
+                        self.image.blit(self.selected_circle, self.portrait_rects[rect_index])
+                    if group not in (None, "custom_lock"):
+                        self.image.blit(self.character_portraits[group]["setup_ui"],
+                                        self.portrait_rects[rect_index])
+                else:  # no commander, lock
+                    self.army_preset["air"][key_group] = "custom_lock"
+                    self.image.blit(self.locked_circle, self.portrait_rects[rect_index])
+            else:
+                if self.army_preset["air"][key_group - 1] in (None, "custom_lock"):
+                    # locked, require added precede leader/follower to be unlocked
+                    self.army_preset["air"][key_group] = "custom_lock"
+                    self.image.blit(self.locked_circle, self.portrait_rects[rect_index])
                 else:
-                    if self.army_preset["air"][key_group - 1] in (None, "custom_lock"):
-                        # locked, require added precede leader/follower to be unlocked
-                        self.army_preset["air"][key_group] = "custom_lock"
-                        self.image.blit(self.locked_circle, self.portrait_rects[rect_index])
-                    elif (self.army_preset["air"][key_group] == "custom_lock" or
-                            not self.army_preset["air"][key_group]):  # unlock this slot
+                    self.image.blit(self.circle, self.portrait_rects[rect_index])
+                    if (self.army_preset["air"][key_group] == "custom_lock" or
+                        not self.army_preset["air"][key_group]):  # unlock this slot
                         self.army_preset["air"][key_group] = None
-                        self.image.blit(self.circle, self.portrait_rects[rect_index])
-                if self.army_preset["air"][key_group] not in (None, "custom_lock"):
-                    self.total_gold_cost += self.character_list[self.army_preset["air"][key_group]]["Cost"]
-                    self.total_character_number += self.character_list[self.army_preset["air"][key_group]]["Capacity"]
+
+                    if (self.selected_portrait_index and len(self.selected_portrait_index) == 1 and
+                            self.selected_portrait_index == (key_group,)):
+                        rect_index = self.get_rect_index(self.selected_portrait_index)
+                        self.image.blit(self.selected_circle, self.portrait_rects[rect_index])
+                    if group not in (None, "custom_lock"):
+                        self.image.blit(self.character_portraits[group]["setup_ui"],
+                                        self.portrait_rects[rect_index])
+
+            if self.army_preset["air"][key_group] not in (None, "custom_lock"):
+                self.total_gold_cost += self.character_list[self.army_preset["air"][key_group]]["Cost"]
+                self.total_character_number += self.character_list[self.army_preset["air"][key_group]]["Capacity"]
+        self.game.custom_army_title.change_text(self.current_preset, self.total_gold_cost)
 
     def update(self):
         UIMenu.update(self)
@@ -623,7 +651,7 @@ class CustomArmySetupUI(UIMenu):
                         elif self.event_alt_press:
                             if self.army_preset["ground"][leader_index][unit_index] not in ("custom_lock", None):
                                 self.army_preset["ground"][leader_index][unit_index] = None
-                                self.reset_lock()
+                                self.change_portrait_selection((leader_index, unit_index))
                         unit = self.army_preset["ground"][leader_index][unit_index]
                     else:
                         if self.army_preset["ground"][0][0]:  # commander exist
@@ -632,7 +660,7 @@ class CustomArmySetupUI(UIMenu):
                                 self.change_portrait_selection((unit_index,))
                             elif self.event_alt_press:
                                 self.army_preset["air"][unit_index] = None
-                                self.reset_lock()
+                                self.change_portrait_selection((unit_index,))
                             unit = self.army_preset["air"][unit_index]
 
                     unit_name_text = self.localisation.grab_text(("ui", "empty"))
@@ -1279,34 +1307,6 @@ class ValueBox(UIMenu):
         self.image.blit(text_surface, text_rect)
 
 
-class MapTitle(UIMenu):
-    def __init__(self, pos):
-        UIMenu.__init__(self)
-
-        self.font = Font(self.ui_font["name_font"], int(44 * self.screen_scale[1]))
-        self.pos = pos
-        self.name = ""
-        text_surface = self.font.render(str(self.name), True, (30, 30, 30))
-        self.image = pygame.Surface((int(text_surface.get_width() + (5 * self.screen_scale[0])),
-                                     int(text_surface.get_height() + (5 * self.screen_scale[1]))))
-
-    def change_name(self, name):
-        self.name = name
-        text_surface = self.font.render(str(self.name), True, (30, 30, 30))
-        self.image = pygame.Surface((int(text_surface.get_width() + (5 * self.screen_scale[0])),
-                                     int(text_surface.get_height() + (5 * self.screen_scale[1]))))
-        self.image.fill((30, 30, 30))
-
-        white_body = pygame.Surface((text_surface.get_width(), text_surface.get_height()))
-        white_body.fill((239, 228, 176))
-        white_rect = white_body.get_rect(center=(self.image.get_width() / 2, self.image.get_height() / 2))
-        self.image.blit(white_body, white_rect)
-
-        text_rect = text_surface.get_rect(center=(self.image.get_width() / 2, self.image.get_height() / 2))
-        self.image.blit(text_surface, text_rect)
-        self.rect = self.image.get_rect(midtop=self.pos)
-
-
 class NameTextBox(UIMenu):
     def __init__(self, box_size, pos, name, text_size=26, layer=15, box_colour=(220, 220, 220),
                  corner_colour=(30, 30, 30), center_text=False):
@@ -1417,13 +1417,15 @@ class NameList(UIMenu):
 
 
 class ListAdapter:
-    def __init__(self, _list, replace_on_select=None, replace_on_mouse_over=None):
+    def __init__(self, _list, replace_on_select=None, replace_on_alt_select=None, replace_on_mouse_over=None):
         from engine.game.game import Game
         self.game = Game.game
         self.list = _list
         self.last_index = -1
         if replace_on_select:
             self.on_select = types.MethodType(replace_on_select, self)
+        if replace_on_alt_select:
+            self.on_alt_select = types.MethodType(replace_on_alt_select, self)
         if replace_on_mouse_over:
             self.on_mouse_over = types.MethodType(replace_on_mouse_over, self)
 
@@ -1441,6 +1443,9 @@ class ListAdapter:
     def on_select(self, item_index, item_text):
         pass
 
+    def on_alt_select(self, item_index, item_text):
+        pass
+
     def on_mouse_over(self, item_index, item_text):
         pass
 
@@ -1453,13 +1458,14 @@ class ListAdapterHideExpand(ListAdapter):
     # actual list refer to the origin full list
     # visual list refer to the list after some if any of the elements been hidden
 
-    def __init__(self, _list, _self=None, replace_on_select=None, replace_on_mouse_over=None):
+    def __init__(self, _list, _self=None, replace_on_select=None, replace_on_alt_select=None, replace_on_mouse_over=None):
         self.actual_list = actual_list = [c[1] for c in _list]
         self.actual_list_open_index = [False for element in actual_list]
         self.actual_list_level = [element[0] for element in _list]
-
         if replace_on_select:
             self.on_select = types.MethodType(replace_on_select, self)
+        if replace_on_alt_select:
+            self.on_alt_select = types.MethodType(replace_on_alt_select, self)
         if replace_on_mouse_over:
             self.on_mouse_over = types.MethodType(replace_on_mouse_over, self)
 
@@ -1469,7 +1475,6 @@ class ListAdapterHideExpand(ListAdapter):
     def is_actual_index_hidden(self, index):
 
         level = self.get_actual_index_level(index)
-
         if level == 0:
             return False
 
@@ -1525,15 +1530,22 @@ class ListAdapterHideExpand(ListAdapter):
             return
         self.actual_list_open_index[actual_index] = not self.actual_list_open_index[actual_index]
 
+    def on_alt_select(self, item_index, item_text):
+        actual_index = self.get_visible_index_actual_index().get(item_index)
+        if actual_index is None:
+            return
+        self.actual_list_open_index[actual_index] = not self.actual_list_open_index[actual_index]
+
 
 class CustomPresetListAdapter(ListAdapterHideExpand):
     def __init__(self):
         from engine.game.game import Game
         self.game = Game.game
-
-        actual_level_list = [(0, "New Preset", )] + [
-            [index + 1, item] for index, item in enumerate(list(self.game.save_data.custom_army_preset_save.keys()))]
-
+        actual_level_list = [(0, "New Preset", )]
+        if self.game.custom_army_setup.selected_faction in self.game.before_save_preset_army_setup:
+            actual_level_list += [
+                [0, item] for index, item in enumerate(list(self.game.before_save_preset_army_setup[
+                                                                self.game.custom_army_setup.selected_faction].keys()))]
         ListAdapterHideExpand.__init__(self, actual_level_list)
 
     # def get_highlighted_index(self):
@@ -1542,59 +1554,49 @@ class CustomPresetListAdapter(ListAdapterHideExpand):
     #     return self.get_actual_index_visible_index().get(
     #         self.map_source_index[self.game.map_selected])
 
-    def update_list(self):
-        actual_level_list = [(0, "New Preset", )] + [
-            [index + 1, item] for index, item in enumerate(list(self.game.save_data.custom_army_preset_save.keys()))]
-        ListAdapterHideExpand.__init__(self, actual_level_list)
-
     def on_select(self, item_index, item_text):
 
         actual_index = self.get_visible_index_actual_index()[item_index]
 
-        # if click on a source then load it
-        self.game.custom_preset_army_edit_selected = item_text
+        if not actual_index:
+            self.game.activate_input_popup(("text_input", "new_preset"), "Input name for new preset",
+                                           self.game.input_popup_uis)
+        else:
+            self.game.custom_army_setup.current_preset = item_text
+            self.game.custom_army_setup.army_preset = self.game.before_save_preset_army_setup[
+                self.game.custom_army_setup.selected_faction][item_text]
+            self.game.custom_army_setup.reset()
 
-    # def on_mouse_over(self, item_index, item_text):
-    #     """
-    #     Method for campaign map list where player hovering over item will display historical information of campaign, map,
-    #     or map source
-    #     :param self: Listui object
-    #     :param item_index: Index of selected item in list
-    #     :param item_text: Text of selected item
-    #     """
-        # item_name = item_text.replace(">", "")
-        # item_name = item_name.replace("|", "")
-        # item_id = (item_text, item_index)
-        # if item_id != self.game.text_popup.last_shown_id:
-        #     if item_name[0] == " ":  # remove space from subsection name
-        #         item_name = item_name[1:]
-        #     if ">>" in item_text or "||" in item_text:  # source item
-        #         actual_index = self.get_visible_index_actual_index()[item_index]
-        #
-        #         _map, source = {v: k for k, v in self.map_source_index.items()}[actual_index]
-        #         popup_text = [value for key, value in
-        #                       self.game.localisation.grab_text(("preset_map",
-        #                                                         self.game.battle_campaign[_map],
-        #                                                         _map, "source",
-        #                                                         source)).items()]
-        #     elif ">" in item_text or "|" in item_text:  # map item
-        #         popup_text = [value for key, value in
-        #                       self.game.localisation.grab_text(("preset_map",
-        #                                                         self.game.battle_campaign[
-        #                                                             self.data_name_index[item_name]],
-        #                                                         "info", self.data_name_index[item_name])).items()]
-        #
-        #     else:  # campaign item
-        #         popup_text = [value for key, value in
-        #                       self.game.localisation.grab_text(("preset_map", "info",
-        #                                                         self.campaign_name_index[item_name])).items()]
-        #
-        #     self.game.text_popup.popup(self.game.cursor.rect, popup_text,
-        #                                width_text_wrapper=1000 * self.game.screen_scale[0])
-        # else:  # already showing this leader no need to create text again
-        #     self.game.text_popup.popup(self.game.cursor.rect, None,
-        #                                width_text_wrapper=1000 * self.game.screen_scale[0])
-        # self.game.add_ui_updater(self.game.text_popup)
+    def on_alt_select(self, item_index, item_text):
+        actual_index = self.get_visible_index_actual_index()[item_index]
+
+        if actual_index:  # initiate remove clicked item
+            self.game.activate_input_popup(("confirm_input", ("remove_preset", item_text)),
+                                           "Remove " + item_text + " preset?", self.game.confirm_popup_uis)
+
+
+class CustomPresetTitle(UIMenu):
+    def __init__(self, pos):
+        UIMenu.__init__(self)
+        self.font = self.game.preset_name_font
+        self.pos = pos
+        self.name = ""
+        self.image = pygame.Surface((self.game.screen_width * 0.8, 80 * self.screen_scale[1]))
+        self.image.fill((150, 150, 150))
+        self.rect = self.image.get_rect(midbottom=self.pos)
+
+    def change_text(self, name, cost):
+        self.name = name
+        self.image.fill((150, 150, 150))
+
+        text_surface = self.font.render(str(self.name), True, (30, 30, 30))
+        text_rect = text_surface.get_rect(midleft=(0, self.image.get_height() / 2))
+        self.image.blit(text_surface, text_rect)
+
+        text_surface = self.font.render(self.localisation.grab_text(("ui", "Total Cost:")) + add_comma_number(cost),
+                                        True, (30, 30, 30))
+        text_rect = text_surface.get_rect(midright=(self.image.get_width(), self.image.get_height() / 2))
+        self.image.blit(text_surface, text_rect)
 
 
 class TickBox(UIMenu):
@@ -1808,6 +1810,7 @@ class ListUI(UIMenu, Containable):
         # set position and size related attributes
         self.pivot = pivot
         self.origin = origin
+        self.size = size
         self.parent = parent
         self.relative_size_inside_container = size
 
@@ -2058,11 +2061,12 @@ class ListUI(UIMenu, Containable):
         if self.hover_index is not None:
             self.cursor.mouse_over_something = True
             self.items.on_mouse_over(self.hover_index, self.items[self.hover_index])
-            if self.cursor.is_select_just_up or self.cursor.is_alt_select_just_up:
+            if self.cursor.is_select_just_up:
                 self.items.on_select(self.hover_index, self.items[self.hover_index])
                 self.cursor.is_select_just_up = False
+            elif self.cursor.is_alt_select_just_up:
+                self.items.on_alt_select(self.hover_index, self.items[self.hover_index])
                 self.cursor.is_alt_select_just_up = False
-
         # handle hold and release of the scroll box
         if not self.cursor.is_select_down:
             self.hold_scroll_box = None

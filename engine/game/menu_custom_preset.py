@@ -1,4 +1,5 @@
 from copy import deepcopy
+from engine.constants import Custom_Default_Faction
 
 
 def menu_custom_preset(self):
@@ -6,7 +7,7 @@ def menu_custom_preset(self):
         self.menu_state = "custom"
         self.add_ui_updater(self.custom_battle_menu_uis)
         self.remove_ui_updater(self.custom_preset_menu_uis)
-        self.faction_selector.update_coa("Castle")
+        self.faction_selector.change_coa(Custom_Default_Faction)
 
     elif self.preset_save_button.event_press:
         self.save_data.custom_army_preset_save = deepcopy(self.before_save_preset_army_setup)
@@ -25,8 +26,8 @@ def go_up(self):
         self.custom_army_setup.change_portrait_selection((0, 0))
     else:
         if self.custom_army_setup.selected_portrait_index[0] != 0:
-            self.custom_army_setup.change_portrait_selection([value - 1 if not index else value for
-                                                              index, value in enumerate(self.custom_army_setup.selected_portrait_index)])
+            self.custom_army_setup.change_portrait_selection(tuple([value - 1 if not index else value for
+                                                              index, value in enumerate(self.custom_army_setup.selected_portrait_index)]))
 
 
 def go_down(self):
@@ -34,8 +35,8 @@ def go_down(self):
         self.custom_army_setup.change_portrait_selection((0, 0))
     else:
         if self.custom_army_setup.selected_portrait_index[0] != 4:
-            self.custom_army_setup.change_portrait_selection([value + 1 if not index else value for
-                                                              index, value in enumerate(self.custom_army_setup.selected_portrait_index)])
+            self.custom_army_setup.change_portrait_selection(tuple([value + 1 if not index else value for
+                                                              index, value in enumerate(self.custom_army_setup.selected_portrait_index)]))
 
 
 def go_left(self):

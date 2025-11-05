@@ -7,14 +7,16 @@ from pygame.transform import smoothscale, flip
 from engine.data.datastat import GameData
 from engine.utils.data_loading import load_images, filename_convert_readable as fcv
 from engine.utils.sprite_caching import load_pickle_with_surfaces
+from engine.utils.text_making import text_render_with_bg
 
 
 class SpriteData(GameData):
-    def __init__(self):
+    def __init__(self, character_list, number_font):
         """
         Containing data related to sprite and animation
         """
         GameData.__init__(self)
+        self.number_text_cache = {}
         self.character_animation_data = {}
         self.stage_object_animation_pool = {}
         self.character_portraits = {}
@@ -37,8 +39,22 @@ class SpriteData(GameData):
             mini_portrait = smoothscale(
                 self.character_portraits[file]["character_ui"], (170 * self.screen_scale[0],
                                                                  170 * self.screen_scale[1]))
+
             self.character_portraits[file]["tactical"] = {"right": mini_portrait,
                                                           "left": flip(mini_portrait, True, False)}
+
+            # icon for setup like purchase unit or custom preset army setup
+            self.character_portraits[file]["setup_ui"] = mini_portrait.copy()
+            if file in character_list:
+                add_number = character_list[file]["Capacity"]
+                if add_number:
+                    if add_number not in self.number_text_cache:
+                        number_text = text_render_with_bg(str(add_number), number_font, o_colour=(200, 200, 100))
+                        self.number_text_cache[add_number] = number_text
+                    else:
+                        number_text = self.number_text_cache[add_number]
+                    number_rect = number_text.get_rect(bottomright=mini_portrait.get_size())
+                    self.character_portraits[file]["setup_ui"].blit(number_text, number_rect)
 
             mini_portrait = smoothscale(
                 self.character_portraits[file]["character_ui"], (100 * self.screen_scale[0],

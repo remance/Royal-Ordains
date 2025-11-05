@@ -1,4 +1,5 @@
 from copy import deepcopy
+from engine.constants import Custom_Default_Faction
 
 
 def menu_custom_setup(self):
@@ -9,6 +10,9 @@ def menu_custom_setup(self):
     elif self.custom_battle_preset_button.event_press:
         self.menu_state = "preset"
         self.before_save_preset_army_setup = deepcopy(self.save_data.custom_army_preset_save)
+        self.faction_selector.change_coa(Custom_Default_Faction)
+        self.custom_preset_list_box.adapter.__init__()
+        self.custom_army_title.change_text("", self.custom_army_setup.total_gold_cost)
         self.add_ui_updater(self.custom_preset_menu_uis)
         self.remove_ui_updater(self.custom_battle_menu_uis)
 

@@ -7,4 +7,4 @@ Default_Float_Pos = 1300
 Default_Ground_Pos = 2000
 Character_Gravity = 500
 Collision_Grid_Per_Scene = 4
-
+Custom_Default_Faction = "Castle"

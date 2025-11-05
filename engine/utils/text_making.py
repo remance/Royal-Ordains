@@ -15,6 +15,10 @@ def change_number(number):
         return str(round(number / 1000, 1)) + "k"
 
 
+def add_comma_number(number):
+    return "{:,}".format(number)
+
+
 def number_to_minus_or_plus(number):
     """Number should not be 0"""
     if number > 0:
