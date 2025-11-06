@@ -26,9 +26,10 @@ from engine.menubackground.menubackground import MenuActor, MenuRotate, StaticIm
 from engine.stageobject.stageobject import StageObject
 from engine.uibattle.uibattle import (Profiler, FPSCount, DamageNumber, CharacterSpeechBox,
                                       CharacterLeaderIndicator, CharacterCommandIndicator)
-from engine.uimenu.uimenu import (OptionMenuText, SliderMenu, MenuCursor, BoxUI, BrownMenuButton,
+from engine.uimenu.uimenu import (OptionMenuText, SliderMenu, MenuCursor, BoxUI, BrownMenuButton, MenuButton,
                                   TextPopup, PresetSelectInterface, FactionSelector, CustomArmySetupUI,
-                                  CharacterSelector, CustomPresetTitle, ListUI, CustomPresetListAdapter)
+                                  CharacterSelector, CustomPresetTitle, ListUI, CustomPresetListAdapter,
+                                  GenericListAdapter)
 from engine.updater.updater import ReversedLayeredUpdates
 from engine.utils.common import cutscene_update
 from engine.utils.data_loading import load_image, load_images, csv_read, load_base_button
@@ -211,7 +212,7 @@ class Game:
                                         subfolder=("font", "texture"), as_pillow_image=True)
 
         # ui font
-        self.loading_screen_lore_font = pygame.font.Font(self.ui_font["main_button"], int(60 * self.screen_scale[1]))
+        self.loading_screen_lore_font = Font(self.ui_font["main_button"], int(60 * self.screen_scale[1]))
 
         self.generic_ui_font = Font(self.ui_font["main_button"], int(30 * self.screen_scale[1]))
         self.fps_counter_font = Font(self.ui_font["main_button"], int(40 * self.screen_scale[1]))
@@ -349,6 +350,10 @@ class Game:
                                                subfolder=("ui", "weather_ui"), key_file_name_readable=True)
         self.option_menu_images = load_images(self.data_dir, screen_scale=self.screen_scale,
                                               subfolder=("ui", "option_ui"))
+        image = load_image(self.data_dir, self.screen_scale, "drop_normal.jpg", ("ui", "mainmenu_ui"))
+        image2 = load_image(self.data_dir, self.screen_scale, "drop_click.jpg", ("ui", "mainmenu_ui"))
+        self.drop_button_lists = (image, image2, image2)
+
         # Main menu interface
         self.fps_count = FPSCount(self)  # FPS number counter
         if self.show_fps:
@@ -434,14 +439,19 @@ class Game:
         self.custom_battle_preset_button = BrownMenuButton((.15, 1), (0, 0), key_name="custom_preset_button",
                                                            parent=main_menu_buttons_box)
 
+        self.custom_battle_multi_purposes_list = ListUI(pivot=(-0.15, 0.14), origin=(-1, -1), size=(0.2, 0.35),
+                                                        items=GenericListAdapter(()),
+                                                        parent=self.screen, item_size=10, layer=10000000000000)
 
-        # self.char_interface_text_popup = {index: TextPopup() for index in range(1, 3)}
-
-        # self.player_char_interfaces = {index: CharacterInterface((self.player_char_selectors[index].rect.topleft[0],
-        #                                                           self.player_char_selectors[index].rect.topleft[1] -
-        #                                                           (60 * self.screen_scale[1])),
-        #                                                          index, self.char_interface_text_popup[index]) for index
-        #                                in range(1, 3)}
+        self.custom_battle_weather_type_button = MenuButton(
+            self.drop_button_lists, (self.screen_rect.width / 2, self.screen_rect.height / 1.8),
+            key_name=str(self.screen_rect.width) + " x " + str(self.screen_rect.height), layer=151)
+        self.custom_battle_weather_strength_button = MenuButton(
+            self.drop_button_lists, (self.screen_rect.width / 2, self.screen_rect.height / 1.8),
+            key_name=str(self.screen_rect.width) + " x " + str(self.screen_rect.height), layer=151)
+        self.custom_battle_map_button = MenuButton(
+            self.drop_button_lists, (self.screen_rect.width / 2, self.screen_rect.height / 1.8),
+            key_name=str(self.screen_rect.width) + " x " + str(self.screen_rect.height), layer=151)
 
         self.custom_battle_menu_uis = (self.setup_back_button, self.custom_battle_preset_button,
                                        self.custom_battle_setup_start_battle_button)
@@ -679,7 +689,8 @@ class Game:
                                 self.custom_army_setup.selected_faction][self.input_box.text]
 
                             self.custom_preset_list_box.adapter.__init__()
-                            self.custom_army_title.change_text(self.input_box.text, self.custom_army_setup.total_gold_cost)
+                            self.custom_army_title.change_text(self.input_box.text, self.custom_army_setup.total_gold_cost,
+                                                               self.custom_army_setup.total_character_number)
 
                         else:
                             done = False
@@ -691,7 +702,8 @@ class Game:
                         self.before_save_preset_army_setup[self.custom_army_setup.selected_faction].pop(self.input_popup[1][1])
                         if self.input_popup[1][1] == self.custom_army_setup.current_preset:
                             self.custom_army_setup.current_preset = ""
-                            self.custom_army_title.change_text("", self.custom_army_setup.total_gold_cost)
+                            self.custom_army_title.change_text("", self.custom_army_setup.total_gold_cost,
+                                                               self.custom_army_setup.total_character_number)
                         self.custom_preset_list_box.adapter.__init__()
 
                     elif self.input_popup[1] == "quit":

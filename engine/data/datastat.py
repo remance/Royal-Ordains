@@ -217,7 +217,10 @@ class CharacterData(GameData):
                 for n, i in enumerate(row):
                     row = stat_convert(row, n, i, dict_column=dict_column)
                 if row[0]:
-                    self.preset_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
+                    if row[header.index("Faction")] not in self.preset_list:
+                        self.preset_list[row[header.index("Faction")]] = {}
+                    self.preset_list[row[header.index("Faction")]][row[0]] = {
+                        header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
         edit_file.close()
 
 

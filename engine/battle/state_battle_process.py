@@ -8,9 +8,9 @@ def state_battle_process(self):
 
         self.change_game_state("menu")  # open menu
         self.scene_translation_text_popup.popup(
-            (self.screen_rect.midleft[0], self.screen_height * 0.88),
+            (self.screen_rect.midleft[0], self.screen_height * 0.82),
             self.game.localisation.grab_text(
-                ("scene", self.mission, str(self.current_scene), "Text")),
+                ("scene", self.scene.data[self.current_scene], "Text")),
             width_text_wrapper=self.screen_width)
         self.add_ui_updater(self.cursor, self.battle_menu_button.values(),
                             self.scene_translation_text_popup)  # add menu and its buttons to drawer

@@ -164,6 +164,7 @@
 "cost_exceed_warn","Warning: Cost exceed fund."
 "Preset","Preset"
 "Total Cost:","Total Cost: "
+"Total Number:","Total Number: "
 "Total Melee/Range","Total Melee/Range"
 "toggle_description","Toggle description"
 "press","Press"
@@ -195,9 +196,11 @@
 "interceptor","Interceptor"
 "fighter","Fighter"
 "bomber","Bomber"
-,
-,
-,
+"Custom1","Very Small"
+"Custom2","Small"
+"Custom3","Medium"
+"Custom4","Large"
+"Custom5","Very Large"
 "New Holder:","New Holder: "
 "Holder:","Holder: "
 "Role:","Role: "

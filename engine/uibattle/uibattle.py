@@ -16,7 +16,7 @@ from engine.uimenu.uimenu import UIMenu, MenuCursor
 from engine.utils.text_making import text_render_with_bg, text_render_with_texture, \
     make_long_text
 
-team_colour = {0: Color("grey"), 1: (100, 110, 150), 2: (190, 50, 50), 3: (50, 190, 50), 4: (122, 60, 120)}
+team_colour = {0: (50, 50, 50), 1: (100, 110, 150), 2: (190, 50, 50), 3: (50, 190, 50), 4: (122, 60, 120)}
 follower_type_colour = {0: (70, 70, 180), 1: (100, 200, 100)}  # melee, range
 
 

@@ -182,6 +182,7 @@ class MenuCursor(UIMenu):
         self.is_select_just_down = False
         self.is_select_down = False
         self.is_select_just_up = False
+        self.select_up = False
         self.is_alt_select_just_down = False
         self.is_alt_select_down = False
         self.is_alt_select_just_up = False
@@ -198,6 +199,7 @@ class MenuCursor(UIMenu):
         self.is_select_just_down, self.is_select_down, self.is_select_just_up = keyboard_mouse_press_check(
             mouse, 0, self.is_select_just_down, self.is_select_down, self.is_select_just_up)
 
+        self.select_up = self.is_select_just_up
         # Alternative select press button, like mouse right
         self.is_alt_select_just_down, self.is_alt_select_down, self.is_alt_select_just_up = keyboard_mouse_press_check(
             mouse, 2, self.is_alt_select_just_down, self.is_alt_select_down, self.is_alt_select_just_up)
@@ -289,8 +291,6 @@ class FactionSelector(UIMenu):
     def __init__(self, pos):
         UIMenu.__init__(self)
         self.faction_coas = self.game.sprite_data.faction_coas
-        self.font = Font(self.ui_font["main_button"], int(60 * self.screen_scale[1]))
-        self.font_width = self.font.size("a")[0]
         self.pos = pos
         self.image = Surface((int(3800 * self.screen_scale[0]), int(300 * self.screen_scale[1])), SRCALPHA)
         self.image.fill((100, 100, 100))
@@ -344,6 +344,52 @@ class FactionSelector(UIMenu):
                     break
 
 
+class CustomArmySelector(UIMenu):
+    def __init__(self, pos):
+        UIMenu.__init__(self)
+        self.faction_coas = self.game.sprite_data.faction_coas
+        self.font = self.game.preset_name_font
+        self.font_width = self.font.size("a")[0]
+        self.pos = pos
+        self.image = Surface((int(800 * self.screen_scale[0]), int(300 * self.screen_scale[1])), SRCALPHA)
+        self.image.fill((100, 100, 100))
+        self.faction_coa_rects = {}
+        x = self.image.get_width() / 2
+        y = 50 * self.screen_scale[1]
+
+        self.selected_faction = None
+
+        self.rect = self.image.get_rect(midtop=pos)
+        self.change_coa(Custom_Default_Faction)
+
+    def change_coa(self, new_select_faction):
+        for faction, rect in self.faction_coa_rects.items():
+            if faction == new_select_faction:
+                coa = self.faction_coas[faction]["mini"].copy()
+                draw.circle(coa, (200, 200, 50),
+                            (coa.get_width() / 2, coa.get_height() / 2),
+                            (coa.get_width() / 2), width=int(12 * self.screen_scale[0]))
+                self.image.blit(coa, self.faction_coa_rects[faction])
+            elif faction == self.selected_faction:  # unselected old one
+                self.image.blit(self.faction_coas[faction]["mini"], self.faction_coa_rects[faction])
+        self.selected_faction = new_select_faction
+        self.game.custom_army_setup.change_coa(new_select_faction)
+        if self.selected_faction not in self.game.before_save_preset_army_setup:
+            self.game.before_save_preset_army_setup[self.selected_faction] = {}
+
+    def update(self):
+        UIMenu.update(self)
+        if self.mouse_over:
+            inside_mouse_pos = pygame.Vector2(
+                (self.cursor.pos[0] - self.rect.topleft[0]),
+                (self.cursor.pos[1] - self.rect.topleft[1]))
+            for faction, rect in self.faction_coa_rects.items():
+                if rect.collidepoint(inside_mouse_pos):
+                    if self.event_press:
+                        self.change_coa(faction)
+                    break
+
+
 class CharacterSelector(UIMenu):
     def __init__(self, pos):
         UIMenu.__init__(self)
@@ -351,8 +397,6 @@ class CharacterSelector(UIMenu):
         self.character_list = self.game.character_data.character_list
         self.custom_character_setup = self.game.character_data.custom_character_setup
         self.faction_coas = self.game.sprite_data.faction_coas
-        self.font = Font(self.ui_font["main_button"], int(60 * self.screen_scale[1]))
-        self.font_width = self.font.size("a")[0]
         self.image = Surface((int(1300 * self.screen_scale[0]), int(1080 * self.screen_scale[1])), SRCALPHA)
         self.image.fill((100, 100, 100))
         self.selected_faction = Custom_Default_Faction
@@ -430,8 +474,6 @@ class CustomArmySetupUI(UIMenu):
         UIMenu.__init__(self)
         self.character_portraits = self.game.sprite_data.character_portraits
         self.character_list = self.game.character_data.character_list
-        self.font = Font(self.ui_font["main_button"], int(60 * self.screen_scale[1]))
-        self.font_width = self.font.size("a")[0]
         self.pos = pos
         self.image = Surface((int(1500 * self.screen_scale[0]), int(1080 * self.screen_scale[1])), SRCALPHA)
         self.image.fill((180, 100, 180))
@@ -485,7 +527,7 @@ class CustomArmySetupUI(UIMenu):
         self.selected_faction = selected_faction
         self.selected_portrait_index = ()
         self.game.custom_character_selector.add(None, "")
-        self.game.custom_army_title.change_text(self.current_preset, self.total_gold_cost)
+        self.game.custom_army_title.change_text(self.current_preset, self.total_gold_cost, self.total_character_number)
         self.game.custom_preset_list_box.adapter.__init__()  # reset custom preset list as well
         self.reset()
 
@@ -534,6 +576,7 @@ class CustomArmySetupUI(UIMenu):
         self.image.fill((180, 100, 180))
 
         self.total_gold_cost = 0
+        self.total_character_number = 0
         for key_group, group in self.army_preset["ground"].items():
             for key_unit, unit in group.items():
                 rect_index = self.get_rect_index((key_group, key_unit))
@@ -632,7 +675,7 @@ class CustomArmySetupUI(UIMenu):
             if self.army_preset["air"][key_group] not in (None, "custom_lock"):
                 self.total_gold_cost += self.character_list[self.army_preset["air"][key_group]]["Cost"]
                 self.total_character_number += self.character_list[self.army_preset["air"][key_group]]["Capacity"]
-        self.game.custom_army_title.change_text(self.current_preset, self.total_gold_cost)
+        self.game.custom_army_title.change_text(self.current_preset, self.total_gold_cost, self.total_character_number)
 
     def update(self):
         UIMenu.update(self)
@@ -1537,6 +1580,21 @@ class ListAdapterHideExpand(ListAdapter):
         self.actual_list_open_index[actual_index] = not self.actual_list_open_index[actual_index]
 
 
+class GenericListAdapter(ListAdapterHideExpand):
+    def __init__(self, level_list):
+        from engine.game.game import Game
+        self.game = Game.game
+
+        ListAdapterHideExpand.__init__(self, level_list)
+        self.last_click = ()
+
+    def on_select(self, item_index, item_text):
+        self.last_click = ("click", self.get_visible_index_actual_index()[item_index])
+
+    def on_alt_select(self, item_index, item_text):
+        self.last_click = ("alt_click", self.get_visible_index_actual_index()[item_index])
+
+
 class CustomPresetListAdapter(ListAdapterHideExpand):
     def __init__(self):
         from engine.game.game import Game
@@ -1585,7 +1643,7 @@ class CustomPresetTitle(UIMenu):
         self.image.fill((150, 150, 150))
         self.rect = self.image.get_rect(midbottom=self.pos)
 
-    def change_text(self, name, cost):
+    def change_text(self, name, cost, character_number):
         self.name = name
         self.image.fill((150, 150, 150))
 
@@ -1593,7 +1651,8 @@ class CustomPresetTitle(UIMenu):
         text_rect = text_surface.get_rect(midleft=(0, self.image.get_height() / 2))
         self.image.blit(text_surface, text_rect)
 
-        text_surface = self.font.render(self.localisation.grab_text(("ui", "Total Cost:")) + add_comma_number(cost),
+        text_surface = self.font.render(self.localisation.grab_text(("ui", "Total Number:")) + add_comma_number(character_number) +
+                                        " / " + self.localisation.grab_text(("ui", "Total Cost:")) + add_comma_number(cost),
                                         True, (30, 30, 30))
         text_rect = text_surface.get_rect(midright=(self.image.get_width(), self.image.get_height() / 2))
         self.image.blit(text_surface, text_rect)
@@ -2098,6 +2157,19 @@ class ListUI(UIMenu, Containable):
 
     def get_size(self):
         return self.image.get_size()
+
+
+def make_bar_list(bar_button_images, list_to_do, menu_image):
+    """
+    Make a drop down bar list option button
+    :param bar_button_images: List of 3 images for normal, mouse over, click state
+    :param list_to_do: List of option for each button
+    :param menu_image: Menu image that will get drop list
+    :return: List of bar button objects
+    """
+    return [MenuButton(bar_button_images,
+                       menu_image.pos[0], menu_image.pos[1] + bar_button_images[0].get_height() * (index + 1),
+            key_name=bar, layer=100000000000) for index, bar in enumerate(list_to_do)]
 
 #
 # from math import cos, sin

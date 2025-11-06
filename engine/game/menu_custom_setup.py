@@ -4,6 +4,10 @@ from engine.constants import Custom_Default_Faction
 
 def menu_custom_setup(self):
     if self.setup_back_button.event_press or self.esc_press:  # back to start_set menu
+        self.selected_custom_battle_map = "Custom1"
+        self.gold_limit_custom_battle = 1000
+        self.weather_custom_battle = 1
+
         self.remove_ui_updater(self.custom_battle_menu_uis)
         self.back_mainmenu()
 
@@ -12,7 +16,8 @@ def menu_custom_setup(self):
         self.before_save_preset_army_setup = deepcopy(self.save_data.custom_army_preset_save)
         self.faction_selector.change_coa(Custom_Default_Faction)
         self.custom_preset_list_box.adapter.__init__()
-        self.custom_army_title.change_text("", self.custom_army_setup.total_gold_cost)
+        self.custom_army_title.change_text("", self.custom_army_setup.total_gold_cost,
+                                           self.custom_army_setup.total_character_number)
         self.add_ui_updater(self.custom_preset_menu_uis)
         self.remove_ui_updater(self.custom_battle_menu_uis)
 

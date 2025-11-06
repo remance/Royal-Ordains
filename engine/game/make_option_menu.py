@@ -1,5 +1,5 @@
 from engine.uimenu.uimenu import BrownMenuButton, TickBox, OptionMenuText, SliderMenu, ValueBox, \
-    MenuButton, KeybindIcon
+    MenuButton, KeybindIcon, ListUI, GenericListAdapter
 from engine.utils.data_loading import load_image
 
 
@@ -75,14 +75,13 @@ def make_option_menu(self, main_menu_buttons_box):
                                         font_size) for key in volume_slider}
 
     # Resolution changing bar that fold out the list when clicked
-    image = load_image(self.data_dir, self.screen_scale, "drop_normal.jpg", ("ui", "mainmenu_ui"))
-    image2 = image
-    image3 = load_image(self.data_dir, self.screen_scale, "drop_click.jpg", ("ui", "mainmenu_ui"))
-    button_image_list = [image, image2, image3]
-    resolution_drop = MenuButton(button_image_list, (self.screen_rect.width / 2, self.screen_rect.height / 1.8),
+
+    resolution_drop = MenuButton(self.drop_button_lists, (self.screen_rect.width / 2, self.screen_rect.height / 1.8),
                                  key_name=str(self.screen_rect.width) + " x " + str(self.screen_rect.height), layer=151)
 
-    resolution_bar = make_bar_list(self.data_dir, self.screen_scale, self.resolution_list, resolution_drop)
+    resolution_bar = ListUI(pivot=(-0.15, 0.14), origin=(-1, -1), size=(0.15, 0.25),
+                            items=GenericListAdapter([(0, item) for item in self.resolution_list]),
+                            parent=self.screen, item_size=8, layer=10000000000000)
 
     resolution_text = OptionMenuText((resolution_drop.pos[0] - (resolution_drop.pos[0] / 4.5),
                                       resolution_drop.pos[1]),
@@ -183,23 +182,4 @@ def make_option_menu(self, main_menu_buttons_box):
             "show_dmg_text": show_dmg_text}
 
 
-def make_bar_list(main_dir, screen_scale, list_to_do, menu_image):
-    """
-    Make a drop down bar list option button
-    :param main_dir: Game directory folder path
-    :param screen_scale: Resolution scale of game
-    :param list_to_do: List of text
-    :param menu_image: Menu image that will get drop list
-    :return: List of bar button objects
-    """
-    from engine.uimenu import uimenu
-    bar_list = []
-    image = load_image(main_dir, screen_scale, "bar_normal.jpg", ("ui", "mainmenu_ui"))
-    image2 = load_image(main_dir, screen_scale, "bar_mouse.jpg", ("ui", "mainmenu_ui"))
-    image3 = image2
-    for index, bar in enumerate(list_to_do):
-        bar_image = (image.copy(), image2.copy(), image3.copy())
-        bar = uimenu.MenuButton(bar_image, (menu_image.pos[0], menu_image.pos[1] + image.get_height() * (index + 1)),
-                                key_name=bar, layer=100000000000)
-        bar_list.append(bar)
-    return bar_list
+

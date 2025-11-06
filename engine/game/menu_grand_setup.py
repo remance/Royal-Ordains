@@ -1,4 +1,4 @@
-def menu_grand(self):
+def menu_grand_setup(self):
     if self.setup_back_button.event_press or self.esc_press:  # back to start_set menu
         self.remove_ui_updater(self.grand_menu_uis)
         self.faction_selector.change_coa("Castle")

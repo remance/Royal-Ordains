@@ -6,20 +6,12 @@ from engine.utils.common import edit_config
 
 
 def menu_option(self):
-    bar_press = False
-    for bar in self.resolution_bar:
-        # loop to find which resolution bar is selected, this happens outside of clicking check below
-        if bar.mouse_over:
-            if bar.event:
-                self.resolution_drop.change_state(bar.text)  # change button value based on new selected value
-                resolution_change = bar.text.split()
+    if self.resolution_bar.adapter.last_click and self.resolution_bar.adapter.last_click[0] == "click":
+        change_resolution(self,
+                          resolution_change=self.resolution_list[
+                              self.resolution_bar.adapter.last_click[1]].split(" "))
 
-                change_resolution(self, resolution_change=resolution_change)
-                self.remove_ui_updater(self.resolution_bar)
-                bar_press = True
-            break
-
-    if not bar_press and self.cursor.is_select_just_up:
+    elif not self.resolution_bar.mouse_over and self.cursor.select_up:  # click somewhere else
         self.remove_ui_updater(self.resolution_bar)
 
     if self.back_button.event_press or self.esc_press:  # back to start_set menu
