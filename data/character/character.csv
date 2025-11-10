@@ -13,6 +13,7 @@
 "Barren_orc_wardancer","Barren","Orc",,,,,,,,,,,,,,,,,,,,,,,,,,,,,"Fear",,"support",,,,
 "Barren_troll_boulder","Barren","Troll",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"heavy_range",,,,
 "Barren_troll_ram","Barren","Troll",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"siege",,,,
+"Barren_troll_old","Barren","Troll",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 "Castle_cat_air_rocket_bomb","Castle","Cat",40,20,10,75,,,,,,-0.5,-0.25,,0.1,,,,800,,,7,5,,,,,,,,,"air","bomber","bomber",,"TRUE",
 "Castle_cat_shield_crossbow","Castle","Cat",65,37,40,12,,0.3,0.2,0.4,0.25,-0.1,0.15,-0.25,-0.25,,,,450,,,13,10,,,,,,,,,"ground","heavy_range","range",,"TRUE","shield"
 "Castle_dog_catapult","Castle","Dog",330,7,3,2,,0.4,,0.7,-0.4,,0.15,,,,,,900,,,150,3,,,,,,,,,"ground","siege","range",,"TRUE","no_forced_move"
