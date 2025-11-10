@@ -8,3 +8,7 @@ Default_Ground_Pos = 2000
 Character_Gravity = 500
 Collision_Grid_Per_Scene = 4
 Custom_Default_Faction = "Castle"
+Default_Selected_Map_Custom_Battle = "Custom1"
+Default_Gold_limit_Custom_Battle = 1000
+Default_Weather_Custom_Battle = 1
+Default_Weather_Strength_Custom_Battle = 0

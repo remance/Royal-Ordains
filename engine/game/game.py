@@ -27,7 +27,7 @@ from engine.stageobject.stageobject import StageObject
 from engine.uibattle.uibattle import (Profiler, FPSCount, DamageNumber, CharacterSpeechBox,
                                       CharacterLeaderIndicator, CharacterCommandIndicator)
 from engine.uimenu.uimenu import (OptionMenuText, SliderMenu, MenuCursor, BoxUI, BrownMenuButton, MenuButton,
-                                  TextPopup, PresetSelectInterface, FactionSelector, CustomArmySetupUI,
+                                  TextPopup, CustomTeamSetupUI, FactionSelector, CustomArmySetupUI,
                                   CharacterSelector, CustomPresetTitle, ListUI, CustomPresetListAdapter,
                                   GenericListAdapter)
 from engine.updater.updater import ReversedLayeredUpdates
@@ -224,6 +224,7 @@ class Game:
         self.character_name_talk_prompt_font = Font(self.ui_font["talk_font"], int(40 * self.screen_scale[1]))
         self.drama_font = Font(self.ui_font["manuscript_font"], int(90 * self.screen_scale[1]))
         self.preset_name_font = Font(self.ui_font["main_button"], int(60 * self.screen_scale[1]))
+        self.note_font = Font(self.ui_font["main_button"], int(24 * self.screen_scale[1]))
         self.profiler_font = Font(self.ui_font["main_button"], 16)
 
         self.list_font1 = Font(self.ui_font["text_paragraph"], int(40 * Game.screen_scale[1]))
@@ -350,9 +351,13 @@ class Game:
                                                subfolder=("ui", "weather_ui"), key_file_name_readable=True)
         self.option_menu_images = load_images(self.data_dir, screen_scale=self.screen_scale,
                                               subfolder=("ui", "option_ui"))
-        image = load_image(self.data_dir, self.screen_scale, "drop_normal.jpg", ("ui", "mainmenu_ui"))
-        image2 = load_image(self.data_dir, self.screen_scale, "drop_click.jpg", ("ui", "mainmenu_ui"))
+        image = load_image(self.data_dir, self.screen_scale, "drop_normal.png", ("ui", "mainmenu_ui"))
+        image2 = load_image(self.data_dir, self.screen_scale, "drop_click.png", ("ui", "mainmenu_ui"))
         self.drop_button_lists = (image, image2, image2)
+
+        text_button_image = load_image(self.data_dir, self.screen_scale, "text_normal.png", ("ui", "mainmenu_ui"))
+        text_button_image2 = load_image(self.data_dir, self.screen_scale, "text_click.png", ("ui", "mainmenu_ui"))
+        self.text_button_image_list = (text_button_image, text_button_image2, text_button_image2)
 
         # Main menu interface
         self.fps_count = FPSCount(self)  # FPS number counter
@@ -434,6 +439,12 @@ class Game:
                                self.grand_setup_confirm_battle_button)
 
         # Custom battle select menu button
+        self.selected_custom_map_battle = Default_Selected_Map_Custom_Battle
+        self.team1_gold_limit_custom_battle = Default_Gold_limit_Custom_Battle
+        self.team2_gold_limit_custom_battle = Default_Gold_limit_Custom_Battle
+        self.selected_weather_custom_battle = Default_Weather_Custom_Battle
+        self.selected_weather_strength_custom_battle = Default_Weather_Strength_Custom_Battle
+
         self.custom_battle_setup_start_battle_button = BrownMenuButton((.15, 1), (0.6, 0), key_name="start_button",
                                                                        parent=main_menu_buttons_box)
         self.custom_battle_preset_button = BrownMenuButton((.15, 1), (0, 0), key_name="custom_preset_button",
@@ -443,18 +454,76 @@ class Game:
                                                         items=GenericListAdapter(()),
                                                         parent=self.screen, item_size=10, layer=10000000000000)
 
-        self.custom_battle_weather_type_button = MenuButton(
-            self.drop_button_lists, (self.screen_rect.width / 2, self.screen_rect.height / 1.8),
-            key_name=str(self.screen_rect.width) + " x " + str(self.screen_rect.height), layer=151)
-        self.custom_battle_weather_strength_button = MenuButton(
-            self.drop_button_lists, (self.screen_rect.width / 2, self.screen_rect.height / 1.8),
-            key_name=str(self.screen_rect.width) + " x " + str(self.screen_rect.height), layer=151)
         self.custom_battle_map_button = MenuButton(
-            self.drop_button_lists, (self.screen_rect.width / 2, self.screen_rect.height / 1.8),
-            key_name=str(self.screen_rect.width) + " x " + str(self.screen_rect.height), layer=151)
+            self.drop_button_lists, (self.screen_rect.width * 0.3, self.screen_rect.height * 0.05),
+            key_name="map_" + self.selected_custom_map_battle, font_size=52, layer=151)
+        self.custom_map_list = ("map_Custom1", "map_Custom2", "map_Custom3", "map_Custom4", "map_Custom5")
+        self.custom_map_bar = ListUI(pivot=(-0.55, -0.85), origin=(-1, -1), size=(0.15, 0.25),
+                                items=GenericListAdapter([(-0, self.localisation.grab_text(("ui", item))) for item in self.custom_map_list]),
+                                parent=self.screen, item_size=8, layer=10000000000000)
+
+        self.custom_battle_weather_strength_button = MenuButton(
+            self.drop_button_lists, (self.screen_rect.width * 0.5, self.screen_rect.height * 0.05),
+            key_name="weather_strength_" + str(self.selected_weather_strength_custom_battle), font_size=52, layer=151)
+        self.custom_weather_strength_list = ("weather_strength_0", "weather_strength_1", "weather_strength_2")
+        self.custom_weather_strength_bar = ListUI(pivot=(-0.15, -0.85), origin=(-1, -1), size=(0.15, 0.25),
+                                items=GenericListAdapter([(0, self.localisation.grab_text(("ui", item))) for item in self.custom_weather_strength_list]),
+                                parent=self.screen, item_size=8, layer=10000000000000)
+
+        self.custom_battle_weather_type_button = MenuButton(
+            self.drop_button_lists, (self.screen_rect.width * 0.7, self.screen_rect.height * 0.05),
+            key_name="weather_" + str(self.selected_weather_custom_battle), font_size=52, layer=151)
+        self.custom_weather_list = tuple(self.battle_map_data.weather_data.keys())
+        self.custom_weather_bar = ListUI(pivot=(0.25, -0.85), origin=(-1, -1), size=(0.15, 0.25),
+                                         items=GenericListAdapter([(
+                                             0, self.localisation.grab_text(("ui", "weather_" + str(item)))) for item in
+                                             self.custom_weather_list]),
+                                         parent=self.screen, item_size=8, layer=10000000000000)
+
+        self.custom_battle_team1_gold_button = MenuButton(
+            self.text_button_image_list, (self.screen_rect.width * 0.25, self.screen_rect.height * 0.1),
+            key_name=("Gold Limit:", self.team1_gold_limit_custom_battle), font_size=52, layer=151)
+        self.custom_battle_team2_gold_button = MenuButton(
+            self.text_button_image_list, (self.screen_rect.width * 0.75, self.screen_rect.height * 0.1),
+            key_name=("Gold Limit:", self.team2_gold_limit_custom_battle), font_size=52, layer=151)
+        self.custom_battle_team1_setup = CustomTeamSetupUI((self.screen_width * 0.25, self.screen_height * 0.435))
+        self.custom_battle_team2_setup = CustomTeamSetupUI((self.screen_width * 0.75, self.screen_height * 0.435))
+
+        self.custom_faction_list = ["Random", "All"]
+        self.custom_faction_list += [key for key in self.game.sprite_data.faction_coas if key not in self.custom_faction_list]
+        self.custom_team1_army_buttons = []
+        self.custom_team1_army_button_bars = []
+        self.custom_team2_army_buttons = []
+        self.custom_team2_army_button_bars = []
+        y_pivot = (-0.43, -0.19, -0.01, 0.17, 0.35)
+        y_pos = (0.27, 0.39, 0.48, 0.57, 0.66)
+        for team in (0, 1):
+            for index in range(0, 5):
+                if not team:
+                    self.custom_team1_army_buttons.append(MenuButton(
+                        self.drop_button_lists, (self.screen_rect.width * 0.22, self.screen_rect.height * y_pos[index]),
+                        font_size=52, layer=9000000000000))
+                    self.custom_team1_army_button_bars.append(ListUI(pivot=(-0.7, y_pivot[index]),
+                                                                     origin=(-1, -1), size=(0.15, 0.25),
+                                            items=GenericListAdapter([(0, self.localisation.grab_text(("ui", item))) for item in self.custom_faction_list]),
+                                            parent=self.screen, item_size=8, layer=10000000000000))
+                else:
+                    self.custom_team2_army_buttons.append(MenuButton(
+                        self.drop_button_lists, (self.screen_rect.width * 0.72, self.screen_rect.height * y_pos[index]),
+                        font_size=52, layer=9000000000000))
+                    self.custom_team2_army_button_bars.append(ListUI(pivot=(0.3, y_pivot[index]),
+                                                                     origin=(-1, -1), size=(0.15, 0.25),
+                                            items=GenericListAdapter([(0, self.localisation.grab_text(("ui", item))) for item in self.custom_faction_list]),
+                                            parent=self.screen, item_size=8, layer=10000000000000))
 
         self.custom_battle_menu_uis = (self.setup_back_button, self.custom_battle_preset_button,
-                                       self.custom_battle_setup_start_battle_button)
+                                       self.custom_battle_setup_start_battle_button,
+                                       self.custom_battle_weather_type_button,
+                                       self.custom_battle_weather_strength_button,
+                                       self.custom_battle_map_button, self.custom_battle_team1_setup,
+                                       self.custom_battle_team2_setup,
+                                       self.custom_battle_team1_gold_button,
+                                       self.custom_battle_team2_gold_button)
 
         self.custom_team1_army = Army({}, [], [])
         self.custom_team2_army = Army({}, [], [])
@@ -464,6 +533,7 @@ class Game:
         self.custom_team1_garrison_army = GarrisonArmy({}, [], [])
         self.custom_team2_garrison_army = GarrisonArmy({}, [], [])
 
+        # preset army setup for custom battle ui
         self.preset_back_button = BrownMenuButton((.15, 1), (-0.3, 0),
                                                   key_name="back_button", parent=main_menu_buttons_box)
         self.preset_save_button = BrownMenuButton((.15, 1), (0.3, 0), key_name="save_button",
@@ -705,6 +775,16 @@ class Game:
                             self.custom_army_title.change_text("", self.custom_army_setup.total_gold_cost,
                                                                self.custom_army_setup.total_character_number)
                         self.custom_preset_list_box.adapter.__init__()
+
+                    elif self.input_popup[1] == "custom_gold":
+                        if self.input_box.text.isdigit():
+                            if self.input_popup[2] == 1:
+                                self.team1_gold_limit_custom_battle = int(self.input_box.text)
+                                self.custom_battle_team1_gold_button.change_state(("Gold Limit:", self.team1_gold_limit_custom_battle))
+                            else:
+                                self.team2_gold_limit_custom_battle = int(self.input_box.text)
+                                self.custom_battle_team2_gold_button.change_state(
+                                    ("Gold Limit:", self.team2_gold_limit_custom_battle))
 
                     elif self.input_popup[1] == "quit":
                         pygame.time.wait(1000)

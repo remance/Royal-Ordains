@@ -339,6 +339,10 @@ class FactionSelector(UIMenu):
                 (self.cursor.pos[1] - self.rect.topleft[1]))
             for faction, rect in self.faction_coa_rects.items():
                 if rect.collidepoint(inside_mouse_pos):
+                    self.game.text_popup.popup((self.cursor.pos[0],
+                                                self.cursor.pos[1] + (150 * self.screen_scale[1])),
+                                               self.localisation.grab_text(("faction", faction, "Name")))
+                    self.game.add_ui_updater(self.game.text_popup)
                     if self.event_press:
                         self.change_coa(faction)
                     break
@@ -354,8 +358,6 @@ class CustomArmySelector(UIMenu):
         self.image = Surface((int(800 * self.screen_scale[0]), int(300 * self.screen_scale[1])), SRCALPHA)
         self.image.fill((100, 100, 100))
         self.faction_coa_rects = {}
-        x = self.image.get_width() / 2
-        y = 50 * self.screen_scale[1]
 
         self.selected_faction = None
 
@@ -462,6 +464,46 @@ class CharacterSelector(UIMenu):
                         break
 
 
+class CustomTeamSetupUI(UIMenu):
+    def __init__(self, pos):
+        UIMenu.__init__(self)
+        self.faction_coas = self.game.sprite_data.faction_coas
+        self.font = self.game.preset_name_font
+        self.note_font = self.game.note_font
+        self.font_width = self.font.size("a")[0]
+        self.image = Surface((int(1600 * self.screen_scale[0]), int(1300 * self.screen_scale[1])), SRCALPHA)
+        self.image.fill((150, 220, 220))
+        self.rect = self.image.get_rect(center=pos)
+        self.total_gold = 0
+
+        self.circle = Surface((170 * self.screen_scale[0], 170 * self.screen_scale[1]), SRCALPHA)
+        draw.circle(self.circle, (255, 255, 255),
+                    (self.circle.get_width() / 2, self.circle.get_height() / 2),
+                    (self.circle.get_width() / 2))
+
+        self.player_control_rect = self.circle.get_rect(center=((self.image.get_width() / 2), 100 * self.screen_scale[0]))
+        self.image.blit(self.circle, self.player_control_rect)
+
+        self.faction_coa_rects = []
+        for y in (300, 550, 750, 950, 1150):
+            rect = self.circle.get_rect(center=(200 * self.screen_scale[0], y * self.screen_scale[1]))
+            self.faction_coa_rects.append(rect)
+            self.image.blit(self.circle, rect)
+
+        self.team_setup = {index: {} for index in range(5)}
+
+        self.rect = self.image.get_rect(center=pos)
+
+    def update(self):
+        UIMenu.update(self)
+        if self.mouse_over:
+            inside_mouse_pos = pygame.Vector2(
+                (self.cursor.pos[0] - self.rect.topleft[0]),
+                (self.cursor.pos[1] - self.rect.topleft[1]))
+            # for index, rect in enumerate(self.portrait_rects):
+            #     if rect.collidepoint(inside_mouse_pos):
+
+
 class CustomArmySetupUI(UIMenu):
     empty_army_preset = {"ground": {0: {0: None, 1: "custom_lock", 2: "custom_lock", 3: "custom_lock"},
                                     1: {0: "custom_lock", 1: "custom_lock", 2: "custom_lock", 3: "custom_lock"},
@@ -474,7 +516,6 @@ class CustomArmySetupUI(UIMenu):
         UIMenu.__init__(self)
         self.character_portraits = self.game.sprite_data.character_portraits
         self.character_list = self.game.character_data.character_list
-        self.pos = pos
         self.image = Surface((int(1500 * self.screen_scale[0]), int(1080 * self.screen_scale[1])), SRCALPHA)
         self.image.fill((180, 100, 180))
         self.total_gold_cost = 0
@@ -955,7 +996,7 @@ class MenuImageButton(UIMenu):
 
 
 class MenuButton(UIMenu):
-    def __init__(self, images, pos, key_name="", font_size=56, layer=1):
+    def __init__(self, images, pos, key_name=(), font_size=56, layer=1):
         self._layer = layer
         UIMenu.__init__(self)
         self.pos = pos
@@ -969,8 +1010,14 @@ class MenuButton(UIMenu):
         self.base_image2 = self.button_click_image.copy()
 
         self.text = ""
-        if key_name != "":  # draw text into the button images
-            self.text = self.grab_text(("ui", key_name))
+        if key_name:  # draw text into the button images
+            if type(key_name) is not tuple:
+                key_name = (key_name,)
+            for item in key_name:
+                if type(item) is int or item.isdigit():
+                    self.text += add_comma_number(item)
+                else:
+                    self.text += self.grab_text(("ui", item))
             text_surface = self.font.render(self.text, True, (30, 30, 30))
             text_rect = text_surface.get_rect(center=(self.button_normal_image.get_width() / 2,
                                                       self.button_normal_image.get_height() / 2))
@@ -999,11 +1046,19 @@ class MenuButton(UIMenu):
                 self.cursor.is_select_just_down = False  # reset select button to prevent overlap interaction
 
     def change_state(self, key_name):
-        if key_name != "":
-            self.text = self.grab_text(("ui", key_name))
-            self.button_normal_image = self.base_image0.copy()
-            self.button_over_image = self.base_image1.copy()
-            self.button_click_image = self.base_image2.copy()
+        self.button_normal_image = self.base_image0.copy()
+        self.button_over_image = self.base_image1.copy()
+        self.button_click_image = self.base_image2.copy()
+        self.text = ""
+        if key_name:
+            if type(key_name) is not tuple:
+                key_name = (key_name,)
+            for item in key_name:
+                if type(item) is int or item.isdigit():
+                    self.text += add_comma_number(item)
+                else:
+                    self.text += self.grab_text(("ui", item))
+
             text_surface = self.font.render(self.text, True, (30, 30, 30))
             text_rect = text_surface.get_rect(center=(self.button_normal_image.get_width() / 2,
                                                       self.button_normal_image.get_height() / 2))
@@ -1199,88 +1254,6 @@ class OptionMenuText(UIMenu):
 #                 row_index += 1
 #
 #             index += 1
-
-
-class PresetSelectInterface(UIMenu):
-    base_image = None
-
-    def __init__(self, pos, text_popup):
-        UIMenu.__init__(self)
-        self.character_portraits = self.game.sprite_data.character_portraits
-        self.header_font = Font(self.ui_font["main_button"], int(36 * self.screen_scale[1]))
-        self.font = Font(self.ui_font["main_button"], int(22 * self.screen_scale[1]))
-        self.small_font = Font(self.ui_font["main_button"], int(18 * self.screen_scale[1]))
-        self.current_select_rect = None
-        self.input_delay = 0
-        self.pos = pos
-        self.text_popup = text_popup
-
-        self.all_preset_list = []
-        self.shown_preset_list = []
-        self.portrait_list_rects = {}
-
-        self.base_image = Surface((1000 * self.screen_scale[0], 1000 * self.screen_scale[1]), SRCALPHA)
-        self.base_image.fill((0, 0, 0, 170))
-
-        self.image = self.base_image.copy()
-
-        self.rect = self.image.get_rect(topleft=self.pos)
-
-    def update(self):
-        UIMenu.update(self)
-        if self.input_delay > 0:
-            self.input_delay -= self.game.true_dt
-            if self.input_delay < 0:
-                self.input_delay = 0
-
-    def make_preset_list(self):
-        self.current_select_rect = None
-        self.preset_list = [item for item in self.game.save_data.save_profile["favourite"]["character"]]
-        self.preset_list += [item for item in self.game.save_data.save_profile["unlock"]["character"] if
-                                item not in self.preset_list]
-        self.portrait_list_rects = {}
-        start = 0
-        max_number = 12
-        if len(self.preset_list) < max_number:
-            max_number = len(self.preset_list)
-        elif self.current_select > 11:
-            start = int(self.current_select / 4) * 4
-            max_number = start + 12
-            if len(self.preset_list) < max_number:
-                max_number = len(self.preset_list)
-        true_count = 0
-        count = 0
-        start_x = 20 * self.screen_scale[0]
-        start_y = 100 * self.screen_scale[1]
-        x = start_x
-        y = start_y
-        for number in range(start, max_number):
-            self.portrait_list_rects[true_count] = self.character_portraits[
-                self.preset_list[number]].get_rect(topleft=(x, y))
-            if number == self.current_select:
-                draw.circle(self.image, (140, 140, 220), self.portrait_list_rects[true_count].center,
-                            90 * self.screen_scale[0])
-            self.image.blit(self.character_portraits[self.preset_list[number]], self.portrait_list_rects[number])
-            count += 1
-            true_count += 1
-            x += 180 * self.screen_scale[0]
-            if count == 4:
-                x = start_x
-                y += 180 * self.screen_scale[1]
-                count = 0
-
-            text_surface = text_render_with_bg(self.localisation.grab_text(("character",
-                                                                            self.preset_list[self.current_select],
-                                                                            "Name")),
-                                               self.header_font, Color("black"))
-            text_rect = text_surface.get_rect(topleft=(150 * self.screen_scale[0], 0))
-            self.image.blit(text_surface, text_rect)
-
-    def add_remove_text_popup(self):
-        if self.text_popup not in self.game.ui_updater:
-            self.game.add_ui_updater(self.text_popup)
-        else:
-            self.game.remove_ui_updater(self.text_popup)
 
 
 class KeybindIcon(UIMenu):
@@ -2158,18 +2131,6 @@ class ListUI(UIMenu, Containable):
     def get_size(self):
         return self.image.get_size()
 
-
-def make_bar_list(bar_button_images, list_to_do, menu_image):
-    """
-    Make a drop down bar list option button
-    :param bar_button_images: List of 3 images for normal, mouse over, click state
-    :param list_to_do: List of option for each button
-    :param menu_image: Menu image that will get drop list
-    :return: List of bar button objects
-    """
-    return [MenuButton(bar_button_images,
-                       menu_image.pos[0], menu_image.pos[1] + bar_button_images[0].get_height() * (index + 1),
-            key_name=bar, layer=100000000000) for index, bar in enumerate(list_to_do)]
 
 #
 # from math import cos, sin
