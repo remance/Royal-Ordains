@@ -45,8 +45,8 @@ def menu_custom_setup(self):
             self.before_save_preset_army_setup = deepcopy(self.save_data.custom_army_preset_save)
             self.faction_selector.change_coa(Custom_Default_Faction)
             self.custom_preset_list_box.adapter.__init__()
-            self.custom_army_title.change_text("", self.custom_army_setup.total_gold_cost,
-                                               self.custom_army_setup.total_character_number)
+            self.custom_preset_army_title.change_text("", self.custom_preset_army_setup.total_gold_cost,
+                                                      self.custom_preset_army_setup.total_character_number)
             self.add_ui_updater(self.custom_preset_menu_uis)
             self.remove_ui_updater(self.custom_battle_menu_uis)
 

@@ -327,7 +327,7 @@ class FactionSelector(UIMenu):
             elif faction == self.selected_faction:  # unselected old one
                 self.image.blit(self.faction_coas[faction]["mini"], self.faction_coa_rects[faction])
         self.selected_faction = new_select_faction
-        self.game.custom_army_setup.change_coa(new_select_faction)
+        self.game.custom_preset_army_setup.change_coa(new_select_faction)
         if self.selected_faction not in self.game.before_save_preset_army_setup:
             self.game.before_save_preset_army_setup[self.selected_faction] = {}
 
@@ -375,7 +375,7 @@ class CustomArmySelector(UIMenu):
             elif faction == self.selected_faction:  # unselected old one
                 self.image.blit(self.faction_coas[faction]["mini"], self.faction_coa_rects[faction])
         self.selected_faction = new_select_faction
-        self.game.custom_army_setup.change_coa(new_select_faction)
+        self.game.custom_preset_army_setup.change_coa(new_select_faction)
         if self.selected_faction not in self.game.before_save_preset_army_setup:
             self.game.before_save_preset_army_setup[self.selected_faction] = {}
 
@@ -445,7 +445,7 @@ class CharacterSelector(UIMenu):
                     if index < len(self.shown_character_list):
                         character = self.shown_character_list[index]
                         if self.event_press:
-                            self.game.custom_army_setup.change_character(character)
+                            self.game.custom_preset_army_setup.change_character(character)
                             return
 
                         character_data = self.character_list[character]
@@ -465,7 +465,8 @@ class CharacterSelector(UIMenu):
 
 
 class CustomTeamSetupUI(UIMenu):
-    def __init__(self, pos):
+    def __init__(self, team, pos):
+        """UI to setup team for custom battle"""
         UIMenu.__init__(self)
         self.faction_coas = self.game.sprite_data.faction_coas
         self.font = self.game.preset_name_font
@@ -475,6 +476,7 @@ class CustomTeamSetupUI(UIMenu):
         self.image.fill((150, 220, 220))
         self.rect = self.image.get_rect(center=pos)
         self.total_gold = 0
+        self.team = team
 
         self.circle = Surface((170 * self.screen_scale[0], 170 * self.screen_scale[1]), SRCALPHA)
         draw.circle(self.circle, (255, 255, 255),
@@ -482,7 +484,7 @@ class CustomTeamSetupUI(UIMenu):
                     (self.circle.get_width() / 2))
 
         self.player_control_rect = self.circle.get_rect(center=((self.image.get_width() / 2), 100 * self.screen_scale[0]))
-        self.image.blit(self.circle, self.player_control_rect)
+        self.change_player_control()
 
         self.faction_coa_rects = []
         for y in (300, 550, 750, 950, 1150):
@@ -494,17 +496,54 @@ class CustomTeamSetupUI(UIMenu):
 
         self.rect = self.image.get_rect(center=pos)
 
+    def change_player_control(self):
+        self.image.blit(self.circle, self.player_control_rect)
+        if self.team == 1:
+            self.image.blit(self.game.player_image[self.game.custom_team1_player], self.player_control_rect)
+        else:
+            self.image.blit(self.game.player_image[self.game.custom_team2_player], self.player_control_rect)
+
     def update(self):
         UIMenu.update(self)
         if self.mouse_over:
             inside_mouse_pos = pygame.Vector2(
                 (self.cursor.pos[0] - self.rect.topleft[0]),
                 (self.cursor.pos[1] - self.rect.topleft[1]))
+            if self.player_control_rect.collidepoint(inside_mouse_pos):
+                if self.event_press:
+                    if self.team == 1:
+                        if self.game.custom_team1_player == "player":
+                            self.game.custom_team1_player = "computer"
+                        elif self.game.custom_team1_player == "computer":
+                            self.game.custom_team1_player = "player"
+                            if self.game.custom_team2_player == "player":
+                                # swap player from another team
+                                self.game.custom_team2_player = "computer"
+                                self.game.custom_battle_team2_setup.change_player_control()
+                        self.change_player_control()
+                    else:
+                        if self.game.custom_team2_player == "player":
+                            self.game.custom_team2_player = "computer"
+                        elif self.game.custom_team2_player == "computer":
+                            self.game.custom_team2_player = "player"
+                            if self.game.custom_team1_player == "player":
+                                # swap player from another team
+                                self.game.custom_team1_player = "computer"
+                                self.game.custom_battle_team1_setup.change_player_control()
+                        self.change_player_control()
+                if self.team == 1:
+                    self.game.text_popup.popup((self.cursor.pos[0], self.cursor.pos[1] - (100 * self.screen_scale[1])),
+                                               self.localisation.grab_text(("ui", self.game.custom_team1_player)))
+                else:
+                    self.game.text_popup.popup((self.cursor.pos[0], self.cursor.pos[1] - (100 * self.screen_scale[1])),
+                                               self.localisation.grab_text(("ui", self.game.custom_team2_player)))
+                self.game.add_ui_updater(self.game.text_popup)
+
             # for index, rect in enumerate(self.portrait_rects):
             #     if rect.collidepoint(inside_mouse_pos):
 
 
-class CustomArmySetupUI(UIMenu):
+class CustomPresetArmySetupUI(UIMenu):
     empty_army_preset = {"ground": {0: {0: None, 1: "custom_lock", 2: "custom_lock", 3: "custom_lock"},
                                     1: {0: "custom_lock", 1: "custom_lock", 2: "custom_lock", 3: "custom_lock"},
                                     2: {0: "custom_lock", 1: "custom_lock", 2: "custom_lock", 3: "custom_lock"},
@@ -568,7 +607,7 @@ class CustomArmySetupUI(UIMenu):
         self.selected_faction = selected_faction
         self.selected_portrait_index = ()
         self.game.custom_character_selector.add(None, "")
-        self.game.custom_army_title.change_text(self.current_preset, self.total_gold_cost, self.total_character_number)
+        self.game.custom_preset_army_title.change_text(self.current_preset, self.total_gold_cost, self.total_character_number)
         self.game.custom_preset_list_box.adapter.__init__()  # reset custom preset list as well
         self.reset()
 
@@ -716,7 +755,7 @@ class CustomArmySetupUI(UIMenu):
             if self.army_preset["air"][key_group] not in (None, "custom_lock"):
                 self.total_gold_cost += self.character_list[self.army_preset["air"][key_group]]["Cost"]
                 self.total_character_number += self.character_list[self.army_preset["air"][key_group]]["Capacity"]
-        self.game.custom_army_title.change_text(self.current_preset, self.total_gold_cost, self.total_character_number)
+        self.game.custom_preset_army_title.change_text(self.current_preset, self.total_gold_cost, self.total_character_number)
 
     def update(self):
         UIMenu.update(self)
@@ -1573,10 +1612,10 @@ class CustomPresetListAdapter(ListAdapterHideExpand):
         from engine.game.game import Game
         self.game = Game.game
         actual_level_list = [(0, "New Preset", )]
-        if self.game.custom_army_setup.selected_faction in self.game.before_save_preset_army_setup:
+        if self.game.custom_preset_army_setup.selected_faction in self.game.before_save_preset_army_setup:
             actual_level_list += [
                 [0, item] for index, item in enumerate(list(self.game.before_save_preset_army_setup[
-                                                                self.game.custom_army_setup.selected_faction].keys()))]
+                                                                self.game.custom_preset_army_setup.selected_faction].keys()))]
         ListAdapterHideExpand.__init__(self, actual_level_list)
 
     # def get_highlighted_index(self):
@@ -1593,10 +1632,10 @@ class CustomPresetListAdapter(ListAdapterHideExpand):
             self.game.activate_input_popup(("text_input", "new_preset"), "Input name for new preset",
                                            self.game.input_popup_uis)
         else:
-            self.game.custom_army_setup.current_preset = item_text
-            self.game.custom_army_setup.army_preset = self.game.before_save_preset_army_setup[
-                self.game.custom_army_setup.selected_faction][item_text]
-            self.game.custom_army_setup.reset()
+            self.game.custom_preset_army_setup.current_preset = item_text
+            self.game.custom_preset_army_setup.army_preset = self.game.before_save_preset_army_setup[
+                self.game.custom_preset_army_setup.selected_faction][item_text]
+            self.game.custom_preset_army_setup.reset()
 
     def on_alt_select(self, item_index, item_text):
         actual_index = self.get_visible_index_actual_index()[item_index]

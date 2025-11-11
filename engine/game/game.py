@@ -27,7 +27,7 @@ from engine.stageobject.stageobject import StageObject
 from engine.uibattle.uibattle import (Profiler, FPSCount, DamageNumber, CharacterSpeechBox,
                                       CharacterLeaderIndicator, CharacterCommandIndicator)
 from engine.uimenu.uimenu import (OptionMenuText, SliderMenu, MenuCursor, BoxUI, BrownMenuButton, MenuButton,
-                                  TextPopup, CustomTeamSetupUI, FactionSelector, CustomArmySetupUI,
+                                  TextPopup, CustomTeamSetupUI, FactionSelector, CustomPresetArmySetupUI,
                                   CharacterSelector, CustomPresetTitle, ListUI, CustomPresetListAdapter,
                                   GenericListAdapter)
 from engine.updater.updater import ReversedLayeredUpdates
@@ -439,6 +439,16 @@ class Game:
                                self.grand_setup_confirm_battle_button)
 
         # Custom battle select menu button
+        self.custom_team1_player = "player"
+        self.custom_team2_player = "computer"
+        self.custom_team1_army = Army({}, [], [])
+        self.custom_team2_army = Army({}, [], [])
+        self.custom_team1_reinforcement_army = Army({}, [], [])
+        self.custom_team2_reinforcement_army = Army({}, [], [])
+        self.custom_team0_garrison_army = GarrisonArmy({}, [], [])
+        self.custom_team1_garrison_army = GarrisonArmy({}, [], [])
+        self.custom_team2_garrison_army = GarrisonArmy({}, [], [])
+
         self.selected_custom_map_battle = Default_Selected_Map_Custom_Battle
         self.team1_gold_limit_custom_battle = Default_Gold_limit_Custom_Battle
         self.team2_gold_limit_custom_battle = Default_Gold_limit_Custom_Battle
@@ -486,8 +496,13 @@ class Game:
         self.custom_battle_team2_gold_button = MenuButton(
             self.text_button_image_list, (self.screen_rect.width * 0.75, self.screen_rect.height * 0.1),
             key_name=("Gold Limit:", self.team2_gold_limit_custom_battle), font_size=52, layer=151)
-        self.custom_battle_team1_setup = CustomTeamSetupUI((self.screen_width * 0.25, self.screen_height * 0.435))
-        self.custom_battle_team2_setup = CustomTeamSetupUI((self.screen_width * 0.75, self.screen_height * 0.435))
+
+        self.player_image = {"player": load_image(self.game.data_dir, self.screen_scale,
+                                                  "player.png", ("ui", "mainmenu_ui")),
+                             "computer": load_image(self.game.data_dir, self.screen_scale,
+                                                    "computer.png", ("ui", "mainmenu_ui"))}
+        self.custom_battle_team1_setup = CustomTeamSetupUI(1, (self.screen_width * 0.25, self.screen_height * 0.435))
+        self.custom_battle_team2_setup = CustomTeamSetupUI(2, (self.screen_width * 0.75, self.screen_height * 0.435))
 
         self.custom_faction_list = ["Random", "All"]
         self.custom_faction_list += [key for key in self.game.sprite_data.faction_coas if key not in self.custom_faction_list]
@@ -525,14 +540,6 @@ class Game:
                                        self.custom_battle_team1_gold_button,
                                        self.custom_battle_team2_gold_button)
 
-        self.custom_team1_army = Army({}, [], [])
-        self.custom_team2_army = Army({}, [], [])
-        self.custom_team1_reinforcement_army = Army({}, [], [])
-        self.custom_team2_reinforcement_army = Army({}, [], [])
-        self.custom_team0_garrison_army = GarrisonArmy({}, [], [])
-        self.custom_team1_garrison_army = GarrisonArmy({}, [], [])
-        self.custom_team2_garrison_army = GarrisonArmy({}, [], [])
-
         # preset army setup for custom battle ui
         self.preset_back_button = BrownMenuButton((.15, 1), (-0.3, 0),
                                                   key_name="back_button", parent=main_menu_buttons_box)
@@ -543,9 +550,9 @@ class Game:
         self.preset_revert_all_button = BrownMenuButton((.15, 1), (0.2, 0), key_name="revert_all_button",
                                                   parent=main_menu_buttons_box)
 
-        self.custom_army_setup = CustomArmySetupUI((self.screen_width * 0.4, self.screen_height * 0.2))
-        self.custom_army_title = CustomPresetTitle((self.screen_rect.width / 2,
-                                                    self.custom_army_setup.rect.midtop[1]))
+        self.custom_preset_army_setup = CustomPresetArmySetupUI((self.screen_width * 0.4, self.screen_height * 0.2))
+        self.custom_preset_army_title = CustomPresetTitle((self.screen_rect.width / 2,
+                                                           self.custom_preset_army_setup.rect.midtop[1]))
         self.custom_character_selector = CharacterSelector((self.screen_width * 0.78, self.screen_height * 0.2))
         self.custom_preset_list_box = ListUI(pivot=(-0.9, -0.6), origin=(-1, -1), size=(0.15, 0.5),
                                              items=CustomPresetListAdapter(),
@@ -553,8 +560,8 @@ class Game:
         self.faction_selector = FactionSelector((self.screen_width / 2, 0))
 
         self.custom_preset_menu_uis = (self.preset_back_button, self.preset_save_button, self.custom_preset_list_box,
-                                       self.faction_selector, self.custom_army_setup, self.custom_character_selector,
-                                       self.custom_army_title)
+                                       self.faction_selector, self.custom_preset_army_setup, self.custom_character_selector,
+                                       self.custom_preset_army_title)
 
         # Battle map select menu button
         # self.map_title = MapTitle((self.screen_rect.width / 2, 0))
@@ -753,14 +760,14 @@ class Game:
 
                     elif self.input_popup[1] == "new_preset":
                         if self.input_box.text and self.input_box.text not in self.before_save_preset_army_setup:
-                            self.before_save_preset_army_setup[self.custom_army_setup.selected_faction][
-                                self.input_box.text] = deepcopy(self.custom_army_setup.army_preset)
-                            self.custom_army_setup.army_preset = self.before_save_preset_army_setup[
-                                self.custom_army_setup.selected_faction][self.input_box.text]
+                            self.before_save_preset_army_setup[self.custom_preset_army_setup.selected_faction][
+                                self.input_box.text] = deepcopy(self.custom_preset_army_setup.army_preset)
+                            self.custom_preset_army_setup.army_preset = self.before_save_preset_army_setup[
+                                self.custom_preset_army_setup.selected_faction][self.input_box.text]
 
                             self.custom_preset_list_box.adapter.__init__()
-                            self.custom_army_title.change_text(self.input_box.text, self.custom_army_setup.total_gold_cost,
-                                                               self.custom_army_setup.total_character_number)
+                            self.custom_preset_army_title.change_text(self.input_box.text, self.custom_preset_army_setup.total_gold_cost,
+                                                                      self.custom_preset_army_setup.total_character_number)
 
                         else:
                             done = False
@@ -769,11 +776,11 @@ class Game:
                                                       self.game.inform_popup_uis)
 
                     elif "remove_preset" in self.input_popup[1]:
-                        self.before_save_preset_army_setup[self.custom_army_setup.selected_faction].pop(self.input_popup[1][1])
-                        if self.input_popup[1][1] == self.custom_army_setup.current_preset:
-                            self.custom_army_setup.current_preset = ""
-                            self.custom_army_title.change_text("", self.custom_army_setup.total_gold_cost,
-                                                               self.custom_army_setup.total_character_number)
+                        self.before_save_preset_army_setup[self.custom_preset_army_setup.selected_faction].pop(self.input_popup[1][1])
+                        if self.input_popup[1][1] == self.custom_preset_army_setup.current_preset:
+                            self.custom_preset_army_setup.current_preset = ""
+                            self.custom_preset_army_title.change_text("", self.custom_preset_army_setup.total_gold_cost,
+                                                                      self.custom_preset_army_setup.total_character_number)
                         self.custom_preset_list_box.adapter.__init__()
 
                     elif self.input_popup[1] == "custom_gold":

@@ -22,44 +22,44 @@ def menu_custom_preset(self):
 
 
 def go_up(self):
-    if not self.custom_army_setup.selected_portrait_index:
-        self.custom_army_setup.change_portrait_selection((0, 0))
+    if not self.custom_preset_army_setup.selected_portrait_index:
+        self.custom_preset_army_setup.change_portrait_selection((0, 0))
     else:
-        if self.custom_army_setup.selected_portrait_index[0] != 0:
-            self.custom_army_setup.change_portrait_selection(tuple([value - 1 if not index else value for
-                                                              index, value in enumerate(self.custom_army_setup.selected_portrait_index)]))
+        if self.custom_preset_army_setup.selected_portrait_index[0] != 0:
+            self.custom_preset_army_setup.change_portrait_selection(tuple([value - 1 if not index else value for
+                                                                           index, value in enumerate(self.custom_preset_army_setup.selected_portrait_index)]))
 
 
 def go_down(self):
-    if not self.custom_army_setup.selected_portrait_index:
-        self.custom_army_setup.change_portrait_selection((0, 0))
+    if not self.custom_preset_army_setup.selected_portrait_index:
+        self.custom_preset_army_setup.change_portrait_selection((0, 0))
     else:
-        if self.custom_army_setup.selected_portrait_index[0] != 4:
-            self.custom_army_setup.change_portrait_selection(tuple([value + 1 if not index else value for
-                                                              index, value in enumerate(self.custom_army_setup.selected_portrait_index)]))
+        if self.custom_preset_army_setup.selected_portrait_index[0] != 4:
+            self.custom_preset_army_setup.change_portrait_selection(tuple([value + 1 if not index else value for
+                                                                           index, value in enumerate(self.custom_preset_army_setup.selected_portrait_index)]))
 
 
 def go_left(self):
-    if not self.custom_army_setup.selected_portrait_index:
-        self.custom_army_setup.change_portrait_selection((0, 0))
+    if not self.custom_preset_army_setup.selected_portrait_index:
+        self.custom_preset_army_setup.change_portrait_selection((0, 0))
     else:
-        if len(self.custom_army_setup.selected_portrait_index) == 1:  # air to ground
-            self.custom_army_setup.change_portrait_selection((self.custom_army_setup.selected_portrait_index[0], 3))
-        elif self.custom_army_setup.selected_portrait_index[1]:
-            self.custom_army_setup.change_portrait_selection((self.custom_army_setup.selected_portrait_index[0],
-                                                              self.custom_army_setup.selected_portrait_index[1] - 1))
+        if len(self.custom_preset_army_setup.selected_portrait_index) == 1:  # air to ground
+            self.custom_preset_army_setup.change_portrait_selection((self.custom_preset_army_setup.selected_portrait_index[0], 3))
+        elif self.custom_preset_army_setup.selected_portrait_index[1]:
+            self.custom_preset_army_setup.change_portrait_selection((self.custom_preset_army_setup.selected_portrait_index[0],
+                                                                     self.custom_preset_army_setup.selected_portrait_index[1] - 1))
 
 
 def go_right(self):
-    if not self.custom_army_setup.selected_portrait_index:
-        self.custom_army_setup.change_portrait_selection((0, 0))
+    if not self.custom_preset_army_setup.selected_portrait_index:
+        self.custom_preset_army_setup.change_portrait_selection((0, 0))
     else:
-        if (len(self.custom_army_setup.selected_portrait_index) == 2 and
-                self.custom_army_setup.selected_portrait_index[1] == 3):  # ground to air
-            self.custom_army_setup.change_portrait_selection((self.custom_army_setup.selected_portrait_index[0],))
-        elif len(self.custom_army_setup.selected_portrait_index) == 2:
-            self.custom_army_setup.change_portrait_selection((self.custom_army_setup.selected_portrait_index[0],
-                                                              self.custom_army_setup.selected_portrait_index[1] + 1))
+        if (len(self.custom_preset_army_setup.selected_portrait_index) == 2 and
+                self.custom_preset_army_setup.selected_portrait_index[1] == 3):  # ground to air
+            self.custom_preset_army_setup.change_portrait_selection((self.custom_preset_army_setup.selected_portrait_index[0],))
+        elif len(self.custom_preset_army_setup.selected_portrait_index) == 2:
+            self.custom_preset_army_setup.change_portrait_selection((self.custom_preset_army_setup.selected_portrait_index[0],
+                                                                     self.custom_preset_army_setup.selected_portrait_index[1] + 1))
 
 
 custom_preset_key_hold = {"Up": go_up, "Down": go_down, "Left": go_left, "Right": go_right}
