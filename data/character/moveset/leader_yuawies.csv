@@ -1,0 +1,6 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Attack1","Shoot Leaf",,,,1200,1300,,,12,32,3,3,0.1,"Slash",,,,
+"Attack2","Leaf Cut",,,,400,,,,22,42,2,2,0.1,"Slash",,,,
+"Skill1","Charm",,,,600,800,20,50,,,,,,,,"Daze,Confuse",,
+"Skill2","Nature Heal",,,"self:{health<=40}",350,,15,50,,,,,,,"Large_heal",,,
+"UseItem","Food",,,"self:{health<=50}",20000,,60,,,,,,,,,,,
