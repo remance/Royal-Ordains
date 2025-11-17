@@ -18,18 +18,18 @@ def activate_strategy(self, team, strategy, strategy_index, base_pos_x):
             abs(self.team_commander[team].base_pos[0] - base_pos_x) < stat["Activate Range"])):
         print(stat)
         self.team_stat[team]["strategy_resource"] -= stat["Resource Cost"]
-        if team == 1:
+        if team == self.player_team:
             self.drama_text.queue.append((self.localisation.grab_text(("strategy", strategy, "Ally")),
                                           None))
         else:
             self.drama_text.queue.append((self.localisation.grab_text(("strategy", strategy, "Enemy")),
                                           None))
-        self.battle.team_stat[team]["strategy_cooldown"][strategy_index] = stat["Cooldown"]
+        self.team_stat[team]["strategy_cooldown"][strategy_index] = stat["Cooldown"]
 
         if stat["Property"]:
             if "weather" in stat["Property"]:  # strategy that change weather
-                self.battle.current_weather.__init__(stat["Property"]["weather"], randint(120, 250),
-                                                     randint(0, 2))
+                self.current_weather.__init__(stat["Property"]["weather"], randint(120, 250),
+                                              randint(0, 2))
 
         if stat["Effects"]:
             for effect_stat in stat["Effects"]:
@@ -67,12 +67,12 @@ def activate_strategy(self, team, strategy, strategy_index, base_pos_x):
                     start_pos = (base_pos_x + uniform(-stat["Range"], stat["Range"]),
                                  Default_Ground_Pos)
 
-                    BattleCharacter(self.battle.last_char_game_id,
+                    BattleCharacter(self.last_char_game_id,
                                     self.character_data.character_list[spawn_name] |
                                     {"ID": spawn_name,
                                      "Direction": self.direction,
                                      "Team": team, "POS": start_pos, "Start Health": 1}, is_summon=True)
-                    self.battle.last_char_game_id += 1
+                    self.last_char_game_id += 1
                     Effect(None, ("Movement", "Summon", start_pos[0],
                                   start_pos[1], -self.angle, 1, 0, 1, 1), 0)
 

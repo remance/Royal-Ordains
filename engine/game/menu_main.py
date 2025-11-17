@@ -12,7 +12,7 @@ def menu_main(self):
     elif self.test_battle_button.event_press:
         self.custom_team0_garrison_army.__init__({Leader("Castle_cat_shield_crossbow"): [{"Castle_cat_shield_crossbow": 10}]},
                                                  [], [])
-        self.custom_team1_army.__init__({Leader("Leader_bigta"): [{"Small_rabbit_spear": 20},
+        self.custom_team_army[1][0].__init__({Leader("Leader_bigta"): [{"Small_rabbit_spear": 20},
                                                                    {"Small_rabbit_sling": 20},
                                                                    {"Small_rabbit_spear": 20}],
                                         Leader("Leader_iri"): [{"Small_rabbit_spear": 20},
@@ -21,17 +21,17 @@ def menu_main(self):
                                         [{"Castle_human_air_flying_monk": 10}, {"Small_eagle_air_stone": 10}],
                                         ["Test", "Test", "Test2", "Test2"]
                                         )
-        self.custom_team2_army.__init__({Leader("Leader_tulia"): [{"Small_rabbit_spear": 20},
+        self.custom_team_army[2][0].__init__({Leader("Leader_tulia"): [{"Small_rabbit_spear": 20},
                                                            {"Small_rabbit_spear": 20},
                                                            {"Small_rabbit_spear": 20}]},
                                         [{"Castle_cat_air_rocket_bomb": 5}, {"Castle_cat_air_rocket_bomb": 5}],
                                         [])
-        self.custom_team1_reinforcement_army.__init__({Leader("Small_rabbit_leader_hero"):
+        self.custom_team_army[1][1].__init__({Leader("Small_rabbit_leader_hero"):
                                                             [{"Small_rabbit_snail_cav": 10},
                                                              {"Small_rabbit_snail_cav": 10},
                                                              {"Small_rabbit_snail_cav": 10}]},
                                                       [{"Small_eagle_air_stone": 10}], [])
-        self.custom_team2_reinforcement_army.__init__({}, [], [])
+        self.custom_team_army[2][1].__init__({}, [], [])
         self.custom_team1_garrison_army.__init__({}, [], [])
         self.custom_team2_garrison_army.__init__({Leader("Small_rabbit_tower"):
                                                        [{"Small_rabbit_spear": 20},
@@ -45,15 +45,15 @@ def menu_main(self):
                          "reinforcement_army": []},
                      1: {"strategy_resource": 0, "start_pos": 0, "air_group": [], "retinue": (),
                          "strategy": [], "strategy_cooldown": {},
-                         "main_army": self.custom_team1_army, "garrison_army": self.custom_team1_garrison_army,
-                         "reinforcement_army": [self.custom_team1_reinforcement_army]},
+                         "main_army": self.custom_team_army[1][0], "garrison_army": self.custom_team1_garrison_army,
+                         "reinforcement_army": self.custom_team_army[1][1:2]},
                      2: {"strategy_resource": 100, "start_pos": 0.5, "air_group": [],
                          "retinue": (), "strategy": [], "strategy_cooldown": {},
-                         "main_army": self.custom_team2_army,
+                         "main_army": self.custom_team_army[2][0],
                          "garrison_army": self.custom_team2_garrison_army,
-                         "reinforcement_army": [self.custom_team2_reinforcement_army]}}
+                         "reinforcement_army": self.custom_team_army[2][1:2]}}
 
-        self.start_battle("test", team_stat, ai_retreat=False)
+        self.start_battle("test", team_stat, 2, False)
 
     # elif self.load_game_button.event:  # load save
     #     self.start_battle(self.mission_selected)

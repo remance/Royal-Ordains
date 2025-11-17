@@ -582,7 +582,7 @@ class BattleCharacter(Character):
             self.command_icon = self.battle.character_portraits[stat["ID"]]["command"]
             self.command_icon_right = self.battle.character_portraits[stat["ID"]]["command"]["right"]
 
-        if is_leader and is_controllable and self.team == 1:
+        if is_leader and is_controllable and self.team == self.battle.player_team:
             self.battle.player_control_leaders.append(self)
             self.indicator = CharacterLeaderIndicator(self)
 

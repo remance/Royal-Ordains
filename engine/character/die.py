@@ -12,7 +12,7 @@ def die(self):
     self.ally_list.remove(self)
     if self.is_leader:
         self.battle.all_team_leader[self.team].remove(self)
-        if self.team == 1 and self.is_controllable:
+        if self.team == self.battle.player_team and self.is_controllable:
             if not self.is_commander:
                 self.battle.player_control_leaders.remove(self)
             if self in self.battle.player_selected_leaders:

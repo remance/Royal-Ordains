@@ -648,7 +648,7 @@ class TacticalMap(UIBattle):
                         back_icon = self.team_icon_border[character.team]["noselect"]
                     else:
                         scaled_pos = (character.base_pos[0] / self.map_scale_width, self.ground_icon_pos_y)
-                        if character.team == 1:
+                        if character.team == self.battle.player_team:
                             if character in self.battle.player_selected_leaders:
                                 if character.is_commander:
                                     back_icon = self.team_icon_border[character.team]["commander_selected"]
@@ -1147,7 +1147,7 @@ class CharacterLeaderIndicator(UIBattle):
         if character.is_commander:
             text = "C" + str(index + 1)
 
-        if character.team == 1:
+        if character.team == self.battle.player_team:
             self.battle.player_leader_indicators.add(self)
 
         if text not in self.text_image_cache[self.character.team]:

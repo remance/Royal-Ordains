@@ -47,7 +47,7 @@ def state_battle_process(self):
 
             self.ai_process_list = self.ai_process_list[limit:]
 
-        self.battle_team2_commander.update(self.dt)
+        self.battle_ai_commander.update(self.dt)
 
         if self.later_reinforcement:
             self.reinforcement_check_timer += self.dt

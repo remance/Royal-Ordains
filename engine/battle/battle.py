@@ -114,6 +114,7 @@ class Battle:
         # add enemy command AI, skirmish behaviour ai for ranged char/leader/group, commander
         # add custom battle setup menu
         # add back battle cutscene
+        # rework scene to use common paper background for same area (upto 14 pages?)
         # finish main menu
 
         self.clock = pygame.time.Clock()  # Game clock to keep track of realtime pass
@@ -235,12 +236,15 @@ class Battle:
         self.all_team_air_enemy_collision_grids = {index: {} for index in team_list}
         self.last_grid = None
 
+        self.player_team = 1
+        self.ai_team = 2
         self.player_input = self.player_input_battle
         self.player_damage = 0
         self.player_kill = 0
         self.battle_scale = []
         self.play_time = 0
         self.battle_time = 0.0
+
         self.team_stat = {team: {"strategy_resource": 0, "start_pos": 0, "retreat_pos": 0,
                                  "air_group": [], "strategy": {}, "unit": {}} for
                           team in team_list}
@@ -251,8 +255,7 @@ class Battle:
 
         self.later_reinforcement = {"weather": {}, "time": {}, "team": {team: {"air": [], "ground": {}} for team in team_list}}
         BattleCommanderAI.battle = self
-        self.battle_team1_commander = BattleCommanderAI(1)
-        self.battle_team2_commander = BattleCommanderAI(2)
+        self.battle_ai_commander = BattleCommanderAI(2)
 
         self.game_state = "battle"
         self.esc_menu_mode = "menu"
@@ -371,14 +374,18 @@ class Battle:
         self.cutscene_playing = None
         self.current_scene = 1
 
-    def prepare_new_stage(self, mission, team_stat, ai_retreat):
-        for message in self.inner_prepare_new_stage(mission, team_stat, ai_retreat):
+    def prepare_new_stage(self, mission, team_stat, player_team, ai_retreat):
+        for message in self.inner_prepare_new_stage(mission, team_stat, player_team, ai_retreat):
             self.game.error_log.write("Start Stage:" + "." + str(mission))
             print(message, end="")
 
-    def inner_prepare_new_stage(self, mission, team_stat, ai_retreat):
+    def inner_prepare_new_stage(self, mission, team_stat, player_team, ai_retreat):
         """Setup stuff when start new battle"""
         self.mission = mission
+        self.player_team = player_team
+        self.ai_team = 2
+        if self.player_team == 2:
+            self.ai_team = 1
 
         # Stop all sound
         for sound_ch in self.battle_sound_channel:
@@ -560,7 +567,7 @@ class Battle:
                 self.later_reinforcement["team"][team]["air"] = air_reinforcement
 
         self.setup_team_characters(stage_data)
-        self.battle_team2_commander.__init__(2, can_retreat=ai_retreat)
+        self.battle_ai_commander.__init__(self.ai_team, can_retreat=ai_retreat)
 
         if stage_event_data:
             self.stage_music_pool = {key: Sound(self.music_pool[key]) for key in stage_event_data["music"] if
@@ -621,7 +628,8 @@ class Battle:
 
         self.camera_mode = self.start_camera_mode
 
-        self.camera_pos = Vector2(500, self.camera_center_y)
+        self.camera_pos = Vector2(self.team_stat[self.player_team]["start_pos"] * self.screen_scale[0],
+                                  self.camera_center_y)
         self.fix_camera()
 
         self.shown_camera_pos = self.camera_pos
@@ -827,8 +835,7 @@ class Battle:
         for character_command_indicator in self.character_command_indicator:
             character_command_indicator.setup()
         self.blit_culling_check.clear()
-        self.battle_team1_commander.clear()
-        self.battle_team2_commander.clear()
+        self.battle_ai_commander.clear()
 
         self.clean_character_group()
 

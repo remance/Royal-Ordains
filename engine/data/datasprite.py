@@ -67,6 +67,9 @@ class SpriteData(GameData):
         for file in self.faction_coas:
             self.faction_coas[file] = {"faction_ui": self.faction_coas[file]}
             self.faction_coas[file]["mini"] = smoothscale(
+                self.faction_coas[file]["faction_ui"], (170 * self.screen_scale[0],
+                                                        170 * self.screen_scale[1]))
+            self.faction_coas[file]["small"] = smoothscale(
                 self.faction_coas[file]["faction_ui"], (200 * self.screen_scale[0],
                                                         200 * self.screen_scale[1]))
 

@@ -1,3 +1,4 @@
+from os import path
 from copy import deepcopy
 from engine.constants import Custom_Default_Faction
 
@@ -8,10 +9,11 @@ def menu_custom_preset(self):
         self.add_ui_updater(self.custom_battle_menu_uis)
         self.remove_ui_updater(self.custom_preset_menu_uis)
         self.faction_selector.change_coa(Custom_Default_Faction)
+        self.custom_preset_army_setup.change_coa(Custom_Default_Faction)
 
     elif self.preset_save_button.event_press:
         self.save_data.custom_army_preset_save = deepcopy(self.before_save_preset_army_setup)
-        self.save_data.make_save_file("custom_army.dat", self.save_data.custom_army_preset_save)
+        self.save_data.make_save_file(path.join(self.main_dir, "save", "custom_army.dat"), self.save_data.custom_army_preset_save)
 
     else:
         if not self.input_delay:

@@ -15,12 +15,12 @@ def conduct_plan(self):
             #         abs(self.commander.commander_order[1] - self.start_point) < abs(
             #             self.commander.base_pos[0] - self.start_point)):
             #         # not already moving back commander
-            if self.current_info["commander_health"] > 0.5:  # move back a bit if able
-                self.commander.issue_commander_order(("move", ))
-            elif self.current_info["commander_health"] > 0.3:  # move to back line
-                self.commander.issue_commander_order(("move", ))
-            else:  # move back to retreat point
-                self.commander.issue_commander_order(("move", self.retreat_pos))
+            # if self.current_info["commander_health"] > 0.5:  # move back a bit if able
+            #     self.commander.issue_commander_order(("move", ))
+            # elif self.current_info["commander_health"] > 0.3:  # move to back line
+            #     self.commander.issue_commander_order(("move", ))
+            # else:  # move back to retreat point
+            #     self.commander.issue_commander_order(("move", self.retreat_pos))
             already_assigned_leader.append(self.commander)
 
         elif plan in ("attack", "defend", "skirmish", "flank"):  # leader related plan
@@ -87,7 +87,7 @@ def conduct_attack_plan(self, control_leader_list, already_assigned_leader):
 
 def conduct_defend_plan(self, control_leader_list, already_assigned_leader):
     defend_point = self.commander.base_pos[0]
-    defend_leader = dict(sorted({leader: leader.total_defend_power_score for
+    defend_leader = dict(sorted({leader: leader.total_defence_power_score for
                                   leader in control_leader_list if leader not in already_assigned_leader}.items(),
                                  key=itemgetter(1), reverse=True))
     for leader in defend_leader:

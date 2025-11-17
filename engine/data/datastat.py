@@ -211,11 +211,11 @@ class CharacterData(GameData):
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
-            dict_column = ("Group 1", "Group 2", "Group 3", "Group 4", "Group 5",)
-            dict_column = [index for index, item in enumerate(header) if item in dict_column]
+            tuple_column = ("Group 1", "Group 2", "Group 3", "Group 4", "Group 5",)
+            tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
-                    row = stat_convert(row, n, i, dict_column=dict_column)
+                    row = stat_convert(row, n, i, tuple_column=tuple_column)
                 if row[0]:
                     if row[header.index("Faction")] not in self.preset_list:
                         self.preset_list[row[header.index("Faction")]] = {}

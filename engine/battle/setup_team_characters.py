@@ -38,7 +38,7 @@ def setup_team_characters(self, stage_data):
                                                           data | self.character_data.character_list[leader.char_id],
                                                           None, additional_layer=additional_layer,
                                                           is_leader=True, is_controllable=army.controllable)
-                    if team == 1:
+                    if team == self.player_team:
                         self.character_command_indicator[leader_index].setup(add_battle_char)
                     add_battle_char.leader_object = leader
                     self.last_char_game_id += 1

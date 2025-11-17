@@ -41,6 +41,7 @@ from engine.game.back_mainmenu import back_mainmenu
 from engine.game.change_keybind import change_keybind
 from engine.game.change_pause_update import change_pause_update
 from engine.game.change_sound_volume import change_sound_volume
+from engine.game.convert_army_to_deployable import convert_army_to_deployable
 from engine.game.create_config import create_config
 from engine.game.get_keybind_button_name import get_keybind_button_name
 from engine.game.loading_screen import loading_screen
@@ -86,6 +87,7 @@ class Game:
     change_keybind = change_keybind
     change_pause_update = change_pause_update
     change_sound_volume = change_sound_volume
+    convert_army_to_deployable = convert_army_to_deployable
     create_config = create_config
     get_keybind_button_name = get_keybind_button_name
     loading_screen = loading_screen
@@ -397,7 +399,7 @@ class Game:
         # self.mainmenu_button = (self.start_game_button, self.load_game_button, self.custom_battle_button,
         #                         self.lore_button, self.option_button, self.quit_button)
 
-        self.text_popup = TextPopup(font_size=50)
+        self.text_popup = TextPopup(font_size=50, layer=99999999999999999999999)
         self.loading_lore_text_popup = TextPopup(font_size=70)
         self.loading_lore_text = ""
 
@@ -441,10 +443,7 @@ class Game:
         # Custom battle select menu button
         self.custom_team1_player = "player"
         self.custom_team2_player = "computer"
-        self.custom_team1_army = Army({}, [], [])
-        self.custom_team2_army = Army({}, [], [])
-        self.custom_team1_reinforcement_army = Army({}, [], [])
-        self.custom_team2_reinforcement_army = Army({}, [], [])
+        self.custom_team_army = {index: [Army({}, [], [])] * 5 for index in (1, 2)}
         self.custom_team0_garrison_army = GarrisonArmy({}, [], [])
         self.custom_team1_garrison_army = GarrisonArmy({}, [], [])
         self.custom_team2_garrison_army = GarrisonArmy({}, [], [])
@@ -506,31 +505,32 @@ class Game:
 
         self.custom_faction_list = ["Random", "All"]
         self.custom_faction_list += [key for key in self.game.sprite_data.faction_coas if key not in self.custom_faction_list]
-        self.custom_team1_army_buttons = []
-        self.custom_team1_army_button_bars = []
-        self.custom_team2_army_buttons = []
-        self.custom_team2_army_button_bars = []
-        y_pivot = (-0.43, -0.19, -0.01, 0.17, 0.35)
-        y_pos = (0.27, 0.39, 0.48, 0.57, 0.66)
-        for team in (0, 1):
+        self.custom_team_army_buttons = {1: [], 2: []}
+        self.custom_team_army_button_bars = {1: [], 2: []}
+        self.last_shown_custom_army = None
+        y_pos = (0.27, 0.37, 0.48, 0.58, 0.68)
+        y_pivot = (-0.43, -0.23, -0.01, 0.18, 0.385)
+        team_x_pos = {1: self.screen_rect.width * 0.22, 2: self.screen_rect.width * 0.72}
+        team_y_pivot = {1: -0.7, 2: 0.3}
+        for team in (1, 2):
             for index in range(0, 5):
-                if not team:
-                    self.custom_team1_army_buttons.append(MenuButton(
-                        self.drop_button_lists, (self.screen_rect.width * 0.22, self.screen_rect.height * y_pos[index]),
-                        font_size=52, layer=9000000000000))
-                    self.custom_team1_army_button_bars.append(ListUI(pivot=(-0.7, y_pivot[index]),
-                                                                     origin=(-1, -1), size=(0.15, 0.25),
-                                            items=GenericListAdapter([(0, self.localisation.grab_text(("ui", item))) for item in self.custom_faction_list]),
-                                            parent=self.screen, item_size=8, layer=10000000000000))
-                else:
-                    self.custom_team2_army_buttons.append(MenuButton(
-                        self.drop_button_lists, (self.screen_rect.width * 0.72, self.screen_rect.height * y_pos[index]),
-                        font_size=52, layer=9000000000000))
-                    self.custom_team2_army_button_bars.append(ListUI(pivot=(0.3, y_pivot[index]),
-                                                                     origin=(-1, -1), size=(0.15, 0.25),
-                                            items=GenericListAdapter([(0, self.localisation.grab_text(("ui", item))) for item in self.custom_faction_list]),
-                                            parent=self.screen, item_size=8, layer=10000000000000))
+                self.custom_team_army_buttons[team].append(MenuButton(
+                    self.drop_button_lists, (team_x_pos[team], self.screen_rect.height * y_pos[index]),
+                    font_size=52, layer=9000000000000))
+                self.custom_team_army_button_bars[team].append(ListUI(pivot=(team_y_pivot[team], y_pivot[index]),
+                                                                 origin=(-1, -1), size=(0.15, 0.25),
+                                        items=GenericListAdapter([]),
+                                        parent=self.screen, item_size=8, layer=10000000000000))
 
+        self.custom_faction_selector_popup = FactionSelector(1200,
+                                                             (self.screen_width / 2, 0), layer=100000000000000,
+                                                             is_popup=True)
+        self.custom_army_info_popup = CustomPresetArmySetupUI((self.screen_width * 0.5, self.screen_height * 0.5),
+                                                              False, layer=10000000000000000)
+        self.custom_army_title_popup = CustomPresetTitle((self.custom_army_info_popup.image.get_width(),
+                                                          80 * self.screen_scale[1]),
+                                                         (self.screen_rect.width / 2,
+                                                          self.custom_army_info_popup.rect.midtop[1]))
         self.custom_battle_menu_uis = (self.setup_back_button, self.custom_battle_preset_button,
                                        self.custom_battle_setup_start_battle_button,
                                        self.custom_battle_weather_type_button,
@@ -539,6 +539,14 @@ class Game:
                                        self.custom_battle_team2_setup,
                                        self.custom_battle_team1_gold_button,
                                        self.custom_battle_team2_gold_button)
+
+        self.all_custom_battle_bars = ([self.custom_map_bar, self.custom_weather_strength_bar, self.custom_weather_bar] +
+                                       self.custom_team_army_button_bars[1] + self.custom_team_army_button_bars[2])
+
+        self.custom_battle_menu_uis_remove = tuple(list(self.custom_battle_menu_uis) + [
+            self.custom_faction_selector_popup, self.custom_army_info_popup, self.custom_army_title_popup] +
+                                       self.custom_team_army_buttons[1] + self.custom_team_army_buttons[2] +
+                                                   list(self.all_custom_battle_bars))
 
         # preset army setup for custom battle ui
         self.preset_back_button = BrownMenuButton((.15, 1), (-0.3, 0),
@@ -550,14 +558,16 @@ class Game:
         self.preset_revert_all_button = BrownMenuButton((.15, 1), (0.2, 0), key_name="revert_all_button",
                                                   parent=main_menu_buttons_box)
 
-        self.custom_preset_army_setup = CustomPresetArmySetupUI((self.screen_width * 0.4, self.screen_height * 0.2))
-        self.custom_preset_army_title = CustomPresetTitle((self.screen_rect.width / 2,
+        self.custom_preset_army_setup = CustomPresetArmySetupUI((self.screen_width * 0.4, self.screen_height * 0.2),
+                                                                True)
+        self.custom_preset_army_title = CustomPresetTitle((self.game.screen_width * 0.8, 80 * self.screen_scale[1]),
+                                                          (self.screen_rect.width / 2,
                                                            self.custom_preset_army_setup.rect.midtop[1]))
         self.custom_character_selector = CharacterSelector((self.screen_width * 0.78, self.screen_height * 0.2))
         self.custom_preset_list_box = ListUI(pivot=(-0.9, -0.6), origin=(-1, -1), size=(0.15, 0.5),
                                              items=CustomPresetListAdapter(),
                                              parent=self.screen, item_size=20)
-        self.faction_selector = FactionSelector((self.screen_width / 2, 0))
+        self.faction_selector = FactionSelector(3800, (self.screen_width / 2, 0), army_create=True)
 
         self.custom_preset_menu_uis = (self.preset_back_button, self.preset_save_button, self.custom_preset_list_box,
                                        self.faction_selector, self.custom_preset_army_setup, self.custom_character_selector,
@@ -759,15 +769,20 @@ class Game:
                         self.change_keybind()
 
                     elif self.input_popup[1] == "new_preset":
-                        if self.input_box.text and self.input_box.text not in self.before_save_preset_army_setup:
+                        if self.input_box.text and "custom_" + self.input_box.text not in self.before_save_preset_army_setup:
+                            if self.custom_preset_army_setup.selected_faction not in self.before_save_preset_army_setup:
+                                self.before_save_preset_army_setup[self.custom_preset_army_setup.selected_faction] = {}
+                            save_preset = deepcopy(self.custom_preset_army_setup.army_preset)
+                            save_preset["Name"] = self.input_box.text
                             self.before_save_preset_army_setup[self.custom_preset_army_setup.selected_faction][
-                                self.input_box.text] = deepcopy(self.custom_preset_army_setup.army_preset)
+                                "custom_" + self.input_box.text] = save_preset
                             self.custom_preset_army_setup.army_preset = self.before_save_preset_army_setup[
-                                self.custom_preset_army_setup.selected_faction][self.input_box.text]
+                                self.custom_preset_army_setup.selected_faction]["custom_" + self.input_box.text]
 
                             self.custom_preset_list_box.adapter.__init__()
                             self.custom_preset_army_title.change_text(self.input_box.text, self.custom_preset_army_setup.total_gold_cost,
                                                                       self.custom_preset_army_setup.total_character_number)
+                            self.custom_preset_army_setup.change_portrait_selection(())
 
                         else:
                             done = False

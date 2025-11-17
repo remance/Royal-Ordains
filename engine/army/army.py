@@ -13,20 +13,28 @@ class Army:
 
         self.air_group = air_group
         self.retinue = retinue
+        self.number = 0
+        self.cost = 0
         self.upkeep = 0
         self.supply = 0
         self.reset_stat()
 
     def reset_stat(self):
         for leader, follower_list in self.group.items():
+            self.number += 1
+            self.cost += self.character_list[leader.char_id]["Cost"]
             self.upkeep += self.character_list[leader.char_id]["Upkeep"]
             self.supply += self.character_list[leader.char_id]["Supply"]
             for follower in follower_list:
                 for key, follower_number in follower.items():
+                    self.number += follower_number
+                    self.cost += self.character_list[key]["Cost"]
                     self.upkeep += (self.character_list[key]["Upkeep"] * follower_number)
                     self.supply += (self.character_list[key]["Supply"] * follower_number)
         for air_group in self.air_group:
             for key, follower_number in air_group.items():
+                self.number += follower_number
+                self.cost += self.character_list[key]["Cost"]
                 self.upkeep += (self.character_list[key]["Upkeep"] * follower_number)
                 self.supply += (self.character_list[key]["Supply"] * follower_number)
 
