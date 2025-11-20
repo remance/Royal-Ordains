@@ -1,0 +1,4 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Skill1","Magic Bolt",,,"self:{no_engage=500}",4500,5000,2,3,22,12,,,,"Magic",,,,"arc"
+"Skill2","Magic Barrage",,,"self:{no_engage=500}",,,5,15,15,10,,,,"Magic",,,,"arc"
+"Skill3","Barrier",,,,10000,,10,10,,,,,,,"Magic_barrier",,,

@@ -1,5 +1,5 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"Skill1","Earth Rune",,,,1500,1700,,25,7,13,5,-20,,"Earth",,"Oiled",,
-"Skill2","Air Rune",,,,1500,1700,,25,10,20,5,20,,"Air",,"Shock",,
-"Skill3","Magic Rune",,,,1500,1700,,25,40,10,2,4,,"Magic",,,,
+"Skill1","Earth Rune",,,"self:{no_engage=500}",1500,1700,,25,7,13,5,-20,,"Earth",,"Oiled",,
+"Skill2","Air Rune",,,"self:{no_engage=500}",1500,1700,,25,10,20,5,20,,"Air",,"Shock",,
+"Skill3","Magic Rune",,,"self:{no_engage=500}",1500,1700,,25,40,10,2,4,,"Magic",,,,
 "UseItem","Resource Potion",,,"self:{resource<=50}",20000,,60,,,,,,,,"Resource_potion",,,

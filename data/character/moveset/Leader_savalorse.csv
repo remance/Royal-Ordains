@@ -1,0 +1,4 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Attack1","Loose Fire Barrel","name:Attack1_ready",,"self:{no_engage=1000}",18000,20000,15,,80,200,,,,"Fire",,,,"arc,no_defence"
+"Attack2","Loose ","name:Attack2_ready",,"self:{no_engage=1000}",18000,20000,15,,120,100,600,-1000,,"Fire",,,,
+"Skill1","Full Power",,,,19000,,15,100,,,,,,,"Full_power",,,

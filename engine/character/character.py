@@ -189,6 +189,7 @@ class Character(sprite.Sprite):
         self.animation_name = None
 
         self.invisible = False  # can not be seen nor detected, will not be drawn on camera
+        self.no_run = False
         self.invincible = False  # can not be hurt
         self.no_target = False  # can not be target
         self.broken = False  # broken and no longer fight, will only retreat
@@ -244,6 +245,10 @@ class Character(sprite.Sprite):
                 self.replace_idle_animation = char_property["idle"]
             else:
                 self.__setattr__(stuff, char_property[stuff])
+
+        if self.no_run:  # cannot run, reset run variables to walk
+            self.run_command_action = self.walk_command_action
+            self.run_speed = self.walk_speed
 
         self.ai_behaviour = stat["AI Behaviour"]
 

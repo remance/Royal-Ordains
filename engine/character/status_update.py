@@ -49,6 +49,9 @@ def status_update(self):
     self.run_speed = 5 * self.speed
     self.walk_speed = 3 * self.speed
 
+    if self.no_run:
+        self.run_speed = self.walk_speed
+
     if self.nearest_enemy_distance and self.nearest_enemy_distance < self.sprite_width:
         # enemy collide with this character, make it have trouble moving around because of traffic congestion
         if (self.base_pos[0] >= self.nearest_enemy_pos[0] and self.direction == "left") or (
