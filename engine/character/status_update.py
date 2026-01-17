@@ -4,7 +4,7 @@ def status_update(self):
     self.offence = self.base_offence
     self.defence = self.base_defence
     self.speed = self.base_speed
-    self.animation_play_time = self.Base_Animation_Play_Time
+    self.animation_frame_play_time = self.Base_Animation_Frame_Play_Time
     self.health_regen = self.base_health_regen
     self.resource_regen = self.base_resource_regen
     self.element_resistance = {element: value for
@@ -45,9 +45,12 @@ def status_update(self):
         self.defence = 0
 
     self.low_offence = self.offence * 0.5
-    self.low_speed = self.speed * 0.5
-    self.run_speed = 5 * self.speed
-    self.walk_speed = 3 * self.speed
+    self.low_speed = self.speed * 0.75
+    self.run_speed = 9 * self.speed
+    self.walk_speed = 4 * self.speed
+
+    if self.no_run:
+        self.run_speed = self.walk_speed
 
     if self.nearest_enemy_distance and self.nearest_enemy_distance < self.sprite_width:
         # enemy collide with this character, make it have trouble moving around because of traffic congestion
@@ -64,7 +67,7 @@ def status_update(self):
     if self.walk_speed < 0:
         self.walk_speed = 0
 
-    if self.is_summon:  # summon reduce hp based on time
-        self.health -= 0.1
-        if self.health < 0:
-            self.health = 0
+    # if self.is_summon:  # summon reduce hp based on time
+    #     self.health -= 0.1
+    #     if self.health < 0:
+    #         self.health = 0

@@ -1,5 +1,3 @@
-from math import cos, sin, tan, radians
-
 from pygame import Vector2
 
 
@@ -31,15 +29,14 @@ def move_logic(self, dt, done):
             self.angle = new_angle
             self.base_pos = new_pos
             self.travel_progress += move[0]
-            self.pos = Vector2(self.base_pos[0] * self.screen_scale[0], self.base_pos[1] * self.screen_scale[1])
+            self.pos = Vector2(new_pos[0] * self.screen_scale[0], new_pos[1] * self.screen_scale[1])
             self.renew_sprite = True
 
             if not self.random_move and (
-                    self.base_pos[0] <= 0 or self.base_pos[0] > self.base_stage_end or
-                    self.base_pos[1] >= self.base_ground_pos or
-                    self.base_pos[1] < -5000):  # pass outside of map
+                    new_pos[0] <= self.effect_base_stage_start or new_pos[0] > self.effect_base_stage_end or
+                    new_pos[1] >= self.base_ground_pos or new_pos[1] < -5000):  # pass outside of map
 
-                if self.base_pos[1] >= self.base_ground_pos:
+                if new_pos[1] >= self.base_ground_pos:
                     # reach ground
                     self.travel_distance = 0
                     self.current_animation = self.animation_pool["Base"][self.sprite_flip][self.width_scale][

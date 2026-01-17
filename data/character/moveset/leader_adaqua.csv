@@ -1,6 +1,6 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Property"
-"Attack1","Bow Shot",,,"self:{no_engage=1000}",7500,7800,2,,14,10,15,,,"Stab",,,"arc"
-"Skill1","Burst Shot",,,"self:{no_engage=200}",2000,2000,2,20,11,4,23,10,,"Stab",,,
-"Skill2","True Shot",,,,5000,5000,4,40,60,45,30,,1,"Stab",,,"no_defence"
-"Skill3","Action Burst",,,"self:{no_status=Half_resource_cost}",5500,0,60,,,,,,,,"Half_resource_cost",,
-"UseItem","Large Health Potion",,,"self:{health<=50}",5000,,120,,,,,,,,"Large_health_potion",,"no_ai_range_check_setup"
+"Attack1","Bow Shot",,,"self:{no_engage=1000}",12000,13000,2,,28,10,35,,,"Stab",,,"arc,far_target"
+"Skill1","Burst Shot",,,"self:{no_engage=200}",3000,3000,2,20,24,4,70,20,,"Stab",,,
+"Skill2","True Shot",,,,10000,10000,4,40,80,45,80,,1,"Stab",,,"no_defence"
+"Skill3","Action Burst",,,"self:{no_status=Half_resource_cost}",10000,0,60,,,,,,,,"Half_resource_cost",,
+"UseItem","Large Health Potion",,,"self:{health<=50}",20000,,120,,,,,,,,"Large_health_potion",,"no_ai_range_check_setup"

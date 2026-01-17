@@ -1,3 +1,3 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"Attack1","Slash",,,,300,,,,42,17,9,5,,"Slash",,,,
+"Attack1","Slash",,,,300,,,,42,17,22,15,,"Slash",,,,
 "Skill1","Bark",,,,600,1000,35,100,,,,,,,,"Disrupt",,

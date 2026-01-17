@@ -1,0 +1,4 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Skill1","Curse",,,,1000,2000,60,10,,,,,,,,"Curse",,"direct"
+"Skill2","Earth Spike",,,"self:{no_engage=200}",1800,2200,8,15,36,30,20,80,,"Earth",,,,"direct"
+"Skill3","Magic Ball",,,"self:{no_engage=200}",3000,4000,8,15,20,80,50,10,,"Magic",,,,"direct"

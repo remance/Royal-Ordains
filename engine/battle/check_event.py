@@ -4,57 +4,57 @@ from pygame.mixer import Sound
 
 
 def check_event(self):
-    if self.reach_scene_event_list:
+    if self.event_list:
         # check for event with camera reaching
-        if self.reach_scene in self.reach_scene_event_list:
-            if "weather" in self.reach_scene_event_list[self.reach_scene]:
-                # change weather
-                self.current_weather.__init__(
-                    self.reach_scene_event_list[self.reach_scene]["weather"][0],
-                    self.reach_scene_event_list[self.reach_scene]["weather"][1],
-                    self.reach_scene_event_list[self.reach_scene]["weather"][2])
-                self.reach_scene_event_list[self.reach_scene].pop("weather")
-            if "music" in self.reach_scene_event_list[self.reach_scene]:  # change music
-                self.current_music = None
-                if self.reach_scene_event_list[self.reach_scene]["music"] != "none":
-                    self.current_music = self.stage_music_pool[
-                        self.reach_scene_event_list[self.reach_scene]["music"]]
-                if self.current_music:
-                    self.music_left.play(self.current_music, loops=-1, fade_ms=100)
-                    self.music_right.play(self.current_music, loops=-1, fade_ms=100)
-                    self.music_left.set_volume(self.play_music_volume, 0)
-                    self.music_right.set_volume(0, self.play_music_volume)
-                else:  # stop music
-                    self.music_left.stop()
-                    self.music_right.stop()
-                self.reach_scene_event_list[self.reach_scene].pop("music")
-            if "ambient" in self.reach_scene_event_list[self.reach_scene]:  # change ambient
-                self.current_ambient = None
-                if self.reach_scene_event_list[self.reach_scene]["ambient"] != "none":
-                    self.current_ambient = Sound(self.ambient_pool[
-                                                     self.reach_scene_event_list[self.reach_scene][
-                                                         "ambient"]])
-                if self.current_ambient:
-                    self.ambient.play(self.current_ambient, loops=-1, fade_ms=100)
-                    self.ambient.set_volume(self.play_effect_volume)
-                else:  # stop ambient
-                    self.ambient.stop()
-                self.reach_scene_event_list[self.reach_scene].pop("ambient")
-            if "sound" in self.reach_scene_event_list[self.reach_scene]:  # play sound
-                for sound_effect in self.reach_scene_event_list[self.reach_scene]["sound"]:
-                    self.add_sound_effect_queue(sound_effect[0],
-                                                self.camera_pos, sound_effect[1], sound_effect[2])
-                self.reach_scene_event_list[self.reach_scene].pop("sound")
-            if "cutscene" in self.reach_scene_event_list[self.reach_scene]:  # cutscene
-                self.cutscene_finish_camera_delay = 1
-                for parent_event in self.reach_scene_event_list[self.reach_scene]["cutscene"]:
-                    # play one parent at a time
-                    self.cutscene_playing = parent_event
-                    self.cutscene_playing_data = deepcopy(parent_event)
-                    if "replayable" not in parent_event[0]["Property"]:
-                        self.reach_scene_event_list[self.reach_scene].pop("cutscene")
-            if not self.reach_scene_event_list[self.reach_scene]:  # no more event left
-                self.reach_scene_event_list.pop(self.reach_scene)
+        for key in self.event_list:
+            if self.battle_time >= key:
+                if "weather" in self.event_list[key]:
+                    # change weather
+                    self.current_weather.__init__(
+                        self.event_list[key]["weather"][0],
+                        self.event_list[key]["weather"][1],
+                        self.event_list[key]["weather"][2])
+                    self.event_list[key].pop("weather")
+                if "music" in self.event_list[key]:  # change music
+                    self.current_music = None
+                    if self.event_list[key]["music"] != "none":
+                        self.current_music = self.stage_music_pool[
+                            self.event_list[key]["music"]]
+                    if self.current_music:
+                        self.music.play(self.current_music, loops=-1, fade_ms=100)
+                        self.music.set_volume(self.play_music_volume)
+                    else:  # stop music
+                        self.music.stop()
+                    self.event_list[key].pop("music")
+                if "ambient" in self.event_list[key]:  # change ambient
+                    self.current_ambient = None
+                    if self.event_list[key]["ambient"] != "none":
+                        self.current_ambient = Sound(self.ambient_pool[
+                                                         self.event_list[key][
+                                                             "ambient"]])
+                    if self.current_ambient:
+                        self.ambient.play(self.current_ambient, loops=-1, fade_ms=100)
+                        self.ambient.set_volume(self.play_effect_volume)
+                    else:  # stop ambient
+                        self.ambient.stop()
+                    self.event_list[key].pop("ambient")
+                if "sound" in self.event_list[key]:  # play sound
+                    for sound_effect in self.event_list[key]["sound"]:
+                        self.add_sound_effect_queue(sound_effect[0],
+                                                    self.camera_pos, sound_effect[1], sound_effect[2])
+                    self.event_list[key].pop("sound")
+                if "cutscene" in self.event_list[key]:  # cutscene
+                    self.cutscene_finish_camera_delay = 1
+                    for parent_event in self.event_list[key]["cutscene"]:
+                        # play one parent at a time
+                        self.cutscene_playing = parent_event
+                        self.cutscene_playing_data = deepcopy(parent_event)
+                        if "replayable" not in parent_event[0]["Property"]:
+                            self.event_list[key].pop("cutscene")
+                if not self.event_list[key]:  # no more event left
+                    self.event_list.pop(key)
+
+                break
 
     if self.player_interact_event_list:  # event that require player interaction (talk)
         event_list = sorted({key[0]: self.main_player_object.base_pos.distance_to(key[1]) for key in

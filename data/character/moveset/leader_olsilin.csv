@@ -1,0 +1,5 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Skill1","Random Fortune 1",,,,500,1500,,100,,,,,,,"True_speed","True_speed",,
+"Skill2","Random Fortune 2",,,,500,1500,,100,,,,,,,,"Paralysis",,
+"Skill3","Random Fortune 3",,,,500,1500,,100,,,,,,,,"Confuse",,
+"Skill4","Random Fortune 4",,,,500,1500,,100,,,,,,,"Curse",,,

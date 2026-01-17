@@ -3,7 +3,7 @@ def reset_sprite(self):
     offset = self.current_animation_direction["offset"]
     self.offset_pos = self.pos
     if offset:
-        self.offset_pos = self.pos - (offset[0], offset[1])
+        self.offset_pos = self.pos - offset
     self.rect = self.image.get_rect(midbottom=self.offset_pos)
 
 

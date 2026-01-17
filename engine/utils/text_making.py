@@ -13,6 +13,11 @@ def change_number(number):
         return str(round(number / 1000000, 1)) + "m"
     elif number >= 1000:
         return str(round(number / 1000, 1)) + "k"
+    return str(number)
+
+
+def add_comma_number(number):
+    return "{:,}".format(number)
 
 
 def number_to_minus_or_plus(number):
@@ -51,7 +56,7 @@ def make_long_text(surface, text, pos, font, color=Color("black"), with_texture=
     # TODO Add sizing and colouring for highlight and maybe URL system
     if type(text) not in (list, tuple):
         text = [text]
-    x, y = [0, 0]
+    x, y = [0, pos[1]]
     true_x = pos[0]
     word_height = font.size(" ")[1]
     max_width = surface.get_width()

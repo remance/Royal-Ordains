@@ -1,5 +1,5 @@
-from random import choice, uniform, randint
 from math import cos, sin, radians
+from random import choice, uniform, randint
 
 from pygame import transform, Vector2
 from pygame.mixer import Sound
@@ -39,7 +39,8 @@ class Weather(UIBattle):
         self.resource_regen_bonus = stat["Resource Regeneration Bonus"] * cal_level
         self.element = tuple([(element, cal_level) for element in stat["Element"] if element])
         self.status_effect = stat["Status"]
-        self.spawn_cooldown = {key: value / cal_level for key, value in stat["Spawn Cooldown"].items()}  # divide to make spawn increase with strength
+        self.spawn_cooldown = {key: value / cal_level for key, value in
+                               stat["Spawn Cooldown"].items()}  # divide to make spawn increase with strength
         self.weather_spawn_timer = {key: 0 for key in self.spawn_cooldown}
         self.wind_strength = int(stat["Wind Strength"] * cal_level)
         self.speed = stat["Travel Speed"] * self.wind_strength

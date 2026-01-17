@@ -1,0 +1,6 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Attack1","Smash",,,,350,,,,40,19,40,-120,,"Slash",,,,
+"Attack2","Swing",,,,300,,,,48,24,90,30,0.1,"Stab",,,,
+"Skill1","Preparation",,,"self:{no_status=Resource_generation}",3000,1000,15,20,,,,,,,"Resource_generation",,,
+"Skill2","Exploitation",,,,1500,1000,15,20,,,,,,,,"Vulnerable",,
+"Skill3","Clear Mind",,,,10000,,,,,,,,,,"Clarity,Cure",,,

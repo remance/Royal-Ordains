@@ -1,0 +1,5 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Skill1","Use Flash Stone",,,,1000,1100,10,30,,,,,,,,,,"Arc"
+"Skill2","Hide",,,,700,,30,60,,,,,,,"Invisible",,,
+"UseItem","Speed Potion",,,,2000,,30,,,,,,,,"Haste",,,"no_ai_range_check_setup"
+"UseItem2","Resource Potion",,,"self:{resource<=50}",20000,,30,,,,,,,,"Resource_potion",,,"no_ai_range_check_setup"

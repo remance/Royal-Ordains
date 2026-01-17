@@ -5,7 +5,7 @@ from pathlib import Path
 import pygame
 
 from engine.data.datalocalisation import Localisation
-from engine.data.datamap import BattleMapData
+from engine.data.datamap import MapData
 from engine.game.game import Game
 from engine.utils.data_loading import csv_read
 
@@ -43,7 +43,7 @@ Game.ui_updater = ui
 
 localisation = Localisation()
 Game.localisation = localisation
-battle_map_data = BattleMapData()
+battle_map_data = MapData()
 
 
 def event_translation_check(language):

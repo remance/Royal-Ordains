@@ -35,7 +35,7 @@ def air_health_resource_logic(self):
 
         if self.resource != infinity:
             self.resource -= self.timer
-            if self.resource <= 0:
+            if self.resource <= self.min_resource_move:
                 self.resource = 0
                 self.issue_commander_order(("back", self.start_pos))
     else:

@@ -1,4 +1,4 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
 "Attack1","Slash",,,,200,,,,19,5,3,,0.1,"Poison",,,,
 "Attack2","Double Slash",,,,250,,4,,17,8,2,6,0.05,"Poison",,,,
-"Skill1","Jump In","name:Skill1_ready","name:Skill1_end","self:{no_engage=300}",1800,,15,35,23,20,20,-10,0.15,"Poison",,,,"movable,x_momentum:700,y_momentum:800,repeat"
+"Skill1","Jump In","name:Skill1Ready","name:Skill1End","self:{no_engage=300}",1800,,15,35,23,20,20,-10,0.15,"Poison",,,,"movable,x_momentum:(600;800),y_momentum:(800;1000),repeat"

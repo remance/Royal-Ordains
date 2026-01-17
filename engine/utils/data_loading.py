@@ -4,6 +4,7 @@ import re
 from pathlib import Path
 
 from PIL import Image
+from PIL.ImageColor import getrgb
 from pygame import image
 from pygame.mixer import Sound
 from pygame.transform import smoothscale, flip
@@ -231,7 +232,7 @@ def load_base_button(data_dir, screen_scale):
 
 
 def stat_convert(row, n, i, percent_column=(), list_column=(), tuple_column=(), int_column=(),
-                 float_column=(), dict_column=(), str_column=()):
+                 float_column=(), dict_column=(), str_column=(), hex2colour_column=()):
     """
     Convert string value to another type
     :param row: row that contains value
@@ -244,6 +245,7 @@ def stat_convert(row, n, i, percent_column=(), list_column=(), tuple_column=(), 
     :param float_column: list of value header that should be in float number type
     :param dict_column: list of value header that should be in dict type
     :param str_column: list of value header that should be in str type
+    :param hex2colour_column: list of value header that should be in hex value and will be converted to rgb tuple
     :return: converted row
     """
     if n in percent_column:
@@ -288,12 +290,11 @@ def stat_convert(row, n, i, percent_column=(), list_column=(), tuple_column=(), 
                     new_i2 = item.split(":")
                     result_i[new_i2[0]] = new_i2[1]
                     if "(" in new_i2[1]:  # tuple value
-                        new_i2[1] = new_i2[1].split("(")
-                        new_i2[1] = [item.replace(")", "") for item in new_i2[1] if item]
-                        new_i2[1] = [item.strip(";").split(";") for item in new_i2[1]]
+                        new_i2[1] = new_i2[1].replace(")", "").replace("(", "")
+                        new_i2[1] = new_i2[1].split(";")
                         for k_index, k in enumerate(new_i2[1]):
-                            new_i2[1][k_index] = tuple([item_conversion(item2) for item2 in k])
-                        result_i[new_i2[0]] = tuple(tuple(new_i2[1]))
+                            new_i2[1][k_index] = item_conversion(k)
+                        result_i[new_i2[0]] = tuple(new_i2[1])
                     elif "{" in new_i2[1]:  # dict value with key=value instead of key:value
                         new_i2[1] = new_i2[1].replace("{", "").replace("}", "")
                         item_list = tuple([item_conversion(item2) for item2 in new_i2[1].split(";")])
@@ -317,6 +318,9 @@ def stat_convert(row, n, i, percent_column=(), list_column=(), tuple_column=(), 
     elif n in str_column:
         row[n] = str(i)
 
+    elif n in hex2colour_column:
+        row[n] = getrgb("#" + i)
+
     else:
         row[n] = item_conversion(i)
 
@@ -327,7 +331,9 @@ def item_conversion(i):
     if type(i) is str:
         if i == "":
             return 0
-        elif i[0] == "(" and i[-1] == ")":
+        # if i[0] == "{" and i[-1] == "}":  # dict item
+        #
+        elif i[0] == "(" and i[-1] == ")":  # tuple item
             i = i[1:-1]
             i = i.split(";")  # item with item1;item2 instead of ","
             for index_c, c in enumerate(i):

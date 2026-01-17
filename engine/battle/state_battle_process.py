@@ -1,4 +1,5 @@
 def state_battle_process(self):
+    self.outer_ui_updater.remove(self.text_popup)
     self.player_input()
 
     if self.esc_press:  # pause game and open menu
@@ -8,13 +9,13 @@ def state_battle_process(self):
 
         self.change_game_state("menu")  # open menu
         self.scene_translation_text_popup.popup(
-            (self.screen_rect.midleft[0], self.screen_height * 0.88),
+            (self.screen_rect.midleft[0], self.screen_height * 0.82),
             self.game.localisation.grab_text(
-                ("scene", self.mission, str(self.current_scene), "Text")),
+                ("scene", self.scene.data[self.current_scene], "Text")),
             width_text_wrapper=self.screen_width)
-        self.add_ui_updater(self.cursor, self.battle_menu_button.values(),
-                            self.scene_translation_text_popup)  # add menu and its buttons to drawer
-        self.battle_outer_ui_updater.remove(self.battle_cursor)
+        self.add_to_ui_updater(self.cursor, self.battle_menu_button.values(),
+                               self.scene_translation_text_popup)  # add menu and its buttons to drawer
+        self.outer_ui_updater.remove(self.battle_cursor)
     # elif not self.cutscene_playing:
     #     if self.player_key_press["Inventory Menu"]:
     #         # open court book
@@ -27,65 +28,87 @@ def state_battle_process(self):
     #         self.change_game_state("map")
 
     # Update game time
-    self.dt = self.true_dt * self.game_speed  # apply dt with game_speed for calculation
+    new_dt = self.true_dt * self.game_speed
+
+    self.dt = new_dt  # apply dt with game_speed for calculation
     self.shown_camera_pos = self.camera_pos.copy()
 
-    if self.dt:
-        if self.dt > 0.016:  # one frame update should not be longer than 0.016 second (60 fps) for calculation
-            self.dt = 0.016  # make it so stutter and lag does not cause overtime issue
+    if new_dt:
+        if new_dt > 0.016:  # one frame update should not be longer than 0.016 second (60 fps) for calculation
+            new_dt = 0.016  # make it so stutter and lag does not cause overtime issue
 
-        if self.ai_process_list:
-            limit = int(len(self.ai_process_list) / 20)
+        ai_process_list = self.ai_process_list
+        if ai_process_list:
+            limit = int(len(ai_process_list) / 20)
             if limit < 20:
                 limit = 20
-                if limit > len(self.ai_process_list):
-                    limit = len(self.ai_process_list)
+                if limit > len(ai_process_list):
+                    limit = len(ai_process_list)
             for index in range(limit):
-                this_character = self.ai_process_list[index]
+                this_character = ai_process_list[index]
                 if this_character.alive:
                     this_character.ai_prepare()
 
-            self.ai_process_list = self.ai_process_list[limit:]
+            self.ai_process_list = ai_process_list[limit:]
 
-        self.battle_team2_commander.update(self.dt)
+        for battle_ai_commander in self.all_battle_ai_commanders:
+            battle_ai_commander.update(new_dt)
 
         if self.later_reinforcement:
-            self.reinforcement_check_timer += self.dt
-            if self.reinforcement_check_timer > 1:
-                self.check_reinforcement()
-                self.reinforcement_check_timer -= 1
+            self.check_reinforcement()
 
         for team, team_stat in self.team_stat.items():
-            team_stat["strategy_cooldown"] = {key: value - self.dt if value > self.dt else 0 for
+            team_stat["strategy_cooldown"] = {key: value - new_dt if value > new_dt else 0 for
                                               key, value in team_stat["strategy_cooldown"].items()}
-            if self.team_commander[team] and self.team_commander[team].alive:
-                team_stat["strategy_resource"] += self.dt * self.team_commander[team].strategy_regen
+            if self.team_commander[team] and self.team_commander[team].alive and team_stat["strategy_resource"] < 100:
+                team_stat["strategy_resource"] += new_dt * self.team_commander[team].strategy_regen
                 if team_stat["strategy_resource"] > 100:
                     team_stat["strategy_resource"] = 100
+
+            if team_stat["supply_reserve"]:
+                if team_stat["supply_reserve"] > 0.1:
+                    supply_transfer = team_stat["supply_reserve"] * 0.004 * new_dt
+                else:
+                    supply_transfer = team_stat["supply_reserve"]
+                team_stat["supply_resource"] += supply_transfer
+                team_stat["supply_reserve"] -= supply_transfer
 
         if self.cutscene_finish_camera_delay and not self.cutscene_playing:
             self.cutscene_finish_camera_delay -= self.true_dt
             if self.cutscene_finish_camera_delay < 0:
                 self.cutscene_finish_camera_delay = 0
 
-        self.battle_time += self.dt
+        self.battle_time += new_dt
         self.ui_timer += self.true_dt  # ui update by real time instead of self time to reduce workload
 
         if self.ai_battle_speak_timer:
-            self.ai_battle_speak_timer -= self.dt
+            self.ai_battle_speak_timer -= new_dt
             if self.ai_battle_speak_timer < 0:
                 self.ai_battle_speak_timer = 0
 
+        self.team1_call_leader_cooldown_reinforcement = {key: value - new_dt for key, value in
+                                                         self.team1_call_leader_cooldown_reinforcement.items() if
+                                                         value > new_dt}
+        self.team1_call_troop_cooldown_reinforcement = {key: value - new_dt for key, value in
+                                                        self.team1_call_troop_cooldown_reinforcement.items() if
+                                                        value > new_dt}
+        self.team2_call_leader_cooldown_reinforcement = {key: value - new_dt for key, value in
+                                                         self.team2_call_leader_cooldown_reinforcement.items() if
+                                                         value > new_dt}
+        self.team2_call_troop_cooldown_reinforcement = {key: value - new_dt for key, value in
+                                                        self.team2_call_troop_cooldown_reinforcement.items() if
+                                                        value > new_dt}
+
         # Weather system
         if self.current_weather.spawn_cooldown:
-            self.current_weather.update(self.dt)
+            self.current_weather.update(new_dt)
 
         # Screen shaking
         if self.screen_shake_value:
             decrease = 1000
             if self.screen_shake_value > decrease:
                 decrease = self.screen_shake_value
-            self.screen_shake_value -= (self.dt * decrease)
+            self.screen_shake_value -= (new_dt * decrease)
             if self.screen_shake_value < 0:
                 self.screen_shake_value = 0
             else:
@@ -93,11 +116,11 @@ def state_battle_process(self):
 
         # Battle related updater
         if not self.cutscene_playing:
-            self.character_updater.update(self.dt)
-            self.effect_updater.update(self.dt)
+            self.battle_character_updater.update(new_dt)
+            self.battle_effect_updater.update(new_dt)
         else:
-            self.character_updater.cutscene_update(self.dt)
-            self.effect_updater.cutscene_update(self.dt)
+            self.battle_character_updater.cutscene_update(new_dt)
+            self.battle_effect_updater.cutscene_update(new_dt)
 
         if self.sound_effect_queue:
             for key, value in self.sound_effect_queue.items():  # play each sound effect initiate in this loop
@@ -108,8 +131,8 @@ def state_battle_process(self):
 
         if self.ui_timer >= 0.1:
             self.battle_scale = ()
-            if self.all_characters:
-                self.battle_scale = [len(value) / len(self.all_characters) for value in
+            if self.all_battle_characters:
+                self.battle_scale = [len(value) / len(self.all_battle_characters) for value in
                                      self.all_team_ally.values()]
             self.ui_drawer.draw(self.screen)  # draw the UI
             self.ui_timer -= 0.1
@@ -139,8 +162,7 @@ def state_battle_process(self):
         #         if self.decision_select not in self.realtime_ui_updater and self.stage_end_choice:
         #             if mission_str not in self.main_story_profile["story choice"]:
         #                 self.current_music = None  # stop music during end decision
-        #                 self.music_left.stop()
-        #                 self.music_right.stop()
+        #                 self.music.stop()
         #
         #                 if victory_drama not in self.drama_text.queue:
         #                     self.drama_text.queue.append(victory_drama)
@@ -160,21 +182,21 @@ def state_battle_process(self):
         #
         #     if not self.cutscene_playing and self.end_delay:
         #         #  player select decision or mission has no decision, count end delay
-        #         self.end_delay += self.dt
+        #         self.end_delay += new_dt
         #
         #         if self.end_delay >= 5:  # end battle
         #             self.end_delay = 0
         #             return True
 
     self.camera_y_shift = self.camera_center_y - self.shown_camera_pos[1]
-    self.camera_left_shift = self.shown_camera_pos[0] - self.camera_w_center  # camera topleft x
+    self.camera_x_shift = self.shown_camera_pos[0] - self.camera_w_center  # camera topleft x
     # camera_right_x = pos[0] + self.camera_w_center  # camera topleft x
     self.camera_y = self.shown_camera_pos[1] - self.camera_h_center  # camera topleft y
-    self.camera.camera_left_shift = self.camera_left_shift
+    self.camera.camera_x_shift = self.camera_x_shift
     self.camera.camera_y_shift = self.camera_y_shift
     self.scene.update()
     self.camera.update(self.battle_camera_object_drawer)
-    self.battle_outer_ui_updater.update()
+    self.outer_ui_updater.update()
 
     current_frame = self.camera_pos[0] / self.screen_width
     if current_frame == 0.5:  # at center of first scene
@@ -191,5 +213,5 @@ def state_battle_process(self):
         self.reach_scene = self.current_scene
 
     self.camera.update(self.battle_camera_ui_drawer)
-    self.camera.out_update(self.battle_outer_ui_updater)
+    self.camera.out_update(self.outer_ui_updater)
     self.blit_culling_check.clear()

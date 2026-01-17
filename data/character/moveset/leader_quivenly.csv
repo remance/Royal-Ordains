@@ -1,0 +1,4 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Skill1","Small Heal",,,"ally:{health<=80}",4000,2000,10,10,,,,,,,"Small_heal",,,
+"Skill2","Great Heal",,,"ally:{health<=60}",3000,2000,10,60,,,,,,,"Great_heal",,,
+"UseItem","Health Potion",,,"self:{health<=50}",20000,,50,,,,,,,,"Health_potion",,,"no_ai_range_check_setup"

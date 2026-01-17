@@ -1,13 +1,9 @@
-"ID","Name","Faction","Group 1","Group 2","Group 3","Group 4","Group 5","Air Group 1","Air Group 2","Air Group 3","Air Group 4","Air Group 5"
-1,"Bigta's spears","Small","Leader_bigta:(Small_rabbit_spear,Small_rabbit_spear,Small_rabbit_spear)","Small_rabbit_leader_banner:(Small_rabbit_spear,Small_rabbit_spear,Small_rabbit_spear)","Small_rabbit_leader_knight:(Small_snail_sword,Small_snail_sword,Small_snail_old)","Small_rabbit_leader_banner:(Small_rabbit_sling,Small_rabbit_sling,Small_rabbit_sling)",,"Small_eagle_air_stone","Small_eagle_air_stone",,,
-2,"Adaqua's skirmishers","Small","Leader_adaqua:(Small_rabbit_sling,Small_rabbit_sling,Small_rabbit_sling)","Small_rabbit_leader_banner:(Small_rabbit_spear,Small_rabbit_spear,Small_rabbit_spear)","Small_rabbit_leader_banner:(Small_rabbit_sling,Small_rabbit_sling,Small_rabbit_sling)",,,"Small_eagle_air_stone","Small_eagle_air_stone","Small_eagle_air_stone",,
-,"Cavalry Army","Small","Leader_bigta:(Small_rabbit_hound_cav,Small_rabbit_hound_cav,Small_rabbit_hound_cav)","Small_rabbit_leader_hero:(Small_rabbit_hound_cav,Small_rabbit_hound_cav,Small_rabbit_hound_cav)",,,,"Small_eagle_air_stone",,,,
-4,"Iri's sieger","Small","Leader_iri:(Small_rabbit_sling,Small_rabbit_sling,Small_rabbit_sling)","Small_rabbit_leader_banner:(Small_rabbit_sling,Small_rabbit_sling,Small_rabbit_cannon)","Small_rabbit_leader_banner:(Small_rabbit_sling,Small_rabbit_sling,Small_rabbit_cannon)","Small_rabbit_leader_knight:(Small_snail_sword,Small_rabbit_spear,Small_rabbit_spear)",,"Small_eagle_air_stone","Small_eagle_air_stone","Small_eagle_air_stone",,
-,,"Small",,,,,,"Small_eagle_air_stone",,,,
-,,"Small",,,,,,,,,,
-,,"Small",,,,,,,,,,
-,,"Small",,,,,,,,,,
-,,"Small",,,,,,,,,,
-,,"Small",,,,,,,,,,
-,"Tulia's rangers","Castle",,,,,,,,,,
-,"Vurus's knights","Castle",,,,,,,,,,
+"ID","Name","Faction","Commander","Leader 1","Leader 2","Leader 3","Troop 1","Troop 2","Troop 3","Troop 4","Troop 5","Air 1","Air 2","Air 3","Air 4","Air 5"
+"Small1","Bigta's Spears","Small","Leader_bigta","Small_rabbit_leader_banner","Small_rabbit_leader_knight","Small_rabbit_leader_knight","Small_rabbit_spear","Small_rabbit_spear","Small_rabbit_spear","Small_rabbit_sling","Small_rabbit_snail_cav","Small_eagle_air_stone","Small_eagle_air_stone","Small_eagle_air_stone","Small_eagle_air_stone",
+"Small2","Adaqua's Skirmishers","Small","Leader_adaqua","Small_rabbit_leader_banner",,,"Small_rabbit_sling","Small_rabbit_sling","Small_rabbit_sling","Small_rabbit_spear","Small_rabbit_killer","Small_eagle_air_stone","Small_eagle_air_stone","Small_eagle_air_stone",,
+"Small3","Vasla's Runners","Small","Leader_vasla","Small_rabbit_leader_hero",,,"Small_rabbit_hound_cav","Small_rabbit_hound_cav","Small_rabbit_snail_cav","Small_rabbit_sling",,"Small_eagle_air_stone","Small_eagle_air_stone","Small_eagle_air_stone","Small_eagle_air_stone","Small_eagle_air_stone"
+"Small4","Iri's Siegers","Small","Leader_iri","Small_rabbit_leader_banner","Small_rabbit_leader_banner",,"Small_rabbit_sling","Small_rabbit_sling","Small_rabbit_cannon","Small_rabbit_spear","Small_snail_sword","Small_eagle_air_stone","Small_eagle_air_stone",,,
+"Small5","Yuawies's Protectors","Small","Leader_yuawies","Small_rabbit_leader_knight","Small_rabbit_leader_banner",,"Small_snail_sword","Small_snail_sword","Small_snail_old","Small_rabbit_spear","Small_rabbit_sling","Small_eagle_air_stone","Small_eagle_air_stone","Small_eagle_air_stone",,
+"Castle1","Tulia's Rangers","Castle","Leader_tulia","Castle_human_leader_ranger","Castle_human_leader_ranger",,"Castle_human_militia_bow","Castle_human_militia_bow","Castle_human_militia_spear","Castle_human_militia_spear","Castle_dog_flail","Castle_cat_air_rocket_bomb",,,,
+"Castle2","Monnirl's Knights","Castle","Leader_monnirl","Castle_human_leader_mage","Castle_human_leader_banner",,"Castle_human_knight","Castle_human_knight","Castle_human_militia_spear","Castle_human_militia_spear",,"Castle_human_air_flying_monk",,,,
+"Castle3","Hermanos's Friends","Castle","Leader_hermanos","Castle_human_leader_lord","Castle_human_leader_jester","Castle_human_leader_banner","Castle_dog_flail","Castle_cat_shield_crossbow","Castle_human_knight_cav",,,"Castle_cat_air_rocket_bomb",,,,

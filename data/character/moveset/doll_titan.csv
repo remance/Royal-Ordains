@@ -1,0 +1,4 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Attack1","Crush",,,,450,,,,95,64,400,200,,"Crush",,,,
+"Skill1","Stomp",,,,500,,15,20,50,120,30,-300,,"Crush",,"Pin_down",,
+"Skill2","Jump Stamp",,,,400,,30,50,200,200,800,-600,,"Crush",,"Cripple,Collapse",,

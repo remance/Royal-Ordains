@@ -1,0 +1,18 @@
+"ID","Army 1","Army 2","Army 3","Army 4","Army 5","Faction Relation"
+"Barren","Leader_vok",,,,,
+"Castle","Leader_hermanos:(Castle_dog_flail,Castle_human_militia_spear),Castle_human_leader_banner:(Castle_human_militia_spear)","Leader_tulia:(Castle_human_militia_bow,Castle_human_militia_spear),Castle_human_leader_ranger:(Castle_human_militia_bow)",,,,
+"Death","Leader_avalkari",,,,,"Castle:(death_castle;-10)"
+"Demon","Leader_tolhhunn",,,,,
+"Desert","Leader_saltun",,,,,
+"Doll","Leader_doll_king",,,,,
+"Great","Leader_bavala",,,,,
+"Highland","Leader_garun",,,,,
+"Holy","Leader_aunnial",,,,,
+"Magic",,,,,,
+"Marsh","Leader_janiggys",,,,,
+"Mountain","Leader_asgane",,,,,"Mountain:(mountain_small;5)"
+"Port","Leader_ehi",,,,,
+"Sea",,,,,,
+"Small","Leader_bigta",,,,,"Mountain:(small_mountain;5)"
+"Wood","Leader_pakakvadi",,,,,
+"Free",,,,,,

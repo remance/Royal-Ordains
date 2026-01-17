@@ -10,13 +10,6 @@ def die(self):
     if self in self.battle.ai_process_list:
         self.battle.ai_process_list.remove(self)
     self.ally_list.remove(self)
-    if self.is_general:
-        self.battle.all_team_general[self.team].remove(self)
-        if self.team == 1 and self.is_controllable:
-            if not self.is_commander:
-                self.battle.player_control_generals.remove(self)
-            if self in self.battle.player_selected_generals:
-                self.battle.player_selected_generals.remove(self)
 
     for team in self.battle.all_team_enemy_check:
         if team != self.team:
@@ -35,28 +28,23 @@ def die(self):
                 self.main_character.health):
             # main character no longer has sub characters, check if main character is consider no longer active
             # does not include main character that is dead already
-            self.main_character.die()
+            self.main_character.health = 0
     self.main_character = None
 
     if "die" in self.ai_speak_list:
         self.ai_speak("die")
 
-    for follower in self.followers:
-        # revert follower stat to no leadership when it die and no general to transfer
-        follower.base_offence = follower.original_offence
-        follower.base_defence = follower.original_defence
-        follower.leadership = follower.original_leadership
-        follower.leader = None
-
-    self.followers = []
     for sub_character in self.sub_characters:
         sub_character.main_character = None
     self.sub_characters = []
 
+    # return supply when die
+    self.battle.team_stat[self.team]["supply_reserve"] += self.supply * 0.5
+    self.battle.team_stat[self.enemy_team]["supply_reserve"] += self.supply * 0.25
+
     if self.leader:  # remove self from leader stuff
-        if self.leader.alive and self in self.leader.followers:
-            self.leader.followers.remove(self)
-            self.leader.reset_general_variables()
+        if self.leader.alive:
+            self.leader.reset_commander_variables()
         self.leader = None
 
     if self.spawns:
@@ -67,8 +55,7 @@ def die(self):
                 engine.character.character.BattleCharacter(self.battle.last_char_game_id,
                                                            self.character_data.character_list[spawn_name] |
                                                            {"ID": spawn_name,
-                                                            "Team": self.team, "POS": start_pos,
-                                                            "Start Health": 1})
+                                                            "Team": self.team, "POS": start_pos})
                 self.battle.last_char_game_id += 1
 
     self.status_effect = {}
@@ -79,15 +66,19 @@ def air_die(self):
     for air_group in self.battle.team_stat[self.team]["air_group"]:
         if self in air_group:
             air_group.remove(self)
+            if not air_group:  # empty air group, remove it
+                self.battle.team_stat[self.team]["air_group"].remove(air_group)
             break
     die(self)
 
 
 def commander_die(self):
+    if self.team == self.battle.player_team:
+        self.battle.player_selected_strategy = None
     for character in self.battle.all_team_ally[self.team]:
-        if character.is_controllable:  # only controllable go into broken state when commander die
-            character.broken = True
+        character.broken = True
     for air_group in self.battle.team_stat[self.team]["air_group"]:
         for character in air_group:
             character.broken = True
+    self.battle.team_commander[self.team] = None
     die(self)

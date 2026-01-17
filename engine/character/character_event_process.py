@@ -54,7 +54,7 @@ def character_event_process(self, event, event_property):
                     event_property["POS"][0],
                     event_property["POS"][1])
         elif "target" in event_property:
-            for character2 in self.battle.all_characters:
+            for character2 in self.battle.all_battle_characters:
                 if character2.game_id == event_property["target"]:  # go to target pos
                     self.cutscene_target_pos = character2.base_pos
                     break

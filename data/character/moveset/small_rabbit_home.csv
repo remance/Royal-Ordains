@@ -1,2 +1,2 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"Attack","Sniping",,,,7000,6500,5,,17,10,,,0.15,"Stab",,,,"arc:high"
+"Attack","Sniping",,,,7000,6500,5,,17,10,,,0.15,"Stab",,,,"arc:high,far_target"

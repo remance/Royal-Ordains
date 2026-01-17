@@ -1,8 +1,8 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"Attack1","Pierce",,,,350,,,,18,24,14,,,"Stab",,,,
-"Attack2","Shield Bash",,,,250,,,,9,9,30,15,,"Crush",,,,
-"Skill1","Spinspin",,,,400,,8,15,4,150,150,100,,"Slash",,,,
+"Attack1","Pierce",,,,350,,,,48,34,60,20,,"Stab",,,,
+"Attack2","Shield Bash",,,,250,,,,22,12,150,80,,"Crush",,"Stun",,
+"Skill1","Spinspin",,,,400,,8,15,15,150,350,200,,"Slash",,,,
 "Skill2","Bark",,,,700,1000,40,10,,,,,,,,"Disorient",,
 "Skill3","Team Work",,,,2000,1000,120,40,,,,,,,"Excited",,,
-"Skill4","Jousting_charge","name:Skill4Ready","name:Skill4End","self:{no_engage=1000}",1500,,20,20,60,120,50,50,,"Stab","Jousting_charge",,,"run,movable,x_momentum:1800,repeat"
+"Skill4","Jousting_charge","name:Skill4Ready","name:Skill4End","self:{no_engage=1000;no_stay}",2000,,20,20,110,120,600,300,,"Stab","Jousting_charge",,,"run,movable,x_momentum:2200,repeat,speed:3000"
 "UseItem","Stone Potion",,,,3000,,120,,,,,,,,"Stone_skin",,,

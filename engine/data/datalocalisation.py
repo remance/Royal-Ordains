@@ -23,38 +23,23 @@ class Localisation:
         except FileNotFoundError:
             pass
 
+        self.read_localisation("building")
         self.read_localisation("character")
         self.read_localisation("item")
+        self.read_localisation("faction")
         self.read_localisation("status")
         self.read_localisation("mission")
+        self.read_localisation("scene")
         self.read_localisation("strategy")
         self.read_localisation("event")
         self.read_localisation("load")
 
         self.text["en"]["ai_speak"] = {}
-        self.text["en"]["scene"] = {}
         self.load_follower_talk_localisation("en")
-        self.load_scene_text("en")
         if self.language != "en":
             self.text[self.language]["ai_speak"] = {}
             self.text[self.language]["scene"] = {}
             self.load_follower_talk_localisation(self.language)
-            self.load_scene_text(self.language)
-
-    def load_scene_text(self, language):
-        try:
-            with open(os.path.join(self.data_dir, "localisation", language, "scene.csv"),
-                      encoding="utf-8", mode="r") as edit_file:  # read map info file
-                rd = csv.reader(edit_file, quoting=csv.QUOTE_ALL)
-                rd = [row for row in rd]
-                for index, row in enumerate(rd[1:]):
-                    if row[0] not in self.text[language]["scene"]:  # scene
-                        self.text[language]["scene"][row[0]] = {}
-                    if row[1] not in self.text[language]["scene"][row[0]]:  # scene
-                        self.text[language]["scene"][row[0]][row[1]] = {"Text": row[2]}
-            edit_file.close()
-        except FileNotFoundError:
-            pass
 
     def load_follower_talk_localisation(self, language):
         try:
@@ -76,21 +61,26 @@ class Localisation:
         except FileNotFoundError:
             pass
 
-    def read_localisation(self, file_name):
+    def read_localisation(self, file_name: str, subfolders=()):
         """
         Read localisation data
         :param file_name: File name to read
+        :param subfolders: Subfolder list
         :return:
         """
         self.text["en"][file_name] = {}
-        with open(os.path.join(self.data_dir, "localisation", "en",
+        new_subfolder = ""
+        if subfolders:
+            for subfolder in subfolders:
+                new_subfolder = os.path.join(new_subfolder, subfolder)
+        with open(os.path.join(self.data_dir, "localisation", "en", new_subfolder,
                                file_name + ".csv"), encoding="utf-8", mode="r") as edit_file:
             lore_csv_read(edit_file, self.text["en"][file_name])
         edit_file.close()
         if self.language != "en":
             try:
                 self.text[self.language][file_name] = {}
-                with open(os.path.join(self.data_dir, "localisation", self.language,
+                with open(os.path.join(self.data_dir, "localisation", self.language, new_subfolder,
                                        file_name + ".csv"), encoding="utf-8", mode="r") as edit_file:
                     lore_csv_read(edit_file, self.text[self.language][file_name])
                 edit_file.close()

@@ -8,7 +8,7 @@ def assign_key(self, key_assign):
         self.change_pause_update(False)
         self.input_box.render_text("")
         self.input_popup = None
-        self.remove_ui_updater(*self.input_popup_uis, *self.confirm_popup_uis, *self.inform_popup_uis)
+        self.remove_from_ui_updater(*self.input_popup_uis, *self.confirm_popup_uis, *self.inform_popup_uis)
 
     else:  # key already exist, confirm to swap key between two actions
         old_action = tuple(self.player_key_bind.values()).index(key_assign)

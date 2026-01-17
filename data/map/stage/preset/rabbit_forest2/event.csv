@@ -1,3 +1,0 @@
-"ID","Text ID","Object","Animation","Type","Trigger","Property"
-"music/scene1",,4,,"music","camera_reach_scene,1",
-"weather",,2,,"weather","camera_reach_scene,1","Strength:2,wind:180"

@@ -1,11 +1,11 @@
 import lzma
 import pickle
 
+from PIL import Image
 from pygame import Surface
-from pygame.image import tobytes, frombuffer, save
+from pygame.image import tobytes, frombuffer
 from pygame.mask import from_surface
 from pygame.transform import smoothscale, flip, rotate
-from PIL import Image
 
 
 class CompilableSurface:
@@ -64,12 +64,11 @@ def save_pickle_with_surfaces(file_path, data):
         pickle.dump(new_data, handle)
 
 
-def load_pickle_with_surfaces(file_path, screen_scale, battle_only=False, effect_sprite_adjust=False):
+def load_pickle_with_surfaces(file_path, screen_scale, effect_sprite_adjust=False):
     with lzma.open(file_path, "rb") as handle:
         data = pickle.load(handle)
-    if battle_only:
-        data = {key: value for key, value in data.items() if key[0:4] != "City"}  # remove "City" animation for battle
-    recursive_cast_pickleable_surface_to_surface(data, screen_scale, {}, battle_only, effect_sprite_adjust)
+    data = {key: value for key, value in data.items()}
+    recursive_cast_pickleable_surface_to_surface(data, screen_scale, {}, effect_sprite_adjust)
     return data
 
 
@@ -89,48 +88,44 @@ def recursive_cast_surface_to_pickleable_surface(data):
                 f(v)
 
 
-def recursive_cast_pickleable_surface_to_surface(data, screen_scale, already_done, battle_only=False,
+def recursive_cast_pickleable_surface_to_surface(data, screen_scale, already_done,
                                                  effect_sprite_adjust=False, parent_data=None, parent_key=None):
     f = recursive_cast_pickleable_surface_to_surface
     if type(data) is dict:
         for k in tuple(data.keys()):
             v = data[k]
             if type(v) is dict:
-                f(v, screen_scale, already_done, battle_only=battle_only, effect_sprite_adjust=effect_sprite_adjust,
+                f(v, screen_scale, already_done, effect_sprite_adjust=effect_sprite_adjust,
                   parent_data=data, parent_key=k)
             elif type(v) is CompilableSurface:
                 if v not in already_done:
                     data[k] = surface_screen_scale(v.surface, screen_scale)
-                    if battle_only:
-                        if k == "sprite":
-                            if effect_sprite_adjust:
-                                data["mask"] = {angle: from_surface(rotate(data[k], angle)) for angle in
-                                                (90, 120, 45, 0, -90, -45, -120, 180, -180)}
-                                data[k] = {0: data[k]}
-                            else:
-                                data["mask"] = from_surface(data[k])
-
-                        if parent_key == "right":
-                            parent_data["left"]["sprite"] = flip(data[k], True, False)
-                            parent_data["left"]["mask"] = from_surface(parent_data["left"]["sprite"])
-                            already_done[v] = {"right": (data[k], data["mask"]),
-                                               "left": (parent_data["left"]["sprite"], parent_data["left"]["mask"])}
-                            if effect_sprite_adjust:
-                                parent_data["left"]["sprite"] = {0: parent_data["left"]["sprite"]}
+                    if k == "sprite":  # effect
+                        if effect_sprite_adjust:
+                            data["mask"] = {angle: from_surface(rotate(data[k], angle)) for angle in
+                                            (90, 120, 45, 0, -90, -45, -120, 180, -180)}
+                            data[k] = {0: data[k]}
                         else:
-                            already_done[v] = data[k]
+                            data["mask"] = from_surface(data[k])
+
+                    if parent_key == "right":  # character
+                        parent_data["left"]["sprite"] = flip(data[k], True, False)
+                        parent_data["left"]["mask"] = from_surface(parent_data["left"]["sprite"])
+                        already_done[v] = {"right": (data[k], data["mask"]),
+                                           "left": (parent_data["left"]["sprite"], parent_data["left"]["mask"])}
+                        if effect_sprite_adjust:
+                            parent_data["left"]["sprite"] = {0: parent_data["left"]["sprite"]}
                     else:
                         already_done[v] = data[k]
                 else:
                     data[k] = already_done[v]
-                    if battle_only:
-                        if k == "sprite":
-                            data["sprite"] = already_done[v][parent_key][0]
-                            data["mask"] = already_done[v][parent_key][1]
+                    if k == "sprite":
+                        data["sprite"] = already_done[v][parent_key][0]
+                        data["mask"] = already_done[v][parent_key][1]
 
-                        if parent_key == "right":
-                            parent_data["left"]["sprite"] = already_done[v]["left"][0]
-                            parent_data["left"]["mask"] = already_done[v]["left"][1]
+                    if parent_key == "right":
+                        parent_data["left"]["sprite"] = already_done[v]["left"][0]
+                        parent_data["left"]["mask"] = already_done[v]["left"][1]
 
             elif type(v) is tuple or type(v) is list:
 

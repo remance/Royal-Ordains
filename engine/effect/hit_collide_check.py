@@ -1,9 +1,6 @@
-from math import log2
 from random import uniform
 
 from pygame.sprite import collide_mask
-
-import engine.effect.effect
 
 direction_to_angle = {"right": -90, "left": 90}
 
@@ -17,10 +14,10 @@ def hit_collide_check(self):
     for grid in self.grid_range:
         for enemy in self.enemy_collision_grids[grid]:
             if enemy.health and collide_mask(self, enemy):
-                if not self.is_effect_type and enemy.sprite_deal_damage:
-                    # character sprite attack collide with enemy sprite attack
-                    if melee_impact_crash_check(self, enemy):  # lose in crash
-                        return True
+                # if not self.is_effect_type and enemy.sprite_deal_damage:
+                #     # character sprite attack collide with enemy sprite attack
+                #     if melee_impact_crash_check(self, enemy):  # lose in crash
+                #         return True
                 if enemy not in self.already_hit:
                     self.already_hit.append(enemy)
                     if uniform(self.low_offence, self.offence) > uniform(0, enemy.low_speed):  # check for dodge
@@ -41,41 +38,41 @@ def hit_collide_check(self):
                                 return
 
 
-def melee_impact_crash_check(self, enemy):
-    impact = 0
-    if self.impact_sum:
-        impact = log2(self.impact_sum)
-    enemy_impact = 0
-    if enemy.impact_sum:
-        enemy_impact = log2(enemy.impact_sum)
-    impact_diff = impact - enemy_impact
-    if -1 < impact_diff < 1:  # both impact quite near in value
-        engine.effect.effect.Effect(None, ("Crash Player", "Base", self.rect.centerx,
-                                     self.rect.centery, direction_to_angle[self.direction], 0, 0, 1, 1),
-                                    from_owner=False)
-        engine.effect.effect.Effect(None, ("Crash Enemy", "Base", enemy.rect.centerx,
-                                     enemy.rect.centery, direction_to_angle[enemy.direction], 0, 0, 1, 1),
-                                    from_owner=False)
-        self.interrupt_animation = True
-        self.command_action = self.damaged_command_action
-        self.sprite_deal_damage = False
-        enemy.interrupt_animation = True
-        enemy.command_action = enemy.damaged_command_action
-        enemy.sprite_deal_damage = False
-    elif impact_diff > 1:  # collided enemy damage is much lower than this object, enemy lose
-        engine.effect.effect.Effect(None, ("Crash Player", "Base", self.rect.centerx,
-                                     self.rect.centery, direction_to_angle[self.direction], 0, 0, 1, 1),
-                                    from_owner=False)
-        enemy.interrupt_animation = True
-        enemy.command_action = enemy.damaged_command_action
-        enemy.sprite_deal_damage = False
-    else:  # this object dmg is much lower, enemy win
-        engine.effect.effect.Effect(None, ("Crash Enemy", "Base", enemy.rect.centerx,
-                                           enemy.rect.centery, direction_to_angle[enemy.direction], 0, 0, 1, 1),
-                                    from_owner=False)
-        self.interrupt_animation = True
-        self.command_action = self.damaged_command_action
-        self.sprite_deal_damage = False
+# def melee_impact_crash_check(self, enemy):
+#     impact = 0
+#     if self.impact_sum:
+#         impact = log2(self.impact_sum)
+#     enemy_impact = 0
+#     if enemy.impact_sum:
+#         enemy_impact = log2(enemy.impact_sum)
+#     impact_diff = impact - enemy_impact
+#     if -1 < impact_diff < 1:  # both impact quite near in value
+#         engine.effect.effect.Effect(None, ("Crash Player", "Base", self.rect.centerx,
+#                                      self.rect.centery, direction_to_angle[self.direction], 0, 0, 1, 1),
+#                                     from_owner=False)
+#         engine.effect.effect.Effect(None, ("Crash Enemy", "Base", enemy.rect.centerx,
+#                                      enemy.rect.centery, direction_to_angle[enemy.direction], 0, 0, 1, 1),
+#                                     from_owner=False)
+#         self.interrupt_animation = True
+#         self.command_action = self.damaged_command_action
+#         self.sprite_deal_damage = False
+#         enemy.interrupt_animation = True
+#         enemy.command_action = enemy.damaged_command_action
+#         enemy.sprite_deal_damage = False
+#     elif impact_diff > 1:  # collided enemy damage is much lower than this object, enemy lose
+#         engine.effect.effect.Effect(None, ("Crash Player", "Base", self.rect.centerx,
+#                                      self.rect.centery, direction_to_angle[self.direction], 0, 0, 1, 1),
+#                                     from_owner=False)
+#         enemy.interrupt_animation = True
+#         enemy.command_action = enemy.damaged_command_action
+#         enemy.sprite_deal_damage = False
+#     else:  # this object dmg is much lower, enemy win
+#         engine.effect.effect.Effect(None, ("Crash Enemy", "Base", enemy.rect.centerx,
+#                                            enemy.rect.centery, direction_to_angle[enemy.direction], 0, 0, 1, 1),
+#                                     from_owner=False)
+#         self.interrupt_animation = True
+#         self.command_action = self.damaged_command_action
+#         self.sprite_deal_damage = False
 
 
 def sprite_bounce(self):

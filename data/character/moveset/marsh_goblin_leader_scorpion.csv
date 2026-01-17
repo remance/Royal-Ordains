@@ -1,0 +1,3 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Attack1","Spear Stab",,,,400,,,,16,32,40,20,0.1,"Stab",,,,
+"Skill1","Scorpion Sting",,,,450,,7,30,30,20,30,50,,"Poison",,"Deadly_poison",,

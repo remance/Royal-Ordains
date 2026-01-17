@@ -1,0 +1,5 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Skill1","Water Ball",,,"self:{no_engage=200}",3000,4000,8,15,20,80,50,10,,"Water",,,,"direct"
+"Skill2","Scary Presence",,,,700,1200,30,10,,,,,,,,"Fear",,
+"Skill3","Provoking Image",,,,700,1200,30,10,,,,,,,,"Provoke",,
+"Skill4","Fast Feet",,,,600,,20,2,,,,,,,"Haste",,,

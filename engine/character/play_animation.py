@@ -38,13 +38,13 @@ def play_battle_animation(self, dt, hold_check):
     """
     if not hold_check:
         self.frame_timer += dt
-        if self.frame_timer >= self.final_animation_play_time:  # start next frame or end animation
+        if self.frame_timer >= self.final_animation_frame_play_time:  # start next frame or end animation
             if self.next_animation_frame():
                 return True
 
-            self.final_animation_play_time = self.animation_play_time
+            self.final_animation_frame_play_time = self.animation_frame_play_time
             if "play_time_mod" in self.current_animation_frame:
-                self.final_animation_play_time *= self.current_animation_frame["play_time_mod"]
+                self.final_animation_frame_play_time *= self.current_animation_frame["play_time_mod"]
 
             self.sprite_deal_damage = False
             for key, part_data in self.current_animation_direction["effects"].items():
@@ -55,9 +55,9 @@ def play_battle_animation(self, dt, hold_check):
                                      self.base_ground_pos)
                         (engine.character.character.
                          BattleCharacter(self.battle.last_char_game_id, self.character_data.character_list[
-                                             self.current_moveset["Property"]["summon"]] |
+                            self.current_moveset["Property"]["summon"]] |
                                          {"ID": self.current_moveset["Property"]["summon"], "Direction": self.direction,
-                                          "Team": self.team, "POS": start_pos, "Start Health": 1},
+                                          "Team": self.team, "POS": start_pos},
                                          leader=self, is_summon=True))
                         self.battle.last_char_game_id += 1
 
@@ -88,14 +88,14 @@ def play_cutscene_animation(self, dt, hold_check):
     """
     if not hold_check:  # not holding current frame
         self.frame_timer += dt
-        if self.frame_timer >= self.final_animation_play_time:  # start next frame or end animation
+        if self.frame_timer >= self.final_animation_frame_play_time:  # start next frame or end animation
             if self.next_animation_frame():
                 return True
 
             # check if new frame has play speed mod
-            self.final_animation_play_time = self.default_animation_play_time
+            self.final_animation_frame_play_time = self.default_animation_play_time
             if "play_time_mod" in self.current_animation_frame:
-                self.final_animation_play_time *= self.current_animation_frame["play_time_mod"]
+                self.final_animation_frame_play_time *= self.current_animation_frame["play_time_mod"]
 
             self.update_sprite = True
     return False

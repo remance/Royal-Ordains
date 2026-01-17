@@ -1,0 +1,2 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Attack1","Beak Attack",,,"enemy:{target_type=air}",600,,6,5,10,7,,,,"Stab",,,,"movable,x_momentum:300"

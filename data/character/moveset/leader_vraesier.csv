@@ -1,9 +1,9 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"Attack1","Slash Up",,,,300,,,,30,25,20,10,,"Slash",,,,
-"Attack2","Pierce",,,,350,,,,24,30,10,5,0.1,"Stab",,,,
-"Attack3","Slash Down",,,,300,,,,35,27,5,-20,,"Slash",,,,
-"Attack4","Double Slash",,,,300,,4,,19,68,7,9,,"Slash",,,,
-"Skill1","Demonic Strike",,,,500,,8,35,95,80,250,150,0.2,"Crush",,,,
-"Skill2","Bloodletting",,,,350,,6,20,26,14,15,5,0.15,"Slash",,"Bleeding",,
+"Attack1","Slash Up",,,,300,,,,50,31,70,40,,"Slash",,,,
+"Attack2","Pierce",,,,350,,,,38,36,50,5,0.1,"Stab",,,,
+"Attack3","Slash Down",,,,300,,,,70,27,35,-70,,"Slash",,,,
+"Attack4","Double Slash",,,,300,,4,,35,68,40,40,,"Slash",,,,
+"Skill1","Demonic Strike",,,,500,,8,35,180,80,550,350,0.2,"Crush",,,,
+"Skill2","Bloodletting",,,,350,,6,20,45,14,25,20,0.15,"Slash",,"Bleeding",,
 "Skill3","Second Wind",,,"self:{health<=50}",20000,,30,40,,,,,,,"Second_wind",,,"no_ai_range_check_setup"
 "UseItem","Speed Potion",,,,2000,,120,,,,,,,,"Haste",,,"no_ai_range_check_setup"

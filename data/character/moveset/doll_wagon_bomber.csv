@@ -1,0 +1,3 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Attack1","Throw Bomb",,,,2500,2500,6,,70,120,130,250,,"Fire",,,,"arc"
+"Skill1","Throw Cluster Bomb",,,,2500,2500,,40,50,100,50,50,,"Crush",,,,"arc"

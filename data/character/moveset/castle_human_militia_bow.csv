@@ -1,2 +1,2 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"Attack1","Shoot Arrow",,,"self:{no_engage=700}",7000,7500,4,,10,3,4,-3,,"Stab",,,,"arc"
+"Attack1","Shoot Arrow",,,"self:{no_engage=700}",10000,10500,4,,10,3,4,-3,,"Stab",,,,"arc,far_target"

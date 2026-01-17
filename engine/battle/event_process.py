@@ -4,8 +4,8 @@ from random import choice, randint
 import pygame
 from pygame.mixer import Sound
 
+from engine.battleobject.battleobject import StageObject
 from engine.character.character import Character
-from engine.stageobject.stageobject import StageObject
 
 
 def event_process(self):
@@ -63,12 +63,12 @@ def event_process(self):
                             self.screen_fade.reset(text=text, font_texture=use_font_texture,
                                                    instant_fade=instant_fade, text_fade_in=text_fade_in,
                                                    text_delay=text_delay, fade_speed=speed, fade_out=fade_out)
-                            self.battle_outer_ui_updater.add(self.screen_fade)
+                            self.outer_ui_updater.add(self.screen_fade)
                         else:
                             if self.screen_fade.done:
                                 if "no auto fade out" not in event_property:
                                     self.screen_fade.reset()
-                                    self.battle_outer_ui_updater.remove(self.screen_fade)
+                                    self.outer_ui_updater.remove(self.screen_fade)
                                 self.cutscene_in_progress = False
                                 self.cutscene_playing.remove(child_event)
                     elif child_event["Animation"] == "wait":
@@ -124,22 +124,17 @@ def event_process(self):
             elif child_event["Type"] == "music":  # play new music
                 if str(child_event["Object"]).lower() == "none":
                     self.current_music = None
-                    self.music_left.stop()
-                    self.music_right.stop()
+                    self.music.stop()
                 elif str(child_event["Object"]).lower() == "pause":
                     self.current_music = None  # remove current music so when game unpause it not replace event
-                    self.music_left.pause()
-                    self.music_right.pause()
+                    self.music.pause()
                 elif str(child_event["Object"]).lower() == "resume":
                     self.current_music = 1
-                    self.music_left.unpause()
-                    self.music_right.unpause()
+                    self.music.unpause()
                 else:
                     self.current_music = self.stage_music_pool[str(child_event["Object"])]
-                    self.music_left.play(self.current_music, loops=-1, fade_ms=100)
-                    self.music_right.play(self.current_music, loops=-1, fade_ms=100)
-                    self.music_left.set_volume(self.play_music_volume, 0)
-                    self.music_right.set_volume(0, self.play_music_volume)
+                    self.music.play(self.current_music, loops=-1, fade_ms=100)
+                    self.music.set_volume(self.play_music_volume)
                 self.cutscene_playing.remove(child_event)
 
             elif child_event["Type"] == "ambient":  # play new ambient
@@ -199,10 +194,10 @@ def event_process(self):
                     if "flip" in event_property:
                         flip = 1
                     StageObject(child_event["Object"], event_property["POS"], child_event["Object"],
-                                angle, flip, animation_speed=animation_speed)
+                                angle, flip, animation_frame_play_time=animation_speed)
                     self.cutscene_playing.remove(child_event)
                 elif child_event["Type"] == "delete":  # delete specified scene object
-                    for item in self.stage_objects:
+                    for item in self.battle_stage_objects:
                         if item.game_id == child_event["Object"]:
                             item.kill()
                     self.cutscene_playing.remove(child_event)
@@ -211,7 +206,7 @@ def event_process(self):
                     if child_event["Object"] == "pm":  # main player
                         event_character = self.main_player_object
                     else:
-                        for character in self.all_characters:
+                        for character in self.all_battle_characters:
                             if character.game_id == child_event["Object"]:
                                 event_character = character
                                 break
@@ -222,8 +217,8 @@ def event_process(self):
 
             if "select" in event_property:
                 if event_property["select"] == "yesno":
-                    if self.decision_select not in self.battle_outer_ui_updater:
-                        self.battle_outer_ui_updater.add(self.decision_select)
+                    if self.decision_select not in self.outer_ui_updater:
+                        self.outer_ui_updater.add(self.decision_select)
 
             if "wait" in event_property or "interact" in event_property or \
                     "select" in event_property:

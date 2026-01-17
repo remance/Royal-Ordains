@@ -1,13 +1,14 @@
 from __future__ import annotations
-from math import radians, cos, sin, tan
+
+from math import radians, cos, sin
 from random import choice, uniform
 
 from pygame import Vector2
 from pygame.sprite import Sprite, collide_mask
 
-from engine.constants import *
 import engine.character.character
 from engine.character.apply_status import apply_status
+from engine.constants import *
 from engine.effect.adjust_sprite import adjust_sprite, damage_effect_adjust_sprite
 from engine.effect.cal_damage import cal_damage
 from engine.effect.find_random_direction import find_random_direction
@@ -17,7 +18,6 @@ from engine.effect.move_logic import move_logic
 from engine.effect.play_animation import play_animation
 from engine.effect.reach_target import reach_target
 from engine.effect.remain_logic import remain_logic
-
 from engine.utils.common import calculate_projectile_velocity, clean_object
 from engine.utils.rotation import set_rotate, convert_projectile_degree_angle
 
@@ -43,7 +43,7 @@ class Effect(Sprite):
     reach_target = reach_target
     remain_logic = remain_logic
 
-    Base_Animation_Play_Time = Base_Animation_Play_Time
+    Base_Animation_Frame_Play_Time = Base_Animation_Frame_Play_Time
     Default_Ground_Pos = Default_Ground_Pos
 
     def __init__(self, owner: (dict, engine.character.character.BattleCharacter),
@@ -63,7 +63,8 @@ class Effect(Sprite):
         self.frame_timer = 0
         self.renew_sprite = True
         self.repeat_animation = False
-        self.base_stage_end = self.battle.base_stage_end
+        self.effect_base_stage_start = -20000
+        self.effect_base_stage_end = self.battle.effect_base_stage_end
         self.is_effect_type = True
         self.base_target_pos = base_target_pos
 
@@ -79,7 +80,7 @@ class Effect(Sprite):
             # any change made here for effect stat must be adjust in strategy data and below
             if type(self.owner) is not dict:
                 self.offence = self.owner.offence
-                self.low_offence = self. owner.low_offence
+                self.low_offence = self.owner.low_offence
                 self.power = self.owner.power
                 self.element = self.owner.element
                 self.impact = self.owner.impact
@@ -137,7 +138,6 @@ class Effect(Sprite):
         self.travel_progress = 0
         self.travel = False
         self.direct_shot = False  # determine what method to use for sprite movement
-
         self.sound_effect = None
         self.sound_timer = 0
         self.sound_duration = 0
@@ -241,10 +241,9 @@ class Effect(Sprite):
         self.animation_pool = self.effect_animation_pool[self.effect_name]
         self.current_animation = self.animation_pool[self.part_name][self.sprite_flip][self.width_scale][
             self.height_scale]
-
-        self.animation_play_time = self.Base_Animation_Play_Time
+        self.animation_frame_play_time = self.Base_Animation_Frame_Play_Time
         if len(self.current_animation) == 1:  # effect with no animation play a bit longer
-            self.animation_play_time = 0.2
+            self.animation_frame_play_time = 0.2
 
         self.base_image = self.current_animation[self.show_frame]
         self.image = None
@@ -263,7 +262,7 @@ class Effect(Sprite):
                                                        self.sound_distance, self.shake_value)
                     self.sound_effect = None
 
-            done, just_start = self.play_animation(self.animation_play_time, dt, False)
+            done, just_start = self.play_animation(self.animation_frame_play_time, dt, False)
 
             if self.move_logic(dt, done):
                 return
@@ -310,7 +309,7 @@ class DamageEffect(Effect):
                         self.reach_target()
                         return
 
-                done, just_start = self.play_animation(self.animation_play_time, dt, False)
+                done, just_start = self.play_animation(self.animation_frame_play_time, dt, False)
                 self.move_logic(dt, done)
 
 
@@ -331,7 +330,7 @@ class TrapEffect(DamageEffect):
         if self.sound_effect and self.sound_timer < self.sound_duration:
             self.sound_timer += dt
 
-        done, just_start = self.play_animation(self.animation_play_time, dt)
+        done, just_start = self.play_animation(self.animation_frame_play_time, dt)
 
         if self.activate and done:
             if self.sound_effect:
@@ -356,9 +355,9 @@ class TrapEffect(DamageEffect):
     def activate_trap(self):
         # change image to activate
         self.current_animation = self.animation_pool["Activate"][self.sprite_flip][self.width_scale][self.height_scale]
-        self.animation_play_time = self.Base_Animation_Play_Time  # reset animation play speed
+        self.animation_frame_play_time = self.Base_Animation_Frame_Play_Time  # reset animation play speed
         if len(self.current_animation) == 1:  # effect with no animation play a bit longer
-            self.animation_play_time = 0.2
+            self.animation_frame_play_time = 0.2
         self.base_image = self.current_animation[self.show_frame]
         self.renew_sprite = True
         self.adjust_sprite()
@@ -373,9 +372,10 @@ class StatusEffect(Effect):
         self.rect.midbottom = self.owner.pos
 
     def update(self, dt):
-        done, just_start = self.play_animation(self.animation_play_time, dt)
-        self.pos = self.owner.pos
-        self.rect.midbottom = self.owner.pos
+        done, just_start = self.play_animation(self.animation_frame_play_time, dt)
+        if self.owner.alive:
+            self.pos = self.owner.pos
+            self.rect.midbottom = self.owner.pos
 
         if self.sound_effect and self.sound_timer < self.sound_duration:
             self.sound_timer += dt

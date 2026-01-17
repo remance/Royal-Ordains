@@ -1,0 +1,3 @@
+"ID","Text ID","Object","Animation","Type","Trigger","Property"
+"music/scene1",,4,,"music","time,0",
+"weather",,2,,"weather","time,10","Strength:2,wind:180"

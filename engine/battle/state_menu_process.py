@@ -9,7 +9,7 @@ def state_menu_process(self):
     self.camera.update(self.battle_camera_object_drawer)
 
     self.camera.update(self.battle_camera_ui_drawer)
-    self.camera.out_update(self.battle_outer_ui_updater)
+    self.camera.out_update(self.outer_ui_updater)
     self.ui_drawer.draw(self.screen)  # draw the UI
 
     if self.input_popup:  # currently, have input pop up on screen, stop everything else until done
@@ -18,7 +18,7 @@ def state_menu_process(self):
             self.input_box.render_text("")
             input_popup = self.input_popup[1]
             self.input_popup = None
-            self.remove_ui_updater(self.input_popup_uis, self.confirm_popup_uis)
+            self.remove_from_ui_updater(self.input_popup_uis, self.confirm_popup_uis)
 
             if input_popup == "quit":  # quit game
                 pg_quit()
@@ -33,7 +33,7 @@ def state_menu_process(self):
             self.change_pause_update(False)
             self.input_box.render_text("")
             self.input_popup = None
-            self.remove_ui_updater(self.input_popup_uis, self.confirm_popup_uis)
+            self.remove_from_ui_updater(self.input_popup_uis, self.confirm_popup_uis)
 
     else:
         self.escmenu_process()

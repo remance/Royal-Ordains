@@ -39,9 +39,8 @@ class Scene(Sprite):
     def setup(self):
         self.full_scene_image = Surface((self.screen_width * len(self.data), self.size_height), SRCALPHA)
         for scene_index, image in self.data.items():
-            x = (scene_index - 1) * self.images[image].get_width()
-            rect = self.images[image].get_rect(topleft=(x, 0))
-            self.full_scene_image.blit(self.images[image], rect)
+            self.full_scene_image.blit(self.images[image], self.images[image].get_rect(
+                topleft=((scene_index - 1) * self.images[image].get_width(), 0)))
         self.current_scene_image = Surface.subsurface(self.full_scene_image, (self.battle.camera_left, 0,
                                                                               self.size_width, self.size_height))
 

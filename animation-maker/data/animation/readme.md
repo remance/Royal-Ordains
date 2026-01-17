@@ -15,4 +15,5 @@ THERE MUST BE NO SPACE BETWEEN COMMA IN ANY VALUE
 
 The position is based on the default side before any flip (face right or left).
 
-layer value is similar to pygame layer, the higher value get drew first and lower value get drew later and above the higher value layer. Layer must start from 0.
+layer value is similar to pygame layer, the higher value get drew first and lower value get drew later and above the
+higher value layer. Layer must start from 0.

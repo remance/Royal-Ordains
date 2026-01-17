@@ -1,19 +1,20 @@
 from __future__ import annotations
-from types import MethodType
+
+from copy import deepcopy
 from random import uniform
+from types import MethodType
 
 from pygame import sprite, Vector2, Surface
 from pygame.mask import from_surface
 
 from engine.character.ai_combat import ai_combat_dict
-from engine.character.ai_move import ai_move_dict
-from engine.character.ai_retreat import ai_retreat_dict
-
-from engine.character.ai_prepare import (get_near_enemy, ai_prepare, follower_ai_prepare, sub_character_ai_prepare,
-                                         interceptor_ai_prepare, bomber_ai_prepare, fighter_ai_prepare)
 from engine.character.ai_combat import check_ai_condition
-from engine.character.ai_speak import ai_speak
 from engine.character.ai_logic import ai_logic
+from engine.character.ai_move import ai_move_dict
+from engine.character.ai_prepare import (get_near_enemy, ai_prepare, troop_ai_prepare, sub_character_ai_prepare,
+                                         interceptor_ai_prepare, bomber_ai_prepare, fighter_ai_prepare)
+from engine.character.ai_retreat import ai_retreat_dict
+from engine.character.ai_speak import ai_speak
 from engine.character.apply_status import apply_status
 from engine.character.cal_loss import cal_loss
 from engine.character.character_event_process import character_event_process
@@ -22,30 +23,25 @@ from engine.character.die import commander_die, die, air_die
 from engine.character.enter_stage import (enter_stage, battle_character_enter_stage, battle_air_character_enter_stage,
                                           delayed_enter_stage)
 from engine.character.erase import erase
-from engine.character.get_damage import get_damage
 from engine.character.finish_animation import finish_animation
+from engine.character.get_damage import get_damage
 from engine.character.health_resource_logic import health_resource_logic, air_health_resource_logic
 from engine.character.issue_commander_order import issue_commander_order
-from engine.character.reset_general_variables import reset_general_variables
 from engine.character.move_logic import move_logic, sub_move_logic, air_move_logic
 from engine.character.pick_animation import pick_animation
 from engine.character.pick_cutscene_animation import pick_cutscene_animation
 from engine.character.play_animation import next_animation_frame, play_battle_animation, play_cutscene_animation
+from engine.character.reset_commander_variables import reset_commander_variables
 from engine.character.reset_sprite import reset_sprite, battle_reset_sprite
 from engine.character.rotate_logic import rotate_logic
 from engine.character.status_update import status_update
-
+from engine.constants import *
 from engine.effect.cal_damage import cal_damage
 from engine.effect.hit_collide_check import hit_collide_check
 from engine.effect.hit_register import hit_register
-
-from engine.uibattle.uibattle import DamageNumber, CharacterGeneralIndicator
-
-from engine.utils.text_making import text_render_with_bg
+from engine.uibattle.uibattle import DamageNumber
 from engine.utils.common import clean_object
 from engine.utils.rotation import set_rotate
-
-from engine.constants import *
 
 infinity = float("inf")
 
@@ -101,7 +97,7 @@ class Character(sprite.Sprite):
     finish_animation = finish_animation
     health_resource_logic = health_resource_logic
     issue_commander_order = issue_commander_order
-    reset_general_variables = reset_general_variables
+    reset_commander_variables = reset_commander_variables
     move_logic = move_logic
     pick_animation = pick_animation
     pick_cutscene_animation = pick_cutscene_animation
@@ -133,13 +129,12 @@ class Character(sprite.Sprite):
                              "movable": True, "forced move": True, "hold": True, "spirit": True}
 
     # static variable
-    Base_Animation_Play_Time = Base_Animation_Play_Time
+    Base_Animation_Frame_Play_Time = Base_Animation_Frame_Play_Time
     Default_Air_Pos = Default_Air_Pos
     Default_Ground_Pos = Default_Ground_Pos
     Character_Gravity = Character_Gravity
 
-    def __init__(self, game_id: int, stat: dict, additional_layer: int = 0, is_commander: bool = False,
-                 is_general: bool = False, is_controllable: bool = False) -> None:
+    def __init__(self, game_id: int, stat: dict, additional_layer: (int, str) = 0, is_commander: bool = False) -> None:
         """
         Character object represent a character that may or may not fight in battle
         """
@@ -154,6 +149,7 @@ class Character(sprite.Sprite):
         self.battle_scale = (self.screen_scale[0] * 0.2, self.screen_scale[1] * 0.2)
         self.battle_camera_drawer = self.battle.battle_camera_object_drawer
         self.weather = self.battle.current_weather
+        self.all_team_enemy_check = self.battle.all_team_enemy_check
 
         self.char_id = stat["ID"]
         self.race = stat["Race"]
@@ -163,13 +159,16 @@ class Character(sprite.Sprite):
         self.sprite_height = self.animation_pool["Default"][0]["right"]["sprite"].get_height() * 1.5
         self.sprite_width = self.animation_pool["Default"][0]["right"]["sprite"].get_width() * 0.5
 
-        self._layer = (10000 - self.sprite_height + self.game_id) + additional_layer
+        if additional_layer == "main":
+            # use main character layer for sub character
+            self._layer = self.main_character._layer - 1
+        else:
+            self._layer = int((10000 - self.sprite_height + self.game_id) + additional_layer)
         self.name = self.battle.localisation.grab_text(("character", stat["ID"], "Name"))
         self.cutscene_event = None
         self.speech = None
         self.is_commander = is_commander
-        self.is_general = is_general
-        self.is_controllable = is_controllable
+        self.is_leader = stat["Is Leader"]
 
         self.current_action = {}  # action being performed
         self.command_action = {}  # next action to be performed
@@ -180,15 +179,18 @@ class Character(sprite.Sprite):
 
         self.timer = 0
         self.frame_timer = 0
+        self.hold_timer = 0
         self.show_frame = 0  # current animation frame
         self.max_show_frame = 0
         self.ai_timer = 0  # for whatever timer require for AI action
-        self.ai_movement_timer = 0  # timer to move for AI
+        self.ai_movement_timer = 0  # timer daley before can move again for character after performing attack
         self.replace_idle_animation = None
         self.interrupt_animation = False
         self.animation_name = None
 
         self.invisible = False  # can not be seen nor detected, will not be drawn on camera
+        self.no_move = False
+        self.no_run = False
         self.invincible = False  # can not be hurt
         self.no_target = False  # can not be target
         self.broken = False  # broken and no longer fight, will only retreat
@@ -199,12 +201,11 @@ class Character(sprite.Sprite):
 
         self.y_momentum = 0
         self.x_momentum = 0
-        self.move_speed = 0  # speed of current movement
-        self.run_speed = 7 * stat["Speed"]
-        self.walk_speed = 3 * stat["Speed"]
+        self.run_speed = 12 * stat["Speed"]
+        self.walk_speed = 5 * stat["Speed"]
 
-        self.animation_play_time = self.Base_Animation_Play_Time
-        self.final_animation_play_time = self.animation_play_time
+        self.animation_frame_play_time = self.Base_Animation_Frame_Play_Time
+        self.final_animation_frame_play_time = self.animation_frame_play_time
 
         self.commander_order = ()
         self.true_commander_order = ()
@@ -236,7 +237,7 @@ class Character(sprite.Sprite):
                 else:  # target is player
                     target = char_property["target"][-1]
 
-                for this_char in self.battle.all_characters:
+                for this_char in self.battle.all_battle_characters:
                     if target == this_char.game_id:  # find target char object
                         self.target = this_char
                         break
@@ -245,17 +246,21 @@ class Character(sprite.Sprite):
             else:
                 self.__setattr__(stuff, char_property[stuff])
 
+        if self.no_run:  # cannot run, reset run variables to walk
+            self.run_command_action = self.walk_command_action
+            self.run_speed = self.walk_speed
+
         self.ai_behaviour = stat["AI Behaviour"]
 
         self.ai_move = MethodType(ai_move_dict["default"], self)
-        if self.is_general and self.is_controllable:  # controllable general use behaviour that move based on commander order
-            self.ai_move = MethodType(ai_move_dict["general"], self)
+        if self.is_commander:  # leader use behaviour that move based on commander order
+            self.ai_move = MethodType(ai_move_dict["leader"], self)
         elif self.ai_behaviour in ai_move_dict:
             self.ai_move = MethodType(ai_move_dict[self.ai_behaviour], self)
 
         self.ai_combat = MethodType(ai_combat_dict["default"], self)
-        if self.is_general and self.is_controllable:
-            self.ai_combat = MethodType(ai_combat_dict["general"], self)
+        if self.is_commander:
+            self.ai_combat = MethodType(ai_combat_dict["leader"], self)
         elif self.ai_behaviour in ai_combat_dict:
             self.ai_combat = MethodType(ai_combat_dict[self.ai_behaviour], self)
 
@@ -388,8 +393,7 @@ class BattleCharacter(Character):
     is_sub_character = False
 
     def __init__(self, game_id: int, stat: dict, leader: BattleCharacter = None,
-                 additional_layer: int = 0, is_commander: bool = False,
-                 is_general: bool = False, is_controllable: bool = False, is_summon: bool = False) -> None:
+                 additional_layer: (int, str) = 0, is_commander: bool = False, is_summon: bool = False) -> None:
         """
         BattleCharacter object represent a character that take part in the battle in stage
         Character has three different stage of stat;
@@ -397,20 +401,16 @@ class BattleCharacter(Character):
         second: stat with all effect (e.g., attack), this is their stat after applying weather, and status effect
         """
         self.ai_speak_list = {}
-        self.followers = []
-        self.followers_len_check = None
-        self.max_followers_len_check = None
-        if "Followers" in stat:
-            self.follower_form = stat["Followers"]
 
-        self.main_character = None
+        if additional_layer != "main":
+            self.main_character = None
         self.sub_characters = []
         self.leader = leader
 
         self.blind = False
         self.false_order = False  # check whether character is given false order by status effect
         self.shield = False  # check whether character is shielded for defence bonus against frontal attack
-        self.no_forced_move = False  # check whether character can be forcefully move via knockback/die
+        self.no_forced_move = False  # check whether character can be forcefully move via knockback/die, will also prevent knockback from occurring
         self.active_without_sub_character = True  # check whether character remain active after all subs die
         self.no_spirit = False
         self.no_weak_side = False
@@ -425,15 +425,18 @@ class BattleCharacter(Character):
         self.nearest_enemy = None
         self.nearest_enemy_distance = None
         self.nearest_enemy_pos = None
+        self.furthest_enemy = None
+        self.furthest_enemy_distance = None
+        self.furthest_enemy_pos = None
         self.nearest_ally = None
+        self.nearest_ally_pos = None
         self.nearest_ally_distance = None
-
-        self.move_speed = 0  # speed of current movement
 
         self.move_cooldown = {}  # character can attack when cooldown reach attack speed
         self.status_duration = {}  # current status duration
 
         self.character_type = stat["Type"]
+        self.character_class = stat["Class"]
         self.team = stat["Team"]
         self.enemy_team = 1
         if self.team == 1:
@@ -442,60 +445,47 @@ class BattleCharacter(Character):
         self.total_range_power_score = 0
         self.total_offence_power_score = 0
         self.total_defence_power_score = 0
-        self.total_flank_power_score = 0
         self.total_power_score = 0
         self.start_pos = self.battle.team_stat[self.team]["start_pos"]
-        self.retreat_pos = self.battle.team_stat[self.team]["retreat_pos"]
 
         # Get char stat
-        stat_boost = 0
-        leader_charisma = 0
         self.leader = None
-        self.follow_leader_distance = 0
-        if leader:  # character with leader get stat boost from leader charisma
-            self.follow_leader_distance = uniform(100, 1000)
+        if leader:
             self.leader = leader
-            if self.character_type != "air":  # air character does not add into followers list
-                self.leader.followers.append(self)
-            leader_charisma = self.leader.leadership
-            stat_boost = int(leader_charisma / 5)
-            self.ai_prepare = MethodType(follower_ai_prepare, self)
+            self.ai_prepare = MethodType(troop_ai_prepare, self)
         self.power_score = stat["Power Score"]
-        self.flank_power_score = (stat["Power Score"] + stat["Speed"]) / 2
         self.original_offence = stat["Offence"]
         self.original_defence = stat["Defence"]
-        self.original_leadership = stat["Leadership"]
+        self.supply = stat["Supply Drop"]
 
         self.melee_type = "offence"
         if self.original_offence < self.original_defence:
             self.melee_type = "defence"
 
-        self.base_offence = stat["Offence"] + (stat["Offence"] * (leader_charisma / 200)) + stat_boost
-        self.base_defence = stat["Defence"] + (stat["Defence"] * (leader_charisma / 200)) + stat_boost
+        self.base_offence = stat["Offence"]
+        self.base_defence = stat["Defence"]
         self.base_speed = stat["Speed"]
-        self.leadership = stat["Leadership"] + (stat["Leadership"] * (leader_charisma / 200)) + stat_boost
-        self.strategy_regen = stat["Leadership"] / 100
+        self.leadership = stat["Leadership"]
+        self.strategy_regen = self.leadership / 100
         self.status_immunity = stat["Status Immunity"]
 
         self.base_health = stat["Health"]  # max health of character
-        self.base_resource = 100 + (100 * (leader_charisma / 200))
+        self.base_resource = 100
 
         self.base_element_resistance = {key.split(" ")[0]: stat[key] for key in stat if " Resistance" in key}
         self.base_critical_chance = 0.1
         self.base_health_regen = 0  # health regeneration modifier
         if self.is_summon:
             self.base_health_regen = -1
-        self.base_resource_regen = 1 + (self.leadership * 0.01) + (
-                leader_charisma * 0.01)  # resource regeneration
+        self.base_resource_regen = 1  # resource regeneration
 
         self.status_duration = {}  # current status duration
 
         self.base_resource_cost_modifier = 1
 
-        self.movesets = stat["Move"]
         self.spawns = stat["Spawns"]
         self.body_mass = stat["Mass"]
-        self.knockdown_mass = self.body_mass * 3
+        self.knockdown_mass = self.body_mass * 4
 
         # Final stat after receiving stat effect from various sources, reset every time status is updated
         self.critical_chance = self.base_critical_chance
@@ -504,21 +494,19 @@ class BattleCharacter(Character):
         self.defence = self.base_defence
         self.element_resistance = self.base_element_resistance.copy()
         self.speed = self.base_speed
-        self.low_speed = self.speed * 0.5
+        self.low_speed = self.speed * 0.75
         self.health_regen = self.base_health_regen
         self.resource_regen = self.base_resource_regen
-        self.animation_play_time = self.Base_Animation_Play_Time
-        self.final_animation_play_time = self.animation_play_time
+        self.animation_frame_play_time = self.Base_Animation_Frame_Play_Time
+        self.final_animation_frame_play_time = self.animation_frame_play_time
 
         self.resource_cost_modifier = self.base_resource_cost_modifier
-
-        start_health = stat["Start Health"]
 
         self.health1 = self.base_health * 0.01
         self.health10 = self.base_health * 0.10
 
-        self.health = self.base_health * start_health
-        self.resource = 0
+        self.health = self.base_health
+        self.resource = self.base_resource
 
         self.run_speed = 7 * self.speed
         self.walk_speed = 3 * self.speed
@@ -528,12 +516,6 @@ class BattleCharacter(Character):
         self.knock_down_screen_shake = self.knock_down_screen_shake + self.body_mass
         self.dmg_sound_distance = self.dmg_sound_distance + self.body_mass
         self.hit_volume_mod = self.body_mass / 10
-
-        self.ai_min_attack_range = stat["ai_min_attack_range"]
-        self.ai_max_attack_range = stat["ai_max_attack_range"]
-        self.ai_min_effect_range = stat["ai_min_effect_range"]
-        self.ai_max_effect_range = stat["ai_max_effect_range"]
-        self.max_enemy_range_check = stat["max_enemy_range_check"]
 
         self.ai_movement_timer = 0  # timer to move for AI
 
@@ -562,45 +544,38 @@ class BattleCharacter(Character):
         self.enemy_status_effect = ()
         self.no_defence = False
         self.no_dodge = False
-        Character.__init__(self, game_id, stat, additional_layer=additional_layer, is_commander=is_commander,
-                           is_general=is_general, is_controllable=is_controllable)
+        Character.__init__(self, game_id, stat, additional_layer=additional_layer, is_commander=is_commander)
+
+        self.movesets = deepcopy(stat["Move"])
+        self.ai_range_modifier = 1
+        if not self.is_leader:
+            self.ai_range_modifier = uniform(0.75, 1)
+            for moveset in self.movesets.values():
+                moveset["AI Range"] *= self.ai_range_modifier
+
+        self.ai_min_attack_range = stat["ai_min_attack_range"] * self.ai_range_modifier
+        self.ai_max_attack_range = stat["ai_max_attack_range"] * self.ai_range_modifier
+        self.max_enemy_range_check = stat["max_enemy_range_check"] * self.ai_range_modifier
+        self.ai_skirmish_range = stat["ai_skirmish_range"] * self.ai_range_modifier
+        self.min_resource_move = stat["min_resource_move"]
+        self.ai_min_effect_range = stat["ai_min_effect_range"]
+        self.ai_enemy_max_effect_range = stat["ai_enemy_max_effect_range"]
+        self.ai_ally_max_effect_range = stat["ai_ally_max_effect_range"]
 
         self.retreat_stage_end = self.battle.base_stage_end + self.sprite_width
         self.retreat_stage_start = -self.sprite_width
+        self.enemy_start_pos = self.battle.team_stat[self.enemy_team]["start_pos"]
 
         if stat["Sub Characters"]:  # add sub characters
-            for character, anchor_pos in stat["Sub Characters"].items():
-                for sub_character_pos in anchor_pos:
-                    SubBattleCharacter(self.battle.last_char_game_id, self.character_data.character_list[character] |
-                                       {"ID": character, "Team": self.team,
-                                        "Start Health": stat["Start Health"],
-                                        "POS": self.base_pos, "Anchor POS": sub_character_pos}, self)
-                    self.battle.last_char_game_id += 1
+            for character in stat["Sub Characters"]:
+                SubBattleCharacter(self.battle.last_char_game_id, self.character_data.character_list[character[0]] |
+                                   {"ID": character[0], "Team": self.team,
+                                    "POS": self.base_pos, "Anchor POS": (character[1], character[2])}, self)
+                self.battle.last_char_game_id += 1
 
         if stat["ID"] in self.battle.character_portraits:
             self.icon = self.battle.character_portraits[stat["ID"]]["tactical"]
             self.command_icon = self.battle.character_portraits[stat["ID"]]["command"]
-            self.command_icon_right = self.battle.character_portraits[stat["ID"]]["command"]["right"]
-
-        if is_general and is_controllable and self.team == 1:
-            self.battle.player_control_generals.append(self)
-            self.indicator = CharacterGeneralIndicator(self)
-
-            index = self.battle.player_control_generals.index(self) + 1
-            if "control" not in self.battle.character_portraits[stat["ID"]] or \
-                    index not in self.battle.character_portraits[stat["ID"]]["control"]:
-                self.icon = {key: value.copy() for key, value in self.icon.items()}
-                text = text_render_with_bg(str(self.battle.player_control_generals.index(self) + 1),
-                                           self.battle.game.character_indicator_font,
-                                           gf_colour=(0, 0, 0),
-                                           o_colour=(255, 255, 255))
-                for key in self.icon:
-                    self.icon[key].blit(text, text.get_rect(midtop=(self.icon[key].get_width() / 2, 0)))
-                if "control" not in self.battle.character_portraits[stat["ID"]]:
-                    self.battle.character_portraits[stat["ID"]]["control"] = {}
-                self.battle.character_portraits[stat["ID"]]["control"][index] = self.icon  # cache the icon with number
-            else:
-                self.icon = self.battle.character_portraits[stat["ID"]]["control"][index]
 
     def update(self, dt: float):
         """Character battle update, run when cutscene not playing"""
@@ -621,13 +596,20 @@ class BattleCharacter(Character):
             hold_check = False
             if "hold" in self.current_animation_frame["property"] and \
                     "hold" in self.current_action and \
-                    ((self.x_momentum or self.y_momentum) or (
-                    self.current_moveset and self.nearest_enemy_distance < self.current_moveset["AI Range"])):
+                    ((self.x_momentum or self.y_momentum) or self.current_moveset):
                 # keep holding in moving action or moveset that hold when enemy in range
-                hold_check = True
+                if self.hold_timer < 3 and self.current_moveset:
+                    if not self.nearest_enemy or self.nearest_enemy_distance > self.current_moveset["AI Range"]:
+                        # timer proceed when no enemy nearby
+                        self.hold_timer += dt
+                    hold_check = True
+                else:
+                    self.hold_timer = 0
 
             if self.sprite_deal_damage and self.penetrate:
                 self.hit_collide_check()
+                if hold_check and self.already_hit:  # release hold when hit something
+                    hold_check = False
                 if not self.penetrate and "run" in self.current_action:
                     # remove momentum in running attack animation when penetrate run out
                     self.x_momentum = 0
@@ -638,8 +620,6 @@ class BattleCharacter(Character):
 
             done = self.play_battle_animation(dt, hold_check)
             self.finish_animation(done)
-
-
 
             self.move_logic(dt)  # Movement function, have to be here
 
@@ -692,12 +672,12 @@ class BattleCharacter(Character):
                     # finish die animation and no momentum left
                     if not self.is_sub_character:
                         self.battle.scene.full_scene_image.blit(self.image, self.rect)  # blit corpse into main scene
-                    if self.is_general and not self.no_spirit:
+                    if self.is_leader and not self.no_spirit:
                         self.current_action = self.spirit_command_action
                         self.show_frame = 0
                         self.frame_timer = 0
                         self.pick_animation()
-                    else:  # non-general or those with no_spirit property do not play spirit animation
+                    else:  # non-leader or those with no_spirit property do not play spirit animation
                         if not self.is_summon:  # play float "cross" symbol for non-summon
                             DamageNumber("t", self.rect.midtop, True, self.team)
                         self.erase()  # remove character
@@ -720,8 +700,7 @@ class SubBattleCharacter(BattleCharacter):
     ai_prepare = sub_character_ai_prepare
     move_logic = sub_move_logic
 
-    def __init__(self, game_id: int, stat: dict,
-                 main_character: BattleCharacter):
+    def __init__(self, game_id: int, stat: dict, main_character: BattleCharacter):
         """
         SubBattleCharacter object represent a battle character that is linked to a main BattleCharacter
 
@@ -729,14 +708,18 @@ class SubBattleCharacter(BattleCharacter):
         sub character will also move along with the main character, they can attack while the main character move
         Some examples are archer on tower or big creature
         """
-        BattleCharacter.__init__(self, game_id, stat, additional_layer=int(-main_character._layer / 10))
-        self.anchor_pos = stat["Anchor POS"]
-        self.pos = Vector2(((self.base_pos[0] + self.anchor_pos[0]) * self.screen_scale[0],
-                            (self.base_pos[1] + self.anchor_pos[1]) * self.screen_scale[1]))
         self.main_character = main_character
+        BattleCharacter.__init__(self, game_id, stat, additional_layer="main")
+        self.anchor_pos = stat["Anchor POS"]
+        if self.main_character.direction == "right":
+            self.pos = Vector2(((self.base_pos[0] - self.anchor_pos[0]) * self.screen_scale[0],
+                                (self.base_pos[1] + self.anchor_pos[1]) * self.screen_scale[1]))
+        else:
+            self.pos = Vector2(((self.base_pos[0] + self.anchor_pos[0]) * self.screen_scale[0],
+                                (self.base_pos[1] + self.anchor_pos[1]) * self.screen_scale[1]))
         main_character.sub_characters.append(self)
-        if self.main_character.max_enemy_range_check < self.max_enemy_range_check:
-            self.main_character.max_enemy_range_check = self.max_enemy_range_check
+        if main_character.max_enemy_range_check < self.max_enemy_range_check:
+            main_character.max_enemy_range_check = self.max_enemy_range_check
 
 
 class AirBattleCharacter(BattleCharacter):
@@ -801,6 +784,12 @@ class CommanderBattleCharacter(BattleCharacter):
         When the commander character die, every character in that team will enter broken state.
         They will no longer fight and instead retreat from battle.
         """
-        BattleCharacter.__init__(self, game_id, stat, is_commander=True, is_general=True, is_controllable=True,
-                                 additional_layer=100000000)
-        self.max_enemy_range_check = self.last_grid * Default_Screen_Width  # commander check enemy at all range instead
+        self.followers_len_check = [0, 0]
+        self.max_followers_len_check = 0
+        BattleCharacter.__init__(self, game_id, stat, is_commander=True, additional_layer=100000000)
+        # self.max_enemy_range_check = self.last_grid * Default_Screen_Width  # commander check enemy at all range instead
+        self.max_ai_commander_range = self.ai_max_attack_range
+        for strategy in self.battle.team_stat[self.team]["strategy"]:
+            strategy_stat = self.battle.strategy_list[strategy]
+            if strategy_stat["Activate Range"] > self.max_ai_commander_range:
+                self.max_ai_commander_range = strategy_stat["Activate Range"]

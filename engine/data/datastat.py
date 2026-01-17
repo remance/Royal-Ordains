@@ -1,4 +1,3 @@
-import copy
 import csv
 import os
 
@@ -24,8 +23,23 @@ class CharacterData(GameData):
         """
         GameData.__init__(self)
 
+        self.faction_list = {}
+        with open(os.path.join(self.data_dir, "character", "faction.csv"),
+                  encoding="utf-8", mode="r") as edit_file:
+            rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
+            header = rd[0]
+            hex2colour_column = ("Colour",)
+            hex2colour_column = [index for index, item in enumerate(header) if item in hex2colour_column]
+            for index, row in enumerate(rd[1:]):
+                for n, i in enumerate(row):
+                    row = stat_convert(row, n, i, hex2colour_column=hex2colour_column)
+                self.faction_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
+        edit_file.close()
+
         # Character status effect dict
         self.status_list = {}
+        self.can_cure_status_list = []
+        self.can_clear_status_list = []
         with open(os.path.join(self.data_dir, "character", "status.csv"),
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
@@ -47,6 +61,10 @@ class CharacterData(GameData):
                                        tuple_column=tuple_column, float_column=float_column,
                                        dict_column=dict_column)
                 self.status_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
+                if "Cure" in self.status_list[row[0]]["Status Conflict"]:
+                    self.can_cure_status_list.append(row[0])
+                if "Clear" in self.status_list[row[0]]["Status Conflict"]:
+                    self.can_clear_status_list.append(row[0])
         edit_file.close()
 
         self.status_apply_funcs = create_status_apply_function_dict(self.status_list)
@@ -56,7 +74,7 @@ class CharacterData(GameData):
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
-            dict_column = ("AI Condition", "Property",)
+            dict_column = ("Summon", "AI Condition", "Property",)
             tuple_column = ("Effects", "Damage Effects", "Status", "Enemy Status")  # value in tuple only
             dict_column = [index for index, item in enumerate(header) if item in dict_column]
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
@@ -69,7 +87,8 @@ class CharacterData(GameData):
                     "low_offence": self.strategy_list[row[0]]["Offence"] * 0.5,
                     "power": self.strategy_list[row[0]]["Power"], "element": self.strategy_list[row[0]]["Element"],
                     "impact": (self.strategy_list[row[0]]["Impact X"], self.strategy_list[row[0]]["Impact Y"]),
-                    "impact_sum": abs(self.strategy_list[row[0]]["Impact X"]) + abs(self.strategy_list[row[0]]["Impact Y"]),
+                    "impact_sum": abs(self.strategy_list[row[0]]["Impact X"]) + abs(
+                        self.strategy_list[row[0]]["Impact Y"]),
                     "critical_chance": self.strategy_list[row[0]]["Critical Chance"],
                     "enemy_status_effect": self.strategy_list[row[0]]["Enemy Status"],
                     "no_defence": True if "no_defence" in self.strategy_list[row[0]]["Property"] else False,
@@ -96,9 +115,9 @@ class CharacterData(GameData):
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
-            tuple_column = ("Status Immunity", )
+            tuple_column = ("Status Immunity", "Sub Characters")
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
-            dict_column = ("Followers", "Spawns", "Items", "Property", "Sub Characters",)
+            dict_column = ("Spawns", "Items", "Property",)
             dict_column = [index for index, item in enumerate(header) if item in dict_column]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
@@ -107,14 +126,21 @@ class CharacterData(GameData):
                 self.character_list[row[0]]["Move"] = {}
                 self.character_list[row[0]]["Summon List"] = ()
                 self.character_list[row[0]]["ai_min_attack_range"] = infinity
+                self.character_list[row[0]]["ai_skirmish_range"] = 0
                 self.character_list[row[0]]["ai_max_attack_range"] = 0
                 self.character_list[row[0]]["ai_min_effect_range"] = infinity
-                self.character_list[row[0]]["ai_max_effect_range"] = 0
+                self.character_list[row[0]]["ai_enemy_max_effect_range"] = 0
+                self.character_list[row[0]]["ai_ally_max_effect_range"] = 0
                 self.character_list[row[0]]["max_enemy_range_check"] = 0
+                self.character_list[row[0]]["min_resource_move"] = infinity
                 if "Spawns" in header:
                     self.character_list[row[0]]["Summon List"] = tuple(row[header.index("Spawns")].keys())
-
+                self.character_list[row[0]]["Supply Drop"] = self.character_list[row[0]]["Supply"]
+                if self.character_list[row[0]]["Arrive Per Call"]:
+                    self.character_list[row[0]]["Supply Drop"] = self.character_list[row[0]]["Supply"] / \
+                                                                 self.character_list[row[0]]["Arrive Per Call"]
                 summon_list = []
+
                 # Add character move data
                 if os.path.exists(
                         os.path.join(self.data_dir, "character", "moveset", str(row[0]) + ".csv")):
@@ -146,25 +172,31 @@ class CharacterData(GameData):
 
                         # Find max and min range for AI
                         for move in moveset_dict.values():
-                            if "no_ai_range_check_setup" not in move["Property"] and self.character_list[row[0]][
-                                "ai_min_attack_range"] > move["AI Range"]:
-                                self.character_list[row[0]]["ai_min_attack_range"] = move["AI Range"]
-                            if "no_ai_range_check_setup" not in move["Property"] and self.character_list[row[0]][
-                                "ai_max_attack_range"] < move["AI Range"]:
-                                self.character_list[row[0]]["ai_max_attack_range"] = move["AI Range"]
-                            if "no_ai_range_check_setup" not in move["Property"] and self.character_list[row[0]][
-                                "ai_min_effect_range"] > move["Range"] and (move["Status"] or move["Enemy Status"]):
-                                self.character_list[row[0]]["ai_min_effect_range"] = move["Range"]
-                            if "no_ai_range_check_setup" not in move["Property"] and self.character_list[row[0]][
-                                "ai_max_effect_range"] < move["Range"] and (move["Status"] or move["Enemy Status"]):
-                                self.character_list[row[0]]["ai_max_effect_range"] = move["Range"]
+                            if "no_ai_range_check_setup" not in move["Property"]:
+                                if self.character_list[row[0]]["ai_min_attack_range"] > move["AI Range"]:
+                                    self.character_list[row[0]]["ai_min_attack_range"] = move["AI Range"]
+                                if self.character_list[row[0]]["ai_max_attack_range"] < move["AI Range"]:
+                                    self.character_list[row[0]]["ai_max_attack_range"] = move["AI Range"]
+                                if self.character_list[row[0]]["ai_min_effect_range"] > move["Range"] and (
+                                        move["Status"] or move["Enemy Status"]):
+                                    self.character_list[row[0]]["ai_min_effect_range"] = move["Range"]
+                                if self.character_list[row[0]]["ai_ally_max_effect_range"] < move["Range"] and move[
+                                    "Status"]:
+                                    self.character_list[row[0]]["ai_ally_max_effect_range"] = move["Range"]
+                                if self.character_list[row[0]]["ai_enemy_max_effect_range"] < move["Range"] and move[
+                                    "Enemy Status"]:
+                                    self.character_list[row[0]]["ai_enemy_max_effect_range"] = move["Range"]
+                            if self.character_list[row[0]]["min_resource_move"] > move["Resource Cost"]:
+                                self.character_list[row[0]]["min_resource_move"] = move["Resource Cost"]
                         self.character_list[row[0]]["max_enemy_range_check"] = self.character_list[row[0]][
-                            "ai_max_effect_range"]
+                            "ai_enemy_max_effect_range"]
                         if self.character_list[row[0]]["ai_max_attack_range"] > self.character_list[row[0]][
                             "max_enemy_range_check"]:
                             self.character_list[row[0]]["max_enemy_range_check"] = self.character_list[row[0]][
                                 "ai_max_attack_range"]
 
+                        self.character_list[row[0]]["ai_skirmish_range"] = self.character_list[row[0]][
+                                                                               "ai_min_attack_range"] * 0.75
                     self.character_list[row[0]]["Summon List"] = tuple(summon_list)
                     edit_file2.close()
         edit_file.close()
@@ -175,9 +207,9 @@ class CharacterData(GameData):
                 if character_data["Faction"] not in self.custom_character_setup:
                     self.custom_character_setup[character_data["Faction"]] = {
                         "air": [], "ground": {"leader": {"unique": [], "generic": []}, "troop": []}}
-                if character_data["Can Setup"]:
+                if character_data["Can Custom"]:
                     if character_data["Type"] == "ground":
-                        if character_data["Is General"]:
+                        if character_data["Is Leader"]:
                             if character_data["Is Unique"]:
                                 self.custom_character_setup[character_data["Faction"]][character_data["Type"]][
                                     "leader"]["unique"].append(character)
@@ -185,7 +217,8 @@ class CharacterData(GameData):
                                 self.custom_character_setup[character_data["Faction"]][character_data["Type"]][
                                     "leader"]["generic"].append(character)
                         else:
-                            self.custom_character_setup[character_data["Faction"]][character_data["Type"]]["troop"].append(character)
+                            self.custom_character_setup[character_data["Faction"]][character_data["Type"]][
+                                "troop"].append(character)
                     else:
                         self.custom_character_setup[character_data["Faction"]][character_data["Type"]].append(character)
 
@@ -211,13 +244,14 @@ class CharacterData(GameData):
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
-            dict_column = ("Group 1", "Group 2", "Group 3", "Group 4", "Group 5",)
-            dict_column = [index for index, item in enumerate(header) if item in dict_column]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
-                    row = stat_convert(row, n, i, dict_column=dict_column)
+                    row = stat_convert(row, n, i)
                 if row[0]:
-                    self.preset_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
+                    if row[header.index("Faction")] not in self.preset_list:
+                        self.preset_list[row[header.index("Faction")]] = {}
+                    self.preset_list[row[header.index("Faction")]][row[0]] = {
+                        header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
         edit_file.close()
 
 
@@ -250,7 +284,7 @@ def {status_name}(self):'''
 
         if data["Animation Time Modifier"] != 1:
             func_code += f'''
-    self.animation_play_time *= {data["Animation Time Modifier"]}'''
+    self.animation_frame_play_time *= {data["Animation Time Modifier"]}'''
 
         # element resistant
         if data["Slash Resistance Bonus"]:

@@ -15,7 +15,7 @@ def player_input_cutscene(self):
                                     # remove opposite child event choice
                                     self.cutscene_playing.remove(child_event2)
                             self.decision_select.selected = None
-                            self.battle_outer_ui_updater.remove(self.decision_select)
+                            self.outer_ui_updater.remove(self.decision_select)
                     break  # only one select event can be played at a time
 
                 elif "interact" in child_event["Property"]:

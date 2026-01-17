@@ -1,19 +1,14 @@
 import gc
 
-from pygame.mixer import music
 
-
-def start_battle(self, mission, team_stat, ai_retreat):
+def start_battle(self, campaign, mission, team_stat, player_team, custom_stage_data=None, ai_retreat=False):
     # self.error_log.write("\n Map: " + str(self.map_selected) + "\n")
     self.loading_screen("start")
 
-    music.stop()
-
-    self.battle.prepare_new_stage(mission, team_stat, ai_retreat=ai_retreat)
+    self.battle.prepare_new_stage(campaign, mission, team_stat, player_team, custom_stage_data, ai_retreat)
     result = self.battle.run_battle()  # run next scene
     self.battle.exit_battle()  # run exit battle for previous one
 
-    music.play()
     gc.collect()  # collect no longer used object in previous battle from memory
 
     # Finish battle, check for next one

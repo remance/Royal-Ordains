@@ -348,7 +348,7 @@ def lorebook_process(self):
 
     if close or self.esc_press:
         self.portrait = None
-        self.remove_ui_updater(self.lorebook_stuff)  # remove lorebook related sprites
+        self.remove_from_ui_updater(self.lorebook_stuff)  # remove lorebook related sprites
         for group in (self.subsection_name, self.tag_filter_name):
             for name in group:  # remove subsection name
                 name.kill()

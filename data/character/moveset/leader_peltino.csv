@@ -1,0 +1,5 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Skill1","Lightning Spark",,,,600,,,10,70,25,30,-50,,"Air",,,,
+"Skill2","Fire Bolt",,,"self:{no_engage=600}",2200,2500,,10,50,7,60,40,,"Fire",,,,
+"Skill3","Rainbow Spray",,,,1000,,15,5,,,,,,,,"Daze,Disarmed",,
+"Skill4","Pixie Dust",,,"self:{health<=90}",1500,1500,120,5,,,,,,,"Regeneration",,,

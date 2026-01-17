@@ -1,0 +1,2 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Attack1","Spear Rush",,,"enemy:{target_type=air}",800,,6,10,40,13,50,50,0.1,"Stab",,,,"movable,x_momentum:500"

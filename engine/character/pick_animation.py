@@ -41,7 +41,6 @@ def pick_animation(self):
                             self.current_action = (self.current_moveset["Prepare Animation"] | {"no prepare": True}
                                                    | {"next action": self.current_action})
 
-                        self.move_cooldown[self.current_moveset["Move"]] = self.current_moveset["Cooldown"]
                         animation_name = self.current_action["name"]
 
                         if ("moveset" in self.current_action and not self.battle.ai_battle_speak_timer and
@@ -72,12 +71,18 @@ def pick_animation(self):
 
     # new action property
     if "x_momentum" in self.current_action:
+        x_momentum = self.current_action["x_momentum"]
+        if type(x_momentum) is tuple:
+            x_momentum = uniform(self.current_action["x_momentum"][0], self.current_action["x_momentum"][1])
         if self.new_direction == "right":
-            self.x_momentum = self.current_action["x_momentum"]
+            self.x_momentum = x_momentum
         else:
-            self.x_momentum = -self.current_action["x_momentum"]
+            self.x_momentum = -x_momentum
     if "y_momentum" in self.current_action:
-        self.y_momentum = self.current_action["y_momentum"]
+        y_momentum = self.current_action["y_momentum"]
+        if type(y_momentum) is tuple:
+            y_momentum = uniform(self.current_action["y_momentum"][0], self.current_action["y_momentum"][1])
+        self.y_momentum = y_momentum
 
     if animation_name in self.animation_pool:
         self.current_animation = self.animation_pool[animation_name]
@@ -95,11 +100,11 @@ def pick_animation(self):
     self.current_animation_frame = self.current_animation[self.show_frame]
     self.current_animation_direction = self.current_animation_frame[self.direction]
 
-    self.final_animation_play_time = self.animation_play_time  # get new play speed
+    self.final_animation_frame_play_time = self.animation_frame_play_time  # get new play speed
     if "fixed play speed" in self.current_action:  # moveset does not allow animation speed modifier effect
-        self.final_animation_play_time = self.Base_Animation_Play_Time
+        self.final_animation_frame_play_time = self.Base_Animation_Frame_Play_Time
     if "play_time_mod" in self.current_animation_frame:
-        self.final_animation_play_time *= self.current_animation_frame["play_time_mod"]
+        self.final_animation_frame_play_time *= self.current_animation_frame["play_time_mod"]
 
     if self.current_animation_frame["sound_effect"]:  # play sound from animation
         sound = self.current_animation_frame["sound_effect"]

@@ -1,10 +1,11 @@
 from os.path import join
 
-import PIL.Image
+import pygame
 from PIL import Image
 from pygame import Surface, SRCALPHA, Vector2
-from pygame.image import tobytes, fromstring, frombytes, save as image_save
+from pygame.image import tobytes
 from pygame.transform import smoothscale, flip
+from script.compile_out import compile_out_data
 
 from engine.utils.data_loading import filename_convert_readable as fcv
 from engine.utils.sprite_altering import sprite_rotate, apply_sprite_effect
@@ -48,13 +49,23 @@ def crop_sprite(sprite_pic):
 
 def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_pool, effect_animation_pool,
                  compile_specific=None):
-    stage_object_animation_pool = {}
     part_sprite_adjust = {}
     effect_sprite_adjust = {}
+    # world_actor_animation_pool = {}
+    #
+    # try:
+    #     world_actor_animation_pool = load_pickle_with_surfaces(join(data_dir, "animation", "world_actor.xz"),
+    #                                                            (1, 1))
+    # except Exception:
+    #     pass
+
     for character in animation_pool:
         if not compile_specific or character == compile_specific:
             print(character)
             character_animation_pool = {}
+            # if character not in world_actor_animation_pool:  # create for grand world actor
+            #     world_actor_animation_pool[character] = {}
+
             for animation_name, animation_frame in animation_pool[character].items():
                 if "EXCLUDE_" not in animation_name:
                     character_animation_pool[animation_name] = {"max frame": len(animation_frame) - 1}
@@ -171,8 +182,8 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                                                 part_sprite_adjust[part_type][part_name][part[1]][part[5]][part[7]][
                                                     part[8]]["save"], part[4]))
                                     image = \
-                                    part_sprite_adjust[part_type][part_name][part[1]][part[5]][part[7]][part[8]][
-                                        part[4]]
+                                        part_sprite_adjust[part_type][part_name][part[1]][part[5]][part[7]][part[8]][
+                                            part[4]]
                                     width_check = image.get_width()
                                     height_check = image.get_height()
                                     if part[2] - width_check < min_x:
@@ -236,8 +247,8 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                                                     part_name = part_name[2:]
                                         part_type = part[0]
                                     part_sprite = \
-                                    part_sprite_adjust[part_type][part_name][part[1]][part[5]][part[7]][part[8]][
-                                        part[4]]
+                                        part_sprite_adjust[part_type][part_name][part[1]][part[5]][part[7]][part[8]][
+                                            part[4]]
                                     new_target = (part[2] + base_point[0], part[3] + base_point[1])
                                     rect = part_sprite.get_rect(center=new_target)
                                     image.blit(part_sprite, rect)
@@ -264,35 +275,39 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                                                                         frame_data_list["right"]["offset"][1])
                             for stuff2 in frame_data_list["right"]["effects"]:
                                 frame_data_list["left"]["effects"][stuff2] = [-item if index in (2, 4) else item for
-                                                                          index, item in enumerate(
+                                                                              index, item in enumerate(
                                         frame_data_list["right"]["effects"][stuff2])]
 
-                            # test save image
-                            # image_to_save = image.convert("RGBA")
-                            # image_to_save = image_to_save.tobytes()
-                            # sprite_pic = frombytes(image_to_save, image.size, "RGBA")  # use PIL to get image data
-                            # image_save(sprite_pic, animation_name + "_" + str(frame_index + 1) + ".png")
-                            # asd
+                    # if animation_name in ("Idle", "Walk", "Die"):
+                    #     world_actor_animation_pool[character][animation_name] = []
+                    #     already_done_check_actor_anim = {}
+                    #     for frame, frame_value in character_animation_pool[animation_name].items():
+                    #         if frame != "max frame":
+                    #             image = frame_value["right"]["sprite"].surface
+                    #             image_array = image.tobytes()
+                    #             if image_array in already_done_check_actor_anim:
+                    #                 world_actor_animation_pool[character][animation_name].append(already_done_check_actor_anim[image_array])
+                    #             else:
+                    #                 to_add = {0.2: {}, 0.4: {}}
+                    #                 for scale_value in to_add:
+                    #                     offset = (frame_value["right"]["offset"][0] * scale_value,
+                    #                               frame_value["right"]["offset"][1] * scale_value)
+                    #                     to_add[scale_value] = {
+                    #                         "right": {"sprite": CompilableSurface(image.resize((int(image.size[0] * scale_value),
+                    #                                                                             int(image.size[1] * scale_value)))),
+                    #                                   "offset": offset},
+                    #                         "left": {"sprite": None, "offset": offset}}
+                    #                 world_actor_animation_pool[character][animation_name].append(to_add)
+                    #                 already_done_check_actor_anim[image_array] = to_add
+
             # for key, value in character_animation_pool.items():
             #     print(key, value)
             save_pickle_with_surfaces(join(data_dir, "animation", fcv(character, revert=True) +
                                            ".xz"), character_animation_pool)
+            # save_pickle_with_surfaces(join(data_dir, "animation", "world_actor.xz"), world_actor_animation_pool)
 
-    # if not compile_specific:
-    #     print("stage object")
-    #     part_folder = Path(join(animation_dir, "sprite", "object"))
-    #     subdirectories = [split(
-    #         sep.join(normpath(x).split(sep)[normpath(x).split(sep).index("animation"):])) for x
-    #         in part_folder.iterdir() if x.is_dir()]
-    #     for folder in subdirectories:
-    #         folder_data_name = fcv(folder[-1])
-    #         if folder_data_name not in stage_object_animation_pool:
-    #             stage_object_animation_pool[folder_data_name] = {}
-    #             images = load_images(part_folder, subfolder=(folder[-1],), key_file_name_readable=True)
-    #             stage_object_animation_pool[folder_data_name] = \
-    #                 {int(key): value for key, value in images.items()}
-
-        # save_pickle_with_surfaces(join(data_dir, "animation", "stage_object.xz"), stage_object_animation_pool)
+    if not compile_specific:
+        compile_out_data(data_dir, animation_dir)
 
     print("effect")
     effect_animation_pool_save = {}
@@ -324,11 +339,11 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                                     height_scale] = {}
                             for frame_index, frame in enumerate(frame_list):
                                 effect_animation_pool_save[effect_type][effect_name][flip_value][width_scale][
-                                    height_scale][frame_index] = {"sprite":
-                                                                      adjust_effect_sprite(frame_list[frame_index],
-                                                                                           flip_value, width_scale,
-                                                                                           height_scale)}
-
+                                    height_scale][frame_index] = {
+                                    "sprite": adjust_effect_sprite(frame_list[frame_index],
+                                                                   flip_value, width_scale,
+                                                                   height_scale)}
+    recursive_remove_mask(effect_animation_pool_save)
     save_pickle_with_surfaces(join(data_dir, "animation", "effect_animation.xz"), effect_animation_pool_save)
 
     print("done")
@@ -341,3 +356,12 @@ def adjust_effect_sprite(surface, sprite_flip, width_scale, height_scale):
         surface = smoothscale(surface, (int(surface.get_width() * width_scale),
                                         int(surface.get_height() * height_scale)))
     return surface
+
+
+def recursive_remove_mask(value_item):
+    """Remove mask from dict for caching"""
+    for key in tuple(value_item.keys()):
+        if type(value_item[key]) is dict:
+            recursive_remove_mask(value_item[key])
+        elif type(value_item[key]) is pygame.Mask:
+            value_item.pop(key)

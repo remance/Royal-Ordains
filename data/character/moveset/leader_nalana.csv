@@ -1,0 +1,5 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Attack1","Poison Thorn",,,,400,,2,,18,30,30,30,,"Poison",,"Poison",,
+"Attack2","Bleeding Thorn",,,,400,,2,,18,30,30,30,,"Stab",,"Bleeding",,
+"Skill1","Hallucinating Pollen",,,,700,,18,50,,,,,,"Magic",,"Confuse",,
+"Skill2","Flower Bloom",,,,3000,2000,45,15,,,,,,,"Bloom",,,

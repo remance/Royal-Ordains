@@ -1,0 +1,5 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Attack1","Shoot",,,"self:{no_engage=600}",6000,6000,6,,29,20,20,10,0.1,"Stab",,,,
+"Attack2","Sub Shoot",,,"self:{no_engage=600}",6000,6000,6,,29,20,20,10,0.1,"Stab",,,,
+"Skill1","Team Action",,,"self:{no_status=Half_resource_cost}",5500,1000,100,40,,,,,,,"Half_resource_cost",,,
+"Skill2","Pin Shot",,,,5000,5000,8,10,15,35,5,-10,,"Stab",,,,

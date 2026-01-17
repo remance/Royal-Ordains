@@ -6,34 +6,26 @@ from engine.utils.common import edit_config
 
 
 def menu_option(self):
-    bar_press = False
-    for bar in self.resolution_bar:
-        # loop to find which resolution bar is selected, this happens outside of clicking check below
-        if bar.mouse_over:
-            if bar.event:
-                self.resolution_drop.change_state(bar.text)  # change button value based on new selected value
-                resolution_change = bar.text.split()
+    if self.resolution_bar.adapter.last_click and self.resolution_bar.adapter.last_click[0] == "click":
+        change_resolution(self,
+                          resolution_change=self.resolution_list[
+                              self.resolution_bar.adapter.last_click[1]].split(" "))
 
-                change_resolution(self, resolution_change=resolution_change)
-                self.remove_ui_updater(self.resolution_bar)
-                bar_press = True
-            break
-
-    if not bar_press and self.cursor.is_select_just_up:
-        self.remove_ui_updater(self.resolution_bar)
+    elif not self.resolution_bar.mouse_over and self.cursor.select_up:  # click somewhere else
+        self.remove_from_ui_updater(self.resolution_bar)
 
     if self.back_button.event_press or self.esc_press:  # back to start_set menu
-        self.remove_ui_updater(self.option_menu_buttons, self.option_text_list, self.option_menu_sliders.values(),
-                               self.value_boxes.values(), self.resolution_bar)
+        self.remove_from_ui_updater(self.option_menu_buttons, self.option_text_list, self.option_menu_sliders.values(),
+                                    self.value_boxes.values(), self.resolution_bar)
         self.back_mainmenu()
 
     elif self.keybind_button.event_press:
         self.menu_state = "keybind"
 
-        self.remove_ui_updater(*self.option_text_list, *self.option_menu_sliders.values(),
-                               *self.value_boxes.values(), self.option_menu_buttons)
-        self.add_ui_updater(*self.keybind_text.values(), *self.keybind_icon.values(),
-                            self.back_button, self.default_button)
+        self.remove_from_ui_updater(*self.option_text_list, *self.option_menu_sliders.values(),
+                                    *self.value_boxes.values(), self.option_menu_buttons)
+        self.add_to_ui_updater(*self.keybind_text.values(), *self.keybind_icon.values(),
+                               self.back_button, self.default_button)
 
     elif self.default_button.event_press:  # revert all setting to original
         for setting in self.config["DEFAULT"]:
@@ -45,9 +37,9 @@ def menu_option(self):
 
     elif self.resolution_drop.event_press:  # click on resolution bar
         if self.resolution_bar in self.ui_updater:  # remove the bar list if click again
-            self.remove_ui_updater(self.resolution_bar)
+            self.remove_from_ui_updater(self.resolution_bar)
         else:  # add bar list
-            self.add_ui_updater(self.resolution_bar)
+            self.add_to_ui_updater(self.resolution_bar)
 
     elif self.fullscreen_box.event_press:
         if not self.fullscreen_box.tick:
@@ -64,13 +56,13 @@ def menu_option(self):
         if not self.fps_box.tick:
             self.fps_box.change_tick(True)
             self.show_fps = 1
-            self.battle.battle_outer_ui_updater.add(self.battle.fps_count)
-            self.add_ui_updater(self.fps_count)
+            self.battle.outer_ui_updater.add(self.battle.fps_count)
+            self.add_to_ui_updater(self.fps_count)
         else:
             self.fps_box.change_tick(False)
             self.show_fps = 0
-            self.battle.battle_outer_ui_updater.remove(self.battle.fps_count)
-            self.remove_ui_updater(self.fps_count)
+            self.battle.outer_ui_updater.remove(self.battle.fps_count)
+            self.remove_from_ui_updater(self.fps_count)
         edit_config("USER", "fps", self.show_fps, self.config_path,
                     self.config)
 

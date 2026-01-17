@@ -1,0 +1,6 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Attack1","Slash In",,,,350,,,,51,55,68,50,0.25,"Slash",,,,
+"Attack2","Slash Out",,,,350,,,,60,62,35,69,0.25,"Slash",,,,
+"Attack3","Slash Cross",,,,350,,,,55,77,45,-45,0.25,"Slash",,,,
+"Attack4","Slash Up",,,,350,,,,49,50,50,150,0.25,"Slash",,,,
+"Attack5","Slash Down",,,,350,,,,64,55,30,-120,0.25,"Slash",,,,

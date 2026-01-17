@@ -1,5 +1,5 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"Attack1","Punch",,,,200,,,,19,20,50,5,,"Crush",,,,
-"Skill1","Overwhelm Swing",,,,600,,5,20,70,100,350,500,,"Crush",,,,
+"Attack1","Punch",,,,200,,,,45,20,250,50,,"Crush",,,,
+"Skill1","Overwhelm Swing",,,,600,,5,20,120,100,1000,800,,"Crush",,,,
 "Skill2","Melody of Fear","name:SongReady","name:SongReady,reverse",,2000,2000,60,35,,,,,,,,"Fear",,"fixed speed"
 "Skill3","Melody of Courage","name:SongReady","name:SongReady,reverse","self:{no_status=Hope}",2000,2000,60,35,,,,,,,"Hope",,,"fixed speed"

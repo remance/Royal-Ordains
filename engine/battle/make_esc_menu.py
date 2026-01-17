@@ -9,11 +9,12 @@ def make_esc_menu(self):
     main_menu_buttons_box = BoxUI((0, -20),
                                   (self.screen_width, 100 * self.screen_scale[1]), parent=self.screen)
 
-    battle_menu_button = {"resume": BrownMenuButton((.15, 1), (-0.8, 0), key_name="esc_resume", parent=main_menu_buttons_box),
-                          "log": BrownMenuButton((.15, 1), (-0.4, 0), key_name="esc_log", parent=main_menu_buttons_box),
-                          "option": BrownMenuButton((.15, 1), (0, 0), key_name="esc_option", parent=main_menu_buttons_box),
-                          "end": BrownMenuButton((.15, 1), (0.4, 0), key_name="esc_end", parent=main_menu_buttons_box),
-                          "quit": BrownMenuButton((.15, 1), (0.8, 0), key_name="esc_quit", parent=main_menu_buttons_box)}
+    battle_menu_button = {
+        "resume": BrownMenuButton((.15, 1), (-0.8, 0), key_name="esc_resume", parent=main_menu_buttons_box),
+        "log": BrownMenuButton((.15, 1), (-0.4, 0), key_name="esc_log", parent=main_menu_buttons_box),
+        "option": BrownMenuButton((.15, 1), (0, 0), key_name="esc_option", parent=main_menu_buttons_box),
+        "end": BrownMenuButton((.15, 1), (0.4, 0), key_name="esc_end", parent=main_menu_buttons_box),
+        "quit": BrownMenuButton((.15, 1), (0.8, 0), key_name="esc_quit", parent=main_menu_buttons_box)}
 
     dialogue_box = ListUI(pivot=(-0.9, -0.9), origin=(-1, -1), size=(.9, .8),
                           items=ListAdapter(["None"]), parent=self.screen, item_size=10)

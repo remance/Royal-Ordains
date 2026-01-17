@@ -11,16 +11,15 @@ from pathlib import Path
 
 import pygame
 from pygame.transform import smoothscale, rotate, flip as pyflip
-
+from pygame.mixer import Channel
+from engine.battle.battle import Battle
 from engine.data.datalocalisation import Localisation
 from engine.data.datasound import SoundData
 from engine.game.game import Game
-from engine.battle.battle import Battle
 from engine.uibattle.uibattle import UIBattle, UIScroll
 from engine.uimenu.uimenu import MenuCursor, NameList, MenuButton, TextPopup, InputUI, InputBox, ListBox
 from engine.utils.data_loading import csv_read, load_image, load_images, load_base_button, recursive_image_load, \
     filename_convert_readable as fcv
-from engine.utils.common import float_check
 from engine.utils.rotation import rotation_xy
 from engine.utils.sprite_altering import sprite_rotate, apply_sprite_effect, apply_sprite_colour
 
@@ -30,6 +29,15 @@ current_data_dir = join(main_dir, "animation-maker", "data")  # animation maker 
 sys.path.insert(1, current_dir)
 
 from script import listpopup, pool, showroom, compile  # keep here as it need to get sys path insert
+
+
+class FakeGame:
+    def __init__(self, sound_effect_pool):
+        self.play_effect_volume = 0
+        self.dt = 0.01
+        self.sound_effect_pool = sound_effect_pool
+        self.button_sound = Channel(3)
+
 
 setup_list = listpopup.setup_list
 list_scroll = listpopup.list_scroll
@@ -66,6 +74,9 @@ Game.language = language
 Game.ui_font = csv_read(data_dir, "ui_font.csv", ("ui",), header_key=True)
 Game.font_dir = join(data_dir, "font")
 Game.ui_updater = ui
+sound_effect_pool = SoundData().sound_effect_pool
+fakegame = FakeGame(sound_effect_pool)
+Game.game = fakegame
 
 localisation = Localisation()
 Game.localisation = localisation
@@ -95,7 +106,8 @@ anim_column_header += ["effect_1", "effect_2", "effect_3", "effect_4", "effect_5
                        "frame_property", "animation_property", "sound_effect"]  # For csv saving and accessing
 frame_property_list = ["sprite_deal_damage", "hold", "play_time_mod_", "effect_blur_", "effect_fade_",
                        "effect_contrast_", "effect_brightness_", "effect_grey",
-                       "effect_colour_", "exclude_p1", "exclude_p2", "exclude_p3", "exclude_p4"]  # starting property list
+                       "effect_colour_", "exclude_p1", "exclude_p2", "exclude_p3",
+                       "exclude_p4"]  # starting property list
 
 anim_property_list = ["interuptrevert", "norestart"] + frame_property_list
 
@@ -299,8 +311,6 @@ with open(join(data_dir, "character", "character.csv"),
     for row_index, row in enumerate(rd[1:]):
         if row[0] not in char_list:
             char_list.append(row[0])
-
-sound_effect_pool = SoundData().sound_effect_pool
 
 
 class Filmstrip(pygame.sprite.Sprite):
@@ -577,8 +587,8 @@ class BodyHelper(pygame.sprite.Sprite):
 
     def add_stat(self):
         for index, part in enumerate(self.rect_part_list):
-            if self.stat2 is not None and part in self.stat2 and self.stat1[part] is not None and self.stat2[
-                part] is not None:
+            if (self.stat2 is not None and part in self.stat2 and self.stat1[part] is not None and
+                    self.stat2[part] is not None):
                 stat = self.stat1[part] + self.stat2[part]
                 if len(stat) > 2:
                     stat.pop(2)
@@ -591,6 +601,7 @@ class BodyHelper(pygame.sprite.Sprite):
                     except TypeError:
                         stat[2] = str([0, 0])
                     for index2, change in enumerate(["F", "FH", "FV", "FHV"]):
+                        # change flip number to text
                         if stat[4] == index2:
                             stat[4] = change
                     stat[3] = str(round(stat[3], 1))
@@ -895,7 +906,6 @@ class Model:
 
     def generate_body(self, bodypart_list):
         self.sprite_image = {key: None for key in self.mask_part_list}
-
         for stuff in bodypart_list:  # create stat and sprite image
             if bodypart_list[stuff] and bodypart_list[stuff][1]:
                 if "effect_" in stuff:
@@ -1437,7 +1447,6 @@ class Animation:
                 if model.frame_list[self.show_frame]["sound_effect"]:  # play sound
                     sound_effect = pygame.mixer.find_channel()
                     if sound_effect:
-                        sound_effect.set_volume(1)
                         sound_effect.play(pygame.mixer.Sound(
                             random.choice(sound_effect_pool[model.frame_list[self.show_frame]["sound_effect"][0]])))
                 if "sound_effect" in model.frame_list[self.show_frame] and model.frame_list[self.show_frame][
@@ -1528,16 +1537,17 @@ image = smoothscale(image, (int(image.get_width() * screen_scale[1]),
 
 text_popup = TextPopup(font_size=24)
 animation_character_button = Button("Ani Char", image, (image.get_width() / 2, image.get_height() / 2),
-                                    description=("Select animation character", "Select animation character pool to edit."))
+                                    description=(
+                                    "Select animation character", "Select animation character pool to edit."))
 new_button = Button("New Ani", image, (image.get_width() * 1.5, image.get_height() / 2),
                     description=("Create new animation", "Create new empty animation with name input."))
 save_button = Button("Save", image, (image.get_width() * 2.5, image.get_height() / 2),
                      description=(
-                     "Save all animation", "Save the current state of all animation only for this character."))
+                         "Save all animation", "Save the current state of all animation only for this character."))
 compile_button = Button("Compile", image, (image.get_width() * 3.5, image.get_height() / 2),
-                        description=("Compile this animation", "Compile this character animation for game used."))
+                        description=("Compile this character animations", "Compile this character animation for game used."))
 compile_all_button = Button("Compile A", image, (image.get_width() * 4.5, image.get_height() / 2),
-                        description=("Compile all animation", "Compile all current animations for game used."))
+                        description=("Compile all animations", "Compile all current animations for game used."))
 size_button = Button("Zoom: ", image, (image.get_width() * 5.5, image.get_height() / 2),
                      description=(
                          "Change animation preview room zoom",
@@ -1674,7 +1684,7 @@ zoom_dplus_button = Button("D Zoom+", image, (reset_button.pos[0] + (reset_butto
 #                                             p_body_helper.rect.midtop[1] - (image.get_height() / 2)),
 #                           description=("Vertical Flip part", "Flip the selected part vertically."))
 damage_button = Button("Ind. Efct", image, (reset_button.pos[0] + (reset_button.image.get_width() * 4),
-                                         p_body_helper.rect.midtop[1] - (image.get_height() * 1.5)),
+                                            p_body_helper.rect.midtop[1] - (image.get_height() * 1.5)),
                        description=(
                            "Part is independent when compile",
                            "Add indication that the selected effect parts (body part is not affected)",
@@ -1717,8 +1727,8 @@ export_button = Button("To PNG", image, (part_copy_button.rect.topright[0] + ima
 character_part_button = Button("", image, (reset_button.image.get_width() / 1.8,
                                            p_body_helper.rect.midtop[1] - (image.get_height() / 2)),
                                description=("Select part type",
-                                       "Select char for body part, weapon type for weapon part,",
-                                       "and effect type for effect part"))
+                                            "Select char for body part, weapon type for weapon part,",
+                                            "and effect type for effect part"))
 p_selector = NameBox((250, image.get_height()), (reset_button.image.get_width() * 1.8,
                                                  p_body_helper.rect.midtop[1] - (image.get_height() * 5.5)),
                      description=("Select person to display in edit helper",
@@ -1748,11 +1758,11 @@ input_ui = InputUI(load_image(data_dir, screen_scale, "input_ui.png", ("ui", "ma
 
 image_list = load_base_button(data_dir, screen_scale)
 
-input_ok_button = MenuButton(image_list, pos=(input_ui.rect.midright[0] - image_list[0].get_width(),
+input_ok_button = MenuButton(image_list, pos=(input_ui.rect.midleft[0] + image_list[0].get_width(),
                                               input_ui.rect.midleft[1] + image_list[0].get_height()),
                              key_name="confirm_button", layer=41)
 input_cancel_button = MenuButton(image_list,
-                                 pos=(input_ui.rect.midleft[0] + image_list[0].get_width(),
+                                 pos=(input_ui.rect.midright[0] - image_list[0].get_width(),
                                       input_ui.rect.midright[1] + image_list[0].get_height()),
                                  key_name="cancel_button", layer=41)
 input_button = (input_ok_button, input_cancel_button)
@@ -1772,13 +1782,13 @@ colour_wheel = ColourWheel(load_image(current_data_dir, screen_scale, "rgb.png",
 colour_input_box = InputBox((colour_ui.rect.center[0], colour_ui.rect.center[1] * 1.15),
                             input_ui.image.get_width())  # user text input box
 
-colour_ok_button = MenuButton(image_list, pos=(input_ui.rect.midright[0] - image_list[0].get_width(),
-                                              input_ui.rect.midleft[1] + image_list[0].get_height()),
-                             key_name="confirm_button", layer=41)
+colour_ok_button = MenuButton(image_list, pos=(input_ui.rect.midleft[0] + image_list[0].get_width(),
+                                               input_ui.rect.midleft[1] + image_list[0].get_height()),
+                              key_name="confirm_button", layer=41)
 colour_cancel_button = MenuButton(image_list,
-                                 pos=(input_ui.rect.midleft[0] + image_list[0].get_width(),
-                                      input_ui.rect.midright[1] + image_list[0].get_height()),
-                                 key_name="cancel_button", layer=41)
+                                  pos=(input_ui.rect.midright[0] - image_list[0].get_width(),
+                                       input_ui.rect.midright[1] + image_list[0].get_height()),
+                                  key_name="cancel_button", layer=41)
 colour_ui_popup = (colour_ui, colour_wheel, colour_input_box, colour_ok_button, colour_cancel_button)
 
 box_img = load_image(current_data_dir, screen_scale, "property_box.png", "animation_maker_ui")
@@ -2213,7 +2223,8 @@ while True:
                                         text_input_popup = ("text_input", "new_anim_prop")
                                         input_ui.change_instruction("Custom Property:")
                                         ui.add(input_ui_popup)
-                                    elif name.name[-1] == "_" or re.search("[a-zA-Z]", name.name.split("_")[-1]) is None:
+                                    elif name.name[-1] == "_" or re.search("[a-zA-Z]",
+                                                                           name.name.split("_")[-1]) is None:
                                         # property that need number value
                                         if not name.selected:
                                             if "colour" in name.name:
@@ -2473,7 +2484,8 @@ while True:
                         text_input_popup = ("text_input", "duplicate_animation")
                         input_ui.change_instruction("Copy This Animation?")
                         last_char = str(1)
-                        if animation_name + "(copy" + last_char + ")" in current_pool[animation_character]:  # copy exist
+                        if animation_name + "(copy" + last_char + ")" in current_pool[
+                            animation_character]:  # copy exist
                             while animation_name + "(copy" + last_char + ")" in current_pool[animation_character]:
                                 last_char = str(int(last_char) + 1)
                         elif "(copy" in animation_name and animation_name[-2].isdigit() and animation_name[-1] == ")":
@@ -2606,7 +2618,7 @@ while True:
 
                     elif compile_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("confirm_input", "compile_animation")
-                        input_ui.change_instruction("Compile This Anim?")
+                        input_ui.change_instruction("Compile This Char Anim?")
                         ui.add(input_ui_popup)
 
                     elif compile_all_button.rect.collidepoint(mouse_pos):
@@ -2824,7 +2836,8 @@ while True:
                 if input_box.text not in current_pool[animation_character]:  # no existing name already
                     animation_name = input_box.text
                     animation_selector.change_name(animation_name)
-                    anim_to_pool(animation_name, current_pool[animation_character], model, activate_list, replace=old_name)
+                    anim_to_pool(animation_name, current_pool[animation_character], model, activate_list,
+                                 replace=old_name)
 
             elif text_input_popup[1] == "export_animation":
                 for index, frame in enumerate(anim.frames):
@@ -2839,7 +2852,8 @@ while True:
                 max_y = -float("infinity")
                 for index, frame in enumerate(anim.frames):
                     if activate_list[index]:
-                        prop_list = model.frame_list[index]["animation_property"] + model.frame_list[index]["frame_property"]
+                        prop_list = model.frame_list[index]["animation_property"] + model.frame_list[index][
+                            "frame_property"]
                         pose_layer_list = model.make_layer_list(model.animation_part_list[index], prop_list)
                         for layer in pose_layer_list:
                             part = model.animation_part_list[index][layer]
@@ -2866,7 +2880,8 @@ while True:
 
                 for index, frame in enumerate(anim.frames):
                     if activate_list[index]:
-                        prop_list = model.frame_list[index]["animation_property"] + model.frame_list[index]["frame_property"]
+                        prop_list = model.frame_list[index]["animation_property"] + model.frame_list[index][
+                            "frame_property"]
                         pose_layer_list = model.make_layer_list(model.animation_part_list[index], prop_list)
                         image = pygame.Surface((abs(min_x) + abs(max_x), abs(min_y) + abs(max_y)),
                                                pygame.SRCALPHA)  # default size will scale down later
@@ -2893,7 +2908,8 @@ while True:
                 if input_box.text not in current_pool[animation_character]:  # no existing name already
                     animation_name = input_box.text
                     animation_selector.change_name(animation_name)
-                    anim_to_pool(animation_name, current_pool[animation_character], model, activate_list, duplicate=old_name)
+                    anim_to_pool(animation_name, current_pool[animation_character], model, activate_list,
+                                 duplicate=old_name)
                     model.read_animation(animation_name)
                     model.clear_history()
 

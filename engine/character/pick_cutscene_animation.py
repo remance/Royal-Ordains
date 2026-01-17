@@ -6,7 +6,6 @@ def pick_cutscene_animation(self, action):
     self.frame_timer = 0
     self.x_momentum = 0
     self.y_momentum = 0
-    self.move_speed = 0
     self.command_action = {}
 
     self.current_action = action
@@ -41,9 +40,9 @@ def pick_cutscene_animation(self, action):
     self.current_animation_frame = self.current_animation[self.show_frame]
     self.current_animation_direction = self.current_animation_frame[self.direction]
 
-    self.final_animation_play_time = self.default_animation_play_time  # use default play speed
+    self.final_animation_frame_play_time = self.default_animation_play_time  # use default play speed
     if "play_time_mod" in self.current_animation:
-        self.final_animation_play_time *= self.current_animation_frame["play_time_mod"]
+        self.final_animation_frame_play_time *= self.current_animation_frame["play_time_mod"]
 
     if self.current_animation_frame["sound_effect"]:  # play sound from animation
         sound = self.current_animation_frame["sound_effect"]

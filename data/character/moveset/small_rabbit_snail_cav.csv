@@ -1,3 +1,3 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
 "Attack1","Stab",,,,250,,,,13,11,,,,"Stab",,,,
-"Skill1","Charge",,"name:Skill1_end","self:{no_engage=800}",1000,,10,80,33,32,50,50,,"Stab",,,,"run,movable,x_momentum:1500,repeat"
+"Skill1","Charge",,"name:Skill1End","self:{no_engage=800}",1500,,10,80,33,32,50,50,,"Stab","Charge",,,"run,movable,x_momentum:1600,repeat"

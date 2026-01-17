@@ -73,3 +73,21 @@
 "Leader_nraesier","hit_3",
 "Leader_nraesier","hit_4",
 "Leader_nraesier","hit_5",
+"Leader_vasla","hurt_1","Yeow!"
+"Leader_vasla","hurt_2","No!"
+"Leader_vasla","bighurt_1","Grr."
+"Leader_vasla","hit_1","Away!"
+"Leader_hermanos","hurt_1","I am not a fighter!?"
+"Leader_hermanos","hurt_2","Help me!"
+"Leader_hermanos","bighurt_1","Too dangerous!"
+"Leader_hermanos","die_1","Where are my men!?"
+"Leader_hermanos","hit_1","Fight on!"
+"Leader_hermanos","hit_2","No retreat!"
+"Leader_hermanos","hit_3","No falling back!"
+,,
+"Leader_monnirl","die_1","Oh no."
+"Leader_monnirl","die_2","I will prepare better."
+"Leader_monnirl","hurt_1","Please, repent."
+"Leader_monnirl","hurt_2","I will not yield."
+"Leader_monnirl","bighurt_1","You will not prevail."
+"Leader_monnirl","hit_1","Bless you."
