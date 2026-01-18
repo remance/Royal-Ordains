@@ -229,7 +229,7 @@ class Battle:
         self.character_list = self.character_data.character_list
         self.strategy_list = self.character_data.strategy_list
         self.can_cure_status_list = self.character_data.can_cure_status_list
-        self.can_clear_status_list = self.character_data.can_clear_status_list
+        self.can_clarity_status_list = self.character_data.can_clarity_status_list
         self.map_data = self.game.map_data
         self.weather_data = self.map_data.weather_data
         self.weather_matter_images = self.map_data.weather_matter_images
@@ -809,7 +809,7 @@ class Battle:
                     if event.key == K_KP_1:
                         self.drama_text.queue.append(("Hello and welcome to showcase video", "Dollhi"))
                     elif event.key == K_KP_2:
-                        self.drama_text.queue.append(("Show case: Neutral Enemy", None))
+                        self.drama_text.queue.append(("Show case: Reworked battle system.", None))
                         for enemy in self.all_battle_characters:
                             if type(enemy) is BattleCharacter and enemy.sub_characters:
                                 enemy.base_pos[0] += 300
@@ -907,8 +907,12 @@ class Battle:
                                  "leader_call_list": [], "troop_call_list": [],
                                  "air_group": [], "strategy": {}, "unit": {}} for
                           team in team_list}
-        self.team1_call_responding_reinforcement = {}
-        self.team2_call_responding_reinforcement = {}
+        self.team1_call_leader_cooldown_reinforcement = {}
+        self.team1_call_troop_cooldown_reinforcement = {}
+        self.team2_call_leader_cooldown_reinforcement = {}
+        self.team2_call_troop_cooldown_reinforcement = {}
+        self.all_battle_ai_commanders = []
+
         self.later_reinforcement = {"weather": {}, "time": {},
                                     "team": {team: {"air": [], "ground": {}} for team in team_list}}
         self.ai_process_list = []

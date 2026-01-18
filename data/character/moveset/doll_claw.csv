@@ -1,3 +1,3 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"Attack1","Fear Slash",,,,300,,,,16,14,7,,0.2,"Slash",,"Fear",,
-"Skill1","Fear Through",,,,500,,6,40,20,50,3,4,0.1,"Slash",,"Fear",,"movable,x_momentum:(600;1200)"
+"Attack1","Shock Slash",,,,300,,,,16,14,7,,0.2,"Air",,"Shock",,
+"Skill1","Fear Through",,,,500,,9,40,20,50,3,4,0.1,"Air",,"Fear",,"movable,x_momentum:(600;1200)"

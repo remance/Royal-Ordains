@@ -2,7 +2,7 @@
 "Attack1","Axe Slash",,,,350,,,,32,10,25,25,,"Slash",,,,
 "Attack2","Axe Strike",,,,350,,4,,45,20,40,30,,"Slash",,,,
 "Attack3","Aim Shot",,,"self:{no_engage=1000}",13000,14000,2,,40,,12,,5,"Stab",,,,"arc,far_target"
-"Skill1","Poison Arrow",,,"self:{no_engage=500}",8000,8000,10,10,30,,12,,,"Poison",,,,
+"Skill1","Poison Arrow",,,"self:{no_engage=500}",8000,8000,10,10,30,,12,,,"Poison",,,,"direct"
 "Skill2","Rain Shots",,,"self:{no_engage=1000}",12000,12000,10,15,28,,,15,,"Stab",,,,"arc"
 "Skill3","Pump Up",,,"self:{no_status=Excited}",10000,0,60,50,,,,,,,"Excited",,,"no_ai_range_check_setup"
 "UseItem","Medium Healing Kit",,,"self:{health<=50}",20000,700,200,,,,,,,,"Medium_heal",,,"no_ai_range_check_setup"

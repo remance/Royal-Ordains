@@ -156,16 +156,16 @@ def gather_info_enemy_commander(self):  # clever 5
 
 def gather_info_status(self):  # clever 6
     can_cure = []
-    can_clear = []
-    if self.has_cure_strategy and self.has_clear_strategy:
+    can_clarity = []
+    if self.has_cure_strategy and self.has_clarity_strategy:
         for ally in self.battle.all_team_ally[self.team]:
             for status in ally.status_duration:
                 if status in self.can_cure_status_list and self.has_cure_strategy:
                     can_cure.append(ally)
-                if status in self.can_clear_status_list and self.has_clear_strategy:
-                    can_clear.append(ally)
+                if status in self.can_clarity_status_list and self.has_clarity_strategy:
+                    can_clarity.append(ally)
 
-    return {"can_cure": can_cure, "can_clear": can_clear}
+    return {"can_cure": can_cure, "can_clarity": can_clarity}
 
 
 def gather_info_supply(self):  # clever 7

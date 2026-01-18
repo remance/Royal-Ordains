@@ -191,7 +191,7 @@ class Effect(Sprite):
                 # effect intend to hit air enemy only
                 self.enemy_collision_grids = self.battle.all_team_air_enemy_collision_grids[self.team]
 
-        if self.base_target_pos and "no travel" not in self.effect_stat["Property"]:
+        if self.base_target_pos and "no_travel" not in self.effect_stat["Property"] and self.effect_stat["Travel Speed"]:
             if "direct" in self.current_moveset["Property"]:  # direct shot, not use projectile movement with gravity
                 self.angle = self.set_rotate(self.base_target_pos)
                 self.sin_angle = sin(radians(self.angle))

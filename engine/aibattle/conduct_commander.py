@@ -55,12 +55,12 @@ def conduct_commander(self):
                 character_in_range += [ally.base_pos[0] for grid in grid_range for ally in
                                        self.ground_ally_collision_grids[grid] if ally in current_info["can_cure"]]
 
-            if "can_clear" in current_info and strategy in self.own_strategy_type["clear"]:
+            if "can_clarity" in current_info and strategy in self.own_strategy_type["clarity"]:
                 # should already have own_density info with this info
                 grid_range = find_grid_range(commander_base_posx, strategy_stat["Activate Range"] +
                                              strategy_stat["Range"], self.last_grid)
                 character_in_range += [ally.base_pos[0] for grid in grid_range for ally in
-                                       self.ground_ally_collision_grids[grid] if ally in current_info["can_clear"]]
+                                       self.ground_ally_collision_grids[grid] if ally in current_info["can_clarity"]]
 
             if len(character_in_range) >= strategy_range / uniform(50, 200):
                 # consider using strategy if possible number of characters is worth using based on range

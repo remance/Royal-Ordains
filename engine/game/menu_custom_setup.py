@@ -20,7 +20,8 @@ def menu_custom_setup(self):
                 preset = tuple(preset_list.keys())[bar.hover_index]
                 if self.last_shown_custom_army != preset:
                     self.last_shown_custom_army = preset
-                    army_preset = self.convert_army_to_deployable(preset_list[preset])
+                    army_preset = self.convert_army_to_custom_deployable(preset_list[preset],
+                                                                         setup_ui.team_setup[index]["faction"])
                     self.custom_army_title_popup.change_text(preset_list[preset]["Name"], army_preset["cost"])
                     self.custom_army_info_popup.popup(army_preset)
                 self.add_to_ui_updater(self.custom_army_info_popup, self.custom_army_title_popup)
@@ -47,7 +48,8 @@ def menu_custom_setup(self):
                     preset = preset_list[self.custom_team_army[team][index].custom_preset_id]
                     if self.last_shown_custom_army != preset:
                         self.last_shown_custom_army = preset
-                        army_preset = self.convert_army_to_deployable(preset)
+                        army_preset = self.convert_army_to_custom_deployable(preset,
+                                                                             setup_ui.team_setup[index]["faction"])
                         self.custom_army_title_popup.change_text(preset["Name"], army_preset["cost"])
                         self.custom_army_info_popup.popup(army_preset)
                     self.add_to_ui_updater(self.custom_army_info_popup, self.custom_army_title_popup)
@@ -84,7 +86,8 @@ def menu_custom_setup(self):
                             setup_ui.team_setup[index]["faction"]].items() if
                                        None not in value["commander"]} | preset_list
                     preset = tuple(preset_list.keys())[bar.hover_index]
-                    army_preset = self.convert_army_to_deployable(preset_list[preset])
+                    army_preset = self.convert_army_to_custom_deployable(preset_list[preset],
+                                                                         setup_ui.team_setup[index]["faction"])
                     self.custom_team_army[team][index].__init__(army_preset["commander"][0], army_preset["leader"],
                                                                 army_preset["troop"], army_preset["air"],
                                                                 army_preset["retinue"], custom_preset_id=preset)
@@ -96,13 +99,13 @@ def menu_custom_setup(self):
                 elif not bar.mouse_over:  # click somewhere else
                     self.remove_from_ui_updater(bar)
 
-        if self.custom_map_bar.adapter.last_click and self.custom_map_bar.adapter.last_click[0] == "click":
-            self.custom_battle_map_button.change_state(self.custom_map_list[self.custom_map_bar.adapter.last_click[1]])
-            self.selected_custom_map_battle = self.custom_map_list[self.custom_map_bar.adapter.last_click[1]]
-            self.custom_map_bar.adapter.last_click = ()
+        if self.custom_stage_bar.adapter.last_click and self.custom_stage_bar.adapter.last_click[0] == "click":
+            self.custom_battle_stage_button.change_state(self.custom_stage_list[self.custom_stage_bar.adapter.last_click[1]])
+            self.selected_custom_stage_battle = self.custom_stage_list[self.custom_stage_bar.adapter.last_click[1]]
+            self.custom_stage_bar.adapter.last_click = ()
 
-        elif not self.custom_map_bar.mouse_over:  # click somewhere else
-            self.remove_from_ui_updater(self.custom_map_bar)
+        elif not self.custom_stage_bar.mouse_over:  # click somewhere else
+            self.remove_from_ui_updater(self.custom_stage_bar)
 
         if self.custom_weather_strength_bar.adapter.last_click and self.custom_weather_strength_bar.adapter.last_click[
             0] == "click":
@@ -144,13 +147,13 @@ def menu_custom_setup(self):
                 self.custom_battle_team1_setup.change_faction(None, index)
                 self.custom_battle_team2_setup.change_faction(None, index)
 
-        elif self.custom_battle_map_button.event_press:
-            if self.custom_map_bar in self.ui_updater:  # remove the bar list if click again
-                self.remove_from_ui_updater(self.custom_map_bar)
+        elif self.custom_battle_stage_button.event_press:
+            if self.custom_stage_bar in self.ui_updater:  # remove the bar list if click again
+                self.remove_from_ui_updater(self.custom_stage_bar)
             else:  # add bar list
-                self.add_to_ui_updater(self.custom_map_bar)
+                self.add_to_ui_updater(self.custom_stage_bar)
                 self.remove_from_ui_updater(
-                    [item for item in self.all_custom_battle_bars if item != self.custom_map_bar])
+                    [item for item in self.all_custom_battle_bars if item != self.custom_stage_bar])
 
         elif self.custom_battle_weather_strength_button.event_press:
             if self.custom_weather_strength_bar in self.ui_updater:  # remove the bar list if click again
@@ -183,7 +186,6 @@ def menu_custom_setup(self):
         elif self.custom_battle_team2_supply_button.event_press:
             self.activate_input_popup(("text_input", "custom_supply", 2),
                                       self.localisation.grab_text(("ui", "input_supply_team2")), self.input_popup_uis)
-
 
         elif self.custom_battle_setup_start_battle_button.event_press:
             # do quick check whether army assigned for both teams
@@ -219,12 +221,11 @@ def menu_custom_setup(self):
                             preset_list = self.character_data.preset_list[faction]
                             if faction in self.save_data.custom_army_preset_save:
                                 preset_list = {key: value for key, value in self.save_data.custom_army_preset_save[
-                                    setup_ui.team_setup[index]["faction"]].items() if
-                                               None not in value["commander"]} | preset_list
+                                    faction].items() if None not in value["commander"]} | preset_list
 
                             preset = choice(tuple(preset_list.keys()))
 
-                            army_preset = self.convert_army_to_deployable(preset_list[preset])
+                            army_preset = self.convert_army_to_custom_deployable(preset_list[preset], faction)
                             new_random_army.__init__(army_preset["commander"][0], army_preset["leader"],
                                                      army_preset["troop"], army_preset["air"],
                                                      army_preset["retinue"], custom_preset_id=preset)
@@ -285,7 +286,7 @@ def menu_custom_setup(self):
                         player = 1
                     elif self.custom_team2_player == "player":
                         player = 2
-                    self.start_battle("main", self.selected_custom_map_battle, team_stat, player,
+                    self.start_battle("main", self.selected_custom_stage_battle, team_stat, player,
                                       custom_stage_data={
                                           "weather": (self.selected_weather_custom_battle,
                                                       self.selected_weather_strength_custom_battle)})

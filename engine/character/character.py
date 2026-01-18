@@ -163,7 +163,7 @@ class Character(sprite.Sprite):
             # use main character layer for sub character
             self._layer = self.main_character._layer - 1
         else:
-            self._layer = int((10000 - self.sprite_height + self.game_id) + additional_layer)
+            self._layer = int((10000 - self.sprite_height) + additional_layer)
         self.name = self.battle.localisation.grab_text(("character", stat["ID"], "Name"))
         self.cutscene_event = None
         self.speech = None
@@ -180,6 +180,7 @@ class Character(sprite.Sprite):
         self.timer = 0
         self.frame_timer = 0
         self.hold_timer = 0
+        self.hold_too_long_timer = 0
         self.show_frame = 0  # current animation frame
         self.max_show_frame = 0
         self.ai_timer = 0  # for whatever timer require for AI action
@@ -602,8 +603,13 @@ class BattleCharacter(Character):
                     if not self.nearest_enemy or self.nearest_enemy_distance > self.current_moveset["AI Range"]:
                         # timer proceed when no enemy nearby
                         self.hold_timer += dt
+                    else:
+                        self.hold_too_long_timer += dt
+                        if self.hold_too_long_timer > 5:  # hold for too long, increase hold timer anyway
+                            self.hold_timer += dt
                     hold_check = True
                 else:
+                    self.hold_too_long_timer = 0
                     self.hold_timer = 0
 
             if self.sprite_deal_damage and self.penetrate:

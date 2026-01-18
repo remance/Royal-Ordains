@@ -63,7 +63,7 @@ def allies_condition_check(self, value):
     """Require all nearby allies to meet condition"""
     for character in self.near_ally:
         for condition2, value2 in value.items():
-            if not ai_condition_check_dict[condition2](character, value2):
+            if not ai_condition_check_dict[condition2](character[0], value2):
                 return
     return True
 
@@ -72,7 +72,7 @@ def ally_condition_check(self, value):
     """Require one nearby ally to meet condition"""
     for character in self.near_ally:
         for condition2, value2 in value.items():
-            if ai_condition_check_dict[condition2](character, value2):
+            if ai_condition_check_dict[condition2](character[0], value2):
                 return True
 
 

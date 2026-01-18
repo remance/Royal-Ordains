@@ -1,4 +1,4 @@
-def convert_army_to_deployable(self, army_dict):
+def convert_army_to_custom_deployable(self, army_dict, faction):
     deployable_army_dict = {"commander": [], "leader": [], "troop": [], "air": [], "retinue": [], "cost": 0, "total": 0}
     if "leader" in army_dict:  # player custom preset army
         for header in ("commander", "leader", "troop", "air"):
@@ -19,5 +19,7 @@ def convert_army_to_deployable(self, army_dict):
             if character:
                 deployable_army_dict[header.split(" ")[0].lower()].append(character)
                 deployable_army_dict["cost"] += self.character_data.character_list[character]["Cost"]
+
+    deployable_army_dict["retinue"] = self.character_data.faction_list[faction]["Custom Battle Retinues"]
 
     return deployable_army_dict

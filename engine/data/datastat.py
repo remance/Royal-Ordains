@@ -28,18 +28,20 @@ class CharacterData(GameData):
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
+            tuple_column = ("Custom Battle Retinues", )
+            tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
             hex2colour_column = ("Colour",)
             hex2colour_column = [index for index, item in enumerate(header) if item in hex2colour_column]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
-                    row = stat_convert(row, n, i, hex2colour_column=hex2colour_column)
+                    row = stat_convert(row, n, i, tuple_column=tuple_column, hex2colour_column=hex2colour_column)
                 self.faction_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
         edit_file.close()
 
         # Character status effect dict
         self.status_list = {}
         self.can_cure_status_list = []
-        self.can_clear_status_list = []
+        self.can_clarity_status_list = []
         with open(os.path.join(self.data_dir, "character", "status.csv"),
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
@@ -63,8 +65,8 @@ class CharacterData(GameData):
                 self.status_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
                 if "Cure" in self.status_list[row[0]]["Status Conflict"]:
                     self.can_cure_status_list.append(row[0])
-                if "Clear" in self.status_list[row[0]]["Status Conflict"]:
-                    self.can_clear_status_list.append(row[0])
+                if "Clarity" in self.status_list[row[0]]["Status Conflict"]:
+                    self.can_clarity_status_list.append(row[0])
         edit_file.close()
 
         self.status_apply_funcs = create_status_apply_function_dict(self.status_list)

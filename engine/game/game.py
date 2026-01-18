@@ -28,7 +28,7 @@ from engine.game.back_mainmenu import back_mainmenu
 from engine.game.change_keybind import change_keybind
 from engine.game.change_pause_update import change_pause_update
 from engine.game.change_sound_volume import change_sound_volume
-from engine.game.convert_army_to_deployable import convert_army_to_deployable
+from engine.game.convert_army_to_custom_deployable import convert_army_to_custom_deployable
 from engine.game.create_config import create_config
 from engine.game.get_keybind_button_name import get_keybind_button_name
 from engine.game.load_grand_campaign import load_grand_campaign
@@ -86,7 +86,7 @@ class Game:
     change_keybind = change_keybind
     change_pause_update = change_pause_update
     change_sound_volume = change_sound_volume
-    convert_army_to_deployable = convert_army_to_deployable
+    convert_army_to_custom_deployable = convert_army_to_custom_deployable
     create_config = create_config
     get_keybind_button_name = get_keybind_button_name
     load_grand_campaign = load_grand_campaign
@@ -403,7 +403,7 @@ class Game:
         self.custom_team2_player = "computer"
         self.custom_team_army = {index: [Army(None, [], [], [], []) for _ in range(5)] for index in (1, 2)}
 
-        self.selected_custom_map_battle = Default_Selected_Map_Custom_Battle
+        self.selected_custom_stage_battle = Default_Selected_Stage_Custom_Battle
         self.team1_supply_limit_custom_battle = Default_Supply_limit_Custom_Battle
         self.team2_supply_limit_custom_battle = Default_Supply_limit_Custom_Battle
         self.team1_gold_limit_custom_battle = Default_Gold_limit_Custom_Battle
@@ -423,15 +423,15 @@ class Game:
                                                         items=GenericListAdapter(()),
                                                         parent=self.screen, item_size=10, layer=10000)
 
-        self.custom_battle_map_button = MenuButton(
+        self.custom_battle_stage_button = MenuButton(
             self.drop_button_lists, (self.screen_rect.width * 0.3, self.screen_rect.height * 0.05),
-            key_name="map_" + self.selected_custom_map_battle, font_size=52, layer=151)
-        self.custom_map_list = ("map_Custom1", "map_Custom2", "map_Custom3", "map_Custom4", "map_Custom5")
-        self.custom_map_bar = ListUI(pivot=(-0.55, -0.85), origin=(-1, -1), size=(0.15, 0.25),
-                                     items=GenericListAdapter(
+            key_name=self.selected_custom_stage_battle, font_size=52, layer=151)
+        self.custom_stage_list = ("Stage_custom1", "Stage_custom2", "Stage_custom3", "Stage_custom4", "Stage_custom5")
+        self.custom_stage_bar = ListUI(pivot=(-0.55, -0.85), origin=(-1, -1), size=(0.15, 0.25),
+                                       items=GenericListAdapter(
                                          [(-0, self.localisation.grab_text(("ui", item))) for item in
-                                          self.custom_map_list]),
-                                     parent=self.screen, item_size=8, layer=10000)
+                                          self.custom_stage_list]),
+                                       parent=self.screen, item_size=8, layer=10000)
 
         self.custom_battle_weather_strength_button = MenuButton(
             self.drop_button_lists, (self.screen_rect.width * 0.5, self.screen_rect.height * 0.05),
@@ -474,9 +474,6 @@ class Game:
         self.custom_battle_team1_setup = CustomTeamSetupUI(1, (self.screen_width * 0.25, self.screen_height * 0.435))
         self.custom_battle_team2_setup = CustomTeamSetupUI(2, (self.screen_width * 0.75, self.screen_height * 0.435))
 
-        self.custom_faction_list = ["Random", "All"]
-        self.custom_faction_list += [key for key in self.game.sprite_data.faction_coas if
-                                     key not in self.custom_faction_list]
         self.custom_team_army_buttons = {1: [], 2: []}
         self.custom_team_army_button_bars = {1: [], 2: []}
         self.last_shown_custom_army = None
@@ -507,7 +504,7 @@ class Game:
                                        self.custom_battle_setup_start_battle_button,
                                        self.custom_battle_weather_type_button,
                                        self.custom_battle_weather_strength_button,
-                                       self.custom_battle_map_button, self.custom_battle_team1_setup,
+                                       self.custom_battle_stage_button, self.custom_battle_team1_setup,
                                        self.custom_battle_team2_setup,
                                        self.custom_battle_team1_supply_button,
                                        self.custom_battle_team2_supply_button,
@@ -515,8 +512,8 @@ class Game:
                                        self.custom_battle_team2_gold_button)
 
         self.all_custom_battle_bars = (
-                    [self.custom_map_bar, self.custom_weather_strength_bar, self.custom_weather_bar] +
-                    self.custom_team_army_button_bars[1] + self.custom_team_army_button_bars[2])
+                [self.custom_stage_bar, self.custom_weather_strength_bar, self.custom_weather_bar] +
+                self.custom_team_army_button_bars[1] + self.custom_team_army_button_bars[2])
 
         self.custom_battle_menu_uis_remove = tuple(list(self.custom_battle_menu_uis) + [
             self.custom_faction_selector_popup, self.custom_army_info_popup, self.custom_army_title_popup] +

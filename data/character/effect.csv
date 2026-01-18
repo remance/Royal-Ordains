@@ -1,10 +1,11 @@
 "Name","Duration","Travel Speed","Damage","Status","Enemy Status","Special Effect","Damage Sprite Effect","After Reach","After Reach Effect","Sound Effect","Sound Distance","Shake Value","Property"
 "Acid Bomb",,1350,,,,,,,,,,,
-"Adaqua Arrow",,200,"TRUE",,,,,"stick",,"Arrow",400,,
+"Adaqua Arrow",,3500,"TRUE",,,,,"stick",,"Arrow",400,,
 "Arrow",,3000,"TRUE",,,,,"stick",,"Arrow",400,,
 "Big Stone",,3000,"TRUE",,"Disrupt",,,"bounce",,"Stone Big",1000,,
 "Bladed Spinner",,2160,"TRUE",,"Bleeding",,,"stick",,,,,
 "Bleeding",,,,,,,,,,,,,
+"Bless",,,,,,,,,,,,,
 "Blood Pull",,,,,,,,,,,,,
 "Bolt",,3400,"TRUE",,,,,"stick",,"Bolt",400,,
 "Boulder",,2500,"TRUE",,"Disrupt",,,"stick",,"Stone",600,,
@@ -14,6 +15,7 @@
 "Cold Air",5,,"TRUE",,"Cold",,,,,,,,
 "Crash Enemy",,,,,,,,,,,,,
 "Crash Player",,,,,,,,,,,,,
+"Crash Gold",,,,,,,,,,,,,
 "Damaged",,,,,,,,,,,,,
 "Earth Spike",,,"TRUE",,,,,,,,,,
 "Fast Stone",,2700,"TRUE",,,,,"bounce",,"Stone",400,,
@@ -39,7 +41,7 @@
 "Poisontrap",30,,,,,,,,"Poison Cloud.1","Glass Trap",400,,"trap,reach_effect_spawn_ground:bottom"
 "Rodhinbar Arrow",,3300,"TRUE",,,,,,,"Arrow",400,,
 "Rodhinbar Rain Arrow",,3300,"TRUE",,"Suppressed",,,,,"Arrow",400,,
-"Sand",,1620,"TRUE",,"Disrupt",,,,,,,,
+"Sand",,1620,"TRUE",,"Disrupt,Blind",,,,,,,,
 "Shock Stone",,1350,"TRUE",,"Shock",,,"bounce",,,,,
 "Shrapnel",,2970,"TRUE",,,,,,,"Shrapnel",800,10,
 "Shrapnel Bomb",,1350,,,,,,,"Shrapnel",,,,"spawn_all_angle,spawn_number:15"
@@ -48,6 +50,7 @@
 "Small Explosion",,,"TRUE",,,,,,,"Explosion",5000,30,
 "Small Fire",10,,"TRUE",,,,,,,,300,,
 "Small Persist Fire",25,,"TRUE",,"Hot",,,,,,300,,
+"Smoke Pop",,,,,,,,,,,,,
 "Snare Bite",,,,,"Slow",,,,,,,,
 "Snaretrap",30,,,,,,,,"Snare Bite.1","Snare Trap",400,,"trap,reach_effect_spawn_ground"
 "Sound Burst Medium",,,,,,,,,,,,,

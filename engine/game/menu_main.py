@@ -69,7 +69,7 @@ def menu_main(self):
                          "main_army": self.custom_team_army[2][0],
                          "reinforcement_army": self.custom_team_army[2][1:2]}}
 
-        self.start_battle("main", "Test", team_stat, 1)
+        self.start_battle("main", "Test", team_stat, 2)
 
     elif self.option_button.event_press:  # change main menu to option menu
         self.menu_state = "option"

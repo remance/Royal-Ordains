@@ -40,7 +40,7 @@ class BattleCommanderAI:
 
         self.ground_ally_collision_grids = self.battle.all_team_ground_enemy_collision_grids[self.enemy_team]
         self.can_cure_status_list = self.battle.can_cure_status_list
-        self.can_clear_status_list = self.battle.can_clear_status_list
+        self.can_clarity_status_list = self.battle.can_clarity_status_list
         self.strategy_list = self.battle.strategy_list
         self.last_grid = self.battle.last_grid
         self.air_group = self.team_stat["air_group"]
@@ -48,7 +48,7 @@ class BattleCommanderAI:
         self.own_strategy_type = {"weather": set(), "ally": set(), "enemy": set(), "summon": set(),
                                   "cure": set(), "clarity": set()}
         self.has_cure_strategy = False
-        self.has_clear_strategy = False
+        self.has_clarity_strategy = False
 
         self.reinforcement = self.battle.later_reinforcement["team"][team]
         self.enemy_reinforcement = self.battle.later_reinforcement["team"][self.enemy_team]
@@ -95,7 +95,7 @@ class BattleCommanderAI:
                             self.has_cure_strategy = True
                         if "Clarity" in stat["Status"]:
                             self.own_strategy_type["clarity"].add(strategy)
-                            self.has_clear_strategy = True
+                            self.has_clarity_strategy = True
                     else:
                         self.own_strategy_type["ally"].add(strategy)
 

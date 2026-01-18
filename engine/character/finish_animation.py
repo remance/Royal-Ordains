@@ -37,7 +37,8 @@ def finish_animation(self, done):
 
         # reset animation playing related value
         self.interrupt_animation = False
-
+        self.hold_too_long_timer = 0
+        self.hold_timer = 0
         self.show_frame = 0
         self.frame_timer = 0
 
