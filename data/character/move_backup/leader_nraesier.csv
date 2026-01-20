@@ -1,6 +1,0 @@
-"Move","Name","Prepare Animation","After Animation","AI Condition","AOE","Range","Cooldown","Resource Cost","Power","Impact","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"Attack1","Quick Slash",,,,"1,0","1,1,1",,,8,,,"Physical",,,,
-"Attack2","Knife Throw",,,,"1,0","2,3,2",,,11,,,"Physical",,,,
-"Skill1","Slow Death",,,,"1,0","2,3,2",,,8,,,"Poison",,18,,
-"Skill2","Steel Fan",,,,"2,2","0,0,0",,,6,,,"Physical",,,,
-"Skill3","Pathfinding",,,"self:{no_status=}","5,5","0,0,0",,20,,,,"Physical",,,,

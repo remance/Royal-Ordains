@@ -776,7 +776,7 @@ class TacticalMap(UIBattle):
     def update(self):
         """update map"""
         self.update_timer += self.battle.true_dt
-        if self.update_timer > 0.05:
+        if self.update_timer > 0.1:
             self.image = self.base_image.copy()
 
             # Draw camera border
@@ -786,8 +786,7 @@ class TacticalMap(UIBattle):
 
             # draw commander
             for team, character in self.battle.team_commander.items():
-                if character:
-
+                if character and not character.invisible:
                     scaled_pos = (character.base_pos[0] / self.map_scale_width, self.ground_icon_pos_y)
                     health_state = round(character.health / character.base_health, 1)
                     if health_state != self.commander_health_state[team]:
@@ -805,13 +804,12 @@ class TacticalMap(UIBattle):
             # Draw character dots
             for character_team in self.all_team_enemy_check.values():
                 for character in character_team:
-                    if character in self.battle_camera_object_drawer:
+                    if character in self.battle_camera_object_drawer and not character.invisible:
                         team = character.team
                         if character.character_type == "air":
-                            if character.active:
-                                scaled_pos = (character.base_pos[0] / self.map_scale_width, self.air_icon_pos_y)
-                                self.image.blit(self.troop_dot_images[team],
-                                                self.troop_dot_images[team].get_rect(midbottom=scaled_pos))
+                            scaled_pos = (character.base_pos[0] / self.map_scale_width, self.air_icon_pos_y)
+                            self.image.blit(self.troop_dot_images[team],
+                                            self.troop_dot_images[team].get_rect(midbottom=scaled_pos))
                         elif not character.is_commander:
                             scaled_pos = (character.base_pos[0] / self.map_scale_width, self.ground_icon_pos_y)
                             self.image.blit(self.troop_dot_images[team],
@@ -866,7 +864,7 @@ class TacticalMap(UIBattle):
                     if status[1] <= 0:
                         self.strategy_status.remove(status)
 
-            self.update_timer -= 0.05
+            self.update_timer -= 0.1
         UIMenu.update(self)
 
         if self.event_press or self.event_alt_press:

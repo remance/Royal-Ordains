@@ -1,0 +1,7 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Attack1","Cane Blade",,,,,,,,,,,,,,,,,
+"Attack2","Cane Blade 2",,,,,,,,,,,,,,,,,
+"Attack3","Cane Blade 3",,,,,,,,,,,,,,,,,
+"Skill1","Best Offence",,,"self:{health>50}",,,60,,,,,,,,,,,
+"Skill2","Best Defence",,,"self:{health<50}",,,60,,,,,,,,,,,
+"Skill3","Tactical ",,,,,2500,,,,,,,,,,,,

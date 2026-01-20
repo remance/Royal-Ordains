@@ -1,4 +1,4 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"Attack1","Slash",,,,250,,2,,24,15,30,30,,"Stab",,,,
-"Skill1","Charge",,"name:Skill1End","self:{no_engage=1700}",2000,,15,80,80,60,150,125,0.1,"Stab","Charge",,,"run,movable,x_momentum:2200,repeat"
-"Skill2","Guidance",,,,1000,,40,40,,,,,,,"Offence_boost",,,
+"Attack1","Slash",,,,350,,2,,24,15,30,30,,"Slash",,,,
+"Skill1","Charge",,"name:Skill1End","self:{no_engage=1700}",2000,,15,70,80,60,150,125,0.1,"Crush","Charge",,,"run,movable,x_momentum:2200,repeat"
+"Skill2","Guidance",,,,1000,800,40,40,,,,,,,"Offence_boost",,,

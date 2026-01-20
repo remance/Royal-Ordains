@@ -1,0 +1,7 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Attack1","Quick Slash",,,,350,,,,21,9,,,0.25,"Physical",,,,
+"Attack2","Knife Throw",,,,1100,1200,1,,27,5,,,0.25,"Physical",,,,
+"Skill1","Slow Death",,,,1200,1300,,15,20,5,,,0.5,"Poison",,,,
+"Skill2","Steel Fan",,,,800,1000,,15,17,16,,,,"Physical",,,,
+"Skill3","From Shadow",,,,600,,60,10,,,,,,"Physical","Invisible",,,
+"UseItem","First Aid",,,"self:{health<=70}",2000,,120,,,,,,,,"Small_heal",,,"no_ai_range_check_setup"
