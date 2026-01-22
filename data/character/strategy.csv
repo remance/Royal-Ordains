@@ -9,7 +9,6 @@
 "Garrison_summon_mountain_dwarf_fortress",500,,1200,,,,,,,,,,,"Mountain_dwarf_fortress:1",,,,
 "Garrison_summon_port_halfling_tower",500,,1200,,,,,,,,,,,"Port_halfling_tower:1",,,,
 "Spell_air_domain",,10000,10,20,,,,,,,,,,,,,,
-"Spell_air_vacuum",8000,1000,10,40,,,,,,,"Air",,,,,,,
 "Spell_airburst",8000,1000,10,40,,,,,,,"Air",,,,,,"air",
 "Spell_blizzard",3000,8000,15,80,,,,,,,"Water",,,,,,,
 "Spell_cold_air",2000,6000,5,20,,,,,,,"Water",,,,,,,

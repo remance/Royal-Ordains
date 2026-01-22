@@ -1671,8 +1671,8 @@ zoom_d_button = Button("D Zoom", image, (reset_button.pos[0] + (reset_button.ima
                                          p_body_helper.rect.midtop[1] - (image.get_height() / 2)),
                        description=(
                            "Change scale selected parts and adjust position based on current distance from base point.",
-                           "The distance changed is based on different from the current scale."
-                           "converted to int value."))
+                           "The distance changed is based on different from the current scale.",
+                           "Converted to int value."))
 zoom_dplus_button = Button("D Zoom+", image, (reset_button.pos[0] + (reset_button.image.get_width() * 4),
                                               p_body_helper.rect.midtop[1] - (image.get_height() / 2)),
                            description=(
