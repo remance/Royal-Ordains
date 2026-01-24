@@ -1,0 +1,7 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Skill1","Magic Spear",,,"self:{no_engage=500}",5000,7000,5,10,40,160,8,8,,"Magic",,,,
+"Skill2","Magic Tempest",,,,6000,,30,40,6,1000,,,,"Magic",,,,"effect_target_placement"
+"Skill3","Decelerate Time",,,,6000,10000,60,30,,,,,,,,"Slow",,
+"Skill4","Magic Bombardment",,,,8000,10000,15,20,23,40,20,40,,"Magic",,,,"arc:high"
+"Skill5","Teleport",,,"self:{no_engage=10000}",20000,,10,10,,,,,,,,,,"movable,x_momentum:2000,repeat,,speed:100000"
+"Skill6","Mana Preparation",,,"self:{resource<=30}",10000,,60,,,,,,,,"Resource_generation,Resource_kit",,,"no_ai_range_check_setup"

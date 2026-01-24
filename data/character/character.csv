@@ -75,22 +75,22 @@
 "Doll_air_balloon","Doll","Construct",1111,43,3,15,,-0.25,0.25,-0.25,-0.25,-0.5,-0.5,0.5,,0.75,,,,100,1,,,,,,,,,,,,,,,,,,,"air","fighter","fighter",,,"no_forced_move","destroyer",
 "Doll_air_mechanical_bird","Doll","Construct",111,28,12,65,,0.25,-0.25,0.25,,-0.5,-0.5,0.5,,0.75,,,,10,12,,,,,,,,,,,,,,,,,,,"air","interceptor","interceptor",,,"no_forced_move","meatshield",
 "Doll_butler_knife","Doll","Construct",222,70,63,40,,0.25,,0.25,,-0.5,-0.5,0.5,,0.75,,50,,20,7,9,0.7,28,,,,,,,,,,,,,,,,"ground","light_range","range",,,,"killer",
-"Doll_candle_spear","Doll","Construct",444,40,46,21,,0.5,,0.25,,-0.5,-0.5,0.5,,0.75,,9,,30,16,15,0.5,17,,,,,,,,,,,,,,,,"ground","medium_melee","melee",14,"TRUE",,"defender,meatshield","can hold"
+"Doll_candle_spear","Doll","Construct",444,40,46,21,,0.5,,0.25,,-0.5,-0.5,0.5,,0.75,,9,,30,16,15,0.5,17,,,,,,,,,,,,,,,,"ground","medium_melee","melee",14,TRUE,,"defender,meatshield","can hold"
 "Doll_claw","Doll","Construct",333,50,18,34,,0.25,,0.25,,-0.5,-0.5,0.5,,0.75,,14,,33,12,11,0.4,20,,,,,,,,,,,,,,,,"ground","light_melee","flank",,,,"flanker",
 "Doll_hammer","Doll","Construct",555,63,32,14,,0.25,,0.25,,-0.5,-0.5,0.5,,0.75,,18,,40,8,9,1,24,,,,,,,,,,,,,,,,"ground","medium_melee","melee",,,,"assaulter",
 "Doll_knight_cav","Doll","Construct",666,72,48,50,,0.5,,0.25,,-0.5,-0.5,0.5,,0.75,,50,,75,8,7,1,32,,,,,,,,,,,,,,,,"ground","heavy_cavalry","melee",,,,"assaulter",
 "Doll_lander","Doll","Construct",666,27,52,42,,0.25,,0.25,,-0.5,-0.5,0.5,,0.75,,,,80,,,,,,,,,,,,,,,,,,,,"ground","light_melee","melee",,,,"assaulter",
 "Doll_leader_jester","Doll","Construct",1111,52,73,39,80,0.25,,0.25,,-0.5,-0.5,0.5,,0.75,,45,,45,1,4,2,40,"TRUE",,,,,,,,,,,,,,,"ground","support","range",,,,,
-"Doll_leader_puppetmaster","Doll","Construct",999,13,11,10,96,0.25,,0.25,,-0.5,-0.5,0.5,,0.75,,90,,80,1,2,2,70,"TRUE",,,,,,,,,,,,,,,"ground","support","range",,,,,
+"Doll_leader_puppetmaster","Doll","Construct",999,13,11,10,96,0.25,,0.25,,-0.5,-0.5,0.5,,0.75,,90,,80,1,2,2,70,"TRUE",,,,,,,,,,,,,,,"ground","support","range",,TRUE,,,
 "Doll_leader_repair","Doll","Construct",1111,24,27,15,75,0.25,,0.25,,-0.25,-0.25,0.5,,0.75,,60,,50,1,5,3,60,"TRUE",,,,,,,,,,,,,,,"ground","support","range",,,,,
 "Doll_leader_wagon","Doll","Construct",3333,61,20,31,60,0.5,,0.5,-0.25,-0.5,-0.5,0.5,,0.75,,130,,200,1,2,3,90,"TRUE",,,,,,,,,,,,,,,"ground","heavy_cavalry","melee",,,,"destroyer",
-"Doll_maid_knight","Doll","Construct",555,55,80,20,,0.5,,0.25,-0.25,-0.5,-0.5,0.5,,0.75,,75,,,7,7,1.5,80,,,,,,,,,,,,,,,,"ground","heavy_melee","melee",,"TRUE",,"assaulter",
+"Doll_maid_knight","Doll","Construct",555,55,80,20,,0.5,,0.25,-0.25,-0.5,-0.5,0.5,,0.75,,75,,,7,7,1.5,80,,,,,,,,,,,,,,,,"ground","heavy_melee","melee",,TRUE,,"assaulter",
 "Doll_thrower","Doll","Construct",444,36,2,13,,0.75,,0.75,,-0.5,-0.5,0.5,,0.75,,220,,100,1,4,5,200,,,,,,,,,,,,,,,,"ground","siege","range",,,,"destroyer",
 "Doll_titan","Doll","Construct",2222,30,10,10,,0.5,,0.25,,-0.5,-0.5,0.5,,0.75,,110,,350,1,2,7,250,,,,,,,,,,,,,,,,"ground","siege","melee",,,,"assaulter",
 "Doll_wagon_bomber","Doll","Construct",333,40,20,7,,0.25,,0.25,,-0.5,-0.5,0.5,,0.75,,,,,3,6,,,,,,,,,,,,,,,,,,"ground","sub","range",,,,,
 "Doll_witch","Doll","Construct",111,43,7,15,,,,0.25,,-0.5,-0.5,0.5,0.75,0.75,,40,,,1,4,4,160,,,,,,,,,,,,,,,,"ground","support","range",,,,"debuffer",
-"Great_elf_air_star_knight",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"air",,"interceptor",,,"no_forced_move",,
-"Great_elf_air_star_skirmisher",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"air",,"fighter",,,"no_forced_move",,
+"Great_elf_air_star_knight","Great","Sun Elf",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"air",,"interceptor",,,"no_forced_move",,
+"Great_elf_air_star_skirmisher","Great","Sun Elf",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"air",,"fighter",,,"no_forced_move",,
 "Great_elf_bow","Great","Sun Elf",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"range",,,,,
 "Great_elf_heal_tent","Great","Construct",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 "Great_elf_horse_cav","Great","Sun Elf",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
@@ -156,7 +156,7 @@
 "Leader_bauqah","Wood","Beastman",5250,46,33,57,24,0.25,0.25,,-0.5,-0.5,0.5,0.5,0.25,,,,,250,1,1,,,"TRUE","TRUE",,"Spell_air_domain",,,,,,,,,,,,"ground",,"melee",,,,,
 "Leader_bauqah_pack","Wood","Beastman",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"Spell_air_domain",,,,,,,,,,,,"ground",,,,,,,"add buff allies"
 "Leader_bauqah_solo","Wood","Beastman",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"Spell_air_domain",,,,,,,,,,,,"ground",,,,,,,"add buff self"
-"Leader_bej","Highland","Halfling",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,,,,,,,,,,,,,"ground",,,,,,,
+"Leader_bej","Highland","Halfling",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"Spell_mass_strength",,,,,,,,,,,,"ground",,,,,,,
 "Leader_bej_newhome","Highland","Halfling",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,,,,,,,,,,,,,"ground",,,,,,,"add buff allies"
 "Leader_bej_oldhome","Highland","Halfling",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,,,,,,,,,,,,,"ground",,,,,,,"add buff self"
 "Leader_bigta","Small","Vertkin",4800,41,68,44,68,,0.5,0.25,-0.25,-0.25,0.25,,0.25,0.25,,300,,120,1,1,1,,"TRUE","TRUE",,"Strategy_unity",7,4,4,4,3,3,5,5,,,,"ground","medium_cavalry","melee",450,"TRUE","shield",,
@@ -171,7 +171,7 @@
 "Leader_champion","Castle","Human",5000,75,75,50,40,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"Strategy_determination",9,4,7,,,,,,,,,"ground","medium_melee",,,,,"assaulter","no upgrade"
 "Leader_cheermaker","Desert","Vertkin",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"Strategy_encourage",,,,7,1,2,8,3,,,,"ground","light_melee","melee",,,,,
 "Leader_cheermaker_fanfare","Desert","Vertkin",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,,,,,,,,,,,,,"ground",,"melee",,,,,
-"Leader_dashisi","Free","Fairy",2000,32,80,90,84,0.25,0.5,0.75,-0.25,-0.25,0.25,,0.5,-0.5,,,,32,1,1,,,"TRUE","TRUE",,,7,7,7,4,3,3,10,6,,,,"ground","light_melee","melee",340,,,"destroyer",
+"Leader_dashisi","Free","Fairy",2000,32,80,90,84,0.25,0.5,0.75,-0.25,-0.25,0.25,,0.5,-0.5,,,,32,1,1,,,"TRUE","TRUE",,"Spell_mass_weakness",7,7,7,4,3,3,10,6,,,,"ground","light_melee","melee",340,,,"destroyer",
 "Leader_dashisi_known","Free","Fairy",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,,,,,,,,,,,,,"ground","light_melee","melee",,,,,
 "Leader_diezralvir","Free","Undead",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"Strategy_diversion",,,,,,,,,,,,"ground",,,,,,,"no upgrade"
 "Leader_dimwa","Wood","Vertkin",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,,,,,,,,,,,,,"ground",,,,,,,
@@ -180,7 +180,7 @@
 "Leader_doll_king","Doll","Construct",3513,40,40,30,90,0.5,0.25,0.5,-0.25,-0.5,-0.5,0.5,0.25,0.75,,,,150,1,1,,,"TRUE","TRUE",,"Strategy_legislate_hegemony",5,8,7,4,3,3,5,8,,,,"ground","support","range",350,"TRUE",,"support",
 "Leader_doll_king_red","Doll","Construct",,,,,80,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,,,,,,,,,,,,,"ground",,,,,,,
 "Leader_doll_king_white","Doll","Construct",,,,,100,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,,,,,,,,,,,,,"ground",,,,,,,
-"Leader_doll_prince","Doll","Construct",4268,60,30,40,60,0.25,0.5,0.25,0.5,-0.75,-0.75,0.5,0.25,0.75,,,,180,1,1,,,"TRUE","TRUE",,"Spell_mass_weakness",7,6,6,5,2,3,7,4,,,,"ground","medium_melee","melee",,,,"assaulter",
+"Leader_doll_prince","Doll","Construct",4268,60,30,40,60,0.25,0.5,0.25,0.5,-0.75,-0.75,0.5,0.25,0.75,,,,180,1,1,,,"TRUE","TRUE",,"Spell_fire_barrage",7,6,6,5,2,3,7,4,,,,"ground","medium_melee","melee",,,,"assaulter",
 "Leader_doll_prince_black","Doll","Construct",,,,,50,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,,,,,,,,,,,,,"ground",,,,,,,
 "Leader_doll_prince_blue","Doll","Construct",,,,,70,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,,,,,,,,,,,,,"ground",,,,,,,
 "Leader_doll_princess","Doll","Construct",3951,50,60,40,70,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"Spell_mass_strength",4,7,9,2,4,4,10,10,,,,"ground","support","range",,,,"killer",
@@ -265,7 +265,7 @@
 "Leader_kifid","Marsh","Goblin",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"Strategy_precise_execution",,,,,,,,,,,,"ground",,,,,,,"no upgrade"
 "Leader_king","Castle","Human",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE","TRUE",,,,,,,,,,,,,"ground",,,,,"invincible",,"no upgrade"
 "Leader_kirnharl","Port","Human",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,,,,,,,,,,,,,"ground",,,,,,,
-"Leader_kirnharl_grown_branch","Port","Human",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"Strategy_torment_tempest",,,,,,,,,,,,"ground",,,,,,,
+"Leader_kirnharl_grown_branch","Port","Human",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,,,,,,,,,,,,,"ground",,,,,,,
 "Leader_kumaisheh","Desert","Vertkin",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,,,,,,,,,,,,,"ground",,,,,,,
 "Leader_kumaisheh_boomboom","Desert","Vertkin",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"Strategy_great_destruction",,,,,,,,,,,,"ground",,,,,,,
 "Leader_kutip'aeh","Free","Hobgoblin",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"Strategy_betrayal",,,,,,,,,,,,"ground",,,,,,,
@@ -339,7 +339,7 @@
 "Leader_pao_la_sin","Barren","Troll",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"Strategy_incite_panic",,,,,,,,,,,,"ground",,,,,,,"no upgrade"
 "Leader_parna","Free","Human",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"Strategy_great_manoeuvrer",,,,,,,,,,,,"ground",,,,,,,
 "Leader_parna_resolute","Free","Human",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"Strategy_escalation_of_conflict",,,,,,,,,,,,"ground",,,,,,,
-"Leader_pasgelo","Great","Sun Elf",2000,58,34,35,22,0.5,,0.25,,0.25,,-0.25,0.5,-0.25,,,,100,1,1,,,"TRUE","TRUE",,"Spell_fire_barrage",,,,,,,,,,,,"ground",,,,,,,
+"Leader_pasgelo","Great","Sun Elf",2000,58,34,35,22,0.5,,0.25,,0.25,,-0.25,0.5,-0.25,,,,100,1,1,,,"TRUE","TRUE",,,,,,,,,,,,,,"ground",,,,,,,
 "Leader_pasgelo_champion","Great","Sun Elf",3000,56,71,38,25,0.75,,0.25,0.25,,,-0.25,0.5,-0.5,,,,200,1,1,,,"TRUE","TRUE",,,,,,,,,,,,,,"ground",,,,,,,
 "Leader_peltino","Small","Fairy",950,80,42,73,94,0.75,-0.25,0.75,-0.25,0.25,0.5,,0.75,0.5,,,,24,1,1,,,"TRUE","TRUE",,"Spell_magic_bolts",3,9,8,,,,,,,,,"ground","support","range",,,,,
 "Leader_peltino_power","Small","Fairy",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,,,,,,,,,,,,,"ground",,,,,,,
@@ -524,6 +524,7 @@
 "Summon_hound","Free","Animal",130,,,,,,0.25,,,-0.5,0.25,0.25,0.5,,,,,,,,,,,,,,,,,,,,,,,,,,,"melee",,,,"assaulter",
 "Summon_scorpion","Free","Construct",400,28,1,0,,0.75,-0.25,0.75,-0.5,-0.5,0.5,-0.5,0.25,0.75,,,,,,,,,,,,,,,,,,,,,,,,"ground","siege","trap",,,"no_forced_move,no_spirit",,
 "Summon_taladamun_mirror","Free","Construct",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+"Summon_skeleton_wall","Free","Construct",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 "Wood_bear","Wood","Vertkin",860,35,50,26,,0.35,0.65,0.25,-0.1,0.25,0.1,,,0.15,,,,50,,,2,,,,,,,,,,,,,,,,,"ground","heavy_cavalry","melee",,,,"assaulter",
 "Wood_boar","Wood","Vertkin",555,,,,,0.1,,,0.15,0.1,0.05,0.1,,,,,,30,,,1.5,,,,,,,,,,,,,,,,,"ground","medium_cavalry","melee",,,,"assaulter",
 "Wood_elf_air_griffin","Wood","Sun Elf",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"air",,"interceptor",,,"no_forced_move",,
@@ -532,10 +533,10 @@
 "Wood_elf_dualswords","Wood","Sun Elf",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"ground","light_melee",,,,,,
 "Wood_elf_javelin","Wood","Sun Elf",210,,,,,,,,0.1,,0.1,,,,,,,,,,,,,,,,,,,,,,,,,,,"ground","light_range","common",,,,,
 "Wood_elf_leader_druid","Wood","Sun Elf",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"ground","support",,,,,,
-"Wood_elf_leader_rider","Wood","Sun Elf",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"ground","medium_cavalry",,,,,,
+"Wood_monkey_leader_rider","Wood","Vertkin",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"ground","medium_cavalry",,,,,,
 "Wood_elf_leader_sniper","Wood","Sun Elf",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"ground","light_range",,,,,,
-"Wood_elf_scout","Wood","Sun Elf",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"ground","light_range",,,,,,
-"Wood_elf_sling","Wood","Sun Elf",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"ground","light_range",,,,,,
+"Wood_monkey_scout","Wood","Vertkin",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"ground","light_range",,,,,,
+"Wood_monkey_sling","Wood","Vertkin",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"ground","light_range",,,,,,
 "Wood_elf_spear","Wood","Sun Elf",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"ground","light_melee",,,,,,
 "Wood_elf_tiger_cav","Wood","Sun Elf",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"ground","medium_cavalry",,,,,,
 "Wood_fox_leader_mage","Wood","Vertkin",630,,,,,,,,,,,,0.1,,,,,,,,,,,,,,,,,,,,,,,,,"ground","support","range",,,,,

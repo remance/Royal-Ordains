@@ -56,6 +56,8 @@ class Effect(Sprite):
         self._layer = 999999999999999999999997
 
         Sprite.__init__(self, self.containers)
+
+        self.current_moveset = moveset
         self.battle_camera_drawer = self.battle.battle_camera_object_drawer
         self.battle_camera_drawer.add(self)
         self.last_grid = self.battle.last_grid
@@ -77,7 +79,8 @@ class Effect(Sprite):
 
         self.owner_data = {}
         if self.owner:
-            # any change made here for effect stat must be adjust in strategy data and below
+            # any change made here for effect stat must be adjusted in
+            # battle.activate_strategy, datastat.strategy_list, and below
             if type(self.owner) is not dict:
                 self.offence = self.owner.offence
                 self.low_offence = self.owner.low_offence
@@ -90,6 +93,7 @@ class Effect(Sprite):
                 self.no_defence = self.owner.no_defence
                 self.no_dodge = self.owner.no_dodge
                 self.team = self.owner.team
+                self.direction = self.owner.direction
                 self.penetrate = self.owner.penetrate
                 self.enemy_collision_grids = self.owner.ground_enemy_collision_grids
             else:  # "owner" as dict data, typically for after effect or strategy
@@ -104,6 +108,7 @@ class Effect(Sprite):
                 self.no_defence = self.owner["no_defence"]
                 self.no_dodge = self.owner["no_dodge"]
                 self.team = self.owner["team"]
+                self.direction = self.owner["direction"]
                 self.penetrate = self.owner["penetrate"]
                 self.enemy_collision_grids = self.battle.all_team_ground_enemy_collision_grids[self.team]
 
@@ -114,7 +119,12 @@ class Effect(Sprite):
                                "enemy_status_effect": self.enemy_status_effect,
                                "no_defence": self.no_defence, "no_dodge": self.no_dodge,
                                "team": self.team, "penetrate": self.penetrate}
-        if from_owner:
+        if self.current_moveset and "effect_target_placement" in self.current_moveset["property"]:
+            # effect moveset that place effect at target right away
+            self.pos = Vector2(self.base_target_pos[0] * self.screen_scale[0],
+                               self.base_target_pos[1] * self.screen_scale[1])
+            self.base_ground_pos = self.owner.base_ground_pos
+        elif from_owner:
             self.pos = Vector2(self.owner.pos[0] + (self.part_stat[2] * self.screen_scale[0]),
                                self.owner.pos[1] + (self.part_stat[3] * self.screen_scale[1]))
             self.base_ground_pos = self.owner.base_ground_pos
@@ -151,9 +161,6 @@ class Effect(Sprite):
         self.random_move = False
 
         self.other_property = None
-
-        self.current_moveset = moveset
-
         self.speed = 0
 
         # it is required that independent effect must exist in effect stat data
@@ -210,8 +217,10 @@ class Effect(Sprite):
                     # arc effect destination is enemy target rather than as far as it can travel
                     if self.current_moveset["Property"]["arc"] == "high":  # change angle for arc projectile effect
                         self.angle = uniform(60, 85)
+                    elif self.current_moveset["Property"]["arc"] == "low":
+                        self.angle = uniform(10, 30)
                     else:
-                        self.angle = uniform(30, 55)
+                        self.angle = uniform(30, 60)
                     if self.owner.direction == "left":
                         self.angle *= -1
                 else:

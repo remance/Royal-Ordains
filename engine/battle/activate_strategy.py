@@ -34,8 +34,10 @@ def activate_strategy(self, team, strategy, strategy_index, base_pos_x):
                 start_x = (base_pos_x + effect_stat[2]) * self.screen_scale[0]
                 start_y = effect_stat[3] * self.screen_scale[1]
                 base_target_pos = find_target_point(start_x, start_y, 100000, effect_stat[4])
-
-                Effect(stat["owner data"] | {"team": team},
+                direction = "right"
+                if start_x > base_target_pos[0]:
+                    direction = "left"
+                Effect(stat["owner data"] | {"team": team, "direction": direction},
                        (effect_stat[0], effect_stat[1],
                         start_x, start_y, effect_stat[4],
                         effect_stat[5], effect_stat[6], effect_stat[7],

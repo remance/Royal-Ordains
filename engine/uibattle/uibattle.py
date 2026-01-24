@@ -686,7 +686,7 @@ class BattleHelper(UIBattle):
         time_text = datetime.fromtimestamp(self.battle.battle_time).strftime('%M:%S')
         if time_text != self.time_text or must_reset_image or reset_inside_helper_image:
             self.time_text = time_text
-            text = text_render_with_bg(datetime.fromtimestamp(self.battle.battle_time).strftime('%M:%S'), self.font)
+            text = text_render_with_bg(time_text, self.font)
             text_bg = Surface((text.get_size()))
             text_bg.blit(text, text.get_rect(topleft=(0, 0)))
             self.image.blit(text_bg, text.get_rect(topright=self.base_battle_timer_rect_topright))
@@ -887,6 +887,11 @@ class StrategySelect(UIBattle):
         self.font = self.game.battle_timer_font
         self.update_timer = 0
         self.strategy_status = {}
+        self.full_resource_text = text_render_with_bg("100", self.font)
+        self.full_resource_text_width = self.full_resource_text.get_width()
+        self.full_resource_text.fill((0, 0, 0))
+        self.resource_text_rect = self.full_resource_text.get_rect(bottomright=(self.full_resource_text.get_width(),
+                                                                                self.full_resource_text.get_height()))
         self.selected_strategy_icon = Surface((150 * self.screen_scale[0], 150 * self.screen_scale[1]), SRCALPHA)
         draw.circle(self.selected_strategy_icon, (200, 200, 50),
                     (self.selected_strategy_icon.get_width() / 2, self.selected_strategy_icon.get_height() / 2),
@@ -905,6 +910,7 @@ class StrategySelect(UIBattle):
         self.rect = self.image.get_rect(midtop=pos)
         self.player_team = 1
         self.player_team_stat = None
+        self.current_strategy_resource = None
 
         self.strategy_rect = {}
 
@@ -934,12 +940,13 @@ class StrategySelect(UIBattle):
         if self.player_team:
             self.update_timer += self.battle.true_dt
             if self.update_timer > 0.1:
-                text = text_render_with_bg(str(int(self.player_team_stat["strategy_resource"])),
-                                           self.font)
-                text_bg = Surface((text.get_size()))
-                text_bg.blit(text, text.get_rect(topleft=(0, 0)))
-                text_rect = text.get_rect(topleft=(0, 0))
-                self.image.blit(text_bg, text_rect)
+                current_strategy_resource = str(int(self.player_team_stat["strategy_resource"]))
+                if self.current_strategy_resource != current_strategy_resource:
+                    self.current_strategy_resource = current_strategy_resource
+                    text = text_render_with_bg(current_strategy_resource, self.font)
+                    self.full_resource_text.fill((0, 0, 0))
+                    self.full_resource_text.blit(text, text.get_rect(topright=(self.full_resource_text_width, 0)))
+                self.image.blit(self.full_resource_text, self.resource_text_rect)
                 for index, strategy in enumerate(self.player_team_stat["strategy"]):
                     cooldown = self.player_team_stat["strategy_cooldown"][index]
                     check = (cooldown, (strategy, index) == self.battle.player_selected_strategy)

@@ -82,10 +82,10 @@ class SpriteData(GameData):
     def load_character_animation(self, character_list, battle_only=False, clear=False):
         if clear:
             self.character_animation_data.clear()
-        else:
-            for character in tuple(self.character_animation_data.keys()):
-                if character not in character_list:
-                    self.character_animation_data.pop(character)
+        # else:
+        #     for character in tuple(self.character_animation_data.keys()):
+        #         if character not in character_list:
+        #             self.character_animation_data.pop(character)
 
         part_folder = Path(join(self.data_dir, "animation"))
         for file in listdir(part_folder):

@@ -1,0 +1,5 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Skill1","Create Candle Doll",,,,6000,,,50,,,,,,,,,,"summon:Doll_candle_spear"
+"Skill2","Create Knight Doll",,,,6000,,,50,,,,,,,,,,"summon:Doll_knight_cav"
+"Skill3","Create Hammer Doll",,,,6000,,,50,,,,,,,,,,"summon:Doll_hammer"
+"Skill4","Create Claw Doll",,,,6000,,,50,,,,,,,,,,"summon:Doll_claw"

@@ -2,6 +2,7 @@ from random import uniform
 
 import engine.effect.effect
 from engine.constants import Default_Ground_Pos
+import engine.character.character
 
 
 def reach_target(self, how=None):
@@ -35,6 +36,16 @@ def reach_target(self, how=None):
             else:
                 engine.effect.effect.DamageEffect(self.owner_data, stat, moveset=self.current_moveset,
                                                   from_owner=False)
+
+    if self.current_moveset and "summon" in self.current_moveset["Property"]:
+        # summon battle character, at where effect reach
+        (engine.character.character.
+         BattleCharacter(self.battle.last_char_game_id, self.character_data.character_list[
+            self.current_moveset["Property"]["summon"]] |
+                         {"ID": self.current_moveset["Property"]["summon"], "Direction": self.direction,
+                          "Team": self.team, "POS": self.base_pos},
+                         leader=self, is_summon=True))
+        self.battle.last_char_game_id += 1
 
     if self.after_reach and how == "ground":
         # effect reach ground and does not have reach effect, blit sprite to scene for stuck effect

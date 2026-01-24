@@ -1,0 +1,5 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Skill1","Acrobatic Dance",,,"self:{no_status=Half_resource_cost}",5500,3000,20,50,,,,,,,"Strengthen,Half_resource_cost",,,"no_ai_range_check_setup"
+"Skill2","Firework",,,,6000,6500,15,25,50,130,30,-50,,"Fire",,,,"no_ai_range_check_setup,arc"
+"Skill3","Jest",,,,2000,3000,30,20,,,,,,,,"Provoke",,
+"UseItem","Resource Kit",,,"self:{resource<=30}",3000,1500,60,,,,,,,,"Resource_kit",,,"no_ai_range_check_setup"
