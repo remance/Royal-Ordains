@@ -36,37 +36,37 @@ def menu_main(self):
         self.add_to_ui_updater(self.grand_menu_uis)
 
     elif self.test_battle_button.event_press:
-        self.custom_team_army[1][0].__init__(ArmyCharacter("Leader_bigta"),
-                                             [],
-                                             [],
-                                             [],
-                                             ["Mage_earth", "Test", "Test2"], supply=1000)
-        self.custom_team_army[2][0].__init__(ArmyCharacter("Leader_buikuuh"),
-                                             [],
-                                             [],
-                                             [],
-                                             ["Mage_earth", "Test2", "Test"], supply=1000)
-
         # self.custom_team_army[1][0].__init__(ArmyCharacter("Leader_bigta"),
-        #                                      ["Small_rabbit_leader_knight", "Leader_iri"],
-        #                                      ["Small_rabbit_spear",],
-        #                                      ["Castle_human_air_flying_monk", "Small_eagle_air_stone"],
+        #                                      [],
+        #                                      [],
+        #                                      [],
         #                                      ["Mage_earth", "Test", "Test2"], supply=1000)
-        # self.custom_team_army[1][1].__init__(ArmyCharacter("Leader_adaqua"),
-        #                                      ["Small_rabbit_leader_knight", "Small_rabbit_leader_knight"],
-        #                                      ["Small_rabbit_sling",],
-        #                                      ["Castle_human_air_flying_monk", "Small_eagle_air_stone"],
-        #                                      ["Test", "Test2"], supply=500)
         # self.custom_team_army[2][0].__init__(ArmyCharacter("Leader_buikuuh"),
-        #                                      ["Small_rabbit_leader_banner", "Castle_human_leader_mage"],
-        #                                      ["Small_rabbit_spear"],
-        #                                      ["Castle_cat_air_rocket_bomb", "Castle_cat_air_rocket_bomb"],
+        #                                      [],
+        #                                      [],
+        #                                      [],
         #                                      ["Mage_earth", "Test2", "Test"], supply=1000)
-        # self.custom_team_army[2][1].__init__(ArmyCharacter("Small_rabbit_leader_hero"),
-        #                                      ["Small_rabbit_leader_knight", "Leader_amgarn", "Leader_vraesier", ],
-        #                                      ["Doll_candle_spear"],
-        #                                      ["Small_eagle_air_stone", "Small_eagle_air_stone", "Castle_human_air_flying_monk"],
-        #                                      ["Test", "Test"], supply=700)
+
+        self.custom_team_army[1][0].__init__(ArmyCharacter("Leader_bigta"),
+                                             ["Small_rabbit_leader_knight", "Leader_iri"],
+                                             ["Small_rabbit_spear",],
+                                             ["Castle_human_air_flying_monk", "Small_eagle_air_stone"],
+                                             ["Mage_earth", "Test", "Test2"], supply=1000)
+        self.custom_team_army[1][1].__init__(ArmyCharacter("Leader_adaqua"),
+                                             ["Small_rabbit_leader_knight", "Small_rabbit_leader_knight"],
+                                             ["Small_rabbit_sling",],
+                                             ["Castle_human_air_flying_monk", "Small_eagle_air_stone"],
+                                             ["Test", "Test2"], supply=500)
+        self.custom_team_army[2][0].__init__(ArmyCharacter("Leader_buikuuh"),
+                                             ["Small_rabbit_leader_banner", "Castle_human_leader_mage"],
+                                             ["Small_rabbit_spear"],
+                                             ["Castle_cat_air_rocket_bomb", "Castle_cat_air_rocket_bomb"],
+                                             ["Mage_earth", "Test2", "Test"], supply=1000)
+        self.custom_team_army[2][1].__init__(ArmyCharacter("Small_rabbit_leader_hero"),
+                                             ["Small_rabbit_leader_knight", "Leader_amgarn", "Leader_vraesier", ],
+                                             ["Doll_candle_spear"],
+                                             ["Small_eagle_air_stone", "Small_eagle_air_stone", "Castle_human_air_flying_monk"],
+                                             ["Test", "Test"], supply=700)
 
         for army in self.custom_team_army[1][2:]:
             army.__init__(None, [], [], [], [])

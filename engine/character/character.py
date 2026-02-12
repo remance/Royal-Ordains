@@ -187,6 +187,7 @@ class Character(sprite.Sprite):
         self.max_show_frame = 0
         self.ai_timer = 0  # for whatever timer require for AI action
         self.ai_movement_timer = 0  # timer daley before can move again for character after performing attack
+        self.not_show_delay = 0
         self.replace_idle_animation = None
         self.interrupt_animation = False
         self.animation_name = None
@@ -301,7 +302,7 @@ class Character(sprite.Sprite):
                 self.reset_sprite()
                 self.update_sprite = False
 
-            self.check_draw()
+            self.check_draw(dt)
 
     @staticmethod
     def inactive_update(*args):
@@ -636,7 +637,7 @@ class BattleCharacter(Character):
                 self.reset_sprite()
                 self.update_sprite = False
 
-            self.check_draw()
+            self.check_draw(dt)
 
             if ((self.broken or "broken" in self.commander_order) and
                     (self.base_pos[0] > self.retreat_stage_end or self.base_pos[0] < self.retreat_stage_start)):

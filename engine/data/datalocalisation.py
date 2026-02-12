@@ -25,7 +25,6 @@ class Localisation:
 
         self.read_localisation("building")
         self.read_localisation("character")
-        self.read_localisation("item")
         self.read_localisation("faction")
         self.read_localisation("status")
         self.read_localisation("mission")

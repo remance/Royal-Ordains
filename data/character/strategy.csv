@@ -147,7 +147,7 @@
 "Strategy_web_of_deception",,10000,60,80,,,,,,,,,,,"Offence_boost,Defence_boost","Provoke,Confuse",,
 "Strategy_will_domination",500,1200,30,80,,,,,,,,,,,,"Betrayal",,
 "Strategy_doll_wave",500,,120,60,,,,,,,,,,"Doll_candle_spear:4,Doll_claw:4,Doll_maid_knight:2,Doll_butler_knife:2",,,,
-"Test",5000,5000,100,1,,,,,,,,"(Test Effect;Base;0;800;0;0;1;1;1)","(Earth Wall;Base;0;2000;360;0;1;1;1)","Castle_human_flower_castle:1",,,,
+"Test",5000,5000,100,1,,,,,,,,"(Test Effect;Base;0;800;0;0;1;1;1)","(Earth Wall;Base;0;2000;360;0;1;1;1)",,,,,
 "Test2",40000,3000,100,1,,,,,,,,"(Test Effect;Base;0;800;0;0;1;1;1)",,"Small_rabbit_tower:1",,,,
 "Weather_blood",,1,120,30,,,,,,,,,,,,,,"weather:12"
 "Weather_blood_winter",,1,120,30,,,,,,,,,,,,,,"weather:14"
