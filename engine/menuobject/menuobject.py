@@ -4,7 +4,7 @@ from engine.uimenu.uimenu import UIMenu
 
 
 class StaticImage(UIMenu):
-    def __init__(self, pos, layer, image):
+    def __init__(self, pos, image, layer):
         self._layer = layer
         UIMenu.__init__(self, player_cursor_interact=False, has_containers=True)
         self.image = image
@@ -26,11 +26,11 @@ class MenuRotate(UIMenu):
         if not self.rotate_left:
             self.angle = 360
 
-    def update(self):
+    def update(self, dt):
         if self.rotate_left:
-            self.angle += self.game.dt * self.rotate_speed
+            self.angle += dt * self.rotate_speed
         else:
-            self.angle -= self.game.dt * self.rotate_speed
+            self.angle -= dt * self.rotate_speed
         if self.angle > 360:  # reset back
             self.angle -= 360
         elif self.angle < 0:
@@ -54,9 +54,9 @@ class MenuActor(UIMenu):
             self.image = flip(self.image, True, False)
         self.rect = self.image.get_rect(center=self.pos)
 
-    def update(self):
+    def update(self, dt):
         if self.current_animation:  # play animation if more than 1 frame
-            self.frame_timer += self.game.dt
+            self.frame_timer += dt
             if self.frame_timer >= self.animation_frame_play_time:
                 self.frame_timer = 0
                 if self.show_frame < len(self.current_animation) - 1:

@@ -16,7 +16,7 @@ def move_logic(self, dt, done):
         else:
             move_x = self.travel_distance / (self.speed * dt)
             x = self.travel_progress + move_x
-            y = (x * self.tan_angle - 0.5 * (x ** 2) /
+            y = (x * self.sin_angle - 0.5 * (x ** 2) /
                  (self.velocity ** 2 * self.cos_angle ** 2))
 
             new_pos = Vector2(self.base_pos[0] + move_x, self.start_pos[1] - y)
@@ -25,8 +25,12 @@ def move_logic(self, dt, done):
             move.normalize_ip()
             move *= self.speed * dt
             new_pos = self.base_pos + move
-            new_angle = self.set_rotate(new_pos)
-            self.angle = new_angle
+            if not self.travel_spin:
+                self.angle = self.set_rotate(new_pos)
+            else:  # spin while travel instead of angle to front direction
+                self.angle += (dt * 1000)
+                if self.angle >= 360:
+                    self.angle = 0
             self.base_pos = new_pos
             self.travel_progress += move[0]
             self.pos = Vector2(new_pos[0] * self.screen_scale[0], new_pos[1] * self.screen_scale[1])
@@ -44,10 +48,10 @@ def move_logic(self, dt, done):
                     self.base_image = self.current_animation[self.show_frame]
                     self.adjust_sprite()
                     self.reach_target("ground")
-                    return True
+                    return
                 else:
                     self.reach_target("border")
-                    return True
+                    return
 
             self.adjust_sprite()
 

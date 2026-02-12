@@ -1,0 +1,7 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Attack1","Spectral Dagger",,,,1500,2000,3,,30,18,,,0.1,"Magic",,,,"no_ai_range_check_setup"
+"Attack2","Spectral Dagger 2",,,,1500,2000,3,,30,18,,,0.1,"Magic",,,,"no_ai_range_check_setup"
+"Skill1","Spectral Dance",,,,1000,,6,20,90,80,90,40,0.2,"Magic",,,,"no_ai_range_check_setup"
+"Skill2","Crimson Flare",,,,2000,,10,20,5,1000,,,,"Magic","Excited","Daze",,"no_ai_range_check_setup"
+"Skill3","Spectral Blood",,,,800,2000,10,20,15,60,,,,"Magic",,"Bleeding",,
+"UseItem","Resource Potion",,,"self:{resource<=20}",4000,,120,,,,,,,,"Resource_potion",,,"no_ai_range_check_setup"

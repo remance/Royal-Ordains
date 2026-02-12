@@ -28,7 +28,7 @@ class Weather(UIBattle):
         if self.level < 0:  # can not be negative level
             self.level = 0
         cal_level = self.level + 1
-
+        self.cal_level = cal_level
         self.offence_modifier = stat["Offence Modifier"] ** cal_level
         self.defence_modifier = stat["Defence Modifier"] ** cal_level
         self.speed_modifier = stat["Speed Modifier"] ** cal_level
@@ -37,7 +37,7 @@ class Weather(UIBattle):
         self.air_speed_modifier = stat["Air Speed Modifier"] ** cal_level
         self.health_regen_bonus = stat["Health Regeneration Bonus"] * cal_level
         self.resource_regen_bonus = stat["Resource Regeneration Bonus"] * cal_level
-        self.element = tuple([(element, cal_level) for element in stat["Element"] if element])
+        self.element = stat["Element"]
         self.status_effect = stat["Status"]
         self.spawn_cooldown = {key: value / cal_level for key, value in
                                stat["Spawn Cooldown"].items()}  # divide to make spawn increase with strength
@@ -64,12 +64,12 @@ class Weather(UIBattle):
         if "random_sprite_angle" in stat["Property"]:
             self.random_sprite_angle = True
 
-        self.battle.weather_ambient.stop()
+        self.battle.weather_ambient_channel.stop()
         if stat["Ambient"]:
             if stat["Ambient"] in self.battle.weather_ambient_pool:
-                self.battle.weather_ambient.play(Sound(self.battle.weather_ambient_pool[stat["Ambient"]]),
-                                                 loops=-1, fade_ms=100)
-                self.battle.weather_ambient.set_volume(self.battle.play_effect_volume)
+                self.battle.weather_ambient_channel.play(Sound(self.battle.weather_ambient_pool[stat["Ambient"]]),
+                                                         loops=-1, fade_ms=100)
+                self.battle.weather_ambient_channel.set_volume(self.battle.play_effect_volume)
         self.weather_now = str(self.weather_type) + "_" + str(self.level)
 
     def update(self, dt):
@@ -115,7 +115,7 @@ class MatterSprite(UIBattle):
                            (self.image.get_height() * 1.5) + screen_rect_size[1])
         self.rect = self.image.get_rect(center=self.base_pos)
 
-    def update(self):
+    def update(self, dt):
         """Update sprite position movement"""
         move = self.move * self.speed * self.battle.dt
         self.base_pos += move

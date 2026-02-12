@@ -1,4 +1,4 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
-"Skill1","Internal Burst",,,,200,,5,15,75,90,800,400,0.25,"Crush",,"Cripple",,
-"Skill2","Brain Down",,,,200,,10,25,100,35,,-1000,0.5,"Crush",,"Blacked_out",,
+"Skill1","Internal Burst",,,,250,,5,10,85,90,800,400,0.25,"Crush",,"Cripple",,
+"Skill2","Brain Down",,,,250,,10,20,125,35,,-1000,0.5,"Crush",,"Blacked_out",,
 "Skill3","Repair",,,"self:{health<=40}",10000,,60,30,,,,,,,"Large_health_potion",,,"no_ai_range_check_setup"

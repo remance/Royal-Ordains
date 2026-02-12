@@ -53,7 +53,7 @@ def die(self):
                 start_pos = (self.base_pos[0] + uniform(-200, 200),
                              self.base_pos[1])
                 engine.character.character.BattleCharacter(self.battle.last_char_game_id,
-                                                           self.character_data.character_list[spawn_name] |
+                                                           self.character_list[spawn_name] |
                                                            {"ID": spawn_name,
                                                             "Team": self.team, "POS": start_pos})
                 self.battle.last_char_game_id += 1

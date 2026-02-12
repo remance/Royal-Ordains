@@ -21,10 +21,10 @@ def check_event(self):
                         self.current_music = self.stage_music_pool[
                             self.event_list[key]["music"]]
                     if self.current_music:
-                        self.music.play(self.current_music, loops=-1, fade_ms=100)
-                        self.music.set_volume(self.play_music_volume)
+                        self.music_channel.play(self.current_music, loops=-1, fade_ms=100)
+                        self.music_channel.set_volume(self.play_music_volume)
                     else:  # stop music
-                        self.music.stop()
+                        self.music_channel.stop()
                     self.event_list[key].pop("music")
                 if "ambient" in self.event_list[key]:  # change ambient
                     self.current_ambient = None
@@ -33,10 +33,10 @@ def check_event(self):
                                                          self.event_list[key][
                                                              "ambient"]])
                     if self.current_ambient:
-                        self.ambient.play(self.current_ambient, loops=-1, fade_ms=100)
-                        self.ambient.set_volume(self.play_effect_volume)
+                        self.ambient_channel.play(self.current_ambient, loops=-1, fade_ms=100)
+                        self.ambient_channel.set_volume(self.play_effect_volume)
                     else:  # stop ambient
-                        self.ambient.stop()
+                        self.ambient_channel.stop()
                     self.event_list[key].pop("ambient")
                 if "sound" in self.event_list[key]:  # play sound
                     for sound_effect in self.event_list[key]["sound"]:

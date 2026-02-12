@@ -1,0 +1,8 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Attack1","Cane Blade Stab",,,,300,,,,37,19,20,,,"Stab",,,,
+"Attack2","Cane Blade Slice",,,,300,,,,60,7,10,,,"Slash",,,,
+"Attack3","Cane Blade Slash",,,,300,,,,26,46,30,20,,"Slash",,,,
+"Attack4","Cane Blade Smite",,,,300,,,,19,13,40,-60,,"Crush",,,,
+"Skill1","Offence Shift",,,"self:{health>50;no_status=Overload}",5000,,60,,,,,,,,"Bless,Overload",,,
+"Skill2","Defence Shift",,,"self:{health<50;no_status=Pale_dance}",5000,,60,,,,,,,,"Bless,Pale_dance",,,
+"Skill3","Tactical Feint",,,,1500,2500,20,50,,,,,,,,"Disarmed",,

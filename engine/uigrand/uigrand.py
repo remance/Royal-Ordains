@@ -38,7 +38,7 @@ class YesNo(UIGrand):
 
         self.rect = self.image.get_rect(center=self.pos)
 
-    def update(self):
+    def update(self, dt):
         yes_image_rect = self.yes_image.get_rect(midleft=(0, self.image.get_height() / 2))
         no_image_rect = self.no_image.get_rect(midright=(self.image.get_width(),
                                                          self.image.get_height() / 2))

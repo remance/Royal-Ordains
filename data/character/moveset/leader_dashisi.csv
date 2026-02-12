@@ -1,0 +1,5 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Attack1","Slash Circle",,,,350,,,,51,55,68,50,0.25,"Slash",,,,
+"Skill1","Beheading Row","name:Skill1Ready","name:Skill1End",,500,,7,30,20,500,20,-100,0.75,"Slash",,,,"movable,x_momentum:1000,repeat,,speed:3000"
+"Skill2","Heads Must Roll",,,,900,,60,20,,,,,,,"Pure_focus",,,
+"UseItem","Weird Potion",,,"self:{no_status=Escalation_3}",8000,,300,,,,,,,,"Drunk,Escalation_1,Escalation_2,Escalation_3",,,"no_ai_range_check_setup"

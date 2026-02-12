@@ -13,10 +13,10 @@ def change_sound_volume(self):
 
     music.set_volume(self.play_music_volume)  # set new music player volume
 
-    self.battle.music.set_volume(self.play_music_volume)
-    self.battle.button_sound.set_volume(self.play_effect_volume)
-    self.battle.ambient.set_volume(self.play_effect_volume)
-    self.battle.weather_ambient.set_volume(self.play_effect_volume)
+    self.battle.music_channel.set_volume(self.play_music_volume)
+    self.battle.button_sound_channel.set_volume(self.play_effect_volume)
+    self.battle.ambient_channel.set_volume(self.play_effect_volume)
+    self.battle.weather_ambient_channel.set_volume(self.play_effect_volume)
 
     self.battle.master_volume = self.master_volume
     self.battle.play_music_volume = self.play_music_volume

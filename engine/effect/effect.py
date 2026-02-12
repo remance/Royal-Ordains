@@ -16,10 +16,11 @@ from engine.effect.hit_collide_check import hit_collide_check
 from engine.effect.hit_register import hit_register
 from engine.effect.move_logic import move_logic
 from engine.effect.play_animation import play_animation
-from engine.effect.reach_target import reach_target
+from engine.effect.reach_target import reach_target, showcase_reach_target
 from engine.effect.remain_logic import remain_logic
 from engine.utils.common import calculate_projectile_velocity, clean_object
 from engine.utils.rotation import set_rotate, convert_projectile_degree_angle
+from engine.constants import Weak_To_Element
 
 
 class Effect(Sprite):
@@ -27,6 +28,7 @@ class Effect(Sprite):
     clean_object = clean_object
     set_rotate = set_rotate
 
+    character_list = None
     effect_animation_pool = None
     effect_list = None
     sound_effect_pool = {}
@@ -47,8 +49,7 @@ class Effect(Sprite):
     Default_Ground_Pos = Default_Ground_Pos
 
     def __init__(self, owner: (dict, engine.character.character.BattleCharacter),
-                 part_stat: (list, tuple), moveset=None, base_target_pos=None, from_owner=True,
-                 reach_effect=None):
+                 part_stat: (list, tuple), moveset=None, base_target_pos=None, from_owner=True):
         """Effect sprite that does not affect character on its own but can travel and
         create other Effect when reach target"""
         # TODO add end effect animation before removal
@@ -56,6 +57,8 @@ class Effect(Sprite):
         self._layer = 999999999999999999999997
 
         Sprite.__init__(self, self.containers)
+
+        self.current_moveset = moveset
         self.battle_camera_drawer = self.battle.battle_camera_object_drawer
         self.battle_camera_drawer.add(self)
         self.last_grid = self.battle.last_grid
@@ -77,7 +80,8 @@ class Effect(Sprite):
 
         self.owner_data = {}
         if self.owner:
-            # any change made here for effect stat must be adjust in strategy data and below
+            # any change made here for effect stat must be adjusted in
+            # battle.activate_strategy, datastat.strategy_list, and below
             if type(self.owner) is not dict:
                 self.offence = self.owner.offence
                 self.low_offence = self.owner.low_offence
@@ -90,6 +94,7 @@ class Effect(Sprite):
                 self.no_defence = self.owner.no_defence
                 self.no_dodge = self.owner.no_dodge
                 self.team = self.owner.team
+                self.direction = self.owner.direction
                 self.penetrate = self.owner.penetrate
                 self.enemy_collision_grids = self.owner.ground_enemy_collision_grids
             else:  # "owner" as dict data, typically for after effect or strategy
@@ -104,6 +109,7 @@ class Effect(Sprite):
                 self.no_defence = self.owner["no_defence"]
                 self.no_dodge = self.owner["no_dodge"]
                 self.team = self.owner["team"]
+                self.direction = self.owner["direction"]
                 self.penetrate = self.owner["penetrate"]
                 self.enemy_collision_grids = self.battle.all_team_ground_enemy_collision_grids[self.team]
 
@@ -113,8 +119,13 @@ class Effect(Sprite):
                                "critical_chance": self.critical_chance,
                                "enemy_status_effect": self.enemy_status_effect,
                                "no_defence": self.no_defence, "no_dodge": self.no_dodge,
-                               "team": self.team, "penetrate": self.penetrate}
-        if from_owner:
+                               "team": self.team, "direction": self.direction, "penetrate": self.penetrate}
+        if self.current_moveset and "effect_target_placement" in self.current_moveset:
+            # effect moveset that place effect at target right away
+            self.pos = Vector2(self.base_target_pos[0] * self.screen_scale[0],
+                               self.base_target_pos[1] * self.screen_scale[1])
+            self.base_ground_pos = self.owner.base_ground_pos
+        elif from_owner:
             self.pos = Vector2(self.owner.pos[0] + (self.part_stat[2] * self.screen_scale[0]),
                                self.owner.pos[1] + (self.part_stat[3] * self.screen_scale[1]))
             self.base_ground_pos = self.owner.base_ground_pos
@@ -129,11 +140,9 @@ class Effect(Sprite):
         self.sprite_flip = self.part_stat[5]
         self.width_scale = self.part_stat[7]
         self.height_scale = self.part_stat[8]
-        self.after_reach = False
         self.remain_check = False
-        self.after_reach_effect = reach_effect
         self.one_hit_per_enemy = False
-
+        self.travel_spin = False
         self.travel_distance = 0
         self.travel_progress = 0
         self.travel = False
@@ -151,9 +160,6 @@ class Effect(Sprite):
         self.random_move = False
 
         self.other_property = None
-
-        self.current_moveset = moveset
-
         self.speed = 0
 
         # it is required that independent effect must exist in effect stat data
@@ -173,6 +179,8 @@ class Effect(Sprite):
             self.sound_timer = self.sound_duration
             if self.sound_duration > 2 and self.travel_distance:
                 self.sound_timer = self.sound_duration / 0.5
+        if "travel_spin" in self.effect_stat["Property"]:
+            self.travel_spin = True
 
         if moveset:
             self.other_property = moveset["Property"]
@@ -210,8 +218,10 @@ class Effect(Sprite):
                     # arc effect destination is enemy target rather than as far as it can travel
                     if self.current_moveset["Property"]["arc"] == "high":  # change angle for arc projectile effect
                         self.angle = uniform(60, 85)
+                    elif self.current_moveset["Property"]["arc"] == "low":
+                        self.angle = uniform(10, 30)
                     else:
-                        self.angle = uniform(30, 55)
+                        self.angle = uniform(30, 60)
                     if self.owner.direction == "left":
                         self.angle *= -1
                 else:
@@ -230,7 +240,7 @@ class Effect(Sprite):
                 offence_mistake = self.travel_distance / 2 * offence_mistake
                 self.travel_distance = uniform(self.travel_distance - offence_mistake,
                                                self.travel_distance + offence_mistake)
-                self.tan_angle = sin(radians(self.angle))
+                self.sin_angle = sin(radians(self.angle))
                 self.cos_angle = cos(radians(self.angle))
 
             self.velocity = calculate_projectile_velocity(self.angle, self.travel_distance)
@@ -260,12 +270,12 @@ class Effect(Sprite):
                 else:  # play sound
                     self.battle.add_sound_effect_queue(self.sound_effect, self.pos,
                                                        self.sound_distance, self.shake_value)
-                    self.sound_effect = None
+                    if self.travel:  # remove sound for moving effect
+                        self.sound_effect = None
 
             done, just_start = self.play_animation(self.animation_frame_play_time, dt, False)
 
-            if self.move_logic(dt, done):
-                return
+            self.move_logic(dt, done)
 
     def cutscene_update(self, dt):
         """All type of effect update the same during cutscene"""
@@ -298,6 +308,7 @@ class DamageEffect(Effect):
                         self.sound_effect = None
             if not self.hit_collide_check():
                 if self.duration:  # only clear for sprite with duration
+                    current_weather = self.battle.current_weather
                     if not self.one_hit_per_enemy:
                         # reset already hit every 1 second for effect with duration and not with one hit condition
                         self.duration_hit_reset += dt
@@ -305,6 +316,9 @@ class DamageEffect(Effect):
                             self.duration_hit_reset -= 1
                             self.already_hit = []
                     self.duration -= dt
+                    if current_weather.element == Weak_To_Element[self.element]:
+                        # effect with weak element against weather receive duration penalty based on weather strength
+                        self.duration -= dt * current_weather.cal_level
                     if self.duration <= 0:
                         self.reach_target()
                         return
@@ -389,3 +403,138 @@ class StatusEffect(Effect):
 
         if done:  # no duration, kill effect when animation end
             self.clean_object()
+
+
+class ShowcaseEffect(Effect):
+    reach_target = showcase_reach_target
+
+    Default_Ground_Pos = Default_Showcase_Character_POS[1]
+
+    def __init__(self, owner: (dict, engine.character.character.BattleCharacter),
+                 part_stat: (list, tuple), base_target_pos=None, from_owner=True):
+        """Effect sprite that does not affect character on its own but can travel and
+        create other Effect when reach target"""
+        self._layer = 999999999999999999999997
+
+        Sprite.__init__(self, self.containers)
+        self.battle.game.add_to_ui_updater(self)
+        self.show_frame = 0
+        self.frame_timer = 0
+        self.renew_sprite = True
+        self.repeat_animation = False
+        self.effect_base_stage_start = -1000
+        self.effect_base_stage_end = 5000
+        self.base_target_pos = base_target_pos
+
+        self.owner = owner
+        self.part_stat = part_stat
+        self.effect_name = self.part_stat[0]
+        self.part_name = self.part_stat[1]
+        if self.part_name.split("_")[-1].isdigit():
+            self.part_name = " ".join(self.part_name.split("_")[:-1])
+
+        self.direction = "right"
+        self.owner_data = {"direction": self.direction}
+
+        if from_owner:
+            self.pos = Vector2(self.owner.pos[0] + (self.part_stat[2] * self.screen_scale[0]),
+                               self.owner.pos[1] + (self.part_stat[3] * self.screen_scale[1]))
+            self.base_ground_pos = self.owner.base_ground_pos
+        else:
+            self.pos = Vector2(self.part_stat[2], self.part_stat[3])
+        self.base_ground_pos = self.Default_Ground_Pos
+
+        self.base_pos = Vector2(self.pos[0] / self.screen_scale[0], self.pos[1] / self.screen_scale[1])
+        self.start_pos = Vector2(self.base_pos)
+        self.angle = self.part_stat[4]
+        self.sprite_flip = self.part_stat[5]
+        self.width_scale = self.part_stat[7]
+        self.height_scale = self.part_stat[8]
+        self.remain_check = False
+        self.one_hit_per_enemy = False
+        self.travel_spin = False
+        self.travel_distance = 0
+        self.travel_progress = 0
+        self.travel = False
+        self.direct_shot = False  # determine what method to use for sprite movement
+        self.sound_effect = None
+        self.sound_timer = 0
+        self.sound_duration = 0
+        self.shake_value = 0
+        self.duration = 0
+        self.duration_hit_reset = 0
+        self.max_duration = 0
+        self.x_momentum = 0  # only use for reach bouncing off
+        self.y_momentum = 0
+
+        self.random_move = False
+
+        self.other_property = None
+        self.speed = 0
+
+        # it is required that independent effect must exist in effect stat data
+        self.effect_stat = self.effect_list[self.effect_name]
+        self.speed = self.effect_stat["Travel Speed"]
+        self.after_reach_effect = self.effect_stat["After Reach Effect"]
+        self.after_reach = self.effect_stat["After Reach"]
+        self.duration = self.effect_stat["Duration"]
+        if self.duration:  # reset duration to only 2 seconds for showcase effects
+            self.duration = 2
+        self.max_duration = self.duration
+        if self.max_duration:
+            self.repeat_animation = True
+        if self.effect_stat["Sound Effect"] and self.effect_stat["Sound Effect"] in self.sound_effect_pool:
+            self.sound_distance = self.effect_stat["Sound Distance"]
+            self.sound_effect = choice(self.sound_effect_pool[self.effect_stat["Sound Effect"]])
+            self.sound_duration = self.sound_effect.get_length()
+            self.sound_timer = self.sound_duration
+            if self.sound_duration > 2 and self.travel_distance:
+                self.sound_timer = self.sound_duration / 0.5
+        if "travel_spin" in self.effect_stat["Property"]:
+            self.travel_spin = True
+
+        if self.base_target_pos and "no_travel" not in self.effect_stat["Property"] and self.effect_stat["Travel Speed"]:
+            target_distance = self.base_target_pos[0] - self.base_pos[0]
+            self.travel_distance = target_distance
+            self.angle = self.set_rotate(self.base_target_pos)
+            self.direct_shot = True
+            if self.owner.direction == "left":
+                self.angle *= -1
+
+            self.velocity = calculate_projectile_velocity(self.angle, self.travel_distance)
+            if type(self.velocity) is complex:
+                self.velocity = 10000
+
+        self.sin_angle = sin(radians(self.angle))
+        self.cos_angle = cos(radians(self.angle))
+
+        if not self.speed:  # reset travel distance for effect with no speed
+            self.travel_distance = 0
+        self.animation_pool = self.effect_animation_pool[self.effect_name]
+        self.current_animation = self.animation_pool[self.part_name][self.sprite_flip][self.width_scale][
+            self.height_scale]
+        self.animation_frame_play_time = self.Base_Animation_Frame_Play_Time
+        if len(self.current_animation) == 1:  # effect with no animation play a bit longer
+            self.animation_frame_play_time = 0.2
+        self.base_image = self.current_animation[self.show_frame]
+        self.image = None
+        self.adjust_sprite()
+
+    def update(self, dt):
+        if self.sound_effect:
+            if self.sound_timer < self.sound_duration:
+                self.sound_timer += dt
+            else:  # play sound
+                self.battle.add_sound_effect_queue(self.sound_effect, self.pos,
+                                                   self.sound_distance, self.shake_value)
+                if self.travel:  # remove sound for moving effect
+                    self.sound_effect = None
+
+        done, just_start = self.play_animation(self.animation_frame_play_time, dt, False)
+        if self.duration:  # only clear for sprite with duration
+            self.duration -= dt
+            if self.duration <= 0:
+                self.reach_target()
+                return
+
+        self.move_logic(dt, done)

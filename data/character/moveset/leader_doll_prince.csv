@@ -1,0 +1,5 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Attack1","Fire Sword",,,,350,,,,30,42,50,50,,"Fire",,"Hot",,
+"Skill1","Fire Line",,,,500,,8,20,40,120,60,,0.15,"Fire",,"Burn",,
+"Skill2","Fiery Prince",,,,1200,2000,30,30,,,,,,,,"Blind",,
+"Skill3","Burning Anger",,,"self:{health<=50}",800,,60,20,,,,,,,"Full_power",,,

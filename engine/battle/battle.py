@@ -41,7 +41,6 @@ from engine.constants import *
 from engine.effect.effect import DamageEffect, Effect
 from engine.game.activate_input_popup import activate_input_popup
 from engine.game.change_pause_update import change_pause_update
-from engine.lorebook.lorebook import lorebook_process
 from engine.scene.scene import Scene
 from engine.uibattle.drama import TextDrama
 from engine.uibattle.uibattle import (FPSCount, BattleHelper, BattleCursor, CharacterSpeechBox,
@@ -99,7 +98,6 @@ class Battle:
     state_menu_process = state_menu_process
     shake_camera = shake_camera
     event_process = event_process
-    lorebook_process = lorebook_process
 
     battle = None
     battle_cursor = None
@@ -184,10 +182,10 @@ class Battle:
         # Music and sound player
         self.current_music = None
         self.current_ambient = None
-        self.music = self.game.music
-        self.ambient = self.game.ambient
-        self.weather_ambient = self.game.weather_ambient
-        self.button_sound = self.game.button_sound
+        self.music_channel = self.game.music_channel
+        self.ambient_channel = self.game.ambient_channel
+        self.weather_ambient_channel = self.game.weather_ambient_channel
+        self.button_sound_channel = self.game.button_sound_channel
         self.SONG_END = pygame.USEREVENT + 1
 
         self.battle_sound_channel = tuple([Channel(ch_num) for ch_num in range(1000)])
@@ -203,15 +201,6 @@ class Battle:
         self.input_popup_uis = game.input_popup_uis
         self.confirm_popup_uis = game.confirm_popup_uis
         self.all_input_popup_uis = game.all_input_popup_uis
-
-        # self.lorebook = game.lorebook
-        # self.lore_name_list = game.lore_name_list
-        # self.filter_tag_list = game.filter_tag_list
-        # self.lore_buttons = game.lore_buttons
-        # self.subsection_name = game.subsection_name
-        # self.tag_filter_name = game.tag_filter_name
-
-        # self.lorebook_stuff = game.lorebook_stuff
 
         self.music_pool = game.music_pool
         self.sound_effect_pool = game.sound_effect_pool
@@ -236,7 +225,7 @@ class Battle:
         self.weather_list = self.map_data.weather_list
         Weather.weather_data = self.weather_data
         Weather.weather_matter_images = self.weather_matter_images
-        self.animation_data = self.game.sprite_data
+        self.sprite_data = self.game.sprite_data
         self.character_animation_data = self.game.character_animation_data
         self.character_portraits = self.game.character_portraits
         self.effect_animation_pool = self.game.effect_animation_pool
@@ -323,7 +312,7 @@ class Battle:
         self.player_battle_interact = PlayerBattleInteract()
         self.tactical_map_ui = TacticalMap(battle_ui_images["tactic_alert"])
         self.strategy_select_ui = StrategySelect(self.tactical_map_ui.rect.midbottom,
-                                                 self.animation_data.strategy_icons)
+                                                 self.sprite_data.strategy_icons)
 
         self.battle_helper_ui = BattleHelper(self.game.weather_icon_images,
                                              (battle_ui_images["helperui"],
@@ -541,15 +530,16 @@ class Battle:
                     team_stat["strategy"].append(self.character_data.retinue_list[retinue]["Strategy"])
 
             for army in team_stat["reinforcement_army"]:
-                team_stat["supply_reserve"] += army.supply
-                team_stat["leader_call_list"].append([army.commander_id, 1, self.character_list[army.commander_id][
-                    "Supply"]])  # add reinforcement commander as leader
-                team_stat["leader_call_list"] += [
-                    [item, self.character_list[item]["Capacity"], self.character_list[item]["Supply"]] for item in
-                    army.leader_group]
-                team_stat["troop_call_list"] += [
-                    [item, self.character_list[item]["Capacity"], self.character_list[item]["Supply"]] for item in
-                    army.ground_group]
+                if army.commander_id:
+                    team_stat["supply_reserve"] += army.supply
+                    team_stat["leader_call_list"].append([army.commander_id, 1, self.character_list[army.commander_id][
+                        "Supply"]])  # add reinforcement commander as leader
+                    team_stat["leader_call_list"] += [
+                        [item, self.character_list[item]["Capacity"], self.character_list[item]["Supply"]] for item in
+                        army.leader_group]
+                    team_stat["troop_call_list"] += [
+                        [item, self.character_list[item]["Capacity"], self.character_list[item]["Supply"]] for item in
+                        army.ground_group]
 
         self.last_char_game_id = 0
         self.spawn_delay_timer = {}
@@ -557,47 +547,51 @@ class Battle:
         yield set_done_load()
 
         yield set_start_load(self, "animation setup")
-        character_list = [character["ID"] for character in stage_data["character"]]
+        battle_character_list = [character["ID"] for character in stage_data["character"]]
+        for effect in self.character_data.effect_list.values():
+            if "summon" in effect["Property"]:
+                battle_character_list.append(effect["Property"]["summon"])  # add all summon for all effects
+
         for team in self.team_stat:
             for strategy in self.team_stat[team]["strategy"]:
                 if self.strategy_list[strategy]["Summon"]:
-                    character_list += list(self.strategy_list[strategy]["Summon"].keys())
+                    battle_character_list += list(self.strategy_list[strategy]["Summon"].keys())
         for team_value in self.team_stat.values():
             to_check = ([team_value["main_army"]] + team_value["reinforcement_army"])
             to_check = [item for item in to_check if item]
             for value in to_check:
-                character_list.append(value.commander_id)
+                battle_character_list.append(value.commander_id)
                 for air_group in value.air_group:
-                    character_list.append(air_group)
+                    battle_character_list.append(air_group)
                 for character in value.ground_group:
-                    character_list.append(character)
+                    battle_character_list.append(character)
                 for character in value.leader_group:
-                    character_list.append(character)
+                    battle_character_list.append(character)
         already_check_char = set()
-        character_list = [item for item in character_list if item]
-        character_list = list(set([char_id if "+" not in char_id else char_id.split("+")[0] for char_id in
-                                   character_list]))
-        while character_list:
-            char_id = character_list[0]
-            character_list.remove(char_id)
+        battle_character_list = [item for item in battle_character_list if item]
+        battle_character_list = list(set([char_id if "+" not in char_id else char_id.split("+")[0] for char_id in
+                                   battle_character_list]))
+        while battle_character_list:
+            char_id = battle_character_list[0]
+            battle_character_list.remove(char_id)
             if char_id not in already_check_char:
                 already_check_char.add(char_id)
-                if self.character_data.character_list[char_id]["Summon List"]:
-                    character_list += (self.character_data.character_list[char_id]["Summon List"])
-                if self.character_data.character_list[char_id]["Sub Characters"]:
-                    character_list += set(
-                        [item[0] for item in self.character_data.character_list[char_id]["Sub Characters"]])
-                character_list = list(set([char_id if "+" not in char_id else char_id.split("+")[0] for char_id in
-                                           character_list]))
+                if self.character_list[char_id]["Summon List"]:
+                    battle_character_list += (self.character_list[char_id]["Summon List"])
+                if self.character_list[char_id]["Sub Characters"]:
+                    battle_character_list += set(
+                        [item[0] for item in self.character_list[char_id]["Sub Characters"]])
+                battle_character_list = list(set([char_id if "+" not in char_id else char_id.split("+")[0] for char_id in
+                                           battle_character_list]))
 
-        character_list = already_check_char
+        battle_character_list = already_check_char
 
         if stage_event_data:  # add character if event has character create event
             for value in stage_data["event_data"]:
-                if value["Type"] == "create" and value["Object"] not in character_list:
-                    character_list.add(value["Object"])
+                if value["Type"] == "create" and value["Object"] not in battle_character_list:
+                    battle_character_list.add(value["Object"])
 
-        self.animation_data.load_character_animation(character_list, battle_only=True)
+        self.sprite_data.load_character_animation(battle_character_list, battle_only=True)
 
         yield set_done_load()
 
@@ -702,7 +696,7 @@ class Battle:
             self.camera_pos = Vector2((self.base_stage_end / 2) * self.screen_scale[0],
                                       self.camera_center_y)
 
-        self.music.set_endevent(self.SONG_END)
+        self.music_channel.set_endevent(self.SONG_END)
         self.fix_camera()
 
         self.shown_camera_pos = self.camera_pos
@@ -792,7 +786,7 @@ class Battle:
                     elif event.button == 5:  # Mouse scroll up
                         self.cursor.scroll_down = True
                 elif event.type == self.SONG_END:  # whatever music end, pick random from default battle music
-                    self.music.play(choice(self.default_battle_music_pool), fade_ms=100)
+                    self.music_channel.play(choice(self.default_battle_music_pool), fade_ms=100)
 
                 elif event.type == QUIT:  # quit game
                     pygame.quit()
@@ -850,7 +844,7 @@ class Battle:
                             self.game.setup_profiler()
                         self.game.profiler.switch_show_hide()
 
-            self.ui_updater.update()  # update ui before more specific update
+            self.ui_updater.update(self.dt)  # update ui before more specific update
 
             return_state = self.state_process()  # run code based on current state
             if return_state is not None:

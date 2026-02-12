@@ -196,7 +196,7 @@ def state_battle_process(self):
     self.camera.camera_y_shift = self.camera_y_shift
     self.scene.update()
     self.camera.update(self.battle_camera_object_drawer)
-    self.outer_ui_updater.update()
+    self.outer_ui_updater.update(new_dt)
 
     current_frame = self.camera_pos[0] / self.screen_width
     if current_frame == 0.5:  # at center of first scene

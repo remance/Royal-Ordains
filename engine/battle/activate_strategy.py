@@ -34,8 +34,10 @@ def activate_strategy(self, team, strategy, strategy_index, base_pos_x):
                 start_x = (base_pos_x + effect_stat[2]) * self.screen_scale[0]
                 start_y = effect_stat[3] * self.screen_scale[1]
                 base_target_pos = find_target_point(start_x, start_y, 100000, effect_stat[4])
-
-                Effect(stat["owner data"] | {"team": team},
+                direction = "right"
+                if start_x > base_target_pos[0]:
+                    direction = "left"
+                Effect(stat["owner data"] | {"team": team, "direction": direction},
                        (effect_stat[0], effect_stat[1],
                         start_x, start_y, effect_stat[4],
                         effect_stat[5], effect_stat[6], effect_stat[7],
@@ -45,15 +47,17 @@ def activate_strategy(self, team, strategy, strategy_index, base_pos_x):
             for effect_stat in stat["Damage Effects"]:
                 if not self.team_stat[team]["start_pos"]:  # assume that the data is based on right side origin
                     # effect come from left side
+                    direction = "left"
                     angle = 180 - effect_stat[4]
                     start_x = (base_pos_x - effect_stat[2]) * self.screen_scale[0]
                 else:
                     # effect come from right side
+                    direction = "right"
                     angle = effect_stat[4]
                     start_x = (base_pos_x + effect_stat[2]) * self.screen_scale[0]
                 start_y = effect_stat[3] * self.screen_scale[1]
                 base_target_pos = find_target_point(start_x, start_y, 100000, angle)
-                DamageEffect(stat["owner data"] | {"team": team},
+                DamageEffect(stat["owner data"] | {"team": team, "direction": direction},
                              (effect_stat[0], effect_stat[1], start_x, start_y, angle,
                               effect_stat[5], effect_stat[6], effect_stat[7], effect_stat[8]),
                              moveset=stat, base_target_pos=base_target_pos, from_owner=False)
@@ -76,7 +80,7 @@ def activate_strategy(self, team, strategy, strategy_index, base_pos_x):
                     start_pos = (start_x, Default_Ground_Pos)
 
                     BattleCharacter(self.last_char_game_id,
-                                    self.character_data.character_list[spawn_name] |
+                                    self.character_list[spawn_name] |
                                     {"ID": spawn_name, "Team": team, "POS": start_pos}, is_summon=True)
                     self.last_char_game_id += 1
                     Effect(None, ("Movement", "Summon", start_pos[0],

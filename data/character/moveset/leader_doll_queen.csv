@@ -1,0 +1,7 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Attack1","Queen Right Fist",,,,350,,,,25,40,260,70,,"Crush",,,,
+"Attack2","Queen Left Fist",,,,350,,,,25,40,100,190,,"Crush",,,,
+"Attack3","Queen Right Feet",,,,350,,,,25,50,300,200,,"Crush",,,,
+"Attack4","Queen Left Feet",,,,350,,,,25,50,50,-250,,"Crush",,,,
+"Skill1","Queen Presence",,,,1500,3000,20,11,,,,,,,,"Terror",,
+"Skill2","Come Embrace",,,,800,,15,33,20,150,-2500,1000,,"Crush",,"Stagger",,

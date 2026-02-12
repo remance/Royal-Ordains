@@ -1,5 +1,7 @@
+import psutil
+
 from os import listdir
-from os.path import join
+from os.path import join, getsize
 from pathlib import Path
 
 from pygame.transform import smoothscale, flip
@@ -83,9 +85,26 @@ class SpriteData(GameData):
         if clear:
             self.character_animation_data.clear()
         else:
-            for character in tuple(self.character_animation_data.keys()):
-                if character not in character_list:
-                    self.character_animation_data.pop(character)
+
+            """
+            Retrieves and prints system RAM information in GB.
+            """
+            # Get memory statistics
+            available_mem = psutil.virtual_memory().available / (1024 ** 3) * 1000
+
+            total_require_mem_to_load = 0
+            part_folder = Path(join(self.data_dir, "animation"))
+            for file in listdir(part_folder):
+                file_name = file.split(".")[0]
+                file_data_name = fcv(file_name)
+                if file_data_name not in self.character_animation_data and file_data_name in character_list:
+                    # convert to mb, and estimated ram required (around 10x of file size)
+                    total_require_mem_to_load += getsize(join(self.data_dir, "animation", file)) * 10 / 1048576
+            if total_require_mem_to_load > available_mem:
+                # need to free memory, remove previously loaded unused sprite
+                for character in tuple(self.character_animation_data.keys()):
+                    if character not in character_list:
+                        self.character_animation_data.pop(character)
 
         part_folder = Path(join(self.data_dir, "animation"))
         for file in listdir(part_folder):

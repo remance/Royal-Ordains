@@ -4,7 +4,7 @@ from pathlib import Path
 
 from engine.data.datastat import GameData
 
-empty_game_save = {"playtime": 0, "stats": {}, "game state": {}, "map state": {}, "dialogue log": []}
+empty_game_save = {"playtime": 0, "stats": {}, "game state": {}, "map state": {}, "battle log": [], "grand log": []}
 
 empty_main_save = {"playtime": 0, "unlock": {"character": [], "faction_ui": [], "timeline": []},
                    "new": {"character": [], "faction_ui": [], "timeline": []}}

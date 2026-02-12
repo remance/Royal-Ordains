@@ -1,0 +1,7 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Special Effect","Property"
+"Attack1","Body Half Punch",,,,700,,,,37,19,,,0.1,"Crush",,,,
+"Attack2","Flying Foot",,,,1000,,,,24,12,40,90,0.1,"Crush",,,,
+"Attack3","Headbutt",,,,1500,1800,,,53,7,60,50,,"Crush",,,,
+"Skill1","Disappearing Act",,,,1000,,20,30,,,,,,,"Invisible",,,
+"Skill2","Lift Up",,,,300,,10,12,10,10,,10000,,"Magic",,,,
+"Skill3","Bird Show",,,,1000,3000,15,21,,,,,,,,"Panic",,

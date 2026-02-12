@@ -36,7 +36,7 @@ class FakeGame:
         self.play_effect_volume = 0
         self.dt = 0.01
         self.sound_effect_pool = sound_effect_pool
-        self.button_sound = Channel(3)
+        self.button_sound_channel = Channel(3)
 
 
 setup_list = listpopup.setup_list
@@ -1671,8 +1671,8 @@ zoom_d_button = Button("D Zoom", image, (reset_button.pos[0] + (reset_button.ima
                                          p_body_helper.rect.midtop[1] - (image.get_height() / 2)),
                        description=(
                            "Change scale selected parts and adjust position based on current distance from base point.",
-                           "The distance changed is based on different from the current scale."
-                           "converted to int value."))
+                           "The distance changed is based on different from the current scale.",
+                           "Converted to int value."))
 zoom_dplus_button = Button("D Zoom+", image, (reset_button.pos[0] + (reset_button.image.get_width() * 4),
                                               p_body_helper.rect.midtop[1] - (image.get_height() / 2)),
                            description=(
@@ -3038,7 +3038,7 @@ while True:
                         property_to_pool_data(naming)
                         break
 
-            elif text_input_popup[1] == "change_size" and input_box.text and re.search("[a-zA-Z]",
+            elif text_input_popup[1] == "change_size" and float(input_box.text) and re.search("[a-zA-Z]",
                                                                                        input_box.text) is None:
                 try:
                     model.size = float(input_box.text)
@@ -3073,7 +3073,7 @@ while True:
             text_input_popup = (None, None)
             ui.remove(*input_ui_popup, *confirm_ui_popup, *colour_ui_popup)
 
-    ui.update()
+    ui.update(dt)
     anim.play(showroom.image, (0, 0), activate_list)
     current_frame = anim.show_frame
     for strip_index, strip in enumerate(filmstrips):

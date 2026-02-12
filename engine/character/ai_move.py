@@ -134,6 +134,18 @@ def range_ai(self):
                 move_away_from_enemy(self)
 
 
+def mix_ai(self):
+    """Mix ai behave like ranged ai but does not run away from enemy, will stand their ground instead"""
+    if not self.command_action:
+        if "idle" not in self.commander_order:
+            if not self.all_team_enemy_check[self.team]:
+                # walk randomly when no enemy
+                random_walk(self)
+            elif "move" in self.commander_order or not self.nearest_enemy or self.nearest_enemy_distance > self.ai_max_attack_range:
+                # keep moving to target point, stop moving if there are enemy to attack
+                move_to_target_order(self)
+
+
 def flank_ai(self):
     if not self.command_action:
         if "idle" not in self.commander_order:
@@ -223,8 +235,8 @@ def leader_ai(self):
 
 
 ai_move_dict = {"default": stationary_ai, "nice": nice_ai, "curious": curious_ai,
-                "territorial": nice_ai, "melee": melee_ai, "range": range_ai, "flank": flank_ai,
+                "territorial": nice_ai, "melee": melee_ai, "range": range_ai, "mix": mix_ai, "flank": flank_ai,
                 "trap": stationary_ai, "boss_cheer": observer_ai, "leader": leader_ai,
                 "interceptor": air_ai, "fighter": air_ai, "bomber": air_ai}
 
-leader_inner_move_dict = {"melee": leader_melee_ai, "range": leader_range_ai}
+leader_inner_move_dict = {"melee": leader_melee_ai, "range": leader_range_ai, "mix": leader_range_ai}

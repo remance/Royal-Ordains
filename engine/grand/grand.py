@@ -87,9 +87,9 @@ class Grand:
         # Music and sound player
         self.current_music = None
         self.current_ambient = None
-        self.music = self.game.music
-        self.ambient = self.game.ambient
-        self.weather_ambient = self.game.weather_ambient
+        self.music = self.game.music_channel
+        self.ambient = self.game.ambient_channel
+        self.weather_ambient = self.game.weather_ambient_channel
         self.SONG_END = pygame.USEREVENT + 1
 
         self.effect_sound_channel = tuple([Channel(ch_num) for ch_num in range(1000)])

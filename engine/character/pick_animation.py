@@ -87,8 +87,7 @@ def pick_animation(self):
     if animation_name in self.animation_pool:
         self.current_animation = self.animation_pool[animation_name]
     else:  # animation not found, use default  # TODO remove this in stable
-        print("notfound", self.name, animation_name, self.current_action, self.command_action, self.alive,
-              self.invincible, self.health)
+        print("notfound", self.name, animation_name, self.current_action, self.command_action)
         self.current_animation = self.animation_pool["Default"]
 
     if "reverse" not in self.current_action:

@@ -38,3 +38,7 @@ def battle_air_character_enter_stage(self):
     # Add character to list, but not in victory condition list
     if self.active:
         self.pick_animation()
+
+
+def showcase_enter_stage(self):
+    self.pick_animation()

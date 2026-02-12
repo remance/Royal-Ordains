@@ -3,48 +3,12 @@ from os.path import join
 import pygame
 from PIL import Image
 from pygame import Surface, SRCALPHA, Vector2
-from pygame.image import tobytes
 from pygame.transform import smoothscale, flip
 from script.compile_out import compile_out_data
 
 from engine.utils.data_loading import filename_convert_readable as fcv
-from engine.utils.sprite_altering import sprite_rotate, apply_sprite_effect
+from engine.utils.sprite_altering import sprite_rotate, apply_sprite_effect, crop_sprite
 from engine.utils.sprite_caching import save_pickle_with_surfaces, CompilableSurface, load_pickle_with_surfaces
-
-
-def crop_sprite(sprite_pic):
-    low_x0 = float("inf")  # lowest x0
-    low_y0 = float("inf")  # lowest y0
-    high_x1 = 0  # highest x1
-    high_y1 = 0  # highest y1
-
-    # Find optimal cropped sprite size
-    size = sprite_pic.get_size()
-    data = tobytes(sprite_pic, "RGBA")  # convert image to string data for filtering effect
-    data2 = Image.frombytes("RGBA", size, data)  # use PIL to get image data
-    data2 = data2.convert("P")
-    bbox = data2.getbbox()
-    if bbox:
-        if low_x0 > bbox[0]:
-            low_x0 = bbox[0]
-        if low_y0 > bbox[1]:
-            low_y0 = bbox[1]
-        if high_x1 < bbox[2]:
-            high_x1 = bbox[2]
-        if high_y1 < bbox[3]:
-            high_y1 = bbox[3]
-
-        # Crop transparent area only of surface
-        data2 = data2.crop((low_x0, low_y0, high_x1, high_y1))
-
-        # Find offset after crop
-        center_x_offset = ((low_x0 + high_x1) / 2)
-
-        crop_offset = ((data2.size[0] / 2) - center_x_offset, data2.size[1] - high_y1)
-    else:
-        crop_offset = (0, 0)
-
-    return data2, crop_offset
 
 
 def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_pool, effect_animation_pool,
@@ -101,9 +65,10 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                         animation_data_str = str(
                             {key: value for key, value in animation_data.items() if
                              ("effect" not in key or
-                              (len(value) > 5 and not value[9])) and "propoerty" not in key})
+                              (len(value) > 5 and not value[9])) and (
+                                     "property" not in key or not any([prop for prop in value if "effect_" in prop or "exclude_" in prop]))})
                         if animation_data_str in part_sprite_adjust:
-                            # sprite from exact same frame data already made. ref that one instead
+                            # sprite with the exact same data already made. ref that one instead
                             frame_data_list["right"]["sprite"] = part_sprite_adjust[animation_data_str]["sprite"]
                             frame_data_list["right"]["offset"] = part_sprite_adjust[animation_data_str]["offset"]
                             frame_data_list["left"]["offset"] = Vector2(
@@ -195,24 +160,6 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                                     if part[3] + height_check > max_y:
                                         max_y = part[3] + height_check  # lowest bottom y pos
 
-                                    # save effect and template part data for rect check or object related functions
-                                    if "effect" in part_type and part[9]:  # independent effect
-                                        if part[0] not in effect_sprite_adjust:
-                                            effect_sprite_adjust[part[0]] = {}
-                                        adjust_now_at = effect_sprite_adjust[part[0]]
-
-                                        if part[5] not in adjust_now_at:
-                                            adjust_now_at[part[5]] = {}
-                                        adjust_now_at = adjust_now_at[part[5]]
-
-                                        if part[7] not in adjust_now_at:
-                                            adjust_now_at[part[7]] = []
-                                        adjust_now_at[part[7]].append(part[8])
-
-                                        frame_data_list["right"]["effects"][part_header] = \
-                                            (part[0], part[1], part[2], part[3], part[4], part[5],
-                                             part[6], part[7], part[8], part[9])
-
                             image = Surface((abs(min_x) + abs(max_x), abs(min_y) + abs(max_y)), SRCALPHA)
                             pose_layer_list = {k: v[6] for k, v in animation_data.items() if v and len(v) > 5 and
                                                ("effect" not in k or not v[9]) and "Template" not in v[1]}
@@ -259,10 +206,11 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                                 # exact sprite already exist, reuse that one instead to reduce memory
                                 frame_data_list["right"]["sprite"] = \
                                     part_sprite_adjust[image_array]["sprite"]
-                                frame_data_list["right"]["offset"] = \
-                                    part_sprite_adjust[image_array]["offset"]
+                                frame_data_list["right"]["offset"] = Vector2(
+                                    base_point[0] - (image.size[0] / 2) + crop_offset[0],
+                                    base_point[1] - image.size[1] + crop_offset[1])
                             else:
-                                # Completely new sprite
+                                # not the same as existing sprite
                                 frame_data_list["right"]["sprite"] = CompilableSurface(image)
                                 frame_data_list["right"]["offset"] = Vector2(
                                     base_point[0] - (image.size[0] / 2) + crop_offset[0],
@@ -271,13 +219,20 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                                 part_sprite_adjust[animation_data_str] = {"sprite": frame_data_list["right"]["sprite"],
                                                                           "offset": frame_data_list["right"]["offset"]}
                                 part_sprite_adjust[image_array] = part_sprite_adjust[animation_data_str]
+
                             frame_data_list["left"]["offset"] = Vector2(-frame_data_list["right"]["offset"][0],
                                                                         frame_data_list["right"]["offset"][1])
-                            for stuff2 in frame_data_list["right"]["effects"]:
-                                frame_data_list["left"]["effects"][stuff2] = [-item if index in (2, 4) else item for
-                                                                              index, item in enumerate(
-                                        frame_data_list["right"]["effects"][stuff2])]
 
+                        # save ind effect part data for rect check or object related functions
+                        for part_header, part in animation_data.items():  # add ind effect to data
+                            if "effect" in part_header and len(part) > 5 and part[9] and "property" not in part_header:
+                                add_ind_effect_adjust_sprite(effect_sprite_adjust, part)
+                                frame_data_list["right"]["effects"][part_header] = \
+                                    (part[0], part[1], part[2], part[3], part[4], part[5],
+                                     part[6], part[7], part[8], part[9])
+                                frame_data_list["left"]["effects"][part_header] = [
+                                    -item if index in (2, 4) else item for index, item in enumerate(
+                                        frame_data_list["right"]["effects"][part_header])]
                     # if animation_name in ("Idle", "Walk", "Die"):
                     #     world_actor_animation_pool[character][animation_name] = []
                     #     already_done_check_actor_anim = {}
@@ -345,8 +300,21 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                                                                    height_scale)}
     recursive_remove_mask(effect_animation_pool_save)
     save_pickle_with_surfaces(join(data_dir, "animation", "effect_animation.xz"), effect_animation_pool_save)
-
     print("done")
+
+
+def add_ind_effect_adjust_sprite(effect_sprite_adjust, part):
+    if part[0] not in effect_sprite_adjust:
+        effect_sprite_adjust[part[0]] = {}
+    adjust_now_at = effect_sprite_adjust[part[0]]
+
+    if part[5] not in adjust_now_at:
+        adjust_now_at[part[5]] = {}
+    adjust_now_at = adjust_now_at[part[5]]
+
+    if part[7] not in adjust_now_at:
+        adjust_now_at[part[7]] = []
+    adjust_now_at[part[7]].append(part[8])
 
 
 def adjust_effect_sprite(surface, sprite_flip, width_scale, height_scale):

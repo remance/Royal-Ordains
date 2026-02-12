@@ -1,7 +1,7 @@
 def check_draw(self):
     if not self.invisible:
-        blit_check = (self.char_id, int(self.pos[0] / 10), int(self.pos[1] / 10),
-                      self.direction, self.animation_name, self.show_frame)
+        blit_check = (self.char_id, int(self.pos[0]), int(self.pos[1]),
+                      self.direction, self.animation_name)
         if blit_check not in self.blit_culling_check:
             self.blit_culling_check.add(blit_check)
             if not self.in_drawer:

@@ -21,7 +21,7 @@ class MapData(GameData):
             header = rd[0]
             percent_column = ("Offence Modifier", "Defence Modifier", "Speed Modifier",
                               "Air Offence Modifier", "Air Defence Modifier", "Air Speed Modifier",)
-            tuple_column = ("Element", "Status", "Spell")
+            tuple_column = ("Status", "Spell")
             dict_column = ("Spawn Cooldown", "Property",)
             percent_column = [index for index, item in enumerate(header) if item in percent_column]
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]

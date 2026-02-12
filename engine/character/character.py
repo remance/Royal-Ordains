@@ -21,7 +21,7 @@ from engine.character.character_event_process import character_event_process
 from engine.character.check_draw import check_draw
 from engine.character.die import commander_die, die, air_die
 from engine.character.enter_stage import (enter_stage, battle_character_enter_stage, battle_air_character_enter_stage,
-                                          delayed_enter_stage)
+                                          delayed_enter_stage, showcase_enter_stage)
 from engine.character.erase import erase
 from engine.character.finish_animation import finish_animation
 from engine.character.get_damage import get_damage
@@ -30,7 +30,8 @@ from engine.character.issue_commander_order import issue_commander_order
 from engine.character.move_logic import move_logic, sub_move_logic, air_move_logic
 from engine.character.pick_animation import pick_animation
 from engine.character.pick_cutscene_animation import pick_cutscene_animation
-from engine.character.play_animation import next_animation_frame, play_battle_animation, play_cutscene_animation
+from engine.character.play_animation import (next_animation_frame, showcase_next_animation_frame, play_battle_animation,
+                                             play_cutscene_animation, play_showcase_animation)
 from engine.character.reset_commander_variables import reset_commander_variables
 from engine.character.reset_sprite import reset_sprite, battle_reset_sprite
 from engine.character.rotate_logic import rotate_logic
@@ -40,7 +41,7 @@ from engine.effect.cal_damage import cal_damage
 from engine.effect.hit_collide_check import hit_collide_check
 from engine.effect.hit_register import hit_register
 from engine.uibattle.uibattle import DamageNumber
-from engine.utils.common import clean_object
+from engine.utils.common import clean_object, empty_method
 from engine.utils.rotation import set_rotate
 
 infinity = float("inf")
@@ -72,6 +73,7 @@ drop speed = assign value of dropping speed for air animation, higher value mean
 class Character(sprite.Sprite):
     battle = None
     character_data = None
+    character_list = None
     effect_list = None
     sound_effect_pool = None
 
@@ -136,19 +138,17 @@ class Character(sprite.Sprite):
 
     def __init__(self, game_id: int, stat: dict, additional_layer: (int, str) = 0, is_commander: bool = False) -> None:
         """
-        Character object represent a character that may or may not fight in battle
+        Character object represent a single character in battle
         """
         sprite.Sprite.__init__(self, self.containers)
-        # these two commands require replacement of x_momentum and direction, faster to use it as object variable
+        # these two commands require replacement of x_momentum and direction, so can not be used as class variable
         self.walk_command_action = {"name": "Walk", "movable": True, "walk": True, "interruptable": True}
         self.run_command_action = {"name": "Run", "movable": True, "run": True, "interruptable": True}
 
         self.in_drawer = False
         self.blit_culling_check = self.battle.blit_culling_check
         self.screen_scale = self.battle.screen_scale
-        self.battle_scale = (self.screen_scale[0] * 0.2, self.screen_scale[1] * 0.2)
         self.battle_camera_drawer = self.battle.battle_camera_object_drawer
-        self.weather = self.battle.current_weather
         self.all_team_enemy_check = self.battle.all_team_enemy_check
 
         self.char_id = stat["ID"]
@@ -162,6 +162,8 @@ class Character(sprite.Sprite):
         if additional_layer == "main":
             # use main character layer for sub character
             self._layer = self.main_character._layer - 1
+        elif additional_layer == "showcase":
+            self._layer = 1
         else:
             self._layer = int((10000 - self.sprite_height) + additional_layer)
         self.name = self.battle.localisation.grab_text(("character", stat["ID"], "Name"))
@@ -212,9 +214,12 @@ class Character(sprite.Sprite):
         self.true_commander_order = ()
         self.base_pos = Vector2(stat["POS"][0],
                                 stat["POS"][1])  # true position of character in battle
-        self.direction = "right"
-        if self.base_pos[0] > self.battle.base_stage_end / 2:
-            self.direction = "left"
+        if "direction" in stat:
+            self.direction = stat["direction"]
+        else:
+            self.direction = "right"
+            if self.base_pos[0] > self.battle.base_stage_end / 2:
+                self.direction = "left"
         self.new_direction = self.direction
         self.target_pos = self.base_pos.copy()
         self.pos = Vector2((self.base_pos[0] * self.screen_scale[0],
@@ -569,7 +574,7 @@ class BattleCharacter(Character):
 
         if stat["Sub Characters"]:  # add sub characters
             for character in stat["Sub Characters"]:
-                SubBattleCharacter(self.battle.last_char_game_id, self.character_data.character_list[character[0]] |
+                SubBattleCharacter(self.battle.last_char_game_id, self.character_list[character[0]] |
                                    {"ID": character[0], "Team": self.team,
                                     "POS": self.base_pos, "Anchor POS": (character[1], character[2])}, self)
                 self.battle.last_char_game_id += 1
@@ -604,13 +609,11 @@ class BattleCharacter(Character):
                         # timer proceed when no enemy nearby
                         self.hold_timer += dt
                     else:
-                        self.hold_too_long_timer += dt
                         if self.hold_too_long_timer > 5:  # hold for too long, increase hold timer anyway
                             self.hold_timer += dt
+                        else:
+                            self.hold_too_long_timer += dt
                     hold_check = True
-                else:
-                    self.hold_too_long_timer = 0
-                    self.hold_timer = 0
 
             if self.sprite_deal_damage and self.penetrate:
                 self.hit_collide_check()
@@ -799,3 +802,67 @@ class CommanderBattleCharacter(BattleCharacter):
             strategy_stat = self.battle.strategy_list[strategy]
             if strategy_stat["Activate Range"] > self.max_ai_commander_range:
                 self.max_ai_commander_range = strategy_stat["Activate Range"]
+
+
+class ShowcaseCharacter(Character):
+    ai_logic = empty_method
+    enter_stage = showcase_enter_stage
+    move_logic = empty_method
+    play_battle_animation = play_showcase_animation
+    next_animation_frame = showcase_next_animation_frame
+
+    # static variable
+    is_sub_character = False
+
+    def __init__(self, game_id: int, stat: dict, leader: BattleCharacter = None,
+                 is_commander: bool = False, is_summon: bool = False) -> None:
+        """
+        BattleCharacter object represent a character that take part in the battle in stage
+        Character has three different stage of stat;
+        first: base stat (e.g., base_offence), this is their stat before applying status effect
+        second: stat with all effect (e.g., attack), this is their stat after applying weather, and status effect
+        """
+        self.sub_characters = []
+
+        self.current_moveset = None
+
+        self.animation_frame_play_time = self.Base_Animation_Frame_Play_Time
+        self.final_animation_frame_play_time = self.animation_frame_play_time
+
+        # variable for attack cross function check
+        Character.__init__(self, game_id, stat, additional_layer="showcase", is_commander=is_commander)
+        self.movesets = stat["Move"]
+
+        if stat["Sub Characters"]:  # add sub characters
+            for character in stat["Sub Characters"]:
+                SubShowcaseCharacter(0, self.character_list[character[0]] |
+                                     {"ID": character[0], "POS": self.base_pos, "direction": self.direction,
+                                      "Anchor POS": (character[1], character[2])}, self)
+        self.battle.battle_character_updater.remove(self)
+        self.battle.all_battle_characters.remove(self)
+
+
+class SubShowcaseCharacter(Character):
+    is_sub_character = True
+    ai_logic = empty_method
+    enter_stage = showcase_enter_stage
+    move_logic = sub_move_logic
+    play_battle_animation = play_showcase_animation
+    next_animation_frame = showcase_next_animation_frame
+
+    def __init__(self, game_id: int, stat: dict, main_character: ShowcaseCharacter):
+        """
+        SubShowcaseCharacter object represent a showcase character that is linked to a main ShowcaseCharacter
+        """
+        self.main_character = main_character
+        Character.__init__(self, game_id, stat, additional_layer="main")
+        self.anchor_pos = stat["Anchor POS"]
+        if self.main_character.direction == "right":
+            self.pos = Vector2(((self.base_pos[0] - self.anchor_pos[0]) * self.screen_scale[0],
+                                (self.base_pos[1] + self.anchor_pos[1]) * self.screen_scale[1]))
+        else:
+            self.pos = Vector2(((self.base_pos[0] + self.anchor_pos[0]) * self.screen_scale[0],
+                                (self.base_pos[1] + self.anchor_pos[1]) * self.screen_scale[1]))
+        main_character.sub_characters.append(self)
+        self.battle.battle_character_updater.remove(self)
+        self.battle.all_battle_characters.remove(self)

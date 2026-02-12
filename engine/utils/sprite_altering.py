@@ -1,52 +1,40 @@
 from PIL import Image, ImageOps, ImageFilter, ImageEnhance
 from pygame import image, Surface, SRCALPHA
+from pygame.image import tobytes
 
 
-def crop_sprite(sprite_pic, custom_base_point=None):
+def crop_sprite(sprite_pic):
     low_x0 = float("inf")  # lowest x0
     low_y0 = float("inf")  # lowest y0
     high_x1 = 0  # highest x1
     high_y1 = 0  # highest y1
 
-    # Find optimal cropped sprite size and center offset
+    # Find optimal cropped sprite size
     size = sprite_pic.get_size()
-    data = image.tobytes(sprite_pic, "RGBA")  # convert image to string data for filtering effect
-    data = Image.frombytes("RGBA", size, data)  # use PIL to get image data
-    bbox = data.getbbox()
-    if low_x0 > bbox[0]:
-        low_x0 = bbox[0]
-    if low_y0 > bbox[1]:
-        low_y0 = bbox[1]
-    if high_x1 < bbox[2]:
-        high_x1 = bbox[2]
-    if high_y1 < bbox[3]:
-        high_y1 = bbox[3]
+    data = tobytes(sprite_pic, "RGBA")  # convert image to string data for filtering effect
+    data2 = Image.frombytes("RGBA", size, data)  # use PIL to get image data
+    bbox = data2.getbbox()
+    if bbox:
+        if low_x0 > bbox[0]:
+            low_x0 = bbox[0]
+        if low_y0 > bbox[1]:
+            low_y0 = bbox[1]
+        if high_x1 < bbox[2]:
+            high_x1 = bbox[2]
+        if high_y1 < bbox[3]:
+            high_y1 = bbox[3]
 
-    center = ((sprite_pic.get_width() / 2), (sprite_pic.get_height() / 2))
+        # Crop transparent area only of surface
+        data2 = data2.crop((low_x0, low_y0, high_x1, high_y1))
 
-    # Crop transparent area only of surface
-    old_size = sprite_pic.get_size()
-    sprite_pic = image.tobytes(sprite_pic,
-                               "RGBA")  # convert image to string data for filtering effect
-    sprite_pic = Image.frombytes("RGBA", old_size, sprite_pic)  # use PIL to get image data
-    sprite_pic = sprite_pic.crop((low_x0, low_y0, high_x1, high_y1))
-    size = sprite_pic.size
-    sprite_pic = sprite_pic.tobytes()
-    sprite_pic = image.frombytes(sprite_pic, size,
-                                 "RGBA")  # convert image back to a pygame surface
+        # Find offset after crop
+        center_x_offset = ((low_x0 + high_x1) / 2)
 
-    # Find center offset after crop by finding width and height difference of longer side
-
-    # center_x_offset = ((low_x0 + high_x1) / 2)
-    center_x_offset = ((low_x0 + high_x1) / 2) + (((100 - low_x0) - (high_x1 - 100)) / 10)
-    if custom_base_point:
-        # Different y offset from center
-        y_offset = old_size[1] - high_y1
+        crop_offset = ((data2.size[0] / 2) - center_x_offset, data2.size[1] - high_y1)
     else:
-        y_offset = center[1] - ((low_y0 + high_y1) / 2)
-    true_offset = (center[0] - center_x_offset, y_offset)
-
-    return sprite_pic, true_offset
+        crop_offset = (0, 0)
+    data2 = data2.convert("P")  # convert to palette mode to reduce file size
+    return data2, crop_offset
 
 
 def apply_sprite_colour(surface, colour=None, white_colour=True):

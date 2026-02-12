@@ -34,7 +34,7 @@ def surface_screen_scale(surface, screen_scale):
     Scale surface with screen scale and usage
     @param surface: surface to scale
     @param screen_scale: scale based on screen resolution
-    @return:
+    @return: scaled surface
     """
     scale = (screen_scale[0], screen_scale[1])
     if scale[0] != 1 or scale[1] != 1:
@@ -108,14 +108,14 @@ def recursive_cast_pickleable_surface_to_surface(data, screen_scale, already_don
                         else:
                             data["mask"] = from_surface(data[k])
 
-                    if parent_key == "right":  # character
+                    if parent_key == "right":  # character sprite
                         parent_data["left"]["sprite"] = flip(data[k], True, False)
                         parent_data["left"]["mask"] = from_surface(parent_data["left"]["sprite"])
                         already_done[v] = {"right": (data[k], data["mask"]),
                                            "left": (parent_data["left"]["sprite"], parent_data["left"]["mask"])}
                         if effect_sprite_adjust:
                             parent_data["left"]["sprite"] = {0: parent_data["left"]["sprite"]}
-                    else:
+                    else:  # effect or other sprite
                         already_done[v] = data[k]
                 else:
                     data[k] = already_done[v]

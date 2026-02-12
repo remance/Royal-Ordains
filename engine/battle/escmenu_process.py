@@ -19,15 +19,14 @@ def escmenu_process(self):
                 if key == "resume":  # resume battle
                     self.back_to_battle_state()
 
-                elif key == "log":  # open dialogue log
-                    self.esc_menu_mode = "dialogue"  # change to dialogue menu mode
+                elif key == "log":  # open battle log
+                    self.esc_menu_mode = "battle"  # change to dialogue menu mode
                     self.remove_from_ui_updater(self.battle_menu_button.values(),
                                                 self.scene_translation_text_popup)  # remove start_set esc menu button
                     self.dialogue_box.__init__(self.dialogue_box.origin, self.dialogue_box.pivot,
                                                self.dialogue_box.relative_size_inside_container,
-                                               ListAdapter([" ".join(item[0]) + self.localisation.grab_text(
-                                                   ("event", item[1], "Text")) for item in
-                                                            self.save_data.save_profile["dialogue log"]]),
+                                               ListAdapter([" ".join(item[0]) + item[1] for item in
+                                                            self.save_data.save_profile["battle log"]]),
                                                self.dialogue_box.parent,
                                                self.dialogue_box.visible_list_capacity,
                                                layer=self.dialogue_box._layer)
@@ -51,7 +50,7 @@ def escmenu_process(self):
                                               self.confirm_popup_uis)
                 break  # found clicked button, break loop
 
-    elif self.esc_menu_mode == "dialogue":  # dialogue log
+    elif self.esc_menu_mode == "battle":  # battle log
         if self.esc_dialogue_button.event_press or self.esc_press:  # confirm or esc, close option menu
             self.esc_menu_mode = "menu"  # go back to start_set esc menu
             self.remove_from_ui_updater(self.esc_dialogue_button, self.dialogue_box)  # remove option menu sprite
@@ -82,7 +81,7 @@ def back_to_battle_state(self):
                                 self.scene_translation_text_popup)
     self.outer_ui_updater.add(self.battle_cursor)
     if self.current_music:
-        self.music.unpause()
+        self.music_channel.unpause()
     for sound_ch in range(0, 1000):
         if Channel(sound_ch).get_busy():  # unpause all sound playing
             Channel(sound_ch).unpause()

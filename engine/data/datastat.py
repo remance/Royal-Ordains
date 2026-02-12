@@ -117,7 +117,7 @@ class CharacterData(GameData):
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
-            tuple_column = ("Status Immunity", "Sub Characters")
+            tuple_column = ("Status Immunity", "Sub Characters", "Character Tag")
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
             dict_column = ("Spawns", "Items", "Property",)
             dict_column = [index for index, item in enumerate(header) if item in dict_column]
@@ -204,11 +204,16 @@ class CharacterData(GameData):
         edit_file.close()
 
         self.custom_character_setup = {}
+        self.all_main_exist_characters = {}
         for character, character_data in self.character_list.items():
             if character_data["Faction"]:
                 if character_data["Faction"] not in self.custom_character_setup:
+                    self.all_main_exist_characters[character_data["Faction"]] = []
                     self.custom_character_setup[character_data["Faction"]] = {
                         "air": [], "ground": {"leader": {"unique": [], "generic": []}, "troop": []}}
+                if character_data["Class"] != "sub" and os.path.exists(
+                        os.path.join(self.data_dir, "ui", "character_ui", character + ".png")):
+                    self.all_main_exist_characters[character_data["Faction"]].append(character)
                 if character_data["Can Custom"]:
                     if character_data["Type"] == "ground":
                         if character_data["Is Leader"]:

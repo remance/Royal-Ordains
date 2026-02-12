@@ -58,7 +58,7 @@ def make_long_text(surface, text, pos, font, color=Color("black"), with_texture=
         text = [text]
     x, y = [0, pos[1]]
     true_x = pos[0]
-    word_height = font.size(" ")[1]
+    word_height = font.size(" ")[1] + 1  # add + 1 to prevent letter with long bottom like "g" being clipped
     max_width = surface.get_width()
     if specific_width:
         max_width = specific_width

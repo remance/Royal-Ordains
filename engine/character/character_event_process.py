@@ -110,5 +110,5 @@ def start_speech(self, event, event_property):
     self.speech = CharacterSpeechBox(self, self.battle.localisation.grab_text(("event", event["Text ID"], "Text")),
                                      specific_timer=specific_timer,
                                      player_input_indicator=player_input_indicator,
-                                     cutscene_event=event, add_log=event["Text ID"], voice=voice, body_part=body_part,
+                                     cutscene_event=event, voice=voice,
                                      font_size=font_size, max_text_width=max_text_width)

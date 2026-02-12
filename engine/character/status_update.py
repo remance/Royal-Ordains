@@ -16,21 +16,22 @@ def status_update(self):
     self.status_duration = {key: value - 0.1 for key, value in self.status_duration.items() if value > 0.1}
     self.move_cooldown = {key: value - 0.1 for key, value in self.move_cooldown.items() if value > 0.1}
 
+    current_weather = self.battle.current_weather
     # Apply effect from weather
     if not self.immune_weather:
-        if self.weather.has_stat_effect:
+        if current_weather.has_stat_effect:
             if self.character_type == "air":
-                self.offence *= self.weather.air_offence_modifier
-                self.defence *= self.weather.air_defence_modifier
-                self.speed *= self.weather.air_speed_modifier
+                self.offence *= current_weather.air_offence_modifier
+                self.defence *= current_weather.air_defence_modifier
+                self.speed *= current_weather.air_speed_modifier
             else:
-                self.offence *= self.weather.offence_modifier
-                self.defence *= self.weather.defence_modifier
-                self.speed *= self.weather.speed_modifier
-            self.health_regen += self.weather.health_regen_bonus
-            self.resource_regen += self.weather.resource_regen_bonus
-            if self.weather.status_effect:
-                for status in self.weather.status_effect:
+                self.offence *= current_weather.offence_modifier
+                self.defence *= current_weather.defence_modifier
+                self.speed *= current_weather.speed_modifier
+            self.health_regen += current_weather.health_regen_bonus
+            self.resource_regen += current_weather.resource_regen_bonus
+            if current_weather.status_effect:
+                for status in current_weather.status_effect:
                     self.apply_status(status)
 
     # Apply effect and modifier from status effect
