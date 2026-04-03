@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 
 from engine.data.datastat import GameData
-from engine.utils.data_loading import stat_convert, load_images, csv_read, filename_convert_readable as fcv
+from engine.utils.data_loading import stat_convert, load_image, csv_read
 
 
 class MapData(GameData):
@@ -33,29 +33,13 @@ class MapData(GameData):
                 self.weather_data[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
         edit_file.close()
 
-        weather_list = [item["Name"] for item in self.weather_data.values()]
-        strength_list = ("Light ", "Normal ", "Strong ")
-        self.weather_list = []
-        for item in weather_list:  # list of weather with different strength
-            for strength in strength_list:
-                self.weather_list.append(strength + item)
-        self.weather_list = tuple(self.weather_list)
-        edit_file.close()
-
-        self.weather_matter_images = {}
-        for this_weather in weather_list:  # Load weather matter sprite image
-            try:
-                images = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                     subfolder=("map", "weather", "matter", fcv(this_weather, revert=True)))
-                self.weather_matter_images[this_weather] = tuple(images.values())
-            except FileNotFoundError:
-                self.weather_matter_images[this_weather] = ()
-
         self.preset_map_data = {}
         self.region_list = {}
+        self.faction_list = {}
         self.region_by_colour_list = {}
+        self.world_map = None
 
-    def read_region_data(self, campaign: str):
+    def load_campaign_data(self, campaign: str):
         self.region_list = {}
         with open(os.path.join(self.data_dir, "map", "world", campaign, "region.csv"),
                   encoding="utf-8", mode="r") as edit_file:
@@ -75,12 +59,32 @@ class MapData(GameData):
                 self.region_by_colour_list[row[1]] = {header[index]: stuff for index, stuff in enumerate(row)}
         edit_file.close()
 
+        self.world_map = load_image(self.data_dir, (1, 1), "world.png", ("map", "world", campaign), no_alpha=True)
+
+        self.faction_list = {}
+        with open(os.path.join(self.data_dir, "map", "world", campaign, "faction.csv"),
+                  encoding="utf-8", mode="r") as edit_file:
+            rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
+            header = rd[0]
+            hex2colour_column = ("Colour",)
+            hex2colour_column = [index for index, item in enumerate(header) if item in hex2colour_column]
+            dict_column = ("Faction Relation", )
+            dict_column = [index for index, item in enumerate(header) if item in dict_column]
+            tuple_column = ("Showcase Leader", "Showcase Troop")
+            tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
+            for index, row in enumerate(rd[1:]):
+                for n, i in enumerate(row):
+                    row = stat_convert(row, n, i, tuple_column=tuple_column, dict_column=dict_column,
+                                       hex2colour_column=hex2colour_column)
+                self.faction_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
+        edit_file.close()
+
     def read_map_data(self, campaign: str, map_name: str):
         read_folder = Path(os.path.join(self.data_dir, "map", "world", campaign, "preset"))
         sub1_directories = [x for x in read_folder.iterdir() if x.is_dir()]
         for file_map in sub1_directories:
             map_file_name = os.sep.join(os.path.normpath(file_map).split(os.sep)[-1:])
-            if map_name == fcv(map_file_name):
+            if map_name == map_file_name:
                 self.preset_map_data[map_name] = {}
 
                 if map_file_name != "event":  # city scene use different reading
@@ -94,7 +98,7 @@ class MapData(GameData):
                     read_folder = Path(os.path.join(self.data_dir, "map", "stage", "preset", "event"))
                     sub4_directories = [x for x in read_folder.iterdir() if x.is_dir()]
                     for file_scene in sub4_directories:
-                        scene_file_name = fcv(os.sep.join(os.path.normpath(file_scene).split(os.sep)[-1:]))
+                        scene_file_name = os.sep.join(os.path.normpath(file_scene).split(os.sep)[-1:])
                         original_event_data, event_data = self.load_map_event_data(campaign, map_file_name.lower(),
                                                                                    scene_id=scene_file_name.lower())
                         self.preset_map_data[map_name][

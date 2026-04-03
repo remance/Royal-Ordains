@@ -1,85 +1,113 @@
-"Name","Duration","Travel Speed","Damage","Status","Enemy Status","After Reach","After Reach Effect","Sound Effect","Sound Distance","Shake Value","Property"
-"Acid Bomb",,1350,,,,,,,,,
-"Adaqua Arrow",,3500,"TRUE",,,"stick",,"Arrow",400,,
-"Arrow",,3000,"TRUE",,,"stick",,"Arrow",400,,
-"Big Stone",,3000,"TRUE",,"Disrupt","bounce",,"Stone Big",1000,,
-"Bladed Spinner",,2160,"TRUE",,"Bleeding","stick",,,,,
-"Bleeding",,,,,,,,,,,
-"Bless",,,,,,,,,,,
-"Blood Pull",,,,,,,,,,,
-"Bolt",,3400,"TRUE",,,"stick",,"Bolt",400,,
-"Boulder",,2500,"TRUE",,"Disrupt","stick",,"Stone",600,,
-"Caltrops",30,,"TRUE",,,,,,,,
-"Cannonball",,4000,"TRUE",,,"bounce",,"Cannon Ball Small",700,3,
-"Central Arrow",,2800,"TRUE",,,"stick",,"Arrow",400,,
-"Cold Air",5,,"TRUE",,"Cold",,,,,,
-"Crash Enemy",,,,,,,,,,,
-"Crash Player",,,,,,,,,,,
-"Crash Gold",,,,,,,,,,,
-"Damaged",,,,,,,,,,,
-"Dark Day",,,,,,,,,,,
-"Earth Spike",,,"TRUE",,,,,"Earth Spike",2000,5,
-"Fast Stone",,2700,"TRUE",,,"bounce",,"Stone",400,,
-"Fire Barrel",,1500,"TRUE",,,,"Small Fire","Stone",1000,,"reach_effect_spawn_ground:bottom"
-"Firetrap",30,,,,,,"Small Fire","Glass Trap",800,,"trap,reach_effect_spawn_ground:bottom"
-"Firework",,1350,"TRUE",,,,"Firework Explosion",,,,
-"Firework Explosion",,,"TRUE",,"Blind,Disorient",,,"Firework Explosion",6000,40,
-"Flashbang",,1350,,,,,"Light",,,,
-"Frost Bomb",,1350,,,,,"Frost Explosion",,,,
-"Frost Explosion",,,"TRUE",,,,,"Frost Explosion",2500,15,
-"Golden Day",,,,,,,,,,,
-"Huge Land",,,"FALSE",,,,,,10000,500,
-"Huge Stone",,1000,"TRUE",,"Stun","move","Huge Land","Stone Huge",5000,6,"reach_effect_spawn_ground:bottom"
-"Ice Branch",,,"TRUE",,,,,,,,
-"Land",,,,,,,,,5000,200,
-"Large Air Burst",,6750,"TRUE",,,,,,700,5,
-"Light",,,,,"Blind,Panic",,,,600,3,
-"Light Burst Medium",,,"TRUE",,,,,,,,
-"Magic Bolt",,4000,"TRUE",,,,,"Magic Bolt",500,,
-"Magic Bomb",,1000,,,,,"Magic Explosion","Magic Bolt",2000,,"reach_effect_spawn_ground,travel_spin"
-"Magic Explosion",,,"TRUE",,,,,"Explosion",4000,20,
-"Medium Persist Fire",25,,"TRUE",,"Hot",,,,500,,
-"Movement",,,,,,,,,,,
-"Nayedien Spear",,4500,"TRUE",,,"stick",,"Javelin",500,,
-"Poison Cloud",3,,,,"Poison",,,,,,
-"Poisontrap",30,,,,,,"Poison Cloud.1","Glass Trap",400,,"trap,reach_effect_spawn_ground:bottom"
-"Rodhinbar Arrow",,3300,"TRUE",,,,,"Arrow",400,,
-"Rodhinbar Rain Arrow",,3300,"TRUE",,"Suppressed",,,"Arrow",400,,
-"Sand",,1620,"TRUE",,"Disrupt,Blind",,,,,,
-"Shock Stone",,1350,"TRUE",,"Shock","bounce",,,,,
-"Shrapnel",,2970,"TRUE",,,,,"Shrapnel",800,10,
-"Shrapnel Bomb",,1350,,,,,"Shrapnel",,,,"spawn_all_angle,spawn_number:15"
-"Small Air Burst",,5400,"TRUE",,,,,,500,2,
-"Small Bomb",,1350,,,,,"Small Explosion",,,,
-"Small Explosion",,,"TRUE",,,,,"Explosion",5000,30,
-"Small Fire",10,,"TRUE",,,,,,300,,
-"Small Persist Fire",25,,"TRUE",,"Hot",,,,300,,
-"Smoke Pop",,,,,,,,,,,
-"Snare Bite",,,,,"Slow",,,,,,
-"Snaretrap",30,,,,,,"Snare Bite.1","Snare Trap",400,,"trap,reach_effect_spawn_ground"
-"Sound Burst Medium",,,,,,,,,,,
-"Stink Cloud",3,,,,"Disorient",,,,,,
-"Stinktrap",30,,,,,,"Stink Cloud.1","Smoke Puff",400,,"trap,reach_effect_spawn_ground"
-"Stone",,2200,"TRUE",,,"bounce",,"Stone",400,,
-"Test Effect",,,,,,,,,,,
-"Tulia Poison Arrow",,2700,"TRUE",,"Poison","stick",,"Arrow",400,,
-"Toxic Beard",,1800,"TRUE",,,"stick",,"Arrow",250,,
-"Yuawies Leaf",,3500,"TRUE",,"Disorient",,,"Arrow",50,,
-"Pindown Bolt",,,,,"Pin_down",,,,,,
-"Air Rune",,1000,"TRUE",,,,"Air Rune Explosion","Stone",10,,"travel_spin"
-"Earth Rune",,1000,"TRUE",,"Oiled",,"Earth Rune Explosion","Stone",10,,"travel_spin"
-"Magic Rune",,1000,"TRUE",,,,"Magic Rune Explosion","Stone",10,,"travel_spin"
-"Air Rune Explosion",,,"TRUE",,"Shock,Electrocution",,,,,,
-"Earth Rune Explosion",,,"TRUE",,"Oiled",,,,,,
-"Magic Rune Explosion",,,"TRUE",,,,,,,,
-"Poison Dart",,,,,"Poison",,,,,,
-"Sleep Dart",,,,,"Collapse",,,,,,
-"Blight Bag",,,,,,,"Blight Explode",,,,
-"Blight Explode",,,,,"Plague",,,,,,
-"Water Ball",,,,,"Wet",,,,,,
-"Wasp Pot",,,,,,,"Wasp Unleash",,,,
-"Wasp Unleash",,,,,"Wasp,Panic",,,,,,
-"Ice Pillar",,,,,"Cold,Stagger",,,,,,
-"Summon_scorpion",,,,,,,,,,,
-"Use Item",,,,,,,,,,,
-"Earth Wall",,,,,,,,"Earth Spike",5000,700,"summon:Summon_earth_wall"
+"Name","Duration","Travel Speed","Damage","After Reach","After Reach Effect","Sound Effect","Sound Distance","Shake Value","Property"
+"acid_bomb",,1350,,,,,,,
+"adaqua_arrow",,3500,"TRUE","stick",,"arrow",400,,
+"air_burst_medium",,,"TRUE",,,"air_burst_medium",600,4,
+"air_rune",,1000,,,"air_rune_explosion","stone",10,,"travel_spin"
+"air_rune_explosion",,,"TRUE",,,,,,
+"apple",,1000,"TRUE","bounce",,"toy",500,,"travel_spin"
+"arrow",,3000,"TRUE","stick",,"arrow",400,,
+"bladed_spinner",,2160,"TRUE","stick",,,,,
+"bleeding",,,,,,,,,
+"bless",,,,,,,,,
+"blight_bag",,,,,"blight_explode",,,,
+"blight_explode",,,"TRUE",,,,,,
+"blood_pull",,,"TRUE",,,,,,
+"bolt",,3400,"TRUE","stick",,"bolt",400,,
+"bomb",,1000,,,"explosion_big","bomb_drop",800,,
+"bomb_small",,1350,,,"explosion_small","stone",300,,
+"boulder",,2500,"TRUE","stick",,"stone",600,,
+"caltrops",30,,"TRUE",,,,,,
+"cannonball",,4000,"TRUE","bounce",,"cannon_ball_small",700,3,
+"central_arrow",,2800,"TRUE","stick",,"arrow",400,,
+"cheesecake",,1000,"TRUE","bounce",,"toy",500,,"travel_spin"
+"cold_air",7,,"TRUE",,,,,,
+"crash_enemy",,,,,,,,,
+"crash_gold",,,,,,,,,
+"crash_player",,,,,,,,,
+"damaged",,,,,,,,,
+"dark_day",,,,,,,,,
+"ducky",,1000,"TRUE","bounce",,"quack",1000,,"travel_spin"
+"doll_knife",,3000,"TRUE","stick",,"bolt",100,,
+"doll_lander",,2500,"TRUE",,,"stone_big",1500,,"travel_spin,summon:doll_lander,summon_spawn_ground:bottom"
+"earth_bolt",,5000,"TRUE","stick",,"stone",1000,,
+"earth_rune",,1000,,,"earth_rune_explosion","stone",10,,"travel_spin"
+"earth_rune_explosion",,,"TRUE",,,,,,
+"earth_spike",,,"TRUE",,,"earth_spike",2000,5,
+"earth_wall",,-3000,"TRUE",,,"earth_spike",5000,700,"summon:summon_earth_wall,summon_spawn_ground:bottom"
+"explosion_big",,,"TRUE",,,"explosion_big",8000,50,
+"explosion_small",,,"TRUE",,,"explosion",5000,30,
+"fire_barrel",,1500,"TRUE",,"fire_small","stone",1000,,"reach_effect_spawn_ground:bottom"
+"fire_small",10,,"TRUE",,,,300,,
+"fireball",,4000,"TRUE",,"explosion_small","fireball",1500,,
+"firecracker",,1500,,,"firework_explosion",,2000,,"travel_spin"
+"firecracker_explosion",,,"TRUE",,,"firecracker",3000,20,
+"firetrap",30,,,,"fire_small","glass_trap",800,,"trap,reach_effect_spawn_ground:bottom"
+"firework",,1350,,,"firework_explosion",,,,
+"firework_explosion",,,"TRUE",,,"firework_explosion",6000,40,
+"flashbang",,1350,,,"light",,,,
+"frost_bomb",,1350,,,"frost_explosion",,,,
+"frost_explosion",,,"TRUE",,,"frost_explosion",2500,15,
+"funball",,1000,"TRUE","bounce",,"poing",500,,"travel_spin"
+"funblock",,1000,"TRUE","bounce",,"toy",500,,"travel_spin"
+"golden_day",,,,,,,,,
+"great_fireball",,2000,"TRUE",,"explosion_big","fireball_big",2500,,
+"harpoon",,4000,"TRUE","stick",,"bolt",1500,,
+"ice_branch",,,"TRUE",,,,,,
+"ice_orb",,3000,"TRUE","move",,"stone_big",500,,"reach_effect_spawn_ground:bottom"
+"ice_pillar",,-3000,"TRUE",,,"ice_pillar",3500,10,"summon:summon_ice_pillar,summon_spawn_ground:bottom"
+"ice_shard",,2000,"TRUE",,,,,,
+"landing_huge",,,,,,"landing_huge",6000,300,
+"landing_medium",,,,,,"landing_huge",1000,100,
+"light",,,,,,,600,3,
+"light_burst_medium",,,,,,,,,
+"magic_ball",,600,"TRUE",,,"magic_bolt",800,,"travel_spin"
+"magic_bolt",,4000,"TRUE",,,,500,,
+"magic_bomb",,1000,,,"magic_explosion","magic_bomb",2000,,"reach_effect_spawn_ground:bottom,travel_spin"
+"magic_explosion",,,"TRUE",,,"magic_explosion",4000,20,
+"magic_rune",,1000,"TRUE",,"magic_rune_explosion","stone",10,,"travel_spin"
+"magic_rune_explosion",,,"TRUE",,,"magic_explosion",1000,5,
+"meteor",,10000,,,"meteor_explosion","meteor",30000,200,"reach_effect_spawn_ground:bottom,start_move_delay:3"
+"meteor_explosion",,,"TRUE",,,"meteor_explosion",100000,10000,"play_time_mod:1.25"
+"movement",,,,,,,,,
+"nayedien_spear",,4500,"TRUE","stick",,"javelin",500,,
+"oil_ball",,1000,"TRUE",,"oil_explosion",,,,"travel_spin"
+"pipe",,1000,"TRUE","bounce",,"toy",500,,"travel_spin"
+"poison_ball",,1000,,,"poison_explosion",,,,"travel_spin"
+"poison_beam",,4000,"TRUE",,"poison_beam_disperse","javelin",500,,
+"poison_beam_disperse",,,,,,,,,
+"poison_cloud",3,,"TRUE",,,,,,
+"poison_dart",,,"TRUE",,,,,,
+"poison_explosion",,,"TRUE",,,,,,
+"poisontrap",30,,,,"poison_cloud","glass_trap",400,,"trap,reach_effect_spawn_ground:bottom"
+"rodhinbar_arrow",,3300,"TRUE","stick",,"arrow",400,,
+"sand",,1620,"TRUE",,,,,,
+"shock_stone",,1350,"TRUE","bounce",,,,,
+"shrapnel",,2970,"TRUE",,,"shrapnel",800,10,
+"shrapnel_bomb",,1350,,,"shrapnel","bullet",1500,,"spawn_all_angle,spawn_number:15"
+"sleep_dart",,,,"stick",,,,,
+"smoke_pop",,,,,,,,,
+"snare_bite",,,,,,,,,
+"snaretrap",30,,,,"snare_bite","snare_trap",400,,"trap,reach_effect_spawn_ground"
+"sound_burst_medium",,,,,,,,,
+"spikeball",,1000,"TRUE","bounce",,"toy",500,,"travel_spin"
+"stink_cloud",3,,,,,,,,
+"stinktrap",30,,,,"stink_cloud","smoke_puff",400,,"trap,reach_effect_spawn_ground"
+"stone",,2200,"TRUE","bounce",,"stone",400,,
+"stone_big",,3000,"TRUE","bounce",,"stone_big",1000,,
+"stone_huge",,1000,"TRUE","move","landing_huge","stone_huge",5000,6,"reach_effect_spawn_ground:bottom"
+"summon_scorpion",,,,,,,,,
+"test_effect",,,,,,,,,
+"toxic_beard",,1800,"TRUE","stick",,"arrow",250,,
+"train",,1000,"TRUE","bounce",,"train_toy",500,,"travel_spin"
+"tulia_poison_arrow",,2700,"TRUE","stick",,"arrow",400,,
+"use_item",,,,,,,,,
+"wasp_pot",,,,,"wasp_unleash",,,,
+"wasp_unleash",,,"TRUE",,,,,,
+"water_ball",,,,,,,,,
+"weirdstick",,1000,"TRUE","bounce",,"toy",500,,"travel_spin"
+"yuawies_leaf",,3500,"TRUE","stick",,"arrow",50,,
+"curse_skull",,800,"TRUE",,,"curse_skull",500,,
+"verlindas_knife",,4000,"TRUE",,,"arrow",50,,
+"crimson_flare",,,,,,,,,
+"lightning_red",,,"TRUE",,,,,,
+"lightning_blast_red",,5500,"TRUE",,,,,,

@@ -35,18 +35,23 @@ def move_logic(self, dt, done):
             self.travel_progress += move[0]
             self.pos = Vector2(new_pos[0] * self.screen_scale[0], new_pos[1] * self.screen_scale[1])
             self.renew_sprite = True
+            if self.ignore_ground:
+                self.travel_distance -= move.length()
+                if self.base_pos.distance_to(self.base_target_pos) < 100:
+                    self.travel_distance = 0
 
-            if not self.random_move and (
+            if not self.random_move and (not self.travel_distance or
                     new_pos[0] <= self.effect_base_stage_start or new_pos[0] > self.effect_base_stage_end or
-                    new_pos[1] >= self.base_ground_pos or new_pos[1] < -5000):  # pass outside of map
-
+                    (not self.ignore_ground and new_pos[1] >= self.base_ground_pos) or new_pos[1] < -10000):
+                # pass outside of map or no longer move
                 if new_pos[1] >= self.base_ground_pos:
                     # reach ground
                     self.travel_distance = 0
-                    self.current_animation = self.animation_pool["Base"][self.sprite_flip][self.width_scale][
-                        self.height_scale]  # change image to base
-                    self.base_image = self.current_animation[self.show_frame]
-                    self.adjust_sprite()
+                    if self.after_reach:  # change to base image for after reach like bounce from impact
+                        self.current_animation = self.animation_pool["base"][self.sprite_flip][self.width_scale][
+                            self.height_scale]  # change image to base
+                        self.base_image = self.current_animation[self.show_frame]
+                        self.adjust_sprite()
                     self.reach_target("ground")
                     return
                 else:

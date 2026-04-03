@@ -18,12 +18,9 @@ from engine.data.datasound import SoundData
 from engine.game.game import Game
 from engine.uibattle.uibattle import UIBattle, UIScroll
 from engine.uimenu.uimenu import MenuCursor, NameList, MenuButton, TextPopup, InputUI, InputBox, ListBox
-from engine.utils.data_loading import csv_read, load_image, load_images, load_base_button, recursive_image_load, \
-    filename_convert_readable as fcv
+from engine.utils.data_loading import csv_read, load_image, load_images, load_base_button, recursive_image_load
 from engine.utils.rotation import rotation_xy
 from engine.utils.sprite_altering import sprite_rotate, apply_sprite_effect, apply_sprite_colour
-
-from engine.utils.data_loading import filename_convert_readable
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 main_dir = "\\".join(main_dir.split("\\")[:-2])
@@ -89,7 +86,7 @@ def read_anim_data(art_style_dir, anim_column_header):
                     else:
                         animation_pool[key] = [
                             {part_name_header[item_index]: item for item_index, item in enumerate(row)}]
-            pool[filename_convert_readable(file)] = animation_pool
+            pool[file] = animation_pool
             part_name_header = [item for item in part_name_header if item != "sound_effect" and
                                 "property" not in item]
             edit_file.close()

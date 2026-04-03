@@ -1,7 +1,10 @@
 # from functools import lru_cache
-# from bisect import bisect_left
 
+from math import radians
+from engine.constants import Collision_Grid_Y_Per_Scene
 from pygame.transform import rotate
+
+from engine.utils.rotation import rotation_xy
 
 rotation_list = (-180, -120, -90, -45, 0, 45, 90, 120, 180)
 
@@ -100,7 +103,15 @@ def adjust_sprite(self):
 
         self.renew_sprite = False
 
-    self.rect = self.image.get_rect(center=self.pos)
+    offset = self.base_image["offset"]
+    self.offset_pos = self.pos
+    if offset:
+        if self.angle and self.angle != 360:
+            self.offset_pos = rotation_xy(self.pos, self.pos + offset, radians(self.angle))
+        else:
+            self.offset_pos = self.pos - offset
+
+    self.rect = self.image.get_rect(center=self.offset_pos)
 
 
 def damage_effect_adjust_sprite(self):
@@ -111,9 +122,25 @@ def damage_effect_adjust_sprite(self):
     grid_right = int(self.rect.topright[0] / self.collision_grid_width) + 1
     if grid_right > self.last_grid:
         grid_right = self.last_grid
-    grid_range = range(grid_left, grid_right)
-    if self.grid_range != grid_range:
-        self.grid_range = grid_range
+    grid_range_x = range(grid_left, grid_right)
+    if self.grid_range_x != grid_range_x:
+        self.grid_range_x = grid_range_x
+
+    grid_top = int(self.rect.topleft[1] / self.collision_grid_height)
+    grid_bottom = int(self.rect.bottomleft[1] / self.collision_grid_height) + 1
+
+    if grid_top < Collision_Grid_Y_Per_Scene:
+        if grid_bottom > Collision_Grid_Y_Per_Scene:
+            grid_bottom = Collision_Grid_Y_Per_Scene
+        if grid_top < 0:
+            grid_top = 0
+    else:  # effect somehow exists entirely lower than bottom of the screen, ignored for collision
+        grid_top = 0
+        grid_bottom = 0
+
+    grid_range_y = (range(grid_top, grid_bottom))
+    if self.grid_range_y != grid_range_y:
+        self.grid_range_y = grid_range_y
 
     self.mask = self.base_image["mask"][close_rotation_dict[int(self.angle)]]
 

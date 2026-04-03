@@ -11,7 +11,7 @@ def make_option_menu(self, main_menu_buttons_box):
     keybind = self.player_key_bind_list
     font_size = int(64 * self.screen_scale[1])
 
-    back_button = BrownMenuButton((.15, 0.5), (0.6, 0), key_name="back_button",
+    back_button = BrownMenuButton((.15, 0.5), (0.6, 0), key_name="button_back",
                                   parent=main_menu_buttons_box)
     keybind_button = BrownMenuButton((.15, 0.5), (0, 0), key_name="option_menu_keybind",
                                      parent=main_menu_buttons_box)

@@ -2,7 +2,7 @@ from os import sep
 from os.path import join, split, normpath
 from pathlib import Path
 
-from engine.utils.data_loading import load_images, filename_convert_readable as fcv
+from engine.utils.data_loading import load_images
 from engine.utils.sprite_caching import save_pickle_with_surfaces
 
 
@@ -16,10 +16,10 @@ def compile_out_data(data_dir, animation_dir):
     #     sep.join(normpath(x).split(sep)[normpath(x).split(sep).index("animation"):])) for x
     #     in part_folder.iterdir() if x.is_dir()]
     # for folder in subdirectories:
-    #     folder_data_name = fcv(folder[-1])
+    #     folder_data_name = folder[-1]
     #     if folder_data_name not in stage_object_animation_pool:
     #         stage_object_animation_pool[folder_data_name] = {}
-    #         images = load_images(part_folder, subfolder=(folder[-1],), key_file_name_readable=True)
+    #         images = load_images(part_folder, subfolder=(folder[-1],))
     #         stage_object_animation_pool[folder_data_name] = \
     #             {int(key): value for key, value in images.items()}
 
@@ -31,10 +31,10 @@ def compile_out_data(data_dir, animation_dir):
         sep.join(normpath(x).split(sep)[normpath(x).split(sep).index("animation"):])) for x
         in part_folder.iterdir() if x.is_dir()]
     for folder in subdirectories:
-        folder_data_name = fcv(folder[-1])
+        folder_data_name = folder[-1]
         if folder_data_name not in world_object_animation_pool:
             world_object_animation_pool[folder_data_name] = {}
-            images = load_images(part_folder, subfolder=(folder[-1],), key_file_name_readable=True)
+            images = load_images(part_folder, subfolder=(folder[-1],))
 
             true_name_list = []
             for key, value in images.items():
@@ -68,4 +68,3 @@ def compile_out_data(data_dir, animation_dir):
 # pygame.init()
 # pen = pygame.display.set_mode((1, 1))
 # compile_out_data(data_dir, animation_dir)
-# print(main_dir, current_dir)

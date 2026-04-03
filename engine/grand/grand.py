@@ -61,8 +61,6 @@ class Grand:
         self.screen_rect = game.screen_rect
         self.screen_width = self.screen_rect.width
         self.screen_height = self.screen_rect.height
-        self.corner_screen_width = game.corner_screen_width
-        self.corner_screen_height = game.corner_screen_height
 
         self.camera_size = (self.screen_width, self.screen_height)
         self.camera_max = (self.screen_width - 1, self.screen_height - 1)
@@ -119,7 +117,6 @@ class Grand:
         self.character_data = self.game.character_data
         self.map_data = self.game.map_data
         self.weather_data = self.map_data.weather_data
-        self.weather_list = self.map_data.weather_list
 
         self.animation_data = self.game.sprite_data
         self.character_animation_data = self.game.character_animation_data
@@ -135,7 +132,6 @@ class Grand:
         self.screen = self.game.screen
 
         # Create the game camera
-        self.camera_mode = "Follow"  # mode of game camera, follow player character or free observation
         self.camera_pos = Vector2(500, 500)  # camera pos on scene
         self.camera_left = (self.camera_pos[0] - self.camera_center_x)
 
@@ -212,21 +208,11 @@ class Grand:
         self.game.loading_lore_text = self.localisation.grab_text(
             ("load", randint(0, len(self.localisation.text[self.language]["load"]) - 1), "Text"))
 
-        grand_ui_images = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                      subfolder=("map", "world", campaign, "world"))
-        remake_images_list = [[]]
-        for image_name, image in grand_ui_images.items():
-            sp = image_name.split("-")
-            if int(sp[0]) + 1 > len(remake_images_list):  # new row
-                remake_images_list.append([])
-            remake_images_list[int(sp[0])].append(image)
-
         GrandMap.image = Surface.subsurface(self.camera.image, (0, 0, self.camera.image.get_width(),
                                                                 self.camera.image.get_height()))
-        self.grand_map.images = remake_images_list
 
-        self.map_x_end, self.map_y_end = self.grand_map.setup(load_image(
-            self.data_dir, (1, 1), "world.png", ("map", "world", campaign),
+        self.map_x_end, self.map_y_end = self.grand_map.setup(self.map_data.world_map, load_image(
+            self.data_dir, (1, 1), "grand.png", ("map", "world", campaign),
             no_alpha=True))
         self.mini_map.change_grand_setup(self.game.grand_mini_map.original_image)
         self.mini_map.change_grand_faction(self.current_campaign_state["region_control"])
@@ -374,21 +360,14 @@ class Grand:
 
             self.player_input()
 
-            # if self.esc_press:  # pause game and open menu
-            #     for sound_ch in self.battle_sound_channel:
-            #         if sound_ch.get_busy():  # pause all sound playing
-            #             sound_ch.pause()
-            #
-            #     self.add_to_ui_updater(self.cursor, self.battle_menu_button.values(),
-            #                            self.scene_translation_text_popup)  # add menu and its buttons to drawer
-
             # Update game time
-            self.dt = self.true_dt * self.game_speed  # apply dt with game_speed for calculation
+            dt = self.true_dt * self.game_speed
+            self.dt = dt  # apply dt with game_speed for calculation
             self.shown_camera_pos = self.camera_pos.copy()
 
-            if self.dt:
-                if self.dt > 0.016:  # one frame update should not be longer than 0.016 second (60 fps) for calculation
-                    self.dt = 0.016  # make it so stutter and lag does not cause overtime issue
+            if dt:
+                if dt > 0.016:  # one frame update should not be longer than 0.016 second (60 fps) for calculation
+                    dt = 0.016  # make it so stutter and lag does not cause overtime issue
                 #
                 # if self.ai_process_list:
                 #     limit = int(len(self.ai_process_list) / 20)
@@ -404,14 +383,13 @@ class Grand:
                 #     self.ai_process_list = self.ai_process_list[limit:]
                 #
                 # for battle_ai_commander in self.all_battle_ai_commanders:
-                #     battle_ai_commander.update(self.dt)
+                #     battle_ai_commander.update(dt)
                 #
                 # if self.cutscene_finish_camera_delay and not self.cutscene_playing:
                 #     self.cutscene_finish_camera_delay -= self.true_dt
                 #     if self.cutscene_finish_camera_delay < 0:
                 #         self.cutscene_finish_camera_delay = 0
 
-                self.play_time += self.dt
                 self.ui_timer += self.true_dt  # ui update by real time instead of self time to reduce workload
 
                 # Screen shaking
@@ -419,15 +397,15 @@ class Grand:
                     decrease = 1000
                     if self.screen_shake_value > decrease:
                         decrease = self.screen_shake_value
-                    self.screen_shake_value -= (self.dt * decrease)
+                    self.screen_shake_value -= (dt * decrease)
                     if self.screen_shake_value < 0:
                         self.screen_shake_value = 0
                     else:
                         self.shake_camera()
 
                 # Object related updater
-                self.grand_actor_updater.update(self.dt)
-                self.grand_effect_updater.update(self.dt)
+                self.grand_actor_updater.update(dt)
+                self.grand_effect_updater.update(dt)
 
                 if self.sound_effect_queue:
                     for key, value in self.sound_effect_queue.items():  # play each sound effect initiate in this loop
@@ -441,12 +419,15 @@ class Grand:
                     self.ui_timer -= 0.1
 
             # camera_right_x = pos[0] + self.camera_w_center  # camera topleft x
+            self.camera_topleft_y_shift = self.camera_center_y - self.shown_camera_pos[1]
+            self.camera_topleft_x_shift = self.shown_camera_pos[0] - self.camera_w_center  # camera topleft x
             self.camera_y = self.shown_camera_pos[1] - self.camera_h_center  # camera topleft y
-            self.camera.camera_x_shift = self.shown_camera_pos[0]
-            self.camera.camera_y_shift = self.shown_camera_pos[1]
+            self.camera.camera_topleft_x_shift = self.camera_topleft_x_shift
+            self.camera.camera_topleft_y_shift = self.camera_topleft_y_shift
+            self.camera.camera_right_x_shift = self.shown_camera_pos[0] + self.camera_w_center
             self.grand_map.update()
             self.camera.update(self.grand_camera_object_drawer)
-            self.outer_ui_updater.update()
+            self.outer_ui_updater.update(dt)
 
             self.camera.update(self.grand_camera_ui_drawer)
             self.camera.out_update(self.outer_ui_updater)
@@ -483,13 +464,7 @@ class Grand:
         # remove all reference from battle object
         self.scene.images = {}
         self.scene.data = {}
-        self.team_stat = {team: {"strategy_resource": 0, "start_pos": 0,
-                                 "air_group": [], "strategy": {}, "unit": {}} for
-                          team in team_list}
         self.ai_process_list = []
-        self.battle_ai_commander1.clear()
-        self.battle_ai_commander2.clear()
-
         self.clean_character_group()
 
         clean_group_object((self.all_battle_characters, self.battle_character_updater, self.battle_effect_updater,

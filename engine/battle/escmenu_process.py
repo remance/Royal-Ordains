@@ -41,12 +41,12 @@ def escmenu_process(self):
 
                 elif key == "end":  # end battle
                     self.activate_input_popup(("confirm_input", "end_battle"),
-                                              self.localisation.grab_text(("ui", "Leave Battle?")),
+                                              self.localisation.grab_text(("ui", "input_leave_battle")),
                                               self.confirm_popup_uis)
 
                 elif key == "quit":  # quit game
                     self.activate_input_popup(("confirm_input", "quit"),
-                                              self.localisation.grab_text(("ui", "Quit Game?")),
+                                              self.localisation.grab_text(("ui", "input_quit_game")),
                                               self.confirm_popup_uis)
                 break  # found clicked button, break loop
 
@@ -82,7 +82,7 @@ def back_to_battle_state(self):
     self.outer_ui_updater.add(self.battle_cursor)
     if self.current_music:
         self.music_channel.unpause()
-    for sound_ch in range(0, 1000):
-        if Channel(sound_ch).get_busy():  # unpause all sound playing
-            Channel(sound_ch).unpause()
+    for sound_ch in self.battle_sound_channels:
+        if sound_ch.get_busy():  # unpause all sound playing
+            sound_ch.unpause()
     self.change_game_state("battle")

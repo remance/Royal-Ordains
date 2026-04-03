@@ -19,7 +19,6 @@ class GrandMap(Sprite):
         self._layer = 0
         Sprite.__init__(self)
         self.region_by_colour_list = self.grand.map_data.region_by_colour_list
-        self.images = {}
         self.true_map_image = None
         self.full_shown_map_image = None
         self.current_show_map_image = None
@@ -32,17 +31,12 @@ class GrandMap(Sprite):
         self.size_width = self.screen_width
         self.size_height = self.screen_height
 
-    def setup(self, image):
-        self.true_map_image = image
-        self.full_shown_map_image = Surface((self.screen_width * len(self.images),
-                                             self.screen_height * len(self.images[0])), SRCALPHA)
+    def setup(self, true_map, shown_map):
+        self.true_map_image = true_map
+        self.full_shown_map_image = shown_map
         self.map_shown_to_actual_scale_width = self.full_shown_map_image.get_width() / self.true_map_image.get_width()
         self.map_shown_to_actual_scale_height = self.full_shown_map_image.get_height() / self.true_map_image.get_height()
-        for row_index, row in enumerate(self.images):
-            for col_index, image in enumerate(self.images[row_index]):
-                self.full_shown_map_image.blit(image,
-                                               image.get_rect(topleft=(row_index * image.get_width(),
-                                                                       col_index * image.get_height())))
+
         self.current_show_map_image = Surface.subsurface(self.full_shown_map_image, (0, 0,
                                                                                      self.size_width, self.size_height))
         return (self.full_shown_map_image.get_width() - self.size_width,
@@ -77,15 +71,15 @@ class GrandMap(Sprite):
 
                     controller = self.grand.current_campaign_state["region_control"][region_colour]
                     self.grand.text_popup.popup(self.grand.cursor.rect.bottomright,
-                                                (self.grand.localisation.grab_text(("ui", "Region:")) +
+                                                (self.grand.localisation.grab_text(("ui", "info_header_region")) +
                                                  self.grand.localisation.grab_text(("region",
                                                                                     self.region_by_colour_list[
                                                                                         region_colour]["ID"], "Name")),
-                                                 self.grand.localisation.grab_text(("ui", "Control:")) +
+                                                 self.grand.localisation.grab_text(("ui", "info_header_control")) +
                                                  self.grand.localisation.grab_text(("faction", controller, "Name")),
-                                                 self.grand.localisation.grab_text(("ui", "Income:")),
-                                                 self.grand.localisation.grab_text(("ui", "Supply:")),
-                                                 self.grand.localisation.grab_text(("ui", "Happiness:"))),
+                                                 self.grand.localisation.grab_text(("ui", "info_header_income")),
+                                                 self.grand.localisation.grab_text(("ui", "info_header_supply")),
+                                                 self.grand.localisation.grab_text(("ui", "info_header_happiness"))),
                                                 width_text_wrapper=800 * self.screen_scale[0]
                                                 )
                     self.grand.outer_ui_updater.add(self.grand.text_popup)

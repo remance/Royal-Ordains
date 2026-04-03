@@ -3,7 +3,7 @@ from pygame import image, Surface, SRCALPHA
 from pygame.image import tobytes
 
 
-def crop_sprite(sprite_pic):
+def crop_sprite(sprite_pic, character_offset=True):
     low_x0 = float("inf")  # lowest x0
     low_y0 = float("inf")  # lowest y0
     high_x1 = 0  # highest x1
@@ -27,14 +27,27 @@ def crop_sprite(sprite_pic):
         # Crop transparent area only of surface
         data2 = data2.crop((low_x0, low_y0, high_x1, high_y1))
 
-        # Find offset after crop
+        # Find center x offset after crop
         center_x_offset = ((low_x0 + high_x1) / 2)
-
-        crop_offset = ((data2.size[0] / 2) - center_x_offset, data2.size[1] - high_y1)
+        if character_offset:
+            # offset based on ground position
+            crop_offset = (-center_x_offset, -high_y1)
+        else:
+            # offset based on sprite center
+            center = ((size[0] / 2), (size[1] / 2))
+            crop_offset = (center[0] - ((low_x0 + high_x1) / 2), center[1] - ((low_y0 + high_y1) / 2))
     else:
         crop_offset = (0, 0)
     data2 = data2.convert("P")  # convert to palette mode to reduce file size
     return data2, crop_offset
+
+
+def convert_palette_sprite(sprite_pic):
+    size = sprite_pic.get_size()
+    data = tobytes(sprite_pic, "RGBA")  # convert image to string data
+    data2 = Image.frombytes("RGBA", size, data)  # use PIL to get image data
+    data2 = data2.convert("P")  # convert to palette mode to reduce file size
+    return data2
 
 
 def apply_sprite_colour(surface, colour=None, white_colour=True):

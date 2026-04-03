@@ -7,9 +7,9 @@ def make_input_box(self):
                      layer=10000)  # user text input ui box popup
     input_button_box = BoxUI((-1, -7), (input_ui.rect[2], input_ui.rect[3] * 0.15), parent=input_ui.image,
                              layer=10000)  # user text input ui box popup
-    input_ok_button = BrownMenuButton((.25, 1), (-0.65, 0), key_name="confirm_button", parent=input_button_box)
-    input_close_button = BrownMenuButton((.25, 1), (0, 0), key_name="close_button", parent=input_button_box)
-    input_cancel_button = BrownMenuButton((.25, 1), (0.65, 0), key_name="cancel_button", parent=input_button_box)
+    input_ok_button = BrownMenuButton((.25, 1), (-0.65, 0), key_name="button_confirm", parent=input_button_box)
+    input_close_button = BrownMenuButton((.25, 1), (0, 0), key_name="button_close", parent=input_button_box)
+    input_cancel_button = BrownMenuButton((.25, 1), (0.65, 0), key_name="button_cancel", parent=input_button_box)
 
     input_box = InputBox(input_ui.rect.center, input_ui.image.get_width(), layer=10001)  # user text input box
     static_input_box = InputBox(input_ui.rect.center, input_ui.image.get_width(), layer=10001,

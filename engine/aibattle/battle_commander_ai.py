@@ -28,7 +28,6 @@ class BattleCommanderAI:
         self.call_in_air_group = self.battle.call_in_air_group
         self.current_weather = self.battle.current_weather
         self.activate_strategy = self.battle.activate_strategy
-        self.weather_list = self.battle.weather_list
         self.character_list = self.battle.character_list
         self.commander = self.battle.team_commander[team]
         self.enemy_commander = self.battle.team_commander[self.enemy_team]
@@ -39,6 +38,7 @@ class BattleCommanderAI:
         self.air_enemy_collision_grids = self.battle.all_team_air_enemy_collision_grids[self.team]
 
         self.ground_ally_collision_grids = self.battle.all_team_ground_enemy_collision_grids[self.enemy_team]
+        self.air_ally_collision_grids = self.battle.all_team_air_enemy_collision_grids[self.enemy_team]
         self.can_cure_status_list = self.battle.can_cure_status_list
         self.can_clarity_status_list = self.battle.can_clarity_status_list
         self.strategy_list = self.battle.strategy_list
@@ -53,7 +53,7 @@ class BattleCommanderAI:
         self.reinforcement = self.battle.later_reinforcement["team"][team]
         self.enemy_reinforcement = self.battle.later_reinforcement["team"][self.enemy_team]
 
-        self.aggressive = 0  # determine how aggressive the AI is
+        self.aggressive = 0  # determine how aggressive the AI commander is
         self.defensive = 0
         self.clever = 0  # determine how precise AI act
         self.swift = 0  # determine how often and many actions AI can take
@@ -96,7 +96,7 @@ class BattleCommanderAI:
                         if "Clarity" in stat["Status"]:
                             self.own_strategy_type["clarity"].add(strategy)
                             self.has_clarity_strategy = True
-                    else:
+                    else:  # any buff strategy
                         self.own_strategy_type["ally"].add(strategy)
 
                 if "weather" in stat["Property"]:

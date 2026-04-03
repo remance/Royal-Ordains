@@ -13,8 +13,10 @@ def die(self):
 
     for team in self.battle.all_team_enemy_check:
         if team != self.team:
-            for grid in self.grid_range:
-                self.all_team_enemy_collision_grids[team][grid].remove(self)
+            for grid_x in self.grid_range_x:
+                for grid_y in self.grid_range_y:
+                    self.all_team_enemy_collision_grids[team][grid_y][grid_x].remove(self)
+                self.all_team_enemy_collision_grids[team][-1][grid_x].remove(self)
             if self in self.battle.all_team_enemy_check[team]:
                 self.battle.all_team_enemy_check[team].remove(self)
 
@@ -29,6 +31,8 @@ def die(self):
             # main character no longer has sub characters, check if main character is consider no longer active
             # does not include main character that is dead already
             self.main_character.health = 0
+    else:  # count dead only for main character
+        self.battle.team_loss[self.team] += 1
     self.main_character = None
 
     if "die" in self.ai_speak_list:

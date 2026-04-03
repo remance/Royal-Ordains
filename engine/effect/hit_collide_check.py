@@ -11,31 +11,32 @@ def hit_collide_check(self):
     @param self: BattleCharacter or DamageEffect object
     @return: Boolean whether the object is deleted from collision
     """
-    for grid in self.grid_range:
-        for enemy in self.enemy_collision_grids[grid]:
-            if enemy.health and collide_mask(self, enemy):
-                # if not self.is_effect_type and enemy.sprite_deal_damage:
-                #     # character sprite attack collide with enemy sprite attack
-                #     if melee_impact_crash_check(self, enemy):  # lose in crash
-                #         return True
-                if enemy not in self.already_hit:
-                    self.already_hit.append(enemy)
-                    if uniform(self.low_offence, self.offence) > uniform(0, enemy.low_speed):  # check for dodge
-                        if not self.duration:
-                            self.penetrate -= enemy.body_mass
-                            if self.penetrate < 0:
-                                self.penetrate = 0
-                        self.hit_register(enemy)
-                        if not self.penetrate:
-                            if self.is_effect_type:
-                                if self.remain_check:
-                                    if self.after_reach == "bounce":
-                                        sprite_bounce(self)
-                                elif len(self.current_animation) == 1:
-                                    self.reach_target()
-                                    return True
-                            else:
-                                return
+    for grid_y in self.grid_range_y:
+        for grid_x in self.grid_range_x:
+            for enemy in self.enemy_collision_grids[grid_y][grid_x]:
+                if enemy.health and collide_mask(self, enemy):
+                    # if not self.is_effect_type and enemy.sprite_deal_damage:
+                    #     # character sprite attack collide with enemy sprite attack
+                    #     if melee_impact_crash_check(self, enemy):  # lose in crash
+                    #         return True
+                    if enemy not in self.already_hit:
+                        self.already_hit.append(enemy)
+                        if uniform(self.low_offence, self.offence) > uniform(0, enemy.low_speed):  # check for dodge
+                            if not self.duration:
+                                self.penetrate -= enemy.body_mass
+                                if self.penetrate < 0:
+                                    self.penetrate = 0
+                            self.hit_register(enemy)
+                            if not self.penetrate:
+                                if self.is_effect_type:
+                                    if self.remain_check:
+                                        if self.after_reach == "bounce":
+                                            sprite_bounce(self)
+                                    elif len(self.current_animation) == 1:
+                                        self.reach_target()
+                                        return True
+                                else:
+                                    return
 
 
 # def melee_impact_crash_check(self, enemy):
@@ -47,10 +48,10 @@ def hit_collide_check(self):
 #         enemy_impact = log2(enemy.impact_sum)
 #     impact_diff = impact - enemy_impact
 #     if -1 < impact_diff < 1:  # both impact quite near in value
-#         engine.effect.effect.Effect(None, ("Crash Player", "Base", self.rect.centerx,
+#         engine.effect.effect.Effect(None, ("crash_player", "base", self.rect.centerx,
 #                                      self.rect.centery, direction_to_angle[self.direction], 0, 0, 1, 1),
 #                                     from_owner=False)
-#         engine.effect.effect.Effect(None, ("Crash Enemy", "Base", enemy.rect.centerx,
+#         engine.effect.effect.Effect(None, ("crash_enemy", "base", enemy.rect.centerx,
 #                                      enemy.rect.centery, direction_to_angle[enemy.direction], 0, 0, 1, 1),
 #                                     from_owner=False)
 #         self.interrupt_animation = True
@@ -60,14 +61,14 @@ def hit_collide_check(self):
 #         enemy.command_action = enemy.damaged_command_action
 #         enemy.sprite_deal_damage = False
 #     elif impact_diff > 1:  # collided enemy damage is much lower than this object, enemy lose
-#         engine.effect.effect.Effect(None, ("Crash Player", "Base", self.rect.centerx,
+#         engine.effect.effect.Effect(None, ("crash_player", "base", self.rect.centerx,
 #                                      self.rect.centery, direction_to_angle[self.direction], 0, 0, 1, 1),
 #                                     from_owner=False)
 #         enemy.interrupt_animation = True
 #         enemy.command_action = enemy.damaged_command_action
 #         enemy.sprite_deal_damage = False
 #     else:  # this object dmg is much lower, enemy win
-#         engine.effect.effect.Effect(None, ("Crash Enemy", "Base", enemy.rect.centerx,
+#         engine.effect.effect.Effect(None, ("crash_enemy", "base", enemy.rect.centerx,
 #                                            enemy.rect.centery, direction_to_angle[enemy.direction], 0, 0, 1, 1),
 #                                     from_owner=False)
 #         self.interrupt_animation = True
@@ -89,6 +90,6 @@ def sprite_bounce(self):
         self.y_momentum = 100
 
     # change image to base
-    self.current_animation = self.animation_pool["Base"][self.sprite_flip][self.width_scale][self.height_scale]
+    self.current_animation = self.animation_pool["base"][self.sprite_flip][self.width_scale][self.height_scale]
     self.base_image = self.current_animation[self.show_frame]
     self.adjust_sprite()

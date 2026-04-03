@@ -16,10 +16,9 @@ from engine.battle.battle import Battle
 from engine.data.datalocalisation import Localisation
 from engine.data.datasound import SoundData
 from engine.game.game import Game
-from engine.uibattle.uibattle import UIBattle, UIScroll
-from engine.uimenu.uimenu import MenuCursor, NameList, MenuButton, TextPopup, InputUI, InputBox, ListBox
-from engine.utils.data_loading import csv_read, load_image, load_images, load_base_button, recursive_image_load, \
-    filename_convert_readable as fcv
+from engine.uibattle.uibattle import UIBattle
+from engine.uimenu.uimenu import UIScroll, MenuCursor, NameList, MenuButton, TextPopup, InputUI, InputBox, ListBox
+from engine.utils.data_loading import csv_read, load_image, load_images, load_base_button, recursive_image_load
 from engine.utils.rotation import rotation_xy
 from engine.utils.sprite_altering import sprite_rotate, apply_sprite_effect, apply_sprite_colour
 
@@ -36,7 +35,15 @@ class FakeGame:
         self.play_effect_volume = 0
         self.dt = 0.01
         self.sound_effect_pool = sound_effect_pool
+        self.add_to_ui_updater = None
+        self.remove_from_ui_updater = None
         self.button_sound_channel = Channel(3)
+
+
+class FakeBattle:
+    def __init__(self):
+        self.battle_camera_ui_drawer = None
+        self.battle_effect_updater = None
 
 
 setup_list = listpopup.setup_list
@@ -75,8 +82,8 @@ Game.ui_font = csv_read(data_dir, "ui_font.csv", ("ui",), header_key=True)
 Game.font_dir = join(data_dir, "font")
 Game.ui_updater = ui
 sound_effect_pool = SoundData().sound_effect_pool
-fakegame = FakeGame(sound_effect_pool)
-Game.game = fakegame
+Game.game = FakeGame(sound_effect_pool)
+Battle.battle = FakeBattle()
 
 localisation = Localisation()
 Game.localisation = localisation
@@ -173,25 +180,24 @@ def read_animation_data(change_character=True):
     body_sprite_pool = {}
     for char in char_list:
         if char != "":
-            character_file_name = fcv(char, revert=True)
             try:
                 [split(
                     os.sep.join(normpath(x).split(os.sep)[normpath(x).split(os.sep).index("sprite"):]))
                     for
-                    x in Path(join(animation_dir, "sprite", "character", character_file_name)).iterdir() if
+                    x in Path(join(animation_dir, "sprite", "character", char)).iterdir() if
                     x.is_dir()]  # check if char folder exist
 
                 body_sprite_pool[char] = {}
-                part_folder = Path(join(animation_dir, "sprite", "character", character_file_name))
+                part_folder = Path(join(animation_dir, "sprite", "character", char))
                 sub1_directories = [split(
                     os.sep.join(
-                        normpath(x).split(os.sep)[normpath(x).split(os.sep).index(character_file_name):]))
+                        normpath(x).split(os.sep)[normpath(x).split(os.sep).index(char):]))
                     for x in part_folder.iterdir() if x.is_dir()]
 
                 for folder1 in sub1_directories:
                     body_sprite_pool[char][folder1[-1]] = {}
                     sub_part_folder = Path(
-                        join(animation_dir, "sprite", "character", character_file_name, folder1[-1]))
+                        join(animation_dir, "sprite", "character", char, folder1[-1]))
                     recursive_image_load(body_sprite_pool[char][folder1[-1]], screen_scale, sub_part_folder)
 
             except FileNotFoundError as b:
@@ -203,10 +209,10 @@ def read_animation_data(change_character=True):
         sep.join(normpath(x).split(sep)[normpath(x).split(sep).index("animation"):])) for x
         in part_folder.iterdir() if x.is_dir()]
     for folder in subdirectories:
-        folder_data_name = fcv(folder[-1])
+        folder_data_name = folder[-1]
         if folder_data_name not in effect_sprite_pool:
             effect_sprite_pool[folder_data_name] = {}
-            images = load_images(part_folder, subfolder=(folder[-1],), key_file_name_readable=True)
+            images = load_images(part_folder, subfolder=(folder[-1],))
             true_name_list = []
             for key, value in images.items():
                 if key.split("_")[-1].isdigit():
@@ -229,7 +235,7 @@ def read_animation_data(change_character=True):
                 effect_sprite_pool[folder_data_name][final_name] = sprite_animation_list
 
     if change_character:
-        change_animation_character("Leader_vraesier")
+        change_animation_character("leader_vraesier")
 
 
 def change_animation(new_name):
@@ -286,12 +292,12 @@ def recal_camera_pos(model):
                                     (showroom_size[1] * 0.9) + showroom_camera_pos[1])
 
 
-animation_character = "Leader_vraesier"
+animation_character = "leader_vraesier"
 
 char_list = []
 for x in Path(join(current_dir, "data", "animation", "sprite", "character")).iterdir():  # grab char with sprite
     if normpath(x).split(os.sep)[-1] != "weapon":  # exclude weapon as char
-        char_list.append(fcv(normpath(x).split(os.sep)[-1]))
+        char_list.append(normpath(x).split(os.sep)[-1])
 
 animation_pool_data = {}
 part_name_header = {}
@@ -1508,7 +1514,6 @@ Filmstrip.containers = ui, filmstrips
 NameBox.containers = ui
 MenuButton.containers = fake_group
 NameList.containers = ui
-popup_list_box = pygame.sprite.Group()
 popup_namegroup = pygame.sprite.Group()
 anim_prop_namegroup = pygame.sprite.Group()
 frame_prop_namegroup = pygame.sprite.Group()
@@ -1760,11 +1765,11 @@ image_list = load_base_button(data_dir, screen_scale)
 
 input_ok_button = MenuButton(image_list, pos=(input_ui.rect.midleft[0] + image_list[0].get_width(),
                                               input_ui.rect.midleft[1] + image_list[0].get_height()),
-                             key_name="confirm_button", layer=41)
+                             key_name="button_confirm", layer=41)
 input_cancel_button = MenuButton(image_list,
                                  pos=(input_ui.rect.midright[0] - image_list[0].get_width(),
                                       input_ui.rect.midright[1] + image_list[0].get_height()),
-                                 key_name="cancel_button", layer=41)
+                                 key_name="button_cancel", layer=41)
 input_button = (input_ok_button, input_cancel_button)
 input_box = InputBox(input_ui.rect.center, input_ui.image.get_width())  # user text input box
 
@@ -1784,17 +1789,16 @@ colour_input_box = InputBox((colour_ui.rect.center[0], colour_ui.rect.center[1] 
 
 colour_ok_button = MenuButton(image_list, pos=(input_ui.rect.midleft[0] + image_list[0].get_width(),
                                                input_ui.rect.midleft[1] + image_list[0].get_height()),
-                              key_name="confirm_button", layer=41)
+                              key_name="button_confirm", layer=41)
 colour_cancel_button = MenuButton(image_list,
                                   pos=(input_ui.rect.midright[0] - image_list[0].get_width(),
                                        input_ui.rect.midright[1] + image_list[0].get_height()),
-                                  key_name="cancel_button", layer=41)
+                                  key_name="button_cancel", layer=41)
 colour_ui_popup = (colour_ui, colour_wheel, colour_input_box, colour_ok_button, colour_cancel_button)
 
 box_img = load_image(current_data_dir, screen_scale, "property_box.png", "animation_maker_ui")
 big_box_img = load_image(current_data_dir, screen_scale, "biglistbox.png", "animation_maker_ui")
 
-ListBox.containers = popup_list_box
 popup_list_box = ListBox((0, 0), big_box_img, 20)  # popup box need to be in higher layer
 UIScroll(popup_list_box, popup_list_box.rect.topright)  # create scroll for popup list box
 anim_prop_list_box = ListBox((0, filmstrip_list[0].rect.midbottom[1] +
@@ -2093,6 +2097,23 @@ while True:
             if keypress_delay >= 0.3:
                 keypress_delay = 0
 
+        if popup_list_box.scroll.event:  # scrolling on list
+            popup_click = True
+            if popup_list_box.scroll.current_row is not None:
+                setup_list(NameList, popup_list_box.scroll.current_row, popup_list_box.namelist, popup_namegroup,
+                           popup_list_box, ui, screen_scale, layer=21)
+
+        elif anim_prop_list_box.scroll.event:  # scrolling on list
+            if anim_prop_list_box.scroll.current_row is not None:
+                setup_list(NameList, anim_prop_list_box.scroll.current_row, anim_prop_list_box.namelist, anim_prop_namegroup,
+                           anim_prop_list_box, ui, screen_scale, layer=9, old_list=anim_property_select)
+
+        elif frame_prop_list_box.scroll.event:  # scrolling on list
+            if frame_prop_list_box.scroll.current_row is not None:
+                setup_list(NameList, frame_prop_list_box.scroll.current_row, frame_prop_list_box.namelist[current_frame],
+                           frame_prop_namegroup, frame_prop_list_box, ui, screen_scale, layer=9,
+                           old_list=frame_property_select[current_frame])
+
         if mouse_left_up:
             if popup_list_box in ui:
                 if popup_list_box.rect.collidepoint(mouse_pos):
@@ -2137,14 +2158,6 @@ while True:
                             ui.remove(popup_list_box, popup_list_box.scroll)
                             current_popup_row = 0  # reset row
 
-                elif popup_list_box.scroll.rect.collidepoint(mouse_pos):  # scrolling on list
-                    popup_click = True
-                    new_row = popup_list_box.scroll.player_input(mouse_pos)
-                    if new_row is not None:
-                        current_popup_row = new_row
-                        setup_list(NameList, current_popup_row, popup_list_box.namelist, popup_namegroup,
-                                   popup_list_box, ui, screen_scale, layer=21)
-
                 else:  # click other stuffs
                     for this_name in popup_namegroup:  # remove name list
                         this_name.kill()
@@ -2179,21 +2192,6 @@ while True:
                     text_input_popup = ("text_input", "showroom_colour_")
                     ui.add(colour_ui_popup)
 
-                elif anim_prop_list_box.scroll.rect.collidepoint(mouse_pos):  # scrolling on list
-                    new_row = anim_prop_list_box.scroll.player_input(mouse_pos)
-                    if new_row is not None:
-                        current_anim_row = new_row
-                        setup_list(NameList, current_anim_row, anim_prop_list_box.namelist, anim_prop_namegroup,
-                                   anim_prop_list_box, ui, screen_scale, layer=9, old_list=anim_property_select)
-
-                elif frame_prop_list_box.scroll.rect.collidepoint(mouse_pos):  # scrolling on list
-                    new_row = frame_prop_list_box.scroll.player_input(mouse_pos)
-                    if new_row is not None:
-                        current_frame_row = new_row
-                        setup_list(NameList, current_frame_row, frame_prop_list_box.namelist[current_frame],
-                                   frame_prop_namegroup, frame_prop_list_box, ui, screen_scale, layer=9,
-                                   old_list=frame_property_select[current_frame])
-
                 elif anim_prop_list_box.rect.collidepoint(mouse_pos) or frame_prop_list_box.rect.collidepoint(
                         mouse_pos):
                     if activate_list[current_frame]:
@@ -2210,7 +2208,7 @@ while True:
                             naming = "frame"
 
                         for index, name in enumerate(namegroup):
-                            if name.rect.collidepoint(mouse_pos):
+                            if name.rect.collidepoint(mouse_pos) and name in ui:
                                 if name.selected:  # unselect
                                     name.select()
                                     select_list.remove(name.name)
@@ -2237,13 +2235,13 @@ while True:
                                     else:
                                         name.select()
                                         select_list.append(name.name)
-                                        setup_list(NameList, current_frame_row, namelist, namegroup,
-                                                   list_box, ui, screen_scale, layer=9, old_list=select_list)
+
                                         specific_frame = None
                                         if naming == "frame":
                                             specific_frame = current_frame
                                         reload_animation(anim, model, specific_frame=specific_frame)
                                 property_to_pool_data(naming)
+                                break
 
         if not play_animation:
             dt = 0
@@ -3038,8 +3036,8 @@ while True:
                         property_to_pool_data(naming)
                         break
 
-            elif text_input_popup[1] == "change_size" and float(input_box.text) and re.search("[a-zA-Z]",
-                                                                                       input_box.text) is None:
+            elif (text_input_popup[1] == "change_size" and input_box.text and
+                  float(input_box.text) and re.search("[a-zA-Z]", input_box.text) is None):
                 try:
                     model.size = float(input_box.text)
                     model.read_animation(animation_name, old=True)

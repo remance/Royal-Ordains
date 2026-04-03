@@ -36,7 +36,8 @@ class GrandObject(sprite.Sprite):
         self.height_scale = 1
         self.width_scale = 1
         self.animation_pool = self.grand_object_animation_pool[sprite_id]
-        self.current_animation = self.animation_pool["Base"]
+        print(self.animation_pool)
+        self.current_animation = self.animation_pool["base"]
 
         self.base_image = self.current_animation[self.show_frame]
         self.image = self.base_image
@@ -49,10 +50,10 @@ class GrandObject(sprite.Sprite):
     def change_state(self):
         if self.active:
             self.active = False
-            self.current_animation = self.animation_pool["Destroyed"]
+            self.current_animation = self.animation_pool["destroyed"]
         else:
             self.active = True
-            self.current_animation = self.animation_pool["Base"]
+            self.current_animation = self.animation_pool["base"]
 
 
 class GrandArmyActor(sprite.Sprite):
@@ -85,7 +86,7 @@ class GrandArmyActor(sprite.Sprite):
         self.height_scale = 1
         self.width_scale = 1
         self.animation_pool = self.grand_actor_animation_pool[sprite_id]
-        self.current_animation = self.animation_pool["Base"]
+        self.current_animation = self.animation_pool["base"]
 
         self.base_image = self.current_animation[self.show_frame]
         self.image = self.base_image

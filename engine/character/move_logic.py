@@ -10,7 +10,7 @@ def move_logic(self, dt):
     move_speed = 0
     ground_pos = self.base_ground_pos
 
-    if self.base_pos[1] < ground_pos and not self.y_momentum:
+    if self.base_pos[1] < ground_pos and self.y_momentum < 1:
         self.y_momentum = -self.Character_Gravity
 
     if "movable" in current_action or self.base_pos[1] < ground_pos:
@@ -22,9 +22,11 @@ def move_logic(self, dt):
         elif "speed" in current_action:
             move_speed = current_action["speed"]
         else:
-            move_speed = abs(self.x_momentum * 2) + abs(self.y_momentum * 2)
+            move_speed = abs(self.x_momentum) + abs(self.y_momentum)
             if move_speed < 500:
                 move_speed = 500
+            elif move_speed > 10000:
+                move_speed = 10000
 
     if self.x_momentum or self.y_momentum:  # has movement
         if "movable" in current_action or self.base_pos[1] < ground_pos:
@@ -89,14 +91,13 @@ def move_logic(self, dt):
                 else:  # reach ground, stop all momentum
                     self.y_momentum = 0
                     self.x_momentum = 0
-
         else:  # no movement allow for action that is not movable
             self.x_momentum = 0
             self.y_momentum = 0
 
-    elif current_action:  # not movable animation, reset speed
-        if "movable" in current_action:  # in moving animation, interrupt it
-            self.interrupt_animation = True
+    elif "movable" in current_action and "forced move" not in self.current_action:
+        # in non-forced moving animation, interrupt it
+        self.interrupt_animation = True
 
 
 def sub_move_logic(self, dt: float):

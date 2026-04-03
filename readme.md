@@ -1,6 +1,6 @@
 # Royal Ordains  <img src="https://github.com/remance/preview2/blob/main/rabbit.png?raw=true">
 
-### This is the Book of Royal Ordains. A manuscript that tells the history of the great realms, so that their history will never be forgotten.
+### This is the Book of Royal Ordains. A manuscript that tells the history and fate of the great realms.
 
 Made with pure python and [Pygame](https://github.com/pygame/pygame).
 
@@ -9,9 +9,8 @@ Made with pure python and [Pygame](https://github.com/pygame/pygame).
 
 [//]: # ([![]&#40;https://markdown-videos-api.jorgenkh.no/youtube/ar8TsS8spMU&#41;]&#40;https://youtu.be/ar8TsS8spMU&#41;)
 
-
 Wage war and command your army into a battle! Royal Ordains is a casual side-scrolling medieval fantasy strategy game 
-in the art style inspired by Medieval arts and more. Player takes indirect control of the commander in battle, who can call in troops and initiate various strategies and spells to change the course of battle.
+in the styles inspired by Medieval arts and more. Player takes indirect control of the commander in battle, who can call in troops and initiate various strategies and spells to change the course of battle.
 
 <div align="center">    
     <img src="https://github.com/remance/preview/blob/main/pygamelogo.gif?raw=true" alt="Pygame Logo">
@@ -187,43 +186,43 @@ compatible enough for other purposes with some modifications.
 
 ### Sound (Obtained and edited):
 
-- Weapon sound "Wooshes" by lebaston100 (https://freesound.org/people/lebaston100/)
-- Musket shot "aaronsiler_musket 3", "aaronsiler_musket 4" by aaronsiler (https://freesound.org/people/aaronsiler/)
-- Assorted weapon sound from Videvo (https://www.videvo.net/)
-- Cannon sound "canon" from man (https://freesound.org/people/man/)
-- Cannonball sound effect "Real Cannonballs Flying By (Restored Audio)" from John
-  Camara (https://www.youtube.com/watch?v=maVSnWIXGE8)
-- Bullet sound "Bullet passbys" from Audionautics (https://freesound.org/people/Audionautics/)
-- Heavy Weapon swing by "Swinging staff whoosh (strong) 08" Nightflame (https://freesound.org/people/Nightflame/)
-- Sword swing "Swosh Sword Swing" by qubodup (https://freesound.org/people/qubodup/)
-- Sword swing "swordslash" by deleted_user_13668154 (https://freesound.org/people/deleted_user_13668154/)
-- Spear pierce "Wooshs 01" by toyoto (https://freesound.org/people/toyoto/)
-- Hammer swing "Whoosh Heavy Spear Hammer Large" by EminYILDIRIM (https://freesound.org/people/EminYILDIRIM/)
-- Big warhorn "BIG-REVERB-WARHORN" by newagesoup (https://freesound.org/people/newagesoup/)
-- Warhorn "Battle horn 1" by kirmm (https://pixabay.com/sound-effects/battle-horn-1-6931/)
-- Bow drawing "SHOOTING_ARROW_SINGLE_ARCHERY_FOLEY_02" by JoeDinesSound (https://freesound.org/people/JoeDinesSound/)
-- Bow drawing "Regular Arrow Shot distant target" by brendan89 (https://freesound.org/people/brendan89/)
-- Javelin, throwing axe, stone sound effect by freeSFX (https://freesfx.co.uk/)
-- Crossbow shot "bow02" by Erdie (https://freesound.org/people/Erdie/)
-- Crossbow shot "Crossbow Firing and Hitting Target" by Ali_6868 (https://freesound.org/people/Ali_6868/)
-- Heavy damaged "Blam" by Loghome72 (https://freesound.org/people/Loghome72/)
-- Knockback "punch" by Ekokubza123 (https://freesound.org/people/Ekokubza123/)
-- Damaged "punch3" by Merrick079 (https://freesound.org/people/Merrick079/)
-- Mechanism sound "Mechanism" by Globofonia (https://freesound.org/people/Globofonia/)
+- Weapon by lebaston100 (https://freesound.org/people/lebaston100/)
+- Musket by aaronsiler (https://freesound.org/people/aaronsiler/)
+- Assorted weapon by Videvo (https://www.videvo.net/)
+- Cannon by man (https://freesound.org/people/man/)
+- Cannonball effect by John Camara (https://www.youtube.com/watch?v=maVSnWIXGE8)
+- Bullet by Audionautics (https://freesound.org/people/Audionautics/)
+- Heavy Weapon swing by Nightflame (https://freesound.org/people/Nightflame/)
+- Sword swing by qubodup (https://freesound.org/people/qubodup/)
+- Sword swing by deleted_user_13668154 (https://freesound.org/people/deleted_user_13668154/)
+- Spear pierce by toyoto (https://freesound.org/people/toyoto/)
+- Hammer swing by EminYILDIRIM (https://freesound.org/people/EminYILDIRIM/)
+- Big warhorn by newagesoup (https://freesound.org/people/newagesoup/)
+- Warhorn by kirmm (https://pixabay.com/sound-effects/battle-horn-1-6931/)
+- Bow drawing by JoeDinesSound (https://freesound.org/people/JoeDinesSound/)
+- Bow drawing by brendan89 (https://freesound.org/people/brendan89/)
+- Javelin, throwing axe, stone effect by freeSFX (https://freesfx.co.uk/)
+- Crossbow shot by Erdie (https://freesound.org/people/Erdie/)
+- Crossbow shot by Ali_6868 (https://freesound.org/people/Ali_6868/)
+- Heavy damaged by Loghome72 (https://freesound.org/people/Loghome72/)
+- Knockback by Ekokubza123 (https://freesound.org/people/Ekokubza123/)
+- Damaged by Merrick079 (https://freesound.org/people/Merrick079/)
+- Mechanism by Globofonia (https://freesound.org/people/Globofonia/)
 - Boom, stone hit, puff, old church bell, clapping, explosion, glass broken, book fall, deep thump, whistling, bell,
-  sword sheath sound by Pixabay (https://pixabay.com/users/pixabay-1/)
+  sword sheath by Pixabay (https://pixabay.com/users/pixabay-1/)
 - Sword sheath and unsheath by SectionSound (https://pixabay.com/users/sectionsound-34536612/)
-- Bell sound "Bell Sound Ring" by Mike Koenig (https://soundbible.com/26-Bell-Sound-Ring.html#)
-- Wind sound "Wind Blow", Blood pull "Breeze Of Blood", Click sound "Reload", Blink sound "Interface" by
+- Bell by Mike Koenig (https://soundbible.com/26-Bell-Sound-Ring.html#)
+- Wind, Blood pull, impact, Click sound, Blink by
   UNIVERSFIELD (https://pixabay.com/users/universfield-28281460/)
-- Earth spike sound "Punch a rock" and "Woosh Drum hit" by LordSonny (https://pixabay.com/users/lordsonny-38439655/)
-- Whistling sound "Joy Whistle" by Vampireayanos-narry (https://pixabay.com/users/vampireayanos-narry-33446737/)
-- Firework sound "Firework Explosion With Echo" and explosion sound "Slow Explosion" by
+- Earth spike, and Woosh Drum hit by LordSonny (https://pixabay.com/users/lordsonny-38439655/)
+- Whistling by Vampireayanos-narry (https://pixabay.com/users/vampireayanos-narry-33446737/)
+- Firework and explosion sound by
   Alex_Jauk (https://pixabay.com/users/alex_jauk-16800354/)
-- Various Ice sound by danielsoundsgood (https://linktr.ee/danielsoundsgood)
-- Catapult sound by Sounddino (https://sounddino.com/en/effects/catapult/)
-- Horse galloping sound by DRAGON-STUDIO (https://pixabay.com/users/dragon-studio-38165424/)
-- Boing, broom sound by freesound_community (https://pixabay.com/users/freesound_community-46691455/)
+- Various Ice by danielsoundsgood (https://linktr.ee/danielsoundsgood)
+- Catapult by Sounddino (https://sounddino.com/en/effects/catapult/)
+- Horse galloping by DRAGON-STUDIO (https://pixabay.com/users/dragon-studio-38165424/)
+- Boing, broom, firecracker, metal can, dragon roar, power charge, toy_button, bone, machine pressure, toy squeak, ghost whisper by freesound_community (https://pixabay.com/users/freesound_community-46691455/)
+- Toy train by floraphonic (https://pixabay.com/users/floraphonic-38928062/)
 
 ### Music
 

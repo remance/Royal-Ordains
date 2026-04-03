@@ -14,13 +14,13 @@ from engine.utils.sprite_altering import sprite_rotate
 accept_image_types = ("png", "jpg", "jpeg", "svg", "gif", "bmp")
 
 
-def load_image(directory, screen_scale, file, subfolder="", no_alpha=False, as_pillow_image=False):
+def load_image(directory, screen_scale, file, subfolder=(), no_alpha=False, as_pillow_image=False):
     """
     loads an image and prepares it for game
     :param directory: Directory folder path
     :param screen_scale: Resolution scale of game
     :param file: File name
-    :param subfolder: List of sub1_folder path
+    :param subfolder: List of sub_folder path
     :param no_alpha: Indicate if surface require alpha or not
     :param as_pillow_image: return surface as Pillow image instead of pygame surface
     :return: Pygame.Surface
@@ -46,14 +46,13 @@ def load_image(directory, screen_scale, file, subfolder="", no_alpha=False, as_p
     return surface
 
 
-def load_images(directory, screen_scale=(1, 1), subfolder=(), key_file_name_readable=False, no_alpha=False,
+def load_images(directory, screen_scale=(1, 1), subfolder=(), no_alpha=False,
                 as_pillow_image=False):
     """
     loads all images(only png files) in folder
     :param directory: Directory folder path
     :param screen_scale: Resolution scale of game
-    :param subfolder: List of sub1_folder path
-    :param key_file_name_readable: Convert key name from file name into data readable
+    :param subfolder: List of sub_folder path
     :param no_alpha: Indicate if all loaded surfaces require alpha or not
     :param as_pillow_image: return surfaces as Pillow image instead of pygame surface
     :return: Dict of loaded and scaled images as Pygame Surface
@@ -76,8 +75,6 @@ def load_images(directory, screen_scale=(1, 1), subfolder=(), key_file_name_read
             if "." in file_name:  # remove extension from name
                 file_name = file.split(".")[:-1]
                 file_name = "".join(file_name)
-            if key_file_name_readable:
-                file_name = filename_convert_readable(file_name)
             images[file_name] = load_image(directory, screen_scale, file, subfolder=dir_path, no_alpha=no_alpha,
                                            as_pillow_image=as_pillow_image)
 
@@ -88,30 +85,23 @@ def load_images(directory, screen_scale=(1, 1), subfolder=(), key_file_name_read
         return images
 
 
-def recursive_image_load(save_dict, screen_scale, part_folder, key_file_name_readable=True,
-                         part_sprite_adjust=None):
+def recursive_image_load(save_dict, screen_scale, part_folder, part_sprite_adjust=None):
     next_level = save_dict
     sub_directories = [os.path.split(os.sep.join(os.path.normpath(x).split(os.sep)[-1:]))[-1] for x
                        in part_folder.iterdir() if x.is_dir()]
     if sub_directories:
         for folder in sub_directories:
-            folder_name = filename_convert_readable(folder)
-            next_level[folder_name] = {}
+            next_level[folder] = {}
             part_subfolder = Path(os.path.join(part_folder, folder))
-            recursive_image_load(next_level[folder_name], screen_scale, part_subfolder,
-                                 key_file_name_readable=key_file_name_readable, part_sprite_adjust=part_sprite_adjust)
+            recursive_image_load(next_level[folder], screen_scale, part_subfolder,
+                                 part_sprite_adjust=part_sprite_adjust)
 
     else:
-        imgs = load_images(part_folder, screen_scale=screen_scale,
-                           key_file_name_readable=key_file_name_readable)
+        imgs = load_images(part_folder, screen_scale=screen_scale)
         if part_sprite_adjust:
             part_type = os.path.normpath(part_folder).split(os.sep)[-4]
             part_name = os.path.normpath(part_folder).split(os.sep)[-3]
 
-            if part_type != "weapon":
-                part_type = filename_convert_readable(part_type)
-            else:
-                part_name = filename_convert_readable(part_name)
             for key, value in imgs.items():
                 if part_type in part_sprite_adjust:
                     if part_name in part_sprite_adjust[part_type]:

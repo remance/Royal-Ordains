@@ -1,13 +1,13 @@
 import psutil
 
-from os import listdir
-from os.path import join, getsize
+from os import listdir, sep
+from os.path import join, getsize, split, normpath, abspath
 from pathlib import Path
 
 from pygame.transform import smoothscale, flip
 
 from engine.data.datastat import GameData
-from engine.utils.data_loading import load_images, filename_convert_readable as fcv
+from engine.utils.data_loading import load_images
 from engine.utils.sprite_caching import load_pickle_with_surfaces
 from engine.utils.text_making import text_render_with_bg
 
@@ -25,21 +25,23 @@ class SpriteData(GameData):
         self.character_portraits = {}
         self.faction_coas = {}
         self.strategy_icons = {}
+        self.effect_animation_pool = {}
         self.effect_animation_pool = load_pickle_with_surfaces(
             join(self.data_dir, "animation", "effect_animation.xz"),
             screen_scale=self.screen_scale, effect_sprite_adjust=True)
 
         self.strategy_icons = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                          subfolder=("ui", "strategy_ui"),
-                                          key_file_name_readable=True)
+                                          subfolder=("ui", "strategy_ui"))
         self.character_portraits = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                               subfolder=("ui", "character_ui"),
-                                               key_file_name_readable=True)
+                                               subfolder=("ui", "character_ui"))
+        # add retinue portraits to character
+        self.character_portraits |= load_images(self.data_dir, screen_scale=self.screen_scale,
+                                         subfolder=("ui", "retinue_ui"))
         for file in self.character_portraits:
             self.character_portraits[file] = {"character_ui": self.character_portraits[file]}
             mini_portrait = smoothscale(
-                self.character_portraits[file]["character_ui"], (170 * self.screen_scale[0],
-                                                                 170 * self.screen_scale[1]))
+                self.character_portraits[file]["character_ui"], (200 * self.screen_scale[0],
+                                                                 200 * self.screen_scale[1]))
 
             self.character_portraits[file]["tactical"] = {"right": mini_portrait,
                                                           "left": flip(mini_portrait, True, False)}
@@ -63,15 +65,30 @@ class SpriteData(GameData):
             self.character_portraits[file]["command"] = mini_portrait
 
         self.faction_coas = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                        subfolder=("ui", "faction_ui"), key_file_name_readable=True)
+                                        subfolder=("ui", "faction_ui"))
         for file in self.faction_coas:
             self.faction_coas[file] = {"faction_ui": self.faction_coas[file]}
-            self.faction_coas[file]["mini"] = smoothscale(
-                self.faction_coas[file]["faction_ui"], (170 * self.screen_scale[0],
-                                                        170 * self.screen_scale[1]))
             self.faction_coas[file]["small"] = smoothscale(
                 self.faction_coas[file]["faction_ui"], (200 * self.screen_scale[0],
                                                         200 * self.screen_scale[1]))
+
+        self.culture_coas = load_images(self.data_dir, screen_scale=self.screen_scale,
+                                        subfolder=("ui", "culture_ui"))
+        for file in self.culture_coas:
+            self.culture_coas[file] = {"culture_ui": self.culture_coas[file]}
+            self.culture_coas[file]["small"] = smoothscale(
+                self.culture_coas[file]["culture_ui"], (200 * self.screen_scale[0],
+                                                        200 * self.screen_scale[1]))
+
+        self.weather_matter_images = {}
+        part_folder = Path(join(self.data_dir, "map", "weather", "matter"))
+        subdirectories = [split(sep.join(normpath(x).split(sep))) for x
+                          in part_folder.iterdir() if x.is_dir()]
+        for folder in subdirectories:
+            folder_data_name = folder[-1]
+            self.weather_matter_images[folder_data_name] = tuple(load_images(
+                self.data_dir, screen_scale=self.screen_scale,
+                subfolder=("map", "weather", "matter", folder_data_name)).values())
 
         # self.stage_object_animation_pool = load_pickle_with_surfaces(
         #     join(self.data_dir, "animation", "stage_object.xz"),
@@ -96,8 +113,7 @@ class SpriteData(GameData):
             part_folder = Path(join(self.data_dir, "animation"))
             for file in listdir(part_folder):
                 file_name = file.split(".")[0]
-                file_data_name = fcv(file_name)
-                if file_data_name not in self.character_animation_data and file_data_name in character_list:
+                if file_name not in self.character_animation_data and file_name in character_list:
                     # convert to mb, and estimated ram required (around 10x of file size)
                     total_require_mem_to_load += getsize(join(self.data_dir, "animation", file)) * 10 / 1048576
             if total_require_mem_to_load > available_mem:
@@ -109,9 +125,8 @@ class SpriteData(GameData):
         part_folder = Path(join(self.data_dir, "animation"))
         for file in listdir(part_folder):
             file_name = file.split(".")[0]
-            file_data_name = fcv(file_name)
-            if file_data_name not in self.character_animation_data and file_data_name in character_list:
+            if file_name not in self.character_animation_data and file_name in character_list:
                 # get animation for each character
-                self.character_animation_data[file_data_name] = load_pickle_with_surfaces(
+                self.character_animation_data[file_name] = load_pickle_with_surfaces(
                     join(self.data_dir, "animation", file),
                     screen_scale=self.screen_scale)

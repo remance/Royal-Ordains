@@ -22,20 +22,17 @@ class CharacterData(GameData):
         For keeping all data related to character.
         """
         GameData.__init__(self)
-
-        self.faction_list = {}
-        with open(os.path.join(self.data_dir, "character", "faction.csv"),
+        self.culture_list = {}
+        with open(os.path.join(self.data_dir, "character", "culture.csv"),
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
             tuple_column = ("Custom Battle Retinues", )
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
-            hex2colour_column = ("Colour",)
-            hex2colour_column = [index for index, item in enumerate(header) if item in hex2colour_column]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
-                    row = stat_convert(row, n, i, tuple_column=tuple_column, hex2colour_column=hex2colour_column)
-                self.faction_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
+                    row = stat_convert(row, n, i, tuple_column=tuple_column)
+                self.culture_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
         edit_file.close()
 
         # Character status effect dict
@@ -52,7 +49,7 @@ class CharacterData(GameData):
                             "Fire Resistance Bonus", "Water Resistance Bonus", "Air Resistance Bonus",
                             "Earth Resistance Bonus",
                             "Magic Resistance Bonus", "Poison Resistance Bonus", "Magic Resistance Bonus")
-            tuple_column = ("Special Effect", "Status Conflict")  # value in tuple only
+            tuple_column = ("Status Conflict", )  # value in tuple only
             dict_column = [index for index, item in enumerate(header) if item in dict_column]
             percent_column = [index for index, item in enumerate(header) if item in percent_column]
             float_column = [index for index, item in enumerate(header) if item in float_column]
@@ -77,7 +74,7 @@ class CharacterData(GameData):
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
             dict_column = ("Summon", "AI Condition", "Property",)
-            tuple_column = ("Effects", "Damage Effects", "Status", "Enemy Status")  # value in tuple only
+            tuple_column = ("Effects", "Damage Effects", "Status", "Enemy Status", "Effect Enemy Status")  # value in tuple only
             dict_column = [index for index, item in enumerate(header) if item in dict_column]
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
             for index, row in enumerate(rd[1:]):
@@ -87,15 +84,10 @@ class CharacterData(GameData):
                 self.strategy_list[row[0]]["owner data"] = {
                     "offence": self.strategy_list[row[0]]["Offence"],
                     "low_offence": self.strategy_list[row[0]]["Offence"] * 0.5,
-                    "power": self.strategy_list[row[0]]["Power"], "element": self.strategy_list[row[0]]["Element"],
                     "impact": (self.strategy_list[row[0]]["Impact X"], self.strategy_list[row[0]]["Impact Y"]),
                     "impact_sum": abs(self.strategy_list[row[0]]["Impact X"]) + abs(
                         self.strategy_list[row[0]]["Impact Y"]),
-                    "critical_chance": self.strategy_list[row[0]]["Critical Chance"],
-                    "enemy_status_effect": self.strategy_list[row[0]]["Enemy Status"],
-                    "no_defence": True if "no_defence" in self.strategy_list[row[0]]["Property"] else False,
-                    "no_dodge": True if "no_dodge" in self.strategy_list[row[0]]["Property"] else False,
-                    "penetrate": self.strategy_list[row[0]]["Penetrate"]}
+                    "critical_chance": self.strategy_list[row[0]]["Critical Chance"]}
         edit_file.close()
 
         self.retinue_list = {}
@@ -142,7 +134,7 @@ class CharacterData(GameData):
                     self.character_list[row[0]]["Supply Drop"] = self.character_list[row[0]]["Supply"] / \
                                                                  self.character_list[row[0]]["Arrive Per Call"]
                 summon_list = []
-
+                self.character_list[row[0]]["Die Move"] = {}
                 # Add character move data
                 if os.path.exists(
                         os.path.join(self.data_dir, "character", "moveset", str(row[0]) + ".csv")):
@@ -150,7 +142,7 @@ class CharacterData(GameData):
                               encoding="utf-8", mode="r") as edit_file2:
                         rd2 = tuple(csv.reader(edit_file2, quoting=csv.QUOTE_ALL))
                         header2 = rd2[0]
-                        tuple_column2 = ("Status", "Enemy Status")  # value in tuple only
+                        tuple_column2 = ("Status", "Enemy Status", "Effect Enemy Status")  # value in tuple only
                         tuple_column2 = [index for index, item in enumerate(header2) if item in tuple_column2]
                         dict_column2 = ("Prepare Animation", "After Animation", "AI Condition", "Property",)
                         dict_column2 = [index for index, item in enumerate(header2) if item in dict_column2]
@@ -161,8 +153,11 @@ class CharacterData(GameData):
                                                     dict_column=dict_column2)
 
                             move_data = {header2[index]: stuff for index, stuff in enumerate(row2)}
-
-                            moveset_dict[row2[0]] = move_data
+                            if "self" in move_data["AI Condition"] and move_data["AI Condition"]["self"] == "die":
+                                # add moveset that automatically got used when character die for in battle check
+                                self.character_list[row[0]]["Die Move"] = move_data
+                            else:
+                                moveset_dict[row2[0]] = move_data
 
                             if "summon" in move_data["Property"]:
                                 if type(move_data["Property"]["summon"]) is str:
@@ -206,43 +201,43 @@ class CharacterData(GameData):
         self.custom_character_setup = {}
         self.all_main_exist_characters = {}
         for character, character_data in self.character_list.items():
-            if character_data["Faction"]:
-                if character_data["Faction"] not in self.custom_character_setup:
-                    self.all_main_exist_characters[character_data["Faction"]] = []
-                    self.custom_character_setup[character_data["Faction"]] = {
-                        "air": [], "ground": {"leader": {"unique": [], "generic": []}, "troop": []}}
+            if character_data["Culture"]:
+                if character_data["Culture"] not in self.custom_character_setup:
+                    self.all_main_exist_characters[character_data["Culture"]] = []
+                    self.custom_character_setup[character_data["Culture"]] = {
+                        "air": [], "retinue": [], "ground": {"leader": {"unique": [], "generic": []}, "troop": []}}
                 if character_data["Class"] != "sub" and os.path.exists(
                         os.path.join(self.data_dir, "ui", "character_ui", character + ".png")):
-                    self.all_main_exist_characters[character_data["Faction"]].append(character)
+                    self.all_main_exist_characters[character_data["Culture"]].append(character)
                 if character_data["Can Custom"]:
                     if character_data["Type"] == "ground":
                         if character_data["Is Leader"]:
                             if character_data["Is Unique"]:
-                                self.custom_character_setup[character_data["Faction"]][character_data["Type"]][
+                                self.custom_character_setup[character_data["Culture"]][character_data["Type"]][
                                     "leader"]["unique"].append(character)
                             else:
-                                self.custom_character_setup[character_data["Faction"]][character_data["Type"]][
+                                self.custom_character_setup[character_data["Culture"]][character_data["Type"]][
                                     "leader"]["generic"].append(character)
                         else:
-                            self.custom_character_setup[character_data["Faction"]][character_data["Type"]][
+                            self.custom_character_setup[character_data["Culture"]][character_data["Type"]][
                                 "troop"].append(character)
                     else:
-                        self.custom_character_setup[character_data["Faction"]][character_data["Type"]].append(character)
+                        self.custom_character_setup[character_data["Culture"]][character_data["Type"]].append(character)
 
-        # Effect that exist as its own sprite in battle
+        for character, character_data in self.retinue_list.items():  # add retinue
+            self.custom_character_setup[character_data["Culture"]]["retinue"].append(character)
+
+        # Effect that can exist as its own sprite in battle
         self.effect_list = {}
         with open(os.path.join(self.data_dir, "character", "effect.csv"),
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
-            tuple_column = ("Status Conflict", "Status", "Enemy Status",
-                            "Special Effect")  # value in tuple only
-            tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
             dict_column = ("Property",)
             dict_column = [index for index, item in enumerate(header) if item in dict_column]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
-                    row = stat_convert(row, n, i, tuple_column=tuple_column, dict_column=dict_column)
+                    row = stat_convert(row, n, i, dict_column=dict_column)
                 self.effect_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
         edit_file.close()
 
@@ -255,9 +250,9 @@ class CharacterData(GameData):
                 for n, i in enumerate(row):
                     row = stat_convert(row, n, i)
                 if row[0]:
-                    if row[header.index("Faction")] not in self.preset_list:
-                        self.preset_list[row[header.index("Faction")]] = {}
-                    self.preset_list[row[header.index("Faction")]][row[0]] = {
+                    if row[header.index("Culture")] not in self.preset_list:
+                        self.preset_list[row[header.index("Culture")]] = {}
+                    self.preset_list[row[header.index("Culture")]][row[0]] = {
                         header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
         edit_file.close()
 
@@ -296,39 +291,39 @@ def {status_name}(self):'''
         # element resistant
         if data["Slash Resistance Bonus"]:
             func_code += f'''
-    self.element_resistance["Slash"] += {data["Slash Resistance Bonus"]}'''
+    self.element_resistance["slash"] += {data["Slash Resistance Bonus"]}'''
 
         if data["Crush Resistance Bonus"]:
             func_code += f'''
-    self.element_resistance["Crush"] += {data["Crush Resistance Bonus"]}'''
+    self.element_resistance["crush"] += {data["Crush Resistance Bonus"]}'''
 
         if data["Stab Resistance Bonus"]:
             func_code += f'''
-    self.element_resistance["Stab"] += {data["Stab Resistance Bonus"]}'''
+    self.element_resistance["stab"] += {data["Stab Resistance Bonus"]}'''
 
         if data["Fire Resistance Bonus"]:
             func_code += f'''
-    self.element_resistance["Fire"] += {data["Fire Resistance Bonus"]}'''
+    self.element_resistance["fire"] += {data["Fire Resistance Bonus"]}'''
 
         if data["Water Resistance Bonus"]:
             func_code += f'''
-    self.element_resistance["Water"] += {data["Water Resistance Bonus"]}'''
+    self.element_resistance["water"] += {data["Water Resistance Bonus"]}'''
 
         if data["Air Resistance Bonus"]:
             func_code += f'''
-    self.element_resistance["Air"] += {data["Air Resistance Bonus"]}'''
+    self.element_resistance["air"] += {data["Air Resistance Bonus"]}'''
 
         if data["Earth Resistance Bonus"]:
             func_code += f'''
-    self.element_resistance["Earth"] += {data["Earth Resistance Bonus"]}'''
+    self.element_resistance["earth"] += {data["Earth Resistance Bonus"]}'''
 
         if data["Magic Resistance Bonus"]:
             func_code += f'''
-    self.element_resistance["Magic"] += {data["Magic Resistance Bonus"]}'''
+    self.element_resistance["magic"] += {data["Magic Resistance Bonus"]}'''
 
         if data["Poison Resistance Bonus"]:
             func_code += f'''
-    self.element_resistance["Poison"] += {data["Poison Resistance Bonus"]}'''
+    self.element_resistance["poison"] += {data["Poison Resistance Bonus"]}'''
 
         for status_property, value in data["Property"].items():
             if type(value) is str:

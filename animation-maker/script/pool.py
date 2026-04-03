@@ -3,7 +3,6 @@ import os
 from pathlib import Path
 
 from engine.data.datastat import stat_convert
-from engine.utils.data_loading import filename_convert_readable
 
 
 def read_anim_data(art_style_dir, anim_column_header):
@@ -40,7 +39,7 @@ def read_anim_data(art_style_dir, anim_column_header):
                     else:
                         animation_pool[key] = [
                             {part_name_header[item_index]: item for item_index, item in enumerate(row)}]
-            pool[filename_convert_readable(file)] = animation_pool
+            pool[file] = animation_pool
             part_name_header = [item for item in part_name_header if item != "sound_effect" and
                                 "property" not in item]
             edit_file.close()
@@ -68,7 +67,7 @@ def anim_to_pool(animation_name, pool, char, activate_list, new=False, replace=N
 
 def anim_save_pool(main_dir, pool, race_name, anim_column_header):
     """Save animation pool data"""
-    with open(os.path.join(main_dir, "data", "animation", filename_convert_readable(race_name, revert=True) + ".csv"),
+    with open(os.path.join(main_dir, "data", "animation", race_name + ".csv"),
               mode="w",
               encoding='utf-8', newline="") as edit_file:
         filewriter = csv.writer(edit_file, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL)

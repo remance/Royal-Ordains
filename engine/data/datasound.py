@@ -5,7 +5,6 @@ from os.path import split, join
 from pygame.mixer import Sound
 
 from engine.data.datastat import GameData
-from engine.utils.data_loading import filename_convert_readable as fcv
 
 
 class SoundData(GameData):
@@ -22,8 +21,6 @@ class SoundData(GameData):
                         file_name[file_name.rfind("_") + 1].isdigit():  # variation for same sound effect
                     file_name = file_name[:file_name.rfind("_")]
 
-                file_name = fcv(file_name)
-
                 if file_name not in self.sound_effect_pool:
                     self.sound_effect_pool[file_name] = [join(dir_path, file)]
                 else:
@@ -34,15 +31,15 @@ class SoundData(GameData):
 
         # load music
         self.music_pool = glob(join(self.data_dir, "sound", "music", "*.ogg"))
-        self.music_pool = {fcv(split(item)[-1].replace(".ogg", "")): item for
+        self.music_pool = {split(item)[-1].replace(".ogg", ""): item for
                            item in self.music_pool}
 
         # load ambient
         self.ambient_pool = glob(join(self.data_dir, "sound", "ambient", "*.ogg"))
-        self.ambient_pool = {fcv(split(item)[-1].replace(".ogg", "")): item for
+        self.ambient_pool = {split(item)[-1].replace(".ogg", ""): item for
                              item in self.ambient_pool}
 
         # load weather ambient
         self.weather_ambient_pool = glob(join(self.data_dir, "sound", "weather", "*.ogg"))
-        self.weather_ambient_pool = {fcv(split(item)[-1].replace(".ogg", "")): item for
+        self.weather_ambient_pool = {split(item)[-1].replace(".ogg", ""): item for
                                      item in self.weather_ambient_pool}

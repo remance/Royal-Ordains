@@ -119,7 +119,8 @@ def find_move_to_attack(self):
                         (not value["AI Condition"] or self.check_ai_condition(value["AI Condition"]))]
     if possible_attacks:
         self.current_moveset = choice(possible_attacks)  # randomly select move to attack
-        if "far_target" not in self.current_moveset["Property"]:
+        self.current_moveset_property = self.current_moveset["Property"]
+        if "far_target" not in self.current_moveset_property:
             self.command_action = self.moveset_command_action | {"target": self.nearest_enemy_pos}
         else:
             self.command_action = self.moveset_command_action | {"target": self.furthest_enemy_pos}
@@ -178,7 +179,7 @@ def air_ai(self):
         self.ai_timer = 0.2
 
 
-ai_combat_dict = {"default": no_ai, "melee": common_ai, "range": common_ai, "flank": common_ai, "nice": no_ai,
+ai_combat_dict = {"default": no_ai, "melee": common_ai, "range": common_ai, "flank": common_ai, "nice": common_ai,
                   "curious": common_ai, "territorial": common_ai,
                   "trap": common_ai, "boss_cheer": cheer_ai,
                   "leader": common_ai, "interceptor": air_ai, "fighter": air_ai, "bomber": air_ai}

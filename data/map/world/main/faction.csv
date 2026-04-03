@@ -1,18 +1,5 @@
-"ID","Army 1","Army 2","Army 3","Army 4","Army 5","Faction Relation"
-"Barren","Leader_vok",,,,,
-"Castle","Leader_hermanos:(Castle_dog_flail,Castle_human_militia_spear),Castle_human_leader_banner:(Castle_human_militia_spear)","Leader_tulia:(Castle_human_militia_bow,Castle_human_militia_spear),Castle_human_leader_ranger:(Castle_human_militia_bow)",,,,
-"Death","Leader_avalkari",,,,,"Castle:(death_castle;-10)"
-"Demon","Leader_tolhhunn",,,,,
-"Desert","Leader_saltun",,,,,
-"Doll","Leader_doll_king",,,,,
-"Great","Leader_bavala",,,,,
-"Highland","Leader_garun",,,,,
-"Holy","Leader_aunnial",,,,,
-"Magic",,,,,,
-"Marsh","Leader_janiggys",,,,,
-"Mountain","Leader_asgane",,,,,"Mountain:(mountain_small;5)"
-"Port","Leader_ehi",,,,,
-"Sea",,,,,,
-"Small","Leader_bigta",,,,,"Mountain:(small_mountain;5)"
-"Wood","Leader_pakakvadi",,,,,
-"Free",,,,,,
+"ID","Culture","Ruler","Start Gold","Gold Income","Start Supply","Supply Income","Showcase Leader","Showcase Troop","Faction Relation","Colour"
+"masendor","castle","leader_king",10000,1000,10000,100,"leader_tulia,leader_hermanos,castle_human_leader_lord,castle_human_leader_mage","castle_human_militia_bow,castle_dog_flail,castle_human_knight_cav,castle_cat_air_rocket_bomb",,"004f71"
+"dollkingdom","doll","leader_doll_king",500,2000,1000,100,"leader_doll_prince,leader_doll_princess,doll_leader_jester,doll_leader_puppetmaster","doll_candle_spear,doll_maid_knight,doll_thrower,doll_air_balloon","masendor:(masen_dollkingdom;-10)",532587
+"weealliance","small","leader_bigta",1000,50,10000,50,"leader_buikuuh,leader_yuawies,small_rabbit_leader_knight,small_rabbit_leader_banner","small_rabbit_spear,small_rabbit_trebuchet,small_snail_sword,small_eagle_air_stone",,"b0ac48"
+"free","free",,100000,10000,100000,10000,,,,646464

@@ -94,9 +94,9 @@ def recursive_cast_pickleable_surface_to_surface(data, screen_scale, already_don
     if type(data) is dict:
         for k in tuple(data.keys()):
             v = data[k]
-            if type(v) is dict:
-                f(v, screen_scale, already_done, effect_sprite_adjust=effect_sprite_adjust,
-                  parent_data=data, parent_key=k)
+            if k == "offset":
+                data[k] = (v[0] * screen_scale[0], v[1] * screen_scale[1])
+
             elif type(v) is CompilableSurface:
                 if v not in already_done:
                     data[k] = surface_screen_scale(v.surface, screen_scale)
@@ -127,10 +127,13 @@ def recursive_cast_pickleable_surface_to_surface(data, screen_scale, already_don
                         parent_data["left"]["sprite"] = already_done[v]["left"][0]
                         parent_data["left"]["mask"] = already_done[v]["left"][1]
 
+            elif type(v) is dict:
+                f(v, screen_scale, already_done, effect_sprite_adjust=effect_sprite_adjust,
+                  parent_data=data, parent_key=k)
+
             elif type(v) is tuple or type(v) is list:
 
                 data[k] = tuple([c if type(c) is not CompilableSurface else
                                  surface_screen_scale(c.surface, screen_scale) for c in data[k]])
 
-            elif "offset" in k:
-                data[k] = (v[0] * screen_scale[0], v[1] * screen_scale[1])
+

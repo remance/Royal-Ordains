@@ -81,7 +81,7 @@ def gather_info_basic(self):  # clever 1
             }
 
     if self.battle.all_team_enemy_check[self.team]:
-        info["closest_enemy_pos_to_camp"] = sorted([abs(start_pos - enemy.base_pos[0]) for enemy in
+        info["closest_enemy_distance_to_camp"] = sorted([abs(start_pos - enemy.base_pos[0]) for enemy in
                                                     self.battle.all_team_enemy_check[self.team]])[0]
 
     if self.air_group:
@@ -130,28 +130,25 @@ def gather_info_power(self):  # clever 3
 
 
 def gather_info_density(self):  # clever 4
-    enemy_ground_density = {key: len(value) for key, value in
-                            self.battle.all_team_ground_enemy_collision_grids[self.team].items()}
-    enemy_air_density = {key: len(value) for key, value in
-                         self.battle.all_team_air_enemy_collision_grids[self.team].items()}
+    # enemy_ground_density = [len(value) for value in self.ground_enemy_collision_grids[-1]]
+    # enemy_air_density = [len(value) for value in self.air_enemy_collision_grids]
+    #
+    # # below roughly work only with 2 teams, will also count team 0 neutral as ally = enemy of enemy
+    # own_density = [len(value) for value in self.ground_ally_collision_grids[-1]]
+    # own_density = [value + len(self.air_ally_collision_grids[key]) for key, value in enumerate(own_density)]
+    # both_density = [value + own_density[key] for key, value in enumerate(enemy_ground_density)]
+    # both_density = [value + enemy_air_density[key] for key, value in enumerate(both_density)]
 
-    # below roughly work only with 2 teams, will also count team 0 neutral as ally = enemy of enemy
-    own_density = {key: len(value) for key, value in
-                   self.battle.all_team_ground_enemy_collision_grids[self.enemy_team].items()}
-    own_density = {key: value + len(self.battle.all_team_air_enemy_collision_grids[self.enemy_team][key]) for key, value
-                   in
-                   own_density.items()}
-    both_density = {key: value + own_density[key] for key, value in enemy_ground_density.items()}
-    both_density = {key: value + enemy_air_density[key] for key, value in both_density.items()}
-    return {"enemy_ground_density": enemy_ground_density, "enemy_air_density": enemy_air_density,
-            "own_density": own_density, "both_density": both_density}
+    # density check is done in conduct_commander instead
+    return {"density": True}
 
 
 def gather_info_enemy_commander(self):  # clever 5
     if self.enemy_commander.alive:
         return {"enemy_commander_pos": self.enemy_commander.base_pos[0],
                 "enemy_commander_health": self.enemy_commander.health / self.enemy_commander.base_health}
-    return {}
+    return {"enemy_commander_pos": 100000000000000,
+            "enemy_commander_health": 0}
 
 
 def gather_info_status(self):  # clever 6

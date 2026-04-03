@@ -1,14 +1,16 @@
 import sys
 import time
 from copy import deepcopy
-from os import path
 from random import choice, randint
 from types import MethodType
+from pathlib import Path
+from os.path import join, sep, normpath, abspath, split, exists
 
 import pygame
 from pygame import Vector2, display, sprite, Surface, SRCALPHA
 from pygame.locals import *
 from pygame.mixer import Sound, Channel
+from pygame.event import get as get_event, clear as clear_event
 
 from engine.aibattle.battle_commander_ai import BattleCommanderAI
 from engine.battle.activate_retreat import activate_retreat
@@ -34,6 +36,7 @@ from engine.battle.setup_team_characters import setup_team_characters
 from engine.battle.shake_camera import shake_camera
 from engine.battle.state_battle_process import state_battle_process
 from engine.battle.state_menu_process import state_menu_process
+from engine.battle.state_result_process import state_result_process
 from engine.battleobject.battleobject import StageObject
 from engine.camera.camera import Camera
 from engine.character.character import Character, BattleCharacter
@@ -43,17 +46,17 @@ from engine.game.activate_input_popup import activate_input_popup
 from engine.game.change_pause_update import change_pause_update
 from engine.scene.scene import Scene
 from engine.uibattle.drama import TextDrama
-from engine.uibattle.uibattle import (FPSCount, BattleHelper, BattleCursor, CharacterSpeechBox,
-                                      CharacterLeaderIndicator, CharacterCommandIndicator, DamageNumber,
+from engine.uibattle.uibattle import (FPSCount, BattleHelper, BattleScale, BattleCursor, CharacterSpeechBox,
+                                      CharacterCommandIndicator, DamageNumber,
                                       PlayerBattleInteract, CharacterInteractPrompt,
-                                      Command, TacticalMap, StrategySelect, ScreenFade)
-from engine.uimenu.uimenu import TextPopup
+                                      Command, TacticalMap, StrategySelect, ScreenFade, BattleResult)
+from engine.uimenu.uimenu import TextPopup, BrownMenuButton
 from engine.updater.updater import ReversedLayeredUpdates
 from engine.utils.common import clean_group_object, cutscene_update
-from engine.utils.data_loading import load_image, load_images, filename_convert_readable as fcv
+from engine.utils.data_loading import load_image, load_images
 from engine.weather.weather import Weather, MatterSprite
 
-script_dir = path.split(path.abspath(__file__))[0] + "/"
+script_dir = split(abspath(__file__))[0] + "/"
 
 decision_route = {"yes": "a", "no": "b"}
 team_list = range(3)
@@ -96,20 +99,22 @@ class Battle:
     state_battle_process = state_battle_process
     state_process = state_battle_process
     state_menu_process = state_menu_process
+    state_result_process = state_result_process
     shake_camera = shake_camera
     event_process = event_process
 
     battle = None
     battle_cursor = None
-    start_camera_mode = "Free"
 
-    process_list = {"battle": state_battle_process, "menu": state_menu_process}
+    process_list = {"battle": state_battle_process, "menu": state_menu_process, "result": state_result_process}
 
     def __init__(self, game):
         self.game = game
         Battle.battle = self
         # TODO LIST
         # add back battle cutscene
+        # empty custom slot should tell commander/leader/troop/air
+        # change retinue from custom to can set in preset
         # rework scene to use common paper background for same area (upto 14 pages?)
         # finish main menu
 
@@ -130,8 +135,6 @@ class Battle:
         self.screen_rect = game.screen_rect
         self.screen_width = self.screen_rect.width
         self.screen_height = self.screen_rect.height
-        self.corner_screen_width = game.corner_screen_width
-        self.corner_screen_height = game.corner_screen_height
 
         self.camera_size = (self.screen_width, self.screen_height)
         self.camera_max = (self.screen_width - 1, self.screen_height - 1)
@@ -152,7 +155,7 @@ class Battle:
         # higher layer characters got update first for the purpose of blit culling check
         self.battle_character_updater.cutscene_update = MethodType(cutscene_update, self.battle_character_updater)
         # for battle UI stuff that need to be updated in real time like drama and weather objects, also used as drawer
-        self.outer_ui_updater = sprite.Group()
+        self.outer_ui_updater = sprite.LayeredUpdates()
         self.battle_effect_updater = sprite.Group()  # updater for effect objects (e.g. range attack sprite)
         self.battle_effect_updater.cutscene_update = MethodType(cutscene_update, self.battle_effect_updater)
 
@@ -168,7 +171,6 @@ class Battle:
 
         # Assign containers
         CharacterSpeechBox.containers = self.battle_effect_updater, self.battle_camera_ui_drawer, self.speech_boxes
-        CharacterLeaderIndicator.containers = self.battle_effect_updater, self.battle_camera_ui_drawer
         CharacterCommandIndicator.containers = self.battle_effect_updater
         DamageNumber.containers = self.battle_effect_updater, self.battle_camera_ui_drawer
         Effect.containers = self.battle_effect_updater
@@ -188,7 +190,7 @@ class Battle:
         self.button_sound_channel = self.game.button_sound_channel
         self.SONG_END = pygame.USEREVENT + 1
 
-        self.battle_sound_channel = tuple([Channel(ch_num) for ch_num in range(1000)])
+        self.battle_sound_channels = tuple([Channel(ch_num) for ch_num in range(1000)])
 
         # Text popup
         self.text_popup = TextPopup()
@@ -219,13 +221,11 @@ class Battle:
         self.strategy_list = self.character_data.strategy_list
         self.can_cure_status_list = self.character_data.can_cure_status_list
         self.can_clarity_status_list = self.character_data.can_clarity_status_list
+        self.sprite_data = self.game.sprite_data
         self.map_data = self.game.map_data
         self.weather_data = self.map_data.weather_data
-        self.weather_matter_images = self.map_data.weather_matter_images
-        self.weather_list = self.map_data.weather_list
         Weather.weather_data = self.weather_data
-        Weather.weather_matter_images = self.weather_matter_images
-        self.sprite_data = self.game.sprite_data
+        Weather.weather_matter_images = self.sprite_data.weather_matter_images
         self.character_animation_data = self.game.character_animation_data
         self.character_portraits = self.game.character_portraits
         self.effect_animation_pool = self.game.effect_animation_pool
@@ -238,12 +238,13 @@ class Battle:
         self.all_team_ally = {index: sprite.Group() for index in team_list}
         self.all_team_enemy_check = {index: sprite.Group() for index in team_list}  # for victory check
 
-        self.all_team_ground_enemy_collision_grids = {index: {} for index in team_list}
-        self.all_team_air_enemy_collision_grids = {index: {} for index in team_list}
+        self.all_team_ground_enemy_collision_grids = {index: () for index in team_list}
+        self.all_team_air_enemy_collision_grids = {index: () for index in team_list}
         self.last_grid = None
 
-        self.player_team = 1
-        self.player_enemy_team = 2
+        self.player_team = None
+        self.winner_team = None
+        self.player_enemy_team = None
         self.player_input = None
         self.player_damage = 0
         self.player_kill = 0
@@ -251,12 +252,16 @@ class Battle:
         self.play_time = 0
         self.battle_time = 0.0
 
-        self.team_stat = {team: {"strategy_resource": 0, "supply_resource": 0, "supply_reserve": 0, "start_pos": 0,
+        self.team_stat = {team: {"faction": None, "culture": None, "strategy_resource": 0, "supply_resource": 0,
+                                 "supply_reserve": 0, "total_supply": 0, "start_pos": 0,
                                  "leader_call_list": [], "troop_call_list": [],
                                  "air_group": [], "strategy": {}, "unit": {}} for
                           team in team_list}
         self.team_commander = {team: None for team in team_list}
+        self.team_deployed = {team: 0 for team in team_list}
+        self.team_loss = {team: 0 for team in team_list}
         self.player_commander = None
+        self.player_culture = None
         self.player_selected_strategy = None
 
         self.current_weather = Weather(1, 0, 0)
@@ -275,13 +280,12 @@ class Battle:
         self.game_state = "battle"
         self.esc_menu_mode = "menu"
 
-        self.campaign = "main"
+        self.campaign = self.game.campaign
         self.mission = None
 
         self.screen = self.game.screen
 
         # Create the game camera
-        self.camera_mode = "Follow"  # mode of game camera, follow player character or free observation
         self.camera_pos = Vector2(500, 500)  # camera pos on scene
         self.camera_left = (self.camera_pos[0] - self.camera_center_x)
 
@@ -295,9 +299,11 @@ class Battle:
         self.camera_x_shift = self.shown_camera_pos[0] - self.camera_w_center
 
         # Assign battle variable to some classes
-        Character.collision_grid_width = self.screen_width / Collision_Grid_Per_Scene  # collision grid width based on screen scale
+        Character.collision_grid_width = self.screen_width / Collision_Grid_X_Per_Scene  # collision grid size based on screen scale
+        Character.collision_grid_height = self.screen_height / Collision_Grid_Y_Per_Scene
         Character.sound_effect_pool = self.sound_effect_pool
-        DamageEffect.collision_grid_width = self.screen_width / Collision_Grid_Per_Scene
+        DamageEffect.collision_grid_width = self.screen_width / Collision_Grid_X_Per_Scene
+        DamageEffect.collision_grid_height = self.screen_height / Collision_Grid_Y_Per_Scene
         Effect.sound_effect_pool = self.sound_effect_pool
 
         # Create battle ui
@@ -311,42 +317,43 @@ class Battle:
         self.command_ui = Command(battle_ui_images["call_count"], battle_ui_images["air_count"])
         self.player_battle_interact = PlayerBattleInteract()
         self.tactical_map_ui = TacticalMap(battle_ui_images["tactic_alert"])
-        self.strategy_select_ui = StrategySelect(self.tactical_map_ui.rect.midbottom,
-                                                 self.sprite_data.strategy_icons)
+
+        helper_images ={}
+        part_folder = Path(join(self.data_dir, "ui", "battle_ui", "helper"))
+        subdirectories = [split(sep.join(normpath(x).split(sep))) for x
+                          in part_folder.iterdir() if x.is_dir()]
+        for folder in subdirectories:
+            folder_data_name = folder[-1]
+            helper_images[folder_data_name] = load_images(self.data_dir, screen_scale=self.screen_scale,
+                                       subfolder=("ui", "battle_ui", "helper", folder_data_name))
 
         self.battle_helper_ui = BattleHelper(self.game.weather_icon_images,
-                                             (battle_ui_images["helperui"],
-                                             battle_ui_images["helperui_alert_1"],
-                                             battle_ui_images["helperui_alert_2"],
-                                             battle_ui_images["helperui_alert_3"]),
-                                             battle_ui_images["time_selector"],
+                                             battle_ui_images["helperui"],
+                                             battle_ui_images["helperui_base"],
+                                             helper_images,
                                              (battle_ui_images["time_pause"],
                                              battle_ui_images["time_slow"],
                                              battle_ui_images["time_normal"],
-                                             battle_ui_images["time_fast"],
-                                             battle_ui_images["time_faster"]),
+                                             battle_ui_images["time_fast"]),
                                              (battle_ui_images["time_select"],
-                                             battle_ui_images["time_unselect"]),
-                                             (battle_ui_images["defeat_1"],
-                                             battle_ui_images["defeat_2"],
-                                             battle_ui_images["defeat_3"],
-                                             battle_ui_images["defeat_4"],
-                                             battle_ui_images["defeat_5"]),
-                                             (battle_ui_images["victory_1"],
-                                             battle_ui_images["victory_2"],
-                                             battle_ui_images["victory_3"],
-                                             battle_ui_images["victory_4"],
-                                             battle_ui_images["victory_5"]),
+                                             battle_ui_images["time_unselect"])
                                              )
+        self.battle_scale_ui = BattleScale(self.tactical_map_ui.rect.bottomleft)
+        self.strategy_select_ui = StrategySelect(self.battle_scale_ui.rect.midbottom,
+                                                 self.sprite_data.strategy_icons)
 
-        self.outer_ui_updater.add(self.tactical_map_ui, self.battle_helper_ui)
+
+        self.always_command_ui = (self.tactical_map_ui, self.battle_helper_ui, self.battle_scale_ui)
+        self.only_player_command_ui = (self.command_ui, self.strategy_select_ui, self.player_battle_interact)
+
         self.character_command_indicator = CharacterCommandIndicator(600, battle_ui_images["player_order_move"],
                                                                      battle_ui_images["player_order_attack"])
 
         self.screen_fade = ScreenFade()
         self.speech_prompt = CharacterInteractPrompt(battle_ui_images["button_weak"])
-        #
-        # self.player_wheel_ui = WheelUI(battle_ui_images, self.command_ui.rect.midbottom)
+        self.battle_result_ui = BattleResult()
+        self.out_of_battle_result_button = BrownMenuButton((.15, 0.1), (0, 0.8), key_name="button_end_battle",
+                                                           parent=self.battle_result_ui)
 
         TextDrama.images = load_images(self.data_dir, screen_scale=self.screen_scale,
                                        subfolder=("ui", "popup_ui", "drama_text"))
@@ -417,19 +424,22 @@ class Battle:
         self.campaign = campaign
         self.mission = mission
         self.player_team = player_team
+        self.winner_team = None
+        self.player_enemy_team = None
+        # add common battle ui
+        self.outer_ui_updater.add(self.always_command_ui)
         if self.player_team:
-            if self.player_team == 1:
-                self.player_enemy_team = 2
-            else:
-                self.player_enemy_team = 1
+            self.player_enemy_team = (0, 2, 1)[self.player_team]
+            self.player_culture = team_stat[self.player_team]["culture"]
             self.player_input = MethodType(player_input_battle, self)
-            self.outer_ui_updater.add(self.command_ui, self.strategy_select_ui, self.player_battle_interact)
+            self.outer_ui_updater.add(self.only_player_command_ui)
         else:  # no player in battle, use another method that does not allow some hotkey input
             self.player_input = MethodType(battle_no_player_input_battle, self)
-            self.outer_ui_updater.remove(self.command_ui, self.strategy_select_ui, self.player_battle_interact)
+            self.player_culture = Custom_Default_Culture
+            self.outer_ui_updater.remove(self.only_player_command_ui)
 
         # Stop all sound
-        for sound_ch in self.battle_sound_channel:
+        for sound_ch in self.battle_sound_channels:
             if sound_ch.get_busy():
                 sound_ch.stop()
         self.current_music = None
@@ -466,11 +476,9 @@ class Battle:
             if "scene" in value["Type"]:  # assign scene data
                 if value["Object"] not in loaded_item:  # load image
                     image = self.empty_scene_image
-                    if path.exists(path.join(self.data_dir, "map", "scene",
-                                             fcv(str(value["Object"]), revert=True) + ".png")):
+                    if exists(join(self.data_dir, "map", "scene", str(value["Object"] + ".png"))):
                         image = load_image(self.data_dir, self.screen_scale,
-                                           fcv(str(value["Object"]), revert=True) + ".png",
-                                           ("map", "scene"))
+                                           str(value["Object"]) + ".png", ("map", "scene"))
                     self.scene.images[value["Object"]] = image
                     loaded_item.append(value["Object"])
                 self.scene.data[value["POS"]] = value["Object"]
@@ -485,10 +493,8 @@ class Battle:
                     images = self.scene.images
 
                     if value["Object"] not in images:
-                        if path.exists(
-                                path.join(self.data_dir, "map", "scene", fcv(value["Object"], revert=True) + ".png")):
-                            image = load_image(self.data_dir, self.screen_scale,
-                                               fcv(value["Object"], revert=True) + ".png",
+                        if exists(join(self.data_dir, "map", "scene", value["Object"] + ".png")):
+                            image = load_image(self.data_dir, self.screen_scale, value["Object"] + ".png",
                                                ("map", "scene"))  # no scaling yet
                         images[value["Object"]] = image
 
@@ -507,11 +513,13 @@ class Battle:
             team_stat["troop_call_list"] = []
             team_stat["supply_resource"] = 0
             team_stat["supply_reserve"] = 0
+            team_stat["total_supply"] = 0
             team_stat["start_pos"] *= self.base_stage_end
             # add available strategies to team stat
             if team_stat["main_army"] and team_stat["main_army"].commander_id:  # army exist
                 team_stat["supply_resource"] = team_stat["main_army"].supply * 0.1
                 team_stat["supply_reserve"] = team_stat["main_army"].supply * 0.9
+                team_stat["total_supply"] = team_stat["main_army"].supply
                 team_stat["leader_call_list"] = [
                     [item, self.character_list[item]["Capacity"], self.character_list[item]["Supply"]] for item in
                     team_stat["main_army"].leader_group]
@@ -525,6 +533,13 @@ class Battle:
                 retinue_list = []
                 if team_stat["main_army"]:
                     retinue_list += team_stat["main_army"].retinue
+                    if len(retinue_list) < 3:  # check for retinue in reinforcement armies until can get full 3
+                        for army in team_stat["reinforcement_army"]:
+                            if army.retinue:
+                                retinue_list += army.retinue[:3 - len(retinue_list)]
+                                if len(retinue_list) == 3:
+                                    break
+
                 for retinue in retinue_list:
                     team_stat["strategy_cooldown"][len(team_stat["strategy"])] = 0
                     team_stat["strategy"].append(self.character_data.retinue_list[retinue]["Strategy"])
@@ -532,6 +547,7 @@ class Battle:
             for army in team_stat["reinforcement_army"]:
                 if army.commander_id:
                     team_stat["supply_reserve"] += army.supply
+                    team_stat["total_supply"] += army.supply
                     team_stat["leader_call_list"].append([army.commander_id, 1, self.character_list[army.commander_id][
                         "Supply"]])  # add reinforcement commander as leader
                     team_stat["leader_call_list"] += [
@@ -596,17 +612,18 @@ class Battle:
         yield set_done_load()
 
         yield set_start_load(self, "common setup")
-        self.camera_mode = self.start_camera_mode
 
         self.clean_character_group()
-        self.all_team_ground_enemy_collision_grids = {index: {} for index in team_list}
-        self.all_team_air_enemy_collision_grids = {index: {} for index in team_list}
-        for key in self.all_team_ground_enemy_collision_grids:
-            for grid in range(int(stage_len * Collision_Grid_Per_Scene)):
-                # divide grid per scene
-                self.all_team_ground_enemy_collision_grids[key][grid] = sprite.Group()
-                self.all_team_air_enemy_collision_grids[key][grid] = sprite.Group()
-        self.last_grid = int(stage_len * Collision_Grid_Per_Scene) - 1
+        # grids for collision are kept in y, x metrix
+        # the last y grid is used strategy/range collision for ALL characters where height play no part, so + 1 grid y per
+        self.all_team_ground_enemy_collision_grids = {index: [[sprite.Group() for _ in
+                                                               range(int(stage_len * Collision_Grid_X_Per_Scene))] for
+                                                              _ in range(Collision_Grid_Y_Per_Scene + 1)] for index in team_list}
+        self.all_team_air_enemy_collision_grids = {index: [[sprite.Group() for _ in
+                                                               range(int(stage_len * Collision_Grid_X_Per_Scene))] for
+                                                              _ in range(Collision_Grid_Y_Per_Scene + 1)] for index in team_list}
+
+        self.last_grid = int(stage_len * Collision_Grid_X_Per_Scene)
 
         for item in stage_data["character"]:
             if item["Arrive Condition"]:
@@ -704,6 +721,7 @@ class Battle:
         self.tactical_map_ui.setup()  # setup tactical map ui to scale with stage size
         self.command_ui.setup()
         self.strategy_select_ui.setup()
+        self.battle_helper_ui.setup()
 
         # Create Starting Values
         self.input_popup = None  # no popup asking for user text input state
@@ -743,6 +761,7 @@ class Battle:
 
     def run_battle(self):
         frame = 0
+        clear_event()
         while True:  # battle running
             frame += 1
 
@@ -779,7 +798,7 @@ class Battle:
                 (self.battle_cursor.pos[1] / self.screen_scale[1]))  # mouse pos on the map based on camera position
             self.cursor_pos = Vector2(self.battle_cursor.pos[0] + self.camera_left,
                                       self.battle_cursor.pos[1])
-            for event in pygame.event.get():  # get event that happen
+            for event in get_event():  # get event that happen
                 if event.type == pygame.MOUSEBUTTONUP:
                     if event.button == 4:  # Mouse scroll down
                         self.cursor.scroll_up = True
@@ -805,12 +824,7 @@ class Battle:
                     elif event.key == K_KP_2:
                         self.drama_text.queue.append(("Show case: Reworked battle system.", None))
                         for enemy in self.all_battle_characters:
-                            if type(enemy) is BattleCharacter and enemy.sub_characters:
-                                enemy.base_pos[0] += 300
-                                # enemy.health -= 300000
-                                enemy.pos = Vector2((enemy.base_pos[0] * self.screen_scale[0],
-                                                    enemy.base_pos[1] * self.screen_scale[1]))
-                                enemy.reset_sprite()
+                            enemy.health = 0
                     elif event.key == K_KP_3:
                         self.drama_text.queue.append(
                             ("In some maps, neutral animals may appear based on specific condition", None))
@@ -825,15 +839,16 @@ class Battle:
                             ("They will return when out of resource and require rest to be ready again", None))
                     elif event.key == K_KP_5:
                         # self.drama_text.queue.append(("Maybe need to add clear unit selector around here", None))
-                        self.drama_text.queue.append(
-                            ("Some may be curious like bear cub that will follow any coming close, very dangerous",
-                             None))
+                        # self.drama_text.queue.append(
+                        #     ("Some may be curious like bear cub that will follow any coming close, very dangerous",
+                        #      None))
+                        self.team_commander[1].ai_speak("hurt")
                     elif event.key == K_KP_6:
-                        self.drama_text.queue.append(
-                            ("Some will even attack, buff, debuff or even summon enemies", None))
-                        self.call_in_air_group(2, [index for index, _ in enumerate(self.team_stat[2]["air_group"])],
-                                               500)
-                        # self.screen_shake_value = 11111
+                        # self.drama_text.queue.append(
+                        #     ("Some will even attack, buff, debuff or even summon enemies", None))
+                        # self.call_in_air_group(2, [index for index, _ in enumerate(self.team_stat[2]["air_group"])],
+                        #                        500)
+                        self.team_commander[2].ai_speak("hurt")
                     elif event.key == K_KP_7:
                         self.activate_strategy(2, "Spell_huge_stone", 1000)
                     elif event.key == K_KP_8:  # clear profiler
@@ -871,10 +886,15 @@ class Battle:
             this_group.empty()
 
         # setup grid for collide check
-        for collision_grids in (self.all_team_ground_enemy_collision_grids, self.all_team_air_enemy_collision_grids):
-            for team in collision_grids.values():
-                for grid in team.values():
-                    grid.empty()
+        for team in self.all_team_ground_enemy_collision_grids.values():
+            for grid_y in team:
+                for grid_x in grid_y:
+                    grid_x.empty()
+
+        for team in self.all_team_air_enemy_collision_grids.values():
+            for grid_y in team:
+                for grid_x in grid_y:
+                    grid_x.empty()
 
     def exit_battle(self):
         # remove menu and ui
@@ -887,7 +907,7 @@ class Battle:
         self.command_ui.reset()
 
         # stop all sounds
-        for sound_ch in self.battle_sound_channel:
+        for sound_ch in self.battle_sound_channels:
             if sound_ch.get_busy():
                 sound_ch.stop()
         self.current_music = None
@@ -897,7 +917,8 @@ class Battle:
         # remove all reference from battle object
         self.scene.images = {}
         self.scene.data = {}
-        self.team_stat = {team: {"strategy_resource": 0, "supply_resource": 0, "start_pos": 0,
+        self.team_stat = {team: {"faction": None, "culture": None, "strategy_resource": 0,
+                                 "supply_resource": 0, "supply_reserve": 0, "total_supply": 0, "start_pos": 0,
                                  "leader_call_list": [], "troop_call_list": [],
                                  "air_group": [], "strategy": {}, "unit": {}} for
                           team in team_list}
@@ -912,7 +933,7 @@ class Battle:
         self.ai_process_list = []
         self.team_commander = {team: None for team in team_list}
         self.player_commander = None
-        self.player_selected_leaders = []
+        self.player_culture = None
         self.player_selected_strategy = None
         self.tactical_map_ui.character_rect = {}
         self.speech_prompt.clear()  # clear speech prompt from updater to avoid being deleted

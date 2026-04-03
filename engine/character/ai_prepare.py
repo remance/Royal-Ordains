@@ -1,9 +1,9 @@
 from functools import lru_cache
 from operator import itemgetter
 
-from engine.constants import Default_Screen_Width, Collision_Grid_Per_Scene
+from engine.constants import Default_Screen_Width, Collision_Grid_X_Per_Scene
 
-grid_width = Default_Screen_Width / Collision_Grid_Per_Scene
+grid_width = Default_Screen_Width / Collision_Grid_X_Per_Scene
 
 
 @lru_cache(maxsize=10000)
@@ -18,20 +18,21 @@ def find_grid_range(base_pos_x, max_enemy_range_check, last_grid):
 
 
 def get_near_enemy(self, near_enemy):
-    self.near_enemy = sorted(
+    near_enemy = sorted(
         {key: abs(key.base_pos.distance_to(self.base_pos) - key.sprite_width) for key in near_enemy}.items(),
         key=itemgetter(1))  # sort the closest enemy
-    if self.near_enemy:
-        self.nearest_enemy = self.near_enemy[0][0]
-        self.nearest_enemy_distance = self.near_enemy[0][1]
+    if near_enemy:
+        self.nearest_enemy = near_enemy[0][0]
+        self.nearest_enemy_distance = near_enemy[0][1]
         self.nearest_enemy_pos = self.nearest_enemy.base_pos
-        furthest_attack_enemy = [key for key in self.near_enemy if key[1] <= self.ai_max_attack_range]
+        furthest_attack_enemy = [key for key in near_enemy if key[1] <= self.ai_max_attack_range]
         if furthest_attack_enemy:
             self.furthest_enemy = furthest_attack_enemy[-1][0]
             self.furthest_enemy_distance = furthest_attack_enemy[-1][1]
             self.furthest_enemy_pos = self.furthest_enemy.base_pos
+        # keep self.near_enemy for status effect apply check
         if self.ai_enemy_max_effect_range:
-            self.near_enemy = [key for key in self.near_enemy if key[1] <= self.ai_enemy_max_effect_range]
+            self.near_enemy = [key for key in near_enemy if key[1] <= self.ai_enemy_max_effect_range]
         else:
             self.near_enemy = []
 
@@ -49,7 +50,7 @@ def base_ai_prepare(self):
 def troop_ai_prepare(self):
     """find distance of enemies within range"""
     grid_range = base_ai_prepare(self)
-    near_enemy = [enemy for grid in grid_range for enemy in self.ground_enemy_collision_grids[grid] if
+    near_enemy = [enemy for grid in grid_range for enemy in self.ground_enemy_collision_grids[-1][grid] if
                   not enemy.invisible and not enemy.no_target]
     self.get_near_enemy(near_enemy)
 
@@ -63,7 +64,7 @@ def ai_prepare(self):
     self.nearest_ally_distance = None
     self.near_ally = sorted({key: key.base_pos.distance_to(self.base_pos) for key in self.ally_list}.items(),
                             key=itemgetter(1))  # sort the closest friend
-    self.near_ally = [key for key in self.near_ally if key[1] <= self.ai_ally_max_effect_range]
+    self.near_ally = [key for key in self.near_ally if key[1] <= self.ai_ally_max_effect_range and key[0] is not self]
     if self.near_ally:
         self.nearest_ally = self.near_ally[0][0]
         self.nearest_ally_pos = self.near_ally[0][0].base_pos
@@ -89,7 +90,7 @@ def sub_character_ai_prepare(self):
 def interceptor_ai_prepare(self):
     """Check only for air enemy"""
     grid_range = base_ai_prepare(self)
-    near_enemy = [enemy for grid in grid_range for enemy in self.air_enemy_collision_grids[grid] if
+    near_enemy = [enemy for grid in grid_range for enemy in self.air_enemy_collision_grids[-1][grid] if
                   not enemy.invisible and not enemy.no_target]
     self.get_near_enemy(near_enemy)
 
@@ -97,7 +98,7 @@ def interceptor_ai_prepare(self):
 def bomber_ai_prepare(self):
     """Check only for ground enemy"""
     grid_range = base_ai_prepare(self)
-    near_enemy = [enemy for grid in grid_range for enemy in self.ground_enemy_collision_grids[grid] if
+    near_enemy = [enemy for grid in grid_range for enemy in self.ground_enemy_collision_grids[-1][grid] if
                   not enemy.invisible and not enemy.no_target]
     self.get_near_enemy(near_enemy)
 
@@ -105,6 +106,7 @@ def bomber_ai_prepare(self):
 def fighter_ai_prepare(self):
     """Check for both ground and air enemy"""
     grid_range = base_ai_prepare(self)
-    near_enemy = [enemy for grid_list in (self.ground_enemy_collision_grids, self.air_enemy_collision_grids) for grid
-                  in grid_range for enemy in grid_list[grid] if not enemy.invisible and not enemy.no_target]
+    near_enemy = [enemy for grid in grid_range for enemy in self.ground_enemy_collision_grids[-1][grid] if
+                  not enemy.invisible and not enemy.no_target] + [enemy for grid in grid_range for enemy in self.air_enemy_collision_grids[-1][grid] if
+                  not enemy.invisible and not enemy.no_target]
     self.get_near_enemy(near_enemy)

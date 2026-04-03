@@ -8,9 +8,11 @@ class Army:
     character_list = None
     grand = None
 
-    def __init__(self, commander: (ArmyCharacter, str), leader_group: list,
+    def __init__(self, faction: str, culture: str, commander: (ArmyCharacter, str), leader_group: list,
                  ground_group: list, air_group: list, retinue: list, supply: int = 0, custom_preset_id=None):
         self.game_id = str(uuid.uuid1())
+        self.faction = faction
+        self.culture = culture
         self.leader_group = leader_group
         self.ground_group = ground_group
         self.commander_id = None

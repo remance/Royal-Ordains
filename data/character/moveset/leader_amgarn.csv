@@ -1,0 +1,8 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
+"Attack1","Slash 1",,,,300,,,,40,50,40,40,0.5,"slash",,,,
+"Attack2","Slash 2",,,,300,,,,40,50,40,40,0.5,"slash",,,,
+"Attack3","Slash 3",,,,300,,,,40,50,40,40,0.5,"slash",,,,
+"Attack4","Slash 4",,,,300,,,,40,50,40,40,0.5,"slash",,,,
+"Attack5","Slash 5",,,,300,,,,40,50,40,40,0.5,"slash",,,,
+"Skill1","Flash Slash","name:Skill1Ready","name:Skill1End",,400,,6,15,20,400,60,20,0.5,"slash",,,,"movable,x_momentum:700,repeat,,speed:3000"
+"Skill2","Haste",,,"self:{no_status=haste}",2000,,15,40,,,,,,,"haste",,,

@@ -1,11 +1,11 @@
 from random import randint, uniform
 
 from engine.character.character import BattleCharacter
-from engine.constants import Default_Screen_Width, Collision_Grid_Per_Scene, Default_Ground_Pos
+from engine.constants import Default_Screen_Width, Collision_Grid_X_Per_Scene, Default_Ground_Pos
 from engine.effect.effect import Effect, DamageEffect
 from engine.utils.rotation import find_target_point
 
-grid_width = Default_Screen_Width / Collision_Grid_Per_Scene
+grid_width = Default_Screen_Width / Collision_Grid_X_Per_Scene
 
 
 def activate_strategy(self, team, strategy, strategy_index, base_pos_x):
@@ -56,7 +56,8 @@ def activate_strategy(self, team, strategy, strategy_index, base_pos_x):
                     angle = effect_stat[4]
                     start_x = (base_pos_x + effect_stat[2]) * self.screen_scale[0]
                 start_y = effect_stat[3] * self.screen_scale[1]
-                base_target_pos = find_target_point(start_x, start_y, 100000, angle)
+                base_target_pos = find_target_point(start_x / self.screen_scale[0], start_y / self.screen_scale[1],
+                                                    100000, angle)
                 DamageEffect(stat["owner data"] | {"team": team, "direction": direction},
                              (effect_stat[0], effect_stat[1], start_x, start_y, angle,
                               effect_stat[5], effect_stat[6], effect_stat[7], effect_stat[8]),
@@ -83,7 +84,7 @@ def activate_strategy(self, team, strategy, strategy_index, base_pos_x):
                                     self.character_list[spawn_name] |
                                     {"ID": spawn_name, "Team": team, "POS": start_pos}, is_summon=True)
                     self.last_char_game_id += 1
-                    Effect(None, ("Movement", "Summon", start_pos[0],
+                    Effect(None, ("movement", "summon", start_pos[0],
                                   start_pos[1], 0, 0, 0, 1, 1), from_owner=False)
 
         range_check = stat["Range"]
@@ -96,11 +97,11 @@ def activate_strategy(self, team, strategy, strategy_index, base_pos_x):
                 grid_right = self.last_grid
             grid_range = range(grid_left, grid_right)
             for grid in grid_range:
-                for enemy in self.all_team_ground_enemy_collision_grids[team][grid]:
+                for enemy in self.all_team_ground_enemy_collision_grids[team][-1][grid]:
                     if abs(enemy.base_pos[0] - base_pos_x) < range_check:
                         for effect in stat["Enemy Status"]:
                             enemy.apply_status(effect)
-                for enemy in self.all_team_air_enemy_collision_grids[team][grid]:
+                for enemy in self.all_team_air_enemy_collision_grids[team][-1][grid]:
                     if abs(enemy.base_pos[0] - base_pos_x) < range_check:
                         for effect in stat["Enemy Status"]:
                             enemy.apply_status(effect)

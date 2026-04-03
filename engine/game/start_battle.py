@@ -1,4 +1,5 @@
 import gc
+from pygame.event import clear as clear_event
 
 
 def start_battle(self, campaign, mission, team_stat, player_team, custom_stage_data=None, ai_retreat=False):
@@ -13,7 +14,7 @@ def start_battle(self, campaign, mission, team_stat, player_team, custom_stage_d
 
     # Finish battle, check for next one
     self.battle.change_game_state("battle")  # reset battle game state when end
-
+    clear_event()
     # save_profile = self.save_data.save_profile
     # print(save_profile)
 

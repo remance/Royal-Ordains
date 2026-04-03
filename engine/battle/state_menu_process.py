@@ -25,8 +25,6 @@ def state_menu_process(self):
                 sys.exit()
             elif input_popup == "end_battle":
                 self.back_to_battle_state()
-                if self.end_delay:  # quit battle during already victory screen
-                    return True
                 return False
 
         elif self.input_cancel_button.event_press or self.esc_press:

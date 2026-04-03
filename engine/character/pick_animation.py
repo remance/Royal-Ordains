@@ -29,7 +29,7 @@ def pick_animation(self):
                             self.health -= resource_cost
 
                         # check if action has prepare/after animation for the moveset
-                        self.current_action = self.current_action | self.current_moveset["Property"] | {
+                        self.current_action = self.current_action | self.current_moveset_property | {
                             "no prepare": True}
                         self.current_action["name"] = self.current_moveset["Move"]
                         if self.current_moveset["After Animation"]:
@@ -49,21 +49,25 @@ def pick_animation(self):
 
                     else:  # no resource to start the move, reset to idle
                         self.current_moveset = None
+                        self.current_moveset_property = None
                 else:
                     animation_name = self.current_action["name"]
 
             if not animation_name:  # None animation_name from no moveset found, use idle
                 self.current_moveset = None
+                self.current_moveset_property = None
                 self.current_action = {}
                 animation_name = "Idle"
                 self.current_animation = self.animation_pool[animation_name]
 
         else:  # animation that is not related to action moveset
             self.current_moveset = None
+            self.current_moveset_property = None
             animation_name = self.current_action["name"]
 
     else:  # idle animation
         self.current_moveset = None
+        self.current_moveset_property = None
         if not self.replace_idle_animation:
             animation_name = "Idle"
         else:

@@ -96,8 +96,8 @@ def event_localisation_check(language):
             if " " == description[-1]:
                 print("end space description", strategy)
             for index, item in enumerate(description):
-                if not item.isalpha() and not item.isdigit() and not item not in (" ", ".", ",", "-"):
-                    print("contain non-standard character", item, index)
+                if not item.isalpha() and not item.isdigit() and not item in (" ", ".", ",", "-", "'", '"', "!", "?"):
+                    print("contain non-standard character description", strategy, item, index)
 
     print("check character")
     for character in character_data.character_list:
@@ -109,10 +109,10 @@ def event_localisation_check(language):
             print("end space name", character)
         if description:
             if " " == description[-1]:
-                print("end space description", strategy)
+                print("end space description", character)
             for index, item in enumerate(description):
-                if not item.isalpha() and not item.isdigit() and not item not in (" ", ".", ",", "-"):
-                    print("contain non-standard character", item, index)
+                if not item.isalpha() and not item.isdigit() and not item in (" ", ".", ",", "-", "'", '"'):
+                    print("contain non-standard character description", character, item, index)
 
 
 event_localisation_check("en")

@@ -34,6 +34,7 @@ def check_reinforcement(self):
                                     add_battle_char = BattleCharacter(self.last_char_game_id,
                                                                       data | self.character_list[character],
                                                                       self.team_commander[condition])
+                                    self.team_deployed[condition] += 1
                                     self.last_char_game_id += 1
                                     if condition == 1:  # spawn at start of stage, go to the end
                                         add_battle_char.issue_commander_order(

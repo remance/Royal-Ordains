@@ -1,3 +1,8 @@
+from engine.constants import Collision_Grid_Y_Per_Scene
+
+max_grid_y_range = tuple(range(Collision_Grid_Y_Per_Scene + 1))
+
+
 def reset_sprite(self):
     self.image = self.current_animation_direction["sprite"]
     offset = self.current_animation_direction["offset"]
@@ -16,17 +21,35 @@ def battle_reset_sprite(self):
     grid_right = int(self.rect.topright[0] / self.collision_grid_width) + 1
     if grid_right > self.last_grid:
         grid_right = self.last_grid
-    grid_range = range(grid_left, grid_right)
-    if self.grid_range != grid_range:
-        no_longer_in_grid = set(grid_range).difference(self.grid_range)
+    grid_range_x = set(range(grid_left, grid_right))
+
+    grid_top = int(self.rect.topleft[1] / self.collision_grid_height)
+    grid_bottom = int(self.rect.bottomleft[1] / self.collision_grid_height) + 1
+    if grid_top < Collision_Grid_Y_Per_Scene:
+        if grid_bottom > Collision_Grid_Y_Per_Scene:
+            grid_bottom = Collision_Grid_Y_Per_Scene
+        if grid_top < 0:
+            grid_top = 0
+    else:  # character that somehow exists lower than bottom of the screen, ignored for collision
+        grid_top = 0
+        grid_bottom = 0
+    grid_range_y = set(range(grid_top, grid_bottom))
+
+    if self.grid_range_x != grid_range_x or self.grid_range_y != grid_range_y:
+        no_longer_in_grid_x = grid_range_x.difference(self.grid_range_x)
         for team, team_grid in self.all_team_enemy_collision_grids.items():
             if team != self.team:
-                for grid in no_longer_in_grid:  # remove from no longer in grid
-                    team_grid[grid].remove(self)
-                if not self.invincible:
-                    for grid in grid_range:
-                        if grid not in self.grid_range:
-                            team_grid[grid].add(self)
-        self.grid_range = grid_range
-
+                for grid_x in no_longer_in_grid_x:  # remove from no longer in grid
+                    for grid_y in max_grid_y_range:
+                        team_grid[grid_y][grid_x].remove(self)
+                    team_grid[-1][grid_x].remove(self)
+                if not self.invincible and grid_range_y:
+                    # skip invincible character and those with sprite outside of screen
+                    for grid_x in grid_range_x:
+                        if grid_x not in self.grid_range_x:
+                            for grid_y in grid_range_y:
+                                team_grid[grid_y][grid_x].add(self)
+                            team_grid[-1][grid_x].add(self)
+        self.grid_range_x = grid_range_x
+        self.grid_range_y = grid_range_y
     self.mask = self.current_animation_direction["mask"]

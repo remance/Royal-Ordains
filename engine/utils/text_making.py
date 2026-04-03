@@ -1,6 +1,5 @@
 import datetime
 import os
-from random import randint
 
 import pygame
 from PIL import Image
@@ -38,6 +37,30 @@ def sort_list_dir_with_str(dir_list, str_list):
         if item not in sorted_dir:
             sorted_dir.append(item)
     return sorted_dir
+
+
+def calculate_long_text_size(text, font, font_size, max_text_width, start_pos=(0, 0)):
+    # Find text size, based on code from make_long_text
+    true_max_width = start_pos[0]
+    x, y = start_pos[0], start_pos[1]
+    words = [word.split(" ") for word in
+             str(text).splitlines()]  # 2D array where each row is a list of words
+    space = font.size(" ")[0]  # the width of a space
+    exceed_max_width = False
+    for line in words:
+        for word in line:
+            word_surface = font.render(word, True, (0, 0, 0))
+            word_width, word_height = word_surface.get_size()
+            if x + word_width >= max_text_width:
+                exceed_max_width = True
+                x = font_size  # reset x
+                y += word_height + 1  # start on new row.
+            if not exceed_max_width:
+                true_max_width += word_width + space
+            x += word_width + space
+        x = font_size  # reset x
+        y += word_height + 1  # start on new row
+    return true_max_width, y
 
 
 def make_long_text(surface, text, pos, font, color=Color("black"), with_texture=(), specific_width=None,
@@ -132,8 +155,8 @@ def text_render_with_texture(text, font, texture, with_bg=None):
     if texture:
         surface = Image.new("RGBA", size, (0, 0, 0, 0))
         texture_size = texture.size
-        pos = (randint(0, texture_size[0] - size[0]), randint(0, texture_size[1] - size[1]))
-        new_texture = texture.crop((pos[0], pos[1], pos[0] + size[0], pos[1] + size[1]))
+        new_texture = texture.crop((texture_size[0] - size[0], texture_size[1] - size[1],
+                                    texture_size[0], texture_size[1]))
         surface.paste(new_texture, box=(0, 0), mask=text_surface)
         size = surface.size
         surface = surface.tobytes()

@@ -49,8 +49,8 @@ class Scene(Sprite):
             self.camera_left = self.battle.camera_left
             self.current_scene_image = Surface.subsurface(self.full_scene_image, (self.camera_left, 0,
                                                                                   self.size_width, self.size_height))
-        if self.camera_y_shift != self.battle.camera_y_shift:
-            self.camera_y_shift = self.battle.camera_y_shift
+        if self.camera_y_shift != self.battle.camera_topleft_y_shift:
+            self.camera_y_shift = self.battle.camera_topleft_y_shift
             self.rect = self.current_scene_image.get_rect(midtop=(self.current_scene_image.get_width() / 2,
                                                                   self.camera_y_shift))
         self.image.blit(self.current_scene_image, self.rect)

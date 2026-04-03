@@ -1,4 +1,4 @@
-from random import uniform, randint, choice
+from random import uniform, random, choice
 
 troop_class_to_call = {"attack_melee": ("light_melee", "medium_melee"),
                        "defend_melee": ("medium_melee", "heavy_melee"),
@@ -31,10 +31,10 @@ def conduct_troop_call(self):
                                      enumerate(troop_available_to_call)}
     check_troop_class = tuple(set(troop_class_available_to_call.values()))
 
-    troop_not_available_to_call = [item for item in self.team_stat["troop_call_list"] if
-                                   item not in troop_available_to_call]
-    leader_not_available_to_call = [item for item in self.team_stat["leader_call_list"] if
-                                    item not in leader_available_to_call]
+    # troop_not_available_to_call = [item for item in self.team_stat["troop_call_list"] if
+    #                                item not in troop_available_to_call]
+    # leader_not_available_to_call = [item for item in self.team_stat["leader_call_list"] if
+    #                                 item not in leader_available_to_call]
 
     call_now = True
 
@@ -51,25 +51,25 @@ def conduct_troop_call(self):
             roulette = {0: None}
             if "light_melee" in check_troop_class or "medium_melee" in check_troop_class:
                 roulette[
-                    next(reversed(roulette)) + self.commander_attack_melee_prefer + randint(1, 10)] = "attack_melee"
+                    next(reversed(roulette)) + self.commander_attack_melee_prefer + int(random() * 10)] = "attack_melee"
             if "medium_melee" in check_troop_class or "heavy_melee" in check_troop_class or "heavy_range" in check_troop_class:
                 roulette[
-                    next(reversed(roulette)) + self.commander_defence_melee_prefer + randint(1, 10)] = "defend_melee"
+                    next(reversed(roulette)) + self.commander_defence_melee_prefer + int(random() * 10)] = "defend_melee"
             if "medium_cavalry" in check_troop_class or "heavy_cavalry" in check_troop_class:
                 roulette[
-                    next(reversed(roulette)) + self.commander_cavalry_melee_prefer + randint(1, 10)] = "melee_cavalry"
+                    next(reversed(roulette)) + self.commander_cavalry_melee_prefer + int(random() * 10)] = "melee_cavalry"
             if "light_cavalry" in check_troop_class:
                 roulette[
-                    next(reversed(roulette)) + self.commander_cavalry_range_prefer + randint(1, 10)] = "range_cavalry"
+                    next(reversed(roulette)) + self.commander_cavalry_range_prefer + int(random() * 10)] = "range_cavalry"
             if "light_range" in check_troop_class or "medium_range":
-                roulette[next(reversed(roulette)) + self.commander_range_prefer + randint(1, 10)] = "attack_range"
+                roulette[next(reversed(roulette)) + self.commander_range_prefer + int(random() * 10)] = "attack_range"
             if "siege" in check_troop_class or "support" in check_troop_class:
-                roulette[next(reversed(roulette)) + self.commander_siege_prefer + randint(1, 10)] = "defend_range"
+                roulette[next(reversed(roulette)) + self.commander_siege_prefer + int(random() * 10)] = "defend_range"
             if leader_available_to_call:
-                roulette[next(reversed(roulette)) + self.commander_leader_prefer + randint(1, 10)] = "leader"
+                roulette[next(reversed(roulette)) + self.commander_leader_prefer + int(random() * 10)] = "leader"
             roulette_key = tuple(roulette.keys())
             what_to_call = roulette[
-                min(roulette_key, key=lambda x: abs(x - randint(roulette_key[0], roulette_key[-1])))]
+                min(roulette_key, key=lambda x: abs(x - int(random() * roulette_key[-1]) + 1))]
             if what_to_call:
                 if what_to_call == "leader":
                     self.call_reinforcement(self.team, "leader", choice(leader_available_to_call))

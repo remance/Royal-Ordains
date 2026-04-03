@@ -9,6 +9,7 @@ from pygame import sprite, display, mouse
 from pygame.font import Font
 from pygame.locals import *
 from pygame.mixer import Sound, Channel
+from pygame.event import get as get_event, clear as clear_event
 
 from engine.army.army import Army
 from engine.battle.battle import Battle
@@ -45,10 +46,11 @@ from engine.game.menu_main import menu_main
 from engine.game.menu_mission_setup import menu_mission_setup
 from engine.game.menu_option import menu_option
 from engine.game.start_battle import start_battle
+from engine.grand.grand import Grand
 from engine.grandobject.grandobject import GrandObject
 from engine.menuobject.menuobject import MenuActor, MenuRotate, StaticImage
 from engine.uibattle.uibattle import (Profiler, FPSCount, CharacterSpeechBox)
-from engine.uimenu.uimenu import (OptionMenuText, SliderMenu, MenuCursor, BoxUI, BrownMenuButton, MenuButton,
+from engine.uimenu.uimenu import (MenuCursor, BoxUI, BrownMenuButton, MenuButton, UIScroll,
                                   TextPopup, CustomTeamSetupUI, FactionSelector, CustomPresetArmySetupUI, GrandMiniMap,
                                   GrandFactionDetail, GrandFactionShowCase, CharacterDescriptionShowCase,
                                   CharacterMovesetShowCase, CharacterSelector, CustomPresetTitle, ListUI,
@@ -175,9 +177,6 @@ class Game:
             self.language = str(self.config["USER"]["language"])
             self.player_key_bind_list = ast.literal_eval(self.config["USER"]["keybind"])
 
-        self.corner_screen_width = self.screen_width - 1
-        self.corner_screen_height = self.screen_height - 1
-
         self.default_player_key_bind_list = ast.literal_eval(self.config["DEFAULT"]["keybind"])
 
         Game.language = self.language
@@ -192,6 +191,11 @@ class Game:
             self.window_style = pygame.FULLSCREEN | SCALED
 
         self.screen = display.set_mode(self.screen_size, DOUBLEBUF | self.window_style)
+
+        # Decorate game icon window
+        icon = load_image(self.main_dir, (1, 1), "icon.png")
+        # icon = pygame.transform.smoothscale(icon, (32, 32))
+        display.set_icon(icon)
 
         Game.screen_rect = self.screen.get_rect()
 
@@ -212,7 +216,6 @@ class Game:
         self.player_key_bind_name = {value: key for key, value in self.player_key_bind.items()}
         self.player_key_press = {key: False for key in self.player_key_bind}
         self.player_key_hold = {key: False for key in self.player_key_bind}  # key that consider holding
-        self.player_key_bind_button_name = self.get_keybind_button_name()
 
         Game.ui_font = csv_read(self.data_dir, "ui_font.csv", ("ui",), header_key=True)
         for item in Game.ui_font:  # add ttf file extension for font data reading.
@@ -240,11 +243,6 @@ class Game:
         self.list_font1 = Font(self.ui_font["text_paragraph"], int(40 * Game.screen_scale[1]))
         self.list_font2 = Font(self.ui_font["text_paragraph"], int(32 * Game.screen_scale[1]))
         self.list_font3 = Font(self.ui_font["text_paragraph"], int(24 * Game.screen_scale[1]))
-
-        # Decorate game icon window
-        icon = load_image(self.main_dir, (1, 1), "icon.png")
-        # icon = pygame.transform.smoothscale(icon, (32, 32))
-        display.set_icon(icon)
 
         # Initialise groups
         Game.ui_updater = ReversedLayeredUpdates()  # main drawer for ui in main menu
@@ -282,7 +280,7 @@ class Game:
         self.weather_ambient_channel.set_volume(self.play_effect_volume)
         self.button_sound_channel = Channel(3)
         self.button_sound_channel.set_volume(self.play_effect_volume)
-        self.music_channel.play(Sound(self.music_pool["Menu"]), loops=-1)
+        self.music_channel.play(Sound(self.music_pool["menu"]), loops=-1)
 
         self.game_intro(False)  # run intro
 
@@ -297,6 +295,7 @@ class Game:
         # Battle related data
         self.character_data = CharacterData()
         self.character_list = self.character_data.character_list
+        self.retinue_list = self.character_data.retinue_list
         self.map_data = MapData()
 
         self.preset_map_data = self.map_data.preset_map_data
@@ -327,7 +326,7 @@ class Game:
 
         # Load UI images
         self.weather_icon_images = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                               subfolder=("ui", "weather_ui"), key_file_name_readable=True)
+                                               subfolder=("ui", "weather_ui"))
         self.option_menu_images = load_images(self.data_dir, screen_scale=self.screen_scale,
                                               subfolder=("ui", "option_ui"))
         image = load_image(self.data_dir, self.screen_scale, "drop_normal.png", ("ui", "mainmenu_ui"))
@@ -339,30 +338,26 @@ class Game:
         self.text_button_image_list = (text_button_image, text_button_image2, text_button_image2)
 
         # Main menu interface
-        self.fps_count = FPSCount(self)  # FPS number counter
-        if self.show_fps:
-            self.add_to_ui_updater(self.fps_count)
-        if self.use_simple_text:
-            CharacterSpeechBox.simple_font = True
-
         BrownMenuButton.button_frame = load_image(self.game.data_dir, (1, 1),
                                                   "new_button.png", ("ui", "mainmenu_ui"))
         main_menu_buttons_box = BoxUI((0, -8),
                                       (self.screen_width, 200 * self.screen_scale[1]), parent=self.screen)
 
-        self.grand_button = BrownMenuButton((.15, 0.5), (-0.6, -1.5), key_name="main_menu_start_game",
+        self.grand_button = BrownMenuButton((.15, 0.5), (-0.6, -1.5), key_name="button_start_game",
                                             parent=main_menu_buttons_box)
-        # self.mission_button = BrownMenuButton((.15, 0.5), (-0.2, -1.5), key_name="main_menu_start_mission",
+        # self.load_grand_button = BrownMenuButton((.15, 0.5), (0, 0), key_name="button_load_game",
+        #                                          parent=main_menu_buttons_box)
+        # self.mission_button = BrownMenuButton((.15, 0.5), (-0.2, -1.5), key_name="button_start_mission",
         #                                       parent=main_menu_buttons_box)
-        self.test_battle_button = BrownMenuButton((.15, 0.5), (-0.2, -1.5), key_name="main_menu_test_battle",
+        self.test_battle_button = BrownMenuButton((.15, 0.5), (-0.2, -1.5), key_name="button_test_battle",
                                                   parent=main_menu_buttons_box)
-        self.custom_battle_button = BrownMenuButton((.15, 0.5), (0.2, -1.5), key_name="main_menu_custom_game",
+        self.custom_battle_button = BrownMenuButton((.15, 0.5), (0.2, -1.5), key_name="button_custom_battle",
                                                     parent=main_menu_buttons_box)
-        self.lorebook_button = BrownMenuButton((.15, 0.5), (0.6, -1.5), key_name="main_menu_lorebook",
+        self.lorebook_button = BrownMenuButton((.15, 0.5), (0.6, -1.5), key_name="button_lorebook",
                                                     parent=main_menu_buttons_box)
-        self.option_button = BrownMenuButton((.15, 0.5), (-0.25, 0), key_name="game_option",
+        self.option_button = BrownMenuButton((.15, 0.5), (-0.25, 0), key_name="button_game_option",
                                              parent=main_menu_buttons_box)
-        self.quit_button = BrownMenuButton((.15, 0.5), (0.25, 0), key_name="game_quit",
+        self.quit_button = BrownMenuButton((.15, 0.5), (0.25, 0), key_name="button_game_quit",
                                            parent=main_menu_buttons_box)
 
         self.main_menu_buttons = (self.grand_button, self.test_battle_button,
@@ -403,9 +398,9 @@ class Game:
             self.fullscreen_box, self.fps_box, self.easy_text_box, self.show_dmg_box)
 
         # Custom battle select menu button
-        self.custom_team1_player = "player"
-        self.custom_team2_player = "computer"
-        self.custom_team_army = {index: [Army(None, [], [], [], []) for _ in range(5)] for index in (1, 2)}
+        self.custom_team_players = {1: "player", 2: "computer"}
+        self.custom_team_army = {index: [Army("", "", None, [], [],
+                                              [], []) for _ in range(5)] for index in (1, 2)}
 
         self.selected_custom_stage_battle = Default_Selected_Stage_Custom_Battle
         self.team1_supply_limit_custom_battle = Default_Supply_limit_Custom_Battle
@@ -416,11 +411,11 @@ class Game:
         self.selected_weather_strength_custom_battle = Default_Weather_Strength_Custom_Battle
 
         self.setup_back_button = BrownMenuButton((.15, 0.5), (0.6, 0),
-                                                 key_name="back_button", parent=main_menu_buttons_box)
+                                                 key_name="button_back", parent=main_menu_buttons_box)
 
-        self.custom_battle_setup_start_battle_button = BrownMenuButton((.15, 0.5), (-0.6, 0), key_name="start_button",
+        self.custom_battle_setup_start_battle_button = BrownMenuButton((.15, 0.5), (-0.6, 0), key_name="button_start",
                                                                        parent=main_menu_buttons_box)
-        self.custom_battle_preset_button = BrownMenuButton((.15, 0.5), (0, 0), key_name="custom_preset_button",
+        self.custom_battle_preset_button = BrownMenuButton((.15, 0.5), (0, 0), key_name="button_custom_preset",
                                                            parent=main_menu_buttons_box)
 
         self.custom_battle_multi_purposes_list = ListUI(pivot=(-0.15, 0.14), origin=(-1, -1), size=(0.2, 0.35),
@@ -459,24 +454,24 @@ class Game:
 
         self.custom_battle_team1_supply_button = MenuButton(
             self.text_button_image_list, (self.screen_rect.width * 0.15, self.screen_rect.height * 0.1),
-            key_name=("Supply Limit:", self.team1_supply_limit_custom_battle), font_size=52, layer=151)
+            key_name=("info_header_supply_limit", self.team1_supply_limit_custom_battle), font_size=52, layer=151)
         self.custom_battle_team2_supply_button = MenuButton(
             self.text_button_image_list, (self.screen_rect.width * 0.65, self.screen_rect.height * 0.1),
-            key_name=("Supply Limit:", self.team2_supply_limit_custom_battle), font_size=52, layer=151)
+            key_name=("info_header_supply_limit", self.team2_supply_limit_custom_battle), font_size=52, layer=151)
 
         self.custom_battle_team1_gold_button = MenuButton(
             self.text_button_image_list, (self.screen_rect.width * 0.35, self.screen_rect.height * 0.1),
-            key_name=("Gold Limit:", self.team1_gold_limit_custom_battle), font_size=52, layer=151)
+            key_name=("info_header_gold_limit", self.team1_gold_limit_custom_battle), font_size=52, layer=151)
         self.custom_battle_team2_gold_button = MenuButton(
             self.text_button_image_list, (self.screen_rect.width * 0.85, self.screen_rect.height * 0.1),
-            key_name=("Gold Limit:", self.team2_gold_limit_custom_battle), font_size=52, layer=151)
+            key_name=("info_header_gold_limit", self.team2_gold_limit_custom_battle), font_size=52, layer=151)
 
         self.player_image = {"player": load_image(self.game.data_dir, self.screen_scale,
                                                   "player.png", ("ui", "mainmenu_ui")),
                              "computer": load_image(self.game.data_dir, self.screen_scale,
                                                     "computer.png", ("ui", "mainmenu_ui"))}
-        self.custom_battle_team1_setup = CustomTeamSetupUI(1, (self.screen_width * 0.25, self.screen_height * 0.435))
-        self.custom_battle_team2_setup = CustomTeamSetupUI(2, (self.screen_width * 0.75, self.screen_height * 0.435))
+        self.custom_battle_team_setup = {1: CustomTeamSetupUI(1, (self.screen_width * 0.25, self.screen_height * 0.435)),
+                                         2: CustomTeamSetupUI(2, (self.screen_width * 0.75, self.screen_height * 0.435))}
 
         self.custom_team_army_buttons = {1: [], 2: []}
         self.custom_team_army_button_bars = {1: [], 2: []}
@@ -495,9 +490,9 @@ class Game:
                                                                       items=GenericListAdapter([]),
                                                                       parent=self.screen, item_size=8, layer=10000))
 
-        self.custom_faction_selector_popup = FactionSelector(1200,
+        self.custom_culture_selector_popup = FactionSelector(1200,
                                                              (self.screen_width / 2, 0), layer=10000,
-                                                             is_popup=True, include_random=True)
+                                                             is_popup=True, include_random=True, use_culture=True)
         self.custom_army_info_popup = CustomPresetArmySetupUI((self.screen_width * 0.5, self.screen_height * 0.5),
                                                               False, layer=100000)
         self.custom_army_title_popup = CustomPresetTitle((self.custom_army_info_popup.image.get_width(),
@@ -508,8 +503,8 @@ class Game:
                                        self.custom_battle_setup_start_battle_button,
                                        self.custom_battle_weather_type_button,
                                        self.custom_battle_weather_strength_button,
-                                       self.custom_battle_stage_button, self.custom_battle_team1_setup,
-                                       self.custom_battle_team2_setup,
+                                       self.custom_battle_stage_button, self.custom_battle_team_setup[1],
+                                       self.custom_battle_team_setup[2],
                                        self.custom_battle_team1_supply_button,
                                        self.custom_battle_team2_supply_button,
                                        self.custom_battle_team1_gold_button,
@@ -520,14 +515,14 @@ class Game:
                 self.custom_team_army_button_bars[1] + self.custom_team_army_button_bars[2])
 
         self.custom_battle_menu_uis_remove = tuple(list(self.custom_battle_menu_uis) + [
-            self.custom_faction_selector_popup, self.custom_army_info_popup, self.custom_army_title_popup] +
+            self.custom_culture_selector_popup, self.custom_army_info_popup, self.custom_army_title_popup] +
                                                    self.custom_team_army_buttons[1] + self.custom_team_army_buttons[2] +
                                                    list(self.all_custom_battle_bars))
 
         # preset army setup for custom battle ui
         self.preset_back_button = BrownMenuButton((.15, 0.5), (0.3, 0),
-                                                  key_name="back_button", parent=main_menu_buttons_box)
-        self.preset_save_button = BrownMenuButton((.15, 0.5), (-0.3, 0), key_name="save_button",
+                                                  key_name="button_back", parent=main_menu_buttons_box)
+        self.preset_save_button = BrownMenuButton((.15, 0.5), (-0.3, 0), key_name="button_save",
                                                   parent=main_menu_buttons_box)
 
         self.custom_preset_army_setup = CustomPresetArmySetupUI((self.screen_width * 0.4, self.screen_height * 0.2),
@@ -535,37 +530,35 @@ class Game:
         self.custom_preset_army_title = CustomPresetTitle((self.game.screen_width * 0.8, 80 * self.screen_scale[1]),
                                                           (self.screen_rect.width / 2,
                                                            self.custom_preset_army_setup.rect.midtop[1]))
-        self.custom_character_selector = CharacterSelector((self.screen_width * 0.78, self.screen_height * 0.2))
+        self.character_selector = CharacterSelector((self.screen_width * 0.78, self.screen_height * 0.2))
+        self.character_selector_scroll = UIScroll(self.character_selector,
+                                                  self.character_selector.rect.topright)
         self.custom_preset_list_box = ListUI(pivot=(-0.9, -0.6), origin=(-1, -1), size=(0.15, 0.5),
                                              items=CustomPresetListAdapter(),
                                              parent=self.screen, item_size=20)
-        self.faction_selector = FactionSelector(3800, (self.screen_width / 2, 0))
+        self.custom_preset_faction_selector = FactionSelector(3800, (self.screen_width / 2, 0), use_culture=True)
 
         self.custom_preset_menu_uis = (self.preset_back_button, self.preset_save_button, self.custom_preset_list_box,
-                                       self.faction_selector, self.custom_preset_army_setup,
-                                       self.custom_character_selector,
+                                       self.custom_preset_faction_selector, self.custom_preset_army_setup,
+                                       self.character_selector, self.character_selector_scroll,
                                        self.custom_preset_army_title)
 
         # mission select menu button
-        # self.mission_setup_start_button = BrownMenuButton((.15, 0.5), (-0.6, 0), key_name="start_button",
+        # self.mission_setup_start_button = BrownMenuButton((.15, 0.5), (-0.6, 0), key_name="button_start",
         #                                                   parent=main_menu_buttons_box)
         # self.mission_menu_uis = (self.mission_setup_start_button, self.setup_back_button,)
 
         # Grand strategy select menu button
-        self.load_grand_button = BrownMenuButton((.15, 0.5), (0, 0), key_name="main_menu_load_game",
-                                                 parent=main_menu_buttons_box)
-        self.grand_setup_start_button = BrownMenuButton((.15, 0.5), (-0.6, 0), key_name="start_button",
+        self.grand_setup_start_button = BrownMenuButton((.15, 0.5), (-0.6, 0), key_name="button_start",
                                                         parent=main_menu_buttons_box)
-        self.grand_mini_map = GrandMiniMap(self.faction_selector.rect.midbottom, (2000, 1000), "setup")
+        self.grand_faction_selector = FactionSelector(3800, (self.screen_width / 2, 0))
+        self.grand_mini_map = GrandMiniMap(self.grand_faction_selector.rect.midbottom, (2000, 1200), "setup")
         self.grand_faction_detail = GrandFactionDetail()
 
-        self.faction_showcase_banners = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                                    subfolder=("ui", "faction_ui", "banner"),
-                                                    key_file_name_readable=True)
-        self.grand_faction_showcase = GrandFactionShowCase(self.faction_showcase_banners)
-        self.grand_menu_uis = (self.setup_back_button, self.load_grand_button, self.grand_mini_map,
+        self.grand_faction_showcase = GrandFactionShowCase()
+        self.grand_menu_uis = (self.setup_back_button, self.grand_mini_map,
                                self.grand_faction_detail, self.grand_faction_showcase,
-                               self.grand_setup_start_button, self.faction_selector)
+                               self.grand_setup_start_button, self.grand_faction_selector)
 
         # User input popup ui
         input_ui_dict = self.make_input_box()
@@ -582,17 +575,24 @@ class Game:
                                     self.input_ui, self.input_box, self.static_input_box)
 
         self.battle = Battle(self)
-        # self.grand = Grand(self)
+        self.grand = Grand(self)
 
         Game.battle = self.battle
         Character.battle = self.battle
         Effect.battle = self.battle
         StageObject.battle = self.battle
 
+        self.fps_count = FPSCount(self)  # FPS number counter
+        if self.show_fps:
+            self.add_to_ui_updater(self.fps_count)
+        if self.use_simple_text:
+            CharacterSpeechBox.simple_font = True
+
         # lorebook ui
-        self.lorebook_back_button = BrownMenuButton((.15, 0.5), (0, 1),
-                                                    key_name="back_button", parent=main_menu_buttons_box)
-        self.lorebook_faction_selector = FactionSelector(3800, (self.screen_width / 2, 0), include_free=True)
+        self.lorebook_back_button = BrownMenuButton((.15, 0.5), (0, 1.5),
+                                                    key_name="button_back", parent=main_menu_buttons_box)
+        self.lorebook_faction_selector = FactionSelector(3800, (self.screen_width / 2, 0),
+                                                         include_free=True, use_culture=True)
         self.lorebook_showcase_character_selector = CharacterSelector((self.screen_width * 0.17, self.screen_height * 0.15))
 
         self.lorebook_showcase_box = StaticImage((self.screen_width * 0.595, self.screen_height * 0.4),
@@ -665,14 +665,13 @@ class Game:
                                    "keybind": self.menu_keybind}
 
         self.input_popup = None  # popup for text input state
-        self.loading_screen("end")
 
         self.run_game()
 
     def game_intro(self, intro):
         timer = 0
         while intro:
-            for event in pygame.event.get():
+            for event in get_event():
                 if event.type == pygame.KEYDOWN:
                     intro = False
                 if event.type == pygame.QUIT:
@@ -700,6 +699,7 @@ class Game:
         self.battle.outer_ui_updater.add(self.profiler)
 
     def run_game(self):
+        clear_event()
         while True:
             # Get user input
             self.remove_from_ui_updater(self.text_popup)
@@ -718,13 +718,13 @@ class Game:
             key_press = pygame.key.get_pressed()
 
             if not self.music_channel.get_busy():  # play menu song when not playing anything
-                self.music_channel.play(Sound(self.music_pool["Menu"]), loops=-1)
+                self.music_channel.play(Sound(self.music_pool["menu"]), loops=-1)
 
             for key in self.player_key_press:
                 if type(self.player_key_bind[key]) is int and key_press[self.player_key_bind[key]]:
                     self.player_key_hold[key] = True
 
-            for event in pygame.event.get():
+            for event in get_event():
                 if event.type == pygame.MOUSEBUTTONUP:
                     if event.button == 4:  # Mouse scroll down
                         self.cursor.scroll_up = True
@@ -791,7 +791,7 @@ class Game:
                         else:
                             done = False
                             self.activate_input_popup(("confirm_input", "exist_name"),
-                                                      self.localisation.grab_text(("ui", "name_in_use_warn")),
+                                                      self.localisation.grab_text(("ui", "warn_name_in_use")),
                                                       self.game.inform_popup_uis)
 
                     elif "remove_preset" in self.input_popup[1]:
@@ -807,24 +807,24 @@ class Game:
                             if self.input_popup[2] == 1:
                                 self.team1_gold_limit_custom_battle = int(self.input_box.text)
                                 self.custom_battle_team1_gold_button.change_state(
-                                    ("Gold Limit:", self.team1_gold_limit_custom_battle))
-                                self.custom_battle_team1_setup.change_cost(0, self.custom_team_army[1][0].cost)
+                                    ("info_header_gold_limit", self.team1_gold_limit_custom_battle))
+                                self.custom_battle_team_setup[1].change_cost(0, self.custom_team_army[1][0].cost)
                             else:
                                 self.team2_gold_limit_custom_battle = int(self.input_box.text)
                                 self.custom_battle_team2_gold_button.change_state(
-                                    ("Gold Limit:", self.team2_gold_limit_custom_battle))
-                                self.custom_battle_team2_setup.change_cost(0, self.custom_team_army[2][0].cost)
+                                    ("info_header_gold_limit", self.team2_gold_limit_custom_battle))
+                                self.custom_battle_team_setup[2].change_cost(0, self.custom_team_army[2][0].cost)
 
                     elif self.input_popup[1] == "custom_supply":
                         if self.input_box.text.isdigit():
                             if self.input_popup[2] == 1:
                                 self.team1_supply_limit_custom_battle = int(self.input_box.text)
                                 self.custom_battle_team1_supply_button.change_state(
-                                    ("Supply Limit:", self.team1_supply_limit_custom_battle))
+                                    ("info_header_supply_limit", self.team1_supply_limit_custom_battle))
                             else:
                                 self.team2_supply_limit_custom_battle = int(self.input_box.text)
                                 self.custom_battle_team2_supply_button.change_state(
-                                    ("Supply Limit:", self.team2_supply_limit_custom_battle))
+                                    ("info_header_supply_limit", self.team2_supply_limit_custom_battle))
 
                     elif self.input_popup[1] == "quit":
                         pygame.time.wait(1000)

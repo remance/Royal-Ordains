@@ -95,20 +95,20 @@ def key_call_air_5(self):
 
 
 def key_select_strategy(self, index):
-    if self.battle.team_stat[self.battle.player_team]["strategy"] and index < len(
-            self.battle.team_stat[self.battle.player_team]["strategy"]):
-        this_strategy = self.battle.team_stat[self.battle.player_team]["strategy"][index]
-        if not self.battle.team_stat[self.battle.player_team]["strategy_cooldown"][index]:
+    player_team_stat = self.team_stat[self.player_team]
+    if player_team_stat["strategy"] and index < len(player_team_stat["strategy"]):
+        this_strategy = player_team_stat["strategy"][index]
+        if not player_team_stat["strategy_cooldown"][index]:
             # strategy exist and not in cooldown
-            self.battle.player_selected_strategy = (this_strategy, index)
-            strategy_stat = self.battle.strategy_list[this_strategy]
-            self.battle.player_battle_interact.current_strategy_base_range = strategy_stat["Range"]
-            self.battle.player_battle_interact.current_strategy_base_activate_range = strategy_stat["Activate Range"]
-            self.battle.player_battle_interact.current_strategy_range = strategy_stat["Range"] * self.screen_scale[0]
-            self.battle.player_battle_interact.current_strategy_activate_range = (strategy_stat["Activate Range"] *
-                                                                                  self.screen_scale[0])
-            self.battle.tactical_map_ui.current_strategy_base_range = self.battle.player_battle_interact.current_strategy_base_range
-            self.battle.tactical_map_ui.current_strategy_base_activate_range = self.battle.player_battle_interact.current_strategy_base_activate_range
+            self.player_selected_strategy = (this_strategy, index)
+            strategy_stat = self.strategy_list[this_strategy]
+            self.player_battle_interact.current_strategy_base_range = strategy_stat["Range"]
+            self.player_battle_interact.current_strategy_base_activate_range = strategy_stat["Activate Range"]
+            self.player_battle_interact.current_strategy_range = strategy_stat["Range"] * self.screen_scale[0]
+            self.player_battle_interact.current_strategy_activate_range = (strategy_stat["Activate Range"] *
+                                                                           self.screen_scale[0])
+            self.tactical_map_ui.current_strategy_base_range = self.player_battle_interact.current_strategy_base_range
+            self.tactical_map_ui.current_strategy_base_activate_range = self.player_battle_interact.current_strategy_base_activate_range
 
 
 def key_select_strategy_1(self):
