@@ -13,7 +13,7 @@ def state_battle_process(self):
         self.change_game_state("menu")  # open menu
         self.scene_translation_text_popup.popup(
             (self.screen_rect.midleft[0], self.screen_height * 0.82),
-            self.game.localisation.grab_text(
+            self.localisation.grab_text(
                 ("scene", self.scene.data[self.current_scene], "Text")),
             width_text_wrapper=self.screen_width)
         self.add_to_ui_updater(self.cursor, self.battle_menu_button.values(),
@@ -36,28 +36,15 @@ def state_battle_process(self):
     self.dt = dt  # apply dt with game_speed for calculation
     self.shown_camera_pos = self.camera_pos.copy()
 
-    self.camera_topleft_y_shift = self.camera_center_y - self.shown_camera_pos[1]
-    self.camera_topleft_x_shift = self.shown_camera_pos[0] - self.camera_w_center  # camera topleft x
-    self.camera_y = self.shown_camera_pos[1] - self.camera_h_center  # camera topleft y
-    self.camera.camera_topleft_x_shift = self.camera_topleft_x_shift
-    self.camera.camera_topleft_y_shift = self.camera_topleft_y_shift
-    self.camera.camera_right_x_shift = self.shown_camera_pos[0] + self.camera_w_center
-    self.scene.update()
-    self.camera.update(self.battle_camera_object_drawer)
-    self.outer_ui_updater.update(dt)
-
     current_frame = self.camera_pos[0] / self.screen_width
     if current_frame == 0.5:  # at center of first scene
         self.current_scene = 1
-        self.spawn_check_scene = 1
         self.reach_scene = 1
     elif abs(current_frame - int(current_frame)) >= 0.5:  # at right half of scene
         self.current_scene = int(current_frame) + 1
-        self.spawn_check_scene = self.current_scene
         self.reach_scene = self.current_scene + 1
     else:
         self.current_scene = int(current_frame)  # at left half of scene
-        self.spawn_check_scene = self.current_scene + 1
         self.reach_scene = self.current_scene
 
     if dt:
@@ -70,12 +57,12 @@ def state_battle_process(self):
             if self.screen_shake_value > decrease:
                 decrease = self.screen_shake_value
             self.screen_shake_value -= (dt * decrease)
-            if self.screen_shake_value < 0:
+            if self.screen_shake_value <= 0:
                 self.screen_shake_value = 0
             else:
                 self.shake_camera()
 
-        ai_process_list = self.ai_process_list
+        ai_process_list = self.ai_process_list  # process ai prepare
         if ai_process_list:
             limit = int(len(ai_process_list) / 20)
             if limit < 20:
@@ -98,8 +85,9 @@ def state_battle_process(self):
         for team, team_stat in self.team_stat.items():
             team_stat["strategy_cooldown"] = {key: value - dt if value > dt else 0 for
                                               key, value in team_stat["strategy_cooldown"].items()}
-            if self.team_commander[team] and self.team_commander[team].alive and team_stat["strategy_resource"] < 100:
-                team_stat["strategy_resource"] += dt * self.team_commander[team].strategy_regen
+            team_commander = self.team_commander[team]
+            if team_commander and team_commander.alive and team_stat["strategy_resource"] < 100:
+                team_stat["strategy_resource"] += dt * team_commander.strategy_regen
                 if team_stat["strategy_resource"] > 100:
                     team_stat["strategy_resource"] = 100
 
@@ -239,6 +227,15 @@ def state_battle_process(self):
                     self.change_game_state("result")
                     self.end_delay = 0
 
+    # update camera
+    self.camera_topleft_x_shift = self.shown_camera_pos[0] - self.camera_w_center
+    self.camera_topleft_y_shift = self.shown_camera_pos[1] - self.camera_center_y
+    self.camera.camera_topleft_x_shift = self.camera_topleft_x_shift
+    self.camera.camera_topleft_y_shift = self.camera_topleft_y_shift
+    self.camera.camera_right_x_shift = self.shown_camera_pos[0] + self.camera_w_center
+    self.scene.update()
+    self.camera.update(self.battle_camera_object_drawer)
+    self.outer_ui_updater.update(dt)
     self.camera.update(self.battle_camera_ui_drawer)
     self.camera.out_update(self.outer_ui_updater)
     self.blit_culling_check.clear()

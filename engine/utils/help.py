@@ -1,15 +1,15 @@
-import numpy as np
-from PIL import Image
-
-color_list = []
-im = Image.open("world.png")
-rgb_im = np.array(im)
-for row in rgb_im:
-    for col in row:
-        rgb = col
-        color_list.append((int(rgb[0]), int(rgb[1]), int(rgb[2])))
-
-color_list = list(set(color_list))
+# import numpy as np
+# from PIL import Image
+#
+# color_list = []
+# im = Image.open("world.png")
+# rgb_im = np.array(im)
+# for row in rgb_im:
+#     for col in row:
+#         rgb = col
+#         color_list.append((int(rgb[0]), int(rgb[1]), int(rgb[2])))
+#
+# color_list = list(set(color_list))
 # print(color_list[0])
 # print(len(color_list))
 

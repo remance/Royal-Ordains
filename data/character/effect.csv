@@ -94,6 +94,7 @@
 "stinktrap",30,,,,"stink_cloud","smoke_puff",400,,"trap,reach_effect_spawn_ground"
 "stone",,2200,"TRUE","bounce",,"stone",400,,
 "stone_big",,3000,"TRUE","bounce",,"stone_big",1000,,
+"stone_small",,1700,"TRUE","bounce",,,,,
 "stone_huge",,1000,"TRUE","move","landing_huge","stone_huge",5000,6,"reach_effect_spawn_ground:bottom"
 "summon_scorpion",,,,,,,,,
 "test_effect",,,,,,,,,
@@ -104,6 +105,7 @@
 "wasp_pot",,,,,"wasp_unleash",,,,
 "wasp_unleash",,,"TRUE",,,,,,
 "water_ball",,,,,,,,,
+"water_spray",,,TRUE,,,,,,
 "weirdstick",,1000,"TRUE","bounce",,"toy",500,,"travel_spin"
 "yuawies_leaf",,3500,"TRUE","stick",,"arrow",50,,
 "curse_skull",,800,"TRUE",,,"curse_skull",500,,

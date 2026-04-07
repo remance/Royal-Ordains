@@ -1,12 +1,13 @@
 def convert_army_to_custom_deployable(self, army_dict, culture):
     deployable_army_dict = {"culture": culture, "commander": [], "leader": [], "troop": [], "air": [],
-                            "retinue": [], "cost": 0, "total": 0}
+                            "retinue": [], "cost": 0}
     if "leader" in army_dict:  # player custom preset army
         for header in ("commander", "leader", "troop", "air"):
             for character in army_dict[header]:
                 if character:
                     deployable_army_dict[header].append(character)
                     deployable_army_dict["cost"] += self.character_list[character]["Cost"]
+        deployable_army_dict["retinue"] = [item for item in army_dict["retinue"] if item]
 
     else:  # game custom preset army
         character = army_dict["Commander"]
@@ -20,7 +21,9 @@ def convert_army_to_custom_deployable(self, army_dict, culture):
             if character:
                 deployable_army_dict[header.split(" ")[0].lower()].append(character)
                 deployable_army_dict["cost"] += self.character_list[character]["Cost"]
+        deployable_army_dict["retinue"] = [army_dict["Retinue 1"], army_dict["Retinue 2"], army_dict["Retinue 3"]]
+        deployable_army_dict["retinue"] = [item for item in deployable_army_dict["retinue"] if item]
 
-    deployable_army_dict["retinue"] = self.character_data.culture_list[culture]["Custom Battle Retinues"]
+    deployable_army_dict["cost"] += sum([self.character_list[item]["Cost"] for item in deployable_army_dict["retinue"] if item])
 
     return deployable_army_dict

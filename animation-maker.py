@@ -1483,7 +1483,6 @@ copy_animation_frame = None
 copy_part = None
 copy_name_frame = None
 copy_animation_stat = None
-current_popup_row = 0
 keypress_delay = 0
 point_edit = 0
 text_delay = 0
@@ -2057,9 +2056,9 @@ while True:
                 if popup_list_box in ui and (
                         popup_list_box.rect.collidepoint(mouse_pos) or popup_list_box.scroll.rect.collidepoint(
                     mouse_pos)):
-                    current_popup_row = list_scroll(mouse_scroll_up, mouse_scroll_down,
-                                                    popup_list_box, current_popup_row, popup_list_box.namelist,
-                                                    popup_namegroup, ui, screen_scale, layer=21)
+                    popup_list_box.scroll.current_row = list_scroll(mouse_scroll_up, mouse_scroll_down,
+                                                                    popup_list_box, popup_list_box.scroll.current_row, popup_list_box.namelist,
+                                                                    popup_namegroup, ui, screen_scale, layer=21)
                 elif anim_prop_list_box.rect.collidepoint(mouse_pos) or anim_prop_list_box.scroll.rect.collidepoint(
                         mouse_pos):
                     current_anim_row = list_scroll(mouse_scroll_up, mouse_scroll_down,
@@ -2156,9 +2155,9 @@ while True:
                                 this_name.kill()
                                 del this_name
                             ui.remove(popup_list_box, popup_list_box.scroll)
-                            current_popup_row = 0  # reset row
+                            popup_list_box.scroll.current_row = 0  # reset row
 
-                else:  # click other stuffs
+                elif not popup_list_box.scroll.rect.collidepoint(mouse_pos):  # click other stuffs
                     for this_name in popup_namegroup:  # remove name list
                         this_name.kill()
                         del this_name
@@ -2596,12 +2595,12 @@ while True:
                                             character_part_button.rect.topleft, part_list, "bottom", screen_scale)
 
                     elif animation_character_button.rect.collidepoint(mouse_pos):
-                        current_popup_row = 0  # move current selected animation to top if not in filtered list
+                        popup_list_box.scroll.current_row = 0  # move current selected animation to top if not in filtered list
                         popup_list_open(popup_list_box, popup_namegroup, ui, "animation_character_select",
                                         (animation_character_button.rect.bottomleft[0],
                                          animation_character_button.rect.bottomleft[1]),
                                         ["New Character"] + [key for key in current_pool if key != "Template"],
-                                        "top", screen_scale, current_row=current_popup_row)
+                                        "top", screen_scale, current_row=popup_list_box.scroll.current_row)
 
                     elif new_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("text_input", "new_animation")
@@ -2644,14 +2643,14 @@ while True:
                                         animation_list = [item for item in animation_list if key_filter[2:] not in item]
                                     else:
                                         animation_list = [item for item in animation_list if key_filter in item]
-                        current_popup_row = 0  # move current selected animation to top if not in filtered list
+                        popup_list_box.scroll.current_row = 0  # move current selected animation to top if not in filtered list
                         if animation_name in animation_list:
-                            current_popup_row = animation_list.index(animation_name)
+                            popup_list_box.scroll.current_row = animation_list.index(animation_name)
                         popup_list_open(popup_list_box, popup_namegroup, ui, "animation_select",
                                         (animation_selector.rect.bottomleft[0],
                                          animation_selector.rect.bottomleft[1]),
                                         animation_list, "top", screen_scale,
-                                        current_row=current_popup_row)
+                                        current_row=popup_list_box.scroll.current_row)
 
                     else:  # click on other stuff
                         for strip_index, strip in enumerate(filmstrips):  # click on frame film list

@@ -18,7 +18,7 @@ class TextDrama(UIBattle):
         self.right_corner = self.images["end"]
         self.battle = battle
         # drama appear at around center top pos of battle camera
-        self.pos = (self.battle.camera_center_x, self.battle.camera_size[1] / 5)
+        self.pos = (self.battle.camera_center_x, self.battle.camera_height / 5)
         self.font = self.game.drama_font
         self.queue = []  # text list to popup
         self.blit_text = False

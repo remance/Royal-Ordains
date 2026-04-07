@@ -9,12 +9,14 @@ class Army:
     grand = None
 
     def __init__(self, faction: str, culture: str, commander: (ArmyCharacter, str), leader_group: list,
-                 ground_group: list, air_group: list, retinue: list, supply: int = 0, custom_preset_id=None):
+                 ground_group: list, air_group: list, retinue: list, supply: int = 0, custom_preset_id=None,
+                 base_pos=(0, 0), current_region=None, destination=None, travel_route=(), broken=False
+                 ):
         self.game_id = str(uuid.uuid1())
         self.faction = faction
         self.culture = culture
-        self.leader_group = leader_group
-        self.ground_group = ground_group
+        self.leader_group = [item for item in leader_group if item]  # remove 0 or empty item
+        self.ground_group = [item for item in ground_group if item]
         self.commander_id = None
         if commander:
             if type(commander) is not ArmyCharacter:
@@ -24,7 +26,7 @@ class Army:
         self.custom_preset_id = custom_preset_id
 
         self.commander_actor = None
-        self.air_group = air_group
+        self.air_group = [item for item in air_group if item]
         self.retinue = retinue
         self.cost = 0
         self.upkeep = 0
@@ -33,10 +35,11 @@ class Army:
         self.sum_mass = 0
         self.sum_travel_speed = 0
         self.len_travel_speed = 0
-        self.discipline = 100
-        self.base_pos = (0, 0)
-        self.pos = (0, 0)
-        self.current_region = None
+        self.base_pos = base_pos
+        self.current_region = current_region
+        self.destination = destination
+        self.travel_route = travel_route
+        self.broken = broken
         self.reset_stat()
 
     def reset_stat(self):
@@ -77,3 +80,13 @@ class Army:
                     self.sum_mass * route_travel_modify)) * dt  # use avg speed of all ground characters
 
         self.set_in_grand_map()
+
+    @property
+    def to_dict(self) -> dict:
+        return {"faction": self.faction, "culture": self.culture,
+                "commander": self.commander_id, "leader_group": self.leader_group,
+                "ground_group": self.ground_group, "air_group": self.ground_group,
+                "retinue": self.retinue, "supply": self.supply, "custom_preset_id": self.custom_preset_id,
+                "base_pos": self.base_pos, "current_region": self.current_region,
+                "destination": self.destination, "travel_route": self.travel_route, "broken": self.broken
+                }

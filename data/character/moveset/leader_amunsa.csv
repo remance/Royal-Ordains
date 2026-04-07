@@ -1,0 +1,8 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
+"Attack1","Sword Slash",,,,350,,,,38,31,20,-50,0.1,"slash",,,,
+"Attack2","Hammer Smite",,,,300,,,,60,15,30,70,,"crush",,,,
+"Skill1","Joint Slash",,,,350,,,,30,24,10,-10,,"slash",,"cripple",,
+"Skill2","Crushing Blow",,,,300,,,12,86,18,,-200,,"crush",,"stun",,
+"Skill3","Weak Point Stab",,,,300,,10,20,90,7,50,,0.2,"stab",,,,"no_defence"
+"UseItem1","Stone Skin Potion",,,"self:{no_status=stone_skin}",2000,,120,,,,,,,,"stone_skin",,,"no_ai_range_check_setup"
+"UseItem2","Large Health Potion",,,"self:{health<=40}",10000,,200,,,,,,,,"large_health_potion",,,"no_ai_range_check_setup"

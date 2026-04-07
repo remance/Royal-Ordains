@@ -29,10 +29,11 @@ class Effect(Sprite):
     clean_object = clean_object
     set_rotate = set_rotate
 
-    character_list = None
-    effect_animation_pool = None
-    effect_list = None
-    sound_effect_pool = {}
+    character_list: dict = None
+    containers = None
+    effect_animation_pool: dict = None
+    effect_list: dict = None
+    sound_effect_pool: dict = {}
     battle = None
     screen_scale = (1, 1)
 

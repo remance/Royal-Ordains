@@ -1283,9 +1283,9 @@ class CharacterSpeechBox(UIBattle):
         """Speech box that appear from character head"""
         self._layer = 9999999999999999998
         UIBattle.__init__(self, player_cursor_interact=False, has_containers=True)
-        font = "culture_" + character.culture
-        if self.simple_font:
-            font = "simple"
+        font = "simple"
+        if not self.simple_font and self.game.language in ("en",):  # culture font only available for latin alphabet sadly
+            font = "culture_" + character.culture
 
         self.font_size = int(font_size * self.screen_scale[1])
         self.font = Font(self.ui_font[font], self.font_size)

@@ -27,11 +27,9 @@ class CharacterData(GameData):
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
-            tuple_column = ("Custom Battle Retinues", )
-            tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
-                    row = stat_convert(row, n, i, tuple_column=tuple_column)
+                    row = stat_convert(row, n, i)
                 self.culture_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
         edit_file.close()
 
@@ -88,19 +86,6 @@ class CharacterData(GameData):
                     "impact_sum": abs(self.strategy_list[row[0]]["Impact X"]) + abs(
                         self.strategy_list[row[0]]["Impact Y"]),
                     "critical_chance": self.strategy_list[row[0]]["Critical Chance"]}
-        edit_file.close()
-
-        self.retinue_list = {}
-        with open(os.path.join(self.data_dir, "character", "retinue.csv"),
-                  encoding="utf-8", mode="r") as edit_file:
-            rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
-            header = rd[0]
-            dict_column = ("Army Effect",)
-            dict_column = [index for index, item in enumerate(header) if item in dict_column]
-            for index, row in enumerate(rd[1:]):
-                for n, i in enumerate(row):
-                    row = stat_convert(row, n, i, dict_column=dict_column)
-                self.retinue_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
         edit_file.close()
 
         # Character dict
@@ -205,7 +190,7 @@ class CharacterData(GameData):
                 if character_data["Culture"] not in self.custom_character_setup:
                     self.all_main_exist_characters[character_data["Culture"]] = []
                     self.custom_character_setup[character_data["Culture"]] = {
-                        "air": [], "retinue": [], "ground": {"leader": {"unique": [], "generic": []}, "troop": []}}
+                        "air": [], "ground": {"leader": {"unique": [], "generic": []}, "troop": []}}
                 if character_data["Class"] != "sub" and os.path.exists(
                         os.path.join(self.data_dir, "ui", "character_ui", character + ".png")):
                     self.all_main_exist_characters[character_data["Culture"]].append(character)
@@ -223,9 +208,6 @@ class CharacterData(GameData):
                                 "troop"].append(character)
                     else:
                         self.custom_character_setup[character_data["Culture"]][character_data["Type"]].append(character)
-
-        for character, character_data in self.retinue_list.items():  # add retinue
-            self.custom_character_setup[character_data["Culture"]]["retinue"].append(character)
 
         # Effect that can exist as its own sprite in battle
         self.effect_list = {}

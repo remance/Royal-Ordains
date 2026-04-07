@@ -11,6 +11,7 @@ class GrandObject(sprite.Sprite):
     clean_object = clean_object
     play_animation = play_animation
 
+    containers = None
     grand = None
     screen_scale = None
     grand_object_animation_pool = None
@@ -23,6 +24,7 @@ class GrandObject(sprite.Sprite):
 
         self.pos = Vector2((self.base_pos[0] * self.grand.map_shown_to_actual_scale_width,
                             self.base_pos[1] * self.grand.map_shown_to_actual_scale_height))
+
         self._layer = 100 + self.pos[1]
         sprite.Sprite.__init__(self, self.containers)
         self.sprite_id = sprite_id
@@ -36,7 +38,6 @@ class GrandObject(sprite.Sprite):
         self.height_scale = 1
         self.width_scale = 1
         self.animation_pool = self.grand_object_animation_pool[sprite_id]
-        print(self.animation_pool)
         self.current_animation = self.animation_pool["base"]
 
         self.base_image = self.current_animation[self.show_frame]

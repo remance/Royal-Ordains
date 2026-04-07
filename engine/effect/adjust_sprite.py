@@ -107,7 +107,7 @@ def adjust_sprite(self):
     self.offset_pos = self.pos
     if offset:
         if self.angle and self.angle != 360:
-            self.offset_pos = rotation_xy(self.pos, self.pos + offset, radians(self.angle))
+            self.offset_pos = rotation_xy(self.pos, self.pos - offset, radians(-self.angle))
         else:
             self.offset_pos = self.pos - offset
 

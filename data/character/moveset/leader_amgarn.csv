@@ -4,5 +4,5 @@
 "Attack3","Slash 3",,,,300,,,,40,50,40,40,0.5,"slash",,,,
 "Attack4","Slash 4",,,,300,,,,40,50,40,40,0.5,"slash",,,,
 "Attack5","Slash 5",,,,300,,,,40,50,40,40,0.5,"slash",,,,
-"Skill1","Flash Slash","name:Skill1Ready","name:Skill1End",,400,,6,15,20,400,60,20,0.5,"slash",,,,"movable,x_momentum:700,repeat,,speed:3000"
+"Skill1","Flash Slash","name:Skill1Ready","name:Skill1End","self:{no_stay}",400,,6,15,20,400,60,20,0.5,"slash",,,,"movable,x_momentum:700,repeat,,speed:3000"
 "Skill2","Haste",,,"self:{no_status=haste}",2000,,15,40,,,,,,,"haste",,,

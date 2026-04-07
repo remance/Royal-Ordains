@@ -97,6 +97,416 @@ class YesNo(UIGrand):
             self.yes_zoom_animation_timer = 0
             self.image = self.base_image2
 
+
+class PlayerFactionCultureList(UIGrand):
+    def __init__(self):
+        self._layer = 5
+        UIGrand.__init__(self, player_cursor_interact=True)
+        self.faction_coas = self.grand.sprite_data.faction_coas
+        self.culture_coas = self.grand.sprite_data.culture_coas
+        self.image = Surface((1400 * self.screen_scale[0], 400 * self.screen_scale[1]), SRCALPHA)
+        self.culture_tab_image = Surface((1000 * self.screen_scale[0], 200 * self.screen_scale[1]), SRCALPHA)
+        self.culture_tab_base_image = self.culture_tab_image.copy()
+        self.faction_coa_rect = None
+        self.culture_coa_rects = {}
+        self.rect = self.image.get_rect(topleft=(0, 0))
+
+    def setup(self):
+        self.faction_coa_rect = self.faction_coas[self.grand.player_faction].ger_rect(topleft=(
+                            50 * self.screen_scale[0], 50 * self.screen_scale[1]))
+        self.image.blit(self.faction_coas[self.grand.player_faction], self.faction_coa_rect)
+
+        self.culture_change(self.grand.current_campaign_state["faction"][self.grand.player_faction]["culture"])
+
+    def culture_change(self, culture_list):
+        self.culture_coa_rects = {}
+        self.culture_tab_image = self.culture_tab_base_image.copy()
+        for index, culture in culture_list:
+            culture_image = self.culture_coas[culture]
+            culture_rect = self.culture_coas[culture].get_rect(topleft=(
+                self.culture_coas[culture].get_width() * index, 0))
+            self.culture_tab_image.blit(culture_image, culture_rect)
+            self.culture_coa_rects[culture] = culture_rect
+
+    def update(self, dt):
+        if self.mouse_over:
+            inside_mouse_pos = Vector2(
+                (self.cursor.pos[0] - self.rect.topleft[0]),
+                (self.cursor.pos[1] - self.rect.topleft[1]))
+            if self.faction_coa_rect.collidepoint(inside_mouse_pos):
+                self.game.text_popup.popup(self.cursor.rect,
+                                           self.grab_text(("faction", self.grand.player_faction, "Name")))
+            else:
+                for culture, rect in self.culture_coa_rects.items():
+                    if rect.collidepoint(inside_mouse_pos):
+                        self.game.text_popup.popup(self.cursor.rect,
+                                                   self.grab_text(("culture", culture, "Name")))
+                        break
+
+
+class PlayerArmyList(UIGrand):
+    def __init__(self):
+        self._layer = 5
+        UIGrand.__init__(self, player_cursor_interact=True)
+        self.image = Surface((700 * self.screen_scale[0], 1500 * self.screen_scale[1]), SRCALPHA)
+        self.rect = self.image.get_rect(topleft=(0, self.grand.player_faction_culture_list_ui.rect.bottomleft[1]))
+
+        self.army_rects = {}
+
+    def reset_list(self):
+        pass
+
+    def update(self, dt):
+        if self.mouse_over:
+            inside_mouse_pos = Vector2(
+                (self.cursor.pos[0] - self.rect.topleft[0]),
+                (self.cursor.pos[1] - self.rect.topleft[1]))
+            for army, rect in self.army_rects.items():
+                if rect.collidepoint(inside_mouse_pos):
+                    if self.event_press:
+                        if self.grand.shift_press and army not in self.grand.selected_player_army:
+                            self.grand.selected_player_army.append(army)
+                        else:
+                            self.grand.selected_player_army = [army]
+                        pass
+
+
+class PlayerFactionResourceBar(UIGrand):
+    def __init__(self):
+        self._layer = 5
+        UIGrand.__init__(self, player_cursor_interact=True)
+        self.image = Surface((600 * self.screen_scale[0], 80 * self.screen_scale[1]), SRCALPHA)
+        self.font = self.game.generic_ui_font
+        self.text_rect = {"gold": (0, 0), "supply": (200, 0), "happiness": (400, 0)}
+        self.player_faction_resource = {}
+
+    def update(self, dt):
+        if self.player_faction_resource != self.grand.current_campaign_state[self.grand.player_faction]["resource"]:
+            self.player_faction_resource = self.grand.current_campaign_state[self.grand.player_faction]["resource"].copy()
+
+
+class PlayerFactionTechBar(UIGrand):
+    def __init__(self):
+        self._layer = 5
+        UIGrand.__init__(self, player_cursor_interact=True)
+        self.image = Surface((600 * self.screen_scale[0], 80 * self.screen_scale[1]), SRCALPHA)
+        self.font = self.game.generic_ui_font
+
+    def update(self, dt):
+        pass
+
+
+class MenuBar(UIGrand):
+    def __init__(self):
+        self._layer = 5
+        UIGrand.__init__(self, player_cursor_interact=True)
+        self.image = Surface((600 * self.screen_scale[0], 200 * self.screen_scale[1]), SRCALPHA)
+
+
+class TimeInfo(UIGrand):
+    def __init__(self):
+        self._layer = 5
+        UIGrand.__init__(self, player_cursor_interact=True)
+
+
+class MiniTimeOrb(UIGrand):
+    def __init__(self):
+        self._layer = 5
+        UIGrand.__init__(self, player_cursor_interact=True)
+
+
+
+#
+# from math import cos, sin
+# from pygame import Vector2, display, sprite, Surface
+# from pygame.mask import from_surface
+# from pygame.sprite import spritecollide, collide_mask
+# import pygame
+#
+# pygame.init()
+#
+# screen_width, screen_height = 1920, 1080
+# screen = display.set_mode((screen_width, screen_height))
+# display.set_caption("Fantasy Universe")
+#
+# font = pygame.font.SysFont("Arial", 16)
+# speed_font = pygame.font.SysFont("Arial", 32)
+#
+#
+# def circle_orbit(center, radius, angle, *args):
+#     """
+#     Finding the x,y coordinates on circle, based on given angle
+#     """
+#     # center of circle, angle in degree and radius of circle
+#     x = center[0] + (radius[0] * cos(angle))
+#     y = center[1] + (radius[0] * sin(angle))
+#     return x, y
+#
+#
+# def custom_orbit(center, _, angle, movement_surface, collide_surface):
+#     collide_surface.image = collide_surface.check_image.copy()
+#
+#     pygame.draw.line(collide_surface.image, (0, 0, 0), collide_surface.image_center,
+#                      (collide_surface.image_center[0] + (10000 * cos(angle)),
+#                       collide_surface.image_center[1] + (10000 * sin(angle))))
+#     collide_surface.mask = from_surface(collide_surface.image)
+#     collide_pos = collide_mask(collide_surface, movement_surface)
+#     return (center[0] + (collide_pos[0] - collide_surface.image_center[0]),
+#             center[1] + (collide_pos[1] - collide_surface.image_center[1]))
+#
+#
+# def create_movement_image(shape, size):
+#     base_image = Surface((size[0], size[1]), pygame.SRCALPHA)
+#     collide_check_image = Surface((size[0], size[1]), pygame.SRCALPHA)
+#     if shape == "square":
+#         pygame.draw.rect(base_image, color=(255, 255, 255), rect=(0, 0, size[0], size[1]), width=2)
+#     elif shape == "ellipse":
+#         pygame.draw.ellipse(base_image, color=(255, 255, 255), rect=(0, 0, size[0], size[1]), width=2)
+#
+#     return base_image, collide_check_image
+#
+#
+# class CollideSurface(sprite.Sprite):
+#     def __init__(self, image):
+#         sprite.Sprite.__init__(self)
+#         self.image = image
+#         self.check_image = image
+#         self.image_center = (self.image.get_width() / 2, self.image.get_height() / 2)
+#         self.rect = image.get_rect(center=(0, 0))
+#         self.mask = from_surface(image)
+#
+#     def update(self, pos):
+#         self.rect.center = Vector2(pos[0], pos[1])
+#         self.mask = from_surface(self.image)
+#
+#
+# class Planet(pygame.sprite.Sprite):
+#     def __init__(self, start_angle, sprite_radius, color, name, orbit=None, epicycle=None, specific_pos=()):
+#         self.sprite_radius = sprite_radius
+#         self.color = color
+#         self.name = name
+#
+#         self.last_path = ()
+#         self.pos = ()
+#
+#         self.current_orbit_angle = start_angle
+#         self.parent = None
+#         self.parent_radius = 0
+#         self.orbit_speed = 0
+#         self.orbit_shape = "circle"
+#         self.orbit_movement_check = None
+#         self.orbit_collide_check = None
+#         if orbit:
+#             self.orbit_speed = orbit["speed"]
+#             self.orbit_shape = orbit["shape"]
+#             self.parent_radius = orbit["radius"]
+#             self.parent = orbit["parent"]
+#             orbit_movement_check_image, orbit_collide_check_image = create_movement_image(orbit["shape"],
+#                                                                                           orbit["radius"])
+#             self.orbit_movement_check = CollideSurface(orbit_movement_check_image)
+#             self.orbit_collide_check = CollideSurface(orbit_collide_check_image)
+#         elif not specific_pos:  # assume to be center of universe
+#             self.pos = (screen_width / 2, screen_height / 2)
+#         else:
+#             self.pos = specific_pos
+#         self.orbit_pos = self.pos
+#         self.orbit_process = circle_orbit
+#         if self.orbit_shape != "circle":
+#             self.orbit_process = custom_orbit
+#
+#         self.current_epicycle_angle = 0
+#         self.epicycle_speed = 0
+#         self.epicycle_radius = 0
+#         self.epicycle_shape = "circle"
+#         self.epicycle_movement_check = None
+#         self.epicycle_collide_check = None
+#         if epicycle:
+#             self.epicycle_speed = epicycle["speed"]
+#             self.epicycle_radius = epicycle["radius"]
+#             self.epicycle_shape = epicycle["shape"]
+#             epicycle_movement_check_image, epicycle_collide_check_image = create_movement_image(epicycle["shape"],
+#                                                                                                 epicycle["radius"])
+#             self.epicycle_movement_check = CollideSurface(epicycle_movement_check_image)
+#             self.epicycle_collide_check = CollideSurface(epicycle_collide_check_image)
+#         self.epicycle_process = circle_orbit
+#         if self.epicycle_shape != "circle":
+#             self.epicycle_process = custom_orbit
+#         self.update_position(0, 0)
+#
+#     def draw(self, win, background, show_base_shape):
+#         # Draw the orbit path
+#         if show_base_shape:
+#             if self.orbit_movement_check:
+#                 background.blit(self.orbit_movement_check.image, self.orbit_collide_check.rect)
+#         else:
+#             if self.last_path:
+#                 pygame.draw.line(background, self.color, self.pos, self.last_path, 2)
+#                 self.last_path = ()
+#
+#         # Draw the planet
+#         pygame.draw.circle(win, self.color, self.pos, self.sprite_radius)
+#
+#         # Draw distance to the sun for planets other than the sun
+#         # if not self.sun:
+#         #     distance_text = font.render(f"{round(self.distance_to_sun / 1000, 1)} km", True, WHITE)
+#         #     win.blit(distance_text, (int(x - distance_text.get_width() / 2), int(y - distance_text.get_height() / 2)))
+#
+#         # Draw name and additional info if planet is selected
+#         info_text = font.render(self.name, True, (255, 255, 255))
+#         win.blit(info_text, (int(self.pos[0] - info_text.get_width() / 2), int(self.pos[1] - self.sprite_radius - 20)))
+#
+#     def update_position(self, dt, speed):
+#         self.last_path = self.pos
+#         if self.orbit_speed:
+#             self.current_orbit_angle += self.orbit_speed * dt * speed
+#             # if self.current_orbit_angle >= 360:
+#             #     self.current_orbit_angle -= 360
+#             # elif self.current_orbit_angle < 0:
+#             #     self.current_orbit_angle += 360
+#             self.orbit_movement_check.update(self.parent.pos)
+#             self.orbit_collide_check.update(self.parent.pos)
+#             self.orbit_pos = self.orbit_process(self.parent.pos, self.parent_radius, self.current_orbit_angle,
+#                                                 self.orbit_movement_check, self.orbit_collide_check)
+#             self.pos = self.orbit_pos
+#         if self.epicycle_speed:
+#             self.current_epicycle_angle += self.epicycle_speed * dt * speed
+#             self.epicycle_movement_check.update(self.orbit_pos)
+#             self.epicycle_collide_check.update(self.orbit_pos)
+#             self.pos = self.epicycle_process(self.orbit_pos, self.epicycle_radius, self.current_epicycle_angle,
+#                                              self.epicycle_movement_check, self.epicycle_collide_check)
+#
+#
+# def main():
+#     run = True
+#     clock = pygame.time.Clock()
+#
+#     background_base = Surface((screen_width, screen_height))
+#     background = background_base.copy()
+#
+#     sun_helio = Planet(20, 20, (255, 0, 0), "Sol")
+#     earth_helio = Planet(0,  8, (255, 0, 0), "Terra",
+#                           orbit={"parent": sun_helio, "speed": 0.7, "shape": "circle", "radius": (200, 200)})
+#     planets_helio = [Planet(180, 8, (30, 30, 150), "Lunar",
+#                           orbit={"parent": earth_helio, "speed": 1, "shape": "circle", "radius": (50, 50)}),
+#                    Planet(270,  8, (255, 255, 255), "Planar 1",
+#                           orbit={"parent": sun_helio, "speed": 0.8, "shape": "circle", "radius": (500, 500)}),
+#                    sun_helio, earth_helio]
+#
+#     # Create the sun with a smaller radius
+#     terra_geo = Planet(20, 15, (50, 50, 200), "Terra")
+#
+#     # Add planets
+#     planets_geo = [Planet(200, 10, (30, 30, 150), "Lunar",
+#                           orbit={"parent": terra_geo, "speed": 1, "shape": "circle", "radius": (80, 80)}),
+#                    Planet(150,  8, (255, 255, 255), "Planar 1",
+#                           orbit={"parent": terra_geo, "speed": 0.8, "shape": "circle", "radius": (200, 200)},
+#                           epicycle={"speed": 0.5, "shape": "circle", "radius": (150, 150)}),
+#                    Planet(200,  12, (255, 0, 0), "Sol",
+#                           orbit={"parent": terra_geo, "speed": 0.7, "shape": "circle", "radius": (300, 300)}),
+#                    terra_geo]
+#
+#     sun_nonsense = Planet(20, 20, (255, 0, 0), "Sol",
+#                           epicycle={"speed": 0.5, "shape": "square", "radius": (30, 100)})
+#     earth_nonsense = Planet(200,  8, (255, 0, 0), "Our World",
+#                           orbit={"parent": sun_nonsense, "speed": 0.7, "shape": "circle", "radius": (300, 300)})
+#     planets_nonsense = [Planet(200, 8, (30, 30, 150), "Lunar",
+#                           orbit={"parent": earth_nonsense, "speed": 1, "shape": "circle", "radius": (200, 200)}),
+#                         Planet(150,  8, (255, 255, 255), "Planar 1",
+#                                orbit={"parent": sun_nonsense, "speed": 3, "shape": "ellipse", "radius": (300, 200)}),
+#                         sun_nonsense, earth_nonsense]
+#
+#     models = {
+#         "Faux Heliocentric": planets_helio,
+#         "Faux Geocentric": planets_geo,
+#         "Nonsense": planets_nonsense
+#     }
+#     speed = 1
+#     keypress_delay = 0
+#     day = 0
+#     current_model = 0
+#     show_base_shape = False
+#     planets = models[tuple(models.keys())[current_model]]
+#     speed_text = speed_font.render("Speed: " + str(speed), True, (255, 255, 255))
+#     speed_text_rect = speed_text.get_rect(topleft=(0, screen_height - 100))
+#     model_text = speed_font.render("Model: " + tuple(models.keys())[current_model], True, (255, 255, 255))
+#     model_text_rect = model_text.get_rect(topright=(screen_width, screen_height - 100))
+#
+#     while run:
+#         clock.tick(1000)
+#         screen.fill((0, 0, 0))
+#         dt = clock.get_time() / 1000
+#         if dt > 0.1:  # one frame update should not be longer than 0.1 second for calculation
+#             dt = 0.1  # make it so stutter and lag does not cause overtime issue
+#
+#         # Handle events
+#         shift_press = False
+#         key_press = pygame.key.get_pressed()
+#         if key_press is not None and not keypress_delay:
+#             if key_press[pygame.K_LSHIFT] or key_press[pygame.K_RSHIFT]:
+#                 shift_press = True
+#             if key_press[pygame.K_KP_PLUS]:
+#                 if shift_press:
+#                     speed += 1
+#                 else:
+#                     speed += 0.1
+#                 speed_text = speed_font.render("Speed: " + str(round(speed, 1)), True, (255, 255, 255))
+#                 keypress_delay = 0.1
+#             elif key_press[pygame.K_KP_MINUS]:
+#                 if shift_press:
+#                     speed -= 1
+#                 else:
+#                     speed -= 0.1
+#                 speed_text = speed_font.render("Speed: " + str(round(speed, 1)), True, (255, 255, 255))
+#                 keypress_delay = 0.1
+#         for event in pygame.event.get():
+#             if event.type == pygame.QUIT:
+#                 run = False
+#             elif event.type == pygame.KEYDOWN:
+#                 if event.key == pygame.K_ESCAPE:
+#                     run = False
+#                 elif event.key == pygame.K_TAB:
+#                     if show_base_shape:
+#                         show_base_shape = False
+#                     else:
+#                         show_base_shape = True
+#                     background = background_base.copy()
+#                 elif event.key == pygame.K_p:  # Pause/Play
+#                     speed = 0
+#                     speed_text = speed_font.render("Speed: " + str(round(speed, 1)), True, (255, 255, 255))
+#                 elif event.key == pygame.K_LEFTBRACKET:
+#                     current_model -= 1
+#                     if current_model < 0:
+#                         current_model = len(models) - 1
+#                     planets = models[tuple(models.keys())[current_model]]
+#                     background = background_base.copy()
+#                     model_text = speed_font.render("Model: " + tuple(models.keys())[current_model], True,
+#                                                    (255, 255, 255))
+#                 elif event.key == pygame.K_RIGHTBRACKET:
+#                     current_model += 1
+#                     if current_model == len(models):
+#                         current_model = 0
+#                     planets = models[tuple(models.keys())[current_model]]
+#                     background = background_base.copy()
+#                     model_text = speed_font.render("Model: " + tuple(models.keys())[current_model], True,
+#                                                    (255, 255, 255))
+#
+#         if keypress_delay:
+#             keypress_delay -= dt
+#             if keypress_delay < 0:
+#                 keypress_delay = 0
+#
+#         # Update and draw planets
+#         screen.blit(background, (0, 0))
+#         for planet in planets:
+#             planet.update_position(dt, speed)
+#             planet.draw(screen, background, show_base_shape)
+#         screen.blit(speed_text, speed_text_rect)
+#         screen.blit(model_text, model_text_rect)
+#         display.update()
+#
+#     pygame.quit()
+
+
 # class PlayerGrandInteract(UIGrand):
 #     def __init__(self):
 #         self._layer = 9999999999999999999

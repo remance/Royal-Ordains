@@ -51,42 +51,43 @@ def menu_main(self):
                                              ["small_rabbit_leader_knight", "leader_iri"],
                                              ["small_rabbit_spear",],
                                              ["castle_human_air_flying_monk", "small_eagle_air_stone"],
-                                             ["mage_earth", "test", "test2"], supply=1000)
+                                             ["small_rabbit_leader_shaman"], supply=1000)
         self.custom_team_army[1][1].__init__("small", "small", ArmyCharacter("leader_adaqua"),
                                              ["small_rabbit_leader_knight", "small_rabbit_leader_knight"],
                                              ["small_rabbit_sling",],
                                              ["castle_human_air_flying_monk", "small_eagle_air_stone"],
-                                             ["test", "test2"], supply=500)
+                                             ["small_rabbit_leader_shaman"], supply=500)
         self.custom_team_army[2][0].__init__("castle", "castle", ArmyCharacter("leader_buikuuh"),
                                              ["small_rabbit_leader_banner", "castle_human_leader_mage"],
                                              ["small_rabbit_spear"],
                                              ["castle_cat_air_rocket_bomb", "castle_cat_air_rocket_bomb"],
-                                             ["mage_earth", "test2", "test"], supply=1000)
+                                             ["small_rabbit_leader_shaman"], supply=1000)
         self.custom_team_army[2][1].__init__("castle", "castle", ArmyCharacter("small_rabbit_leader_hero"),
                                              ["small_rabbit_leader_knight", "leader_amgarn", "leader_vraesier", ],
                                              ["doll_candle_spear"],
                                              ["small_eagle_air_stone", "small_eagle_air_stone", "castle_human_air_flying_monk"],
-                                             ["test", "test"], supply=700)
+                                             ["small_rabbit_leader_knight", "small_rabbit_leader_hero"], supply=700)
 
         for army in self.custom_team_army[1][2:]:
             army.__init__("", "", None, [], [], [], [])
         for army in self.custom_team_army[2][2:]:
             army.__init__("", "", None, [], [], [], [])
 
-        team_stat = {0: {"faction": "free", "culture": "free", "strategy_resource": 0, "start_pos": 0.5, "air_group": [], "retinue": (),
+        team_stat = {0: {"faction": "free", "culture": "free", "strategy_resource": 0, "start_pos": 0.5, "air_group": [],
+                         "active_retinue": (), "retinue": (),
                          "strategy": [], "strategy_cooldown": {},
                          "main_army": None,
                          "reinforcement_army": []},
                      1: {"faction": self.custom_team_army[1][0].faction,
                          "culture": self.custom_team_army[1][0].culture,
-                         "strategy_resource": 0, "start_pos": 0, "air_group": [], "retinue": (),
+                         "strategy_resource": 0, "start_pos": 0, "air_group": [], "active_retinue": (), "retinue": (),
                          "strategy": [], "strategy_cooldown": {},
                          "main_army": self.custom_team_army[1][0],
                          "reinforcement_army": self.custom_team_army[1][1:2]},
                      2: {"faction": self.custom_team_army[2][0].faction,
                          "culture": self.custom_team_army[2][0].culture,
                          "strategy_resource": 0, "start_pos": 1, "air_group": [],
-                         "retinue": (), "strategy": [], "strategy_cooldown": {},
+                         "active_retinue": (), "retinue": (), "strategy": [], "strategy_cooldown": {},
                          "main_army": self.custom_team_army[2][0],
                          "reinforcement_army": self.custom_team_army[2][1:2]}}
 

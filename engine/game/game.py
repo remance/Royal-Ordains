@@ -295,7 +295,6 @@ class Game:
         # Battle related data
         self.character_data = CharacterData()
         self.character_list = self.character_data.character_list
-        self.retinue_list = self.character_data.retinue_list
         self.map_data = MapData()
 
         self.preset_map_data = self.map_data.preset_map_data
@@ -594,6 +593,8 @@ class Game:
         self.lorebook_faction_selector = FactionSelector(3800, (self.screen_width / 2, 0),
                                                          include_free=True, use_culture=True)
         self.lorebook_showcase_character_selector = CharacterSelector((self.screen_width * 0.17, self.screen_height * 0.15))
+        self.lorebook_showcase_character_selector_scroll = UIScroll(self.lorebook_showcase_character_selector,
+                                                                    self.lorebook_showcase_character_selector.rect.topright)
 
         self.lorebook_showcase_box = StaticImage((self.screen_width * 0.595, self.screen_height * 0.4),
                                                  load_image(self.game.data_dir, self.screen_scale,
@@ -616,7 +617,8 @@ class Game:
         self.lorebook_character_description_showcase = CharacterDescriptionShowCase()
         self.lorebook_character_moveset_showcase = CharacterMovesetShowCase()
         self.lorebook_character_description_showcase.change_character(Default_Showcase_Character)
-        self.lorebook_menu_uis = (self.lorebook_showcase_character_selector, self.lorebook_showcase_box,
+        self.lorebook_menu_uis = (self.lorebook_showcase_character_selector,
+                                  self.lorebook_showcase_character_selector_scroll, self.lorebook_showcase_box,
                                   self.lorebook_showcase_animation_list_box, self.lorebook_back_button,
                                   self.lorebook_faction_selector,  self.lorebook_character_description_showcase,
                                   self.lorebook_character_moveset_showcase,

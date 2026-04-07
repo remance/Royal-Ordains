@@ -483,9 +483,9 @@ class CharacterSelector(UIMenu):
         """UI for selecting character for army setup"""
         self._layer = 11
         UIMenu.__init__(self)
+        self.scroll = None  # got added later during scroll object __init__
         self.character_portraits = self.game.sprite_data.character_portraits
         self.character_list = self.game.character_list
-        self.retinue_list = self.game.retinue_list
         self.custom_character_setup = self.game.character_data.custom_character_setup
         self.all_main_exist_characters = self.game.character_data.all_main_exist_characters
         self.faction_coas = self.game.sprite_data.faction_coas
@@ -518,7 +518,7 @@ class CharacterSelector(UIMenu):
         self.selected_faction = faction
         self.shown_character_type = character_type
         if self.game.menu_state in ("custom", "preset"):
-            if character_type == "leader":
+            if character_type in ("leader", "retinue"):
                 selector_character_list = [item for item in
                                           self.custom_character_setup[faction]["ground"]["leader"]["unique"] if item
                                           not in exist_unique_check]
@@ -530,28 +530,22 @@ class CharacterSelector(UIMenu):
                 selector_character_list = self.custom_character_setup[faction]["ground"]["troop"]
             elif character_type == "air":
                 selector_character_list = self.custom_character_setup[faction]["air"]
-            elif character_type == "retinue":
-                selector_character_list = self.custom_character_setup[faction]["retinue"] + self.custom_character_setup["free"]["retinue"]
         else:
             selector_character_list = self.all_main_exist_characters[faction]
         # sort characters, based on unique leader, common leader, ground troop, air troop
-        if character_type != "retinue":
-            true_selector_character_list = [item for item in selector_character_list if self.character_list[item]["Is Leader"] and self.character_list[item]["Is Unique"]]
-            true_selector_character_list += [item for item in selector_character_list if self.character_list[item]["Is Leader"] and not self.character_list[item]["Is Unique"]]
-            true_selector_character_list += [item for item in selector_character_list if self.character_list[item]["Type"] == "ground" and item not in true_selector_character_list]
-            true_selector_character_list += [item for item in selector_character_list if self.character_list[item]["Type"] == "air" and item not in true_selector_character_list]
-            self.selector_character_list = true_selector_character_list
-        else:
-            self.selector_character_list = selector_character_list
+        true_selector_character_list = [item for item in selector_character_list if self.character_list[item]["Is Leader"] and self.character_list[item]["Is Unique"]]
+        true_selector_character_list += [item for item in selector_character_list if self.character_list[item]["Is Leader"] and not self.character_list[item]["Is Unique"]]
+        true_selector_character_list += [item for item in selector_character_list if self.character_list[item]["Type"] == "ground" and item not in true_selector_character_list]
+        true_selector_character_list += [item for item in selector_character_list if self.character_list[item]["Type"] == "air" and item not in true_selector_character_list]
+        self.selector_character_list = true_selector_character_list
 
         additional_character = len(self.selector_character_list) - self.max_total_character_show
         if additional_character < 0:
             additional_character = 0
         self.total_row = ceil(additional_character / 6)
         self.scroll_total_row = self.total_row + 1
-        print(self.total_row)
         self.current_row = 0  # reset showing row
-        self.game.character_selector_scroll.change_image(self.current_row, self.scroll_total_row)
+        self.scroll.change_image(self.current_row, self.scroll_total_row)
         self.add_character()
 
     def add_character(self):
@@ -574,12 +568,12 @@ class CharacterSelector(UIMenu):
             if self.cursor.scroll_up:
                 if self.current_row > 0:
                     self.current_row -= 1
-                    self.game.character_selector_scroll.change_image(self.current_row, self.scroll_total_row)
+                    self.scroll.change_image(self.current_row, self.scroll_total_row)
                     self.add_character()
             elif self.cursor.scroll_down:
                 if self.current_row < self.total_row:
                     self.current_row += 1
-                    self.game.character_selector_scroll.change_image(self.current_row, self.scroll_total_row)
+                    self.scroll.change_image(self.current_row, self.scroll_total_row)
                     self.add_character()
 
             inside_mouse_pos = Vector2(
@@ -629,8 +623,8 @@ class CharacterSelector(UIMenu):
                                     self.game.lorebook_character_description_showcase.change_character(character_id)
                                     self.game.lorebook_character_moveset_showcase.change_moveset(character_id, None)
                             return
+                        character_data = self.character_list[character_id]
                         if self.shown_character_type != "retinue":
-                            character_data = self.character_list[character_id]
                             char_stat = [self.grab_text(("ui", "info_header_name")) + self.grab_text(
                                 ("character", character_id, "Name")),
                                          self.grab_text(("character", character_id, "Description")),
@@ -671,13 +665,13 @@ class CharacterSelector(UIMenu):
                                 tag_text = tag_text[:-2]  # remove additional comma
                                 char_stat.append(tag_text)
                         else:
-                            character_data = self.retinue_list[character_id]
                             char_stat = [self.grab_text(("ui", "info_header_name")) + self.grab_text(
-                                ("retinue", character_id, "Name")),
-                                         self.grab_text(("retinue", character_id, "Description")),
+                                ("character", character_id, "Name")),
+                                         self.grab_text(("character", character_id, "Description")),
                                          self.grab_text(("ui", "info_header_strategy")) + self.grab_text(
                                              ("strategy", character_data["Strategy"], "Name")),
-                                         self.grab_text(("ui", "info_header_upkeep")) + add_comma_number(character_data["Upkeep"]),
+                                         self.grab_text(("ui", "info_header_leadership")) + add_comma_number(
+                                             character_data["Leadership"]),
                                          self.grab_text(("ui", "info_header_cost")) + add_comma_number(
                                              character_data["Cost"])]
                         self.game.text_popup.popup(self.cursor.rect, char_stat,
@@ -948,16 +942,9 @@ class CustomPresetArmySetupUI(UIMenu):
                     [value for value in self.army_preset["commander"] + self.army_preset["leader"] if value])
             else:
                 self.game.character_selector.add(self.selected_faction, character_type)
-        if character_type == "retinue":
-            if character in self.character_portraits:
-                self.image.blit(self.character_portraits[character]["setup_ui"],
-                                self.portrait_type_rects[character_type][rect_index])
-            else:
-                self.image.blit(self.character_portraits["default"]["setup_ui"],
-                                self.portrait_type_rects[character_type][rect_index])
-        else:
-            self.image.blit(self.character_portraits[character]["setup_ui"],
-                            self.portrait_type_rects[character_type][rect_index])
+
+        self.image.blit(self.character_portraits[character]["setup_ui"],
+                        self.portrait_type_rects[character_type][rect_index])
         if reset:
             self.reset()
 
@@ -986,14 +973,8 @@ class CustomPresetArmySetupUI(UIMenu):
                 if self.selected_portrait_index and self.selected_portrait_index == (character_type, index):
                     self.image.blit(self.selected_circle, rect)
                 if character:
-                    if character_type == "retinue":
-                        if character in self.character_portraits:
-                            self.image.blit(self.character_portraits[character]["setup_ui"], rect)
-                        else:
-                            self.image.blit(self.character_portraits["default"]["setup_ui"], rect)
-                    else:
-                        self.image.blit(self.character_portraits[character]["setup_ui"], rect)
-                        self.total_gold_cost += self.character_list[self.army_preset[character_type][index]]["Cost"]
+                    self.image.blit(self.character_portraits[character]["setup_ui"], rect)
+                    self.total_gold_cost += self.character_list[self.army_preset[character_type][index]]["Cost"]
 
         self.game.custom_preset_army_title.change_text(self.current_preset, self.total_gold_cost)
 
@@ -1024,6 +1005,9 @@ class CustomPresetArmySetupUI(UIMenu):
                             if character_type == "commander":
                                 character_name_text = (character_name_text,
                                                        self.grab_text(("ui", "warn_no_commander")))
+                            elif character_type == "retinue":
+                                character_name_text = (character_name_text,
+                                                       self.grab_text(("ui", "warn_no_retinue")))
                             else:
                                 character_name_text = (character_name_text,
                                                        self.grab_text(("ui", "warn_empty_slot")))
@@ -1903,14 +1887,10 @@ class GrandFactionShowCase(UIMenu):
                 for index, rect in enumerate(rect_list):
                     if rect.collidepoint(inside_mouse_pos):
                         character_id = self.showcase[rect_type][index]
-                        if rect_type != "retinue":
-                            char_stat = [self.grab_text(("ui", "info_header_name")) + self.grab_text(
-                                ("character", character_id, "Name")),
-                                         self.grab_text(("character", character_id, "Description"))]
-                        else:
-                            char_stat = [self.grab_text(("ui", "info_header_name")) + self.grab_text(
-                                ("retinue", character_id, "Name")),
-                                         self.grab_text(("retinue", character_id, "Description"))]
+                        char_stat = [self.grab_text(("ui", "info_header_name")) + self.grab_text(
+                            ("character", character_id, "Name")),
+                                     self.grab_text(("character", character_id, "Description"))]
+
                         self.game.text_popup.popup(self.cursor.rect, char_stat,
                                                    width_text_wrapper=int(1200 * self.screen_scale[0]))
                         self.add_to_ui_updater(self.game.text_popup)
@@ -2733,293 +2713,3 @@ class ListUI(UIMenu, Containable):
 
     def get_size(self):
         return self.image.get_size()
-
-#
-# from math import cos, sin
-# from pygame import Vector2, display, sprite, Surface
-# from pygame.mask import from_surface
-# from pygame.sprite import spritecollide, collide_mask
-# import pygame
-#
-# pygame.init()
-#
-# screen_width, screen_height = 1920, 1080
-# screen = display.set_mode((screen_width, screen_height))
-# display.set_caption("Fantasy Universe")
-#
-# font = pygame.font.SysFont("Arial", 16)
-# speed_font = pygame.font.SysFont("Arial", 32)
-#
-#
-# def circle_orbit(center, radius, angle, *args):
-#     """
-#     Finding the x,y coordinates on circle, based on given angle
-#     """
-#     # center of circle, angle in degree and radius of circle
-#     x = center[0] + (radius[0] * cos(angle))
-#     y = center[1] + (radius[0] * sin(angle))
-#     return x, y
-#
-#
-# def custom_orbit(center, _, angle, movement_surface, collide_surface):
-#     collide_surface.image = collide_surface.check_image.copy()
-#
-#     pygame.draw.line(collide_surface.image, (0, 0, 0), collide_surface.image_center,
-#                      (collide_surface.image_center[0] + (10000 * cos(angle)),
-#                       collide_surface.image_center[1] + (10000 * sin(angle))))
-#     collide_surface.mask = from_surface(collide_surface.image)
-#     collide_pos = collide_mask(collide_surface, movement_surface)
-#     return (center[0] + (collide_pos[0] - collide_surface.image_center[0]),
-#             center[1] + (collide_pos[1] - collide_surface.image_center[1]))
-#
-#
-# def create_movement_image(shape, size):
-#     base_image = Surface((size[0], size[1]), pygame.SRCALPHA)
-#     collide_check_image = Surface((size[0], size[1]), pygame.SRCALPHA)
-#     if shape == "square":
-#         pygame.draw.rect(base_image, color=(255, 255, 255), rect=(0, 0, size[0], size[1]), width=2)
-#     elif shape == "ellipse":
-#         pygame.draw.ellipse(base_image, color=(255, 255, 255), rect=(0, 0, size[0], size[1]), width=2)
-#
-#     return base_image, collide_check_image
-#
-#
-# class CollideSurface(sprite.Sprite):
-#     def __init__(self, image):
-#         sprite.Sprite.__init__(self)
-#         self.image = image
-#         self.check_image = image
-#         self.image_center = (self.image.get_width() / 2, self.image.get_height() / 2)
-#         self.rect = image.get_rect(center=(0, 0))
-#         self.mask = from_surface(image)
-#
-#     def update(self, pos):
-#         self.rect.center = Vector2(pos[0], pos[1])
-#         self.mask = from_surface(self.image)
-#
-#
-# class Planet(pygame.sprite.Sprite):
-#     def __init__(self, start_angle, sprite_radius, color, name, orbit=None, epicycle=None, specific_pos=()):
-#         self.sprite_radius = sprite_radius
-#         self.color = color
-#         self.name = name
-#
-#         self.last_path = ()
-#         self.pos = ()
-#
-#         self.current_orbit_angle = start_angle
-#         self.parent = None
-#         self.parent_radius = 0
-#         self.orbit_speed = 0
-#         self.orbit_shape = "circle"
-#         self.orbit_movement_check = None
-#         self.orbit_collide_check = None
-#         if orbit:
-#             self.orbit_speed = orbit["speed"]
-#             self.orbit_shape = orbit["shape"]
-#             self.parent_radius = orbit["radius"]
-#             self.parent = orbit["parent"]
-#             orbit_movement_check_image, orbit_collide_check_image = create_movement_image(orbit["shape"],
-#                                                                                           orbit["radius"])
-#             self.orbit_movement_check = CollideSurface(orbit_movement_check_image)
-#             self.orbit_collide_check = CollideSurface(orbit_collide_check_image)
-#         elif not specific_pos:  # assume to be center of universe
-#             self.pos = (screen_width / 2, screen_height / 2)
-#         else:
-#             self.pos = specific_pos
-#         self.orbit_pos = self.pos
-#         self.orbit_process = circle_orbit
-#         if self.orbit_shape != "circle":
-#             self.orbit_process = custom_orbit
-#
-#         self.current_epicycle_angle = 0
-#         self.epicycle_speed = 0
-#         self.epicycle_radius = 0
-#         self.epicycle_shape = "circle"
-#         self.epicycle_movement_check = None
-#         self.epicycle_collide_check = None
-#         if epicycle:
-#             self.epicycle_speed = epicycle["speed"]
-#             self.epicycle_radius = epicycle["radius"]
-#             self.epicycle_shape = epicycle["shape"]
-#             epicycle_movement_check_image, epicycle_collide_check_image = create_movement_image(epicycle["shape"],
-#                                                                                                 epicycle["radius"])
-#             self.epicycle_movement_check = CollideSurface(epicycle_movement_check_image)
-#             self.epicycle_collide_check = CollideSurface(epicycle_collide_check_image)
-#         self.epicycle_process = circle_orbit
-#         if self.epicycle_shape != "circle":
-#             self.epicycle_process = custom_orbit
-#         self.update_position(0, 0)
-#
-#     def draw(self, win, background, show_base_shape):
-#         # Draw the orbit path
-#         if show_base_shape:
-#             if self.orbit_movement_check:
-#                 background.blit(self.orbit_movement_check.image, self.orbit_collide_check.rect)
-#         else:
-#             if self.last_path:
-#                 pygame.draw.line(background, self.color, self.pos, self.last_path, 2)
-#                 self.last_path = ()
-#
-#         # Draw the planet
-#         pygame.draw.circle(win, self.color, self.pos, self.sprite_radius)
-#
-#         # Draw distance to the sun for planets other than the sun
-#         # if not self.sun:
-#         #     distance_text = font.render(f"{round(self.distance_to_sun / 1000, 1)} km", True, WHITE)
-#         #     win.blit(distance_text, (int(x - distance_text.get_width() / 2), int(y - distance_text.get_height() / 2)))
-#
-#         # Draw name and additional info if planet is selected
-#         info_text = font.render(self.name, True, (255, 255, 255))
-#         win.blit(info_text, (int(self.pos[0] - info_text.get_width() / 2), int(self.pos[1] - self.sprite_radius - 20)))
-#
-#     def update_position(self, dt, speed):
-#         self.last_path = self.pos
-#         if self.orbit_speed:
-#             self.current_orbit_angle += self.orbit_speed * dt * speed
-#             # if self.current_orbit_angle >= 360:
-#             #     self.current_orbit_angle -= 360
-#             # elif self.current_orbit_angle < 0:
-#             #     self.current_orbit_angle += 360
-#             self.orbit_movement_check.update(self.parent.pos)
-#             self.orbit_collide_check.update(self.parent.pos)
-#             self.orbit_pos = self.orbit_process(self.parent.pos, self.parent_radius, self.current_orbit_angle,
-#                                                 self.orbit_movement_check, self.orbit_collide_check)
-#             self.pos = self.orbit_pos
-#         if self.epicycle_speed:
-#             self.current_epicycle_angle += self.epicycle_speed * dt * speed
-#             self.epicycle_movement_check.update(self.orbit_pos)
-#             self.epicycle_collide_check.update(self.orbit_pos)
-#             self.pos = self.epicycle_process(self.orbit_pos, self.epicycle_radius, self.current_epicycle_angle,
-#                                              self.epicycle_movement_check, self.epicycle_collide_check)
-#
-#
-# def main():
-#     run = True
-#     clock = pygame.time.Clock()
-#
-#     background_base = Surface((screen_width, screen_height))
-#     background = background_base.copy()
-#
-#     sun_helio = Planet(20, 20, (255, 0, 0), "Sol")
-#     earth_helio = Planet(0,  8, (255, 0, 0), "Terra",
-#                           orbit={"parent": sun_helio, "speed": 0.7, "shape": "circle", "radius": (200, 200)})
-#     planets_helio = [Planet(180, 8, (30, 30, 150), "Lunar",
-#                           orbit={"parent": earth_helio, "speed": 1, "shape": "circle", "radius": (50, 50)}),
-#                    Planet(270,  8, (255, 255, 255), "Planar 1",
-#                           orbit={"parent": sun_helio, "speed": 0.8, "shape": "circle", "radius": (500, 500)}),
-#                    sun_helio, earth_helio]
-#
-#     # Create the sun with a smaller radius
-#     terra_geo = Planet(20, 15, (50, 50, 200), "Terra")
-#
-#     # Add planets
-#     planets_geo = [Planet(200, 10, (30, 30, 150), "Lunar",
-#                           orbit={"parent": terra_geo, "speed": 1, "shape": "circle", "radius": (80, 80)}),
-#                    Planet(150,  8, (255, 255, 255), "Planar 1",
-#                           orbit={"parent": terra_geo, "speed": 0.8, "shape": "circle", "radius": (200, 200)},
-#                           epicycle={"speed": 0.5, "shape": "circle", "radius": (150, 150)}),
-#                    Planet(200,  12, (255, 0, 0), "Sol",
-#                           orbit={"parent": terra_geo, "speed": 0.7, "shape": "circle", "radius": (300, 300)}),
-#                    terra_geo]
-#
-#     sun_nonsense = Planet(20, 20, (255, 0, 0), "Sol",
-#                           epicycle={"speed": 0.5, "shape": "square", "radius": (30, 100)})
-#     earth_nonsense = Planet(200,  8, (255, 0, 0), "Our World",
-#                           orbit={"parent": sun_nonsense, "speed": 0.7, "shape": "circle", "radius": (300, 300)})
-#     planets_nonsense = [Planet(200, 8, (30, 30, 150), "Lunar",
-#                           orbit={"parent": earth_nonsense, "speed": 1, "shape": "circle", "radius": (200, 200)}),
-#                         Planet(150,  8, (255, 255, 255), "Planar 1",
-#                                orbit={"parent": sun_nonsense, "speed": 3, "shape": "ellipse", "radius": (300, 200)}),
-#                         sun_nonsense, earth_nonsense]
-#
-#     models = {
-#         "Faux Heliocentric": planets_helio,
-#         "Faux Geocentric": planets_geo,
-#         "Nonsense": planets_nonsense
-#     }
-#     speed = 1
-#     keypress_delay = 0
-#     day = 0
-#     current_model = 0
-#     show_base_shape = False
-#     planets = models[tuple(models.keys())[current_model]]
-#     speed_text = speed_font.render("Speed: " + str(speed), True, (255, 255, 255))
-#     speed_text_rect = speed_text.get_rect(topleft=(0, screen_height - 100))
-#     model_text = speed_font.render("Model: " + tuple(models.keys())[current_model], True, (255, 255, 255))
-#     model_text_rect = model_text.get_rect(topright=(screen_width, screen_height - 100))
-#
-#     while run:
-#         clock.tick(1000)
-#         screen.fill((0, 0, 0))
-#         dt = clock.get_time() / 1000
-#         if dt > 0.1:  # one frame update should not be longer than 0.1 second for calculation
-#             dt = 0.1  # make it so stutter and lag does not cause overtime issue
-#
-#         # Handle events
-#         shift_press = False
-#         key_press = pygame.key.get_pressed()
-#         if key_press is not None and not keypress_delay:
-#             if key_press[pygame.K_LSHIFT] or key_press[pygame.K_RSHIFT]:
-#                 shift_press = True
-#             if key_press[pygame.K_KP_PLUS]:
-#                 if shift_press:
-#                     speed += 1
-#                 else:
-#                     speed += 0.1
-#                 speed_text = speed_font.render("Speed: " + str(round(speed, 1)), True, (255, 255, 255))
-#                 keypress_delay = 0.1
-#             elif key_press[pygame.K_KP_MINUS]:
-#                 if shift_press:
-#                     speed -= 1
-#                 else:
-#                     speed -= 0.1
-#                 speed_text = speed_font.render("Speed: " + str(round(speed, 1)), True, (255, 255, 255))
-#                 keypress_delay = 0.1
-#         for event in pygame.event.get():
-#             if event.type == pygame.QUIT:
-#                 run = False
-#             elif event.type == pygame.KEYDOWN:
-#                 if event.key == pygame.K_ESCAPE:
-#                     run = False
-#                 elif event.key == pygame.K_TAB:
-#                     if show_base_shape:
-#                         show_base_shape = False
-#                     else:
-#                         show_base_shape = True
-#                     background = background_base.copy()
-#                 elif event.key == pygame.K_p:  # Pause/Play
-#                     speed = 0
-#                     speed_text = speed_font.render("Speed: " + str(round(speed, 1)), True, (255, 255, 255))
-#                 elif event.key == pygame.K_LEFTBRACKET:
-#                     current_model -= 1
-#                     if current_model < 0:
-#                         current_model = len(models) - 1
-#                     planets = models[tuple(models.keys())[current_model]]
-#                     background = background_base.copy()
-#                     model_text = speed_font.render("Model: " + tuple(models.keys())[current_model], True,
-#                                                    (255, 255, 255))
-#                 elif event.key == pygame.K_RIGHTBRACKET:
-#                     current_model += 1
-#                     if current_model == len(models):
-#                         current_model = 0
-#                     planets = models[tuple(models.keys())[current_model]]
-#                     background = background_base.copy()
-#                     model_text = speed_font.render("Model: " + tuple(models.keys())[current_model], True,
-#                                                    (255, 255, 255))
-#
-#         if keypress_delay:
-#             keypress_delay -= dt
-#             if keypress_delay < 0:
-#                 keypress_delay = 0
-#
-#         # Update and draw planets
-#         screen.blit(background, (0, 0))
-#         for planet in planets:
-#             planet.update_position(dt, speed)
-#             planet.draw(screen, background, show_base_shape)
-#         screen.blit(speed_text, speed_text_rect)
-#         screen.blit(model_text, model_text_rect)
-#         display.update()
-#
-#     pygame.quit()

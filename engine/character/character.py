@@ -74,6 +74,7 @@ class Character(sprite.Sprite):
     battle = None
     character_data: dict = None
     character_list: dict = None
+    containers = None
     effect_list: dict = None
     sound_effect_pool: dict = None
 
@@ -473,7 +474,10 @@ class BattleCharacter(Character):
         self.base_offence = stat["Offence"]
         self.base_defence = stat["Defence"]
         self.base_speed = stat["Speed"]
-        self.leadership = stat["Leadership"]
+
+        # add leadership from all active retinues (retinue reduce leadership by half)
+        self.leadership = stat["Leadership"] + sum([self.character_list[item]["Leadership"] / 2
+                                                    for item in self.battle.team_stat[self.team]["active_retinue"]])
         self.strategy_regen = self.leadership / 100
         self.status_immunity = stat["Status Immunity"]
 

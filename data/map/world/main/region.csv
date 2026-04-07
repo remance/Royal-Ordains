@@ -1,5 +1,5 @@
 "ID","Colour","Control","Capital","Settlement POS","Build Slot 1","Build Slot 2","Build Slot 3","Build Slot 4","Build Slot 5","Build Slot 6","Build Slot 7","Build Slot 8","Build Slot 9","Build Slot 10","Object"
-"test1","ffeb00","weealliance","TRUE","1790,558","small_settlement_3_warren_moderate","unique_rabbit_jousting_arena","unique_rabbit_first_warren","small_barrack_a1_warrior_warren","free_build","free_build",,,,,"2:(unique_rabbit_jousting_arena;2276;649;0),3:(unique_rabbit_first_warren;2221;557;0)"
+"test1","ffeb00","weealliance","TRUE","1790,558","small_settlement_3_warren_moderate","unique_rabbit_jousting_arena","unique_rabbit_first_warren","small_barrack_a1_warrior_warren","free_build","free_build",,,,,"2:(unique_rabbit_jousting_arena;1750;550;0),3:(unique_rabbit_first_warren;1940;855;0)"
 "test2","ff4100","free",,"1729,684","small_settlement_1_warren_tiny","free_build","free_build","free_build","free_build",,,,,,
 "test3","1ebf00","free",,"1978,576","free_settlement","unique_great_red_tree","free_build","free_build","free_build",,,,,,
 "test4","be4444","free",,"2134,669","small_settlement_2_warren_small","small_food_1_garden","free_build","free_build",,,,,,,

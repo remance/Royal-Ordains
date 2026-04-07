@@ -40,7 +40,8 @@ def check_target_type(who, value):
 
 def check_no_stay(who, value):
     """Check that commander order is not stay"""
-    if "stay" not in who.commander_order is value:
+    check = "stay" not in who.commander_order  # require local variable due to comparison chain issue with is boolean
+    if check is value:
         return True
 
 

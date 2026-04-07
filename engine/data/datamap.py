@@ -35,6 +35,8 @@ class MapData(GameData):
 
         self.preset_map_data = {}
         self.region_list = {}
+        self.route_list = {}
+        self.start_army_list = {}
         self.faction_list = {}
         self.region_by_colour_list = {}
         self.world_map = None
@@ -59,6 +61,19 @@ class MapData(GameData):
                 self.region_by_colour_list[row[1]] = {header[index]: stuff for index, stuff in enumerate(row)}
         edit_file.close()
 
+        self.route_list = {}
+        with open(os.path.join(self.data_dir, "map", "world", campaign, "route.csv"),
+                  encoding="utf-8", mode="r") as edit_file:
+            rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
+            header = rd[0]
+            tuple_column = ("Route", "Dots")
+            tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
+            for index, row in enumerate(rd[1:]):
+                for n, i in enumerate(row):
+                    row = stat_convert(row, n, i, tuple_column=tuple_column)
+                self.route_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
+        edit_file.close()
+
         self.world_map = load_image(self.data_dir, (1, 1), "world.png", ("map", "world", campaign), no_alpha=True)
 
         self.faction_list = {}
@@ -77,6 +92,17 @@ class MapData(GameData):
                     row = stat_convert(row, n, i, tuple_column=tuple_column, dict_column=dict_column,
                                        hex2colour_column=hex2colour_column)
                 self.faction_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
+        edit_file.close()
+
+        self.start_army_list = {}
+        with open(os.path.join(self.data_dir, "map", "world", campaign, "army.csv"),
+                  encoding="utf-8", mode="r") as edit_file:
+            rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
+            header = rd[0]
+            for index, row in enumerate(rd[1:]):
+                for n, i in enumerate(row):
+                    row = stat_convert(row, n, i)
+                self.start_army_list[row[1]] = {header[index]: stuff for index, stuff in enumerate(row)}
         edit_file.close()
 
     def read_map_data(self, campaign: str, map_name: str):

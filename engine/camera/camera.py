@@ -18,9 +18,10 @@ class Camera:
         camera_topleft_y_shift = self.camera_topleft_y_shift
         camera_right_x_shift = self.camera_right_x_shift
         for surface in surfaces:  # Blit sprite to camara image
-            surface_x, surface_y = surface.rect.topleft
-            surface_w, surface_h = surface.rect.size
-            if (surface_x + surface_w - camera_topleft_x_shift > 0 and (surface.rect.topright[0] - surface_w) <= camera_right_x_shift and
+            surface_rect = surface.rect
+            surface_x, surface_y = surface_rect.topleft
+            surface_w, surface_h = surface_rect.size
+            if (surface_x + surface_w - camera_topleft_x_shift > 0 and (surface_rect.topright[0] - surface_w) <= camera_right_x_shift and
                     surface_y + surface_h - camera_topleft_y_shift > 0):
                 # only blit if image in camera at all
                 image.blit(surface.image, (surface_x - camera_topleft_x_shift, surface_y - camera_topleft_y_shift))

@@ -34,9 +34,7 @@ class SpriteData(GameData):
                                           subfolder=("ui", "strategy_ui"))
         self.character_portraits = load_images(self.data_dir, screen_scale=self.screen_scale,
                                                subfolder=("ui", "character_ui"))
-        # add retinue portraits to character
-        self.character_portraits |= load_images(self.data_dir, screen_scale=self.screen_scale,
-                                         subfolder=("ui", "retinue_ui"))
+
         for file in self.character_portraits:
             self.character_portraits[file] = {"character_ui": self.character_portraits[file]}
             mini_portrait = smoothscale(

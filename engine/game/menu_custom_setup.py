@@ -260,20 +260,20 @@ def menu_custom_setup(self):
                     custom_team_army[2][0].supply = self.team2_supply_limit_custom_battle
                     team_stat = {0: {"faction": "free", "culture": "free",
                                      "strategy_resource": 0, "start_pos": 0.5, "air_group": [],
-                                     "retinue": (), "strategy": [], "strategy_cooldown": {},
+                                     "active_retinue": (), "retinue": (), "strategy": [], "strategy_cooldown": {},
                                      "main_army": None, "reinforcement_army": []},
                                  1: {"faction": custom_team_army[1][0].faction,
                                      "culture": custom_team_army[1][0].culture,
                                      "strategy_resource": 0,
                                      "start_pos": 0, "air_group": [],
-                                     "retinue": (), "strategy": [], "strategy_cooldown": {},
+                                     "active_retinue": (), "retinue": (), "strategy": [], "strategy_cooldown": {},
                                      "main_army": custom_team_army[1][0],
                                      "reinforcement_army": custom_team_army[1][1:]},
                                  2: {"faction": custom_team_army[2][0].faction,
                                      "culture": custom_team_army[2][0].culture,
                                      "strategy_resource": 100,
                                      "start_pos": 1, "air_group": [],
-                                     "retinue": (), "strategy": [], "strategy_cooldown": {},
+                                     "active_retinue": (), "retinue": (), "strategy": [], "strategy_cooldown": {},
                                      "main_army": custom_team_army[2][0],
                                      "reinforcement_army": custom_team_army[2][1:]}}
                     player = None

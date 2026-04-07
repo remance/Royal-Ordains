@@ -123,12 +123,12 @@
 "highland_sheep_pike","Sheep Protector","A pikesheapman. Carry a very long pike that can stab most melee enemies from a safe distance.",
 "holy_human_crusader","White Crusader",,
 "holy_human_fanatic","Red Fanatic",,
+"holy_human_guard","Green Guard",,
 "holy_human_inquisitor","Black Inquisitor",,
 "holy_human_leader_nun","Grey Nun",,
 "holy_human_leader_priest","Gold Priest",,
 "holy_human_paladin","Silver Paladin",,
 "holy_human_zealot","Blue Zealot",,
-"holy_human_guard","Green Guard",,
 "leader_abubaba","Abubaba","A swift swordman. Learnt in exotic swordmanship that few can imitate. Can attack enemies with great speed.",
 "leader_abubaba_duel","Abubaba the Duelist",,
 "leader_abubaba_warrior","Abubaba the Warrior",,
@@ -141,7 +141,7 @@
 "leader_alkumsen","Alkumsen",,
 "leader_amgarn","Amgarn","A black swordscat. Despite wielding a large sword, he can certainly swing it with astonishing speed.","A black cat originally from the Kingdom of Safienty. Tired of superstitious discrimination against black cats, Amgarn left for a self-improvement journey. After a perilous voyage, he is now swordscat with exceptional skill and speed for a cat. Willing to join any who can offer him a place to put his swordscatship into practice."
 "leader_amgarn_swordsaint","Sword Saint Amgarn","A black cat swordsaint. Proficient in the art of the blade, he can dispatch even an army in a single flashing slice.",
-"leader_amunsa","Amunsa","A blacksmith. Not exactly trained for battle, but his muscles and skills with a hammer can stun enemies with ease.",
+"leader_amunsa","Amunsa","A blacksmith. Lightly trained for battle, but his muscles and skills with a hammer can stun enemies with ease.","A blacksmith turned warrior. Amunsa is a man of few words and a past that he tells no one. One thing is certain: he is on the path of vengeance. And so with sword and hammer in hand, his creations become instruments of vindication."
 "leader_amunsa_warsmith","Warsmith Amunsa","A warsmith. Trained with diverse weapons of war. He wields no true physical weakness.",
 "leader_amupadeble","Amupadeble",,
 "leader_aquanturas","Aquanturas","A cavalry general. Equipped with a hand crossbow to dispatch enemies from a distance. Can also provide support to allies and harass enemies.",
@@ -450,15 +450,21 @@
 "mountain_dwarf_leader_true_beard","True Beard","A great beard dwarf. Champion among champions. Extraordinarily capable in melee combat.",
 "mountain_dwarf_rune_balista","Rune Ballista","A runic ballista. Great artillery for both anti-troop and building.",
 "mountain_dwarf_rune_catapult","Rune Catapult","A runic catapult. Can topple almost every building in a short amount of time.",
-"mountain_moonelf_air_wyvern","Cave Wyvern Raider",,
-"mountain_moonelf_bladed_shield","Shield Duelist","A moonelf carrying a bladed shield duelist. A perfect balance of offence and defence. Very effective, fast frontline troop, even if this moonelf lacks the high health of other dwarf fighters.",
-"mountain_moonelf_blowdart_cav",,,
-"mountain_moonelf_dualcrossbows","Crossbows Hunter","A moonelf twin gunbow hunter. Sacrifice penetrating power for rate of fire, this hunter can quickly eliminate light-armoured targets.",
-"mountain_moonelf_gladiator","Gladiator","A moonelf gladiator. Speed in both movement and attacks makes up for the lack of defence.",
-"mountain_moonelf_leader_blood_sage","Blood Sage",,
-"mountain_moonelf_warscythe","Depth Guard","A moon elf guard. Equipped with a long warscythe that can slice through flesh with ease. Very useful against light-armoured troops.",
-"mountain_moonelf_whip","Dark Whipper","A moon elf slavemaster. Wield a sharp whip that can disarm enemies and inflict bleeding.",
+"dark_moonelf_air_wyvern","Cave Wyvern Raider",,
+"dark_moonelf_bladed_shield","Shield Duelist","A moonelf carrying a bladed shield duelist. A perfect balance of offence and defence. Very effective, fast frontline troop, even if this moonelf lacks the high health of other dwarf fighters.",
+"dark_moonelf_blowdart_cav",,,
+"dark_moonelf_dualcrossbows","Crossbows Hunter","A moonelf twin gunbow hunter. Sacrifice penetrating power for rate of fire, this hunter can quickly eliminate light-armoured targets.",
+"dark_moonelf_gladiator","Gladiator","A moonelf gladiator. Speed in both movement and attacks makes up for the lack of defence.",
+"dark_moonelf_leader_blood_sage","Blood Sage",,
+"dark_moonelf_warscythe","Depth Guard","A moon elf guard. Equipped with a long warscythe that can slice through flesh with ease. Very useful against light-armoured troops.",
+"dark_moonelf_whip","Dark Whipper","A moon elf slavemaster. Wield a sharp whip that can disarm enemies and inflict bleeding.",
+"neutral_centaur_leader_cloud_shaman","Cloud Shaman",,
 "neutral_cockatrice","Cockatrice",,
+"neutral_djinn_leader_mage_fire","Djinn Magus",,
+"neutral_dog_leader_rain_shaman","Rain Shaman","Aztec dog",
+"neutral_faun_leader_storm_shaman","Storm Shaman",,
+"neutral_fox_leader_mage","Trickster Fox",,
+"neutral_goat_leader_champion","Champion Goat",,
 "neutral_gorgon","Gorgon","A gorgon. Can temporarily turn nearby enemies into stone. Its claws can also deal serious damage.",
 "neutral_hydra","Hydra","A seven-headed hydra. Exceedingly fast attacker and can inflict strong poison.",
 "neutral_large_barricade","Large Barricade","A large barricade. Good for halting the enemy's advance.","Large barricades are the model of all barricades. So large that they can be a shield against ranged attacks for troops nearby. Actually, they are very difficult to create, and it is probably better to just use a proper wall instead."
@@ -469,13 +475,16 @@
 "neutral_leprechaun","Leprechaun","A leprechaun, being of luck that gives misfortune with his punch.",
 "neutral_medium_barricade","Medium Barricade","A medium barricade. It can withstand a decent amount of force.","Medium-sized barricades like these are created with moderate efforts. They can adequately deter approaching enemies and may even hold them long enough to dispatch them with arrows. Many strategists tend to deploy them in great numbers at choke points."
 "neutral_minotaur","Minotaur","A great minotaur. This half-bull is as strong as a troll in melee combat.",
+"neutral_monkey_leader_fog_shaman","Fog Shaman",,
 "neutral_phoenix","Phoenix","A burning phoenix. Can resurrect once from death and deal strong fire damage.",
 "neutral_raptor","Raptor",,
 "neutral_rat_club","Clubratman",,
 "neutral_small_barricade","Small Barricade","A small barricade. Best not to rely on it too much.","Small barricades like these are often objects of scrutiny. ""Ohh, they are so small. How can they ever hope to stop anything?"" or ""Not even goblins will care about these small little things."" and so on. Fools all."
+"neutral_snail_leader_mage_air","Snail Mage",,
 "neutral_sphinx","Sphinx",,
 "neutral_spirit","Spirit",,
 "neutral_stalker","Stalker",,
+"neutral_sylph_leader_sun_shaman","Sun Spirit",,
 "neutral_troll","Troll","A troll. Brute and crude. A true menace in melee combat.",
 "neutral_wyvern","Wyvern",,
 "neutral_yeti","Yeti",,
@@ -484,6 +493,7 @@
 "nice_bunny","Bunny","A tiny bunny. Will meep at anyone nearby and distract them.","Small and harmless creatures that exist in abundance in meadows and forests. These critters are extremely cordial to those they perceive as friends and will flee from predators. Their meeping is a way of greeting and perhaps a call for mating. Many farmers consider them the greatest enemies of the field due to their constant raid for food."
 "nice_butterfly","Butterfly","A small butterfly. Presented in flower fields. Has very beautiful wings.","Flying worms that like to eat from flowers and are close friends of fairies. The Velirian Beastiary ranks these creatures among the four animals with the greatest beauty in the world. A common superstitious belief is that the Fairy King will grant those who can befriend a thousand butterflies with wings of their own."
 "nice_cloud_dog","Cloud Dog","A dog that float around enjoying life. No one is certain if it bite.","Mysterious and rare dogs that can only be found in the sky. These dogs hide themselves among clouds and lick them for foods. From day to night, they float around without care for the chaos down below. Scholars theorise that they are watchdogs of heaven, and anyone who dares bring harm to them will personally receive the wrath of the gods."
+"nice_doll_cow","Cow Doll","A cow doll that stands around and moos all day.",
 "nice_duck","Brave Duck","A duck that quacks. The quack is so filled with energy that it encourages anyone who hears it.","Ducks are aquatic birds with a round beak. Most ducks are usually timid and easy to fool. Rarely live on land, they will dive into water to escape from danger. Nevertheless, some are braver than others and can quack absolutely confidently. Courageous ducks have very foul meat, so predators ignore any approaching duck."
 "nice_fluffy_bird","Fluffy Bird","A very nice looking white fluffy bird. Like to jump around and look cute.","Circle-shaped birds that do not possess wings. These fluffy white birds jump to move around, and children tend to mistake them for jumping sheep, as they also like to conceal themselves among sheep flocks. Many tried to domesticate them for the feather harvest, but found no real application for them yet. The swaying they like to do while standing led many to believe that their legs are too flimsy to support their weight."
 "nice_living_book","Living Book","A flying book. Will give out knowledge to passersby.","Living books that get tired of the stale library and decide to go out and play on some grass. Usually return to the bookshelf at night. Are they really alive or not? Not even their creator can really say."
@@ -507,6 +517,10 @@
 "port_halfling_sword","Port Guard","A swordhalfling. Acceptable melee infantry that can fight against all kinds of enemies to some effect.",
 "port_halfling_tower","Cannon Tower","A cannon tower. Deal extreme damage from an incredibly long range. Becomes useless when there are nearby enemies, though.",
 "port_halfling_tower_cannon",,,
+"sea_dwarf_beer_cheer",,,
+"sea_dwarf_cannon",,,
+"sea_dwarf_nawharl_cav",,,
+"sea_dwarf_sea_pirate",,,
 "small_eagle_air_stone","Eagle","An eagle eager for prays. Fast and cheap air fighter with great versatility.","When eagles grow to adulthood, they will fly to the Sun and witness the truth of heaven. Nevermore then, they rise to such a height again. Perhaps for their visit, they ask God for a boon to grant them eyesight to see prey even from the vast sky. Never to be without repasts ever again. When eagles grow old, they lose their valuable feathers and can no longer fly. So they instead take one last flight to migrate down to the ocean and then become aquatic creatures."
 "small_rabbit_cannon","Rabbit Revenge","A cheap small cannon for many purposes. Rabbitmen can be innovative with good guidance.","Jar cannons are among the first renditions of cannon artillery. Light but durable, these cannons can be pushed around even by small rabbitmen. As the world finds out, manure of rabbitmen makes for potent explosive powder that eclipses humans' piss. With assistance in innovative progression, the once small nation takes the first step to the forefront of history."
 "small_rabbit_hole","Rabbit Role","A rabbitman in a hole waiting to stab a passerby in the rear.","Rabbit holes are a labyrinth that not even the wisest of sages know the end of. Some even estimate that rabbitmen truthfully control a subterranean empire that spans the entire continent. Not even with a flood of water, smoking with fire, burning with oil, or burying with stones can stop the ever-expanding rabbitmen's network. Once, a great seer prophesied that the fur beings of long ears will inherit the earth."
@@ -516,6 +530,7 @@
 "small_rabbit_leader_banner","Rabbit Rannermate","A rabbitman banner bearer. Bringer of field menaces. Can raise banner to encourage nearby friends but cannot attack anyone.","Banners are a new luxury for Rabbitman's armies. Despite the low-quality cloth attached to a stick, most still adore having these new amazements. War banners flutter against the wind as the Alliance of the Small marches into battles."
 "small_rabbit_leader_hero","Rabbit Rero","A rabbitman hero. As good as a rabbit can be. Very fast and can debuff nearby enemies.","Rabbitman Reroes and their hound partner are the first to ride against the enemies. They are the bravest of all rabbitmen, as courageous as a rabbitman can be. Perhaps the new world will be filled with the descendants of these warriors."
 "small_rabbit_leader_knight","Rabbit Rnight","A rabbitman knight. Not so bad as a frontline leader but expect no grand performance. Somewhat strong in defence but very slow.","Rabbitmen are not strong enough to wear armour. Even an unadorned helmet weighs enough to make them unable to stand tall. These ""knights"" are not nobles like the civilised equivalent, but rather, simply stronger fighters of the warren. For rabbitmen that dedicate too much to the pursuit of war, there is no return to a joyful life ever again."
+"small_rabbit_leader_shaman","Rabbit Rruid","A rabbitman druid. Attuned to the power of nature, can drench enemies with magical water spray and attack with pebble spray.","Some rabbitmen are gifted with the alignment to nature itself. Though due to the lack of inherent mana, they are unable to perform miraculous spells even after years of training. Instead, they can perform minor spells with great efficiency using their little drum as a conductor."
 "small_rabbit_sling","Rabbit Rooligan","A rabbitman slinger. Decent skirmisher in its own right and can dig the ground to lay trap against approaching enemies.","Stones exist in abundance, even in forests. So it is no surprise that rabbitmen chose the sling as their ranged weapon of choice. No need to carry too much ammunition, and the sling is light to wield. These Rabbit Rooligans also bring a shovel to dig for more slingshots and make a rabbit hole for setting up a trap against invaders. These shovels later on become the symbol of nation-building for both the rabbitmen nations and outsiders."
 "small_rabbit_snail_cav","Rabbit Rhell Rompanion","A rabbitman snail cavalry. Slow but tough.","Rabbitman on a snail, a combination of two ends of attributes that creates paradoxical strength. With the swiftness of rabbitmen and toughness of snails,  Rabbit Rhell Rompanions excel at neither of the two. Conceivably, this amalgamation will divulge its unrecognised advantages in the unforeseen future that puts knights and their horses to shame."
 "small_rabbit_spear","Rabbit Raider","A footsoldier rabbit spearman. Weak but strong in number. Can inflict slow and charge enemies.","The life of Rabbitmen usually involves no fighting. Like their bunny cousins, they tend to flee from predators and can only bite with their meagre teeth at best. The first weapon they picked up was the easiest to learn, the spear. There is joy to be found when the prey can fight back in numbers, reversing the natural order of things. Many believe that such an occurrence is one of the punishments the gods invoke on the civilised chosen for their endless misdeeds against nature."
@@ -542,7 +557,6 @@
 "wood_elf_leader_sniper","Forest Grower",,
 "wood_elf_spear","Forest Warrior",,
 "wood_elf_tiger_cav","Forest Protector",,
-"wood_fox_leader_mage","Trickster Fox",,
 "wood_monkey_leader_rider","Forest Sniper",,
 "wood_monkey_scout","Forest Warner",,
 "wood_monkey_sling","Forest Slinger",,

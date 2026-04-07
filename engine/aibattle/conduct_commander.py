@@ -152,8 +152,10 @@ def conduct_commander(self):
         # move to support from distance
         start_pos = commander.start_pos
         closest_enemy_distance_to_camp = 0
+        closet_enemy_pos = 0
         if "closest_enemy_distance_to_camp" in current_info:
-            closest_enemy_distance_to_camp = current_info["closest_enemy_distance_to_camp"]
+            closet_enemy_pos = current_info["closest_enemy_distance_to_camp"][0]
+            closest_enemy_distance_to_camp = current_info["closest_enemy_distance_to_camp"][1]
         optimal_ai_commander_range = commander.optimal_ai_commander_range
         if closest_enemy_distance_to_camp < optimal_ai_commander_range:
             # enemy closer to camp
@@ -169,9 +171,9 @@ def conduct_commander(self):
             if "far_" in commander_what_to_do:
                 move_type = "move"
                 move_distance = optimal_ai_commander_range
-            if closest_enemy_distance_to_camp > start_pos:
-                target = closest_enemy_distance_to_camp + move_distance
+            if closet_enemy_pos > start_pos:
+                target = closet_enemy_pos - move_distance
             else:
-                target = closest_enemy_distance_to_camp - move_distance
+                target = closet_enemy_pos + move_distance
 
             commander.issue_commander_order((move_type, target))

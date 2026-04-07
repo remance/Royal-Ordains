@@ -136,10 +136,10 @@ class Battle:
         self.screen_width = self.screen_rect.width
         self.screen_height = self.screen_rect.height
 
-        self.camera_size = (self.screen_width, self.screen_height)
-        self.camera_max = (self.screen_width - 1, self.screen_height - 1)
-        self.camera_center_x = self.camera_size[0] / 2
-        self.camera_center_y = self.camera_size[1] / 2
+        self.camera_width = self.screen_width
+        self.camera_height = self.screen_height
+        self.camera_center_x = self.camera_width / 2
+        self.camera_center_y = self.camera_height / 2
 
         self.main_dir = game.main_dir
         self.data_dir = game.data_dir
@@ -293,7 +293,7 @@ class Battle:
 
         self.shown_camera_pos = self.camera_pos  # pos of camera shown to player, in case of screen shaking or other effects
 
-        self.camera = Camera(self.screen, self.camera_size)
+        self.camera = Camera(self.screen, (self.camera_width, self.camera_height))
         self.camera_w_center = self.camera.camera_w_center
         self.camera_h_center = self.camera.camera_h_center
         self.camera_x_shift = self.shown_camera_pos[0] - self.camera_w_center
@@ -341,7 +341,6 @@ class Battle:
         self.battle_scale_ui = BattleScale(self.tactical_map_ui.rect.bottomleft)
         self.strategy_select_ui = StrategySelect(self.battle_scale_ui.rect.midbottom,
                                                  self.sprite_data.strategy_icons)
-
 
         self.always_command_ui = (self.tactical_map_ui, self.battle_helper_ui, self.battle_scale_ui)
         self.only_player_command_ui = (self.command_ui, self.strategy_select_ui, self.player_battle_interact)
@@ -515,6 +514,7 @@ class Battle:
             team_stat["supply_reserve"] = 0
             team_stat["total_supply"] = 0
             team_stat["start_pos"] *= self.base_stage_end
+            team_stat["active_retinue"] = []
             # add available strategies to team stat
             if team_stat["main_army"] and team_stat["main_army"].commander_id:  # army exist
                 team_stat["supply_resource"] = team_stat["main_army"].supply * 0.1
@@ -542,7 +542,9 @@ class Battle:
 
                 for retinue in retinue_list:
                     team_stat["strategy_cooldown"][len(team_stat["strategy"])] = 0
-                    team_stat["strategy"].append(self.character_data.retinue_list[retinue]["Strategy"])
+                    team_stat["strategy"].append(self.character_data.character_list[retinue]["Strategy"])
+
+                team_stat["active_retinue"] = retinue_list
 
             for army in team_stat["reinforcement_army"]:
                 if army.commander_id:
@@ -821,6 +823,7 @@ class Battle:
                     # FOR DEVELOPMENT comment out later
                     if event.key == K_KP_1:
                         self.drama_text.queue.append(("Hello and welcome to showcase video", "Dollhi"))
+                        self.screen_shake_value += 1000
                     elif event.key == K_KP_2:
                         self.drama_text.queue.append(("Show case: Reworked battle system.", None))
                         for enemy in self.all_battle_characters:

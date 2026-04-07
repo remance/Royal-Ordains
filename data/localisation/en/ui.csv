@@ -171,6 +171,7 @@
 "text_ruler","Ruler"
 "warn_cost_exceed","Cost exceed fund! Some units will not appear."
 "warn_empty_slot","Note: Empty slot will be skipped."
+"warn_no_retinue","Retinue only provides strategy and leadership bonus. Will not appear in battle. "
 "warn_name_in_use","Error: name already in used."
 "warn_no_army","One or more team has no units."
 "warn_no_commander","Note: Army with no commander will not appear in custom battle selection."

@@ -29,7 +29,6 @@ class Localisation:
         self.read_localisation("faction")
         self.read_localisation("status")
         self.read_localisation("mission")
-        self.read_localisation("retinue")
         self.read_localisation("scene")
         self.read_localisation("strategy")
         self.read_localisation("event")

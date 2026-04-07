@@ -79,15 +79,13 @@ code.<br>
 Also, the game is currently written based on the pygame 2.5.2 module and python 3.11. Using older versions of the two
 likely will cause error.
 
-
-
-# Game Features
+# Current Game Features
 
 - Play a custom battle against an AI opponent.
 
 - Call in hundreds of ground and air troops to wage a full-blown battle.
 
-- 2 Factions with 50 unique characters and more to come.
+- 3 Factions with 80 unique characters and more to come.
 
 
 [//]: # (# System Requirements)
@@ -221,7 +219,7 @@ compatible enough for other purposes with some modifications.
 - Various Ice by danielsoundsgood (https://linktr.ee/danielsoundsgood)
 - Catapult by Sounddino (https://sounddino.com/en/effects/catapult/)
 - Horse galloping by DRAGON-STUDIO (https://pixabay.com/users/dragon-studio-38165424/)
-- Boing, broom, firecracker, metal can, dragon roar, power charge, toy_button, bone, machine pressure, toy squeak, ghost whisper by freesound_community (https://pixabay.com/users/freesound_community-46691455/)
+- Boing, broom, firecracker, metal can, dragon roar, cow moo, power charge, toy_button, bone, machine pressure, toy squeak, ghost whisper by freesound_community (https://pixabay.com/users/freesound_community-46691455/)
 - Toy train by floraphonic (https://pixabay.com/users/floraphonic-38928062/)
 
 ### Music

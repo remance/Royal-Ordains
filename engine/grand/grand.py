@@ -21,7 +21,7 @@ from engine.grandobject.grandobject import GrandObject
 from engine.region.region import Region
 from engine.uibattle.drama import TextDrama
 from engine.uibattle.uibattle import FPSCount
-from engine.uigrand.uigrand import YesNo
+from engine.uigrand.uigrand import YesNo, PlayerFactionCultureList, PlayerArmyList
 from engine.uimenu.uimenu import TextPopup, GrandMiniMap
 from engine.updater.updater import ReversedLayeredUpdates
 from engine.utils.common import clean_group_object
@@ -62,10 +62,10 @@ class Grand:
         self.screen_width = self.screen_rect.width
         self.screen_height = self.screen_rect.height
 
-        self.camera_size = (self.screen_width, self.screen_height)
-        self.camera_max = (self.screen_width - 1, self.screen_height - 1)
-        self.camera_center_x = self.camera_size[0] / 2
-        self.camera_center_y = self.camera_size[1] / 2
+        self.camera_width = self.screen_width
+        self.camera_height = self.screen_height
+        self.camera_center_x = self.camera_width / 2
+        self.camera_center_y = self.camera_height / 2
 
         self.main_dir = game.main_dir
         self.data_dir = game.data_dir
@@ -85,12 +85,13 @@ class Grand:
         # Music and sound player
         self.current_music = None
         self.current_ambient = None
-        self.music = self.game.music_channel
-        self.ambient = self.game.ambient_channel
-        self.weather_ambient = self.game.weather_ambient_channel
+        self.music_channel = self.game.music_channel
+        self.ambient_channel = self.game.ambient_channel
+        self.weather_ambient_channel = self.game.weather_ambient_channel
+        self.button_sound_channel = self.game.button_sound_channel
         self.SONG_END = pygame.USEREVENT + 1
 
-        self.effect_sound_channel = tuple([Channel(ch_num) for ch_num in range(1000)])
+        self.effect_sound_channel = tuple([Channel(ch_num) for ch_num in range(4, 1000)])
 
         self.text_popup = TextPopup()
 
@@ -118,7 +119,7 @@ class Grand:
         self.map_data = self.game.map_data
         self.weather_data = self.map_data.weather_data
 
-        self.animation_data = self.game.sprite_data
+        self.sprite_data = self.game.sprite_data
         self.character_animation_data = self.game.character_animation_data
         self.character_portraits = self.game.character_portraits
         self.effect_animation_pool = self.game.effect_animation_pool
@@ -139,7 +140,7 @@ class Grand:
 
         self.shown_camera_pos = self.camera_pos  # pos of camera shown to player, in case of screen shaking or other effects
 
-        self.camera = Camera(self.screen, self.camera_size)
+        self.camera = Camera(self.screen, (self.camera_width, self.camera_height))
         self.camera_w_center = self.camera.camera_w_center
         self.camera_h_center = self.camera.camera_h_center
         self.camera_x_shift = self.shown_camera_pos[0] - self.camera_w_center
@@ -153,15 +154,19 @@ class Grand:
         self.grand_map = GrandMap()
 
         GrandObject.grand = self
+        GrandObject.screen_scale = self.screen_scale
 
         # Create grand ui
         grand_ui_images = load_images(self.data_dir, screen_scale=self.screen_scale,
                                       subfolder=("ui", "grand_ui"))
         self.decision_select = YesNo(grand_ui_images)
-        self.mini_map = GrandMiniMap((self.screen_width - ((796 / 2) * self.screen_scale[0]), 0),
+        self.mini_map = GrandMiniMap((self.screen_width - ((796 / 2) * self.screen_scale[0]),
+                                     self.screen_height - (432 * self.screen_scale[1])),
                                      (796, 432), "grand")
 
         self.drama_text = TextDrama(self)  # message at the top of screen that show up for important event
+        self.player_faction_culture_list_ui = PlayerFactionCultureList()
+        self.player_army_list_ui = PlayerArmyList()
 
         self.fps_count = FPSCount(self)  # FPS number counter
         if self.game.show_fps:
@@ -178,13 +183,17 @@ class Grand:
         self.base_cursor_pos = [0, 0]  # mouse base pos on the map based on camera position
         self.cursor_pos = [0, 0]
 
+        self.selected_player_army = []
         self.campaign = None
         self.player_faction = None
         self.player_input = None
         self.regions = {}
         self.current_campaign_state = {}
 
-        self.outer_ui_updater.add(self.mini_map, )
+        self.always_ui = (self.mini_map, )
+        self.only_player_ui = (self.player_faction_culture_list_ui, self.player_army_list_ui)
+
+        self.outer_ui_updater.add(self.always_ui)
 
     def prepare_new_campaign(self, campaign, player_faction, save_state_data=None):
         for message in self.inner_prepare_new_campaign(campaign, player_faction, save_state_data):
@@ -212,7 +221,7 @@ class Grand:
                                                                 self.camera.image.get_height()))
 
         self.map_x_end, self.map_y_end = self.grand_map.setup(self.map_data.world_map, load_image(
-            self.data_dir, (1, 1), "grand.png", ("map", "world", campaign),
+            self.data_dir, self.screen_scale, "grand.png", ("map", "world", campaign),
             no_alpha=True))
         self.mini_map.change_grand_setup(self.game.grand_mini_map.original_image)
         self.mini_map.change_grand_faction(self.current_campaign_state["region_control"])
@@ -228,8 +237,10 @@ class Grand:
 
         if player_faction:
             self.player_input = MethodType(player_input_grand, self)
+            self.outer_ui_updater.add(self.only_player_ui)
         else:  # no player faction, camera at center
             self.player_input = MethodType(battle_no_player_input_grand, self)
+            self.outer_ui_updater.remove(self.only_player_ui)
 
         if self.current_campaign_state["player_camera_pos"]:
             self.camera_pos = self.current_campaign_state["player_camera_pos"]
@@ -251,7 +262,7 @@ class Grand:
         self.input_popup = None  # no popup asking for user text input state
         self.drama_text.queue = []  # reset drama text popup queue
 
-        self.music.set_endevent(self.SONG_END)
+        self.music_channel.set_endevent(self.SONG_END)
 
         self.shown_camera_pos = self.camera_pos
 
@@ -418,17 +429,15 @@ class Grand:
                     self.ui_drawer.draw(self.screen)  # draw the UI
                     self.ui_timer -= 0.1
 
-            # camera_right_x = pos[0] + self.camera_w_center  # camera topleft x
-            self.camera_topleft_y_shift = self.camera_center_y - self.shown_camera_pos[1]
-            self.camera_topleft_x_shift = self.shown_camera_pos[0] - self.camera_w_center  # camera topleft x
-            self.camera_y = self.shown_camera_pos[1] - self.camera_h_center  # camera topleft y
+            # update camera
+            self.camera_topleft_x_shift = self.shown_camera_pos[0]  # - self.camera_w_center  # camera topleft x
+            self.camera_topleft_y_shift = self.shown_camera_pos[1]  #- self.camera_center_y
             self.camera.camera_topleft_x_shift = self.camera_topleft_x_shift
             self.camera.camera_topleft_y_shift = self.camera_topleft_y_shift
-            self.camera.camera_right_x_shift = self.shown_camera_pos[0] + self.camera_w_center
+            self.camera.camera_right_x_shift = self.shown_camera_pos[0] + self.camera_width
             self.grand_map.update()
             self.camera.update(self.grand_camera_object_drawer)
             self.outer_ui_updater.update(dt)
-
             self.camera.update(self.grand_camera_ui_drawer)
             self.camera.out_update(self.outer_ui_updater)
 
@@ -449,12 +458,8 @@ class Grand:
                                     self.esc_value_boxes.values(), self.esc_option_text.values(),
                                     self.scene_translation_text_popup)
 
-        self.battle_cursor.change_image("normal")
-
-        self.command_ui.reset()
-
         # stop all sounds
-        for sound_ch in self.battle_sound_channel:
+        for sound_ch in self.effect_sound_channel:
             if sound_ch.get_busy():
                 sound_ch.stop()
         self.current_music = None
@@ -462,8 +467,6 @@ class Grand:
         self.stage_music_pool = {}
 
         # remove all reference from battle object
-        self.scene.images = {}
-        self.scene.data = {}
         self.ai_process_list = []
         self.clean_character_group()
 
