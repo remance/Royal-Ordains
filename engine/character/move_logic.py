@@ -52,8 +52,8 @@ def move_logic(self, dt):
                         self.base_pos[0] = self.battle.base_stage_end
                         self.x_momentum = 0
 
-                self.pos = Vector2((self.base_pos[0] * self.screen_scale[0],
-                                    self.base_pos[1] * self.screen_scale[1]))
+                self.pos = Vector2((self.base_pos[0] * self.screen_scale_width,
+                                    self.base_pos[1] * self.screen_scale_height))
 
                 self.update_sprite = True
 
@@ -106,11 +106,11 @@ def sub_move_logic(self, dt: float):
         if self.base_pos != self.main_character.base_pos:
             self.base_pos = Vector2(self.main_character.base_pos)
             if self.main_character.direction == "right":
-                self.pos = Vector2(((self.base_pos[0] - self.anchor_pos[0]) * self.screen_scale[0],
-                                    (self.base_pos[1] + self.anchor_pos[1]) * self.screen_scale[1]))
+                self.pos = Vector2(((self.base_pos[0] - self.anchor_pos[0]) * self.screen_scale_width,
+                                    (self.base_pos[1] + self.anchor_pos[1]) * self.screen_scale_height))
             else:
-                self.pos = Vector2(((self.base_pos[0] + self.anchor_pos[0]) * self.screen_scale[0],
-                                    (self.base_pos[1] + self.anchor_pos[1]) * self.screen_scale[1]))
+                self.pos = Vector2(((self.base_pos[0] + self.anchor_pos[0]) * self.screen_scale_width,
+                                    (self.base_pos[1] + self.anchor_pos[1]) * self.screen_scale_height))
             self.update_sprite = True
     else:
         move_logic(self, dt)
@@ -165,8 +165,8 @@ def air_move_logic(self, dt):
                                     if self.team != 0:  # team 0 is not part of condition check:
                                         self.battle.all_team_enemy_check[team].remove(self)
 
-                self.pos = Vector2((self.base_pos[0] * self.screen_scale[0],
-                                    self.base_pos[1] * self.screen_scale[1]))
+                self.pos = Vector2((self.base_pos[0] * self.screen_scale_width,
+                                    self.base_pos[1] * self.screen_scale_height))
 
                 self.update_sprite = True
 

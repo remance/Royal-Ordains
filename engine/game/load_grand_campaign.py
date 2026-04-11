@@ -5,3 +5,5 @@ def load_grand_campaign(self, campaign):
         self.map_data.load_campaign_data(campaign)
         self.localisation.read_localisation("region", (campaign,))
         self.grand_mini_map.change_grand_setup(self.map_data.world_map)
+        self.grand_faction_selector.__init__(self.grand_faction_selector.width_limit,
+                                             self.grand_faction_selector.pos)  # reset selector to include loaded factions

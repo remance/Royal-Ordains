@@ -3,7 +3,7 @@ import csv
 import os
 from pathlib import Path
 
-from engine.data.datastat import GameData
+from engine.data.data import GameData
 from engine.utils.data_loading import stat_convert, load_image, csv_read
 
 
@@ -49,14 +49,20 @@ class MapData(GameData):
             header = rd[0]
             hex2colour_column = ("Colour",)
             hex2colour_column = [index for index, item in enumerate(header) if item in hex2colour_column]
-            tuple_column = ("Build Slot", "Settlement POS")
+            tuple_column = ("Settlement POS",)
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
+            list_column = ["Build Slot " + str(index) for index in range(1, 11)]
+            list_column = [index for index, item in enumerate(header) if item in list_column]
             dict_column = ("Object", "Route")
             dict_column = [index for index, item in enumerate(header) if item in dict_column]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
-                    row = stat_convert(row, n, i, tuple_column=tuple_column, dict_column=dict_column,
-                                       hex2colour_column=hex2colour_column)
+                    row = stat_convert(row, n, i, list_column=list_column, tuple_column=tuple_column,
+                                       dict_column=dict_column, hex2colour_column=hex2colour_column)
+                for header_index, value in enumerate(header):
+                    if "Build Slot" in value:
+                        # add active building state to starting region building lists
+                        row[header_index].append(True)
                 self.region_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
                 self.region_by_colour_list[row[1]] = {header[index]: stuff for index, stuff in enumerate(row)}
         edit_file.close()
@@ -103,6 +109,8 @@ class MapData(GameData):
                 for n, i in enumerate(row):
                     row = stat_convert(row, n, i)
                 self.start_army_list[row[1]] = {header[index]: stuff for index, stuff in enumerate(row)}
+                self.start_army_list[row[1]]["Route"] = []
+                self.start_army_list[row[1]]["Broken"] = False
         edit_file.close()
 
     def read_map_data(self, campaign: str, map_name: str):

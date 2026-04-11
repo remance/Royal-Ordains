@@ -14,11 +14,12 @@ from engine.battle.drama_process import drama_process
 from engine.battle.play_sound_effect import play_sound_effect
 from engine.battle.shake_camera import shake_camera
 from engine.camera.camera import Camera
+from engine.army.army import Army
 from engine.grand.fix_camera import fix_camera
 from engine.grand.player_input import player_input_grand, battle_no_player_input_grand
 from engine.grandmap.grandmap import GrandMap
 from engine.grandobject.grandobject import GrandObject
-from engine.region.region import Region
+from engine.grandactor.grandactor import GrandActor
 from engine.uibattle.drama import TextDrama
 from engine.uibattle.uibattle import FPSCount
 from engine.uigrand.uigrand import YesNo, PlayerFactionCultureList, PlayerArmyList
@@ -70,6 +71,8 @@ class Grand:
         self.main_dir = game.main_dir
         self.data_dir = game.data_dir
         self.screen_scale = game.screen_scale
+        self.screen_scale_width = game.screen_scale_width
+        self.screen_scale_height = game.screen_scale_height
 
         # grand campaign object group
         self.grand_camera_object_drawer = sprite.LayeredUpdates()
@@ -80,6 +83,7 @@ class Grand:
         self.grand_actor_updater = ReversedLayeredUpdates()  # updater for actor objects,
         self.grand_effect_updater = sprite.Group()  # updater for effect objects
 
+        GrandActor.containers = self.grand_actor_updater, self.grand_camera_object_drawer
         GrandObject.containers = self.grand_actor_updater, self.grand_camera_object_drawer
 
         # Music and sound player
@@ -112,12 +116,14 @@ class Grand:
         self.stage_music_pool = {}  # pool for music already converted to pygame Sound
 
         self.weather_screen_adjust = self.screen_width / self.screen_height  # for weather sprite spawn position
-        self.right_corner = self.screen_width - (5 * self.screen_scale[0])
-        self.bottom_corner = self.screen_height - (5 * self.screen_scale[1])
+        self.right_corner = self.screen_width - (5 * self.screen_scale_width)
+        self.bottom_corner = self.screen_height - (5 * self.screen_scale_height)
 
         self.character_data = self.game.character_data
+        self.character_list = self.game.character_list
         self.map_data = self.game.map_data
         self.weather_data = self.map_data.weather_data
+        self.faction_list = self.map_data.faction_list
 
         self.sprite_data = self.game.sprite_data
         self.character_animation_data = self.game.character_animation_data
@@ -136,7 +142,7 @@ class Grand:
         self.camera_pos = Vector2(500, 500)  # camera pos on scene
         self.camera_left = (self.camera_pos[0] - self.camera_center_x)
 
-        self.base_camera_left = (self.camera_pos[0] - self.camera_center_x) / self.screen_scale[0]
+        self.base_camera_left = (self.camera_pos[0] - self.camera_center_x) / self.screen_scale_width
 
         self.shown_camera_pos = self.camera_pos  # pos of camera shown to player, in case of screen shaking or other effects
 
@@ -147,12 +153,16 @@ class Grand:
 
         # Create map object
         GrandMap.grand = self
+        GrandMap.image = Surface.subsurface(self.camera.image, (0, 0, self.camera.image.get_width(),
+                                                                self.camera.image.get_height()))
         self.map_x_end = 0
         self.map_y_end = 0
         self.map_shown_to_actual_scale_width = 1
         self.map_shown_to_actual_scale_height = 1
         self.grand_map = GrandMap()
 
+        Army.grand = self
+        GrandActor.grand = self
         GrandObject.grand = self
         GrandObject.screen_scale = self.screen_scale
 
@@ -160,8 +170,8 @@ class Grand:
         grand_ui_images = load_images(self.data_dir, screen_scale=self.screen_scale,
                                       subfolder=("ui", "grand_ui"))
         self.decision_select = YesNo(grand_ui_images)
-        self.mini_map = GrandMiniMap((self.screen_width - ((796 / 2) * self.screen_scale[0]),
-                                     self.screen_height - (432 * self.screen_scale[1])),
+        self.mini_map = GrandMiniMap((self.screen_width - ((796 / 2) * self.screen_scale_width),
+                                     self.screen_height - (432 * self.screen_scale_height)),
                                      (796, 432), "grand")
 
         self.drama_text = TextDrama(self)  # message at the top of screen that show up for important event
@@ -187,7 +197,6 @@ class Grand:
         self.campaign = None
         self.player_faction = None
         self.player_input = None
-        self.regions = {}
         self.current_campaign_state = {}
 
         self.always_ui = (self.mini_map, )
@@ -213,12 +222,9 @@ class Grand:
         self.current_ambient = None
 
         print("Start loading", campaign)
-        yield set_start_load(self, "Game setup")
+        yield set_start_load(self, "Campaign setup")
         self.game.loading_lore_text = self.localisation.grab_text(
             ("load", randint(0, len(self.localisation.text[self.language]["load"]) - 1), "Text"))
-
-        GrandMap.image = Surface.subsurface(self.camera.image, (0, 0, self.camera.image.get_width(),
-                                                                self.camera.image.get_height()))
 
         self.map_x_end, self.map_y_end = self.grand_map.setup(self.map_data.world_map, load_image(
             self.data_dir, self.screen_scale, "grand.png", ("map", "world", campaign),
@@ -229,11 +235,8 @@ class Grand:
         self.map_shown_to_actual_scale_width = self.grand_map.map_shown_to_actual_scale_width
         self.map_shown_to_actual_scale_height = self.grand_map.map_shown_to_actual_scale_height
 
-        # setup regions
-        self.regions = {}
-        for region, region_data in self.map_data.region_by_colour_list.items():
-            self.regions[region] = Region(region_data["ID"], region, region_data["Settlement POS"],
-                                          self.current_campaign_state)
+        # load actor animation sprite
+        self.sprite_data.setup_campaign()
 
         if player_faction:
             self.player_input = MethodType(player_input_grand, self)
@@ -242,6 +245,29 @@ class Grand:
             self.player_input = MethodType(battle_no_player_input_grand, self)
             self.outer_ui_updater.remove(self.only_player_ui)
 
+        # setup armies, replace dict with object
+        for faction, faction_value in self.current_campaign_state["faction"].items():
+            for index, army in enumerate(tuple(faction_value["army"])):
+                faction_value["army"][index] = Army(army["Faction"], self.character_list[army["Commander"]]["Culture"],
+                                                    army["Commander"],
+                                                    [army["Leader 1"], army["Leader 2"], army["Leader 3"]],
+                                                    [army["Troop 1"], army["Troop 2"], army["Troop 3"],
+                                                     army["Troop 4"], army["Troop 5"]],
+                                                    [army["Air 1"], army["Air 2"], army["Air 3"],
+                                                     army["Air 4"], army["Air 5"]],
+                                                    [army["Retinue 1"], army["Retinue 2"], army["Retinue 3"]],
+                                                    supply=army["Supply"], max_supply=army["Max Supply"],
+                                                    current_region=army["Region"], travel_route=army["Route"],
+                                                    broken=army["Broken"])
+                for character in (army["Commander"], army["Leader 1"], army["Leader 2"], army["Leader 3"],
+                                  army["Retinue 1"], army["Retinue 2"], army["Retinue 3"]):
+                    if character and self.character_list[character]["Is Unique"]:  # assign army to unique character
+                        self.current_campaign_state["faction"][army["Faction"]]["character"][character] = faction_value["army"][index]
+
+                GrandActor(faction_value["army"][index].commander_id, faction_value["army"][index],
+                           army["Faction"], faction_value["army"][index].base_pos)
+
+        # setup camera position
         if self.current_campaign_state["player_camera_pos"]:
             self.camera_pos = self.current_campaign_state["player_camera_pos"]
         else:  # new game

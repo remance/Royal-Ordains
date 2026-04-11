@@ -7,27 +7,28 @@ from pygame.transform import smoothscale, flip
 from script.compile_out import compile_out_data
 
 from engine.utils.sprite_altering import sprite_rotate, apply_sprite_effect, crop_sprite, convert_palette_sprite
-from engine.utils.sprite_caching import save_pickle_with_surfaces, CompilableSurface
+from engine.utils.sprite_caching import save_pickle_with_surfaces, load_pickle_with_surfaces, CompilableSurface
 
 
 def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_pool, effect_animation_pool,
                  compile_specific=None):
     part_sprite_adjust = {}
     effect_sprite_adjust = {}
-    # world_actor_animation_pool = {}
-    #
-    # try:
-    #     world_actor_animation_pool = load_pickle_with_surfaces(join(data_dir, "animation", "world_actor.xz"),
-    #                                                            (1, 1))
-    # except Exception:
-    #     pass
+    world_actor_animation_pool = {}
+    already_done_check_actor_anim = {}
+    try:
+        world_actor_animation_pool = load_pickle_with_surfaces(join(data_dir, "animation", "world_actor.xz"),
+                                                               (1, 1), add_mask=False)
+    except Exception:
+        pass
 
     for character in animation_pool:
         if not compile_specific or character == compile_specific:
             print(character)
             character_animation_pool = {}
-            # if character not in world_actor_animation_pool:  # create for grand world actor
-            #     world_actor_animation_pool[character] = {}
+            if "_leader_" in character or "leader_" == character[:7]:  # create for grand world actor
+                # world actor only for leader characters
+                world_actor_animation_pool[character] = {}
 
             for animation_name, animation_frame in animation_pool[character].items():
                 if "EXCLUDE_" not in animation_name:
@@ -215,12 +216,37 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                                     base_point[0] + crop_offset[0],
                                     base_point[1] + crop_offset[1])
 
-                                part_sprite_adjust[animation_data_str] = {"sprite": frame_data_list["right"]["sprite"],
-                                                                          "offset": frame_data_list["right"]["offset"]}
-                                part_sprite_adjust[image_array] = part_sprite_adjust[animation_data_str]
+                            part_sprite_adjust[animation_data_str] = {"sprite": frame_data_list["right"]["sprite"],
+                                                                      "offset": frame_data_list["right"]["offset"]}
+                            part_sprite_adjust[image_array] = part_sprite_adjust[animation_data_str]
 
                             frame_data_list["left"]["offset"] = Vector2(-frame_data_list["right"]["offset"][0],
                                                                         frame_data_list["right"]["offset"][1])
+
+                        if "_leader_" in character or "leader_" == character[:7]:
+                            if animation_name in ("Idle", "Walk", "Die"):
+                                # save to world actor
+                                if animation_name not in world_actor_animation_pool[character]:
+                                    world_actor_animation_pool[character][animation_name] = {}
+
+                                image = part_sprite_adjust[animation_data_str]["sprite"].surface
+                                offset = part_sprite_adjust[animation_data_str]["offset"]
+                                if animation_data_str in already_done_check_actor_anim:
+                                    world_actor_animation_pool[character][animation_name][frame_index] = (
+                                        already_done_check_actor_anim)[animation_data_str]
+                                else:
+                                    scale = 0.3
+                                    size = int(image.size[0] * scale), int(image.size[1] * scale)
+                                    if size[0] > 300 or size[1] > 300:
+                                        scale = 0.15
+                                    offset = Vector2(offset[0] * scale, offset[1] * scale)
+                                    to_add = {
+                                        "right": {"sprite": CompilableSurface(image.resize((int(image.size[0] * scale),
+                                                                                            int(image.size[1] * scale)))),
+                                                  "offset": offset},
+                                        "left": {"sprite": None, "offset": Vector2(-offset[0], offset[1])}}
+                                    world_actor_animation_pool[character][animation_name][frame_index] = to_add
+                                    already_done_check_actor_anim[animation_data_str] = to_add
 
                         # save ind effect part data for rect check or object related functions
                         for part_header, part in animation_data.items():  # add ind effect to data
@@ -232,32 +258,9 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                                 frame_data_list["left"]["effects"][part_header] = [
                                     -item if index in (2, 4) else item for index, item in enumerate(
                                         frame_data_list["right"]["effects"][part_header])]
-                    # if animation_name in ("Idle", "Walk", "Die"):
-                    #     world_actor_animation_pool[character][animation_name] = []
-                    #     already_done_check_actor_anim = {}
-                    #     for frame, frame_value in character_animation_pool[animation_name].items():
-                    #         if frame != "max frame":
-                    #             image = frame_value["right"]["sprite"].surface
-                    #             image_array = image.tobytes()
-                    #             if image_array in already_done_check_actor_anim:
-                    #                 world_actor_animation_pool[character][animation_name].append(already_done_check_actor_anim[image_array])
-                    #             else:
-                    #                 to_add = {0.2: {}, 0.4: {}}
-                    #                 for scale_value in to_add:
-                    #                     offset = (frame_value["right"]["offset"][0] * scale_value,
-                    #                               frame_value["right"]["offset"][1] * scale_value)
-                    #                     to_add[scale_value] = {
-                    #                         "right": {"sprite": CompilableSurface(image.resize((int(image.size[0] * scale_value),
-                    #                                                                             int(image.size[1] * scale_value)))),
-                    #                                   "offset": offset},
-                    #                         "left": {"sprite": None, "offset": offset}}
-                    #                 world_actor_animation_pool[character][animation_name].append(to_add)
-                    #                 already_done_check_actor_anim[image_array] = to_add
 
-            # for key, value in character_animation_pool.items():
-            #     print(key, value)
             save_pickle_with_surfaces(join(data_dir, "animation", character + ".xz"), character_animation_pool)
-            # save_pickle_with_surfaces(join(data_dir, "animation", "world_actor.xz"), world_actor_animation_pool)
+    save_pickle_with_surfaces(join(data_dir, "animation", "world_actor.xz"), world_actor_animation_pool)
 
     if not compile_specific:
         compile_out_data(data_dir, animation_dir)

@@ -105,7 +105,7 @@
 "wasp_pot",,,,,"wasp_unleash",,,,
 "wasp_unleash",,,"TRUE",,,,,,
 "water_ball",,,,,,,,,
-"water_spray",,,TRUE,,,,,,
+"water_spray",,,"TRUE",,,,,,
 "weirdstick",,1000,"TRUE","bounce",,"toy",500,,"travel_spin"
 "yuawies_leaf",,3500,"TRUE","stick",,"arrow",50,,
 "curse_skull",,800,"TRUE",,,"curse_skull",500,,
@@ -113,3 +113,4 @@
 "crimson_flare",,,,,,,,,
 "lightning_red",,,"TRUE",,,,,,
 "lightning_blast_red",,5500,"TRUE",,,,,,
+"monkey_dump",,3000,TRUE,"bounce",,"stone",100,,"travel_spin"

@@ -30,8 +30,8 @@ def move_logic(self, dt):
                     self.base_pos[0] = self.battle.base_stage_end
                     self.x_momentum = 0
 
-            self.pos = Vector2((self.base_pos[0] * self.screen_scale[0],
-                                self.base_pos[1] * self.screen_scale[1]))
+            self.pos = Vector2((self.base_pos[0] * self.screen_scale_width,
+                                self.base_pos[1] * self.screen_scale_height))
 
             self.update_sprite = True
 

@@ -36,6 +36,8 @@ class Effect(Sprite):
     sound_effect_pool: dict = {}
     battle = None
     screen_scale = (1, 1)
+    screen_scale_width = screen_scale[0]
+    screen_scale_height = screen_scale[1]
 
     adjust_sprite = adjust_sprite
     cal_damage = cal_damage
@@ -188,8 +190,8 @@ class Effect(Sprite):
             self.start_move_delay = effect_stat_property["start_move_delay"]
 
         if from_owner:
-            self.pos = Vector2(self.owner.pos[0] + (self.part_stat[2] * self.screen_scale[0]),
-                               self.owner.pos[1] + (self.part_stat[3] * self.screen_scale[1]))
+            self.pos = Vector2(self.owner.pos[0] + (self.part_stat[2] * self.screen_scale_width),
+                               self.owner.pos[1] + (self.part_stat[3] * self.screen_scale_height))
             self.base_ground_pos = self.owner.base_ground_pos
         else:
             self.pos = Vector2(self.part_stat[2], self.part_stat[3])
@@ -197,7 +199,7 @@ class Effect(Sprite):
 
         self.grid_range_x = []
         self.grid_range_y = []
-        self.base_pos = Vector2(self.pos[0] / self.screen_scale[0], self.pos[1] / self.screen_scale[1])
+        self.base_pos = Vector2(self.pos[0] / self.screen_scale_width, self.pos[1] / self.screen_scale_height)
         self.start_pos = Vector2(self.base_pos)
 
         moveset_property = {}
@@ -205,8 +207,8 @@ class Effect(Sprite):
             moveset_property = moveset["Property"]
             if "effect_target_placement" in moveset:
                 # effect moveset that place effect at target right away
-                self.pos = Vector2(self.base_target_pos[0] * self.screen_scale[0],
-                                   self.base_target_pos[1] * self.screen_scale[1])
+                self.pos = Vector2(self.base_target_pos[0] * self.screen_scale_width,
+                                   self.base_target_pos[1] * self.screen_scale_height)
                 self.base_ground_pos = self.owner.base_ground_pos
             elif "override_target" in moveset_property:  # effect has specific target
                 if self.base_target_pos:
@@ -221,7 +223,7 @@ class Effect(Sprite):
                     self.base_target_pos[1] = self.base_pos[1]
                 if "bottom" in moveset_property["override_target"]:  # target is based on bottom of image rather center
                     self.base_target_pos[1] = self.base_target_pos[1] - (
-                            self.base_image["sprite"][0].get_height() / 2) / self.screen_scale[1]
+                            self.base_image["sprite"][0].get_height() / 2) / self.screen_scale_height
 
                 if "use_range" in moveset_property["override_target"]:
                     if self.angle < 0:  # angle facing right direction
@@ -300,11 +302,6 @@ class Effect(Sprite):
             self.animation_frame_play_time = 0.2
         if "play_time_mod" in effect_stat_property:
             self.animation_frame_play_time *= effect_stat_property["play_time_mod"]
-
-        offset = self.base_image["offset"]
-        self.offset_pos = self.pos
-        if offset:
-            self.offset_pos = self.pos - offset
 
         self.adjust_sprite()
 
@@ -495,14 +492,14 @@ class ShowcaseEffect(Effect):
         self.owner_data = {"direction": self.direction}
 
         if from_owner:
-            self.pos = Vector2(self.owner.pos[0] + (self.part_stat[2] * self.screen_scale[0]),
-                               self.owner.pos[1] + (self.part_stat[3] * self.screen_scale[1]))
+            self.pos = Vector2(self.owner.pos[0] + (self.part_stat[2] * self.screen_scale_width),
+                               self.owner.pos[1] + (self.part_stat[3] * self.screen_scale_height))
             self.base_ground_pos = self.owner.base_ground_pos
         else:
             self.pos = Vector2(self.part_stat[2], self.part_stat[3])
         self.base_ground_pos = self.Default_Ground_Pos
 
-        self.base_pos = Vector2(self.pos[0] / self.screen_scale[0], self.pos[1] / self.screen_scale[1])
+        self.base_pos = Vector2(self.pos[0] / self.screen_scale_width, self.pos[1] / self.screen_scale_height)
         self.start_pos = Vector2(self.base_pos)
         self.angle = self.part_stat[4]
         self.sprite_flip = self.part_stat[5]

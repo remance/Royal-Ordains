@@ -13,7 +13,8 @@ from pygame.sprite import Sprite
 from pygame.transform import smoothscale
 
 from engine.constants import (Custom_Default_Culture, Default_Showcase_Character_POS, Default_Showcase_Character_air_POS,
-                              Default_Showcase_Character, Grand_Default_Faction, Opposite_Team)
+                              Default_Showcase_Character, Grand_Default_Faction, Opposite_Team,
+                              Retinue_Leadership_Add_Modifier)
 from engine.utils.common import keyboard_mouse_press_check
 from engine.utils.data_loading import load_image
 from engine.utils.text_making import text_render_with_bg, make_long_text, add_comma_number, calculate_long_text_size
@@ -130,7 +131,8 @@ class UIMenu(Sprite):
         self.remove_from_ui_updater = self.game.remove_from_ui_updater
         self.button_sound_channel = self.game.button_sound_channel
         self.sound_effect_pool = self.game.sound_effect_pool
-        self.screen_scale = Game.screen_scale
+        self.screen_scale_width = Game.screen_scale_width
+        self.screen_scale_height = Game.screen_scale_height
         self.data_dir = Game.data_dir
         self.ui_font = Game.ui_font
         self.font_texture = Game.font_texture
@@ -361,7 +363,7 @@ class InputUI(UIMenu):
         self.pos = pos
         self.image = image
         self.base_image = self.image.copy()
-        self.font = Font(self.ui_font["main_button"], int(96 * self.screen_scale[1]))
+        self.font = Font(self.ui_font["main_button"], int(96 * self.screen_scale_height))
         self.rect = self.image.get_rect(center=self.pos)
 
     def change_instruction(self, text):
@@ -377,46 +379,51 @@ class FactionSelector(UIMenu):
                  use_culture=False):
         self._layer = layer
         UIMenu.__init__(self)
+        self.width_limit = width_limit
+        self.pos = pos
         self.is_popup = is_popup
         self.use_culture = use_culture
-        self.faction_coas = self.game.sprite_data.faction_coas
         if use_culture:
-            self.faction_coas = self.game.sprite_data.culture_coas
-        self.faction_coas = {key: value for key, value in self.faction_coas.items()}
+            self.faction_coas = {key: value["small"] for key, value in self.game.sprite_data.culture_coas.items()}
 
-        free_coa = self.faction_coas["free"]
-        self.faction_coas.pop("free")
-        if include_free:  # add back free coa as the end of dict
-            self.faction_coas["free"] = free_coa
+            free_coa = self.faction_coas["free"]
+            self.faction_coas.pop("free")
+            if include_free:  # add back free coa as the end of dict
+                self.faction_coas["free"] = free_coa
 
-        random_coa = self.faction_coas["random"]
-        self.faction_coas.pop("random")
-        if include_random:  # add back random coa as the last one
-            self.faction_coas["random"] = random_coa
+            random_coa = self.faction_coas["random"]
+            self.faction_coas.pop("random")
+            if include_random:  # add back random coa as the last one
+                self.faction_coas["random"] = random_coa
+        else:  # faction based on campaign
+            self.faction_coas = {}
+            for faction, data in self.game.map_data.faction_list.items():
+                if data["Ruler"]:  # faction with no ruler means not playable
+                    self.faction_coas[faction] = self.game.sprite_data.character_portraits[data["Ruler"]]["small"]["right"]
 
-        max_column = int((width_limit * self.screen_scale[0]) / (220 * self.screen_scale[0]))
+        max_column = int((width_limit * self.screen_scale_width) / (220 * self.screen_scale_width))
         require_row = int(len(self.faction_coas) / max_column)
         rect_per_row = range(1, max_column)
         if not require_row:
             require_row = 1
 
-        self.image = Surface((int(width_limit * self.screen_scale[0]),
-                              int((300 * require_row) * self.screen_scale[1])), SRCALPHA)
+        self.image = Surface((int(width_limit * self.screen_scale_width),
+                              int((300 * require_row) * self.screen_scale_height)), SRCALPHA)
         self.image.fill((100, 100, 100))
+        self.base_image = self.image.copy()
         self.faction_coa_rects = {}
-        y = 50 * self.screen_scale[1]
+        y = 50 * self.screen_scale_height
 
-        rect_placement = [(220 * self.screen_scale[0]) * item for item in rect_per_row]
+        rect_placement = [(220 * self.screen_scale_width) * item for item in rect_per_row]
         x_index = 0
-        for faction, coa_dict in self.faction_coas.items():
-            coa = coa_dict["small"]
+        for faction, coa in self.faction_coas.items():
             x = rect_placement[x_index]
             rect = coa.get_rect(midtop=(x, y))
             self.image.blit(coa, rect)
             self.faction_coa_rects[faction] = rect
             x_index += 1
             if x_index == len(rect_placement):
-                y = 220 * self.screen_scale[1]
+                y = 220 * self.screen_scale_height
                 x_index = 0
         self.selected_faction = None
 
@@ -430,15 +437,16 @@ class FactionSelector(UIMenu):
                 self.change_faction(Grand_Default_Faction)
 
     def change_faction(self, new_select_faction):
+        self.image = self.base_image.copy()
         for faction, rect in self.faction_coa_rects.items():
             if faction == new_select_faction:
-                coa = self.faction_coas[faction]["small"].copy()
+                coa = self.faction_coas[faction].copy()
                 draw.circle(coa, (200, 200, 50),
                             (coa.get_width() / 2, coa.get_height() / 2),
-                            (coa.get_width() / 2), width=int(12 * self.screen_scale[0]))
+                            (coa.get_width() / 2), width=int(12 * self.screen_scale_width))
                 self.image.blit(coa, self.faction_coa_rects[faction])
-            elif faction == self.selected_faction:  # unselected old one
-                self.image.blit(self.faction_coas[faction]["small"], self.faction_coa_rects[faction])
+            else:  # unselected old one
+                self.image.blit(self.faction_coas[faction], self.faction_coa_rects[faction])
         self.selected_faction = new_select_faction
         if self.game.menu_state == "grand":
             self.game.grand_mini_map.change_faction(new_select_faction)
@@ -488,8 +496,7 @@ class CharacterSelector(UIMenu):
         self.character_list = self.game.character_list
         self.custom_character_setup = self.game.character_data.custom_character_setup
         self.all_main_exist_characters = self.game.character_data.all_main_exist_characters
-        self.faction_coas = self.game.sprite_data.faction_coas
-        self.image = Surface((int(1300 * self.screen_scale[0]), int(1080 * self.screen_scale[1])), SRCALPHA)
+        self.image = Surface((int(1300 * self.screen_scale_width), int(1080 * self.screen_scale_height)), SRCALPHA)
         self.image.fill((200, 200, 200))
         self.selected_faction = None
         self.total_row = 0
@@ -498,7 +505,7 @@ class CharacterSelector(UIMenu):
         self.portrait_rects = []
         self.selector_character_list = []
         self.shown_character_type = None
-        temp_rect_image = Surface((int(200 * self.screen_scale[0]), int(200 * self.screen_scale[1])))
+        temp_rect_image = Surface((int(200 * self.screen_scale_width), int(200 * self.screen_scale_height)))
 
         self.max_row = 5
         self.max_row_show = 1  # trick the scroller to use additional row instead of total
@@ -506,8 +513,8 @@ class CharacterSelector(UIMenu):
 
         for y in range(5):
             for x in range(6):
-                rect = temp_rect_image.get_rect(center=((150 + (x * 200)) * self.screen_scale[0],
-                                                        50 + (y * 200) * self.screen_scale[1]))
+                rect = temp_rect_image.get_rect(center=((150 + (x * 200)) * self.screen_scale_width,
+                                                        50 + (y * 200) * self.screen_scale_height))
                 self.portrait_rects.append(rect)
                 # self.image.blit(temp_rect_image, rect)
 
@@ -518,13 +525,16 @@ class CharacterSelector(UIMenu):
         self.selected_faction = faction
         self.shown_character_type = character_type
         if self.game.menu_state in ("custom", "preset"):
-            if character_type in ("leader", "retinue"):
-                selector_character_list = [item for item in
-                                          self.custom_character_setup[faction]["ground"]["leader"]["unique"] if item
+            if character_type in ("commander", "leader", "retinue"):
+                selector_character_list = [value for value in
+                                          self.custom_character_setup[faction]["ground"]["leader"]["unique"] if value
                                           not in exist_unique_check]
-                selector_character_list += [item for item in
-                                         self.custom_character_setup["free"]["ground"]["leader"]["unique"] if item
+                selector_character_list += [value for value in
+                                         self.custom_character_setup["free"]["ground"]["leader"]["unique"] if value
                                          not in exist_unique_check]
+                if character_type == "commander":  # exclude leader that cannot be commander
+                    selector_character_list = [value for value in selector_character_list
+                                               if not self.character_list[value]["No Commander"]]
                 selector_character_list += self.custom_character_setup[faction]["ground"]["leader"]["generic"]
             elif character_type == "troop":
                 selector_character_list = self.custom_character_setup[faction]["ground"]["troop"]
@@ -602,8 +612,7 @@ class CharacterSelector(UIMenu):
                                         character.erase()
                                     self.game.sprite_data.load_character_animation(
                                         set([character_id] + [
-                                            item[0] for item in self.character_list[character_id]["Sub Characters"]]),
-                                        battle_only=True)
+                                            item[0] for item in self.character_list[character_id]["Sub Characters"]]))
                                     pos = Default_Showcase_Character_POS
                                     if self.character_list[character_id]["Type"] == "air":
                                         pos = Default_Showcase_Character_air_POS
@@ -675,7 +684,7 @@ class CharacterSelector(UIMenu):
                                          self.grab_text(("ui", "info_header_cost")) + add_comma_number(
                                              character_data["Cost"])]
                         self.game.text_popup.popup(self.cursor.rect, char_stat,
-                                                   width_text_wrapper=int(1200 * self.screen_scale[0]))
+                                                   width_text_wrapper=int(1200 * self.screen_scale_width))
                         self.add_to_ui_updater(self.game.text_popup)
                     break
 
@@ -689,11 +698,11 @@ class CustomTeamSetupUI(UIMenu):
         self.font = self.game.preset_name_font
         self.note_font = self.game.note_font
         self.font_width = self.font.size("a")[0]
-        self.image = Surface((int(1600 * self.screen_scale[0]), int(1300 * self.screen_scale[1])), SRCALPHA)
+        self.image = Surface((int(1600 * self.screen_scale_width), int(1300 * self.screen_scale_height)), SRCALPHA)
         self.image.fill((150, 220, 220))
-        self.text_box_image = Surface((int(400 * self.screen_scale[0]), int(60 * self.screen_scale[1])))
+        self.text_box_image = Surface((int(400 * self.screen_scale_width), int(60 * self.screen_scale_height)))
         self.text_box_image.fill((150, 220, 220))
-        self.warn_text_box = Surface((int(600 * self.screen_scale[0]), int(60 * self.screen_scale[1])))
+        self.warn_text_box = Surface((int(600 * self.screen_scale_width), int(60 * self.screen_scale_height)))
         self.warn_text_box.fill((150, 220, 220))
         self.empty_warn_text_box = self.warn_text_box.copy()
         text = self.note_font.render(self.grab_text(("ui", "warn_cost_exceed")), True, (30, 30, 30))
@@ -703,20 +712,20 @@ class CustomTeamSetupUI(UIMenu):
         self.total_gold = 0
         self.team = team
 
-        self.circle = Surface((200 * self.screen_scale[0], 200 * self.screen_scale[1]), SRCALPHA)
+        self.circle = Surface((200 * self.screen_scale_width, 200 * self.screen_scale_height), SRCALPHA)
         draw.circle(self.circle, (255, 255, 255),
                     (self.circle.get_width() / 2, self.circle.get_height() / 2),
                     (self.circle.get_width() / 2))
 
         self.player_control_rect = self.circle.get_rect(
-            center=((self.image.get_width() / 2), 100 * self.screen_scale[0]))
+            center=((self.image.get_width() / 2), 100 * self.screen_scale_width))
         self.change_player_control()
 
         self.culture_coa_rects = []
-        self.cost_text_rects = {"total": 50 * self.screen_scale[1], "warn": 100 * self.screen_scale[1]}
+        self.cost_text_rects = {"total": 50 * self.screen_scale_height, "warn": 100 * self.screen_scale_height}
         for index, y in enumerate((300, 520, 740, 960, 1180)):
-            self.cost_text_rects[index] = y * self.screen_scale[1]
-            rect = self.circle.get_rect(center=(200 * self.screen_scale[0], y * self.screen_scale[1]))
+            self.cost_text_rects[index] = y * self.screen_scale_height
+            rect = self.circle.get_rect(center=(200 * self.screen_scale_width, y * self.screen_scale_height))
             self.culture_coa_rects.append(rect)
             self.image.blit(self.circle, rect)
             self.change_cost(index, 0)
@@ -812,7 +821,7 @@ class CustomTeamSetupUI(UIMenu):
 
                     self.change_player_control()
 
-                self.game.text_popup.popup((cursor_pos[0], cursor_pos[1] - (100 * self.screen_scale[1])),
+                self.game.text_popup.popup((cursor_pos[0], cursor_pos[1] - (100 * self.screen_scale_height)),
                                            self.grab_text(("ui", "text_" + self.game.custom_team_players[self.team])))
                 self.add_to_ui_updater(self.game.text_popup)
 
@@ -836,7 +845,7 @@ class CustomTeamSetupUI(UIMenu):
                             self.change_faction(None, index)
 
                         self.game.text_popup.popup(
-                            (cursor_pos[0], cursor_pos[1] - (100 * self.screen_scale[1])),
+                            (cursor_pos[0], cursor_pos[1] - (100 * self.screen_scale_height)),
                             self.grab_text(("culture", str(self.team_setup[index]["culture"]).lower(), "Name")))
                         self.add_to_ui_updater(self.game.text_popup)
                         break
@@ -857,42 +866,43 @@ class CustomPresetArmySetupUI(UIMenu):
         UIMenu.__init__(self, player_cursor_interact)
         self.character_portraits = self.game.sprite_data.character_portraits
         self.character_list = self.game.character_list
-        self.image = Surface((int(1500 * self.screen_scale[0]), int(1080 * self.screen_scale[1])), SRCALPHA)
+        self.image = Surface((int(1500 * self.screen_scale_width), int(1080 * self.screen_scale_height)), SRCALPHA)
         self.image.fill((180, 100, 180))
         self.total_gold_cost = 0
+        self.total_leadership = 0
         self.portrait_type_rects = {"commander": [],
                                     "retinue": [],
                                     "leader": [],
                                     "troop": [],
                                     "air": []}
 
-        self.circle = Surface((200 * self.screen_scale[0], 200 * self.screen_scale[1]), SRCALPHA)
+        self.circle = Surface((200 * self.screen_scale_width, 200 * self.screen_scale_height), SRCALPHA)
         draw.circle(self.circle, (255, 255, 255),
                     (self.circle.get_width() / 2, self.circle.get_height() / 2),
                     (self.circle.get_width() / 2))
 
-        self.selected_circle = Surface((200 * self.screen_scale[0], 200 * self.screen_scale[1]), SRCALPHA)
+        self.selected_circle = Surface((200 * self.screen_scale_width, 200 * self.screen_scale_height), SRCALPHA)
         draw.circle(self.selected_circle, (100, 200, 100),
                     (self.selected_circle.get_width() / 2, self.selected_circle.get_height() / 2),
-                    (self.selected_circle.get_width() / 2), width=int(20 * self.screen_scale[0]))
+                    (self.selected_circle.get_width() / 2), width=int(20 * self.screen_scale_width))
 
-        rect = self.circle.get_rect(center=(750 * self.screen_scale[0], 100 * self.screen_scale[1]))
+        rect = self.circle.get_rect(center=(750 * self.screen_scale_width, 100 * self.screen_scale_height))
         self.portrait_type_rects["commander"].append(rect)
 
         for index in (1000, 1200, 1400):
-            rect = self.circle.get_rect(center=(index * self.screen_scale[0], 100 * self.screen_scale[1]))
+            rect = self.circle.get_rect(center=(index * self.screen_scale_width, 100 * self.screen_scale_height))
             self.portrait_type_rects["retinue"].append(rect)
 
         for index in (500, 750, 1000):
-            rect = self.circle.get_rect(center=(index * self.screen_scale[0], 350 * self.screen_scale[1]))
+            rect = self.circle.get_rect(center=(index * self.screen_scale_width, 350 * self.screen_scale_height))
             self.portrait_type_rects["leader"].append(rect)
 
         for index in (250, 500, 750, 1000, 1250):
-            rect = self.circle.get_rect(center=(index * self.screen_scale[0], 650 * self.screen_scale[1]))
+            rect = self.circle.get_rect(center=(index * self.screen_scale_width, 650 * self.screen_scale_height))
             self.portrait_type_rects["troop"].append(rect)
 
         for index in (250, 500, 750, 1000, 1250):
-            rect = self.circle.get_rect(center=(index * self.screen_scale[0], 950 * self.screen_scale[1]))
+            rect = self.circle.get_rect(center=(index * self.screen_scale_width, 950 * self.screen_scale_height))
             self.portrait_type_rects["air"].append(rect)
 
         self.army_preset = deepcopy(self.empty_army_preset)
@@ -905,11 +915,12 @@ class CustomPresetArmySetupUI(UIMenu):
         """Reset army preset when player change faction"""
         self.current_preset = ""
         self.total_gold_cost = 0
+        self.total_leadership = 0
         self.army_preset = deepcopy(self.empty_army_preset)
         self.selected_faction = selected_faction
         self.selected_portrait_index = ()
         self.game.character_selector.add(None, "")
-        self.game.custom_preset_army_title.change_text(self.current_preset, self.total_gold_cost)
+        self.game.custom_preset_army_title.change_text(self.current_preset, self.total_gold_cost, self.total_leadership)
         self.game.custom_preset_list_box.adapter.__init__()  # reset custom preset list as well
         self.reset()
 
@@ -936,10 +947,11 @@ class CustomPresetArmySetupUI(UIMenu):
     def change_character(self, character_type, rect_index, character, change_selector=True, reset=True):
         self.army_preset[character_type][rect_index] = character
         if change_selector:
-            if character_type in ("commander", "leader"):
+            if character_type in ("commander", "leader", "retinue"):
                 self.game.character_selector.add(
-                    self.selected_faction, "leader",
-                    [value for value in self.army_preset["commander"] + self.army_preset["leader"] if value])
+                    self.selected_faction, character_type,
+                    [value for value in self.army_preset["commander"] + self.army_preset["leader"] +
+                     self.army_preset["retinue"] if value])
             else:
                 self.game.character_selector.add(self.selected_faction, character_type)
 
@@ -953,10 +965,11 @@ class CustomPresetArmySetupUI(UIMenu):
         self.reset()
         self.game.character_selector.add(self.selected_faction, None)  # reset character selector first
         if character_type:
-            if character_type in ("leader", "commander"):
+            if character_type in ("commander", "leader", "retinue"):
                 self.game.character_selector.add(
-                    self.selected_faction, "leader",
-                    [value for value in self.army_preset["commander"] + self.army_preset["leader"] if value])
+                    self.selected_faction, character_type,
+                    [value for value in self.army_preset["commander"] + self.army_preset["leader"] +
+                     self.army_preset["retinue"] if value])
             else:
                 self.game.character_selector.add(self.selected_faction, character_type)
 
@@ -964,6 +977,7 @@ class CustomPresetArmySetupUI(UIMenu):
         self.image.fill((180, 100, 180))
 
         self.total_gold_cost = 0
+        self.total_leadership = 0
 
         for character_type in ("commander", "retinue", "leader", "troop", "air"):
             for index, character in enumerate(self.army_preset[character_type]):
@@ -974,9 +988,13 @@ class CustomPresetArmySetupUI(UIMenu):
                     self.image.blit(self.selected_circle, rect)
                 if character:
                     self.image.blit(self.character_portraits[character]["setup_ui"], rect)
-                    self.total_gold_cost += self.character_list[self.army_preset[character_type][index]]["Cost"]
+                    if character_type == "commander":
+                        self.total_leadership += self.character_list[character]["Leadership"]
+                    elif character_type == "retinue":
+                        self.total_leadership += self.character_list[character]["Leadership"] * Retinue_Leadership_Add_Modifier
+                    self.total_gold_cost += self.character_list[character]["Cost"]
 
-        self.game.custom_preset_army_title.change_text(self.current_preset, self.total_gold_cost)
+        self.game.custom_preset_army_title.change_text(self.current_preset, self.total_gold_cost, self.total_leadership)
 
     def update(self, dt):
         UIMenu.update(self, dt)
@@ -1013,7 +1031,7 @@ class CustomPresetArmySetupUI(UIMenu):
                                                        self.grab_text(("ui", "warn_empty_slot")))
 
                         self.game.text_popup.popup((self.cursor.pos[0],
-                                                    self.cursor.pos[1] - (100 * self.screen_scale[1])),
+                                                    self.cursor.pos[1] - (100 * self.screen_scale_height)),
                                                    character_name_text)
                         self.add_to_ui_updater(self.game.text_popup)
                         return
@@ -1023,11 +1041,11 @@ class InputBox(UIMenu):
     def __init__(self, pos, width, text="", layer=41, text_input=True):
         UIMenu.__init__(self)
         self._layer = layer
-        self.font = Font(self.ui_font["main_button"], int(60 * self.screen_scale[1]))
+        self.font = Font(self.ui_font["main_button"], int(60 * self.screen_scale_height))
         self.font_width = self.font.size("a")[0]
         self.typer_image = self.font.render("|", True, (150, 80, 80))
         self.pos = pos
-        self.image = Surface((width - 10, int(68 * self.screen_scale[1])))
+        self.image = Surface((width - 10, int(68 * self.screen_scale_height)))
         self.max_text = int(self.image.get_width() / self.font_width)
         self.image.fill((220, 220, 220))
 
@@ -1221,7 +1239,7 @@ class TextBox(UIMenu):
         self._layer = 13
         UIMenu.__init__(self)
 
-        self.font = Font(self.ui_font["main_button"], int(72 * self.screen_scale[1]))
+        self.font = Font(self.ui_font["main_button"], int(72 * self.screen_scale_height))
         self.image = image
 
         self.base_image = self.image.copy()
@@ -1258,7 +1276,7 @@ class MenuButton(UIMenu):
         self.button_over_image = images[1].copy()
         self.button_click_image = images[2].copy()
 
-        self.font = Font(self.ui_font["main_button"], int(font_size * self.screen_scale[1]))
+        self.font = Font(self.ui_font["main_button"], int(font_size * self.screen_scale_height))
         self.base_image0 = self.button_normal_image.copy()
         self.base_image1 = self.button_over_image.copy()
         self.base_image2 = self.button_click_image.copy()
@@ -1403,7 +1421,7 @@ class BrownMenuButton(UIMenu, Containable):  # NOTE: the button is not brown any
         self.rect = self.get_adjusted_rect_to_be_inside_container(self.parent)
         self.mouse_over = False
         self.event = False
-        self.font = Font(self.ui_font["main_button"], int(48 * self.screen_scale[1]))
+        self.font = Font(self.ui_font["main_button"], int(48 * self.screen_scale_height))
         self.text = self.grab_text(("ui", self.key_name))
         self.images = self.make_buttons(size=tuple(self.rect[2:]), text=self.text, font=self.font)
         self.refresh()
@@ -1452,7 +1470,7 @@ class OptionMenuText(UIMenu):
         self.font = Font(self.ui_font["main_button"], text_size)
         if button_image:  # add image to front of text
             text_surface = text_render_with_bg(text, self.font, Color("black"))
-            self.image = Surface((button_image.get_width() + (5 * self.screen_scale[0]) +
+            self.image = Surface((button_image.get_width() + (5 * self.screen_scale_width) +
                                   text_surface.get_width(), button_image.get_height()), SRCALPHA)
             text_rect = text_surface.get_rect(topright=(self.image.get_width(), 0))
             self.image.blit(text_surface, text_rect)
@@ -1465,9 +1483,9 @@ class OptionMenuText(UIMenu):
 
 # class RewardInterface(UIMenu):
 #     def __init__(self, pos, base_image):
-#         self.header_font = Font(self.ui_font["main_button"], int(36 * self.screen_scale[1]))
-#         self.font = Font(self.ui_font["main_button"], int(22 * self.screen_scale[1]))
-#         self.small_font = Font(self.ui_font["main_button"], int(18 * self.screen_scale[1]))
+#         self.header_font = Font(self.ui_font["main_button"], int(36 * self.screen_scale_height))
+#         self.font = Font(self.ui_font["main_button"], int(22 * self.screen_scale_height))
+#         self.small_font = Font(self.ui_font["main_button"], int(18 * self.screen_scale_height))
 #         self.reward_list = {}
 #         self.shown_reward_list = []
 #         self.base_image = base_image
@@ -1482,27 +1500,27 @@ class OptionMenuText(UIMenu):
 #             if (index >= self.current_row or self.len_reward_list < 9) and row_index < 9:
 #                 if index == 0:  # first item in list
 #                     draw.rect(self.image, (150, 150, 150),
-#                               (0, (row_index * 100) * self.screen_scale[1], 400 * self.screen_scale[0],
-#                                100 * self.screen_scale[1]),
-#                               width=int(3 * self.screen_scale[0]))
+#                               (0, (row_index * 100) * self.screen_scale_height, 400 * self.screen_scale_width,
+#                                100 * self.screen_scale_height),
+#                               width=int(3 * self.screen_scale_width))
 #
 #                 if index == self.len_reward_list - 1:  # last item in list
 #                     draw.rect(self.image, (150, 50, 50),
-#                               (0, (row_index * 100) * self.screen_scale[1], 400 * self.screen_scale[0],
-#                                100 * self.screen_scale[1]),
-#                               width=int(3 * self.screen_scale[0]))
+#                               (0, (row_index * 100) * self.screen_scale_height, 400 * self.screen_scale_width,
+#                                100 * self.screen_scale_height),
+#                               width=int(3 * self.screen_scale_width))
 #
 #                 if item in self.game.character_data.character_list:  # follower reward
 #                     character_ui = self.game.animation_data.character_portraits[item]
-#                     rect = character_ui.get_rect(topleft=(0, row_index * 100 * self.screen_scale[1]))
+#                     rect = character_ui.get_rect(topleft=(0, row_index * 100 * self.screen_scale_height))
 #                     self.image.blit(character_ui, rect)
 #                     make_long_text(self.image, self.grab_text(("character", item, "Name")),
-#                                    (110 * self.screen_scale[0],
-#                                     row_index * 100 * self.screen_scale[1]), self.font, color=(30, 30, 30),
-#                                    specific_width=self.image.get_width() - (50 * self.screen_scale[0]))
+#                                    (110 * self.screen_scale_width,
+#                                     row_index * 100 * self.screen_scale_height), self.font, color=(30, 30, 30),
+#                                    specific_width=self.image.get_width() - (50 * self.screen_scale_width))
 #
 #                     item_image = self.item_sprite_pool["Normal"][item_id]
-#                     rect = item_image.get_rect(topleft=(0, row_index * 100 * self.screen_scale[1]))
+#                     rect = item_image.get_rect(topleft=(0, row_index * 100 * self.screen_scale_height))
 #                     self.image.blit(item_image, rect)
 #
 #                 self.shown_reward_list.append((reward_type, item))
@@ -1582,7 +1600,7 @@ class NameTextBox(UIMenu):
                  corner_colour=(30, 30, 30), center_text=False):
         self._layer = layer
         UIMenu.__init__(self)
-        self.font = Font(self.ui_font["main_button"], int(text_size * self.screen_scale[1]))
+        self.font = Font(self.ui_font["main_button"], int(text_size * self.screen_scale_height))
         self.name = str(name)
 
         self.image = Surface(box_size)
@@ -1601,7 +1619,7 @@ class NameTextBox(UIMenu):
         if center_text:
             text_rect = text_surface.get_rect(center=(self.image.get_width() / 2, self.image.get_height() / 2))
         else:  # text start at the left
-            text_rect = text_surface.get_rect(midleft=(int(text_size * self.screen_scale[1]),
+            text_rect = text_surface.get_rect(midleft=(int(text_size * self.screen_scale_height),
                                                        self.image.get_height() / 2))
         self.image.blit(text_surface, text_rect)
 
@@ -1612,7 +1630,7 @@ class NameTextBox(UIMenu):
         self.name = new_name
         self.image = self.image_base.copy()
         text_surface = self.font.render(self.name, True, (30, 30, 30))
-        text_rect = text_surface.get_rect(midleft=(int(3 * self.screen_scale[0]), self.image.get_height() / 2))
+        text_rect = text_surface.get_rect(midleft=(int(3 * self.screen_scale_width), self.image.get_height() / 2))
         self.image.blit(text_surface, text_rect)
 
 
@@ -1625,7 +1643,7 @@ class ListBox(UIMenu):
         self.pos = pos
         self.rect = self.image.get_rect(topleft=self.pos)
 
-        image_height = int(30 * self.screen_scale[1])
+        image_height = int(30 * self.screen_scale_height)
         self.max_row_show = int(self.image.get_height() / image_height)  # max number of map on list can be shown
 
 
@@ -1633,19 +1651,19 @@ class NameList(UIMenu):
     def __init__(self, box, pos, name, text_size=26, layer=15):
         self._layer = layer
         UIMenu.__init__(self, play_sound_when_click=True)
-        self.font = Font(self.ui_font["main_button"], int(self.screen_scale[1] * text_size))
+        self.font = Font(self.ui_font["main_button"], int(self.screen_scale_height * text_size))
         self.name = str(name)
 
         self.image = Surface(
-            (box.image.get_width() - int(20 * self.screen_scale[0]),
-             int((text_size + 4) * self.screen_scale[1])))  # black corner
+            (box.image.get_width() - int(20 * self.screen_scale_width),
+             int((text_size + 4) * self.screen_scale_height)))  # black corner
         self.image.fill((30, 30, 30))
         self.selected_image = self.image.copy()
         self.selected = False
 
         # White body square
         small_image = Surface(
-            (box.image.get_width() - int(16 * self.screen_scale[0]), int((text_size + 2) * self.screen_scale[1])))
+            (box.image.get_width() - int(16 * self.screen_scale_width), int((text_size + 2) * self.screen_scale_height)))
         small_image.fill((220, 220, 220))
         small_rect = small_image.get_rect(center=(self.image.get_width() / 2, self.image.get_height() / 2))
         self.image.blit(small_image, small_rect)
@@ -1656,7 +1674,7 @@ class NameList(UIMenu):
 
         # text
         text_surface = self.font.render(self.name, True, (30, 30, 30))
-        text_rect = text_surface.get_rect(midleft=(int(6 * self.screen_scale[0]), self.image.get_height() / 2))
+        text_rect = text_surface.get_rect(midleft=(int(6 * self.screen_scale_width), self.image.get_height() / 2))
         self.image.blit(text_surface, text_rect)
         self.selected_image.blit(text_surface, text_rect)
 
@@ -1677,7 +1695,7 @@ class NameList(UIMenu):
         self.name = new_name
         self.image = self.image_base.copy()
         text_surface = self.font.render(self.name, True, (30, 30, 30))
-        text_rect = text_surface.get_rect(midleft=(int(6 * self.screen_scale[0]), self.image.get_height() / 2))
+        text_rect = text_surface.get_rect(midleft=(int(6 * self.screen_scale_width), self.image.get_height() / 2))
         self.image.blit(text_surface, text_rect)
         self.selected_image.blit(text_surface, text_rect)
 
@@ -1691,7 +1709,7 @@ class GrandFactionDetail(UIMenu):
         self.header_font = self.game.preset_name_font
         self.font = self.game.large_text_font
         self.font_size = self.font.size(" ")[1]
-        self.image = Surface((900 * self.screen_scale[0], 1200 * self.screen_scale[1]))
+        self.image = Surface((900 * self.screen_scale_width, 1200 * self.screen_scale_height))
         self.image.fill((255, 255, 255))
         self.original_image = self.image.copy()
         self.rect = self.image.get_rect(topleft=self.game.custom_preset_faction_selector.rect.bottomleft)
@@ -1724,9 +1742,9 @@ class CharacterDescriptionShowCase(UIMenu):
         self.name_cap_font = self.game.screen_fade_font
         self.character_portraits = self.game.sprite_data.character_portraits
         self.showing_character = None
-        self.image = Surface((2000 * self.screen_scale[0], 550 * self.screen_scale[1]))
+        self.image = Surface((2000 * self.screen_scale_width, 550 * self.screen_scale_height))
         self.image.fill((200, 200, 200))
-        self.description_box = Surface((1500 * self.screen_scale[0], 450 * self.screen_scale[1]))
+        self.description_box = Surface((1500 * self.screen_scale_width, 450 * self.screen_scale_height))
         self.description_box.fill((200, 200, 200))
         self.original_image = self.image.copy()
 
@@ -1759,7 +1777,7 @@ class CharacterMovesetShowCase(UIMenu):
         self.font_space_size = self.font.size(" ")
         self.showing_character = None
         self.showing_moveset = None
-        self.image = Surface((1840 * self.screen_scale[0], 550 * self.screen_scale[1]))
+        self.image = Surface((1840 * self.screen_scale_width, 550 * self.screen_scale_height))
         self.image.fill((200, 200, 200))
         self.original_image = self.image.copy()
 
@@ -1846,17 +1864,17 @@ class GrandFactionShowCase(UIMenu):
         self.font = self.game.large_text_font
         self.character_portraits = self.game.sprite_data.character_portraits
         self.character_list = self.game.character_list
-        self.image = Surface((900 * self.screen_scale[0], 1200 * self.screen_scale[1]))
+        self.image = Surface((900 * self.screen_scale_width, 1200 * self.screen_scale_height))
         self.image.fill((255, 255, 255))
         self.original_image = self.image.copy()
 
         self.showcase = {"ruler": [None], "leader": [], "troop": []}
         self.showcase_rect = {"ruler": [self.character_portraits[Default_Showcase_Character]["character_ui"].get_rect(
-            center=(self.image.get_width() / 2, 250 * self.screen_scale[1]))],
-            "leader": [self.character_portraits[Default_Showcase_Character]["tactical"]["right"].get_rect(
-            center=(x * self.screen_scale[0], 600 * self.screen_scale[1])) for x in (150, 350, 550, 750)],
-            "troop": [self.character_portraits[Default_Showcase_Character]["tactical"]["right"].get_rect(
-            center=(x * self.screen_scale[0], 850 * self.screen_scale[1])) for x in (150, 350, 550, 750)]}
+            center=(self.image.get_width() / 2, 250 * self.screen_scale_height))],
+            "leader": [self.character_portraits[Default_Showcase_Character]["small"]["right"].get_rect(
+            center=(x * self.screen_scale_width, 600 * self.screen_scale_height)) for x in (150, 350, 550, 750)],
+            "troop": [self.character_portraits[Default_Showcase_Character]["small"]["right"].get_rect(
+            center=(x * self.screen_scale_width, 850 * self.screen_scale_height)) for x in (150, 350, 550, 750)]}
 
         self.rect = self.image.get_rect(topright=self.game.custom_preset_faction_selector.rect.bottomright)
 
@@ -1869,12 +1887,12 @@ class GrandFactionShowCase(UIMenu):
         self.showcase = {"ruler": [ruler], "leader": [], "troop": []}
         for index, character in enumerate(faction_data["Showcase Leader"]):
             self.showcase["leader"].append(character)
-            character_portrait = self.character_portraits[character]["tactical"]["right"]
+            character_portrait = self.character_portraits[character]["small"]["right"]
             self.image.blit(character_portrait, self.showcase_rect["leader"][index])
 
         for index, character in enumerate(faction_data["Showcase Troop"]):
             self.showcase["troop"].append(character)
-            character_portrait = self.character_portraits[character]["tactical"]["right"]
+            character_portrait = self.character_portraits[character]["small"]["right"]
             self.image.blit(character_portrait, self.showcase_rect["troop"][index])
 
     def update(self, dt):
@@ -1892,7 +1910,7 @@ class GrandFactionShowCase(UIMenu):
                                      self.grab_text(("character", character_id, "Description"))]
 
                         self.game.text_popup.popup(self.cursor.rect, char_stat,
-                                                   width_text_wrapper=int(1200 * self.screen_scale[0]))
+                                                   width_text_wrapper=int(1200 * self.screen_scale_width))
                         self.add_to_ui_updater(self.game.text_popup)
                         return
 
@@ -1911,7 +1929,7 @@ class GrandMiniMap(UIMenu):
         self.ui_purpose = ui_purpose
         self.region_dict = {}
         self.pos = pos
-        self.size = (size[0] * self.screen_scale[0], size[1] * self.screen_scale[1])
+        self.size = (size[0] * self.screen_scale_width, size[1] * self.screen_scale_height)
         self.original_image = Surface((0, 0))
         self.base_image = None
         self.before_scale_image = None
@@ -1961,7 +1979,7 @@ class GrandMiniMap(UIMenu):
                                                 self.screen_height / self.map_scale_height), SRCALPHA)
             draw.rect(self.camera_border_image, (250, 100, 100), (0, 0, self.camera_border_image.get_width(),
                                                                   self.camera_border_image.get_height()),
-                      width=int(10 * self.screen_scale[0]))
+                      width=int(10 * self.screen_scale_width))
             self.change_grand_faction(area_dict)
 
     def change_grand_faction(self, region_dict):
@@ -2196,7 +2214,7 @@ class CustomPresetListAdapter(ListAdapterHideExpand):
 
         if actual_index:  # initiate remove clicked item
             self.game.activate_input_popup(("confirm_input", ("remove_preset", item_text)),
-                                           self.game.grab_text(("ui", "input_remove_preset")) + item_text,
+                                           self.grab_text(("ui", "input_remove_preset")) + item_text,
                                            self.game.confirm_popup_uis)
 
 
@@ -2210,7 +2228,7 @@ class CustomPresetTitle(UIMenu):
         self.image.fill((150, 150, 150))
         self.rect = self.image.get_rect(midbottom=self.pos)
 
-    def change_text(self, name, cost):
+    def change_text(self, name, cost, leadership):
         self.name = name
         self.image.fill((150, 150, 150))
 
@@ -2218,7 +2236,8 @@ class CustomPresetTitle(UIMenu):
         text_rect = text_surface.get_rect(midleft=(0, self.image.get_height() / 2))
         self.image.blit(text_surface, text_rect)
 
-        text_surface = self.font.render(self.grab_text(("ui", "info_header_total_number")) +
+        text_surface = self.font.render(self.grab_text(("ui", "info_header_leadership")) +
+                                        add_comma_number(int(leadership)) +
                                         "/" + self.grab_text(("ui", "info_header_total_cost")) + add_comma_number(
             cost),
                                         True, (30, 30, 30))
@@ -2258,10 +2277,10 @@ class TextPopup(UIMenu):
     def __init__(self, font_size=48, layer=30):
         self._layer = layer
         UIMenu.__init__(self, player_cursor_interact=False)
-        self.font_size = int(font_size * self.screen_scale[1])
+        self.font_size = int(font_size * self.screen_scale_height)
         self.font = Font(self.ui_font["main_button"], self.font_size)
         self.pos = (0, 0)
-        self.black_border_size = 6 * self.screen_scale[0]
+        self.black_border_size = 6 * self.screen_scale_width
         self.black_border_size_x2 = self.black_border_size * 2
         self.black_border_size_x4 = self.black_border_size * 4
         self.last_shown_id = None
@@ -2362,8 +2381,8 @@ class BoxUI(UIMenu, Containable, Container):
     def __init__(self, pos, size, parent, layer=-1):
         self._layer = layer
         UIMenu.__init__(self, player_cursor_interact=False)
-        self.font = Font(self.ui_font["main_button"], int(120 * self.screen_scale[1]))
-        self.black_border_size = 6 * self.screen_scale[0]
+        self.font = Font(self.ui_font["main_button"], int(120 * self.screen_scale_height))
+        self.black_border_size = 6 * self.screen_scale_width
         self.black_border_size_x2 = self.black_border_size * 2
         self.black_border_size_x4 = self.black_border_size * 4
         self.parent = parent

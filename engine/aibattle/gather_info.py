@@ -74,9 +74,8 @@ def gather_info_basic(self):  # clever 1
     Shuffle strategy list so available strategies are given random priority to be used"""
     start_pos = self.commander.start_pos
     strategy_list = [(index, strategy) for index, strategy in enumerate(self.own_strategy) if
-                                   not self.team_stat["strategy_cooldown"][index] and
-                                   self.strategy_list[strategy]["Resource Cost"] <= self.team_stat[
-                                       "strategy_resource"]]
+                     not self.team_stat["strategy_cooldown"][index] and
+                     self.strategy_list[strategy]["Resource Cost"] <= self.team_stat["strategy_resource"]]
     info = {"commander_health": self.commander.health / self.commander.base_health,
             "available_strategy": sample(strategy_list, len(strategy_list)),
             }

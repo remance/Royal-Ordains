@@ -104,9 +104,9 @@ def key_select_strategy(self, index):
             strategy_stat = self.strategy_list[this_strategy]
             self.player_battle_interact.current_strategy_base_range = strategy_stat["Range"]
             self.player_battle_interact.current_strategy_base_activate_range = strategy_stat["Activate Range"]
-            self.player_battle_interact.current_strategy_range = strategy_stat["Range"] * self.screen_scale[0]
+            self.player_battle_interact.current_strategy_range = strategy_stat["Range"] * self.screen_scale_width
             self.player_battle_interact.current_strategy_activate_range = (strategy_stat["Activate Range"] *
-                                                                           self.screen_scale[0])
+                                                                           self.screen_scale_width)
             self.tactical_map_ui.current_strategy_base_range = self.player_battle_interact.current_strategy_base_range
             self.tactical_map_ui.current_strategy_base_activate_range = self.player_battle_interact.current_strategy_base_activate_range
 

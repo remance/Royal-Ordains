@@ -31,12 +31,12 @@ class TextDrama(UIBattle):
     def process_queue(self):
         """Initiate the first text in list and remove it"""
         # add to battle log
-        self.battle.save_data.save_profile["battle log"].append(
+        battle_log = self.battle.save_data.save_profile["battle log"]
+        battle_log.append(
             ("(" + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + ") At " + self.battle.mission + ", " +
              self.localisation.grab_text(("ui", "log_header_battle")), self.queue[0][0]))
-        if len(self.battle.save_data.save_profile["battle log"]) > 500:
-            self.battle.save_data.save_profile["battle log"] = self.battle.save_data.save_profile["battle log"][
-                                                                 1:]
+        if len(battle_log) > 500:
+            self.battle.save_data.save_profile["battle log"] = battle_log[1:]
 
         self.slow_drama(self.queue[0])  # Process the first item in list
         self.queue = self.queue[1:]  # Delete already processed item

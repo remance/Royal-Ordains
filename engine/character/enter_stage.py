@@ -9,8 +9,6 @@ def battle_character_enter_stage(self):
     """run once when scene start or character just get created"""
     # Add character to list
     self.ally_list.add(self)
-    if self.is_commander:
-        self.battle.team_stat[self.team]["strategy_resource"] = self.leadership
     if not self.invincible:  # not add to list if can't take damage
         for team in self.battle.all_team_enemy_check:
             if team != self.team and not self.no_target:

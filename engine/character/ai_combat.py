@@ -109,13 +109,16 @@ def check_ai_condition(self, condition_dict):
 def find_move_to_attack(self):
     # has enemy to attack and within max range attack
     # blind cause random direction melee attack but will not allow ranged attack
+    resource = self.resource
+    furthest_enemy_distance = self.furthest_enemy_distance
+
     possible_attacks = [value for move, value in self.movesets.items() if
-                        move not in self.move_cooldown and value["Resource Cost"] <= self.resource and
+                        move not in self.move_cooldown and value["Resource Cost"] <= resource and
                         ((not self.blind and (
                                 ("far_target" not in value["Property"] and value[
                                     "AI Range"] >= self.nearest_enemy_distance) or
-                                ("far_target" in value["Property"] and self.furthest_enemy_distance and
-                                 value["AI Range"] >= self.furthest_enemy_distance))) or
+                                ("far_target" in value["Property"] and furthest_enemy_distance and
+                                 value["AI Range"] >= furthest_enemy_distance))) or
                          (self.blind and not value["Range"])) and
                         (not value["AI Condition"] or self.check_ai_condition(value["AI Condition"]))]
     if possible_attacks:
@@ -133,18 +136,18 @@ def no_ai(self):
     pass
 
 
-def cheer_ai(self):
-    """No attack but check for target action for appropriate cheering"""
-    if "moveset" in self.target.current_action or "submit" in self.target.current_action or \
-            "taunt" in self.target.current_action:
-        # Cheer when target attack or spared in decision
-        if "cheer" not in self.current_action:  # start cheering
-            self.interrupt_animation = True
-        if "special" in self.target.current_action or "submit" in self.target.current_action:
-            # cheer harder for special occasion
-            self.command_action = self.cheer_fast_action
-        else:  # normal cheer
-            self.command_action = self.cheer_action
+# def cheer_ai(self):
+#     """No attack but check for target action for appropriate cheering"""
+#     if "moveset" in self.target.current_action or "submit" in self.target.current_action or \
+#             "taunt" in self.target.current_action:
+#         # Cheer when target attack or spared in decision
+#         if "cheer" not in self.current_action:  # start cheering
+#             self.interrupt_animation = True
+#         if "special" in self.target.current_action or "submit" in self.target.current_action:
+#             # cheer harder for special occasion
+#             self.command_action = self.cheer_fast_action
+#         else:  # normal cheer
+#             self.command_action = self.cheer_action
 
 
 def common_ai(self):
@@ -182,5 +185,4 @@ def air_ai(self):
 
 ai_combat_dict = {"default": no_ai, "melee": common_ai, "range": common_ai, "flank": common_ai, "nice": common_ai,
                   "curious": common_ai, "territorial": common_ai,
-                  "trap": common_ai, "boss_cheer": cheer_ai,
-                  "leader": common_ai, "interceptor": air_ai, "fighter": air_ai, "bomber": air_ai}
+                  "trap": common_ai, "leader": common_ai, "interceptor": air_ai, "fighter": air_ai, "bomber": air_ai}

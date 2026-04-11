@@ -31,7 +31,7 @@ class UIBattle(UIMenu):
         self.cursor = Battle.battle_cursor  # use battle cursor for battle ui
         self.battle_camera_ui_drawer = self.battle.battle_camera_ui_drawer
         self.battle_effect_updater = self.battle.battle_effect_updater
-        self.max_description_box_width = int(1000 * self.screen_scale[0])
+        self.max_description_box_width = int(1000 * self.screen_scale_width)
 
 
 class ButtonUI(UIBattle):
@@ -140,7 +140,7 @@ class ScreenFade(UIBattle):
         self.fade_out = fade_out
         self.done = False
         if self.text:
-            font_size = int(font_size * self.screen_scale[1])
+            font_size = int(font_size * self.screen_scale_height)
             image_height = int((self.font.size(self.text)[0]) / self.max_text_width)
             if not image_height:  # only one line
                 self.text_surface = text_render_with_texture(self.text, self.font,
@@ -204,7 +204,7 @@ class Command(UIBattle):
         self.outer_ui_updater = self.battle.outer_ui_updater
         self.character_portraits = self.battle.character_portraits
         self.number_font = self.game.character_indicator_font
-        self.image = Surface((800 * self.screen_scale[0], 400 * self.screen_scale[1]), SRCALPHA)
+        self.image = Surface((800 * self.screen_scale_width, 400 * self.screen_scale_height), SRCALPHA)
         self.image_width = self.image.get_width()
         self.image.fill((0, 0, 0, 125))
         self.rect = self.image.get_rect(topleft=(0, 0))
@@ -218,32 +218,32 @@ class Command(UIBattle):
 
         self.call_count_image = call_count_image
         self.air_count_image = air_count_image
-        self.broken_icon = Surface((100 * self.screen_scale[0], 100 * self.screen_scale[1]), SRCALPHA)
-        self.supply_text_bg = Surface((120 * self.screen_scale[0], 120 * self.screen_scale[1]))
+        self.broken_icon = Surface((100 * self.screen_scale_width, 100 * self.screen_scale_height), SRCALPHA)
+        self.supply_text_bg = Surface((120 * self.screen_scale_width, 120 * self.screen_scale_height))
         self.supply_text_bg_rect = self.supply_text_bg.get_rect(topright=(self.image.get_width(), 0))
         draw.rect(self.broken_icon, (0, 0, 0),
-                  (30 * self.screen_scale[0], 30 * self.screen_scale[1],
-                   10 * self.screen_scale[0], 60 * self.screen_scale[0]))
+                  (30 * self.screen_scale_width, 30 * self.screen_scale_height,
+                   10 * self.screen_scale_width, 60 * self.screen_scale_width))
         draw.rect(self.broken_icon, (255, 255, 255),
-                  (40 * self.screen_scale[0], 30 * self.screen_scale[1],
-                   40 * self.screen_scale[0], 30 * self.screen_scale[0]))
+                  (40 * self.screen_scale_width, 30 * self.screen_scale_height,
+                   40 * self.screen_scale_width, 30 * self.screen_scale_width))
 
-        self.air_return_icon = Surface((100 * self.screen_scale[0], 100 * self.screen_scale[1]), SRCALPHA)
+        self.air_return_icon = Surface((100 * self.screen_scale_width, 100 * self.screen_scale_height), SRCALPHA)
         draw.circle(self.air_return_icon, (200, 70, 70),
                     (self.air_return_icon.get_width() / 2, self.air_return_icon.get_height() / 2),
-                    (self.air_return_icon.get_width() / 2.5), width=int(8 * self.screen_scale[0]))
+                    (self.air_return_icon.get_width() / 2.5), width=int(8 * self.screen_scale_width))
 
-        self.air_active_icon = Surface((100 * self.screen_scale[0], 100 * self.screen_scale[1]), SRCALPHA)
+        self.air_active_icon = Surface((100 * self.screen_scale_width, 100 * self.screen_scale_height), SRCALPHA)
         draw.circle(self.air_active_icon, (200, 200, 0),
                     (self.air_active_icon.get_width() / 2, self.air_active_icon.get_height() / 2),
-                    (self.air_active_icon.get_width() / 2.5), width=int(8 * self.screen_scale[0]))
+                    (self.air_active_icon.get_width() / 2.5), width=int(8 * self.screen_scale_width))
 
-        self.dead_icon = Surface((100 * self.screen_scale[0], 100 * self.screen_scale[1]), SRCALPHA)
+        self.dead_icon = Surface((100 * self.screen_scale_width, 100 * self.screen_scale_height), SRCALPHA)
         draw.circle(self.dead_icon, (0, 0, 0),
                     (self.dead_icon.get_width() / 2, self.dead_icon.get_height() / 2),
                     (self.dead_icon.get_width() / 2.5))
 
-        self.call_cooldown_icon = Surface((75 * self.screen_scale[0], 75 * self.screen_scale[1]), SRCALPHA)
+        self.call_cooldown_icon = Surface((75 * self.screen_scale_width, 75 * self.screen_scale_height), SRCALPHA)
         draw.circle(self.call_cooldown_icon, (0, 0, 0, 200),
                     (self.call_cooldown_icon.get_width() / 2, self.call_cooldown_icon.get_height() / 2),
                     (self.call_cooldown_icon.get_width() / 2))
@@ -252,8 +252,8 @@ class Command(UIBattle):
         self.player_air_group_number = [None, None, None, None, None]
         self.air_group_health = [None, None, None, None, None]
         self.air_group_resource = [None, None, None, None, None]
-        self.air_bar_width = 100 * self.screen_scale[0]
-        self.air_bar_height = 15 * self.screen_scale[0]
+        self.air_bar_width = 100 * self.screen_scale_width
+        self.air_bar_height = 15 * self.screen_scale_width
         self.icon_status = {}
         self.leader_call_pool = []
         self.troop_call_pool = []
@@ -265,15 +265,15 @@ class Command(UIBattle):
 
         self.base_image = self.image.copy()
 
-        scaled_pos = 200 * self.screen_scale[0]
+        scaled_pos = 200 * self.screen_scale_width
         self.leader_portrait_rect = {index: self.broken_icon.get_rect(center=(scaled_pos + (
-                index * 170 * self.screen_scale[0]), 50 * self.screen_scale[1])) for index in range(3)}
-        scaled_pos = 100 * self.screen_scale[0]
+                index * 170 * self.screen_scale_width), 50 * self.screen_scale_height)) for index in range(3)}
+        scaled_pos = 100 * self.screen_scale_width
         self.ground_portrait_rect = {index: self.broken_icon.get_rect(center=(scaled_pos + (
-                index * 140 * self.screen_scale[0]), 180 * self.screen_scale[1])) for index in range(5)}
+                index * 140 * self.screen_scale_width), 180 * self.screen_scale_height)) for index in range(5)}
         self.pool_index_rects = [self.leader_portrait_rect, self.ground_portrait_rect]
         self.air_portrait_rect = {index: self.broken_icon.get_rect(center=(scaled_pos + (
-                index * 140 * self.screen_scale[0]), 300 * self.screen_scale[1])) for index in range(5)}
+                index * 140 * self.screen_scale_width), 300 * self.screen_scale_height)) for index in range(5)}
 
     def setup(self):
         self.player_team = self.battle.player_team
@@ -310,18 +310,19 @@ class Command(UIBattle):
                     self.air_group_rect = {}
                     self.call_pool_status = (self.leader_call_pool_status, self.troop_call_pool_status)
                     self.supply_status = ()
-
+                
+                image = self.image
                 new_supply_status = (change_number(int(self.player_team_stat["supply_resource"])),
                                      change_number(int(self.player_team_stat["supply_reserve"])))
                 if self.supply_status != new_supply_status:
                     self.supply_status = new_supply_status
-                    self.image.blit(self.supply_text_bg, self.supply_text_bg_rect)
+                    image.blit(self.supply_text_bg, self.supply_text_bg_rect)
 
                     text = text_render_with_bg(new_supply_status[0], self.number_font)
-                    self.image.blit(text, text.get_rect(topright=self.supply_text_bg_rect.topright))
+                    image.blit(text, text.get_rect(topright=self.supply_text_bg_rect.topright))
 
                     text = text_render_with_bg(new_supply_status[1], self.number_font)
-                    self.image.blit(text, text.get_rect(bottomright=self.supply_text_bg_rect.bottomright))
+                    image.blit(text, text.get_rect(bottomright=self.supply_text_bg_rect.bottomright))
 
                 for pool_index, pool in enumerate((self.leader_call_pool, self.troop_call_pool)):
                     # add character portrait for calling
@@ -342,12 +343,12 @@ class Command(UIBattle):
 
                         if pool_status[index] != state:
                             pool_status[index] = state
-                            self.image.blit(self.character_portraits[char_id]["command"], pool_rect[index])
+                            image.blit(self.character_portraits[char_id]["command"], pool_rect[index])
                             if state[1]:
                                 state.append(call_cooldown_status[index])
                             if state[1] or not state[2]:  # can't call because in cooldown or not enough supply
-                                self.image.blit(self.call_cooldown_icon,
-                                                self.call_cooldown_icon.get_rect(center=pool_rect[index].center))
+                                image.blit(self.call_cooldown_icon,
+                                           self.call_cooldown_icon.get_rect(center=pool_rect[index].center))
                                 if state[1]:
                                     number = int(state[3])
                                     if number in self.number_cooldown_text_cache:
@@ -357,8 +358,8 @@ class Command(UIBattle):
                                                                           gf_colour=(0, 0, 0),
                                                                           o_colour=(255, 255, 255))
                                         self.number_cooldown_text_cache[number] = number_text
-                                    self.image.blit(number_text,
-                                                    number_text.get_rect(center=pool_rect[index].center))
+                                    image.blit(number_text,
+                                               number_text.get_rect(center=pool_rect[index].center))
 
                             if char_number_reserve not in self.number_text_cache:
                                 number_text = text_render_with_bg(str(char_number_reserve),
@@ -368,12 +369,15 @@ class Command(UIBattle):
                                 number_text = self.number_text_cache[char_number_reserve]
                             number_rect = number_text.get_rect(
                                 midbottom=self.pool_index_rects[pool_index][index].bottomright)
-                            self.image.blit(self.call_count_image,
-                                            self.call_count_image.get_rect(center=number_rect.center))
-                            self.image.blit(number_text, number_rect)
+                            image.blit(self.call_count_image, 
+                                       self.call_count_image.get_rect(center=number_rect.center))
+                            image.blit(number_text, number_rect)
 
                 for index, air_group in enumerate(self.player_air_group):
                     # add air unit group
+                    portrait_rect = self.air_portrait_rect[index]
+                    portrait_rect_bottomleft = portrait_rect.bottomleft
+                    
                     health_bar_percentage = (0, 0)
                     resource_bar_percentage = (0, 0)
                     if air_group:
@@ -389,14 +393,14 @@ class Command(UIBattle):
                     if index not in self.icon_status or self.icon_status[index] != check:
                         self.icon_status[index] = check
                         if air_group:
-                            self.image.blit(air_group[0].command_icon, self.air_portrait_rect[index])
+                            image.blit(air_group[0].command_icon, portrait_rect)
                         else:  # air group completely dead, blit black circle over
-                            self.image.blit(self.dead_icon, self.air_portrait_rect[index])
-                        self.air_group_rect[index] = self.air_portrait_rect[index]
+                            image.blit(self.dead_icon, portrait_rect)
+                        self.air_group_rect[index] = portrait_rect
                         if check[0]:  # returning
-                            self.image.blit(self.air_return_icon, self.air_portrait_rect[index])
+                            image.blit(self.air_return_icon, portrait_rect)
                         elif check[1]:  # active
-                            self.image.blit(self.air_active_icon, self.air_portrait_rect[index])
+                            image.blit(self.air_active_icon, portrait_rect)
                         if check[2]:  # number in group change
                             self.player_air_group_number[index] = len(air_group)
 
@@ -406,38 +410,33 @@ class Command(UIBattle):
                             self.number_text_cache[len(air_group)] = number_text
                         else:
                             number_text = self.number_text_cache[len(air_group)]
-                        number_rect = number_text.get_rect(midtop=self.air_portrait_rect[index].topleft)
-                        self.image.blit(self.air_count_image,
+                        number_rect = number_text.get_rect(midtop=portrait_rect.topleft)
+                        image.blit(self.air_count_image,
                                         self.air_count_image.get_rect(center=number_rect.center))
-                        self.image.blit(number_text, number_rect)
+                        image.blit(number_text, number_rect)
 
                     if self.air_group_health[index] != health_bar_percentage:
                         self.air_group_health[index] = health_bar_percentage
-                        self.image.fill((0, 0, 0), (self.air_portrait_rect[index].bottomleft[0],
-                                                    self.air_portrait_rect[index].bottomleft[1],
-                                                    self.air_bar_width, self.air_bar_height))
-                        self.image.fill((250, 100, 100), (self.air_portrait_rect[index].bottomleft[0],
-                                                          self.air_portrait_rect[index].bottomleft[1],
+                        image.fill((0, 0, 0), (portrait_rect_bottomleft[0], portrait_rect_bottomleft[1],
+                                               self.air_bar_width, self.air_bar_height))
+                        image.fill((250, 100, 100), (portrait_rect_bottomleft[0], portrait_rect_bottomleft[1],
                                                           self.air_bar_width * health_bar_percentage[1],
                                                           self.air_bar_height))
-                        self.image.fill((100, 20, 20, 125), (self.air_portrait_rect[index].bottomleft[0],
-                                                             self.air_portrait_rect[index].bottomleft[1],
-                                                             self.air_bar_width * health_bar_percentage[0],
-                                                             self.air_bar_height))
+                        image.fill((100, 20, 20, 125), (portrait_rect_bottomleft[0], portrait_rect_bottomleft[1],
+                                                        self.air_bar_width * health_bar_percentage[0],
+                                                        self.air_bar_height))
 
                     if self.air_group_resource[index] != resource_bar_percentage:
                         self.air_group_resource[index] = resource_bar_percentage
-                        self.image.fill((0, 0, 0), (self.air_portrait_rect[index].bottomleft[0],
-                                                    self.air_portrait_rect[index].bottomleft[1] + self.air_bar_height,
+                        self.image.fill((0, 0, 0), (portrait_rect_bottomleft[0],
+                                                    portrait_rect_bottomleft[1] + self.air_bar_height,
                                                     self.air_bar_width, self.air_bar_height))
-                        self.image.fill((100, 250, 100), (self.air_portrait_rect[index].bottomleft[0],
-                                                          self.air_portrait_rect[index].bottomleft[
-                                                              1] + self.air_bar_height,
+                        self.image.fill((100, 250, 100), (portrait_rect_bottomleft[0],
+                                                          portrait_rect_bottomleft[1] + self.air_bar_height,
                                                           self.air_bar_width * resource_bar_percentage[1],
                                                           self.air_bar_height))
-                        self.image.fill((20, 100, 20, 125), (self.air_portrait_rect[index].bottomleft[0],
-                                                             self.air_portrait_rect[index].bottomleft[
-                                                                 1] + self.air_bar_height,
+                        self.image.fill((20, 100, 20, 125), (portrait_rect_bottomleft[0],
+                                                             portrait_rect_bottomleft[1] + self.air_bar_height,
                                                              self.air_bar_width * resource_bar_percentage[0],
                                                              self.air_bar_height))
 
@@ -523,7 +522,7 @@ class FPSCount(UIBattle):
     def __init__(self, parent):
         self._layer = 12
         UIBattle.__init__(self, player_cursor_interact=False)
-        self.image = Surface((80 * self.screen_scale[0], 80 * self.screen_scale[1]), SRCALPHA)
+        self.image = Surface((80 * self.screen_scale_width, 80 * self.screen_scale_height), SRCALPHA)
         self.base_image = self.image.copy()
         self.font = self.game.fps_counter_font
         self.clock = parent.clock
@@ -544,7 +543,7 @@ class BattleScale(UIBattle):
         self._layer = 12
         UIBattle.__init__(self, player_cursor_interact=False)
         self.battle_scale = None
-        self.image = Surface((2200 * self.screen_scale[0], 40 * self.screen_scale[1]))
+        self.image = Surface((2200 * self.screen_scale_width, 40 * self.screen_scale_height))
         self.width = self.image.get_width()
         self.height = self.image.get_height()
         self.rect = self.image.get_rect(topleft=pos)
@@ -572,7 +571,7 @@ class BattleHelper(UIBattle):
         self._layer = 12
         UIBattle.__init__(self)
         self.font = self.game.battle_timer_font
-        self.image = Surface((800 * self.screen_scale[0], 400 * self.screen_scale[1]), SRCALPHA)
+        self.image = Surface((800 * self.screen_scale_width, 400 * self.screen_scale_height), SRCALPHA)
         self.image.blit(helper_ui_image, helper_ui_image.get_rect(topright=(self.image.get_width(), 0)))
 
         self.helper_ui_base_image = helper_ui_base_image
@@ -583,15 +582,15 @@ class BattleHelper(UIBattle):
 
         self.base_image = self.image.copy()
 
-        self.base_battle_timer_rect_topright = (660 * self.screen_scale[0], 30 * self.screen_scale[1])
-        time_choice_pos_x = 380 * self.screen_scale[0]
-        self.time_choice_rects = (time_choice_images[0].get_rect(center=(time_choice_pos_x, 55 * self.screen_scale[1])),
-                                  time_choice_images[1].get_rect(center=(time_choice_pos_x, 110 * self.screen_scale[1])),
-                                  time_choice_images[2].get_rect(center=(time_choice_pos_x, 165 * self.screen_scale[1])),
-                                  time_choice_images[3].get_rect(center=(time_choice_pos_x, 215 * self.screen_scale[1])))
+        self.base_battle_timer_rect_topright = (660 * self.screen_scale_width, 30 * self.screen_scale_height)
+        time_choice_pos_x = 380 * self.screen_scale_width
+        self.time_choice_rects = (time_choice_images[0].get_rect(center=(time_choice_pos_x, 55 * self.screen_scale_height)),
+                                  time_choice_images[1].get_rect(center=(time_choice_pos_x, 110 * self.screen_scale_height)),
+                                  time_choice_images[2].get_rect(center=(time_choice_pos_x, 165 * self.screen_scale_height)),
+                                  time_choice_images[3].get_rect(center=(time_choice_pos_x, 215 * self.screen_scale_height)))
 
-        self.helper_rect = self.helper_images["castle"]["normal"].get_rect(topleft=(50 * self.screen_scale[0], 0))
-        self.helper_time_selector_rect = self.helper_images["castle"]["time_1"].get_rect(topleft=(150 * self.screen_scale[0], 0))
+        self.helper_rect = self.helper_images["castle"]["normal"].get_rect(topleft=(50 * self.screen_scale_width, 0))
+        self.helper_time_selector_rect = self.helper_images["castle"]["time_1"].get_rect(topleft=(150 * self.screen_scale_width, 0))
         self.time_option = 2
         self.time_text = None
         self.weather = None
@@ -616,22 +615,23 @@ class BattleHelper(UIBattle):
     def reset_image(self):
         """reset when require change state"""
         self.image = self.base_image.copy()
-        self.image.blit(self.helper_images[self.battle.player_culture]["time_" + str(self.time_option)],
+        image = self.image
+        image.blit(self.helper_images[self.battle.player_culture]["time_" + str(self.time_option)],
                         self.helper_time_selector_rect)
-        self.image.blit(self.helper_images[self.battle.player_culture][self.battle_state], self.helper_rect)
-        self.image.blit(self.helper_ui_base_image, self.helper_ui_base_rect)
+        image.blit(self.helper_images[self.battle.player_culture][self.battle_state], self.helper_rect)
+        image.blit(self.helper_ui_base_image, self.helper_ui_base_rect)
 
         for index, rect in enumerate(self.time_choice_rects):
             if index == self.time_option:
-                self.image.blit(self.time_select_images[0], self.time_choice_rects[index])
+                image.blit(self.time_select_images[0], rect)
             else:
-                self.image.blit(self.time_select_images[1], self.time_choice_rects[index])
-            self.image.blit(self.time_choice_images[index], self.time_choice_rects[index])
+                image.blit(self.time_select_images[1], rect)
+            image.blit(self.time_choice_images[index], rect)
 
         icon_image = self.weather_icon_images[self.weather.split("_")[0]].copy()
         strength_text = text_render_with_bg(str(int(self.weather.split("_")[1]) + 1), self.font)
         icon_image.blit(strength_text, strength_text.get_rect(bottomright=icon_image.get_size()))
-        self.image.blit(icon_image, icon_image.get_rect(center=(570 * self.screen_scale[0], 175 * self.screen_scale[1])))
+        image.blit(icon_image, icon_image.get_rect(center=(570 * self.screen_scale_width, 175 * self.screen_scale_height)))
 
     def update(self, dt):
         """Update battle time"""
@@ -679,19 +679,19 @@ class TacticalMap(UIBattle):
         self.player_team = 1
         self.update_timer = 0
         self.map_scale_width = 1
-        self.base_image = Surface((2200 * self.screen_scale[0], 200 * self.screen_scale[1]), SRCALPHA)
+        self.base_image = Surface((2200 * self.screen_scale_width, 200 * self.screen_scale_height), SRCALPHA)
         self.base_image.fill((255, 255, 255, 125))
-        self.air_icon_pos_y = 30 * self.screen_scale[1]
-        self.strategy_alert_pos_y = 80 * self.screen_scale[1]
-        self.ground_icon_pos_y = 190 * self.screen_scale[1]
-        self.ground_commander_icon_pos_y = 200 * self.screen_scale[1]
+        self.air_icon_pos_y = 30 * self.screen_scale_height
+        self.strategy_alert_pos_y = 80 * self.screen_scale_height
+        self.ground_icon_pos_y = 190 * self.screen_scale_height
+        self.ground_commander_icon_pos_y = 200 * self.screen_scale_height
         self.camera_border_image = None
         self.image = self.base_image.copy()
         self.image_width = self.image.get_width()
         self.image_height = self.image.get_height()
         self.current_strategy_base_range = None
         self.current_strategy_base_activate_range = None
-        self.strategy_line_width = int(20 * self.screen_scale[0])
+        self.strategy_line_width = int(20 * self.screen_scale_width)
         self.rect = self.image.get_rect(midtop=(self.screen_width / 2, 0))
         self.strategy_status = []
 
@@ -707,13 +707,13 @@ class TacticalMap(UIBattle):
         self.commander_health_state = {1: None, 2: None}
         self.commander_icon = {1: None, 2: None}
         for team, colour in team_colour.items():
-            dot = Surface((20 * self.screen_scale[0], 20 * self.screen_scale[1]))
+            dot = Surface((20 * self.screen_scale_width, 20 * self.screen_scale_height))
             dot.fill(colour)
             self.troop_dot_images[team] = dot
         self.character_rect = {}
 
     def make_icon_border(self, team, colour_modifier=1):
-        image = Surface((200 * self.screen_scale[0], 200 * self.screen_scale[1]), SRCALPHA)
+        image = Surface((200 * self.screen_scale_width, 200 * self.screen_scale_height), SRCALPHA)
         if colour_modifier != 1:
             draw.circle(image, [value * colour_modifier if value * colour_modifier <= 255 else 255
                                 for value in team_colour[team]], (image.get_width() / 2, image.get_height() / 2),
@@ -731,9 +731,9 @@ class TacticalMap(UIBattle):
         self.player_team = self.battle.player_team
         self.map_scale_width = self.battle.base_stage_end / self.image_width
         self.camera_border_image = Surface((Default_Screen_Width / self.map_scale_width,
-                                            200 * self.screen_scale[1]), SRCALPHA)
+                                            200 * self.screen_scale_height), SRCALPHA)
         draw.rect(self.camera_border_image, (0, 0, 0), (0, 0, self.camera_border_image.get_width(), self.image_height),
-                  width=int(15 * self.screen_scale[0]))
+                  width=int(15 * self.screen_scale_width))
 
     def warn_strategy(self, strategy_base_posx):
         """Add bell icon to warn where enemy use strategy"""
@@ -747,14 +747,16 @@ class TacticalMap(UIBattle):
         if self.update_timer > 0.05:
             self.image = self.base_image.copy()
             image = self.image
+            map_scale_width = self.map_scale_width
             # Draw camera border
             image.blit(self.camera_border_image, self.camera_border_image.get_rect(
-                topleft=(self.battle.base_camera_left / self.map_scale_width, 0)))
+                topleft=(self.battle.base_camera_left / map_scale_width, 0)))
 
             # draw commander
-            for team, character in self.battle.team_commander.items():
+            team_commander = self.battle.team_commander
+            for team, character in team_commander.items():
                 if character and not character.invisible:
-                    scaled_pos = (character.base_pos[0] / self.map_scale_width, self.ground_commander_icon_pos_y)
+                    scaled_pos = (character.base_pos[0] / map_scale_width, self.ground_commander_icon_pos_y)
                     health_state = round(character.health / character.base_health, 1)
                     if health_state != self.commander_health_state[team]:
                         # circle also indicate health
@@ -769,27 +771,27 @@ class TacticalMap(UIBattle):
                     image.blit(self.commander_icon[team], self.commander_icon[team].get_rect(midbottom=scaled_pos))
 
             # Draw character dots
-            for character_team in self.all_team_enemy_check.values():
+            air_icon_pos_y = self.air_icon_pos_y
+            ground_icon_pos_y = self.ground_icon_pos_y
+            for team, character_team in self.all_team_enemy_check.items():
+                dot_image = self.troop_dot_images[team]
                 for character in character_team:
                     if character in self.battle_camera_object_drawer and not character.invisible:
-                        team = character.team
                         if character.character_type == "air":
-                            scaled_pos = (character.base_pos[0] / self.map_scale_width, self.air_icon_pos_y)
-                            image.blit(self.troop_dot_images[team],
-                                            self.troop_dot_images[team].get_rect(midbottom=scaled_pos))
+                            scaled_pos = (character.base_pos[0] / map_scale_width, air_icon_pos_y)
+                            image.blit(dot_image, dot_image.get_rect(midbottom=scaled_pos))
                         elif not character.is_commander:
-                            scaled_pos = (character.base_pos[0] / self.map_scale_width, self.ground_icon_pos_y)
-                            image.blit(self.troop_dot_images[team],
-                                            self.troop_dot_images[team].get_rect(midbottom=scaled_pos))
+                            scaled_pos = (character.base_pos[0] / map_scale_width, ground_icon_pos_y)
+                            image.blit(dot_image, dot_image.get_rect(midbottom=scaled_pos))
 
             if self.battle.player_selected_strategy:
                 # draw activation line
-                line_start = ((self.battle.team_commander[self.player_team].base_pos[
+                line_start = ((team_commander[self.player_team].base_pos[
                                    0] - self.current_strategy_base_activate_range) /
-                              self.map_scale_width)
-                line_end = ((self.battle.team_commander[self.player_team].base_pos[
+                              map_scale_width)
+                line_end = ((team_commander[self.player_team].base_pos[
                                  0] + self.current_strategy_base_activate_range) /
-                            self.map_scale_width)
+                            map_scale_width)
                 if line_start < 0:
                     line_start = 0
                 if line_end > self.image_width:
@@ -805,9 +807,9 @@ class TacticalMap(UIBattle):
                 if self.battle.player_battle_interact.show_strategy_activate_line:
                     # draw strategy range if player cursor is within activation range, mean strategy can be used
                     line_start = (self.battle.base_cursor_pos[
-                                      0] - self.current_strategy_base_range) / self.map_scale_width
+                                      0] - self.current_strategy_base_range) / map_scale_width
                     line_end = (self.battle.base_cursor_pos[
-                                    0] + self.current_strategy_base_range) / self.map_scale_width
+                                    0] + self.current_strategy_base_range) / map_scale_width
                     if line_start < 0:
                         line_start = 0
                     if line_end > self.image_width:
@@ -835,8 +837,8 @@ class TacticalMap(UIBattle):
         UIMenu.update(self, dt)
 
         if self.event_press or self.event_alt_press:
-            self.battle.camera_pos[0] = ((self.cursor.pos[0] - self.rect.topleft[0]) * self.map_scale_width *
-                                         self.screen_scale[0])
+            self.battle.camera_pos[0] = ((self.cursor.pos[0] - self.rect.topleft[0]) * map_scale_width *
+                                         self.screen_scale_width)
             self.battle.fix_camera()
 
 
@@ -860,17 +862,17 @@ class StrategySelect(UIBattle):
         self.full_resource_text.fill((0, 0, 0))
         self.resource_text_rect = self.full_resource_text.get_rect(bottomright=(self.full_resource_text.get_width(),
                                                                                 self.full_resource_text.get_height()))
-        self.selected_strategy_icon = Surface((150 * self.screen_scale[0], 150 * self.screen_scale[1]), SRCALPHA)
+        self.selected_strategy_icon = Surface((150 * self.screen_scale_width, 150 * self.screen_scale_height), SRCALPHA)
         draw.circle(self.selected_strategy_icon, (200, 200, 50),
                     (self.selected_strategy_icon.get_width() / 2, self.selected_strategy_icon.get_height() / 2),
-                    (self.selected_strategy_icon.get_width() / 2), width=int(20 * self.screen_scale[0]))
+                    (self.selected_strategy_icon.get_width() / 2), width=int(20 * self.screen_scale_width))
 
-        self.cooldown_strategy_icon = Surface((150 * self.screen_scale[0], 150 * self.screen_scale[1]), SRCALPHA)
+        self.cooldown_strategy_icon = Surface((150 * self.screen_scale_width, 150 * self.screen_scale_height), SRCALPHA)
         draw.circle(self.cooldown_strategy_icon, (0, 0, 0, 200),
                     (self.cooldown_strategy_icon.get_width() / 2, self.cooldown_strategy_icon.get_height() / 2),
                     (self.cooldown_strategy_icon.get_width() / 2))
 
-        self.base_image = Surface((1200 * self.screen_scale[0], 150 * self.screen_scale[1]), SRCALPHA)
+        self.base_image = Surface((1200 * self.screen_scale_width, 150 * self.screen_scale_height), SRCALPHA)
         self.base_image.fill((0, 0, 0, 125))
         self.image = self.base_image.copy()
         self.image_width = self.image.get_width()
@@ -888,7 +890,7 @@ class StrategySelect(UIBattle):
         self.strategy_status = {}
         self.image = self.base_image.copy()
         if self.player_team:
-            pos_x = 250 * self.screen_scale[1]
+            pos_x = 250 * self.screen_scale_height
             for index, strategy in enumerate(self.player_team_stat["strategy"]):
                 if strategy not in self.strategy_icons:
                     icon_image = self.strategy_icons["default"].copy()
@@ -900,7 +902,7 @@ class StrategySelect(UIBattle):
                                                     self.font)
                 text_rect = shortcut_text.get_rect(bottomright=(icon_image.get_width(), icon_image.get_height()))
                 icon_image.blit(shortcut_text, text_rect)
-                pos_x += 180 * self.screen_scale[1]
+                pos_x += 180 * self.screen_scale_height
                 self.strategy_rect[index] = rect
                 self.icon_cache[index] = icon_image
 
@@ -976,8 +978,8 @@ class PlayerBattleInteract(UIBattle):
         self.battle_camera_image = self.battle_camera.image
         self.selection_start_pos = Vector2()
         self.current_pos = Vector2()
-        self.line_size = int(10 * self.screen_scale[0])
-        self.inner_line_size = int(20 * self.screen_scale[0])
+        self.line_size = int(10 * self.screen_scale_width)
+        self.inner_line_size = int(20 * self.screen_scale_width)
         if self.line_size < 1:
             self.line_size = 1
         self.image = None
@@ -986,11 +988,11 @@ class PlayerBattleInteract(UIBattle):
         self.current_strategy_base_activate_range = None
         self.current_strategy_range = None
         self.current_strategy_activate_range = None
-        self.strategy_line_top = 500 * self.screen_scale[1]
-        self.strategy_line_bottom = 2160 * self.screen_scale[1]
-        self.strategy_line_width = int(20 * self.screen_scale[0])
+        self.strategy_line_top = 500 * self.screen_scale_height
+        self.strategy_line_bottom = 2160 * self.screen_scale_height
+        self.strategy_line_width = int(20 * self.screen_scale_width)
         self.strategy_line_inner_width = int(self.strategy_line_width / 2)
-        self.strategy_line_center = 900 * self.screen_scale[1]
+        self.strategy_line_center = 900 * self.screen_scale_height
         self.show_strategy_activate_line = False
 
     def reset(self):
@@ -1108,7 +1110,7 @@ class CharacterCommandIndicator(UIBattle):
         self.attack_image = attack_image.copy()
         self.command_dict = {"move": self.move_image, "attack": self.attack_image}
         self.image = self.move_image
-        self.pos_y = pos_y * self.screen_scale[1]
+        self.pos_y = pos_y * self.screen_scale_height
         self.rect = self.image.get_rect(center=(0, 0))
         self.check_order = None
         self.leader = None
@@ -1131,7 +1133,7 @@ class CharacterCommandIndicator(UIBattle):
                 if self.check_order != order_check:
                     self.check_order = order_check
                     self.image = self.command_dict[order_check[0]]
-                    self.rect.center = (order_check[1] * self.screen_scale[0], self.pos_y)
+                    self.rect.center = (order_check[1] * self.screen_scale_width, self.pos_y)
             else:
                 if self in self.battle_camera_ui_drawer:
                     self.battle_camera_ui_drawer.remove(self)
@@ -1146,7 +1148,7 @@ class BattleResult(UIBattle, BoxUI):
         self._layer = 999999999998  # 1 less layer than mouse but higher than all others
         UIBattle.__init__(self)
         BoxUI.__init__(self, (0, 0),
-                       (2400 * self.screen_scale[0], 1500 * self.screen_scale[1]), self.battle.screen)
+                       (2400 * self.screen_scale_width, 1500 * self.screen_scale_height), self.battle.screen)
 
         self.character_portraits = self.battle.character_portraits
         self.image.fill((200, 255, 200))
@@ -1156,56 +1158,56 @@ class BattleResult(UIBattle, BoxUI):
         self.header_font = self.game.preset_name_font
         self.result_showing = False
 
-        self.result_text_pos_y = {"total": 700 * self.screen_scale[0],
-                                  "loss": 900 * self.screen_scale[0],
-                                  "supply": 1100 * self.screen_scale[0]}
+        self.result_text_pos_y = {"total": 700 * self.screen_scale_width,
+                                  "loss": 900 * self.screen_scale_width,
+                                  "supply": 1100 * self.screen_scale_width}
 
     def show_result(self):
         self.image = self.base_image.copy()
         # Always assume that main army of team 1 and 2 exist
         if self.battle.team_stat[1]["main_army"]:
             portrait = self.character_portraits[self.battle.team_stat[1]["main_army"].commander_id]["character_ui"]
-            self.image.blit(portrait, portrait.get_rect(center=(1000 * self.screen_scale[0], 250 * self.screen_scale[1])))
+            self.image.blit(portrait, portrait.get_rect(center=(1000 * self.screen_scale_width, 250 * self.screen_scale_height)))
 
         if self.battle.team_stat[2]["main_army"]:
             # flip portrait to face left
             portrait = flip(self.character_portraits[self.battle.team_stat[2]["main_army"].commander_id]["character_ui"], True, False)
-            self.image.blit(portrait, portrait.get_rect(center=(1900 * self.screen_scale[0], 250 * self.screen_scale[1])))
+            self.image.blit(portrait, portrait.get_rect(center=(1900 * self.screen_scale_width, 250 * self.screen_scale_height)))
 
         result_text = self.grab_text(("ui", "result_text_lose"))
         if self.battle.winner_team == 1:
             result_text = self.grab_text(("ui", "result_text_win"))
         text_surface = self.header_font.render(self.grab_text(("ui", "result_text_team")) + " 1 " + result_text, True, (0, 0, 0))
-        text_rect = text_surface.get_rect(topleft=(850 * self.screen_scale[0], 550 * self.screen_scale[1]))
+        text_rect = text_surface.get_rect(topleft=(850 * self.screen_scale_width, 550 * self.screen_scale_height))
         self.image.blit(text_surface, text_rect)
 
         result_text = self.grab_text(("ui", "result_text_lose"))
         if self.battle.winner_team == 2:
             result_text = self.grab_text(("ui", "result_text_win"))
         text_surface = self.header_font.render(self.grab_text(("ui", "result_text_team")) + " 2 " + result_text, True, (0, 0, 0))
-        text_rect = text_surface.get_rect(topleft=(1750 * self.screen_scale[0], 550 * self.screen_scale[1]))
+        text_rect = text_surface.get_rect(topleft=(1750 * self.screen_scale_width, 550 * self.screen_scale_height))
         self.image.blit(text_surface, text_rect)
 
         for key, value in self.result_text_pos_y.items():
             text_surface = self.header_font.render(self.grab_text(("ui", "result_text_" + key)), True, (0, 0, 0))
-            text_rect = text_surface.get_rect(topleft=(60 * self.screen_scale[0], value))
+            text_rect = text_surface.get_rect(topleft=(60 * self.screen_scale_width, value))
             self.image.blit(text_surface, text_rect)
 
             if key == "total":
                 text_surface = self.header_font.render(str(self.battle.team_deployed[1]), True, (0, 0, 0))
-                text_rect = text_surface.get_rect(topleft=(850 * self.screen_scale[0], value))
+                text_rect = text_surface.get_rect(topleft=(850 * self.screen_scale_width, value))
                 self.image.blit(text_surface, text_rect)
 
                 text_surface = self.header_font.render(str(self.battle.team_deployed[2]), True, (0, 0, 0))
-                text_rect = text_surface.get_rect(topleft=(1750 * self.screen_scale[0], value))
+                text_rect = text_surface.get_rect(topleft=(1750 * self.screen_scale_width, value))
                 self.image.blit(text_surface, text_rect)
             elif key == "loss":
                 text_surface = self.header_font.render(str(self.battle.team_loss[1]), True, (0, 0, 0))
-                text_rect = text_surface.get_rect(topleft=(850 * self.screen_scale[0], value))
+                text_rect = text_surface.get_rect(topleft=(850 * self.screen_scale_width, value))
                 self.image.blit(text_surface, text_rect)
 
                 text_surface = self.header_font.render(str(self.battle.team_loss[2]), True, (0, 0, 0))
-                text_rect = text_surface.get_rect(topleft=(1750 * self.screen_scale[0], value))
+                text_rect = text_surface.get_rect(topleft=(1750 * self.screen_scale_width, value))
                 self.image.blit(text_surface, text_rect)
             elif key == "supply":
                 remain_supply = int(self.battle.team_stat[1]["supply_resource"] + self.battle.team_stat[1]["supply_reserve"])
@@ -1213,7 +1215,7 @@ class BattleResult(UIBattle, BoxUI):
                 if "-" not in diff:
                     diff = "+" + diff
                 text_surface = self.header_font.render(str(remain_supply) + " (" + diff + ")", True, (0, 0, 0))
-                text_rect = text_surface.get_rect(topleft=(850 * self.screen_scale[0], value))
+                text_rect = text_surface.get_rect(topleft=(850 * self.screen_scale_width, value))
                 self.image.blit(text_surface, text_rect)
 
                 remain_supply = int(self.battle.team_stat[2]["supply_resource"] + self.battle.team_stat[2]["supply_reserve"])
@@ -1221,7 +1223,7 @@ class BattleResult(UIBattle, BoxUI):
                 if "-" not in diff:
                     diff = "+" + diff
                 text_surface = self.header_font.render(str(remain_supply) + " (" + diff + ")", True, (0, 0, 0))
-                text_rect = text_surface.get_rect(topleft=(1750 * self.screen_scale[0], value))
+                text_rect = text_surface.get_rect(topleft=(1750 * self.screen_scale_width, value))
                 self.image.blit(text_surface, text_rect)
 
 
@@ -1236,7 +1238,7 @@ class CharacterInteractPrompt(UIBattle):
         self.button_image = image
         font = self.game.character_name_talk_prompt_font
         text_surface = text_render_with_bg("Talk", font)
-        self.image = Surface((150 * self.screen_scale[0], 55 * self.screen_scale[1]), SRCALPHA)
+        self.image = Surface((150 * self.screen_scale_width, 55 * self.screen_scale_height), SRCALPHA)
         text_rect = text_surface.get_rect(midright=self.image.get_rect().midright)
         self.image.blit(text_surface, text_rect)
         self.image.blit(image, image.get_rect(midleft=self.image.get_rect().midleft))
@@ -1249,13 +1251,13 @@ class CharacterInteractPrompt(UIBattle):
         self.target = target
         text_surface = text_render_with_bg(target.name, self.game.character_name_talk_prompt_font)
         self.image = Surface((text_surface.get_width() + self.button_image.get_width() +
-                              (10 * self.screen_scale[0]), 55 * self.screen_scale[1]), SRCALPHA)
+                              (10 * self.screen_scale_width), 55 * self.screen_scale_height), SRCALPHA)
         text_rect = text_surface.get_rect(midright=self.image.get_rect().midright)
         self.image.blit(text_surface, text_rect)
         self.image.blit(self.button_image, self.button_image.get_rect(midleft=self.image.get_rect().midleft))
 
-        self.rect = self.image.get_rect(midbottom=(self.target_pos[0] * self.screen_scale[0],
-                                                   self.target_pos[1] * self.screen_scale[1]))
+        self.rect = self.image.get_rect(midbottom=(self.target_pos[0] * self.screen_scale_width,
+                                                   self.target_pos[1] * self.screen_scale_height))
         if self not in self.battle_camera_ui_drawer:
             self.battle_camera_ui_drawer.add(self)
             self.battle_effect_updater.add(self)
@@ -1287,9 +1289,9 @@ class CharacterSpeechBox(UIBattle):
         if not self.simple_font and self.game.language in ("en",):  # culture font only available for latin alphabet sadly
             font = "culture_" + character.culture
 
-        self.font_size = int(font_size * self.screen_scale[1])
+        self.font_size = int(font_size * self.screen_scale_height)
         self.font = Font(self.ui_font[font], self.font_size)
-        max_text_width *= self.screen_scale[0]
+        max_text_width *= self.screen_scale_width
 
         self.text_surface = Surface(calculate_long_text_size(text, self.font, self.font_size, max_text_width), SRCALPHA)
         self.text_surface.fill((224, 224, 224))
@@ -1397,8 +1399,8 @@ class CharacterSpeechBox(UIBattle):
         direction_left = False
         # always use p1 head to place speak
         head_rect = (
-        (self.character.pos[0] + (self.character.current_animation_direction["head"][0] * self.screen_scale[0])),
-        (self.character.pos[1] + (self.character.current_animation_direction["head"][1] * self.screen_scale[1])))
+        (self.character.pos[0] + (self.character.current_animation_direction["head"][0] * self.screen_scale_width)),
+        (self.character.pos[1] + (self.character.current_animation_direction["head"][1] * self.screen_scale_height)))
         if self.character.direction == "left":  # left direction facing
             if head_rect[0] - (
                     self.battle.shown_camera_pos[0] - self.battle.camera.camera_w_center) < self.max_length:

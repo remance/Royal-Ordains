@@ -17,7 +17,7 @@ def reach_target(self, how=None):
             new_pos = self.pos
             stat = [after_reach_effect, "base", new_pos[0], new_pos[1], 0, 0, 0, 1, 1]
             if "reach_effect_spawn_ground" in effect_stat_property:  # reach effect spawn with rect bottom on ground
-                stat[3] = Default_Ground_Pos * self.screen_scale[1]
+                stat[3] = Default_Ground_Pos * self.screen_scale_height
                 base_image = self.effect_animation_pool[after_reach_effect]["base"][0][1][1][0]
                 if effect_stat_property["reach_effect_spawn_ground"] == "bottom":
                     # spawn position at the bottom of sprite
@@ -68,7 +68,7 @@ def showcase_reach_target(self, how=None):
             new_pos = self.pos
             stat = [after_reach_effect, "base", new_pos[0], new_pos[1], 0, 0, 0, 1, 1]
             if "reach_effect_spawn_ground" in effect_stat_property:  # reach effect spawn with rect bottom on ground
-                stat[3] = Default_Showcase_Character_POS[1] * self.screen_scale[1]
+                stat[3] = Default_Showcase_Character_POS[1] * self.screen_scale_height
                 base_image = self.effect_animation_pool[after_reach_effect]["base"][0][1][1][0]
                 if effect_stat_property["reach_effect_spawn_ground"] == "bottom":
                     # spawn position at the bottom of sprite

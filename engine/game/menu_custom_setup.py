@@ -20,7 +20,8 @@ def menu_custom_setup(self):
                     self.last_shown_custom_army = preset
                     army_preset = self.convert_army_to_custom_deployable(preset_list[preset],
                                                                          setup_ui.team_setup[index]["culture"])
-                    self.custom_army_title_popup.change_text(preset_list[preset]["Name"], army_preset["cost"])
+                    self.custom_army_title_popup.change_text(preset_list[preset]["Name"], army_preset["cost"],
+                                                             army_preset["leadership"])
                     self.custom_army_info_popup.popup(army_preset)
                 self.add_to_ui_updater(self.custom_army_info_popup, self.custom_army_title_popup)
                 self.custom_army_info_popup.rect.midright = self.custom_battle_team_setup[Opposite_Team[team]].rect.midright
@@ -43,7 +44,8 @@ def menu_custom_setup(self):
                         self.last_shown_custom_army = preset
                         army_preset = self.convert_army_to_custom_deployable(preset,
                                                                              setup_ui.team_setup[index]["culture"])
-                        self.custom_army_title_popup.change_text(preset["Name"], army_preset["cost"])
+                        self.custom_army_title_popup.change_text(preset["Name"], army_preset["cost"],
+                                                                 army_preset["leadership"])
                         self.custom_army_info_popup.popup(army_preset)
                     self.add_to_ui_updater(self.custom_army_info_popup, self.custom_army_title_popup)
                     self.custom_army_info_popup.rect.midright = self.custom_battle_team_setup[team].rect.midright
@@ -131,7 +133,8 @@ def menu_custom_setup(self):
             self.custom_preset_faction_selector.change_faction(Custom_Default_Culture)
             self.custom_preset_army_setup.change_faction(Custom_Default_Culture)
             self.custom_preset_list_box.adapter.__init__()
-            self.custom_preset_army_title.change_text("", self.custom_preset_army_setup.total_gold_cost)
+            self.custom_preset_army_title.change_text("", self.custom_preset_army_setup.total_gold_cost,
+                                                      self.custom_preset_army_setup.total_leadership)
             self.add_to_ui_updater(self.custom_preset_menu_uis)
             self.remove_from_ui_updater(self.custom_battle_menu_uis_remove)
             for index in range(0, 4):

@@ -1,19 +1,10 @@
 import csv
 import os
 
+from engine.data.data import GameData
 from engine.utils.data_loading import stat_convert
 
 infinity = float("infinity")
-
-
-class GameData:
-    def __init__(self):
-        from engine.game.game import Game
-        self.main_dir = Game.main_dir
-        self.data_dir = Game.data_dir
-        self.font_dir = Game.font_dir
-        self.localisation = Game.localisation
-        self.screen_scale = Game.screen_scale
 
 
 class CharacterData(GameData):

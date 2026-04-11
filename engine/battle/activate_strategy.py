@@ -31,8 +31,8 @@ def activate_strategy(self, team, strategy, strategy_index, base_pos_x):
 
         if stat["Effects"]:
             for effect_stat in stat["Effects"]:
-                start_x = (base_pos_x + effect_stat[2]) * self.screen_scale[0]
-                start_y = effect_stat[3] * self.screen_scale[1]
+                start_x = (base_pos_x + effect_stat[2]) * self.screen_scale_width
+                start_y = effect_stat[3] * self.screen_scale_height
                 base_target_pos = find_target_point(start_x, start_y, 100000, effect_stat[4])
                 direction = "right"
                 if start_x > base_target_pos[0]:
@@ -49,14 +49,14 @@ def activate_strategy(self, team, strategy, strategy_index, base_pos_x):
                     # effect come from left side
                     direction = "left"
                     angle = 180 - effect_stat[4]
-                    start_x = (base_pos_x - effect_stat[2]) * self.screen_scale[0]
+                    start_x = (base_pos_x - effect_stat[2]) * self.screen_scale_width
                 else:
                     # effect come from right side
                     direction = "right"
                     angle = effect_stat[4]
-                    start_x = (base_pos_x + effect_stat[2]) * self.screen_scale[0]
-                start_y = effect_stat[3] * self.screen_scale[1]
-                base_target_pos = find_target_point(start_x / self.screen_scale[0], start_y / self.screen_scale[1],
+                    start_x = (base_pos_x + effect_stat[2]) * self.screen_scale_width
+                start_y = effect_stat[3] * self.screen_scale_height
+                base_target_pos = find_target_point(start_x / self.screen_scale_width, start_y / self.screen_scale_height,
                                                     100000, angle)
                 DamageEffect(stat["owner data"] | {"team": team, "direction": direction},
                              (effect_stat[0], effect_stat[1], start_x, start_y, angle,

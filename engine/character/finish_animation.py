@@ -1,43 +1,45 @@
 def finish_animation(self, done):
     # Pick new action and animation, either when animation finish or get interrupt,
     # action that require movement to run out first before continue to next action
-    if ((self.interrupt_animation and "uninterruptible" not in self.current_action) or
-            (("x_momentum" in self.current_action and not self.x_momentum) or
-             ("y_momentum" in self.current_action and not self.y_momentum) or
-             ("end_when_done" in self.current_action and done)) or
-            ("repeat" not in self.current_action and ((not self.current_action and self.command_action) or done))):
+    current_action = self.current_action
+    command_action = self.command_action
+    current_moveset = self.current_moveset
+    if ((self.interrupt_animation and "uninterruptible" not in current_action) or
+            (("x_momentum" in current_action and not self.x_momentum) or
+             ("y_momentum" in current_action and not self.y_momentum) or
+             ("end_when_done" in current_action and done)) or
+            ("repeat" not in current_action and ((not current_action and command_action) or done))):
         # finish current action
         self.already_hit = []
-        if self.current_moveset:
+        if current_moveset:
             # add move cooldown when the animation is completely done or interrupted
-            if ("next action" not in self.current_action or self.interrupt_animation) and self.current_moveset[
-                "Cooldown"]:
-                self.move_cooldown[self.current_moveset["Move"]] = self.current_moveset["Cooldown"]
+            if ("next action" not in current_action or self.interrupt_animation) and current_moveset["Cooldown"]:
+                self.move_cooldown[current_moveset["Move"]] = current_moveset["Cooldown"]
             if done:  # apply status only for action animation that is finished playing, not interrupted
-                if self.current_moveset["Status"]:  # moveset apply status effect to self and allies in range
-                    for effect in self.current_moveset["Status"]:
+                if current_moveset["Status"]:  # moveset apply status effect to self and allies in range
+                    for effect in current_moveset["Status"]:
                         self.apply_status(effect)
-                        for ally in self.near_ally:
-                            if ally[1] <= self.current_moveset["Range"]:  # apply status based on range
+                        for ally in self.near_ally:  # loop ally after effect so effect apply loop is more efficient
+                            if ally[1] <= current_moveset["Range"]:  # apply status based on range
                                 ally[0].apply_status(effect)
                             else:  # further ally from range, no longer need to check
                                 break
 
-                if self.current_moveset["Enemy Status"]:
-                    for effect in self.current_moveset["Enemy Status"]:
-                        for enemy in self.near_enemy:
-                            if enemy[1] <= self.current_moveset["Range"]:  # apply status based on range
+                if current_moveset["Enemy Status"]:
+                    for enemy in self.near_enemy:
+                        for effect in current_moveset["Enemy Status"]:
+                            if enemy[1] <= current_moveset["Range"]:  # apply status based on range
                                 enemy[0].apply_status(effect)
                             else:  # further enemy from range, no longer need to check
                                 break
 
-        if "next action" in self.current_action and (not self.interrupt_animation or
-                                                     "interruptable" in self.command_action) and \
-                (not self.current_moveset or "no auto next" not in self.current_moveset_property):
+        if "next action" in current_action and (not self.interrupt_animation or
+                                                "interruptable" in command_action) and \
+                (not current_moveset or "no auto next" not in self.current_moveset_property):
             # play next action from current set first instead of next command if not finish by interruption
-            self.current_action = self.current_action["next action"]
+            self.current_action = current_action["next action"]
         else:
-            self.current_action = self.command_action  # continue next command action when animation set finish
+            self.current_action = command_action  # continue next command action when animation set finish
             self.command_action = {}
 
         # reset animation playing related value

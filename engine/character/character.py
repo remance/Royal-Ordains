@@ -28,10 +28,8 @@ from engine.character.get_damage import get_damage
 from engine.character.health_resource_logic import health_resource_logic, air_health_resource_logic
 from engine.character.issue_commander_order import issue_commander_order
 from engine.character.move_logic import move_logic, sub_move_logic, air_move_logic
-from engine.character.pick_animation import pick_animation
-from engine.character.pick_cutscene_animation import pick_cutscene_animation
-from engine.character.play_animation import (next_animation_frame, showcase_next_animation_frame, play_battle_animation,
-                                             play_cutscene_animation, play_showcase_animation)
+from engine.character.pick_animation import pick_animation, pick_cutscene_animation
+from engine.character.play_animation import (play_battle_animation, play_cutscene_animation, play_showcase_animation)
 from engine.character.reset_commander_variables import reset_commander_variables
 from engine.character.reset_sprite import reset_sprite, battle_reset_sprite
 from engine.character.rotate_logic import rotate_logic
@@ -77,6 +75,8 @@ class Character(sprite.Sprite):
     containers = None
     effect_list: dict = None
     sound_effect_pool: dict = None
+    screen_scale_width = 1
+    screen_scale_height = 1
 
     image = Surface((0, 0))  # start with empty surface
     mask = from_surface(image)
@@ -104,7 +104,6 @@ class Character(sprite.Sprite):
     move_logic = move_logic
     pick_animation = pick_animation
     pick_cutscene_animation = pick_cutscene_animation
-    next_animation_frame = next_animation_frame
     play_battle_animation = play_battle_animation
     play_cutscene = play_cutscene_animation
     reset_sprite = reset_sprite
@@ -149,7 +148,6 @@ class Character(sprite.Sprite):
 
         self.in_drawer = False
         self.blit_culling_check = self.battle.blit_culling_check
-        self.screen_scale = self.battle.screen_scale
         self.battle_camera_drawer = self.battle.battle_camera_object_drawer
         self.all_team_enemy_check = self.battle.all_team_enemy_check
 
@@ -231,9 +229,8 @@ class Character(sprite.Sprite):
                 self.direction = "left"
         self.new_direction = self.direction
         self.target_pos = self.base_pos.copy()
-        self.pos = Vector2((self.base_pos[0] * self.screen_scale[0],
-                            self.base_pos[1] * self.screen_scale[1]))
-        self.offset_pos = self.pos
+        self.pos = Vector2((self.base_pos[0] * self.screen_scale_width,
+                            self.base_pos[1] * self.screen_scale_height))
         self.cutscene_target_pos = None
         self.grid_range_x = []
         self.grid_range_y = []
@@ -326,8 +323,8 @@ class Character(sprite.Sprite):
                 else:  # move length pass the base_target destination
                     self.base_pos = Vector2(self.cutscene_target_pos)  # just change base position to base target
 
-                self.pos = Vector2((self.base_pos[0] * self.screen_scale[0],
-                                    self.base_pos[1] * self.screen_scale[1]))
+                self.pos = Vector2((self.base_pos[0] * self.screen_scale_width,
+                                    self.base_pos[1] * self.screen_scale_height))
 
                 self.update_sprite = True
 
@@ -476,9 +473,6 @@ class BattleCharacter(Character):
         self.base_speed = stat["Speed"]
 
         # add leadership from all active retinues (retinue reduce leadership by half)
-        self.leadership = stat["Leadership"] + sum([self.character_list[item]["Leadership"] / 2
-                                                    for item in self.battle.team_stat[self.team]["active_retinue"]])
-        self.strategy_regen = self.leadership / 100
         self.status_immunity = stat["Status Immunity"]
 
         self.base_health = stat["Health"]  # max health of character
@@ -599,7 +593,7 @@ class BattleCharacter(Character):
                 self.battle.last_char_game_id += 1
 
         if stat["ID"] in self.battle.character_portraits:
-            self.icon = self.battle.character_portraits[stat["ID"]]["tactical"]
+            self.icon = self.battle.character_portraits[stat["ID"]]["small"]
             self.command_icon = self.battle.character_portraits[stat["ID"]]["command"]
 
     def update(self, dt: float):
@@ -749,11 +743,11 @@ class SubBattleCharacter(BattleCharacter):
         BattleCharacter.__init__(self, game_id, stat, additional_layer="main")
         self.anchor_pos = stat["Anchor POS"]
         if self.main_character.direction == "right":
-            self.pos = Vector2(((self.base_pos[0] - self.anchor_pos[0]) * self.screen_scale[0],
-                                (self.base_pos[1] + self.anchor_pos[1]) * self.screen_scale[1]))
+            self.pos = Vector2(((self.base_pos[0] - self.anchor_pos[0]) * self.screen_scale_width,
+                                (self.base_pos[1] + self.anchor_pos[1]) * self.screen_scale_height))
         else:
-            self.pos = Vector2(((self.base_pos[0] + self.anchor_pos[0]) * self.screen_scale[0],
-                                (self.base_pos[1] + self.anchor_pos[1]) * self.screen_scale[1]))
+            self.pos = Vector2(((self.base_pos[0] + self.anchor_pos[0]) * self.screen_scale_width,
+                                (self.base_pos[1] + self.anchor_pos[1]) * self.screen_scale_height))
         main_character.sub_characters.append(self)
         if main_character.max_enemy_range_check < self.max_enemy_range_check:
             main_character.max_enemy_range_check = self.max_enemy_range_check
@@ -839,7 +833,6 @@ class ShowcaseCharacter(Character):
     enter_stage = showcase_enter_stage
     move_logic = empty_method
     play_battle_animation = play_showcase_animation
-    next_animation_frame = showcase_next_animation_frame
 
     # static variable
     is_sub_character = False
@@ -879,7 +872,6 @@ class SubShowcaseCharacter(Character):
     enter_stage = showcase_enter_stage
     move_logic = sub_move_logic
     play_battle_animation = play_showcase_animation
-    next_animation_frame = showcase_next_animation_frame
 
     def __init__(self, game_id: int, stat: dict, main_character: ShowcaseCharacter):
         """
@@ -889,11 +881,11 @@ class SubShowcaseCharacter(Character):
         Character.__init__(self, game_id, stat, additional_layer="main")
         self.anchor_pos = stat["Anchor POS"]
         if self.main_character.direction == "right":
-            self.pos = Vector2(((self.base_pos[0] - self.anchor_pos[0]) * self.screen_scale[0],
-                                (self.base_pos[1] + self.anchor_pos[1]) * self.screen_scale[1]))
+            self.pos = Vector2(((self.base_pos[0] - self.anchor_pos[0]) * self.screen_scale_width,
+                                (self.base_pos[1] + self.anchor_pos[1]) * self.screen_scale_height))
         else:
-            self.pos = Vector2(((self.base_pos[0] + self.anchor_pos[0]) * self.screen_scale[0],
-                                (self.base_pos[1] + self.anchor_pos[1]) * self.screen_scale[1]))
+            self.pos = Vector2(((self.base_pos[0] + self.anchor_pos[0]) * self.screen_scale_width,
+                                (self.base_pos[1] + self.anchor_pos[1]) * self.screen_scale_height))
         main_character.sub_characters.append(self)
         self.battle.battle_character_updater.remove(self)
         self.battle.all_battle_characters.remove(self)

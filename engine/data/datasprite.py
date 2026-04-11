@@ -6,7 +6,7 @@ from pathlib import Path
 
 from pygame.transform import smoothscale, flip
 
-from engine.data.datastat import GameData
+from engine.data.data import GameData
 from engine.utils.data_loading import load_images
 from engine.utils.sprite_caching import load_pickle_with_surfaces
 from engine.utils.text_making import text_render_with_bg
@@ -22,13 +22,13 @@ class SpriteData(GameData):
         self.character_animation_data = {}
         self.stage_object_animation_pool = {}
         self.grand_object_animation_pool = {}
+        self.grand_actor_animation_pool = {}
         self.character_portraits = {}
-        self.faction_coas = {}
         self.strategy_icons = {}
         self.effect_animation_pool = {}
-        self.effect_animation_pool = load_pickle_with_surfaces(
-            join(self.data_dir, "animation", "effect_animation.xz"),
-            screen_scale=self.screen_scale, effect_sprite_adjust=True)
+        # self.effect_animation_pool = load_pickle_with_surfaces(
+        #     join(self.data_dir, "animation", "effect_animation.xz"),
+        #     screen_scale=self.screen_scale, effect_sprite_adjust=True)
 
         self.strategy_icons = load_images(self.data_dir, screen_scale=self.screen_scale,
                                           subfolder=("ui", "strategy_ui"))
@@ -41,8 +41,8 @@ class SpriteData(GameData):
                 self.character_portraits[file]["character_ui"], (200 * self.screen_scale[0],
                                                                  200 * self.screen_scale[1]))
 
-            self.character_portraits[file]["tactical"] = {"right": mini_portrait,
-                                                          "left": flip(mini_portrait, True, False)}
+            self.character_portraits[file]["small"] = {"right": mini_portrait,
+                                                       "left": flip(mini_portrait, True, False)}
 
             # icon for setup like purchase unit or custom preset army setup
             self.character_portraits[file]["setup_ui"] = mini_portrait.copy()
@@ -61,14 +61,6 @@ class SpriteData(GameData):
                 self.character_portraits[file]["character_ui"], (100 * self.screen_scale[0],
                                                                  100 * self.screen_scale[1]))
             self.character_portraits[file]["command"] = mini_portrait
-
-        self.faction_coas = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                        subfolder=("ui", "faction_ui"))
-        for file in self.faction_coas:
-            self.faction_coas[file] = {"faction_ui": self.faction_coas[file]}
-            self.faction_coas[file]["small"] = smoothscale(
-                self.faction_coas[file]["faction_ui"], (200 * self.screen_scale[0],
-                                                        200 * self.screen_scale[1]))
 
         self.culture_coas = load_images(self.data_dir, screen_scale=self.screen_scale,
                                         subfolder=("ui", "culture_ui"))
@@ -92,11 +84,18 @@ class SpriteData(GameData):
         #     join(self.data_dir, "animation", "stage_object.xz"),
         #     screen_scale=self.screen_scale, battle_only=True)
 
-        self.grand_object_animation_pool = load_pickle_with_surfaces(
-            join(self.data_dir, "animation", "world_object.xz"),
-            screen_scale=self.screen_scale)
+    def setup_campaign(self):
+        """Setup animation for campaign, only run once"""
+        if not self.grand_object_animation_pool:
+            self.grand_object_animation_pool = load_pickle_with_surfaces(
+                join(self.data_dir, "animation", "world_object.xz"),
+                screen_scale=self.screen_scale, add_mask=False)
 
-    def load_character_animation(self, character_list, battle_only=False, clear=False):
+            self.grand_actor_animation_pool = load_pickle_with_surfaces(
+                join(self.data_dir, "animation", "world_actor.xz"),
+                screen_scale=self.screen_scale, add_mask=False)
+
+    def load_character_animation(self, character_list, clear=False):
         if clear:
             self.character_animation_data.clear()
         else:

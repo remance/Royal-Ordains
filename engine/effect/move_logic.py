@@ -33,7 +33,7 @@ def move_logic(self, dt, done):
                     self.angle = 0
             self.base_pos = new_pos
             self.travel_progress += move[0]
-            self.pos = Vector2(new_pos[0] * self.screen_scale[0], new_pos[1] * self.screen_scale[1])
+            self.pos = Vector2(new_pos[0] * self.screen_scale_width, new_pos[1] * self.screen_scale_height)
             self.renew_sprite = True
             if self.ignore_ground:
                 self.travel_distance -= move.length()

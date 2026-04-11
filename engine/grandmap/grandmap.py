@@ -55,18 +55,7 @@ class GrandMap(Sprite):
             if self.grand.cursor.is_select_just_up:
                 region_colour = tuple(self.true_map_image.get_at((int(self.grand.base_cursor_pos[0]),
                                                                   int(self.grand.base_cursor_pos[1]))))[:3]
-                if region_colour in self.grand.regions:
-                    region = self.grand.regions[region_colour]
-                    for object in region.build_objects.values():
-                        if object.rect.collidepoint(self.grand.cursor_pos):
-                            self.grand.text_popup.popup(self.grand.cursor.rect.bottomright,
-                                                        (self.grand.localisation.grab_text(
-                                                            ("building", object.sprite_id, "Name"))),
-                                                        width_text_wrapper=800 * self.screen_scale[0]
-                                                        )
-                            self.grand.outer_ui_updater.add(self.grand.text_popup)
-                            return
-
+                if region_colour in self.grand.region_by_colour_list:
                     controller = self.grand.current_campaign_state["region_control"][region_colour]
                     self.grand.text_popup.popup(self.grand.cursor.rect.bottomright,
                                                 (self.grand.localisation.grab_text(("ui", "info_header_region")) +

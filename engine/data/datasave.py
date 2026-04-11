@@ -2,12 +2,12 @@ import os
 import pickle
 from pathlib import Path
 
-from engine.data.datastat import GameData
+from engine.data.data import GameData
 
 empty_game_save = {"playtime": 0, "stats": {}, "game state": {}, "map state": {}, "battle log": [], "grand log": []}
 
-empty_main_save = {"playtime": 0, "unlock": {"character": [], "faction_ui": [], "timeline": []},
-                   "new": {"character": [], "faction_ui": [], "timeline": []}}
+empty_main_save = {"playtime": 0, "unlock": {"faction": [], "timeline": []},
+                   "new": {"faction": [], "timeline": []}}
 
 
 class SaveData(GameData):

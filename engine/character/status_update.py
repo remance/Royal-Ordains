@@ -68,7 +68,7 @@ def status_update(self):
     if self.walk_speed < 0:
         self.walk_speed = 0
 
-    # if self.is_summon:  # summon reduce hp based on time
-    #     self.health -= 0.1
-    #     if self.health < 0:
-    #         self.health = 0
+    if self.is_summon:  # summon reduce hp based on time
+        self.health -= 0.1
+        if self.health < 0:
+            self.health = 0

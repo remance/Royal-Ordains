@@ -60,11 +60,13 @@ def compile_out_data(data_dir, animation_dir):
     save_pickle_with_surfaces(join(data_dir, "animation", "world_object.xz"), world_object_animation_pool)
     print(world_object_animation_pool)
 
-# import pygame
-# current_dir = Path.cwd().parents[0]
-# main_dir = current_dir.parents[0]
-# data_dir = join(main_dir, "data")
-# animation_dir = join(current_dir, "data", "animation")
-# pygame.init()
-# pen = pygame.display.set_mode((1, 1))
-# compile_out_data(data_dir, animation_dir)
+
+if __name__ == "__main__":
+    import pygame
+    current_dir = Path.cwd().parents[0]
+    main_dir = current_dir.parents[0]
+    data_dir = join(main_dir, "data")
+    animation_dir = join(current_dir, "data", "animation")
+    pygame.init()
+    pen = pygame.display.set_mode((1, 1))
+    compile_out_data(data_dir, animation_dir)

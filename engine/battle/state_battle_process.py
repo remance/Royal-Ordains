@@ -86,8 +86,8 @@ def state_battle_process(self):
             team_stat["strategy_cooldown"] = {key: value - dt if value > dt else 0 for
                                               key, value in team_stat["strategy_cooldown"].items()}
             team_commander = self.team_commander[team]
-            if team_commander and team_commander.alive and team_stat["strategy_resource"] < 100:
-                team_stat["strategy_resource"] += dt * team_commander.strategy_regen
+            if team_commander and team_commander.alive and team_stat["strategy_resource"] < 200:
+                team_stat["strategy_resource"] += dt * team_stat["strategy_regen"]
                 if team_stat["strategy_resource"] > 100:
                     team_stat["strategy_resource"] = 100
 

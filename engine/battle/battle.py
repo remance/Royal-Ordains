@@ -144,6 +144,8 @@ class Battle:
         self.main_dir = game.main_dir
         self.data_dir = game.data_dir
         self.screen_scale = game.screen_scale
+        self.screen_scale_width = game.screen_scale_width
+        self.screen_scale_height = game.screen_scale_height
 
         # battle object group
         self.battle_camera_object_drawer = sprite.LayeredUpdates()
@@ -213,8 +215,8 @@ class Battle:
         self.stage_music_pool = {}  # pool for music already converted to pygame Sound
 
         self.weather_screen_adjust = self.screen_width / self.screen_height  # for weather sprite spawn position
-        self.right_corner = self.screen_width - (5 * self.screen_scale[0])
-        self.bottom_corner = self.screen_height - (5 * self.screen_scale[1])
+        self.right_corner = self.screen_width - (5 * self.screen_scale_width)
+        self.bottom_corner = self.screen_height - (5 * self.screen_scale_height)
 
         self.character_data = self.game.character_data
         self.character_list = self.character_data.character_list
@@ -253,7 +255,7 @@ class Battle:
         self.battle_time = 0.0
 
         self.team_stat = {team: {"faction": None, "culture": None, "strategy_resource": 0, "supply_resource": 0,
-                                 "supply_reserve": 0, "total_supply": 0, "start_pos": 0,
+                                 "supply_reserve": 0, "total_supply": 0, "leadership": 0, "start_pos": 0,
                                  "leader_call_list": [], "troop_call_list": [],
                                  "air_group": [], "strategy": {}, "unit": {}} for
                           team in team_list}
@@ -289,7 +291,7 @@ class Battle:
         self.camera_pos = Vector2(500, 500)  # camera pos on scene
         self.camera_left = (self.camera_pos[0] - self.camera_center_x)
 
-        self.base_camera_left = (self.camera_pos[0] - self.camera_center_x) / self.screen_scale[0]
+        self.base_camera_left = (self.camera_pos[0] - self.camera_center_x) / self.screen_scale_width
 
         self.shown_camera_pos = self.camera_pos  # pos of camera shown to player, in case of screen shaking or other effects
 
@@ -508,11 +510,13 @@ class Battle:
         self.team_stat = team_stat
 
         for team_stat in self.team_stat.values():
+            print("hh")
             team_stat["leader_call_list"] = []
             team_stat["troop_call_list"] = []
             team_stat["supply_resource"] = 0
             team_stat["supply_reserve"] = 0
             team_stat["total_supply"] = 0
+            team_stat["leadership"] = 0
             team_stat["start_pos"] *= self.base_stage_end
             team_stat["active_retinue"] = []
             # add available strategies to team stat
@@ -527,6 +531,7 @@ class Battle:
                     [item, self.character_list[item]["Capacity"], self.character_list[item]["Supply"]] for item in
                     team_stat["main_army"].ground_group]
                 commander_stat = self.character_list[team_stat["main_army"].commander_id]
+                team_stat["leadership"] += commander_stat["Leadership"]
                 if commander_stat["Strategy"]:
                     team_stat["strategy_cooldown"][len(team_stat["strategy"])] = 0
                     team_stat["strategy"].append(commander_stat["Strategy"])
@@ -541,10 +546,14 @@ class Battle:
                                     break
 
                 for retinue in retinue_list:
+                    team_stat["leadership"] += (self.character_data.character_list[retinue]["Leadership"] *
+                                                Retinue_Leadership_Add_Modifier)
                     team_stat["strategy_cooldown"][len(team_stat["strategy"])] = 0
                     team_stat["strategy"].append(self.character_data.character_list[retinue]["Strategy"])
 
                 team_stat["active_retinue"] = retinue_list
+            team_stat["strategy_resource"] = team_stat["leadership"]
+            team_stat["strategy_regen"] = team_stat["leadership"] / 100
 
             for army in team_stat["reinforcement_army"]:
                 if army.commander_id:
@@ -609,7 +618,7 @@ class Battle:
                 if value["Type"] == "create" and value["Object"] not in battle_character_list:
                     battle_character_list.add(value["Object"])
 
-        self.sprite_data.load_character_animation(battle_character_list, battle_only=True)
+        self.sprite_data.load_character_animation(battle_character_list)
 
         yield set_done_load()
 
@@ -709,10 +718,10 @@ class Battle:
                                              custom_stage_data["weather"][1])
 
         if self.player_team:
-            self.camera_pos = Vector2(self.team_stat[self.player_team]["start_pos"] * self.screen_scale[0],
+            self.camera_pos = Vector2(self.team_stat[self.player_team]["start_pos"] * self.screen_scale_width,
                                       self.camera_center_y)
         else:  # no player, camera at center
-            self.camera_pos = Vector2((self.base_stage_end / 2) * self.screen_scale[0],
+            self.camera_pos = Vector2((self.base_stage_end / 2) * self.screen_scale_width,
                                       self.camera_center_y)
 
         self.music_channel.set_endevent(self.SONG_END)
@@ -744,7 +753,7 @@ class Battle:
 
         self.base_cursor_pos = [0, 0]  # mouse pos on the map based on camera position
         self.cursor_pos = [0, 0]
-        # mouse.set_pos(Vector2(self.camera_pos[0], self.screen_scale[1] / 2))  # set cursor to center of screen
+        # mouse.set_pos(Vector2(self.camera_pos[0], self.screen_scale_height / 2))  # set cursor to center of screen
 
         self.player_key_bind = self.game.player_key_bind_list
         self.player_key_bind_name = {value: key for key, value in self.player_key_bind.items()}
@@ -796,8 +805,8 @@ class Battle:
                 elif key_state[pygame.K_LCTRL] or key_state[pygame.K_RCTRL]:
                     self.ctrl_press = True
             self.base_cursor_pos = Vector2(
-                ((self.battle_cursor.pos[0] / self.screen_scale[0]) + self.base_camera_left),
-                (self.battle_cursor.pos[1] / self.screen_scale[1]))  # mouse pos on the map based on camera position
+                ((self.battle_cursor.pos[0] / self.screen_scale_width) + self.base_camera_left),
+                (self.battle_cursor.pos[1] / self.screen_scale_height))  # mouse pos on the map based on camera position
             self.cursor_pos = Vector2(self.battle_cursor.pos[0] + self.camera_left,
                                       self.battle_cursor.pos[1])
             for event in get_event():  # get event that happen
@@ -921,8 +930,8 @@ class Battle:
         self.scene.images = {}
         self.scene.data = {}
         self.team_stat = {team: {"faction": None, "culture": None, "strategy_resource": 0,
-                                 "supply_resource": 0, "supply_reserve": 0, "total_supply": 0, "start_pos": 0,
-                                 "leader_call_list": [], "troop_call_list": [],
+                                 "supply_resource": 0, "supply_reserve": 0, "total_supply": 0, "leadership": 0,
+                                 "start_pos": 0, "leader_call_list": [], "troop_call_list": [],
                                  "air_group": [], "strategy": {}, "unit": {}} for
                           team in team_list}
         self.team1_call_leader_cooldown_reinforcement = {}

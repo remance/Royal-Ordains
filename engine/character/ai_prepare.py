@@ -18,21 +18,24 @@ def find_grid_range(base_pos_x, max_enemy_range_check, last_grid):
 
 
 def get_near_enemy(self, near_enemy):
+    base_pos = self.base_pos
     near_enemy = sorted(
-        {key: abs(key.base_pos.distance_to(self.base_pos) - key.sprite_width) for key in near_enemy}.items(),
+        {key: abs(key.base_pos.distance_to(base_pos) - key.sprite_width) for key in near_enemy}.items(),
         key=itemgetter(1))  # sort the closest enemy
     if near_enemy:
         self.nearest_enemy = near_enemy[0][0]
         self.nearest_enemy_distance = near_enemy[0][1]
         self.nearest_enemy_pos = self.nearest_enemy.base_pos
-        furthest_attack_enemy = [key for key in near_enemy if key[1] <= self.ai_max_attack_range]
+        ai_max_attack_range = self.ai_max_attack_range
+        ai_enemy_max_effect_range = self.ai_enemy_max_effect_range
+        furthest_attack_enemy = [key for key in near_enemy if key[1] <= ai_max_attack_range]
         if furthest_attack_enemy:
             self.furthest_enemy = furthest_attack_enemy[-1][0]
             self.furthest_enemy_distance = furthest_attack_enemy[-1][1]
             self.furthest_enemy_pos = self.furthest_enemy.base_pos
         # keep self.near_enemy for status effect apply check
         if self.ai_enemy_max_effect_range:
-            self.near_enemy = [key for key in near_enemy if key[1] <= self.ai_enemy_max_effect_range]
+            self.near_enemy = [key for key in near_enemy if key[1] <= ai_enemy_max_effect_range]
         else:
             self.near_enemy = []
 
@@ -58,13 +61,14 @@ def troop_ai_prepare(self):
 def ai_prepare(self):
     """find distance of enemies and allies within range"""
     troop_ai_prepare(self)
-
+    base_pos = self.base_pos
+    ai_ally_max_effect_range = self.ai_ally_max_effect_range
     self.nearest_ally = None
     self.nearest_ally_pos = None
     self.nearest_ally_distance = None
-    self.near_ally = sorted({key: key.base_pos.distance_to(self.base_pos) for key in self.ally_list}.items(),
+    self.near_ally = sorted({key: key.base_pos.distance_to(base_pos) for key in self.ally_list}.items(),
                             key=itemgetter(1))  # sort the closest friend
-    self.near_ally = [key for key in self.near_ally if key[1] <= self.ai_ally_max_effect_range and key[0] is not self]
+    self.near_ally = [key for key in self.near_ally if key[1] <= ai_ally_max_effect_range and key[0] is not self]
     if self.near_ally:
         self.nearest_ally = self.near_ally[0][0]
         self.nearest_ally_pos = self.near_ally[0][0].base_pos
@@ -74,17 +78,18 @@ def ai_prepare(self):
 def sub_character_ai_prepare(self):
     """Use distance of enemies and allies within range from the main character"""
     if self.main_character:
-        self.nearest_enemy = self.main_character.nearest_enemy
-        self.nearest_enemy_distance = self.main_character.nearest_enemy_distance
-        self.nearest_enemy_pos = self.main_character.nearest_enemy_pos
-        self.nearest_ally = self.main_character.nearest_ally
-        self.nearest_ally_pos = self.main_character.nearest_ally_pos
-        self.nearest_ally_distance = self.main_character.nearest_ally_distance
-        self.near_enemy = self.main_character.near_enemy
-        self.near_ally = self.main_character.near_ally  # sort the closest friend
-        self.furthest_enemy = self.main_character.furthest_enemy
-        self.furthest_enemy_distance = self.main_character.furthest_enemy_distance
-        self.furthest_enemy_pos = self.main_character.furthest_enemy_pos
+        main_character = self.main_character
+        self.nearest_enemy = main_character.nearest_enemy
+        self.nearest_enemy_distance = main_character.nearest_enemy_distance
+        self.nearest_enemy_pos = main_character.nearest_enemy_pos
+        self.nearest_ally = main_character.nearest_ally
+        self.nearest_ally_pos = main_character.nearest_ally_pos
+        self.nearest_ally_distance = main_character.nearest_ally_distance
+        self.near_enemy = main_character.near_enemy
+        self.near_ally = main_character.near_ally  # sort the closest friend
+        self.furthest_enemy = main_character.furthest_enemy
+        self.furthest_enemy_distance = main_character.furthest_enemy_distance
+        self.furthest_enemy_pos = main_character.furthest_enemy_pos
 
 
 def interceptor_ai_prepare(self):

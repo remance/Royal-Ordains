@@ -1,0 +1,4 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
+"Attack1","Horn Bash",,,,300,,,,24,12,30,-15,,"crush",,,,
+"Attack2","Throw Dump",,,"self:{no_engage=400}",3500,4000,,,9,7,7,5,,"poison",,,"curse","arc"
+"Skill1","Distract Horn",,,,3000,4500,25,35,,,,,,,,"distract",,

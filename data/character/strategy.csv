@@ -22,7 +22,7 @@
 "spell_fire_barrage",6500,2000,15,40,40,35,180,40,60,,"fire",,"(fireball;base;850;-500;-160;0;1;1;1),(fireball;base;1000;-770;-160;0;1;1;1),(fireball;base;1200;-540;-160;0;1;1;1),(fireball;base;950;-600;-160;0;1;1;1),(fireball;base;1130;-660;-160;0;1;1;1)",,,,,,
 "spell_fire_domain",,10000,10,20,,,,,,,"fire",,,,,,,,
 "spell_firewall",3500,600,15,60,,,,,,,"fire",,,,,,,,
-"spell_flash",6000,2000,10,20,,,,,,,,,,,,"blind",,,
+"spell_flash",6000,2000,10,20,,,,,,,,,"(light_burst_medium;base;0;500;0;0;1;1;1)",,"blind","blind",,,
 "spell_great_fireball",7000,1500,10,40,,,,,,,"fire",,"(fireball_great;base;1000;-770;-160;0;1;1;1)",,,,"burn",,
 "spell_huge_stone",4500,500,10,40,40,120,1000,1200,1000,,"earth",,"(stone_huge;speed;0;-500;360;0;1;1;1)",,,,"stun",,"direct"
 "spell_hurricane",7000,1200,15,60,,,,,,,"air",,,,,,,,

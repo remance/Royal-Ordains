@@ -16,8 +16,8 @@ def remain_logic(self, dt):
             if move.length():
                 move.normalize_ip()
                 self.base_pos += move * dt * 500
-                self.pos = Vector2(self.base_pos[0] * self.screen_scale[0],
-                                   self.base_pos[1] * self.screen_scale[1])
+                self.pos = Vector2(self.base_pos[0] * self.screen_scale_width,
+                                   self.base_pos[1] * self.screen_scale_height)
                 self.adjust_sprite()
 
                 if move[0] > 0:

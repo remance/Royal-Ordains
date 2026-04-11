@@ -104,30 +104,31 @@ def adjust_sprite(self):
         self.renew_sprite = False
 
     offset = self.base_image["offset"]
-    self.offset_pos = self.pos
+    offset_pos = self.pos
     if offset:
         if self.angle and self.angle != 360:
-            self.offset_pos = rotation_xy(self.pos, self.pos - offset, radians(-self.angle))
+            offset_pos = rotation_xy(self.pos, self.pos - offset, radians(-self.angle))
         else:
-            self.offset_pos = self.pos - offset
+            offset_pos = self.pos - offset
 
-    self.rect = self.image.get_rect(center=self.offset_pos)
+    self.rect = self.image.get_rect(center=offset_pos)
 
 
 def damage_effect_adjust_sprite(self):
     adjust_sprite(self)
-    grid_left = int(self.rect.topleft[0] / self.collision_grid_width)
+    rect = self.rect
+    grid_left = int(rect.topleft[0] / self.collision_grid_width)
     if grid_left < 0:
         grid_left = 0
-    grid_right = int(self.rect.topright[0] / self.collision_grid_width) + 1
+    grid_right = int(rect.topright[0] / self.collision_grid_width) + 1
     if grid_right > self.last_grid:
         grid_right = self.last_grid
     grid_range_x = range(grid_left, grid_right)
     if self.grid_range_x != grid_range_x:
         self.grid_range_x = grid_range_x
 
-    grid_top = int(self.rect.topleft[1] / self.collision_grid_height)
-    grid_bottom = int(self.rect.bottomleft[1] / self.collision_grid_height) + 1
+    grid_top = int(rect.topleft[1] / self.collision_grid_height)
+    grid_bottom = int(rect.bottomleft[1] / self.collision_grid_height) + 1
 
     if grid_top < Collision_Grid_Y_Per_Scene:
         if grid_bottom > Collision_Grid_Y_Per_Scene:

@@ -1,9 +1,8 @@
 from random import choice
 from pygame.mixer import find_channel
-from engine.effect.effect import Effect, DamageEffect, TrapEffect, ShowcaseEffect
 
 
-def next_animation_frame(self):
+def change_animation_frame(self):
     self.frame_timer = 0
     if "reverse" not in self.current_action:
         if self.show_frame != self.max_show_frame:  # continue next frame
@@ -20,9 +19,13 @@ def next_animation_frame(self):
                 return True
             else:
                 self.show_frame = self.max_show_frame
-
     self.current_animation_frame = self.current_animation[self.show_frame]
     self.current_animation_direction = self.current_animation_frame[self.direction]
+
+
+def next_animation_frame(self):
+    """Add to sound queue for playing sound in battle"""
+    change_animation_frame(self)
     if self.current_animation_frame["sound_effect"]:  # play sound from animation
         sound = self.current_animation_frame["sound_effect"]
         self.battle.add_sound_effect_queue(self.sound_effect_pool[sound[0]][0],
@@ -30,44 +33,28 @@ def next_animation_frame(self):
 
 
 def showcase_next_animation_frame(self):
-    self.frame_timer = 0
-    if "reverse" not in self.current_action:
-        if self.show_frame != self.max_show_frame:  # continue next frame
-            self.show_frame += 1
-        else:  # reach end frame
-            self.show_frame = 0
-            if "repeat" not in self.current_action:  # not loop
-                return True
-    else:
-        if self.show_frame:  # continue next frame
-            self.show_frame -= 1
-        else:  # reach end frame
-            if "repeat" not in self.current_action:  # not loop
-                return True
-            else:
-                self.show_frame = self.max_show_frame
-
-    self.current_animation_frame = self.current_animation[self.show_frame]
-    self.current_animation_direction = self.current_animation_frame[self.direction]
+    """Play sound in game menu using any channel"""
+    change_animation_frame(self)
     if self.current_animation_frame["sound_effect"]:  # play sound from animation
-        sound = self.current_animation_frame["sound_effect"]
+        sound = self.current_animation_frame["sound_effect"][0]
         sound_effect_channel = find_channel()
         if sound_effect_channel:
             sound_effect_channel.set_volume(self.battle.play_effect_volume)
-            sound_effect_channel.play(choice(self.sound_effect_pool[sound[0]]))
+            sound_effect_channel.play(choice(self.sound_effect_pool[sound]))
 
 
 def play_showcase_animation(self, dt, hold_check):
+    from engine.effect.effect import ShowcaseEffect
     """
     Play character animation in lorebook showcase
-    :param self: Character object
+    :param self: ShowcaseCharacter object
     :param dt: Time
     :param hold_check: Check if holding animation frame or not
     :return: Boolean of animation finish playing or not
     """
     self.frame_timer += dt
     if self.frame_timer >= self.final_animation_frame_play_time:  # start next frame or end animation
-        if self.next_animation_frame():
+        if showcase_next_animation_frame(self):
             return True
 
         self.final_animation_frame_play_time = self.animation_frame_play_time
@@ -86,6 +73,7 @@ def play_showcase_animation(self, dt, hold_check):
 
 
 def play_battle_animation(self, dt, hold_check):
+    from engine.effect.effect import Effect, DamageEffect, TrapEffect
     """
     Play character animation in battle
     :param self: Character object
@@ -96,7 +84,7 @@ def play_battle_animation(self, dt, hold_check):
     if not hold_check:
         self.frame_timer += dt
         if self.frame_timer >= self.final_animation_frame_play_time:  # start next frame or end animation
-            if self.next_animation_frame():
+            if next_animation_frame(self):
                 return True
 
             self.final_animation_frame_play_time = self.animation_frame_play_time
@@ -139,7 +127,7 @@ def play_cutscene_animation(self, dt, hold_check):
     if not hold_check:  # not holding current frame
         self.frame_timer += dt
         if self.frame_timer >= self.final_animation_frame_play_time:  # start next frame or end animation
-            if self.next_animation_frame():
+            if next_animation_frame(self):
                 return True
 
             # check if new frame has play speed mod

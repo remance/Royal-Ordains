@@ -243,7 +243,6 @@ def stat_convert(row, n, i, percent_column=(), list_column=(), tuple_column=(), 
             row[n] = 1
         else:
             row[n] = float(i) + 1
-
     elif n in list_column or n in tuple_column:
         if "," not in i:  # single item
             if i == "":
@@ -255,19 +254,16 @@ def stat_convert(row, n, i, percent_column=(), list_column=(), tuple_column=(), 
         row[n] = [item_conversion(k) for k in row[n]]
         if n in tuple_column:
             row[n] = tuple(row[n])
-
     elif n in int_column:
         if i:
             row[n] = int(i)
         else:
             row[n] = 0
-
     elif n in float_column:
         if i:
             row[n] = float(i)
         else:
             row[n] = 0
-
     elif n in dict_column:
         # dict column value can be in key:value format or just key, if contains only key it will be assigned TRUE value
         # if it has / and character after the value after / will be the item value
@@ -304,13 +300,10 @@ def stat_convert(row, n, i, percent_column=(), list_column=(), tuple_column=(), 
                             value = float(value)
                         result_i[item.split("/")[0]] = value
             row[n] = result_i
-
     elif n in str_column:
         row[n] = str(i)
-
     elif n in hex2colour_column:
         row[n] = getrgb("#" + i)
-
     else:
         row[n] = item_conversion(i)
 

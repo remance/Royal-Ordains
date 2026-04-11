@@ -6,25 +6,26 @@ max_grid_y_range = tuple(range(Collision_Grid_Y_Per_Scene + 1))
 def reset_sprite(self):
     self.image = self.current_animation_direction["sprite"]
     offset = self.current_animation_direction["offset"]
-    self.offset_pos = self.pos
+    offset_pos = self.pos
     if offset:
-        self.offset_pos = self.pos - offset
-    self.rect = self.image.get_rect(midbottom=self.offset_pos)
+        offset_pos = self.pos - offset
+    self.rect = self.image.get_rect(midbottom=offset_pos)
 
 
 def battle_reset_sprite(self):
     # grid check does not check pass existing stage
     reset_sprite(self)
-    grid_left = int(self.rect.topleft[0] / self.collision_grid_width)
+    rect = self.rect
+    grid_left = int(rect.topleft[0] / self.collision_grid_width)
     if grid_left < 0:
         grid_left = 0
-    grid_right = int(self.rect.topright[0] / self.collision_grid_width) + 1
+    grid_right = int(rect.topright[0] / self.collision_grid_width) + 1
     if grid_right > self.last_grid:
         grid_right = self.last_grid
     grid_range_x = set(range(grid_left, grid_right))
 
-    grid_top = int(self.rect.topleft[1] / self.collision_grid_height)
-    grid_bottom = int(self.rect.bottomleft[1] / self.collision_grid_height) + 1
+    grid_top = int(rect.topleft[1] / self.collision_grid_height)
+    grid_bottom = int(rect.bottomleft[1] / self.collision_grid_height) + 1
     if grid_top < Collision_Grid_Y_Per_Scene:
         if grid_bottom > Collision_Grid_Y_Per_Scene:
             grid_bottom = Collision_Grid_Y_Per_Scene

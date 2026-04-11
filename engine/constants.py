@@ -18,6 +18,7 @@ Default_Supply_limit_Custom_Battle = 1000
 Default_Gold_limit_Custom_Battle = 5000
 Default_Weather_Custom_Battle = 1
 Default_Weather_Strength_Custom_Battle = 0
+Retinue_Leadership_Add_Modifier = 0.3
 
 # THESE CONSTANTS SHOULD NOT BE CHANGED
 Default_Showcase_Character_POS = (Default_Screen_Width * 0.6, Default_Screen_Height * 0.6)
