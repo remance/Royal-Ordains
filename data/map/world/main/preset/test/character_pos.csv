@@ -1,1 +1,4 @@
 "ID","POS","Team","AI Behaviour","Arrive Condition","Stage Property"
+"nice_bear_cub",500,0,,,
+"nice_cloud_dog",1500,0,,"weather:2",
+"nice_fluffy_bird",2000,0,,"time:10",

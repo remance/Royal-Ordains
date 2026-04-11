@@ -1,1 +1,2 @@
 "ID","Text ID","Object","Animation","Type","Trigger","Property"
+"weather",,2,,"weather","time,10","strength:2,wind:180"

@@ -1,6 +1,6 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
-"weak1","Bite",,,,100,,,,5,,5,5,,"stab",,,,
-"weak2","Bite Again",,,,100,,,,5,,5,5,,"stab",,,,
-"weak3","Slap",,,,100,,,,8,,,30,,"crush",,,,
-"strong","Leap",,,"self:{no_stay}",400,,,,10,,15,50,,"crush",,,,"movable,x_momentum:700,hold"
-"special","Bark",,,,500,600,,,,,,,,,,"disrupt",,
+"Attack1","Bite",,,,100,,,,5,,5,5,,"stab",,,,
+"Attack2","Bite Again",,,,100,,,,5,,5,5,,"stab",,,,
+"Attack3","Slap",,,,100,,,,8,,,30,,"crush",,,,
+"Skill1","Leap",,,"self:{no_stay}",400,,,,10,,15,50,,"crush",,,,"movable,x_momentum:700,hold"
+"Skill2","Bark",,,,500,600,,,,,,,,,,"disrupt",,

@@ -21,7 +21,7 @@ def hit_collide_check(self):
                     #         return True
                     if enemy not in self.already_hit:
                         self.already_hit.append(enemy)
-                        if uniform(self.low_offence, self.offence) > uniform(0, enemy.low_speed):  # check for dodge
+                        if uniform(self.low_offence, self.offence) > uniform(0, enemy.dodge_chance):  # check for dodge
                             if not self.duration:
                                 self.penetrate -= enemy.body_mass
                                 if self.penetrate < 0:
@@ -36,7 +36,7 @@ def hit_collide_check(self):
                                         self.reach_target()
                                         return True
                                 else:
-                                    return
+                                    return True
 
 
 # def melee_impact_crash_check(self, enemy):

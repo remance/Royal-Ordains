@@ -1,5 +1,7 @@
 from pygame import Vector2
 
+from engine.utils.rotation import set_rotate
+
 
 def move_logic(self, dt, done):
     """
@@ -10,11 +12,12 @@ def move_logic(self, dt, done):
     @return: True if sprite reach target and is killed
     """
     if self.travel_distance:  # sprite that can move
+        speed = self.speed
         if self.direct_shot:
-            new_pos = Vector2(self.base_pos[0] - (self.speed * self.sin_angle),
-                              self.base_pos[1] - (self.speed * self.cos_angle))
+            new_pos = Vector2(self.base_pos[0] - (speed * self.sin_angle),
+                              self.base_pos[1] - (speed * self.cos_angle))
         else:
-            move_x = self.travel_distance / (self.speed * dt)
+            move_x = self.travel_distance / (speed * dt)
             x = self.travel_progress + move_x
             y = (x * self.sin_angle - 0.5 * (x ** 2) /
                  (self.velocity ** 2 * self.cos_angle ** 2))
@@ -23,17 +26,17 @@ def move_logic(self, dt, done):
         move = new_pos - self.base_pos
         if move.length():  # sprite move
             move.normalize_ip()
-            move *= self.speed * dt
+            move *= speed * dt
             new_pos = self.base_pos + move
             if not self.travel_spin:
-                self.angle = self.set_rotate(new_pos)
+                self.angle = set_rotate(self.base_pos, new_pos)
             else:  # spin while travel instead of angle to front direction
                 self.angle += (dt * 1000)
                 if self.angle >= 360:
                     self.angle = 0
             self.base_pos = new_pos
             self.travel_progress += move[0]
-            self.pos = Vector2(new_pos[0] * self.screen_scale[0], new_pos[1] * self.screen_scale[1])
+            self.pos = Vector2(new_pos[0] * self.screen_scale_width, new_pos[1] * self.screen_scale_height)
             self.renew_sprite = True
             if self.ignore_ground:
                 self.travel_distance -= move.length()
@@ -41,8 +44,10 @@ def move_logic(self, dt, done):
                     self.travel_distance = 0
 
             if not self.random_move and (not self.travel_distance or
-                    new_pos[0] <= self.effect_base_stage_start or new_pos[0] > self.effect_base_stage_end or
-                    (not self.ignore_ground and new_pos[1] >= self.base_ground_pos) or new_pos[1] < -10000):
+                                         new_pos[0] <= self.effect_base_stage_start or new_pos[
+                                             0] > self.effect_base_stage_end or
+                                         (not self.ignore_ground and new_pos[1] >= self.base_ground_pos) or new_pos[
+                                             1] < -10000):
                 # pass outside of map or no longer move
                 if new_pos[1] >= self.base_ground_pos:
                     # reach ground
@@ -53,12 +58,13 @@ def move_logic(self, dt, done):
                         self.base_image = self.current_animation[self.show_frame]
                         self.adjust_sprite()
                     self.reach_target("ground")
-                    return
+                    return True
                 else:
                     self.reach_target("border")
-                    return
+                    return True
 
             self.adjust_sprite()
 
     elif done:
         self.reach_target()
+        return True

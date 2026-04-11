@@ -1,0 +1,11 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
+"Skill1","Death Edict",,,,2000,,,60,,,,,,,,,,"summon:death_undead_zombie"
+"Skill2","Entertainment For All",,,,2000,10000,,60,,,,,,,"escalation_3","escalation_3",,
+"Skill3","Supreme Life",,,,2000,10000,,60,,,,,,,"massive_health_potion","massive_health_potion",,
+"Skill4","Rise of Eternal",,,,2000,,,60,,,,,,,,,,"summon:neutral_phoenix"
+"Skill5","Time End",,,,2000,10000,,60,,,,,,,"time_stop","time_stop",,
+"Skill6","An Eye For An Eye",,,,2000,10000,,60,,,,,,,"blind","blind",,
+"Skill7","World Peace",,,,2000,10000,,60,,,,,,,,"false_retreat",,
+"Skill8","Call For Chaos",,,,2000,,,60,,,,,,,,,,"summon:summon_chaos_creature"
+"Skill9","Generous Offer",,,,2000,10000,,60,,,,,,,"resource_kit","resource_kit",,
+"Skill10","Under Star",,,,2000,100000,,60,1000,100000,3000,3000,,"fire",,,,

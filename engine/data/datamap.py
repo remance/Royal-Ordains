@@ -1,13 +1,15 @@
-import copy
 import csv
 import os
+from copy import deepcopy
 from pathlib import Path
 
-from engine.data.datastat import GameData
+from engine.constants import Route_Travel_Modifier
+from engine.data.data import GameData
 from engine.utils.data_loading import stat_convert, load_image, csv_read
+from engine.utils.rotation import set_rotate
 
 
-class MapData(GameData):
+class DataMap(GameData):
     def __init__(self):
         """
         For keeping all data related to battle map.
@@ -36,45 +38,96 @@ class MapData(GameData):
         self.preset_map_data = {}
         self.region_list = {}
         self.route_list = {}
+        self.route_dot_draw_array = {}
+        self.dot_route_difficulty = {}
+        self.route_pathfinding = {}
         self.start_army_list = {}
+        self.event_list = {}
         self.faction_list = {}
-        self.region_by_colour_list = {}
-        self.world_map = None
+        self.region_by_colour_index = {}
+        self.region_by_pos_index = {}
+        self.base_world_map = None
+        self.default_grand_faction = None
 
     def load_campaign_data(self, campaign: str):
         self.region_list = {}
+        self.region_by_colour_index = {}
+        self.region_by_pos_index = {}
         with open(os.path.join(self.data_dir, "map", "world", campaign, "region.csv"),
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
-            hex2colour_column = ("Colour",)
-            hex2colour_column = [index for index, item in enumerate(header) if item in hex2colour_column]
-            tuple_column = ("Build Slot", "Settlement POS")
+            list_column = ["Build Slot " + str(index) for index in range(1, 11)]
+            list_column = [index for index, item in enumerate(header) if item in list_column]
+            tuple_column = ("Region POS", "Settlement POS",)
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
             dict_column = ("Object", "Route")
             dict_column = [index for index, item in enumerate(header) if item in dict_column]
+            hex2colour_column = ("Colour",)
+            hex2colour_column = [index for index, item in enumerate(header) if item in hex2colour_column]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
-                    row = stat_convert(row, n, i, tuple_column=tuple_column, dict_column=dict_column,
-                                       hex2colour_column=hex2colour_column)
+                    row = stat_convert(row, n, i, list_column=list_column, tuple_column=tuple_column,
+                                       dict_column=dict_column, hex2colour_column=hex2colour_column)
+
                 self.region_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
-                self.region_by_colour_list[row[1]] = {header[index]: stuff for index, stuff in enumerate(row)}
+                self.region_by_colour_index[row[1]] = row[0]  # assume colour is column B
+                self.region_by_pos_index[row[4]] = row[0]  # assume colour is column E
         edit_file.close()
 
         self.route_list = {}
+        self.route_dot_draw_array = {}
+        self.dot_route_difficulty = {}
         with open(os.path.join(self.data_dir, "map", "world", campaign, "route.csv"),
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
-            tuple_column = ("Route", "Dots")
+            list_column = ["Dots"]
+            list_column = [index for index, item in enumerate(header) if item in list_column]
+            tuple_column = ("Route",)
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
-                    row = stat_convert(row, n, i, tuple_column=tuple_column)
+                    row = stat_convert(row, n, i, list_column=list_column, tuple_column=tuple_column)
                 self.route_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
+                route_data = self.route_list[row[0]]
+                dot_route = route_data["Dots"]
+                for index, route in enumerate(dot_route):
+                    if index + 1 != len(dot_route):
+                        self.route_dot_draw_array[route] = set_rotate(route, dot_route[index + 1])
+                    else:  # next destination is settlement use settlement pos to calculate angle instead
+                        self.route_dot_draw_array[route] = set_rotate(route, self.region_list[row[0][1]][
+                            "Settlement POS"])
+                    self.dot_route_difficulty[route] = Route_Travel_Modifier[route_data["Type"]]
+
+                # add settlement pos to route after dots draw since dots do not include settlement
+                route_data["Dots"].insert(0, self.region_list[row[0][0]]["Settlement POS"])
+                route_data["Dots"].append(self.region_list[row[0][1]]["Settlement POS"])
+                # convert to tuple
+                self.route_list[row[0]]["Dots"] = tuple([tuple(item) for item in self.route_list[row[0]]["Dots"]])
+
+                # create reverse route for each one
+                self.route_list[row[0][::-1]] = deepcopy(self.route_list[row[0]])
+                self.route_list[row[0][::-1]]["Dots"] = self.route_list[row[0]]["Dots"][::-1]
+
+        self.route_dot_draw_array = dict(sorted(self.route_dot_draw_array.items()))
         edit_file.close()
 
-        self.world_map = load_image(self.data_dir, (1, 1), "world.png", ("map", "world", campaign), no_alpha=True)
+        self.event_list = {}
+        with open(os.path.join(self.data_dir, "map", "world", campaign, "event.csv"),
+                  encoding="utf-8", mode="r") as edit_file:
+            rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
+            header = rd[0]
+            dict_column = ("Condition", "Effect")
+            dict_column = [index for index, item in enumerate(header) if item in dict_column]
+            for index, row in enumerate(rd[1:]):
+                for n, i in enumerate(row):
+                    row = stat_convert(row, n, i, dict_column=dict_column)
+                self.event_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
+        edit_file.close()
+
+        self.base_world_map = load_image(self.data_dir, "world.png",
+                                         subfolder=("map", "world", campaign), no_alpha=True)  # no scaling for this
 
         self.faction_list = {}
         with open(os.path.join(self.data_dir, "map", "world", campaign, "faction.csv"),
@@ -83,16 +136,26 @@ class MapData(GameData):
             header = rd[0]
             hex2colour_column = ("Colour",)
             hex2colour_column = [index for index, item in enumerate(header) if item in hex2colour_column]
-            dict_column = ("Faction Relation", )
-            dict_column = [index for index, item in enumerate(header) if item in dict_column]
+            list_column = ("Alliance", "Courtier", "Relation",)
+            list_column = [index for index, item in enumerate(header) if item in list_column]
             tuple_column = ("Showcase Leader", "Showcase Troop")
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
-                    row = stat_convert(row, n, i, tuple_column=tuple_column, dict_column=dict_column,
+                    row = stat_convert(row, n, i, list_column=list_column, tuple_column=tuple_column,
                                        hex2colour_column=hex2colour_column)
                 self.faction_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
+                # remake relation list to dict
+                old_relation = self.faction_list[row[0]]["Relation"]
+                self.faction_list[row[0]]["Relation"] = {}
+                for relation in old_relation:
+                    if relation[0] not in self.faction_list[row[0]]["Relation"]:
+                        self.faction_list[row[0]]["Relation"][relation[0]] = []
+
+                    self.faction_list[row[0]]["Relation"][relation[0]].append([relation[1], relation[2], relation[3]])
         edit_file.close()
+
+        self.default_grand_faction = tuple(self.faction_list.keys())[0]
 
         self.start_army_list = {}
         with open(os.path.join(self.data_dir, "map", "world", campaign, "army.csv"),
@@ -102,7 +165,8 @@ class MapData(GameData):
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
                     row = stat_convert(row, n, i)
-                self.start_army_list[row[1]] = {header[index]: stuff for index, stuff in enumerate(row)}
+                self.start_army_list[row[0]] = {header[index]: stuff for index, stuff in enumerate(row)}
+                self.start_army_list[row[0]]["Route"] = []
         edit_file.close()
 
     def read_map_data(self, campaign: str, map_name: str):
@@ -113,27 +177,12 @@ class MapData(GameData):
             if map_name == map_file_name:
                 self.preset_map_data[map_name] = {}
 
-                if map_file_name != "event":  # city scene use different reading
-                    original_event_data, event_data = self.load_map_event_data(campaign, map_file_name)
-                    self.preset_map_data[map_name] = \
-                        {"data": csv_read(file_map, "object_pos.csv", header_key=True),
-                         "character": self.load_map_unit_data(campaign, map_file_name),
-                         "event_data": original_event_data,
-                         "event": event_data}
-                else:  # events, read each scene
-                    read_folder = Path(os.path.join(self.data_dir, "map", "stage", "preset", "event"))
-                    sub4_directories = [x for x in read_folder.iterdir() if x.is_dir()]
-                    for file_scene in sub4_directories:
-                        scene_file_name = os.sep.join(os.path.normpath(file_scene).split(os.sep)[-1:])
-                        original_event_data, event_data = self.load_map_event_data(campaign, map_file_name.lower(),
-                                                                                   scene_id=scene_file_name.lower())
-                        self.preset_map_data[map_name][
-                            scene_file_name] = \
-                            {"data": csv_read(file_scene, "object_pos.csv", header_key=True),
-                             "character": self.load_map_unit_data(map_file_name.lower(),
-                                                                  scene_id=scene_file_name.lower()),
-                             "event_data": original_event_data,
-                             "event": event_data}
+                original_event_data, event_data = self.load_map_event_data(campaign, map_file_name)
+                self.preset_map_data[map_name] = \
+                    {"data": csv_read(file_map, "object_pos.csv", header_key=True),
+                     "character": self.load_map_unit_data(campaign, map_file_name),
+                     "event_data": original_event_data,
+                     "event": event_data}
                 break
 
     def load_map_event_data(self, campaign, map_id, scene_id=""):
@@ -151,7 +200,7 @@ class MapData(GameData):
                 rd[data_index + 1] = {header[index]: stuff for index, stuff in enumerate(data)}
             event_data = rd[1:]
             # keep event data in trigger structure for easier check
-            original_event_data = copy.deepcopy(event_data)
+            original_event_data = deepcopy(event_data)
             if event_data:
                 final_event_data = {"music": []}
                 for item in event_data:
@@ -191,6 +240,7 @@ class MapData(GameData):
                 char_data = rd[1:]
             unit_file.close()
             return char_data
+
         except FileNotFoundError as b:
             print(b)
             return {}

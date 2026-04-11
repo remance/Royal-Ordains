@@ -1,0 +1,10 @@
+"ID","Type","Chance","Arrive Condition"
+"nice_butterfly","neutral","7,3",
+"nice_cloud_dog","neutral","0.1,1",
+"nice_slime","neutral","2,2",
+"nice_duck","neutral","0.5,1",
+1,"weather",70,
+2,"weather",10,
+3,"weather",3,
+4,"weather",5,
+5,"weather",20,

@@ -28,10 +28,8 @@ from engine.character.get_damage import get_damage
 from engine.character.health_resource_logic import health_resource_logic, air_health_resource_logic
 from engine.character.issue_commander_order import issue_commander_order
 from engine.character.move_logic import move_logic, sub_move_logic, air_move_logic
-from engine.character.pick_animation import pick_animation
-from engine.character.pick_cutscene_animation import pick_cutscene_animation
-from engine.character.play_animation import (next_animation_frame, showcase_next_animation_frame, play_battle_animation,
-                                             play_cutscene_animation, play_showcase_animation)
+from engine.character.pick_animation import pick_animation, pick_cutscene_animation
+from engine.character.play_animation import (play_battle_animation, play_cutscene_animation, play_showcase_animation)
 from engine.character.reset_commander_variables import reset_commander_variables
 from engine.character.reset_sprite import reset_sprite, battle_reset_sprite
 from engine.character.rotate_logic import rotate_logic
@@ -72,21 +70,26 @@ drop speed = assign value of dropping speed for air animation, higher value mean
 
 class Character(sprite.Sprite):
     battle = None
-    character_data: dict = None
+    stat_data: dict = None
     character_list: dict = None
     containers = None
     effect_list: dict = None
     sound_effect_pool: dict = None
+    screen_scale_width = 1
+    screen_scale_height = 1
 
+    sub_characters = []
+    status_immunity = ()
     image = Surface((0, 0))  # start with empty surface
     mask = from_surface(image)
-    rect = image.get_rect(topleft=(0, 0))
+    rect = image.get_rect()
     collision_grid_width = 0
 
-    ai_speak = ai_speak
     ai_logic = ai_logic
     ai_prepare = ai_prepare
+    ai_speak = ai_speak
     apply_status = apply_status
+    cal_damage = cal_damage
     cal_loss = cal_loss
     character_event_process = character_event_process
     check_ai_condition = check_ai_condition
@@ -95,25 +98,22 @@ class Character(sprite.Sprite):
     die = die
     enter_stage = enter_stage
     erase = erase
+    finish_animation = finish_animation
     get_damage = get_damage
     get_near_enemy = get_near_enemy
-    finish_animation = finish_animation
     health_resource_logic = health_resource_logic
+    hit_collide_check = hit_collide_check
+    hit_register = hit_register
     issue_commander_order = issue_commander_order
-    reset_commander_variables = reset_commander_variables
     move_logic = move_logic
     pick_animation = pick_animation
     pick_cutscene_animation = pick_cutscene_animation
-    next_animation_frame = next_animation_frame
     play_battle_animation = play_battle_animation
     play_cutscene = play_cutscene_animation
+    reset_commander_variables = reset_commander_variables
     reset_sprite = reset_sprite
     rotate_logic = rotate_logic
     status_update = status_update
-
-    cal_damage = cal_damage
-    hit_collide_check = hit_collide_check
-    hit_register = hit_register
 
     clean_object = clean_object
     set_rotate = set_rotate
@@ -128,36 +128,21 @@ class Character(sprite.Sprite):
     die_command_action = {"name": "Die", "uninterruptible": True,
                           "movable": True, "forced move": True, "hold": True, "die": True}
     die_moveset_command_action = {"name": "Die", "uninterruptible": True, "moveset": True,
-                          "movable": True, "forced move": True, "hold": True, "die": True}
+                                  "movable": True, "forced move": True, "hold": True, "die": True}
     spirit_command_action = {"name": "Spirit", "uninterruptible": True,
                              "movable": True, "forced move": True, "hold": True, "spirit": True}
 
     # static variable
     Base_Animation_Frame_Play_Time = Base_Animation_Frame_Play_Time
-    Default_Air_Pos = Default_Air_Pos
-    Default_Ground_Pos = Default_Ground_Pos
+    Default_Battle_Air_Pos = Default_Battle_Air_Pos
+    Default_Battle_Ground_Pos = Default_Battle_Ground_Pos
     Character_Gravity = Character_Gravity
 
     def __init__(self, game_id: int, stat: dict, additional_layer: (int, str) = 0, is_commander: bool = False) -> None:
         """
         Character object represent a single character in battle
         """
-        sprite.Sprite.__init__(self, self.containers)
-        # these two commands require replacement of x_momentum and direction, so can not be used as class variable
-        self.walk_command_action = {"name": "Walk", "movable": True, "walk": True, "interruptable": True}
-        self.run_command_action = {"name": "Run", "movable": True, "run": True, "interruptable": True}
-
-        self.in_drawer = False
-        self.blit_culling_check = self.battle.blit_culling_check
-        self.screen_scale = self.battle.screen_scale
-        self.battle_camera_drawer = self.battle.battle_camera_object_drawer
-        self.all_team_enemy_check = self.battle.all_team_enemy_check
-
         self.char_id = stat["ID"]
-        self.race = stat["Race"]
-        self.culture = stat["Culture"]
-        self.game_id = game_id  # object ID for reference
-
         self.animation_pool = self.battle.character_animation_data[self.char_id]  # list of animation this character
         self.sprite_height = self.animation_pool["Default"][0]["right"]["sprite"].get_height() * 1.5
         self.sprite_width = self.animation_pool["Default"][0]["right"]["sprite"].get_width() * 0.5
@@ -169,7 +154,23 @@ class Character(sprite.Sprite):
             self._layer = 1
         else:
             self._layer = int((10000 - self.sprite_height) + additional_layer)
-        self.name = self.battle.localisation.grab_text(("character", stat["ID"], "Name"))
+        sprite.Sprite.__init__(self, self.containers)
+
+        # these two commands require replacement of x_momentum and direction, so can not be used as class variable
+        self.walk_command_action = {"name": "Walk", "movable": True, "walk": True, "interruptable": True}
+        self.run_command_action = {"name": "Run", "movable": True, "run": True, "interruptable": True}
+
+        self.in_drawer = False
+        self.blit_culling_check = self.battle.blit_culling_check
+        self.battle_camera_drawer = self.battle.battle_camera_object_drawer
+        self.camera = self.battle.camera
+        self.all_team_enemy_check = self.battle.all_team_enemy_check
+
+        self.race = stat["Race"]
+        self.culture = stat["Culture"]
+        self.game_id = game_id  # object ID for reference
+
+        self.name = self.battle.grab_text(("character", stat["ID"], "Name"))
         self.cutscene_event = None
         self.speech = None
         self.is_commander = is_commander
@@ -181,6 +182,9 @@ class Character(sprite.Sprite):
         self.current_animation_frame = {}
         self.current_animation_direction = {}
         self.already_hit = []
+        self.move_cooldown = {}  # character can attack when cooldown reach attack speed
+        self.status_duration = {}  # current status duration
+        self.old_status_key = ()  # for checking status change
 
         self.timer = 0
         self.frame_timer = 0
@@ -195,6 +199,18 @@ class Character(sprite.Sprite):
         self.interrupt_animation = False
         self.animation_name = None
 
+        self.blind = False
+        self.false_order = False  # check whether character is given false order by status effect
+        self.shield = False  # check whether character is shielded for defence bonus against frontal attack
+        self.no_forced_move = False  # check whether character can be forcefully move via knockback/die, will also prevent knockback from occurring
+        self.active_without_sub_character = True  # check whether character remain active after all subs die
+        self.no_spirit = False
+        self.no_corpse = False
+        self.no_weak_side = False
+        self.immune_weather = False  # check whether character is immune to weather effect
+        self.hit_resource_regen = False
+        self.sprite_deal_damage = False
+        self.no_clip = False
         self.invisible = False  # can not be seen nor detected, will not be drawn on camera
         self.no_move = False
         self.no_run = False
@@ -206,8 +222,11 @@ class Character(sprite.Sprite):
 
         self.y_momentum = 0
         self.x_momentum = 0
-        self.run_speed = 12 * stat["Speed"]
-        self.walk_speed = 5 * stat["Speed"]
+        self.run_speed = 9 * stat["Speed"]
+        self.walk_speed = 4 * stat["Speed"]
+
+        if self.no_run:
+            self.run_speed = self.walk_speed
 
         self.animation_frame_play_time = self.Base_Animation_Frame_Play_Time
         self.final_animation_frame_play_time = self.animation_frame_play_time
@@ -216,7 +235,7 @@ class Character(sprite.Sprite):
         self.true_commander_order = ()
         self.base_pos = Vector2(stat["POS"][0],
                                 stat["POS"][1])  # true position of character in battle
-        self.base_ground_pos = self.Default_Ground_Pos
+        self.base_ground_pos = self.Default_Battle_Ground_Pos
         if "Ground Y POS" in stat and stat["Ground Y POS"]:  # replace ground pos based on data in stage
             self.base_ground_pos = stat["Ground Y POS"]
 
@@ -231,9 +250,8 @@ class Character(sprite.Sprite):
                 self.direction = "left"
         self.new_direction = self.direction
         self.target_pos = self.base_pos.copy()
-        self.pos = Vector2((self.base_pos[0] * self.screen_scale[0],
-                            self.base_pos[1] * self.screen_scale[1]))
-        self.offset_pos = self.pos
+        self.pos = Vector2((self.base_pos[0] * self.screen_scale_width,
+                            self.base_pos[1] * self.screen_scale_height))
         self.cutscene_target_pos = None
         self.grid_range_x = []
         self.grid_range_y = []
@@ -269,8 +287,8 @@ class Character(sprite.Sprite):
         self.ai_behaviour = stat["AI Behaviour"]
 
         self.ai_move = MethodType(ai_move_dict["default"], self)
-        if self.is_commander:  # leader use behaviour that move based on commander order
-            self.ai_move = MethodType(ai_move_dict["leader"], self)
+        if self.is_commander:  # commander use behaviour that move based on player/ ai commander order
+            self.ai_move = MethodType(ai_move_dict["commander"], self)
         elif self.ai_behaviour in ai_move_dict:
             self.ai_move = MethodType(ai_move_dict[self.ai_behaviour], self)
 
@@ -278,8 +296,6 @@ class Character(sprite.Sprite):
         self.ai_retreat = MethodType(ai_retreat_dict["default"], self)
         if self.ai_behaviour in ai_retreat_dict:
             self.ai_retreat = MethodType(ai_retreat_dict[self.ai_behaviour], self)
-
-        self.enter_stage()
 
     def update(self, dt: float):
         if self.alive:  # only run these when not dead
@@ -326,8 +342,8 @@ class Character(sprite.Sprite):
                 else:  # move length pass the base_target destination
                     self.base_pos = Vector2(self.cutscene_target_pos)  # just change base position to base target
 
-                self.pos = Vector2((self.base_pos[0] * self.screen_scale[0],
-                                    self.base_pos[1] * self.screen_scale[1]))
+                self.pos = Vector2((self.base_pos[0] * self.screen_scale_width,
+                                    self.base_pos[1] * self.screen_scale_height))
 
                 self.update_sprite = True
 
@@ -393,14 +409,17 @@ class BattleCharacter(Character):
     reset_sprite = battle_reset_sprite
 
     # static variable
-    knock_down_sound_distance = 1000
+    character_type = "ground"
+    knock_down_sound_distance = 2000
     knock_down_screen_shake = 10
     dmg_screen_shake = 0
-    dmg_sound_distance = 500
+    dmg_sound_distance = 1000
     is_sub_character = False
+    active = True
 
     def __init__(self, game_id: int, stat: dict, leader: BattleCharacter = None,
-                 additional_layer: (int, str) = 0, is_commander: bool = False, is_summon: bool = False) -> None:
+                 additional_layer: (int, str) = 0, is_commander: bool = False, is_summon: bool = False,
+                 additional_current_state=None) -> None:
         """
         BattleCharacter object represent a character that take part in the battle in stage
         Character has three different stage of stat;
@@ -409,26 +428,16 @@ class BattleCharacter(Character):
         """
         self.ai_speak_list = {}
 
+        Character.__init__(self, game_id, stat, additional_layer=additional_layer, is_commander=is_commander)
         if additional_layer != "main":
             self.main_character = None
         self.sub_characters = []
         self.leader = leader
 
-        self.blind = False
-        self.false_order = False  # check whether character is given false order by status effect
-        self.shield = False  # check whether character is shielded for defence bonus against frontal attack
-        self.no_forced_move = False  # check whether character can be forcefully move via knockback/die, will also prevent knockback from occurring
-        self.active_without_sub_character = True  # check whether character remain active after all subs die
-        self.no_spirit = False
-        self.no_corpse = False
-        self.no_weak_side = False
-        self.immune_weather = False  # check whether character is immune to weather effect
-        self.hit_resource_regen = False
-        self.sprite_deal_damage = False
-        self.no_clip = False
         self.is_summon = is_summon
         self.indicator = None
 
+        self.weather = None
         self.current_moveset = None
         self.current_moveset_property = None
         self.nearest_enemy = None
@@ -441,10 +450,8 @@ class BattleCharacter(Character):
         self.nearest_ally_pos = None
         self.nearest_ally_distance = None
 
-        self.move_cooldown = {}  # character can attack when cooldown reach attack speed
-        self.status_duration = {}  # current status duration
-
         self.character_type = stat["Type"]
+        self.character_grade = stat["Grade"]
         self.character_class = stat["Class"]
         self.team = stat["Team"]
         self.enemy_team = 1
@@ -455,7 +462,10 @@ class BattleCharacter(Character):
         # self.total_offence_power_score = 0
         # self.total_defence_power_score = 0
         self.total_power_score = 0
-        self.start_pos = self.battle.team_stat[self.team]["start_pos"]
+        self.start_pos = self.battle.team_state[self.team]["start_pos"]
+        self.retreat_pos = self.start_pos * 2
+        if not self.start_pos:
+            self.retreat_pos = -10000
 
         # Get char stat
         self.leader = None
@@ -467,18 +477,15 @@ class BattleCharacter(Character):
         self.original_defence = stat["Defence"]
         self.supply = stat["Supply Drop"]
 
-        self.melee_type = "offence"
-        if self.original_offence < self.original_defence:
-            self.melee_type = "defence"
+        # self.melee_type = "offence"
+        # if self.original_offence < self.original_defence:
+        #     self.melee_type = "defence"
 
         self.base_offence = stat["Offence"]
         self.base_defence = stat["Defence"]
         self.base_speed = stat["Speed"]
 
-        # add leadership from all active retinues (retinue reduce leadership by half)
-        self.leadership = stat["Leadership"] + sum([self.character_list[item]["Leadership"] / 2
-                                                    for item in self.battle.team_stat[self.team]["active_retinue"]])
-        self.strategy_regen = self.leadership / 100
+        # add leadership from 3 active leaders (leader reduce leadership by half)
         self.status_immunity = stat["Status Immunity"]
 
         self.base_health = stat["Health"]  # max health of character
@@ -491,19 +498,12 @@ class BattleCharacter(Character):
             self.base_health_regen = -1
         self.base_resource_regen = 1  # resource regeneration
 
-        self.status_duration = {}  # current status duration
-
         self.base_resource_cost_modifier = 1
 
         self.spawns = stat["Spawns"]
         self.body_mass = stat["Mass"]
         self.damaged_mass = self.body_mass * 2
         self.knockdown_mass = self.body_mass * 4
-
-        if "no_spirit" in stat["Property"]:
-            self.no_spirit = True
-        if "no_corpse" in stat["Property"]:
-            self.no_corpse = True
 
         # Final stat after receiving stat effect from various sources, reset every time status is updated
         self.critical_chance = self.base_critical_chance
@@ -512,7 +512,9 @@ class BattleCharacter(Character):
         self.defence = self.base_defence
         self.element_resistance = self.base_element_resistance.copy()
         self.speed = self.base_speed
-        self.low_speed = self.speed * 0.75
+        self.dodge_chance = self.speed * 0.75
+        if self.dodge_chance > 90:
+            self.dodge_chance = 90
         self.health_regen = self.base_health_regen
         self.resource_regen = self.base_resource_regen
         self.animation_frame_play_time = self.Base_Animation_Frame_Play_Time
@@ -526,8 +528,8 @@ class BattleCharacter(Character):
         self.health = self.base_health
         self.resource = self.base_resource
 
-        self.run_speed = 7 * self.speed
-        self.walk_speed = 3 * self.speed
+        self.run_speed = 9 * self.speed
+        self.walk_speed = 4 * self.speed
 
         # Variables related to sound
         self.knock_down_sound_distance = self.knock_down_sound_distance + self.body_mass
@@ -546,9 +548,15 @@ class BattleCharacter(Character):
         self.near_ally = []
         self.near_enemy = []
 
-        ai_speak_data = self.battle.localisation.grab_text(("ai_speak", stat["ID"]))
-        if type(ai_speak_data) is dict:
-            self.ai_speak_list = ai_speak_data
+        ai_speak_list = self.battle.localisation.grab_text(("battle_speak", stat["ID"]))
+        if type(ai_speak_list) is dict:  # only add if not empty
+            self.ai_speak_list = ai_speak_list
+
+        if additional_current_state:  # assign value in state to variable
+            self.health = additional_current_state["health"]
+            self.resource = additional_current_state["resource"]
+            self.status_duration = additional_current_state["status"]
+            self.move_cooldown = additional_current_state["cooldown"]
 
         # variable for attack cross function check
         self.is_effect_type = False
@@ -562,7 +570,6 @@ class BattleCharacter(Character):
         self.enemy_status_effect = ()
         self.no_defence = False
         self.no_dodge = False
-        Character.__init__(self, game_id, stat, additional_layer=additional_layer, is_commander=is_commander)
 
         self.movesets = deepcopy(stat["Move"])
         self.die_moveset = stat["Die Move"]
@@ -581,9 +588,9 @@ class BattleCharacter(Character):
         self.ai_enemy_max_effect_range = stat["ai_enemy_max_effect_range"]
         self.ai_ally_max_effect_range = stat["ai_ally_max_effect_range"]
 
-        self.retreat_stage_end = self.battle.base_stage_end + self.sprite_width
-        self.retreat_stage_start = -self.sprite_width
-        self.enemy_start_pos = self.battle.team_stat[self.enemy_team]["start_pos"]
+        self.retreat_stage_end = self.battle.base_stage_end + (self.sprite_width * 2)
+        self.retreat_stage_start = -self.sprite_width * 2
+        self.enemy_start_pos = self.battle.team_state[self.enemy_team]["start_pos"]
 
         if self.movesets:
             if self.is_commander:
@@ -593,14 +600,17 @@ class BattleCharacter(Character):
 
         if stat["Sub Characters"]:  # add sub characters
             for character in stat["Sub Characters"]:
-                SubBattleCharacter(self.battle.last_char_game_id, self.character_list[character[0]] |
-                                   {"ID": character[0], "Team": self.team,
-                                    "POS": self.base_pos, "Anchor POS": (character[1], character[2])}, self)
+                sub_battle_character = SubBattleCharacter(
+                    self.battle.last_char_game_id, self.character_list[character[0]] |
+                                                   {"ID": character[0], "Team": self.team,
+                                                    "POS": self.base_pos, "Anchor POS": (character[1], character[2])},
+                    self)
+                sub_battle_character.enter_stage()
                 self.battle.last_char_game_id += 1
 
         if stat["ID"] in self.battle.character_portraits:
-            self.icon = self.battle.character_portraits[stat["ID"]]["tactical"]
-            self.command_icon = self.battle.character_portraits[stat["ID"]]["command"]
+            self.icon = self.battle.character_portraits[stat["ID"]]["small"]
+            self.command_icon = self.battle.character_portraits[stat["ID"]]["mini"]["right"]
 
     def update(self, dt: float):
         """Character battle update, run when cutscene not playing"""
@@ -642,7 +652,7 @@ class BattleCharacter(Character):
                 if hold_check and self.already_hit:  # release hold when hit something
                     hold_check = False
                 if not self.penetrate and "run" in self.current_action:
-                    # remove momentum in running attack animation when penetrate run out
+                    # remove momentum only in running attack animation when penetrate run out
                     self.x_momentum = 0
 
             # if hold_check and not self.x_momentum and not self.y_momentum and self.already_hit:
@@ -665,9 +675,9 @@ class BattleCharacter(Character):
                 self.alive = False  # remove character that retreat pass stage border, enter dead state
                 self.health = 0
                 for sub_character in self.sub_characters:
-                    sub_character.die()
+                    sub_character.die(retreat=True)
                     sub_character.erase()
-                self.die()
+                self.die(retreat=True)
                 self.erase()
 
         else:  # die
@@ -704,7 +714,6 @@ class BattleCharacter(Character):
                 if self.update_sprite:
                     self.reset_sprite()
                     self.update_sprite = False
-
                 if done and not self.x_momentum and not self.y_momentum:
                     # finish die animation and no momentum left
                     if not self.is_sub_character and not self.no_corpse:
@@ -749,11 +758,11 @@ class SubBattleCharacter(BattleCharacter):
         BattleCharacter.__init__(self, game_id, stat, additional_layer="main")
         self.anchor_pos = stat["Anchor POS"]
         if self.main_character.direction == "right":
-            self.pos = Vector2(((self.base_pos[0] - self.anchor_pos[0]) * self.screen_scale[0],
-                                (self.base_pos[1] + self.anchor_pos[1]) * self.screen_scale[1]))
+            self.pos = Vector2(((self.base_pos[0] - self.anchor_pos[0]) * self.screen_scale_width,
+                                (self.base_pos[1] + self.anchor_pos[1]) * self.screen_scale_height))
         else:
-            self.pos = Vector2(((self.base_pos[0] + self.anchor_pos[0]) * self.screen_scale[0],
-                                (self.base_pos[1] + self.anchor_pos[1]) * self.screen_scale[1]))
+            self.pos = Vector2(((self.base_pos[0] + self.anchor_pos[0]) * self.screen_scale_width,
+                                (self.base_pos[1] + self.anchor_pos[1]) * self.screen_scale_height))
         main_character.sub_characters.append(self)
         if main_character.max_enemy_range_check < self.max_enemy_range_check:
             main_character.max_enemy_range_check = self.max_enemy_range_check
@@ -777,6 +786,8 @@ class AirBattleCharacter(BattleCharacter):
         self.active = False
         self.enter_delay = 0
         BattleCharacter.__init__(self, game_id, stat, leader=leader)
+        self.all_team_enemy_collision_grids = self.battle.all_team_air_enemy_collision_grids
+        self.character_type = "air"
         if self.ai_behaviour == "interceptor":
             self.ai_prepare = MethodType(interceptor_ai_prepare, self)
         elif self.ai_behaviour == "bomber":
@@ -784,7 +795,6 @@ class AirBattleCharacter(BattleCharacter):
         else:
             self.ai_prepare = MethodType(fighter_ai_prepare, self)
 
-        self.all_team_enemy_collision_grids = self.battle.all_team_air_enemy_collision_grids
         self.enemy_collision_grids = self.air_enemy_collision_grids
 
     def update(self, dt: float):
@@ -806,9 +816,9 @@ class AirBattleCharacter(BattleCharacter):
                 self.alive = False
                 self.health = 0
                 for sub_character in self.sub_characters:
-                    sub_character.die()
+                    sub_character.die(retreat=True)
                     sub_character.erase()
-                self.die()
+                self.die(retreat=True)
                 self.erase()
 
 
@@ -825,9 +835,8 @@ class CommanderBattleCharacter(BattleCharacter):
         self.followers_len_check = [0, 0]
         self.max_followers_len_check = 0
         BattleCharacter.__init__(self, game_id, stat, is_commander=True, additional_layer=100000000)
-        # self.max_enemy_range_check = self.last_grid * Default_Screen_Width  # commander check enemy at all range instead
         self.max_ai_commander_range = self.ai_max_attack_range
-        for strategy in self.battle.team_stat[self.team]["strategy"]:
+        for strategy in self.battle.team_state[self.team]["strategy_cooldown"]:
             strategy_stat = self.battle.strategy_list[strategy]
             if strategy_stat["Activate Range"] > self.max_ai_commander_range:
                 self.max_ai_commander_range = strategy_stat["Activate Range"]
@@ -839,13 +848,11 @@ class ShowcaseCharacter(Character):
     enter_stage = showcase_enter_stage
     move_logic = empty_method
     play_battle_animation = play_showcase_animation
-    next_animation_frame = showcase_next_animation_frame
 
     # static variable
     is_sub_character = False
 
-    def __init__(self, game_id: int, stat: dict, leader: BattleCharacter = None,
-                 is_commander: bool = False, is_summon: bool = False) -> None:
+    def __init__(self, game_id: int, stat: dict) -> None:
         """
         BattleCharacter object represent a character that take part in the battle in stage
         Character has three different stage of stat;
@@ -861,7 +868,7 @@ class ShowcaseCharacter(Character):
         self.final_animation_frame_play_time = self.animation_frame_play_time
 
         # variable for attack cross function check
-        Character.__init__(self, game_id, stat, additional_layer="showcase", is_commander=is_commander)
+        Character.__init__(self, game_id, stat, additional_layer="showcase", is_commander=False)
         self.movesets = stat["Move"]
 
         if stat["Sub Characters"]:  # add sub characters
@@ -871,6 +878,7 @@ class ShowcaseCharacter(Character):
                                       "Anchor POS": (character[1], character[2])}, self)
         self.battle.battle_character_updater.remove(self)
         self.battle.all_battle_characters.remove(self)
+        self.enter_stage()
 
 
 class SubShowcaseCharacter(Character):
@@ -879,7 +887,6 @@ class SubShowcaseCharacter(Character):
     enter_stage = showcase_enter_stage
     move_logic = sub_move_logic
     play_battle_animation = play_showcase_animation
-    next_animation_frame = showcase_next_animation_frame
 
     def __init__(self, game_id: int, stat: dict, main_character: ShowcaseCharacter):
         """
@@ -887,13 +894,14 @@ class SubShowcaseCharacter(Character):
         """
         self.main_character = main_character
         Character.__init__(self, game_id, stat, additional_layer="main")
+        self.enter_stage()
         self.anchor_pos = stat["Anchor POS"]
         if self.main_character.direction == "right":
-            self.pos = Vector2(((self.base_pos[0] - self.anchor_pos[0]) * self.screen_scale[0],
-                                (self.base_pos[1] + self.anchor_pos[1]) * self.screen_scale[1]))
+            self.pos = Vector2(((self.base_pos[0] - self.anchor_pos[0]) * self.screen_scale_width,
+                                (self.base_pos[1] + self.anchor_pos[1]) * self.screen_scale_height))
         else:
-            self.pos = Vector2(((self.base_pos[0] + self.anchor_pos[0]) * self.screen_scale[0],
-                                (self.base_pos[1] + self.anchor_pos[1]) * self.screen_scale[1]))
+            self.pos = Vector2(((self.base_pos[0] + self.anchor_pos[0]) * self.screen_scale_width,
+                                (self.base_pos[1] + self.anchor_pos[1]) * self.screen_scale_height))
         main_character.sub_characters.append(self)
         self.battle.battle_character_updater.remove(self)
         self.battle.all_battle_characters.remove(self)

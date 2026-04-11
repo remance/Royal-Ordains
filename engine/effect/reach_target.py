@@ -1,8 +1,8 @@
 from random import uniform
 
-import engine.effect.effect
-from engine.constants import Default_Ground_Pos, Default_Showcase_Character_POS
 import engine.character.character
+import engine.effect.effect
+from engine.constants import Default_Battle_Ground_Pos, Default_Showcase_Character_POS
 
 
 def reach_target(self, how=None):
@@ -15,10 +15,11 @@ def reach_target(self, how=None):
             spawn_number = effect_stat_property["spawn_number"]
         for _ in range(spawn_number):
             new_pos = self.pos
-            stat = [after_reach_effect, "base", new_pos[0], new_pos[1], 0, 0, 0, 1, 1]
+            stat = [after_reach_effect, "base", new_pos[0], new_pos[1], 0, 0, 0, self.width_scale, self.height_scale]
             if "reach_effect_spawn_ground" in effect_stat_property:  # reach effect spawn with rect bottom on ground
-                stat[3] = Default_Ground_Pos * self.screen_scale[1]
-                base_image = self.effect_animation_pool[after_reach_effect]["base"][0][1][1][0]
+                stat[3] = Default_Battle_Ground_Pos * self.screen_scale_height
+                base_image = \
+                self.effect_animation_pool[after_reach_effect]["base"][0][self.width_scale][self.height_scale][0]
                 if effect_stat_property["reach_effect_spawn_ground"] == "bottom":
                     # spawn position at the bottom of sprite
                     stat[3] -= (base_image["sprite"][0].get_height() / 2) - base_image["offset"][1]
@@ -43,10 +44,14 @@ def reach_target(self, how=None):
         else:
             summon = effect_stat_property["summon"]
         char_stat = {"ID": summon, "direction": self.direction, "Team": self.team, "POS": self.base_pos}
-        if "summon_spawn_ground" in effect_stat_property:
+        if "summon_spawn_ground" in self.current_moveset_property:
+            char_stat["spawn_at_ground"] = self.current_moveset_property["summon_spawn_ground"]
+        elif "summon_spawn_ground" in effect_stat_property:
             char_stat["spawn_at_ground"] = effect_stat_property["summon_spawn_ground"]
-        (engine.character.character.
-         BattleCharacter(self.battle.last_char_game_id, self.character_list[summon] | char_stat, is_summon=True))
+
+        add_battle_character = engine.character.character.BattleCharacter(
+            self.battle.last_char_game_id, self.character_list[summon] | char_stat, is_summon=True)
+        add_battle_character.enter_stage()
         self.battle.last_char_game_id += 1
 
     if self.after_reach and how == "ground":
@@ -66,10 +71,11 @@ def showcase_reach_target(self, how=None):
             spawn_number = effect_stat_property["spawn_number"]
         for _ in range(spawn_number):
             new_pos = self.pos
-            stat = [after_reach_effect, "base", new_pos[0], new_pos[1], 0, 0, 0, 1, 1]
+            stat = [after_reach_effect, "base", new_pos[0], new_pos[1], 0, 0, 0, self.width_scale, self.height_scale]
             if "reach_effect_spawn_ground" in effect_stat_property:  # reach effect spawn with rect bottom on ground
-                stat[3] = Default_Showcase_Character_POS[1] * self.screen_scale[1]
-                base_image = self.effect_animation_pool[after_reach_effect]["base"][0][1][1][0]
+                stat[3] = Default_Showcase_Character_POS[1] * self.screen_scale_height
+                base_image = \
+                self.effect_animation_pool[after_reach_effect]["base"][0][self.width_scale][self.height_scale][0]
                 if effect_stat_property["reach_effect_spawn_ground"] == "bottom":
                     # spawn position at the bottom of sprite
                     stat[3] -= (base_image["sprite"][0].get_height() / 2) - base_image["offset"][1]
@@ -85,3 +91,4 @@ def showcase_reach_target(self, how=None):
             else:
                 engine.effect.effect.ShowcaseEffect(self.owner_data, stat, from_owner=False)
     self.clean_object()
+    return True

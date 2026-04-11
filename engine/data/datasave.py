@@ -2,15 +2,15 @@ import os
 import pickle
 from pathlib import Path
 
-from engine.data.datastat import GameData
+from engine.data.data import GameData
 
 empty_game_save = {"playtime": 0, "stats": {}, "game state": {}, "map state": {}, "battle log": [], "grand log": []}
 
-empty_main_save = {"playtime": 0, "unlock": {"character": [], "faction_ui": [], "timeline": []},
-                   "new": {"character": [], "faction_ui": [], "timeline": []}}
+empty_main_save = {"playtime": 0, "unlock": {"faction": [], "timeline": []},
+                   "new": {"faction": [], "timeline": []}}
 
 
-class SaveData(GameData):
+class DataSave(GameData):
     def __init__(self):
         """
         For keeping all data related to player character save.
@@ -33,7 +33,8 @@ class SaveData(GameData):
         if "custom_army.dat" not in [os.sep.join(os.path.normpath(item).split(os.sep)[-1:]) for
                                      item in sub1_directories]:  # make common game save data
             self.make_save_file(os.path.join(self.main_dir, "save", "custom_army.dat"), {})
-        self.custom_army_preset_save = self.load_save_file(os.path.join(self.main_dir, "save", "custom_army.dat"))
+        self.player_custom_army_preset_save = self.load_save_file(
+            os.path.join(self.main_dir, "save", "custom_army.dat"))
 
     @staticmethod
     def make_save_file(file_name, save_data):

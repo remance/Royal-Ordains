@@ -1,35 +1,37 @@
 import ast
 import configparser
-import os.path
 import sys
 from copy import deepcopy
+from os.path import join
 
 import pygame
 from pygame import sprite, display, mouse
+from pygame.event import get as get_event, clear as clear_event
 from pygame.font import Font
 from pygame.locals import *
 from pygame.mixer import Sound, Channel
-from pygame.event import get as get_event, clear as clear_event
 
 from engine.army.army import Army
 from engine.battle.battle import Battle
 from engine.battleobject.battleobject import StageObject
 from engine.character.character import Character, BattleCharacter, ShowcaseCharacter, SubShowcaseCharacter
 from engine.constants import *
-from engine.data.datalocalisation import Localisation
-from engine.data.datamap import MapData
-from engine.data.datasave import SaveData
-from engine.data.datasound import SoundData
-from engine.data.datasprite import SpriteData
-from engine.data.datastat import CharacterData
+from engine.data.datalocalisation import DataLocalisation
+from engine.data.datamap import DataMap
+from engine.data.datasave import DataSave
+from engine.data.datasound import DataSound
+from engine.data.datasprite import DataSprite
+from engine.data.datastat import DataStat
 from engine.effect.effect import Effect, ShowcaseEffect
 from engine.game.activate_input_popup import activate_input_popup
 from engine.game.assign_key import assign_key
 from engine.game.back_mainmenu import back_mainmenu
+from engine.game.change_custom_battle_config import change_custom_battle_config
 from engine.game.change_keybind import change_keybind
 from engine.game.change_pause_update import change_pause_update
 from engine.game.change_sound_volume import change_sound_volume
-from engine.game.convert_army_to_custom_deployable import convert_army_to_custom_deployable
+from engine.game.check_custom_team_fund import check_custom_team_fund
+from engine.game.convert_custom_army_to_deployable import convert_custom_army_to_deployable
 from engine.game.create_config import create_config
 from engine.game.get_keybind_button_name import get_keybind_button_name
 from engine.game.load_grand_campaign import load_grand_campaign
@@ -39,23 +41,25 @@ from engine.game.make_option_menu import make_option_menu
 from engine.game.menu_custom_preset import menu_custom_preset
 from engine.game.menu_custom_setup import menu_custom_setup
 from engine.game.menu_grand_setup import menu_grand_setup
+from engine.game.menu_keybind import menu_keybind
 from engine.game.menu_lorebook import menu_lorebook
 from engine.game.menu_lorebook_beast import menu_lorebook_beast
-from engine.game.menu_keybind import menu_keybind
 from engine.game.menu_main import menu_main
 from engine.game.menu_mission_setup import menu_mission_setup
 from engine.game.menu_option import menu_option
 from engine.game.start_battle import start_battle
 from engine.grand.grand import Grand
-from engine.grandobject.grandobject import GrandObject
 from engine.menuobject.menuobject import MenuActor, MenuRotate, StaticImage
-from engine.uibattle.uibattle import (Profiler, FPSCount, CharacterSpeechBox)
-from engine.uimenu.uimenu import (MenuCursor, BoxUI, BrownMenuButton, MenuButton, UIScroll,
-                                  TextPopup, CustomTeamSetupUI, FactionSelector, CustomPresetArmySetupUI, GrandMiniMap,
+from engine.uibattle.uibattle import CharacterSpeechBox
+from engine.uimenu.uimenu import (UIMenu, MenuCursor, BoxUI, BrownMenuButton, MenuButton, TextPopup, CustomTeamSetupUI,
+                                  FactionSelector, PresetArmySetupUI, GrandMiniMap,
                                   GrandFactionDetail, GrandFactionShowCase, CharacterDescriptionShowCase,
                                   CharacterMovesetShowCase, CharacterSelector, CustomPresetTitle, ListUI,
-                                  CustomPresetListAdapter, GenericListAdapter)
+                                  CustomArmyPresetListAdapter, GenericListAdapter)
+from engine.uiouterbattle.uiouterbattle import Profiler, FPSCount
+from engine.uioutergrand.uioutergrand import DiplomacyHead
 from engine.updater.updater import ReversedLayeredUpdates
+from engine.utils.common import empty_method
 from engine.utils.data_loading import load_image, load_images, csv_read
 
 game_name = "Royal Ordains"  # Game name that will appear as game name at the windows bar
@@ -72,23 +76,27 @@ class Game:
     language = None
     localisation = None
     cursor = None
-    ui_updater = None
-    ui_drawer = None
+    ui_menu_updater = None
+    ui_menu_drawer = None
 
     screen_rect = None
     screen_scale = (1, 1)
+    screen_scale_width = screen_scale[0]
+    screen_scale_height = screen_scale[1]
     screen_size = ()
 
-    game_version = "0.2.3.6"
+    game_version = "0.2.7"
 
     # import from game
     activate_input_popup = activate_input_popup
     assign_key = assign_key
     back_mainmenu = back_mainmenu
+    change_custom_battle_config = change_custom_battle_config
     change_keybind = change_keybind
     change_pause_update = change_pause_update
     change_sound_volume = change_sound_volume
-    convert_army_to_custom_deployable = convert_army_to_custom_deployable
+    check_custom_team_fund = check_custom_team_fund
+    convert_custom_army_to_deployable = convert_custom_army_to_deployable
     create_config = create_config
     get_keybind_button_name = get_keybind_button_name
     load_grand_campaign = load_grand_campaign
@@ -98,11 +106,11 @@ class Game:
     menu_custom_preset = menu_custom_preset
     menu_custom_setup = menu_custom_setup
     menu_grand_setup = menu_grand_setup
+    menu_keybind = menu_keybind
     menu_lorebook = menu_lorebook
     menu_lorebook_beast = menu_lorebook_beast
-    menu_mission_setup = menu_mission_setup
-    menu_keybind = menu_keybind
     menu_main = menu_main
+    menu_mission_setup = menu_mission_setup
     menu_option = menu_option
     start_battle = start_battle
 
@@ -112,10 +120,10 @@ class Game:
     def __init__(self, main_dir, error_log):
         Game.game = self
         Game.main_dir = main_dir
-        Game.data_dir = os.path.join(self.main_dir, "data")
-        Game.font_dir = os.path.join(self.data_dir, "font")
+        Game.data_dir = join(self.main_dir, "data")
+        Game.font_dir = join(self.data_dir, "font")
 
-        self.config_path = os.path.join(self.main_dir, "configuration.ini")
+        self.config_path = join(self.main_dir, "configuration.ini")
 
         pygame.mixer.pre_init(44100, -16, 1000, 4096)
         pygame.init()  # Initialize pygame
@@ -128,7 +136,7 @@ class Game:
         self.error_log = error_log
         self.error_log.write("Game Version: " + self.game_version)
 
-        self.campaign = None
+        self.campaign = "main"
         self.menu_state = "main_menu"
 
         # Read config file
@@ -140,77 +148,91 @@ class Game:
 
         try:
             self.config = config
-            self.show_fps = int(self.config["USER"]["fps"])
-            self.use_simple_text = int(self.config["USER"]["easy_text"])
-            self.show_dmg_number = int(self.config["USER"]["show_dmg_number"])
-            self.screen_width = int(self.config["USER"]["screen_width"])
-            self.screen_height = int(self.config["USER"]["screen_height"])
-            self.full_screen = int(self.config["USER"]["full_screen"])
-            self.master_volume = float(self.config["USER"]["master_volume"])
-            self.music_volume = float(self.config["USER"]["music_volume"])
+            self.show_fps = int(config["USER"]["fps"])
+            self.use_simple_text = int(config["USER"]["easy_text"])
+            self.show_dmg_number = int(config["USER"]["show_dmg_number"])
+            self.screen_width = int(config["USER"]["screen_width"])
+            self.screen_height = int(config["USER"]["screen_height"])
+            self.full_screen = int(config["USER"]["full_screen"])
+            self.master_volume = float(config["USER"]["master_volume"])
+            self.music_volume = float(config["USER"]["music_volume"])
             self.play_music_volume = self.master_volume * self.music_volume / 10000  # convert volume into percentage
-            self.effect_volume = float(self.config["USER"]["effect_volume"])
+            self.effect_volume = float(config["USER"]["effect_volume"])
             self.play_effect_volume = self.master_volume * self.effect_volume / 10000
-            self.voice_volume = float(self.config["USER"]["voice_volume"])
+            self.voice_volume = float(config["USER"]["voice_volume"])
             self.play_voice_volume = self.master_volume * self.voice_volume / 10000
-            self.language = str(self.config["USER"]["language"])
-            self.player_key_bind_list = ast.literal_eval(self.config["USER"]["keybind"])
-            if self.game_version != self.config["VERSION"]["ver"]:  # remake config as game version change
+            self.language = str(config["USER"]["language"])
+            self.player_key_bind_list = ast.literal_eval(config["USER"]["keybind"])
+            self.selected_custom_stage_battle = config["USER"]["selected_custom_stage_battle"]
+            self.team1_supply_limit_custom_battle = int(config["USER"]["team1_supply_limit_custom_battle"])
+            self.team2_supply_limit_custom_battle = int(config["USER"]["team2_supply_limit_custom_battle"])
+            self.team1_gold_limit_custom_battle = int(config["USER"]["team1_gold_limit_custom_battle"])
+            self.team2_gold_limit_custom_battle = int(config["USER"]["team2_gold_limit_custom_battle"])
+            self.selected_weather_custom_battle = int(config["USER"]["selected_weather_custom_battle"])
+            self.selected_weather_strength_custom_battle = int(config["USER"][
+                                                                   "selected_weather_strength_custom_battle"])
+            if self.game_version != config["VERSION"]["ver"]:  # remake config as game version change
                 raise KeyError  # cause KeyError to reset config file
         except (KeyError, TypeError, NameError) as b:  # config error will make the game recreate config with default
             self.error_log.write(str(b))
             config = self.create_config()
             self.config = config
-            self.show_fps = int(self.config["USER"]["fps"])
-            self.use_simple_text = int(self.config["USER"]["easy_text"])
-            self.show_dmg_number = int(self.config["USER"]["show_dmg_number"])
-            self.screen_width = int(self.config["USER"]["screen_width"])
-            self.screen_height = int(self.config["USER"]["screen_height"])
-            self.full_screen = int(self.config["USER"]["full_screen"])
-            self.master_volume = float(self.config["USER"]["master_volume"])
-            self.music_volume = float(self.config["USER"]["music_volume"])
+            self.show_fps = int(config["USER"]["fps"])
+            self.use_simple_text = int(config["USER"]["easy_text"])
+            self.show_dmg_number = int(config["USER"]["show_dmg_number"])
+            self.screen_width = int(config["USER"]["screen_width"])
+            self.screen_height = int(config["USER"]["screen_height"])
+            self.full_screen = int(config["USER"]["full_screen"])
+            self.master_volume = float(config["USER"]["master_volume"])
+            self.music_volume = float(config["USER"]["music_volume"])
             self.play_music_volume = self.master_volume * self.music_volume / 10000
-            self.effect_volume = float(self.config["USER"]["effect_volume"])
+            self.effect_volume = float(config["USER"]["effect_volume"])
             self.play_effect_volume = self.master_volume * self.effect_volume / 10000
-            self.voice_volume = float(self.config["USER"]["voice_volume"])
+            self.voice_volume = float(config["USER"]["voice_volume"])
             self.play_voice_volume = self.master_volume * self.voice_volume / 10000
-            self.language = str(self.config["USER"]["language"])
-            self.player_key_bind_list = ast.literal_eval(self.config["USER"]["keybind"])
-
-        self.default_player_key_bind_list = ast.literal_eval(self.config["DEFAULT"]["keybind"])
+            self.language = str(config["USER"]["language"])
+            self.player_key_bind_list = ast.literal_eval(config["USER"]["keybind"])
+            self.selected_custom_stage_battle = config["USER"]["selected_custom_stage_battle"]
+            self.team1_supply_limit_custom_battle = int(config["USER"]["team1_supply_limit_custom_battle"])
+            self.team2_supply_limit_custom_battle = int(config["USER"]["team2_supply_limit_custom_battle"])
+            self.team1_gold_limit_custom_battle = int(config["USER"]["team1_gold_limit_custom_battle"])
+            self.team2_gold_limit_custom_battle = int(config["USER"]["team2_gold_limit_custom_battle"])
+            self.selected_weather_custom_battle = int(config["USER"]["selected_weather_custom_battle"])
+            self.selected_weather_strength_custom_battle = int(config["USER"][
+                                                                   "selected_weather_strength_custom_battle"])
 
         Game.language = self.language
 
         # Set the display mode
         # game default screen size is 3840 x 2160, other resolution get scaled from there
         Game.screen_scale = (self.screen_width / Default_Screen_Width, self.screen_height / Default_Screen_Height)
+        Game.screen_scale_width = Game.screen_scale[0]
+        Game.screen_scale_height = Game.screen_scale[1]
         Game.screen_size = (self.screen_width, self.screen_height)
 
         self.window_style = 0
         if self.full_screen == 1:
             self.window_style = pygame.FULLSCREEN | SCALED
 
-        self.screen = display.set_mode(self.screen_size, DOUBLEBUF | self.window_style)
+        self.screen = display.set_mode(self.screen_size, HWSURFACE | DOUBLEBUF | self.window_style)
 
         # Decorate game icon window
-        icon = load_image(self.main_dir, (1, 1), "icon.png")
-        # icon = pygame.transform.smoothscale(icon, (32, 32))
+        icon = load_image(self.main_dir, "icon.png")
         display.set_icon(icon)
 
         Game.screen_rect = self.screen.get_rect()
-
-        Character.screen_scale = self.screen_scale
-        Effect.screen_scale = self.screen_scale
-        ShowcaseEffect.screen_scale = self.screen_scale
+        Character.screen_scale_width = self.screen_scale_width
+        Character.screen_scale_height = self.screen_scale_height
+        Effect.screen_scale_width = self.screen_scale_width
+        Effect.screen_scale_height = self.screen_scale_height
+        ShowcaseEffect.screen_scale_width = self.screen_scale_width
+        ShowcaseEffect.screen_scale_height = self.screen_scale_height
         StageObject.screen_scale = self.screen_scale
 
         self.clock = pygame.time.Clock()  # set get clock
 
-        self.save_data = SaveData()
-        self.before_save_preset_army_setup = deepcopy(self.save_data.custom_army_preset_save)
-
-        self.loading = load_image(self.data_dir, self.screen_scale, "loading.png", ("ui", "mainmenu_ui"))
-        self.loading = pygame.transform.scale(self.loading, self.screen_rect.size)
+        self.save_data = DataSave()
+        self.before_save_preset_army_setup = deepcopy(self.save_data.player_custom_army_preset_save)
 
         self.player_key_bind = self.player_key_bind_list
         self.player_key_bind_name = {value: key for key, value in self.player_key_bind.items()}
@@ -219,34 +241,47 @@ class Game:
 
         Game.ui_font = csv_read(self.data_dir, "ui_font.csv", ("ui",), header_key=True)
         for item in Game.ui_font:  # add ttf file extension for font data reading.
-            Game.ui_font[item] = os.path.join(self.font_dir, Game.ui_font[item]["Font"] + ".ttf")
+            Game.ui_font[item] = join(self.font_dir, Game.ui_font[item]["Font"] + ".ttf")
         Game.font_texture = load_images(self.data_dir, screen_scale=self.screen_scale,
                                         subfolder=("font", "texture"), as_pillow_image=True)
 
         # ui font
-        self.loading_screen_lore_font = Font(self.ui_font["main_button"], int(60 * self.screen_scale[1]))
-
-        self.generic_ui_font = Font(self.ui_font["main_button"], int(30 * self.screen_scale[1]))
-        self.fps_counter_font = Font(self.ui_font["main_button"], int(40 * self.screen_scale[1]))
-        self.large_text_font = Font(self.ui_font["main_button"], int(50 * self.screen_scale[1]))
-        self.battle_timer_font = Font(self.ui_font["main_button"], int(54 * self.screen_scale[1]))
-        self.screen_fade_font = Font(self.ui_font["manuscript_font"], int(100 * self.screen_scale[1]))
-        self.character_indicator_font = Font(self.ui_font["manuscript_font"], int(50 * self.screen_scale[1]))
-        self.damage_number_font = Font(self.ui_font["manuscript_font"], int(46 * self.screen_scale[1]))
-        self.critical_damage_number_font = Font(self.ui_font["manuscript_font2"], int(76 * self.screen_scale[1]))
-        self.character_name_talk_prompt_font = Font(self.ui_font["talk_font"], int(40 * self.screen_scale[1]))
-        self.drama_font = Font(self.ui_font["manuscript_font"], int(90 * self.screen_scale[1]))
-        self.preset_name_font = Font(self.ui_font["main_button"], int(60 * self.screen_scale[1]))
-        self.note_font = Font(self.ui_font["main_button"], int(24 * self.screen_scale[1]))
         self.profiler_font = Font(self.ui_font["main_button"], 16)
+        self.note_font = Font(self.ui_font["main_button"], int(26 * self.screen_scale_height))
+        self.fps_counter_font = Font(self.ui_font["main_button"], int(28 * self.screen_scale_height))
+        self.generic_ui_font = Font(self.ui_font["main_button"], int(30 * self.screen_scale_height))
+        self.medium_generic_ui_font = Font(self.ui_font["main_button"], int(40 * self.screen_scale_height))
+        self.large_generic_ui_font = Font(self.ui_font["main_button"], int(50 * self.screen_scale_height))
+        self.battle_timer_font = Font(self.ui_font["main_button"], int(54 * self.screen_scale_height))
+        self.preset_name_font = Font(self.ui_font["main_button"], int(60 * self.screen_scale_height))
+        self.loading_screen_lore_font = Font(self.ui_font["main_button"], int(60 * self.screen_scale_height))
 
-        self.list_font1 = Font(self.ui_font["text_paragraph"], int(40 * Game.screen_scale[1]))
-        self.list_font2 = Font(self.ui_font["text_paragraph"], int(32 * Game.screen_scale[1]))
-        self.list_font3 = Font(self.ui_font["text_paragraph"], int(24 * Game.screen_scale[1]))
+        self.character_name_talk_prompt_font = Font(self.ui_font["talk_font"], int(40 * self.screen_scale_height))
+        self.character_indicator_font = Font(self.ui_font["manuscript_font"], int(50 * self.screen_scale_height))
+        self.damage_number_font = Font(self.ui_font["manuscript_font"], int(46 * self.screen_scale_height))
+        self.character_number_font = Font(self.ui_font["manuscript_font"], int(60 * self.screen_scale_height))
+        self.critical_damage_number_font = Font(self.ui_font["manuscript_font2"], int(76 * self.screen_scale_height))
+        self.drama_font = Font(self.ui_font["manuscript_font"], int(90 * self.screen_scale_height))
+        self.screen_fade_font = Font(self.ui_font["manuscript_font"], int(120 * self.screen_scale_height))
+
+        self.list_font1 = Font(self.ui_font["text_paragraph"], int(40 * Game.screen_scale_height))
+        self.list_font2 = Font(self.ui_font["text_paragraph"], int(32 * Game.screen_scale_height))
+        self.list_font3 = Font(self.ui_font["text_paragraph"], int(24 * Game.screen_scale_height))
+
+        # must add font object above to cache dict if require caching
+        self.font_text_cache = {self.profiler_font: {}, self.note_font: {}, self.fps_counter_font: {},
+                                self.generic_ui_font: {}, self.medium_generic_ui_font: {},
+                                self.large_generic_ui_font: {},
+                                self.battle_timer_font: {}, self.preset_name_font: {},
+                                self.loading_screen_lore_font: {},
+                                self.character_name_talk_prompt_font: {}, self.character_indicator_font: {},
+                                self.damage_number_font: {}, self.character_number_font: {},
+                                self.critical_damage_number_font: {}, self.drama_font: {}, self.screen_fade_font: {},
+                                self.list_font1: {}, self.list_font2: {}, self.list_font3: {}}
 
         # Initialise groups
-        Game.ui_updater = ReversedLayeredUpdates()  # main drawer for ui in main menu
-        Game.ui_drawer = sprite.LayeredUpdates()
+        Game.ui_menu_updater = ReversedLayeredUpdates()  # main drawer for ui in main menu
+        Game.ui_menu_drawer = sprite.LayeredUpdates()
 
         self.all_showcase_characters = sprite.Group()
         self.all_showcase_effects = sprite.Group()
@@ -256,21 +291,21 @@ class Game:
         ShowcaseEffect.containers = self.all_showcase_effects
         ShowcaseCharacter.containers = self.all_showcase_characters
         SubShowcaseCharacter.containers = self.all_showcase_characters
-        StaticImage.containers = self.ui_updater, self.ui_drawer
-        MenuRotate.containers = self.ui_updater, self.ui_drawer
-        MenuActor.containers = self.ui_updater, self.ui_drawer
+        StaticImage.containers = self.ui_menu_updater, self.ui_menu_drawer
+        MenuRotate.containers = self.ui_menu_updater, self.ui_menu_drawer
+        MenuActor.containers = self.ui_menu_updater, self.ui_menu_drawer
 
         # SubsectionName.containers = self.ui_updater, self.ui_drawer, self.battle_ui_updater, self.battle_ui_drawer
 
         # Load sound effect
-        self.sound_data = SoundData()
+        self.sound_data = DataSound()
         self.sound_effect_pool = self.sound_data.sound_effect_pool
         self.music_pool = self.sound_data.music_pool
         self.ambient_pool = self.sound_data.ambient_pool
         self.weather_ambient_pool = self.sound_data.weather_ambient_pool
-        
+
         # Music player
-        pygame.mixer.set_num_channels(1000)
+        pygame.mixer.set_num_channels(1001)
         self.music_channel = Channel(0)
         self.music_channel.set_volume(self.play_music_volume)
         self.current_ambient = None
@@ -278,69 +313,90 @@ class Game:
         self.ambient_channel.set_volume(self.play_effect_volume)
         self.weather_ambient_channel = Channel(2)
         self.weather_ambient_channel.set_volume(self.play_effect_volume)
-        self.button_sound_channel = Channel(3)
+        self.button_sound_channel = Channel(1000)
         self.button_sound_channel.set_volume(self.play_effect_volume)
-        self.music_channel.play(Sound(self.music_pool["menu"]), loops=-1)
+
+        # Load game localisation data
+        self.localisation = DataLocalisation()
+        self.grab_text = self.localisation.grab_text
+        Game.localisation = self.localisation
 
         self.game_intro(False)  # run intro
 
-        # Load game localisation data
-        self.localisation = Localisation()
-        Game.localisation = self.localisation
-
-        # Create game cursor, make sure it is the first object in ui to be created, so it is always update first
-        Game.cursor = MenuCursor(load_images(self.data_dir, subfolder=("ui", "cursor_menu")))  # no need to scale cursor
-        self.add_to_ui_updater(self.cursor)
-
         # Battle related data
-        self.character_data = CharacterData()
-        self.character_list = self.character_data.character_list
-        self.map_data = MapData()
+        self.stat_data = DataStat()
+        self.character_list = self.stat_data.character_list
+        self.map_data = DataMap()
 
         self.preset_map_data = self.map_data.preset_map_data
 
-        if self.show_dmg_number:
-            BattleCharacter.show_dmg_number = True
-        Army.character_list = self.character_list
-        Character.character_data = self.character_data
-        Character.character_list = self.character_list
-        Character.status_list = self.character_data.status_list
-        Character.status_apply_funcs = self.character_data.status_apply_funcs
-        Character.effect_list = self.character_data.effect_list
-
-        Effect.character_list = self.character_list
-        Effect.effect_list = self.character_data.effect_list
-
-        self.sprite_data = SpriteData(self.character_list, self.character_indicator_font)
+        # sprite data
+        self.sprite_data = DataSprite(self.character_list)
         self.character_animation_data = self.sprite_data.character_animation_data  # character animation data pool
         self.character_portraits = self.sprite_data.character_portraits
         self.stage_object_animation_pool = self.sprite_data.stage_object_animation_pool
         self.grand_object_animation_pool = self.sprite_data.grand_object_animation_pool
         self.effect_animation_pool = self.sprite_data.effect_animation_pool  # effect sprite animation pool
+        self.grand_ui_images = self.sprite_data.grand_ui_images
+        self.battle_ui_images = self.sprite_data.battle_ui_images
+        self.cosmos_ui_images = self.sprite_data.cosmos_ui_images
+        self.battle_helper_images = self.sprite_data.battle_helper_images
+        self.building_portraits = self.sprite_data.building_portraits
+        self.weather_icon_images = self.sprite_data.weather_icon_images
+        self.option_menu_images = self.sprite_data.option_menu_images
+
+        self.load_sprite_background_threads = []
+
+        if self.show_dmg_number:
+            BattleCharacter.show_dmg_number = True
+        Army.character_recruit_building_list = self.stat_data.character_recruit_building_list
+        Army.character_list = self.character_list
+        Character.stat_data = self.stat_data
+        Character.character_list = self.character_list
+        Character.status_list = self.stat_data.status_list
+        Character.status_apply_funcs = self.stat_data.status_apply_funcs
+        Character.effect_list = self.stat_data.effect_list
+
+        Effect.character_list = self.character_list
+        Effect.effect_list = self.stat_data.effect_list
 
         Effect.effect_animation_pool = self.effect_animation_pool
         ShowcaseEffect.effect_animation_pool = self.effect_animation_pool
         StageObject.stage_object_animation_pool = self.stage_object_animation_pool
-        GrandObject.grand_object_animation_pool = self.grand_object_animation_pool
 
-        # Load UI images
-        self.weather_icon_images = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                               subfolder=("ui", "weather_ui"))
-        self.option_menu_images = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                              subfolder=("ui", "option_ui"))
-        image = load_image(self.data_dir, self.screen_scale, "drop_normal.png", ("ui", "mainmenu_ui"))
-        image2 = load_image(self.data_dir, self.screen_scale, "drop_click.png", ("ui", "mainmenu_ui"))
-        self.drop_button_lists = (image, image2, image2)
+        UIMenu.add_to_ui_menu_updater = self.add_to_ui_menu_updater
+        UIMenu.battle_ui_images = self.battle_ui_images
+        UIMenu.building_portraits = self.building_portraits
+        UIMenu.button_sound_channel = self.button_sound_channel
+        UIMenu.data_dir = self.data_dir
+        UIMenu.font_text_cache = self.font_text_cache
+        UIMenu.font_texture = self.font_texture
+        UIMenu.game = self
+        UIMenu.grand_ui_images = self.grand_ui_images
+        UIMenu.localisation = self.localisation
+        UIMenu.remove_from_ui_menu_updater = self.remove_from_ui_menu_updater
+        UIMenu.screen_center = (self.screen_width / 2, self.screen_height / 2)
+        UIMenu.screen_height = self.screen_height
+        UIMenu.screen_rect = self.screen_rect
+        UIMenu.screen_scale_height = self.screen_scale_height
+        UIMenu.screen_scale_width = self.screen_scale_width
+        UIMenu.screen_size = self.screen_size
+        UIMenu.screen_width = self.screen_width
+        UIMenu.sound_effect_pool = self.sound_effect_pool
+        UIMenu.ui_font = self.ui_font
+        UIMenu.updater = self.ui_menu_updater
 
-        text_button_image = load_image(self.data_dir, self.screen_scale, "text_normal.png", ("ui", "mainmenu_ui"))
-        text_button_image2 = load_image(self.data_dir, self.screen_scale, "text_click.png", ("ui", "mainmenu_ui"))
-        self.text_button_image_list = (text_button_image, text_button_image2, text_button_image2)
+        # Create main menu interface
 
-        # Main menu interface
-        BrownMenuButton.button_frame = load_image(self.game.data_dir, (1, 1),
-                                                  "new_button.png", ("ui", "mainmenu_ui"))
+        # Create game cursor, make sure it is the first object in ui to be created, so it is always update first
+        Game.cursor = MenuCursor(load_images(self.data_dir, subfolder=("ui", "cursor_menu")))  # no need to scale cursor
+        UIMenu.cursor = self.cursor
+        self.add_to_ui_menu_updater(self.cursor)
+
+        BrownMenuButton.button_frame = load_image(self.game.data_dir,
+                                                  "new_button.png", subfolder=("ui", "mainmenu_ui"))
         main_menu_buttons_box = BoxUI((0, -8),
-                                      (self.screen_width, 200 * self.screen_scale[1]), parent=self.screen)
+                                      (self.screen_width, 200 * self.screen_scale_height), parent=self.screen)
 
         self.grand_button = BrownMenuButton((.15, 0.5), (-0.6, -1.5), key_name="button_start_game",
                                             parent=main_menu_buttons_box)
@@ -353,7 +409,7 @@ class Game:
         self.custom_battle_button = BrownMenuButton((.15, 0.5), (0.2, -1.5), key_name="button_custom_battle",
                                                     parent=main_menu_buttons_box)
         self.lorebook_button = BrownMenuButton((.15, 0.5), (0.6, -1.5), key_name="button_lorebook",
-                                                    parent=main_menu_buttons_box)
+                                               parent=main_menu_buttons_box)
         self.option_button = BrownMenuButton((.15, 0.5), (-0.25, 0), key_name="button_game_option",
                                              parent=main_menu_buttons_box)
         self.quit_button = BrownMenuButton((.15, 0.5), (0.25, 0), key_name="button_game_quit",
@@ -363,9 +419,8 @@ class Game:
                                   self.custom_battle_button, self.lorebook_button,
                                   self.option_button, self.quit_button)
 
-        self.text_popup = TextPopup(font_size=50, layer=10000)
+        self.text_popup = TextPopup(font_size=56, layer=10000)
         self.loading_lore_text_popup = TextPopup(font_size=70)
-        self.loading_lore_text = ""
 
         # Option menu button
         option_menu_dict = self.make_option_menu(main_menu_buttons_box)
@@ -398,16 +453,13 @@ class Game:
 
         # Custom battle select menu button
         self.custom_team_players = {1: "player", 2: "computer"}
-        self.custom_team_army = {index: [Army("", "", None, [], [],
-                                              [], []) for _ in range(5)] for index in (1, 2)}
-
-        self.selected_custom_stage_battle = Default_Selected_Stage_Custom_Battle
-        self.team1_supply_limit_custom_battle = Default_Supply_limit_Custom_Battle
-        self.team2_supply_limit_custom_battle = Default_Supply_limit_Custom_Battle
-        self.team1_gold_limit_custom_battle = Default_Gold_limit_Custom_Battle
-        self.team2_gold_limit_custom_battle = Default_Gold_limit_Custom_Battle
-        self.selected_weather_custom_battle = Default_Weather_Custom_Battle
-        self.selected_weather_strength_custom_battle = Default_Weather_Strength_Custom_Battle
+        self.showcase_army = Army("", "", "", "",
+                                  {"leader": [[], [], []], "troop": [[], [], [], [], []],
+                                   "air": [[], [], [], [], []]})
+        self.custom_team_army = {index: [Army("", "", "", "",
+                                              {"leader": [[], [], []], "troop": [[], [], [], [], []],
+                                               "air": [[], [], [], [], []]})
+                                         for _ in range(5)] for index in (1, 2)}
 
         self.setup_back_button = BrownMenuButton((.15, 0.5), (0.6, 0),
                                                  key_name="button_back", parent=main_menu_buttons_box)
@@ -416,89 +468,95 @@ class Game:
                                                                        parent=main_menu_buttons_box)
         self.custom_battle_preset_button = BrownMenuButton((.15, 0.5), (0, 0), key_name="button_custom_preset",
                                                            parent=main_menu_buttons_box)
+        self.custom_battle_reset_button = BrownMenuButton((.15, 0.5), (0, 1.5), key_name="button_custom_reset",
+                                                          parent=main_menu_buttons_box)
 
         self.custom_battle_multi_purposes_list = ListUI(pivot=(-0.15, 0.14), origin=(-1, -1), size=(0.2, 0.35),
                                                         items=GenericListAdapter(()),
                                                         parent=self.screen, item_size=10, layer=10000)
 
         self.custom_battle_stage_button = MenuButton(
-            self.drop_button_lists, (self.screen_rect.width * 0.3, self.screen_rect.height * 0.05),
+            self.sprite_data.drop_button_list, (self.screen_rect.width * 0.3, self.screen_rect.height * 0.05),
             key_name=self.selected_custom_stage_battle, font_size=52, layer=151)
-        self.custom_stage_list = ("Stage_custom1", "Stage_custom2", "Stage_custom3", "Stage_custom4", "Stage_custom5")
+        self.custom_stage_list = ("stage_custom1", "stage_custom2", "stage_custom3", "stage_custom4", "stage_custom5")
         self.custom_stage_bar = ListUI(pivot=(-0.55, -0.85), origin=(-1, -1), size=(0.15, 0.25),
                                        items=GenericListAdapter(
-                                         [(-0, self.localisation.grab_text(("ui", item))) for item in
-                                          self.custom_stage_list]),
+                                           [(-0, self.grab_text(("ui", item))) for item in
+                                            self.custom_stage_list]),
                                        parent=self.screen, item_size=8, layer=10000)
 
         self.custom_battle_weather_strength_button = MenuButton(
-            self.drop_button_lists, (self.screen_rect.width * 0.5, self.screen_rect.height * 0.05),
+            self.sprite_data.drop_button_list, (self.screen_rect.width * 0.5, self.screen_rect.height * 0.05),
             key_name="weather_strength_" + str(self.selected_weather_strength_custom_battle), font_size=52, layer=151)
         self.custom_weather_strength_list = ("weather_strength_0", "weather_strength_1", "weather_strength_2")
         self.custom_weather_strength_bar = ListUI(pivot=(-0.15, -0.85), origin=(-1, -1), size=(0.15, 0.25),
                                                   items=GenericListAdapter(
-                                                      [(0, self.localisation.grab_text(("ui", item))) for item in
+                                                      [(0, self.grab_text(("ui", item))) for item in
                                                        self.custom_weather_strength_list]),
                                                   parent=self.screen, item_size=8, layer=10000)
 
         self.custom_battle_weather_type_button = MenuButton(
-            self.drop_button_lists, (self.screen_rect.width * 0.7, self.screen_rect.height * 0.05),
+            self.sprite_data.drop_button_list, (self.screen_rect.width * 0.7, self.screen_rect.height * 0.05),
             key_name="weather_" + str(self.selected_weather_custom_battle), font_size=52, layer=151)
         self.custom_weather_list = tuple(self.map_data.weather_data.keys())
         self.custom_weather_bar = ListUI(pivot=(0.25, -0.85), origin=(-1, -1), size=(0.15, 0.25),
                                          items=GenericListAdapter([(
-                                             0, self.localisation.grab_text(("ui", "weather_" + str(item)))) for item in
+                                             0, self.grab_text(("ui", "weather_" + str(item)))) for item in
                                              self.custom_weather_list]),
                                          parent=self.screen, item_size=8, layer=10000)
 
         self.custom_battle_team1_supply_button = MenuButton(
-            self.text_button_image_list, (self.screen_rect.width * 0.15, self.screen_rect.height * 0.1),
+            self.sprite_data.text_button_image_list, (self.screen_rect.width * 0.15, self.screen_rect.height * 0.1),
             key_name=("info_header_supply_limit", self.team1_supply_limit_custom_battle), font_size=52, layer=151)
         self.custom_battle_team2_supply_button = MenuButton(
-            self.text_button_image_list, (self.screen_rect.width * 0.65, self.screen_rect.height * 0.1),
+            self.sprite_data.text_button_image_list, (self.screen_rect.width * 0.65, self.screen_rect.height * 0.1),
             key_name=("info_header_supply_limit", self.team2_supply_limit_custom_battle), font_size=52, layer=151)
 
         self.custom_battle_team1_gold_button = MenuButton(
-            self.text_button_image_list, (self.screen_rect.width * 0.35, self.screen_rect.height * 0.1),
+            self.sprite_data.text_button_image_list, (self.screen_rect.width * 0.35, self.screen_rect.height * 0.1),
             key_name=("info_header_gold_limit", self.team1_gold_limit_custom_battle), font_size=52, layer=151)
         self.custom_battle_team2_gold_button = MenuButton(
-            self.text_button_image_list, (self.screen_rect.width * 0.85, self.screen_rect.height * 0.1),
+            self.sprite_data.text_button_image_list, (self.screen_rect.width * 0.85, self.screen_rect.height * 0.1),
             key_name=("info_header_gold_limit", self.team2_gold_limit_custom_battle), font_size=52, layer=151)
 
-        self.player_image = {"player": load_image(self.game.data_dir, self.screen_scale,
-                                                  "player.png", ("ui", "mainmenu_ui")),
-                             "computer": load_image(self.game.data_dir, self.screen_scale,
-                                                    "computer.png", ("ui", "mainmenu_ui"))}
-        self.custom_battle_team_setup = {1: CustomTeamSetupUI(1, (self.screen_width * 0.25, self.screen_height * 0.435)),
-                                         2: CustomTeamSetupUI(2, (self.screen_width * 0.75, self.screen_height * 0.435))}
+        self.player_image = {"player": load_image(self.game.data_dir, "player.png",
+                                                  self.screen_scale, ("ui", "mainmenu_ui")),
+                             "computer": load_image(self.game.data_dir, "computer.png",
+                                                    self.screen_scale, ("ui", "mainmenu_ui"))}
+        self.custom_battle_team_setup = {
+            1: CustomTeamSetupUI(1, (self.screen_width * 0.25, self.screen_height * 0.475)),
+            2: CustomTeamSetupUI(2, (self.screen_width * 0.75, self.screen_height * 0.475))}
 
         self.custom_team_army_buttons = {1: [], 2: []}
         self.custom_team_army_button_bars = {1: [], 2: []}
         self.last_shown_custom_army = None
-        y_pos = (0.27, 0.37, 0.48, 0.58, 0.68)
-        y_pivot = (-0.43, -0.23, -0.01, 0.18, 0.385)
-        team_x_pos = {1: self.screen_rect.width * 0.22, 2: self.screen_rect.width * 0.72}
+        y_pos = (0.315, 0.415, 0.515, 0.615, 0.715)
+        drop_bar_y_pivot = (-0.35, -0.15, 0.05, 0.25, 0.45)
+        team_x_pos = {1: self.screen_rect.width * 0.275, 2: self.screen_rect.width * 0.775}
         team_y_pivot = {1: -0.7, 2: 0.3}
         for team in (1, 2):
             for index in range(0, 5):
                 self.custom_team_army_buttons[team].append(MenuButton(
-                    self.drop_button_lists, (team_x_pos[team], self.screen_rect.height * y_pos[index]),
+                    self.sprite_data.drop_big_button_list,
+                    (team_x_pos[team], self.screen_rect.height * y_pos[index]),
                     font_size=52, layer=9000))
-                self.custom_team_army_button_bars[team].append(ListUI(pivot=(team_y_pivot[team], y_pivot[index]),
-                                                                      origin=(-1, -1), size=(0.15, 0.25),
-                                                                      items=GenericListAdapter([]),
-                                                                      parent=self.screen, item_size=8, layer=10000))
+                self.custom_team_army_button_bars[team].append(
+                    ListUI(pivot=(team_y_pivot[team], drop_bar_y_pivot[index]),
+                           origin=(-1, -1), size=(0.3, 0.25),
+                           items=GenericListAdapter([]),
+                           parent=self.screen, item_size=7, layer=10000))
 
         self.custom_culture_selector_popup = FactionSelector(1200,
                                                              (self.screen_width / 2, 0), layer=10000,
                                                              is_popup=True, include_random=True, use_culture=True)
-        self.custom_army_info_popup = CustomPresetArmySetupUI((self.screen_width * 0.5, self.screen_height * 0.5),
-                                                              False, layer=100000)
+        self.custom_army_info_popup = PresetArmySetupUI((self.screen_width * 0.5, self.screen_height * 0.5),
+                                                        False, layer=100000)
         self.custom_army_title_popup = CustomPresetTitle((self.custom_army_info_popup.image.get_width(),
-                                                          80 * self.screen_scale[1]),
+                                                          120 * self.screen_scale_height),
                                                          (self.screen_rect.width / 2,
                                                           self.custom_army_info_popup.rect.midtop[1]))
         self.custom_battle_menu_uis = (self.setup_back_button, self.custom_battle_preset_button,
+                                       self.custom_battle_reset_button,
                                        self.custom_battle_setup_start_battle_button,
                                        self.custom_battle_weather_type_button,
                                        self.custom_battle_weather_strength_button,
@@ -524,22 +582,20 @@ class Game:
         self.preset_save_button = BrownMenuButton((.15, 0.5), (-0.3, 0), key_name="button_save",
                                                   parent=main_menu_buttons_box)
 
-        self.custom_preset_army_setup = CustomPresetArmySetupUI((self.screen_width * 0.4, self.screen_height * 0.2),
-                                                                True)
-        self.custom_preset_army_title = CustomPresetTitle((self.game.screen_width * 0.8, 80 * self.screen_scale[1]),
+        self.custom_preset_army_setup = PresetArmySetupUI((self.screen_width * 0.4, self.screen_height * 0.2),
+                                                          True)
+        self.custom_preset_army_title = CustomPresetTitle((self.game.screen_width * 0.8, 80 * self.screen_scale_height),
                                                           (self.screen_rect.width / 2,
                                                            self.custom_preset_army_setup.rect.midtop[1]))
         self.character_selector = CharacterSelector((self.screen_width * 0.78, self.screen_height * 0.2))
-        self.character_selector_scroll = UIScroll(self.character_selector,
-                                                  self.character_selector.rect.topright)
         self.custom_preset_list_box = ListUI(pivot=(-0.9, -0.6), origin=(-1, -1), size=(0.15, 0.5),
-                                             items=CustomPresetListAdapter(),
+                                             items=CustomArmyPresetListAdapter(),
                                              parent=self.screen, item_size=20)
-        self.custom_preset_faction_selector = FactionSelector(3800, (self.screen_width / 2, 0), use_culture=True)
+        self.custom_preset_culture_selector = FactionSelector(3800, (self.screen_width / 2, 0), use_culture=True)
 
         self.custom_preset_menu_uis = (self.preset_back_button, self.preset_save_button, self.custom_preset_list_box,
-                                       self.custom_preset_faction_selector, self.custom_preset_army_setup,
-                                       self.character_selector, self.character_selector_scroll,
+                                       self.custom_preset_culture_selector, self.custom_preset_army_setup,
+                                       self.character_selector, self.character_selector.scroll,
                                        self.custom_preset_army_title)
 
         # mission select menu button
@@ -551,11 +607,12 @@ class Game:
         self.grand_setup_start_button = BrownMenuButton((.15, 0.5), (-0.6, 0), key_name="button_start",
                                                         parent=main_menu_buttons_box)
         self.grand_faction_selector = FactionSelector(3800, (self.screen_width / 2, 0))
-        self.grand_mini_map = GrandMiniMap(self.grand_faction_selector.rect.midbottom, (2000, 1200), "setup")
+        self.grand_setup_mini_map = GrandMiniMap(self.grand_faction_selector.rect.midbottom, (2000, 1200), "setup")
+        self.grand_setup_mini_map.update = empty_method  # replace update function since not used
         self.grand_faction_detail = GrandFactionDetail()
 
         self.grand_faction_showcase = GrandFactionShowCase()
-        self.grand_menu_uis = (self.setup_back_button, self.grand_mini_map,
+        self.grand_menu_uis = (self.setup_back_button, self.grand_setup_mini_map,
                                self.grand_faction_detail, self.grand_faction_showcase,
                                self.grand_setup_start_button, self.grand_faction_selector)
 
@@ -583,25 +640,26 @@ class Game:
 
         self.fps_count = FPSCount(self)  # FPS number counter
         if self.show_fps:
-            self.add_to_ui_updater(self.fps_count)
+            self.add_to_ui_menu_updater(self.fps_count)
         if self.use_simple_text:
             CharacterSpeechBox.simple_font = True
+            DiplomacyHead.simple_font = True
+
 
         # lorebook ui
         self.lorebook_back_button = BrownMenuButton((.15, 0.5), (0, 1.5),
                                                     key_name="button_back", parent=main_menu_buttons_box)
         self.lorebook_faction_selector = FactionSelector(3800, (self.screen_width / 2, 0),
                                                          include_free=True, use_culture=True)
-        self.lorebook_showcase_character_selector = CharacterSelector((self.screen_width * 0.17, self.screen_height * 0.15))
-        self.lorebook_showcase_character_selector_scroll = UIScroll(self.lorebook_showcase_character_selector,
-                                                                    self.lorebook_showcase_character_selector.rect.topright)
+        self.lorebook_showcase_character_selector = CharacterSelector(
+            (self.screen_width * 0.17, self.screen_height * 0.15))
 
         self.lorebook_showcase_box = StaticImage((self.screen_width * 0.595, self.screen_height * 0.4),
-                                                 load_image(self.game.data_dir, self.screen_scale,
-                                                   "showcase_box.png", ("ui", "mainmenu_ui")), 0)
-        self.remove_from_ui_updater(self.lorebook_showcase_box)
+                                                 load_image(self.game.data_dir, "showcase_box.png",
+                                                            self.screen_scale, ("ui", "mainmenu_ui")), 0)
+        self.remove_from_ui_menu_updater(self.lorebook_showcase_box)
 
-        self.sprite_data.load_character_animation((Default_Showcase_Character,), battle_only=True)
+        self.sprite_data.load_character_animation((Default_Showcase_Character,))
         animation_list = list(self.sprite_data.character_animation_data[Default_Showcase_Character].keys())
         for character in self.character_list[Default_Showcase_Character]["Sub Characters"]:
             for anim in self.game.sprite_data.character_animation_data[character[0]]:
@@ -609,18 +667,21 @@ class Game:
                     animation_list.append(anim)
         animation_list = sorted(animation_list)
         self.lorebook_showcase_animation_list_box = ListUI(pivot=(0.7, -0.7), origin=(-1, -1), size=(0.15, 0.5),
-                                                           items=GenericListAdapter([[0, key] for key in animation_list if key != "Default"]),
+                                                           items=GenericListAdapter(
+                                                               [[0, key] for key in animation_list if
+                                                                key != "Default"]),
                                                            parent=self.screen, item_size=20)
         self.lorebook_showcase_character = ShowcaseCharacter(0, {"ID": Default_Showcase_Character,
-                                                                 "POS": Default_Showcase_Character_POS, "direction": "right"} |
+                                                                 "POS": Default_Showcase_Character_POS,
+                                                                 "direction": "right"} |
                                                              self.character_list[Default_Showcase_Character])
         self.lorebook_character_description_showcase = CharacterDescriptionShowCase()
         self.lorebook_character_moveset_showcase = CharacterMovesetShowCase()
         self.lorebook_character_description_showcase.change_character(Default_Showcase_Character)
         self.lorebook_menu_uis = (self.lorebook_showcase_character_selector,
-                                  self.lorebook_showcase_character_selector_scroll, self.lorebook_showcase_box,
+                                  self.lorebook_showcase_character_selector.scroll, self.lorebook_showcase_box,
                                   self.lorebook_showcase_animation_list_box, self.lorebook_back_button,
-                                  self.lorebook_faction_selector,  self.lorebook_character_description_showcase,
+                                  self.lorebook_faction_selector, self.lorebook_character_description_showcase,
                                   self.lorebook_character_moveset_showcase,
                                   self.all_showcase_characters, self.all_showcase_effects)
 
@@ -628,36 +689,39 @@ class Game:
         self.background_image = load_images(self.data_dir, screen_scale=self.screen_scale,
                                             subfolder=("ui", "mainmenu_ui", "background"))
         self.background = self.background_image["background"]
-        self.o2 = MenuRotate((1530 * self.screen_scale[0], 564 * self.screen_scale[1]),
+        self.o2 = MenuRotate((1530 * self.screen_scale_width, 564 * self.screen_scale_height),
                              self.background_image["o2_1"], 10, 1, rotate_left=False)
-        self.o2_actor = MenuActor((1530 * self.screen_scale[0], 570 * self.screen_scale[1]),
+        self.o2_actor = MenuActor((1530 * self.screen_scale_width, 570 * self.screen_scale_height),
                                   [self.background_image[item] for item in self.background_image if
                                    "o2_1_actor" in item], 0,
                                   animation_frame_play_time=0.15)
-        # self.a4_actor = MenuActor((2320 * self.screen_scale[0], 650 * self.screen_scale[1]),
+        # self.a4_actor = MenuActor((2320 * self.screen_scale_width, 650 * self.screen_scale_height),
         #                           [self.background_image[item] for item in self.background_image if
         #                            "a4_1_actor" in item], 0,
         #                           animation_frame_play_time=0.15)
-        self.y3_actor = MenuActor((1920 * self.screen_scale[0], 400 * self.screen_scale[1]),
+        self.y3_actor = MenuActor((1920 * self.screen_scale_width, 400 * self.screen_scale_height),
                                   [self.background_image[item] for item in self.background_image if
                                    "y3_1_actor" in item], 0,
                                   animation_frame_play_time=0.15)
-        self.l5_actor = MenuActor((2676 * self.screen_scale[0], 520 * self.screen_scale[1]),
+        self.l5_actor = MenuActor((2676 * self.screen_scale_width, 520 * self.screen_scale_height),
                                   [self.background_image[item] for item in self.background_image if
                                    "l5_1_actor" in item], 0,
                                   animation_frame_play_time=0.15)
-        self.d8 = StaticImage((1670 * self.screen_scale[0], 1040 * self.screen_scale[1]),
-                              self.background_image["d8_1"], 1)
-        self.d8_actor = MenuActor((1760 * self.screen_scale[0], 1050 * self.screen_scale[1]),
+        self.d8 = StaticImage((1670 * self.screen_scale_width, 1040 * self.screen_scale_height),
+                              self.background_image["d8_1"], 2)
+        self.d8_actor = MenuActor((1760 * self.screen_scale_width, 1050 * self.screen_scale_height),
                                   [self.background_image[item] for item in self.background_image if
-                                   "d8_1_actor" in item], 0,
+                                   "d8_1_actor" in item], 1,
                                   animation_frame_play_time=0.1)
+        self.d8_back = StaticImage((1670 * self.screen_scale_width, 1040 * self.screen_scale_height),
+                                   self.background_image["d8_1_back"], 0)
 
-        self.main_menu_actor = (self.o2, self.d8, self.o2_actor, self.y3_actor, self.l5_actor, self.d8_actor)
+        self.main_menu_actors = (self.o2, self.d8, self.d8_back, self.o2_actor, self.y3_actor,
+                                 self.l5_actor, self.d8_actor)
         self.dt = 0
         self.input_delay = 0
         self.text_delay = 0
-        self.add_to_ui_updater(self.main_menu_buttons)
+        self.add_to_ui_menu_updater(self.main_menu_buttons)
 
         self.menu_state_methods = {"main_menu": self.menu_main, "custom": self.menu_custom_setup,
                                    "grand": self.menu_grand_setup, "lorebook": self.menu_lorebook,
@@ -668,7 +732,11 @@ class Game:
 
         self.input_popup = None  # popup for text input state
 
-        self.run_game()
+        self.music_channel.play(Sound(self.music_pool["menu"]), loops=-1)
+        self.music_channel.set_volume(self.play_music_volume)
+        self.profiler = Profiler()
+
+        self.update()
 
     def game_intro(self, intro):
         timer = 0
@@ -687,24 +755,28 @@ class Game:
 
         self.loading_screen("start")
 
-    def add_to_ui_updater(self, *args):
-        self.ui_updater.add(*args)
-        self.ui_drawer.add(*args)
+    def add_to_ui_menu_updater(self, *args):
+        self.ui_menu_updater.add(*args)
+        self.ui_menu_drawer.add(*args)
 
-    def remove_from_ui_updater(self, *args):
-        self.ui_updater.remove(*args)
-        self.ui_drawer.remove(*args)
+    def remove_from_ui_menu_updater(self, *args):
+        self.ui_menu_updater.remove(*args)
+        self.ui_menu_drawer.remove(*args)
 
     def setup_profiler(self):
-        self.profiler = Profiler()
         self.profiler.enable()
-        self.battle.outer_ui_updater.add(self.profiler)
+        self.battle.add_to_outer_ui_menu_updater(self.profiler)
 
-    def run_game(self):
+    def update(self):
         clear_event()
         while True:
+            if self.load_sprite_background_threads:
+                for thread in tuple(self.load_sprite_background_threads):
+                    if not thread.is_alive():
+                        thread.join()
+                        self.load_sprite_background_threads.remove(thread)
             # Get user input
-            self.remove_from_ui_updater(self.text_popup)
+            self.remove_from_ui_menu_updater(self.text_popup)
             self.dt = self.clock.get_time() / 1000  # dt before game_speed
             if self.input_delay:
                 self.input_delay -= self.dt
@@ -721,6 +793,7 @@ class Game:
 
             if not self.music_channel.get_busy():  # play menu song when not playing anything
                 self.music_channel.play(Sound(self.music_pool["menu"]), loops=-1)
+                self.music_channel.set_volume(self.play_music_volume)
 
             for key in self.player_key_press:
                 if type(self.player_key_bind[key]) is int and key_press[self.player_key_bind[key]]:
@@ -758,77 +831,94 @@ class Game:
                     pygame.quit()
                     sys.exit()
 
-            self.ui_updater.update(self.dt)
+            self.ui_menu_updater.update(self.dt)
 
             # Reset screen
             self.screen.blit(self.background, (0, 0))  # blit background over instead of clear() to reset screen
 
             if self.input_popup:  # currently, have input text pop up on screen, stop everything else until done
+                input_popup = self.input_popup
                 if self.input_ok_button.event_press or key_press[pygame.K_RETURN] or key_press[pygame.K_KP_ENTER]:
                     done = True
-                    if "replace key" in self.input_popup[1]:  # swap between 2 keys
-                        old_key = self.player_key_bind[self.input_popup[1][1]]
+                    if "replace key" in input_popup[1]:  # swap between 2 keys
+                        old_key = self.player_key_bind[input_popup[1][1]]
 
-                        self.player_key_bind[self.input_popup[1][1]] = self.player_key_bind[self.input_popup[1][2]]
-                        self.player_key_bind[self.input_popup[1][2]] = old_key
+                        self.player_key_bind[input_popup[1][1]] = self.player_key_bind[input_popup[1][2]]
+                        self.player_key_bind[input_popup[1][2]] = old_key
                         self.config["USER"]["keybind"] = str(self.player_key_bind_list)
                         self.change_keybind()
 
-                    elif self.input_popup[1] == "new_preset":
+                    elif input_popup[1] == "new_preset":
                         if self.input_box.text and "custom_" + self.input_box.text not in self.before_save_preset_army_setup:
-                            if self.custom_preset_army_setup.selected_faction not in self.before_save_preset_army_setup:
-                                self.before_save_preset_army_setup[self.custom_preset_army_setup.selected_faction] = {}
+                            if self.custom_preset_army_setup.selected_culture not in self.before_save_preset_army_setup:
+                                self.before_save_preset_army_setup[self.custom_preset_army_setup.selected_culture] = {}
                             save_preset = deepcopy(self.custom_preset_army_setup.army_preset)
                             save_preset["Name"] = self.input_box.text
-                            self.before_save_preset_army_setup[self.custom_preset_army_setup.selected_faction][
+                            self.before_save_preset_army_setup[self.custom_preset_army_setup.selected_culture][
                                 "custom_" + self.input_box.text] = save_preset
-                            self.custom_preset_army_setup.army_preset = self.before_save_preset_army_setup[
-                                self.custom_preset_army_setup.selected_faction]["custom_" + self.input_box.text]
+                            save_preset = self.convert_custom_army_to_deployable(
+                                save_preset, self.custom_preset_army_setup.selected_culture)
+                            self.showcase_army.__init__("", save_preset["culture"],
+                                                        save_preset["culture"],
+                                                        save_preset["commander"],
+                                                        save_preset["followers"],
+                                                        custom_preset_id="custom_" + self.input_box.text)
 
+                            self.custom_preset_army_setup.popup(self.input_box.text, self.showcase_army)
                             self.custom_preset_list_box.adapter.__init__()
-                            self.custom_preset_army_title.change_text(self.input_box.text,
-                                                                      self.custom_preset_army_setup.total_gold_cost)
+
                             self.custom_preset_army_setup.change_portrait_selection(None, None)
 
                         else:
                             done = False
                             self.activate_input_popup(("confirm_input", "exist_name"),
-                                                      self.localisation.grab_text(("ui", "warn_name_in_use")),
+                                                      self.grab_text(("ui", "warn_name_in_use")),
                                                       self.game.inform_popup_uis)
 
-                    elif "remove_preset" in self.input_popup[1]:
-                        self.before_save_preset_army_setup[self.custom_preset_army_setup.selected_faction].pop(
-                            self.input_popup[1][1])
-                        if self.input_popup[1][1] == self.custom_preset_army_setup.current_preset:
-                            self.custom_preset_army_setup.current_preset = ""
-                            self.custom_preset_army_title.change_text("", self.custom_preset_army_setup.total_gold_cost)
+                    elif "remove_preset" in input_popup[1]:
+                        preset_id = "custom_" + input_popup[1][1]
+                        self.before_save_preset_army_setup[self.custom_preset_army_setup.selected_culture].pop(
+                            preset_id)
+                        if preset_id == self.custom_preset_army_setup.current_preset_id:
+                            self.custom_preset_army_setup.change_culture_preset(
+                                self.custom_preset_army_setup.selected_culture)
                         self.custom_preset_list_box.adapter.__init__()
 
-                    elif self.input_popup[1] == "custom_gold":
+                    elif input_popup[1] == "custom_gold":
                         if self.input_box.text.isdigit():
-                            if self.input_popup[2] == 1:
+                            if input_popup[2] == 1:
                                 self.team1_gold_limit_custom_battle = int(self.input_box.text)
                                 self.custom_battle_team1_gold_button.change_state(
                                     ("info_header_gold_limit", self.team1_gold_limit_custom_battle))
-                                self.custom_battle_team_setup[1].change_cost(0, self.custom_team_army[1][0].cost)
+                                self.custom_battle_team_setup[1].change_cost(0, self.custom_team_army[1][0].cost,
+                                                                             self.custom_team_army[1][
+                                                                                 0].total_supply_usage)
                             else:
                                 self.team2_gold_limit_custom_battle = int(self.input_box.text)
                                 self.custom_battle_team2_gold_button.change_state(
                                     ("info_header_gold_limit", self.team2_gold_limit_custom_battle))
-                                self.custom_battle_team_setup[2].change_cost(0, self.custom_team_army[2][0].cost)
+                                self.custom_battle_team_setup[2].change_cost(0, self.custom_team_army[2][0].cost,
+                                                                             self.custom_team_army[2][
+                                                                                 0].total_supply_usage)
 
-                    elif self.input_popup[1] == "custom_supply":
+                    elif input_popup[1] == "custom_supply":
                         if self.input_box.text.isdigit():
-                            if self.input_popup[2] == 1:
+                            if input_popup[2] == 1:
                                 self.team1_supply_limit_custom_battle = int(self.input_box.text)
                                 self.custom_battle_team1_supply_button.change_state(
                                     ("info_header_supply_limit", self.team1_supply_limit_custom_battle))
+                                self.custom_battle_team_setup[1].change_cost(0, self.custom_team_army[1][0].cost,
+                                                                             self.custom_team_army[1][
+                                                                                 0].total_supply_usage)
                             else:
                                 self.team2_supply_limit_custom_battle = int(self.input_box.text)
                                 self.custom_battle_team2_supply_button.change_state(
                                     ("info_header_supply_limit", self.team2_supply_limit_custom_battle))
+                                self.custom_battle_team_setup[2].change_cost(0, self.custom_team_army[2][0].cost,
+                                                                             self.custom_team_army[2][
+                                                                                 0].total_supply_usage)
 
-                    elif self.input_popup[1] == "quit":
+                    elif input_popup[1] == "quit":
                         pygame.time.wait(1000)
                         pygame.quit()
                         sys.exit()
@@ -837,15 +927,15 @@ class Game:
                         self.change_pause_update(False)
                         self.input_box.render_text("")
                         self.input_popup = None
-                        self.remove_from_ui_updater(self.all_input_popup_uis)
+                        self.remove_from_ui_menu_updater(self.all_input_popup_uis)
 
                 elif self.input_cancel_button.event_press or self.input_close_button.event_press or self.esc_press:
                     self.change_pause_update(False)
                     self.input_box.render_text("")
                     self.input_popup = None
-                    self.remove_from_ui_updater(self.all_input_popup_uis)
+                    self.remove_from_ui_menu_updater(self.all_input_popup_uis)
 
-                elif self.input_popup[0] == "text_input":
+                elif input_popup[0] == "text_input":
                     if not self.text_delay:
                         if key_press[self.input_box.hold_key]:
                             self.input_box.player_input(None, key_press)
@@ -858,6 +948,6 @@ class Game:
             else:
                 self.menu_state_methods[self.menu_state]()
 
-            self.ui_drawer.draw(self.screen)
+            self.ui_menu_drawer.draw(self.screen)
             display.update()
             self.clock.tick(1000)

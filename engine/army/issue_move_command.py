@@ -1,0 +1,97 @@
+from engine.constants import Route_Travel_Modifier
+
+
+def issue_move_command(self, target_destination, direct=False):
+    activity = self.activity
+    already_travel = "travel" in activity
+    if not already_travel or activity["travel"] != "retreat":
+        # cannot issue new move command while in retreat
+        old_destination = None
+        if already_travel:
+            old_destination = activity["destination"]
+        if (old_destination != target_destination or (
+                not already_travel and self.current_region != target_destination) or
+                activity["travel_how"] != direct):
+            # issue new move command to move to different target region or use different mean
+            route_list = self.grand.route_list
+            new_travel_route_id = []
+            command_type = "move"
+
+            if "assemble" in activity:  # cancel assembling when move for any reason
+                self.can_assemble = {}
+                activity = {}
+
+            if already_travel:
+                # check if army still at settlement pos, which mean it has not yet start travelling
+                if self.base_pos == route_list[activity["id_routes"][0]]["Dots"][0]:
+                    # still at starting point of travelling, remove current travel
+                    activity = {}
+                    already_travel = False
+
+            if self.current_region != target_destination:
+                if (self.current_region, target_destination) in self.pathfinding_array:
+                    if direct:
+                        new_travel_route_id = list(self.direct_routing_array[(self.current_region, target_destination)])
+                    else:
+                        new_travel_route_id = list(self.pathfinding_array[(self.current_region, target_destination)])
+                else:  # somehow destination region has no path to reach, end function
+                    return
+
+                # recreate list of ids into ids pair for each route to pass
+                new_travel_route_id = [(item, new_travel_route_id[index + 1]) if
+                                       (item, new_travel_route_id[index + 1]) in route_list else
+                                       (new_travel_route_id[index + 1], item) for
+                                       index, item in enumerate(new_travel_route_id) if
+                                       index + 1 < len(new_travel_route_id)]
+
+                if already_travel:
+                    # travelling already, must check if current path must be added to the new route so army can
+                    # leave the current route
+                    current_route_id = activity["id_routes"][0]
+
+                    if current_route_id not in new_travel_route_id and current_route_id[
+                                                                       ::-1] not in new_travel_route_id:
+                        if self.current_region == current_route_id[1]:  # finish travel
+                            new_travel_route_id.insert(0, current_route_id)
+                        else:  # revert back
+                            new_travel_route_id.insert(0, current_route_id[::-1])
+
+            else:  # click at current region while travelling out
+                # travelling already, must check if current path must be added to the new route so army can
+                # use the current route to travel back
+                if already_travel:
+                    if target_destination == activity["id_routes"][0][0]:
+                        # revert travel direction back to where it heading out from
+                        new_travel_route_id = [activity["id_routes"][0][::-1]]
+                    else:
+                        new_travel_route_id = [activity["id_routes"][0]]
+
+            if new_travel_route_id:
+                # create dots to travel based on new travel route list
+                dot_routes = []
+                for index, item in enumerate(new_travel_route_id):
+                    dots = list(route_list[item]["Dots"])
+                    dot_routes.append(dots)
+                if self.base_pos in dot_routes[0]:  # already travelling along the path, remove already travelled dots
+                    first_route = dot_routes[0]
+                    dot_routes[0] = first_route[first_route.index(self.base_pos):]
+                    if len(dot_routes[0]) <= 1:
+                        dot_routes.pop(0)
+                    if not dot_routes:  # turn out no route to move
+                        return
+
+                if self.game_id in self.grand.current_campaign_state["battle"]["armies"]:
+                    command_type = "retreat"
+
+                route_difficulties = [Route_Travel_Modifier[route_list[new_travel_route_id[index]]["Type"]] for
+                                      index, dots in enumerate(dot_routes)]
+                activity = {"travel": command_type, "progress": 0, "destination": target_destination,
+                            "id_routes": new_travel_route_id, "travel_how": direct,
+                            "dot_routes": dot_routes, "difficulties": route_difficulties,
+                            "remain_phase_require": [len(dots) * route_difficulties for index, dots in
+                                                     enumerate(dot_routes)]}
+
+                if self.grand.player_faction == self.faction:
+                    self.grand.player_army_list_ui.reset_card(self)
+        activity["travel_how"] = direct
+        self.activity = activity

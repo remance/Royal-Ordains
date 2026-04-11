@@ -2,4 +2,4 @@
 "Skill1","Earth Rune",,,"self:{no_engage=500}",1300,1500,,25,22,13,15,-200,,"earth",,,"oiled","arc"
 "Skill2","Air Rune",,,"self:{no_engage=500}",1300,1500,,25,34,20,50,100,,"air",,,"shock,electrocution","arc"
 "Skill3","Magic Rune",,,"self:{no_engage=500}",1300,1500,,25,80,10,12,34,,"magic",,,,"arc"
-"UseItem","Resource Potion",,,"self:{resource<=50}",20000,,60,,,,,,,,"resource_potion",,,
+"UseItem","Resource Potion",,,"self:{resource<=0.5}",20000,,60,,,,,,,,"resource_potion",,,

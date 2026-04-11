@@ -13,19 +13,24 @@ def change_sound_volume(self):
 
     music.set_volume(self.play_music_volume)  # set new music player volume
 
-    self.battle.music_channel.set_volume(self.play_music_volume)
-    self.battle.button_sound_channel.set_volume(self.play_effect_volume)
-    self.battle.ambient_channel.set_volume(self.play_effect_volume)
-    self.battle.weather_ambient_channel.set_volume(self.play_effect_volume)
-
-    self.battle.master_volume = self.master_volume
-    self.battle.play_music_volume = self.play_music_volume
-    self.battle.play_effect_volume = self.play_effect_volume
-    self.battle.play_voice_volume = self.play_voice_volume
-
     volume_stat = {"master": self.master_volume, "music": self.music_volume,
                    "effect": self.effect_volume, "voice": self.voice_volume}
 
-    for key, value in self.option_menu_sliders.items():  # re-update volume slider
-        value.player_input(self.value_boxes[key], forced_value=volume_stat[key])
-        self.battle.esc_slider_menu[key].player_input(self.battle.esc_value_boxes[key], forced_value=volume_stat[key])
+    for main_process in (self.battle, self.grand):
+        main_process.music_channel.set_volume(self.play_music_volume)
+        main_process.button_sound_channel.set_volume(self.play_effect_volume)
+        main_process.ambient_channel.set_volume(self.play_effect_volume)
+        main_process.weather_ambient_channel.set_volume(self.play_effect_volume)
+
+        main_process.master_volume = self.master_volume
+        main_process.play_music_volume = self.play_music_volume
+        main_process.play_effect_volume = self.play_effect_volume
+        main_process.play_voice_volume = self.play_voice_volume
+
+        for key, value in self.option_menu_sliders.items():  # re-update volume slider
+            value.player_input(self.value_boxes[key], forced_value=volume_stat[key])
+            main_process.esc_slider_menu[key].player_input(main_process.esc_value_boxes[key],
+                                                           forced_value=volume_stat[key])
+
+
+

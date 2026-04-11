@@ -4,10 +4,10 @@ from os.path import split, join
 
 from pygame.mixer import Sound
 
-from engine.data.datastat import GameData
+from engine.data.data import GameData
 
 
-class SoundData(GameData):
+class DataSound(GameData):
     def __init__(self):
         GameData.__init__(self)
 

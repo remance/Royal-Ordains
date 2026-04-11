@@ -1,6 +1,6 @@
-from engine.battle.setup_team_characters import add_neutral_character
+from engine.battle.setup_team_characters import add_neutral_stage_character
 from engine.character.character import BattleCharacter
-from engine.constants import Default_Ground_Pos
+from engine.constants import Default_Battle_Ground_Pos
 
 
 def check_reinforcement(self):
@@ -11,7 +11,7 @@ def check_reinforcement(self):
             if condition_type != "team":
                 if condition_check[condition_type](self, condition):
                     for key_data in reinforcement.copy():
-                        add_neutral_character(self, key_data)
+                        add_neutral_stage_character(self, key_data)
                         reinforcement.remove(key_data)  # remove added reinforcement from list
             else:
                 if self.team_commander[condition] and self.team_commander[condition].alive and \
@@ -24,35 +24,28 @@ def check_reinforcement(self):
                                 this_reinforcement[2] += self.dt
                                 if this_reinforcement[2] >= this_reinforcement[1]:
                                     this_reinforcement[2] -= this_reinforcement[1]
-                                    # self.later_reinforcement["team"][team]["ground"].append(
-                                    #     [character_to_call[0], character_stat["Respond Time"],
-                                    #      0, character_stat["Arrive Per Call"]])
                                     data = {"Team": condition, "ID": character}
                                     if "POS" not in data:
-                                        data["POS"] = (self.team_stat[condition]["start_pos"], Default_Ground_Pos)
+                                        data["POS"] = (
+                                            self.team_state[condition]["start_pos"], Default_Battle_Ground_Pos)
 
-                                    add_battle_char = BattleCharacter(self.last_char_game_id,
-                                                                      data | self.character_list[character],
-                                                                      self.team_commander[condition])
+                                    add_battle_character = BattleCharacter(self.last_char_game_id,
+                                                                           data | self.character_list[character],
+                                                                           self.team_commander[condition])
+                                    add_battle_character.enter_stage()
                                     self.team_deployed[condition] += 1
                                     self.last_char_game_id += 1
-                                    if condition == 1:  # spawn at start of stage, go to the end
-                                        add_battle_char.issue_commander_order(
-                                            ("attack", self.battle.team_stat[2]["start_pos"]))
-                                    else:
-                                        add_battle_char.issue_commander_order(
-                                            ("attack", self.battle.team_stat[1]["start_pos"]))
 
                                     this_reinforcement[3] -= 1
-                                    if not this_reinforcement[3]:
+                                    if this_reinforcement[3] <= 0:
                                         # remove reinforcement from list when all arrive
                                         reinforcement["ground"].remove(this_reinforcement)
 
-                        if not reinforcement["ground"]:
+                        if not reinforcement["ground"]:  # no more reinforcement left
                             reinforcement.pop("ground")
 
                     if "air" in reinforcement:
-                        if reinforcement["air"] and len(self.team_stat[condition]["air_group"]) < 5:
+                        if reinforcement["air"] and len(self.team_state[condition]["air_group"]) < 5:
                             # No more than 5 controllable air groups can be available in battle
                             self.create_air_group(reinforcement["air"][0], condition,
                                                   self.team_commander[condition])

@@ -1,13 +1,18 @@
 import gc
+
 from pygame.event import clear as clear_event
 
 
-def start_battle(self, campaign, mission, team_stat, player_team, custom_stage_data=None, ai_retreat=False):
+def start_battle(self, grand, campaign, stage, team_state, player_team, battle_name, custom_stage_data=None,
+                 ai_retreat=False,
+                 setup_battle=False):
     # self.error_log.write("\n Map: " + str(self.map_selected) + "\n")
     self.loading_screen("start")
-
-    self.battle.prepare_new_stage(campaign, mission, team_stat, player_team, custom_stage_data, ai_retreat)
-    result = self.battle.run_battle()  # run battle
+    if setup_battle:
+        self.battle.setup_battle_start(campaign, stage, team_state)
+    self.battle.prepare_new_stage(grand, campaign, stage, team_state, player_team, battle_name, custom_stage_data,
+                                  ai_retreat)
+    self.battle.run_battle()  # run battle
     self.battle.exit_battle()  # run exit battle for previous one
 
     gc.collect()  # collect no longer used object in previous battle from memory
@@ -18,7 +23,6 @@ def start_battle(self, campaign, mission, team_stat, player_team, custom_stage_d
     # save_profile = self.save_data.save_profile
     # print(save_profile)
 
-    # save_profile["playtime"] += self.battle.play_time
     # save_profile["total kills"] += sum(self.battle.player_kill.values())
     # save_profile["total damages"] += sum(self.battle.player_damage.values())
     # for player, value in self.battle.player_kill.items():  # check for update for all active players to update state

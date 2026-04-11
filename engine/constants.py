@@ -1,25 +1,49 @@
-"""Constant value related to battle"""
-Default_Screen_Width = 3840
-Default_Screen_Height = 2160
 Base_Animation_Frame_Play_Time = 0.1
 Base_Region_Army_Travel_Time = 20
 Battle_Speech_Font_Size = 50
-Default_Air_Pos = 800
-Default_Float_Pos = 1300
-Default_Ground_Pos = 2000
+Default_Battle_Air_Pos = 800
+Default_Battle_Float_Pos = 1300
+Default_Battle_Ground_Pos = 2000
 Character_Gravity = 500
-Collision_Grid_X_Per_Scene = 4
-Collision_Grid_Y_Per_Scene = 2
+team_colour = {0: (50, 190, 50), 1: (100, 110, 200), 2: (190, 50, 50)}
+
+"""number of collision grids per scene in battle, more grids can improve collision detection performance when 
+battle involve huge number of characters"""
+Collision_Grid_X_Per_Battle_Scene = 4
+Collision_Grid_Y_Per_Battle_Scene = 2
+
+"""change to these value that no exist in data can break the game"""
 Custom_Default_Culture = "castle"
-Grand_Default_Faction = "masendor"
-Default_Showcase_Character = "leader_vraesier"
+Default_Showcase_Character = "leader_tulia"
 Default_Selected_Stage_Custom_Battle = "stage_custom1"
-Default_Supply_limit_Custom_Battle = 1000
+
+Default_Supply_limit_Custom_Battle = 5000
 Default_Gold_limit_Custom_Battle = 5000
 Default_Weather_Custom_Battle = 1
 Default_Weather_Strength_Custom_Battle = 0
+Leadership_Add_Modifier = 0.3
 
-# THESE CONSTANTS SHOULD NOT BE CHANGED
+Phase_To_Game_Time = 1  # in second to 1 phase
+Turn_To_Phase = 12  # in phase to 1 turn
+Phase_To_Battle_Time = 60  # in second
+
+# number of turn a diplomacy event will have effect
+Diplomacy_Turn_Event_Gift = 30
+Diplomacy_Turn_Event_Battle = 15
+Diplomacy_Turn_Event_Occupy = 50
+
+"""culture policy for grand campaign
+ANY CHANGE IN KEYS WILL CAUSE ERRORS from the inconsistency in game code, uioutergrand and ui sprite asset
+the value indicate maximum integration value that the culture can reach"""
+Culture_Policy_Integration = {"reject": 0, "tolerate": 0.1, "restrict": 0.35, "partial": 0.7, "accept": 1}
+Culture_Policy_Difference_Relation = {0: 0, 1: -5, 2: -15, 3: -20, 4: -30}
+
+"""Route type travel modifier for army in grand campaign"""
+Route_Travel_Modifier = {"land": 1, "forest": 2, "hill": 2, "snow": 2, "sea": 3, "mountain": 3, "ocean": 4}
+
+# DO NOT CHANGE BELOW AS THEY MAY BREAK THE GAME
+Default_Screen_Width = 3840
+Default_Screen_Height = 2160
 Default_Showcase_Character_POS = (Default_Screen_Width * 0.6, Default_Screen_Height * 0.6)
 Default_Showcase_Character_air_POS = (Default_Screen_Width * 0.6, Default_Screen_Height * 0.45)
 Weak_To_Element = {"fire": "water", "water": "air", "earth": "fire", "air": "earth", "magic": None,

@@ -3,7 +3,8 @@ from pygame import Vector2
 
 def remain_logic(self, dt):
     if self.after_reach == "move":  # keep moving until reach ground or out of map
-        self.move_logic(dt, False)
+        if self.move_logic(dt, False):
+            return True
     else:
         if self.x_momentum or self.y_momentum:  # sprite bounce after reach
             self.renew_sprite = True
@@ -16,8 +17,8 @@ def remain_logic(self, dt):
             if move.length():
                 move.normalize_ip()
                 self.base_pos += move * dt * 500
-                self.pos = Vector2(self.base_pos[0] * self.screen_scale[0],
-                                   self.base_pos[1] * self.screen_scale[1])
+                self.pos = Vector2(self.base_pos[0] * self.screen_scale_width,
+                                   self.base_pos[1] * self.screen_scale_height)
                 self.adjust_sprite()
 
                 if move[0] > 0:
@@ -31,6 +32,8 @@ def remain_logic(self, dt):
                 self.x_momentum = 0
                 self.y_momentum = 0
                 self.reach_target("ground")
+                return True
 
         else:  # no longer bouncing, remove effect
             self.reach_target()
+            return True

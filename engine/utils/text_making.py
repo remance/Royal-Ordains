@@ -1,12 +1,13 @@
 import datetime
 import os
 
-import pygame
 from PIL import Image
 from pygame import Color, Surface, image, SRCALPHA
 
+infinity = float("inf")
 
-def change_number(number):
+
+def shorten_number(number):
     """Change number more than a thousand to K digit e.g. 1k = 1000"""
     if number >= 1000000:
         return str(round(number / 1000000, 1)) + "m"
@@ -19,12 +20,17 @@ def add_comma_number(number):
     return "{:,}".format(number)
 
 
-def number_to_minus_or_plus(number):
-    """Number should not be 0"""
-    if number > 0:
-        return "+"
-    else:  # assuming number is not 0
-        return "-"
+def convert_modifier_number_to_percent_text(number):
+    return str(int(number * 100))
+
+
+def add_plus_to_number(number):
+    number_text = number
+    if type(number_text) is str and "," in number_text:
+        number_text = number_text.replace(",", "")
+    if float(number_text) >= 0:
+        return "+" + str(number)
+    return str(number)
 
 
 def sort_list_dir_with_str(dir_list, str_list):
@@ -39,35 +45,30 @@ def sort_list_dir_with_str(dir_list, str_list):
     return sorted_dir
 
 
-def calculate_long_text_size(text, font, font_size, max_text_width, start_pos=(0, 0)):
-    # Find text size, based on code from make_long_text
-    true_max_width = start_pos[0]
-    x, y = start_pos[0], start_pos[1]
-    words = [word.split(" ") for word in
-             str(text).splitlines()]  # 2D array where each row is a list of words
-    space = font.size(" ")[0]  # the width of a space
-    exceed_max_width = False
-    for line in words:
-        for word in line:
-            word_surface = font.render(word, True, (0, 0, 0))
-            word_width, word_height = word_surface.get_size()
-            if x + word_width >= max_text_width:
-                exceed_max_width = True
-                x = font_size  # reset x
-                y += word_height + 1  # start on new row.
-            if not exceed_max_width:
-                true_max_width += word_width + space
-            x += word_width + space
-        x = font_size  # reset x
-        y += word_height + 1  # start on new row
-    return true_max_width, y
+def recursive_convert_line_item(result, item, first_run):
+    line = result
+    if first_run:
+        line = []
+        result.append(line)
+    if type(item) in (tuple, list):
+        for index, item2 in enumerate(item):
+            if first_run and type(item2) in (tuple, list) and index:
+                # new line
+                line = []
+                result.append(line)
+            recursive_convert_line_item(line, item2, False)
+    else:
+        if type(item) is Surface:
+            line.append(item)
+        else:
+            line_split = [[item2 for item2 in word.split(" ")] for word in str(item).splitlines()]
+            line += [x for x in line_split[0]]
 
 
-def make_long_text(surface, text, pos, font, color=Color("black"), with_texture=(), specific_width=None,
-                   alignment="left"):
+def make_long_text(text, pos, font, color=Color("black"), with_texture=(),
+                   specific_width=None, alignment="left"):
     """
     Blit long text into separate row of text by blitting text word by word
-    :param surface: Input Pygame Surface
     :param text: Text in either list or string format
     :param pos: Starting position
     :param font: Pygame Font
@@ -77,62 +78,82 @@ def make_long_text(surface, text, pos, font, color=Color("black"), with_texture=
     :param alignment: text alignment "left", "right", "center"
     """
     # TODO Add sizing and colouring for highlight and maybe URL system
-    if type(text) not in (list, tuple):
-        text = [text]
+    font_render = font.render
     x, y = [0, pos[1]]
     true_x = pos[0]
-    word_height = font.size(" ")[1] + 1  # add + 1 to prevent letter with long bottom like "g" being clipped
-    max_width = surface.get_width()
+    word_height = font.size("Ag")[1]
+    max_width = infinity
     if specific_width:
         max_width = specific_width
     space = font.size(" ")[0]  # the width of a space
+    line_surfaces = {}
+    new_text = []
+    recursive_convert_line_item(new_text, text, True)
 
-    for this_text in text:
-        words = [word.split(" ") for word in str(this_text).splitlines()]  # 2D array where each row is a list of words
-        for line in words:
-            this_subsurface_list = {}
-            for word in line:
-                if not with_texture:
-                    word_surface = font.render(word, True, color)
-                else:
-                    word_surface = text_render_with_texture(word, font, with_texture[0], with_bg=with_texture[1])
+    for line in new_text:  # create surface for each line
+        this_line_word_surface_list = {}
+        max_height_this_text_line = []
+        max_width_this_text_line = []
 
+        inline_y = 0
+        start_line_y = y
+        for index, word in enumerate(line):
+            if type(word) is Surface:  # image, not text
+                word_surface = word
                 word_width = word_surface.get_width()
-                if true_x + word_width >= max_width or word == "\\n":  # new line
-                    subsurface = Surface((x, word_height), SRCALPHA)
-                    for w_x, w_surface in this_subsurface_list.items():
-                        subsurface.blit(w_surface, (w_x, 0))
-                    if alignment == "left":
-                        surface.blit(subsurface, (pos[0], y))
-                    elif alignment == "right":
-                        surface.blit(subsurface, subsurface.get_rect(topright=(surface.get_rect().topright[0], y)))
-                    else:
-                        surface.blit(subsurface, subsurface.get_rect(center=(surface.get_rect().center[0],
-                                                                             y + (word_height / 2))))
-                    x = 0  # reset x
-                    true_x = pos[0]
-                    y += word_height  # start on new line.
-                    this_subsurface_list = {}
+            else:  # text
+                if not with_texture:
+                    word_surface = font_render(word, True, color)
+                else:  # add texture
+                    word_surface = text_render_with_texture(word, font, with_texture[0], with_bg=with_texture[1])
+                word_width = word_surface.get_width() + space
 
-                if word != "\\n":
-                    this_subsurface_list[x] = word_surface
-                    x += word_width + space
-                    true_x += word_width + space
+                # if index < len(line) - 1 and type(line[index + 1]) is Surface:  # has image after text word
+                #     # attach image after word to total word width so they are in the same line
+                #     word_width += line[index + 1].get_width()
 
-            subsurface = Surface((x, word_height), SRCALPHA)
-            for w_x, w_surface in this_subsurface_list.items():
-                subsurface.blit(w_surface, (w_x, 0))
+            if true_x + word_width >= max_width:  # this word exceed max_width, start new line
+                x = 0  # reset x
+                true_x = pos[0]
+                inline_y += word_height
+                y += word_height
+                max_height_this_text_line.append(word_height)
 
-            if alignment == "left":
-                surface.blit(subsurface, (pos[0], y))
-            elif alignment == "right":
-                surface.blit(subsurface, subsurface.get_rect(topright=(surface.get_rect().topright[0], y)))
-            else:
-                surface.blit(subsurface, subsurface.get_rect(center=(surface.get_rect().center[0],
-                                                                     y + (word_height / 2))))
-            x = 0  # reset x
-            true_x = pos[0]
-        y += word_height  # start on new line
+            if inline_y not in this_line_word_surface_list:
+                this_line_word_surface_list[inline_y] = {}
+            this_line_word_surface_list[inline_y][x] = word_surface
+
+            x += word_width
+            true_x += word_width
+            max_width_this_text_line.append(x)
+        max_height_this_text_line.append(word_height)
+
+        line_surface = Surface((max(max_width_this_text_line), sum(max_height_this_text_line)), SRCALPHA)
+
+        for w_y, y_list in this_line_word_surface_list.items():
+            for w_x, w_surface in y_list.items():
+                line_surface.blit(w_surface, (w_x, w_y))
+
+        line_surfaces[start_line_y] = line_surface
+        y += sum(max_height_this_text_line)
+        x = 0  # reset x
+        true_x = pos[0]
+
+    if specific_width:
+        surface_width = specific_width
+    else:
+        surface_width = max([line_surface.get_width() for line_surface in line_surfaces.values()])
+
+    surface_height = sum([line_surface.get_height() for line_surface in line_surfaces.values()])
+    surface = Surface((surface_width, surface_height), SRCALPHA)
+    for y, line_surface in line_surfaces.items():
+        if alignment == "left":
+            surface.blit(line_surface, (pos[0], y))
+        elif alignment == "right":
+            surface.blit(line_surface, line_surface.get_rect(topright=(surface.get_width() - pos[0], y)))
+        else:
+            surface.blit(line_surface, line_surface.get_rect(midtop=(surface.get_rect().center[0], y)))
+    return surface
 
 
 def text_render_with_texture(text, font, texture, with_bg=None):
@@ -148,11 +169,11 @@ def text_render_with_texture(text, font, texture, with_bg=None):
         text_surface = font.render(text, True, (0, 0, 0))
     else:
         text_surface = text_render_with_bg(text, font, gf_colour=with_bg[0], o_colour=with_bg[1], opx=with_bg[2])
-    size = text_surface.get_size()
-    data = image.tobytes(text_surface, "RGBA")  # convert image to string data for filtering effect
-    text_surface = Image.frombytes("RGBA", size, data)  # use PIL to get image data
 
     if texture:
+        size = text_surface.get_size()
+        data = image.tobytes(text_surface, "RGBA")  # convert image to string data for filtering effect
+        text_surface = Image.frombytes("RGBA", size, data)  # use PIL to get image data
         surface = Image.new("RGBA", size, (0, 0, 0, 0))
         texture_size = texture.size
         new_texture = texture.crop((texture_size[0] - size[0], texture_size[1] - size[1],
@@ -160,7 +181,7 @@ def text_render_with_texture(text, font, texture, with_bg=None):
         surface.paste(new_texture, box=(0, 0), mask=text_surface)
         size = surface.size
         surface = surface.tobytes()
-        surface = image.frombytes(surface, size, "RGBA")  # convert image back to a pygame surface
+        surface = image.frombytes(surface, size, "RGBA").convert_alpha()  # convert image back to a pygame surface
     else:  # no assigned texture
         surface = text_surface
 
@@ -178,11 +199,9 @@ def text_render_with_bg(text, font, gf_colour=Color("black"), o_colour=(255, 255
     :return: Text surface
     """
     text_surface = font.render(text, True, gf_colour)
-    w = text_surface.get_width() + 2 * opx
-    h = font.get_height()
-
-    osurf = Surface((w, h + 2 * opx), pygame.SRCALPHA)
-    osurf.fill((0, 0, 0, 0))
+    osurf = Surface((text_surface.get_width() + 2 * opx,
+                     font.get_height() + 2 * opx), SRCALPHA)
+    # osurf.fill((0, 0, 0, 50))
 
     surface = osurf.copy()
 
@@ -198,12 +217,9 @@ def text_render_with_bg(text, font, gf_colour=Color("black"), o_colour=(255, 255
 
 def circle_points(r):
     """Calculate text point to add background"""
-    circle_cache = {}
     r = int(round(r))
-    if r in circle_cache:
-        return circle_cache[r]
     x, y, e = r, 0, 1 - r
-    circle_cache[r] = points = []
+    points = []
     while x >= y:
         points.append((x, y))
         y += 1

@@ -3,13 +3,13 @@ from engine.constants import Default_Showcase_Character_POS
 
 def menu_lorebook_beast(self):
     if self.lorebook_back_button.event_press or self.esc_press:  # back to start_set menu
-        self.remove_from_ui_updater(self.lorebook_menu_uis)
+        self.remove_from_ui_menu_updater(self.lorebook_menu_uis)
         self.back_mainmenu()
 
-    elif self.lorebook_showcase_character_selector_scroll.event:
-        if self.lorebook_showcase_character_selector_scroll.current_row is not None:
+    elif self.lorebook_showcase_character_selector.scroll.event:
+        if self.lorebook_showcase_character_selector.scroll.current_row is not None:
             self.lorebook_showcase_character_selector.current_row = (
-                self.lorebook_showcase_character_selector_scroll.current_row)
+                self.lorebook_showcase_character_selector.scroll.current_row)
             self.lorebook_showcase_character_selector.add_character()
 
     elif self.lorebook_showcase_animation_list_box.adapter.last_click:
@@ -26,8 +26,10 @@ def menu_lorebook_beast(self):
                     self.lorebook_character_moveset_showcase.change_moveset(self.lorebook_showcase_character.char_id,
                                                                             animation_name)
                 self.lorebook_showcase_character.command_action = {"name": animation_name, "repeat": True,
-                                                                   "target": (self.lorebook_showcase_character.base_pos[0] + 500,
-                                                                              Default_Showcase_Character_POS[1])}
+                                                                   "target": (
+                                                                       self.lorebook_showcase_character.base_pos[
+                                                                           0] + 500,
+                                                                       Default_Showcase_Character_POS[1])}
 
             for sub_character in self.lorebook_showcase_character.sub_characters:
                 sub_character.interrupt_animation = True

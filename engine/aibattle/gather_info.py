@@ -1,5 +1,5 @@
-from random import sample
 from operator import itemgetter
+from random import sample
 
 """Battle commander AI act and plan depend on their personality stat
 Cleverness 0 = does nothing
@@ -73,16 +73,16 @@ def gather_info_basic(self):  # clever 1
     """Gather basic information of their own commander
     Shuffle strategy list so available strategies are given random priority to be used"""
     start_pos = self.commander.start_pos
-    strategy_list = [(index, strategy) for index, strategy in enumerate(self.own_strategy) if
-                                   not self.team_stat["strategy_cooldown"][index] and
-                                   self.strategy_list[strategy]["Resource Cost"] <= self.team_stat[
-                                       "strategy_resource"]]
+    strategy_list = [strategy for strategy in self.own_strategy if
+                     not min(self.team_state["strategy_cooldown"][strategy]) and
+                     self.strategy_list[strategy]["Resource Cost"] <= self.team_state["strategy_resource"]]
     info = {"commander_health": self.commander.health / self.commander.base_health,
             "available_strategy": sample(strategy_list, len(strategy_list)),
             }
 
     if self.battle.all_team_enemy_check[self.team]:
-        near_camp_enemy = sorted({enemy.base_pos[0]: abs(start_pos - enemy.base_pos[0]) for enemy in self.battle.all_team_enemy_check[self.team]}.items(), key=itemgetter(1))
+        near_camp_enemy = sorted({enemy.base_pos[0]: abs(start_pos - enemy.base_pos[0]) for enemy in
+                                  self.battle.all_team_enemy_check[self.team]}.items(), key=itemgetter(1))
         info["closest_enemy_distance_to_camp"] = near_camp_enemy[0]
 
     if self.air_group:
@@ -167,8 +167,8 @@ def gather_info_status(self):  # clever 6
 
 
 def gather_info_supply(self):  # clever 7
-    return {"future_supply": self.team_stat["supply_reserve"],
-            "enemy_supply": (self.enemy_team_stat["supply_resource"], self.enemy_team_stat["supply_reserve"])}
+    return {"future_supply": self.team_state["supply_reserve"],
+            "enemy_supply": (self.enemy_team_state["supply_resource"], self.enemy_team_state["supply_reserve"])}
 
 
 def gather_info_weather(self):  # clever 8
@@ -176,16 +176,16 @@ def gather_info_weather(self):  # clever 8
 
 
 def gather_info_enemy_strategy(self):  # clever 9
-    return {"available_enemy_strategy": [strategy for index, strategy in enumerate(self.enemy_strategy) if
-                                         not self.enemy_team_stat["strategy_cooldown"][index] and
+    return {"available_enemy_strategy": [strategy for strategy in self.enemy_strategy if
+                                         not min(self.enemy_team_state["strategy_cooldown"][strategy]) and
                                          self.strategy_list[strategy]["Resource Cost"] <=
-                                         self.enemy_team_stat["strategy_resource"]]}
+                                         self.enemy_team_state["strategy_resource"]]}
 
 
 def check_air_group(self, team):
     air_group = {True: {"interceptor": {}, "fighter": {}, "bomber": {}},
                  False: {"interceptor": {}, "fighter": {}, "bomber": {}}}
-    for index, group in enumerate(self.battle.team_stat[team]["air_group"]):
+    for index, group in enumerate(self.battle.team_state[team]["air_group"]):
         if group:
             air_group[group[0].active][group[0].ai_behaviour] = {
                 index: (len(group), sum([character.power_score for character in group]), group)}

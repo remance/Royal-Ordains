@@ -10,10 +10,10 @@ def conduct_commander(self):
     current_info = self.current_info
 
     # plan for commander, overall, strategy related
-    victory_chance = self.team_stat["supply_resource"]
-    if current_info and current_info["available_strategy"] and self.clever > uniform(0, 120 - self.team_stat[
+    victory_chance = self.team_state["supply_resource"]
+    if current_info and current_info["available_strategy"] and self.clever > uniform(0, 120 - self.team_state[
         "strategy_resource"]):
-        for strategy_index, strategy in current_info["available_strategy"]:
+        for strategy in current_info["available_strategy"]:
             # shuffle strategy list so that
             strategy_stat = self.strategy_list[strategy]
             character_in_range = []
@@ -60,12 +60,13 @@ def conduct_commander(self):
                 grid_range = find_grid_range(commander_base_posx, strategy_stat["Activate Range"] +
                                              strategy_stat["Range"], self.last_grid)
                 character_in_range += [ally.base_pos[0] for grid in grid_range for ally in
-                                       self.ground_ally_collision_grids[-1][grid] if ally in current_info["can_clarity"]]
+                                       self.ground_ally_collision_grids[-1][grid] if
+                                       ally in current_info["can_clarity"]]
 
             if len(character_in_range) >= strategy_range / uniform(50, 200):
                 # consider using strategy if possible number of characters is worth using based on range
                 if strategy in self.own_strategy_type["summon"]:
-                    self.activate_strategy(self.team, strategy, strategy_index, commander_base_posx)
+                    self.activate_strategy(self.team, strategy, commander_base_posx)
                 else:
                     character_in_range = sorted(character_in_range)
                     activate_range = strategy_stat["Activate Range"]
@@ -93,7 +94,7 @@ def conduct_commander(self):
                                     best_number = cover_number
                                     best_pos = this_target
                     if best_pos:
-                        self.activate_strategy(self.team, strategy, strategy_index, best_pos)
+                        self.activate_strategy(self.team, strategy, best_pos)
                         break
 
             if "weather" in strategy_stat["Property"]:  # weather changing strategy
@@ -101,12 +102,12 @@ def conduct_commander(self):
                     if (strategy_stat["Property"]["weather"] != self.current_weather.weather_type and
                             uniform(0, 100) > 80):
                         # no waste using strategy for weather that already the same
-                        self.activate_strategy(self.team, strategy, strategy_index, commander_base_posx)
+                        self.activate_strategy(self.team, strategy, commander_base_posx)
                         break
                 else:
                     if uniform(0, 100) > 98:
                         # randomly use weather strategy
-                        self.activate_strategy(self.team, strategy, strategy_index, commander_base_posx)
+                        self.activate_strategy(self.team, strategy, commander_base_posx)
                         break
 
     safety_first = 10
@@ -119,7 +120,7 @@ def conduct_commander(self):
             if "enemy_commander_health" in current_info:
                 victory_chance += current_info["enemy_commander_health"]
                 if "future_supply" in current_info:
-                    ((self.team_stat["supply_resource"] + self.current_info["future_supply"]) / sum(
+                    ((self.team_state["supply_resource"] + self.current_info["future_supply"]) / sum(
                         self.current_info["enemy_supply"]))
 
             if "available_enemy_strategy" in current_info:
@@ -147,7 +148,7 @@ def conduct_commander(self):
         if enemy_commander and enemy_commander.alive:  # put attack on enemy commander
             commander.issue_commander_order(("attack", enemy_commander.base_pos[0]))
         else:  # put attack on enemy spawn point
-            commander.issue_commander_order(("attack", self.enemy_team_stat["start_pos"]))
+            commander.issue_commander_order(("attack", self.enemy_team_state["start_pos"]))
     elif "support" in commander_what_to_do:
         # move to support from distance
         start_pos = commander.start_pos

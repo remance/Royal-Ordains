@@ -4,26 +4,24 @@ from random import choice, uniform
 from pygame import transform, Vector2
 from pygame.mixer import Sound
 
-from engine.uibattle.uibattle import UIBattle
+from engine.uiouterbattle.uiouterbattle import UIOuterBattle
 from engine.utils.rotation import set_rotate
 
 
-class Weather(UIBattle):
-    weather_matter_images = None
-    weather_data = None
-
+class Weather(UIOuterBattle):
     def __init__(self, weather_type, wind_direction, level):
         self._layer = 99999999999999999999
-        UIBattle.__init__(self)
-
+        UIOuterBattle.__init__(self)
+        self.weather_data = self.battle.weather_data
+        self.weather_matter_images = self.battle.sprite_data.weather_matter_images
+        self.new_weather_reset = True
         self.weather_matters = self.battle.weather_matters
         self.weather_spawn_timer = {}
         self.weather_type = weather_type
         if self.weather_type == 0:
             # only random non-random weather and int type id weather
             self.weather_type = choice([weather for weather in self.weather_data if weather != 0 and weather.isdigit()])
-        self.has_stat_effect = False
-        self.has_stat_effect = True
+
         stat = self.weather_data[self.weather_type]
         self.name = stat["Name"]
         self.level = level  # weather level, start from 0
@@ -41,8 +39,13 @@ class Weather(UIBattle):
         self.resource_regen_bonus = stat["Resource Regeneration Bonus"] * cal_level
         self.element = stat["Element"]
         self.status_effect = stat["Status"]
+        self.has_stat_effect = False
+        if (self.offence_modifier or self.defence_modifier or self.speed_modifier or self.air_offence_modifier or
+                self.air_defence_modifier or self.air_speed_modifier or self.health_regen_bonus or
+                self.resource_regen_bonus or self.status_effect):
+            self.has_stat_effect = True
         self.spawn_cooldown = {key: value / cal_level for key, value in
-                               stat["Spawn Cooldown"].items()}  # divide to make spawn increase with strength
+                               stat["Spawn Cooldown"].items()}  # divide to make spawn rate increase with strength
         self.weather_spawn_timer = {key: 0 for key in self.spawn_cooldown}
         self.wind_strength = int(stat["Wind Strength"] * cal_level)
         self.speed = stat["Travel Speed"] * self.wind_strength
@@ -66,6 +69,7 @@ class Weather(UIBattle):
         if "random_sprite_angle" in stat["Property"]:
             self.random_sprite_angle = True
 
+        self.battle.weather_ambient_channel.set_volume(0)
         self.battle.weather_ambient_channel.stop()
         if stat["Ambient"]:
             if stat["Ambient"] in self.battle.weather_ambient_pool:
@@ -75,12 +79,14 @@ class Weather(UIBattle):
         self.weather_now = str(self.weather_type) + "_" + str(self.level)
 
     def update(self, dt):
-        weather_spawn_timer = self.weather_spawn_timer
-        for key in weather_spawn_timer:
-            weather_spawn_timer[key] += dt
-            if weather_spawn_timer[key] >= self.spawn_cooldown[key]:
-                weather_spawn_timer[key] = 0
-                self.spawn_weather_matter(key)
+        self.new_weather_reset = False
+        if self.spawn_cooldown:
+            weather_spawn_timer = self.weather_spawn_timer
+            for key in weather_spawn_timer:
+                weather_spawn_timer[key] += dt
+                if weather_spawn_timer[key] >= self.spawn_cooldown[key]:
+                    weather_spawn_timer[key] = 0
+                    self.spawn_weather_matter(key)
 
     def spawn_weather_matter(self, matter_name):
         if self.travel_angle not in (0, 180):  # matter travel not from direct straight top to bottom angle
@@ -97,12 +103,11 @@ class Weather(UIBattle):
                                               self.random_sprite_angle))
 
 
-class MatterSprite(UIBattle):
-    set_rotate = set_rotate
+class MatterSprite(UIOuterBattle):
 
     def __init__(self, start_pos, target, speed, image, random_sprite_angle):
         self._layer = 1
-        UIBattle.__init__(self, has_containers=True)
+        UIOuterBattle.__init__(self, has_containers=True)
         self.speed = speed
         self.base_pos = Vector2(start_pos)  # should be at the end corner of screen
         self.target = Vector2(target)  # should be at another end corner of screen
@@ -111,7 +116,7 @@ class MatterSprite(UIBattle):
         if random_sprite_angle:
             self.image = transform.rotate(image, uniform(0, 359))
         else:
-            self.image = transform.rotate(image, self.set_rotate(self.target))
+            self.image = transform.rotate(image, set_rotate(self.base_pos, self.target))
         self.screen_start = -self.image.get_width() * 2
         self.screen_end_x = (self.image.get_width() * 1.5) + self.screen_width
         self.screen_end_y = (self.image.get_height() * 1.5) + self.screen_height
@@ -140,11 +145,10 @@ def travel_to_map_border(pos, angle, screen_size):
 
     if dx < 1.0e-16:  # left border
         y = (-pos[0]) * dy / dx + pos[1]
-
         if 0 <= y <= screen_size[1]:
             return Vector2((0, y))
 
-    if dx > 1.0e-16:  # right border
+    elif dx > 1.0e-16:  # right border
         y = (screen_size[0] - pos[0]) * dy / dx + pos[1]
         if 0 <= y <= screen_size[1]:
             return Vector2((screen_size[0], y))
@@ -154,7 +158,7 @@ def travel_to_map_border(pos, angle, screen_size):
         if 0 <= x <= screen_size[0]:
             return Vector2((x, 0))
 
-    if dy > 1.0e-16:  # bottom border
+    elif dy > 1.0e-16:  # bottom border
         x = (screen_size[1] - pos[1]) * dx / dy + pos[0]
         if 0 <= x <= screen_size[0]:
             return Vector2((x, screen_size[1]))

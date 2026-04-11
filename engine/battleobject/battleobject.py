@@ -25,6 +25,7 @@ class StageObject(sprite.Sprite):
         self.repeat_animation = True
         self.hold = False
         self.current_animation = self.stage_object_animation_pool[sprite_id]
+        self.max_show_frame = len(self.current_animation) - 1
 
         self.base_image = self.current_animation[self.show_frame]
         self.image = self.base_image
@@ -44,6 +45,9 @@ class StageObject(sprite.Sprite):
 
     def update(self, dt):
         self.play_animation(self.animation_frame_play_time, dt, self.hold)  # TODO add sound effect to scene object
+
+    def check_draw(self):
+        pass
 
 
 class RotateStageObject(StageObject):

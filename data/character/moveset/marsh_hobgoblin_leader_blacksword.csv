@@ -1,2 +1,4 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
-"Attack1","Slice",,,,350,,4,,57,38,30,20,,"slash",,,,
+"Attack1","Slice",,,,350,,4,,46,38,30,20,,"slash",,,,
+"Skill1","Last Stand",,,"self:{health<=0.2}",,,6000,,,,,,,,"massive_health_potion,master_heal",,,
+"Die","Final Strike",,,,,,,,180,300,300,500,,"slash",,,,

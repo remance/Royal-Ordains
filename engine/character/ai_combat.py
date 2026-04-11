@@ -4,38 +4,45 @@ from random import choice, uniform
 def check_status(who, status):
     if status not in who.status_duration:
         return True
+    return None
 
 
 def check_health_lower(who, value):
-    if who.health * who.base_health / 100 <= value:
+    if who.health * who.base_health <= value:
         return True
+    return None
 
 
 def check_resource_lower(who, value):
-    if who.resource * who.base_resource / 100 <= value:
+    if who.resource * who.base_resource <= value:
         return True
+    return None
 
 
 def check_health_higher(who, value):
-    if who.health * who.base_health / 100 >= value:
+    if who.health * who.base_health >= value:
         return True
+    return None
 
 
 def check_resource_higher(who, value):
-    if who.resource * who.base_resource / 100 >= value:
+    if who.resource * who.base_resource >= value:
         return True
+    return None
 
 
 def check_engage(who, value):
     """Check if who has enemy in provided range"""
     if who.nearest_enemy_distance > value:
         return True
+    return None
 
 
 def check_target_type(who, value):
     """Check if who match the target type value"""
     if who.character_type == value:
         return True
+    return None
 
 
 def check_no_stay(who, value):
@@ -43,6 +50,7 @@ def check_no_stay(who, value):
     check = "stay" not in who.commander_order  # require local variable due to comparison chain issue with is boolean
     if check is value:
         return True
+    return None
 
 
 ai_condition_check_dict = {"health>": check_health_higher, "resource>": check_resource_higher,
@@ -56,8 +64,9 @@ def leader_condition_check(self, value):
     if self.leader:
         for condition2, value2 in value.items():
             if not ai_condition_check_dict[condition2](self.leader, value2):
-                return
+                return None
         return True
+    return None
 
 
 def allies_condition_check(self, value):
@@ -65,7 +74,7 @@ def allies_condition_check(self, value):
     for character in self.near_ally:
         for condition2, value2 in value.items():
             if not ai_condition_check_dict[condition2](character[0], value2):
-                return
+                return None
     return True
 
 
@@ -75,13 +84,14 @@ def ally_condition_check(self, value):
         for condition2, value2 in value.items():
             if ai_condition_check_dict[condition2](character[0], value2):
                 return True
+    return None
 
 
 def self_condition_check(self, value):
     """Require self to meet condition"""
     for condition2, value2 in value.items():
         if not ai_condition_check_dict[condition2](self, value2):
-            return
+            return None
     return True
 
 
@@ -90,8 +100,9 @@ def enemy_condition_check(self, value):
     if self.nearest_enemy and self.nearest_enemy.alive:
         for condition2, value2 in value.items():
             if not ai_condition_check_dict[condition2](self.nearest_enemy, value2):
-                return
+                return None
         return True
+    return None
 
 
 ai_who_check_dict = {"leader": leader_condition_check, "allies": allies_condition_check,
@@ -102,22 +113,25 @@ ai_who_check_dict = {"leader": leader_condition_check, "allies": allies_conditio
 def check_ai_condition(self, condition_dict):
     for condition, value in condition_dict.items():
         if not ai_who_check_dict[condition](self, value):
-            return
+            return None
     return True
 
 
 def find_move_to_attack(self):
     # has enemy to attack and within max range attack
     # blind cause random direction melee attack but will not allow ranged attack
+    resource = self.resource
+    furthest_enemy_distance = self.furthest_enemy_distance
     possible_attacks = [value for move, value in self.movesets.items() if
-                        move not in self.move_cooldown and value["Resource Cost"] <= self.resource and
-                        ((not self.blind and (
-                                ("far_target" not in value["Property"] and value[
-                                    "AI Range"] >= self.nearest_enemy_distance) or
-                                ("far_target" in value["Property"] and self.furthest_enemy_distance and
-                                 value["AI Range"] >= self.furthest_enemy_distance))) or
+                        move not in self.move_cooldown and value["Resource Cost"] <= resource and
+                        ((not self.blind and (not value["AI Range"] or
+                                              ("far_target" not in value["Property"] and
+                                               value["AI Range"] >= self.nearest_enemy_distance) or
+                                              ("far_target" in value["Property"] and furthest_enemy_distance and
+                                               value["AI Range"] >= furthest_enemy_distance))) or
                          (self.blind and not value["Range"])) and
                         (not value["AI Condition"] or self.check_ai_condition(value["AI Condition"]))]
+
     if possible_attacks:
         self.current_moveset = choice(possible_attacks)  # randomly select move to attack
         self.current_moveset_property = self.current_moveset["Property"]
@@ -133,18 +147,18 @@ def no_ai(self):
     pass
 
 
-def cheer_ai(self):
-    """No attack but check for target action for appropriate cheering"""
-    if "moveset" in self.target.current_action or "submit" in self.target.current_action or \
-            "taunt" in self.target.current_action:
-        # Cheer when target attack or spared in decision
-        if "cheer" not in self.current_action:  # start cheering
-            self.interrupt_animation = True
-        if "special" in self.target.current_action or "submit" in self.target.current_action:
-            # cheer harder for special occasion
-            self.command_action = self.cheer_fast_action
-        else:  # normal cheer
-            self.command_action = self.cheer_action
+# def cheer_ai(self):
+#     """No attack but check for target action for appropriate cheering"""
+#     if "moveset" in self.target.current_action or "submit" in self.target.current_action or \
+#             "taunt" in self.target.current_action:
+#         # Cheer when target attack or spared in decision
+#         if "cheer" not in self.current_action:  # start cheering
+#             self.interrupt_animation = True
+#         if "special" in self.target.current_action or "submit" in self.target.current_action:
+#             # cheer harder for special occasion
+#             self.command_action = self.cheer_fast_action
+#         else:  # normal cheer
+#             self.command_action = self.cheer_action
 
 
 def common_ai(self):
@@ -165,7 +179,7 @@ def common_ai(self):
                         # blind cause random direction attack
                         new_direction = choice(("left", "right"))
                     self.command_action["direction"] = new_direction
-                self.ai_timer = 0.2
+                self.ai_timer = 0.5
 
 
 def air_ai(self):
@@ -177,10 +191,9 @@ def air_ai(self):
             if "interruptable" in self.current_action:
                 # stop interruptable action to attack
                 self.interrupt_animation = True
-        self.ai_timer = 0.2
+        self.ai_timer = 0.5
 
 
-ai_combat_dict = {"default": no_ai, "melee": common_ai, "range": common_ai, "flank": common_ai, "nice": common_ai,
-                  "curious": common_ai, "territorial": common_ai,
-                  "trap": common_ai, "boss_cheer": cheer_ai,
-                  "leader": common_ai, "interceptor": air_ai, "fighter": air_ai, "bomber": air_ai}
+ai_combat_dict = {"default": no_ai, "melee": common_ai, "range": common_ai, "mix": common_ai,
+                  "flank": common_ai, "nice": common_ai, "curious": common_ai, "territorial": common_ai,
+                  "trap": common_ai, "leader": common_ai, "interceptor": air_ai, "fighter": air_ai, "bomber": air_ai}

@@ -2,7 +2,7 @@ def common_ai(self, *args):
     if not self.command_action and not self.no_move:
         self.command_action = self.run_command_action
         self.command_action["x_momentum"] = self.run_speed
-        if self.base_pos[0] > self.start_pos:
+        if self.retreat_pos <= 0:
             self.command_action["direction"] = "left"
         else:
             self.command_action["direction"] = "right"

@@ -1,14 +1,12 @@
-import csv
 import os
-from pathlib import Path
 
 import pygame
 
-from engine.data.datalocalisation import Localisation
-from engine.data.datamap import MapData
+from engine.data.datalocalisation import DataLocalisation
+from engine.data.datamap import DataMap
+from engine.data.datastat import DataStat
 from engine.game.game import Game
 from engine.utils.data_loading import csv_read
-from engine.data.datastat import CharacterData
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 main_dir = "\\".join(main_dir.split("\\")[:-2])
@@ -40,12 +38,12 @@ Game.screen_scale = screen_scale
 Game.language = language
 Game.ui_font = csv_read(data_dir, "ui_font.csv", ("ui",), header_key=True)
 Game.font_dir = os.path.join(data_dir, "font")
-Game.ui_updater = ui
+Game.ui_menu_updater = ui
 
-character_data = CharacterData()
-localisation = Localisation()
+stat_data = DataStat()
+localisation = DataLocalisation()
 Game.localisation = localisation
-battle_map_data = MapData()
+battle_map_data = DataMap()
 
 
 def event_localisation_check(language):
@@ -85,7 +83,7 @@ def event_localisation_check(language):
     #                                 print(chapter_file_name, map_file_name, stage_file_name, scene_file_name, item4[1])
 
     print("check strategy")
-    for strategy in character_data.strategy_list:
+    for strategy in stat_data.strategy_list:
         name = localisation.grab_text(("strategy", strategy, "Name"))
         description = localisation.grab_text(("strategy", strategy, "Description"))
         if "(" in name:
@@ -100,7 +98,7 @@ def event_localisation_check(language):
                     print("contain non-standard character description", strategy, item, index)
 
     print("check character")
-    for character in character_data.character_list:
+    for character in stat_data.character_list:
         name = localisation.grab_text(("character", character, "Name"))
         description = localisation.grab_text(("character", character, "Description"))
         if "(" in name:

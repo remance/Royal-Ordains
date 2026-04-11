@@ -4,7 +4,7 @@ import engine.character.character
 from engine.utils.common import clean_object
 
 
-def die(self):
+def die(self, retreat=False):
     """Character dead"""
     # remove from updater
     if self in self.battle.ai_process_list:
@@ -31,7 +31,7 @@ def die(self):
             # main character no longer has sub characters, check if main character is consider no longer active
             # does not include main character that is dead already
             self.main_character.health = 0
-    else:  # count dead only for main character
+    elif not retreat:  # count dead only for main character and not retreat
         self.battle.team_loss[self.team] += 1
     self.main_character = None
 
@@ -42,9 +42,14 @@ def die(self):
         sub_character.main_character = None
     self.sub_characters = []
 
-    # return supply when die
-    self.battle.team_stat[self.team]["supply_reserve"] += self.supply * 0.5
-    self.battle.team_stat[self.enemy_team]["supply_reserve"] += self.supply * 0.25
+    # return supply when die or retreat, summon does not give supply
+    if not self.is_summon:
+        if retreat:
+            # manage to retreat mean return some supply but not give any to enemy
+            self.battle.team_state[self.team]["supply_reserve"] += self.supply * 0.5
+        else:
+            self.battle.team_state[self.team]["supply_reserve"] += self.supply * 0.5
+            self.battle.team_state[self.enemy_team]["supply_reserve"] += self.supply * 0.25
 
     if self.leader:  # remove self from leader stuff
         if self.leader.alive:
@@ -56,24 +61,24 @@ def die(self):
             for _ in range(spawn_num):
                 start_pos = (self.base_pos[0] + uniform(-200, 200),
                              self.base_pos[1])
-                engine.character.character.BattleCharacter(self.battle.last_char_game_id,
-                                                           self.character_list[spawn_name] |
-                                                           {"ID": spawn_name,
-                                                            "Team": self.team, "POS": start_pos})
+                add_battle_character = engine.character.character.BattleCharacter(self.battle.last_char_game_id,
+                                                                                  self.character_list[spawn_name] |
+                                                                                  {"ID": spawn_name,
+                                                                                   "Team": self.team, "POS": start_pos})
+                add_battle_character.enter_stage()
                 self.battle.last_char_game_id += 1
 
-    self.status_effect = {}
     self.status_duration = {}
 
 
-def air_die(self):
-    for air_group in self.battle.team_stat[self.team]["air_group"]:
+def air_die(self, retreat=False):
+    for air_group in self.battle.team_state[self.team]["air_group"]:
         if self in air_group:
             air_group.remove(self)
             if not air_group:  # empty air group, remove it
-                self.battle.team_stat[self.team]["air_group"].remove(air_group)
+                self.battle.team_state[self.team]["air_group"].remove(air_group)
             break
-    die(self)
+    die(self, retreat=retreat)
 
 
 def commander_die(self):
@@ -81,7 +86,7 @@ def commander_die(self):
         self.battle.player_selected_strategy = None
     for character in self.battle.all_team_ally[self.team]:
         character.broken = True
-    for air_group in self.battle.team_stat[self.team]["air_group"]:
+    for air_group in self.battle.team_state[self.team]["air_group"]:
         for character in air_group:
             character.broken = True
     self.battle.team_commander[self.team] = None

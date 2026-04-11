@@ -31,6 +31,7 @@ ehthumbs.db
 Thumbs.db
 
 .~*
+cache_*.xz
 __pycache__/
 .idea/
 /build

@@ -14,12 +14,12 @@ from engine.utils.sprite_altering import sprite_rotate
 accept_image_types = ("png", "jpg", "jpeg", "svg", "gif", "bmp")
 
 
-def load_image(directory, screen_scale, file, subfolder=(), no_alpha=False, as_pillow_image=False):
+def load_image(directory, file, screen_scale=(1, 1), subfolder=(), no_alpha=False, as_pillow_image=False):
     """
     loads an image and prepares it for game
     :param directory: Directory folder path
-    :param screen_scale: Resolution scale of game
     :param file: File name
+    :param screen_scale: Resolution scale of game
     :param subfolder: List of sub_folder path
     :param no_alpha: Indicate if surface require alpha or not
     :param as_pillow_image: return surface as Pillow image instead of pygame surface
@@ -75,7 +75,7 @@ def load_images(directory, screen_scale=(1, 1), subfolder=(), no_alpha=False,
             if "." in file_name:  # remove extension from name
                 file_name = file.split(".")[:-1]
                 file_name = "".join(file_name)
-            images[file_name] = load_image(directory, screen_scale, file, subfolder=dir_path, no_alpha=no_alpha,
+            images[file_name] = load_image(directory, file, screen_scale, subfolder=dir_path, no_alpha=no_alpha,
                                            as_pillow_image=as_pillow_image)
 
         return images
@@ -216,9 +216,9 @@ def load_sound(main_dir, file):
 
 
 def load_base_button(data_dir, screen_scale):
-    return (load_image(data_dir, screen_scale, "idle_button.png", ("ui", "mainmenu_ui")),
-            load_image(data_dir, screen_scale, "mouse_button.png", ("ui", "mainmenu_ui")),
-            load_image(data_dir, screen_scale, "click_button.png", ("ui", "mainmenu_ui")))
+    return (load_image(data_dir, "idle_button.png", screen_scale, ("ui", "mainmenu_ui")),
+            load_image(data_dir, "mouse_button.png", screen_scale, ("ui", "mainmenu_ui")),
+            load_image(data_dir, "click_button.png", screen_scale, ("ui", "mainmenu_ui")))
 
 
 def stat_convert(row, n, i, percent_column=(), list_column=(), tuple_column=(), int_column=(),
@@ -243,7 +243,6 @@ def stat_convert(row, n, i, percent_column=(), list_column=(), tuple_column=(), 
             row[n] = 1
         else:
             row[n] = float(i) + 1
-
     elif n in list_column or n in tuple_column:
         if "," not in i:  # single item
             if i == "":
@@ -252,22 +251,20 @@ def stat_convert(row, n, i, percent_column=(), list_column=(), tuple_column=(), 
                 row[n] = [i, ]
         else:
             row[n] = [item for item in i.split(",")]
+
         row[n] = [item_conversion(k) for k in row[n]]
         if n in tuple_column:
             row[n] = tuple(row[n])
-
     elif n in int_column:
         if i:
             row[n] = int(i)
         else:
             row[n] = 0
-
     elif n in float_column:
         if i:
             row[n] = float(i)
         else:
             row[n] = 0
-
     elif n in dict_column:
         # dict column value can be in key:value format or just key, if contains only key it will be assigned TRUE value
         # if it has / and character after the value after / will be the item value
@@ -278,21 +275,28 @@ def stat_convert(row, n, i, percent_column=(), list_column=(), tuple_column=(), 
             for item in new_i:
                 if ":" in item:
                     new_i2 = item.split(":")
-                    result_i[new_i2[0]] = new_i2[1]
+                    key = item_conversion(new_i2[0])
+                    result_i[key] = new_i2[1]
                     if "(" in new_i2[1]:  # tuple value
                         new_i2[1] = new_i2[1].replace(")", "").replace("(", "")
                         new_i2[1] = new_i2[1].split(";")
                         for k_index, k in enumerate(new_i2[1]):
                             new_i2[1][k_index] = item_conversion(k)
-                        result_i[new_i2[0]] = tuple(new_i2[1])
+                        result_i[key] = tuple(new_i2[1])
+                    elif "[" in new_i2[1]:  # list value
+                        new_i2[1] = new_i2[1].replace("]", "").replace("[", "")
+                        new_i2[1] = new_i2[1].split(";")
+                        for k_index, k in enumerate(new_i2[1]):
+                            new_i2[1][k_index] = item_conversion(k)
+                        result_i[key] = list(new_i2[1])
                     elif "{" in new_i2[1]:  # dict value with key=value instead of key:value
                         new_i2[1] = new_i2[1].replace("{", "").replace("}", "")
                         item_list = tuple([item_conversion(item2) for item2 in new_i2[1].split(";")])
-                        result_i[new_i2[0]] = {
+                        result_i[key] = {
                             i3.split("=")[0]: item_conversion(i3.split("=")[1]) if "=" in i3 else True for i3 in
                             item_list}
                     else:
-                        result_i[new_i2[0]] = item_conversion(result_i[new_i2[0]])
+                        result_i[key] = item_conversion(result_i[key])
                 else:
                     if "/" not in item:
                         result_i[item] = True
@@ -304,13 +308,10 @@ def stat_convert(row, n, i, percent_column=(), list_column=(), tuple_column=(), 
                             value = float(value)
                         result_i[item.split("/")[0]] = value
             row[n] = result_i
-
     elif n in str_column:
         row[n] = str(i)
-
     elif n in hex2colour_column:
         row[n] = getrgb("#" + i)
-
     else:
         row[n] = item_conversion(i)
 
@@ -323,11 +324,16 @@ def item_conversion(i):
             return 0
         # if i[0] == "{" and i[-1] == "}":  # dict item
         #
-        elif i[0] == "(" and i[-1] == ")":  # tuple item
+        elif (i[0] == "(" and i[-1] == ")") or (i[0] == "[" and i[-1] == "]"):  # tuple/list item
+            tuple_convert = False
+            if i[0] == "(":
+                tuple_convert = True
             i = i[1:-1]
             i = i.split(";")  # item with item1;item2 instead of ","
             for index_c, c in enumerate(i):
                 i[index_c] = item_conversion(c)
+            if tuple_convert:
+                i = tuple(i)
             return i
         elif i.lower() == "none":
             return None

@@ -1,0 +1,55 @@
+from engine.constants import Culture_Policy_Integration
+
+
+def change_turn(self, turn_change=True):
+    """
+    Update campaign state when turn change
+    @param self: Grand object
+    @param turn_change: turn actually change or not, function can be used for campaign setup when False
+    @return:
+    """
+    # TODO check for culture extinction
+    for faction, faction_state in self.current_campaign_state["faction"].items():
+        if faction != "free":
+            # update diplomacy relation  # TODO add cultural policy difference
+            for diplomacy_value in faction_state["diplomacy"].values():
+                diplomacy_value["value"] = 0
+                for index, history in enumerate(tuple(diplomacy_value["history"])):
+                    if diplomacy_value["history"][index][2] > 1:
+                        diplomacy_value["history"][index][2] -= 1
+                        diplomacy_value["value"] += diplomacy_value["history"][index][1]
+                    else:
+                        diplomacy_value["history"].pop(index)
+
+            if turn_change:
+                # event duration is based on turn rather than phase
+                faction_state["event"] = {event: value - 1 for event, value in faction_state["event"].items() if
+                                          value > 1}
+
+                # faction_region_control = self.current_campaign_state["region"]["control"][faction]
+                for faction_culture in faction_state["culture"].values():
+                    # increase or decrease integration every turn
+                    policy_integration_cap = Culture_Policy_Integration[faction_culture["policy"]]
+                    if faction_culture["integration"] < policy_integration_cap:
+                        faction_culture["integration"] += 0.01
+                    elif faction_culture["integration"] > policy_integration_cap:
+                        faction_culture["integration"] -= 0.01
+
+                faction_state["gold"] += faction_state["gold_income"]
+                if faction_state["gold"] < 0:
+                    faction_state["gold"] = 0
+                faction_state["supply"] += faction_state["supply_income"]
+                if faction_state["supply"] < 0:
+                    faction_state["supply"] = 0
+
+            self.cal_faction_culture(faction)
+
+            for region in faction_state["region"]:
+                self.cal_region_income_recruit(faction, region)
+
+            for army in faction_state["army"]:
+                army.reset_stat(reset_player_army_card=True)
+
+            self.cal_faction_income_recruit(faction)
+
+    self.change_phase(phase_change=turn_change)

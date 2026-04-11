@@ -1,6 +1,7 @@
 from random import uniform
 from types import MethodType
 
+from engine.aibattle.change_strategy import change_strategy
 from engine.aibattle.conduct_commander import conduct_commander
 from engine.aibattle.conduct_troop_call import conduct_troop_call
 from engine.aibattle.gather_info import clever_gather_info_level
@@ -15,6 +16,7 @@ class BattleCommanderAI:
     """
     battle = None
 
+    change_strategy = change_strategy
     conduct_troop_call = conduct_troop_call
     conduct_commander = conduct_commander
 
@@ -31,8 +33,8 @@ class BattleCommanderAI:
         self.character_list = self.battle.character_list
         self.commander = self.battle.team_commander[team]
         self.enemy_commander = self.battle.team_commander[self.enemy_team]
-        self.team_stat = self.battle.team_stat[team]
-        self.enemy_team_stat = self.battle.team_stat[self.enemy_team]
+        self.team_state = self.battle.team_state[team]
+        self.enemy_team_state = self.battle.team_state[self.enemy_team]
 
         self.ground_enemy_collision_grids = self.battle.all_team_ground_enemy_collision_grids[self.team]
         self.air_enemy_collision_grids = self.battle.all_team_air_enemy_collision_grids[self.team]
@@ -43,8 +45,8 @@ class BattleCommanderAI:
         self.can_clarity_status_list = self.battle.can_clarity_status_list
         self.strategy_list = self.battle.strategy_list
         self.last_grid = self.battle.last_grid
-        self.air_group = self.team_stat["air_group"]
-        self.own_strategy = self.team_stat["strategy"]
+        self.air_group = self.team_state["air_group"]
+        self.own_strategy = tuple(self.team_state["strategy_cooldown"].keys())
         self.own_strategy_type = {"weather": set(), "ally": set(), "enemy": set(), "summon": set(),
                                   "cure": set(), "clarity": set()}
         self.has_cure_strategy = False
@@ -58,11 +60,11 @@ class BattleCommanderAI:
         self.clever = 0  # determine how precise AI act
         self.swift = 0  # determine how often and many actions AI can take
         self.commander_attack_melee_prefer = 1
-        self.commander_defence_melee_prefer = 1
-        self.commander_cavalry_melee_prefer = 1
-        self.commander_cavalry_range_prefer = 1
-        self.commander_range_prefer = 1
-        self.commander_siege_prefer = 1
+        self.commander_defend_melee_prefer = 1
+        self.commander_attack_cavalry_prefer = 1
+        self.commander_defend_cavalry_prefer = 1
+        self.commander_attack_range_prefer = 1
+        self.commander_defend_range_prefer = 1
         self.commander_air_prefer = 1
         self.commander_leader_prefer = 1
         self.rush_plan_score = 0
@@ -73,43 +75,15 @@ class BattleCommanderAI:
             self.clever = commander_stat["Commander AI Cleverness"]
             self.swift = commander_stat["Commander AI Swiftness"]
             self.commander_attack_melee_prefer = commander_stat["Commander Melee Like"] * self.aggressive
-            self.commander_defence_melee_prefer = commander_stat["Commander Melee Like"] * self.defensive
-            self.commander_cavalry_melee_prefer = commander_stat["Commander Cavalry Like"] * self.aggressive
-            self.commander_cavalry_range_prefer = commander_stat["Commander Cavalry Like"] * self.defensive
-            self.commander_range_prefer = commander_stat["Commander Range Like"] * self.aggressive
-            self.commander_siege_prefer = commander_stat["Commander Range Like"] * self.defensive
+            self.commander_defend_melee_prefer = commander_stat["Commander Melee Like"] * self.defensive
+            self.commander_attack_cavalry_prefer = commander_stat["Commander Cavalry Like"] * self.aggressive
+            self.commander_defend_cavalry_prefer = commander_stat["Commander Cavalry Like"] * self.defensive
+            self.commander_attack_range_prefer = commander_stat["Commander Range Like"] * self.aggressive
+            self.commander_defend_range_prefer = commander_stat["Commander Range Like"] * self.defensive
             self.commander_air_prefer = commander_stat["Commander Air Like"]
             self.commander_leader_prefer = commander_stat["Commander Leader Like"]
 
-            for strategy in self.team_stat["strategy"]:
-                stat = self.strategy_list[strategy]
-                if stat["Power"] or stat["Enemy Status"]:  # attack/summon strategy to use at enemy
-                    self.own_strategy_type["enemy"].add(strategy)
-                if stat["Summon"]:
-                    self.own_strategy_type["summon"].add(strategy)
-                if stat["Status"]:
-                    if ("Cure" in stat["Status"] or "Clarity" in stat["Status"]) and len(stat["Status"]) == 1:
-                        # keep cure/clarity only strategy completely separate from buff strategy
-                        if "Cure" in stat["Status"]:
-                            self.own_strategy_type["cure"].add(strategy)
-                            self.has_cure_strategy = True
-                        if "Clarity" in stat["Status"]:
-                            self.own_strategy_type["clarity"].add(strategy)
-                            self.has_clarity_strategy = True
-                    else:  # any buff strategy
-                        self.own_strategy_type["ally"].add(strategy)
-
-                if "weather" in stat["Property"]:
-                    self.own_strategy_type["weather"].add(strategy)
-
-        self.enemy_strategy = self.battle.team_stat[self.enemy_team]["strategy"]
-        self.enemy_strategy_type = {"ally": set(), "enemy": set()}
-        for strategy in self.enemy_strategy:
-            stat = self.strategy_list[strategy]
-            if stat["Power"] or stat["Enemy Status"]:
-                self.enemy_strategy_type["enemy"].add(strategy)
-            if stat["Status"]:
-                self.enemy_strategy_type["ally"].add(strategy)
+        self.change_strategy()
 
         self.act_timer = 0
         self.act_time = 0
@@ -124,11 +98,12 @@ class BattleCommanderAI:
             self.lower_think_time = 5 / self.clever
             self.higher_think_time = 10 / self.clever
             self.think_time = uniform(self.lower_think_time, self.higher_think_time)
+            self.think_timer = self.think_time
         if self.swift:  # 0 swiftness will do nothing
-            self.lower_act_time = 10 / self.swift
-            self.higher_act_time = 50 / self.swift
+            self.lower_act_time = 1 / self.swift
+            self.higher_act_time = 30 / self.swift
             self.act_time = uniform(self.lower_act_time, self.higher_act_time)
-        self.start_pos = self.battle.team_stat[self.team]["start_pos"]
+        self.start_pos = self.battle.team_state[self.team]["start_pos"]
 
     def update(self, dt):
         if self.commander.alive:
