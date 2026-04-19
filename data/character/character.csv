@@ -176,7 +176,7 @@
 "leader_buikuuh","small","dwarf",2600,50,61,30,31,,0.5,,0.5,-0.5,-0.5,0.25,0.25,0.5,,370,,130,1,1,,,"TRUE","TRUE",,"strategy_determination",3,8,5,4,4,2,6,7,,,,"ground","medium_range","range",390,"TRUE",,
 "leader_buikuuh_longer","small","dwarf",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"strategy_majesty",,,,,,,,,,,,"ground",,,,,,"no_difference_as_another,_get_more_moveset"
 "leader_buikuuh_wider","small","dwarf",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"strategy_majesty",,,,,,,,,,,,"ground",,,,,,"no_difference_as_another,_get_more_moveset"
-"leader_champion","castle","human",5000,75,75,50,40,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"strategy_determination",9,4,7,,,,,,,,,"ground","medium_melee",,,,,"no_upgrade"
+"leader_champion","castle","human",5000,75,75,50,40,,,,,,,,,,0,150,0,180,1,1,0.5,,"TRUE","TRUE",,"strategy_determination",9,4,8,5,1,4,3,8,,,"fear,terror","ground","medium_melee","melee",580,"TRUE","no_forced_move","no_upgrade"
 "leader_cheermaker","desert","vertkin",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"strategy_encourage",,,,7,1,2,8,3,,,,"ground","light_melee","melee",,,,
 "leader_cheermaker_fanfare","desert","vertkin",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,,,,,,,,,,,,,"ground",,"melee",,,,
 "leader_dashisi","free","fairy",2000,32,80,90,84,0.25,0.5,0.75,-0.25,-0.25,0.25,,0.5,-0.5,,,,32,1,1,,,"TRUE","TRUE",,"spell_mass_weakness",7,7,7,4,3,3,10,6,,,,"ground","light_melee","melee",340,"TRUE",,
@@ -259,7 +259,7 @@
 "leader_kadeloner","death","undead",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,,,,,,,,,,,,,"ground",,,,,,
 "leader_kadeloner_curseblade","death","undead",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,,,,,,,,,,,,,"ground",,,,,,"debuff_focus"
 "leader_kadeloner_oldfaith","death","undead",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"strategy_unwavering_faith",,,,,,,,,,,,"ground",,,,,,"buff_focus"
-"leader_kak","small","vertkin",1900,31,78,70,45,,0.25,0.25,-0.25,-0.25,0.5,0.25,,,700,280,,65,1,1,0.5,,"TRUE","TRUE",,"strategy_false_advance",3,8,8,3,5,2,6,7,,,,"ground","light_melee","mix",270,TRUE,,
+"leader_kak","small","vertkin",1900,31,78,70,45,,0.25,0.25,-0.25,-0.25,0.5,0.25,,,700,280,,65,1,1,0.5,,"TRUE","TRUE",,"strategy_false_advance",3,8,8,3,5,2,6,7,,,,"ground","light_melee","mix",270,"TRUE",,
 "leader_kak_fruit","small","vertkin",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,,,,,,,,,,,,,"ground",,,,,,"better_leader/strategy"
 "leader_kak_meat","small","vertkin",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,,,,,,,,,,,,,"ground",,,,,,"better_combat"
 "leader_kalimny","demon","sun_elf",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"strategy_demoralise",,,,,,,,,,,,"ground",,,,,,

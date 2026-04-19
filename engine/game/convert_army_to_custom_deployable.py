@@ -30,6 +30,7 @@ def convert_army_to_custom_deployable(self, army_dict, culture):
     for item in deployable_army_dict["retinue"]:
         if item:
             deployable_army_dict["cost"] += self.character_list[item]["Cost"]
-            deployable_army_dict["leadership"] += self.character_list[item]["Leadership"] * Retinue_Leadership_Add_Modifier
+            deployable_army_dict["leadership"] += self.character_list[item][
+                                                      "Leadership"] * Retinue_Leadership_Add_Modifier
 
     return deployable_army_dict

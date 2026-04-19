@@ -1,9 +1,10 @@
 # from functools import lru_cache
 
 from math import radians
-from engine.constants import Collision_Grid_Y_Per_Scene
+
 from pygame.transform import rotate
 
+from engine.constants import Collision_Grid_Y_Per_Battle_Scene
 from engine.utils.rotation import rotation_xy
 
 rotation_list = (-180, -120, -90, -45, 0, 45, 90, 120, 180)
@@ -130,9 +131,9 @@ def damage_effect_adjust_sprite(self):
     grid_top = int(rect.topleft[1] / self.collision_grid_height)
     grid_bottom = int(rect.bottomleft[1] / self.collision_grid_height) + 1
 
-    if grid_top < Collision_Grid_Y_Per_Scene:
-        if grid_bottom > Collision_Grid_Y_Per_Scene:
-            grid_bottom = Collision_Grid_Y_Per_Scene
+    if grid_top < Collision_Grid_Y_Per_Battle_Scene:
+        if grid_bottom > Collision_Grid_Y_Per_Battle_Scene:
+            grid_bottom = Collision_Grid_Y_Per_Battle_Scene
         if grid_top < 0:
             grid_top = 0
     else:  # effect somehow exists entirely lower than bottom of the screen, ignored for collision

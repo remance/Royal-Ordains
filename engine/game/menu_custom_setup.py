@@ -24,7 +24,8 @@ def menu_custom_setup(self):
                                                              army_preset["leadership"])
                     self.custom_army_info_popup.popup(army_preset)
                 self.add_to_ui_updater(self.custom_army_info_popup, self.custom_army_title_popup)
-                self.custom_army_info_popup.rect.midright = self.custom_battle_team_setup[Opposite_Team[team]].rect.midright
+                self.custom_army_info_popup.rect.midright = self.custom_battle_team_setup[
+                    Opposite_Team[team]].rect.midright
                 self.custom_army_title_popup.rect.midbottom = self.custom_army_info_popup.rect.midtop
                 break
 
@@ -93,7 +94,8 @@ def menu_custom_setup(self):
                     self.remove_from_ui_updater(bar)
 
         if self.custom_stage_bar.adapter.last_click and self.custom_stage_bar.adapter.last_click[0] == "click":
-            self.custom_battle_stage_button.change_state(self.custom_stage_list[self.custom_stage_bar.adapter.last_click[1]])
+            self.custom_battle_stage_button.change_state(
+                self.custom_stage_list[self.custom_stage_bar.adapter.last_click[1]])
             self.selected_custom_stage_battle = self.custom_stage_list[self.custom_stage_bar.adapter.last_click[1]]
             self.custom_stage_bar.adapter.last_click = ()
 
@@ -205,7 +207,8 @@ def menu_custom_setup(self):
                         if self.custom_team_army[team][index].commander_id:
                             custom_team_army[team].append(deepcopy(self.custom_team_army[team][index]))
                         elif setup_ui.team_setup[index]["culture"] == "random":
-                            culture = choice([key for key in self.sprite_data.culture_coas if key not in ("random", "free")])
+                            culture = choice(
+                                [key for key in self.sprite_data.culture_coas if key not in ("random", "free")])
                             new_random_army = deepcopy(self.custom_team_army[team][index])
 
                             preset_list = self.character_data.preset_list[culture]

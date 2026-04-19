@@ -26,8 +26,9 @@ def menu_lorebook_beast(self):
                     self.lorebook_character_moveset_showcase.change_moveset(self.lorebook_showcase_character.char_id,
                                                                             animation_name)
                 self.lorebook_showcase_character.command_action = {"name": animation_name, "repeat": True,
-                                                                   "target": (self.lorebook_showcase_character.base_pos[0] + 500,
-                                                                              Default_Showcase_Character_POS[1])}
+                                                                   "target": (
+                                                                   self.lorebook_showcase_character.base_pos[0] + 500,
+                                                                   Default_Showcase_Character_POS[1])}
 
             for sub_character in self.lorebook_showcase_character.sub_characters:
                 sub_character.interrupt_animation = True

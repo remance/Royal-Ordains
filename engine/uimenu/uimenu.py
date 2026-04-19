@@ -1,18 +1,18 @@
 import types
-import pygame
-import pyperclip
-
-from math import ceil
 from copy import deepcopy
 from functools import lru_cache
+from math import ceil
 from random import choice
 
+import pygame
+import pyperclip
 from pygame import Surface, SRCALPHA, Rect, Color, draw, mouse, Vector2
 from pygame.font import Font
 from pygame.sprite import Sprite
-from pygame.transform import smoothscale
+from pygame.transform import smoothscale, scale
 
-from engine.constants import (Custom_Default_Culture, Default_Showcase_Character_POS, Default_Showcase_Character_air_POS,
+from engine.constants import (Custom_Default_Culture, Default_Showcase_Character_POS,
+                              Default_Showcase_Character_air_POS,
                               Default_Showcase_Character, Grand_Default_Faction, Opposite_Team,
                               Retinue_Leadership_Add_Modifier)
 from engine.utils.common import keyboard_mouse_press_check
@@ -157,6 +157,7 @@ class UIMenu(Sprite):
         self.event_hold = False
         self.event_alt_press = False
         self.event_alt_hold = False
+        self.event_middle_mouse_press = False
         self.mouse_over = False
         self.pause = False
 
@@ -166,6 +167,7 @@ class UIMenu(Sprite):
         self.event_hold = False  # some UI differentiates between press release or holding, if not just use event
         self.event_alt_press = False
         self.event_alt_hold = False
+        self.event_middle_mouse_press = False
         self.mouse_over = False
         if self.player_interact and not self.pause:
             if self.rect.collidepoint(self.cursor.pos):
@@ -190,6 +192,10 @@ class UIMenu(Sprite):
                     self.event = True
                     self.event_alt_hold = True
                     self.cursor.is_alt_select_just_down = False  # reset select button to prevent overlap interaction
+                elif self.cursor.is_middle_mouse_select_just_up:
+                    self.event = True
+                    self.event_middle_mouse_press = True
+                    self.cursor.is_middle_mouse_select_just_up = False  # reset select button to prevent overlap interaction
 
 
 class UIScroll(UIMenu):
@@ -267,10 +273,17 @@ class MenuCursor(UIMenu):
         self.is_select_down = False
         self.is_select_just_up = False
         self.select_up = False
+
         self.is_alt_select_just_down = False
         self.is_alt_select_down = False
         self.alt_select_up = False
         self.is_alt_select_just_up = False
+
+        self.is_middle_mouse_select_just_down = False
+        self.is_middle_mouse_select_down = False
+        self.middle_mouse_select_up = False
+        self.is_middle_mouse_select_just_up = False
+
         self.scroll_up = False
         self.scroll_down = False
         self.rect = self.image.get_rect(topleft=self.pos)
@@ -285,11 +298,15 @@ class MenuCursor(UIMenu):
             mouse, 0, self.is_select_just_down, self.is_select_down, self.is_select_just_up)
 
         self.select_up = self.is_select_just_up
-
         # Alternative select press button, like mouse right
         self.is_alt_select_just_down, self.is_alt_select_down, self.is_alt_select_just_up = keyboard_mouse_press_check(
             mouse, 2, self.is_alt_select_just_down, self.is_alt_select_down, self.is_alt_select_just_up)
         self.alt_select_up = self.is_alt_select_just_up
+
+        # middle mouse button press
+        self.is_middle_mouse_select_just_down, self.is_middle_mouse_select_down, self.is_middle_mouse_select_just_up = keyboard_mouse_press_check(
+            mouse, 1, self.is_middle_mouse_select_just_down, self.is_middle_mouse_select_down, self.is_middle_mouse_select_just_up)
+        self.middle_mouse_select_up = self.is_middle_mouse_select_just_up
 
         if self.is_select_down or self.is_alt_select_down:
             self.image = self.images["click"]
@@ -399,7 +416,8 @@ class FactionSelector(UIMenu):
             self.faction_coas = {}
             for faction, data in self.game.map_data.faction_list.items():
                 if data["Ruler"]:  # faction with no ruler means not playable
-                    self.faction_coas[faction] = self.game.sprite_data.character_portraits[data["Ruler"]]["small"]["right"]
+                    self.faction_coas[faction] = self.game.sprite_data.character_portraits[data["Ruler"]]["small"][
+                        "right"]
 
         max_column = int((width_limit * self.screen_scale_width) / (220 * self.screen_scale_width))
         require_row = int(len(self.faction_coas) / max_column)
@@ -449,7 +467,9 @@ class FactionSelector(UIMenu):
                 self.image.blit(self.faction_coas[faction], self.faction_coa_rects[faction])
         self.selected_faction = new_select_faction
         if self.game.menu_state == "grand":
-            self.game.grand_mini_map.change_faction(new_select_faction)
+            self.game.grand_setup_mini_map.change_faction(new_select_faction,
+                                                          {key: value["Control"] for key, value in
+                                                           self.game.map_data.region_list.items()})
             self.game.grand_faction_detail.change_faction(new_select_faction)
             self.game.grand_faction_showcase.change_faction(new_select_faction)
         elif self.game.menu_state == "beast":
@@ -527,11 +547,11 @@ class CharacterSelector(UIMenu):
         if self.game.menu_state in ("custom", "preset"):
             if character_type in ("commander", "leader", "retinue"):
                 selector_character_list = [value for value in
-                                          self.custom_character_setup[faction]["ground"]["leader"]["unique"] if value
-                                          not in exist_unique_check]
+                                           self.custom_character_setup[faction]["ground"]["leader"]["unique"] if value
+                                           not in exist_unique_check]
                 selector_character_list += [value for value in
-                                         self.custom_character_setup["free"]["ground"]["leader"]["unique"] if value
-                                         not in exist_unique_check]
+                                            self.custom_character_setup["free"]["ground"]["leader"]["unique"] if value
+                                            not in exist_unique_check]
                 if character_type == "commander":  # exclude leader that cannot be commander
                     selector_character_list = [value for value in selector_character_list
                                                if not self.character_list[value]["No Commander"]]
@@ -543,10 +563,16 @@ class CharacterSelector(UIMenu):
         else:
             selector_character_list = self.all_main_exist_characters[faction]
         # sort characters, based on unique leader, common leader, ground troop, air troop
-        true_selector_character_list = [item for item in selector_character_list if self.character_list[item]["Is Leader"] and self.character_list[item]["Is Unique"]]
-        true_selector_character_list += [item for item in selector_character_list if self.character_list[item]["Is Leader"] and not self.character_list[item]["Is Unique"]]
-        true_selector_character_list += [item for item in selector_character_list if self.character_list[item]["Type"] == "ground" and item not in true_selector_character_list]
-        true_selector_character_list += [item for item in selector_character_list if self.character_list[item]["Type"] == "air" and item not in true_selector_character_list]
+        true_selector_character_list = [item for item in selector_character_list if
+                                        self.character_list[item]["Is Leader"] and self.character_list[item][
+                                            "Is Unique"]]
+        true_selector_character_list += [item for item in selector_character_list if
+                                         self.character_list[item]["Is Leader"] and not self.character_list[item][
+                                             "Is Unique"]]
+        true_selector_character_list += [item for item in selector_character_list if self.character_list[item][
+            "Type"] == "ground" and item not in true_selector_character_list]
+        true_selector_character_list += [item for item in selector_character_list if self.character_list[item][
+            "Type"] == "air" and item not in true_selector_character_list]
         self.selector_character_list = true_selector_character_list
 
         additional_character = len(self.selector_character_list) - self.max_total_character_show
@@ -566,9 +592,11 @@ class CharacterSelector(UIMenu):
                 shown_index = index - start_index
                 if int(shown_index / 6) < self.max_row:
                     if character in self.character_portraits:
-                        self.image.blit(self.character_portraits[character]["setup_ui"], self.portrait_rects[shown_index])
+                        self.image.blit(self.character_portraits[character]["setup_ui"],
+                                        self.portrait_rects[shown_index])
                     else:  # use default instead
-                        self.image.blit(self.character_portraits["default"]["setup_ui"], self.portrait_rects[shown_index])
+                        self.image.blit(self.character_portraits["default"]["setup_ui"],
+                                        self.portrait_rects[shown_index])
                 else:
                     break
 
@@ -607,7 +635,8 @@ class CharacterSelector(UIMenu):
                                 if lorebook_showcase_character.char_id != character_id:
                                     self.game.all_showcase_characters.remove(lorebook_showcase_character.sub_characters)
                                     self.game.all_showcase_characters.remove(lorebook_showcase_character)
-                                    self.remove_from_ui_updater((lorebook_showcase_character.sub_characters, lorebook_showcase_character))
+                                    self.remove_from_ui_updater(
+                                        (lorebook_showcase_character.sub_characters, lorebook_showcase_character))
                                     for character in lorebook_showcase_character.sub_characters:
                                         character.erase()
                                     self.game.sprite_data.load_character_animation(
@@ -621,7 +650,8 @@ class CharacterSelector(UIMenu):
                                             "direction": "right"} | self.character_list[character_id])
                                     self.add_to_ui_updater(lorebook_showcase_character,
                                                            lorebook_showcase_character.sub_characters)
-                                    animation_list = list(self.game.sprite_data.character_animation_data[character_id].keys())
+                                    animation_list = list(
+                                        self.game.sprite_data.character_animation_data[character_id].keys())
                                     for character in self.character_list[character_id]["Sub Characters"]:
                                         for anim in self.game.sprite_data.character_animation_data[character[0]]:
                                             if anim not in animation_list:
@@ -639,31 +669,38 @@ class CharacterSelector(UIMenu):
                                          self.grab_text(("character", character_id, "Description")),
                                          self.grab_text(("ui", "info_header_class")) + self.grab_text(
                                              ("ui", "class_" + character_data["Class"])),
-                                         self.grab_text(("ui", "info_header_health")) + add_comma_number(character_data["Health"]),
+                                         self.grab_text(("ui", "info_header_health")) + add_comma_number(
+                                             character_data["Health"]),
                                          self.grab_text(("ui", "info_header_offence")) + str(character_data["Offence"]),
                                          self.grab_text(("ui", "info_header_defence")) + str(character_data["Defence"]),
                                          self.grab_text(("ui", "info_header_speed")) + str(character_data["Speed"]),
                                          self.grab_text(("ui", "info_header_cost")) + add_comma_number(
                                              character_data["Cost"])]
                             if character_data["Leadership"]:
-                                char_stat.append(self.grab_text(("ui", "info_header_leadership")) + str(character_data["Leadership"]))
+                                char_stat.append(self.grab_text(("ui", "info_header_leadership")) + str(
+                                    character_data["Leadership"]))
                             if character_data["Strategy"]:
                                 char_stat.append(
-                                    self.grab_text(("ui", "info_header_strategy")) + self.grab_text(("strategy", character_data["Strategy"], "Name")))
+                                    self.grab_text(("ui", "info_header_strategy")) + self.grab_text(
+                                        ("strategy", character_data["Strategy"], "Name")))
                             if character_data["Supply"]:
                                 char_stat.append(
                                     self.grab_text(("ui", "info_header_supply_cost")) + str(character_data["Supply"]))
                             if character_data["Arrive Per Call"] > 1:
                                 char_stat.append(
-                                    self.grab_text(("ui", "info_header_per_call")) + str(character_data["Arrive Per Call"]))
+                                    self.grab_text(("ui", "info_header_per_call")) + str(
+                                        character_data["Arrive Per Call"]))
                             if character_data["Capacity"] > 1:
                                 char_stat.append(
                                     self.grab_text(("ui", "info_header_capacity")) + str(character_data["Capacity"]))
 
-                            for resistance in ("Slash", "Crush", "Stab", "Fire", "Water", "Air", "Earth", "Magic", "Poison"):
+                            for resistance in (
+                            "Slash", "Crush", "Stab", "Fire", "Water", "Air", "Earth", "Magic", "Poison"):
                                 if character_data[resistance + " Resistance"]:
                                     char_stat.append(
-                                        self.grab_text(("ui", "info_header_" + resistance.lower() + "_resistance")) + str(int(100 * character_data[resistance + " Resistance"])) + "%")
+                                        self.grab_text(
+                                            ("ui", "info_header_" + resistance.lower() + "_resistance")) + str(
+                                            int(100 * character_data[resistance + " Resistance"])) + "%")
                             tag_text = ""
                             for prop in character_data["Property"]:
                                 prop_text = self.grab_text(("ui", "property_" + prop))
@@ -761,7 +798,7 @@ class CustomTeamSetupUI(UIMenu):
         text_box_image = self.text_box_image.copy()
 
         text = self.font.render(add_comma_number(remain) + " " +
-                                self.grab_text(("ui", "info_text_golds")), True, (30, 30, 30))
+                                self.grab_text(("ui", "info_text_gold")), True, (30, 30, 30))
         text_box_image.blit(text, text.get_rect(midright=(text_box_image.get_width(), text_box_image.get_height() / 2)))
         self.image.blit(text_box_image, text_box_image.get_rect(midright=(self.image.get_width(),
                                                                           self.cost_text_rects["total"])))
@@ -991,7 +1028,8 @@ class CustomPresetArmySetupUI(UIMenu):
                     if character_type == "commander":
                         self.total_leadership += self.character_list[character]["Leadership"]
                     elif character_type == "retinue":
-                        self.total_leadership += self.character_list[character]["Leadership"] * Retinue_Leadership_Add_Modifier
+                        self.total_leadership += self.character_list[character][
+                                                     "Leadership"] * Retinue_Leadership_Add_Modifier
                     self.total_gold_cost += self.character_list[character]["Cost"]
 
         self.game.custom_preset_army_title.change_text(self.current_preset, self.total_gold_cost, self.total_leadership)
@@ -1663,7 +1701,8 @@ class NameList(UIMenu):
 
         # White body square
         small_image = Surface(
-            (box.image.get_width() - int(16 * self.screen_scale_width), int((text_size + 2) * self.screen_scale_height)))
+            (
+            box.image.get_width() - int(16 * self.screen_scale_width), int((text_size + 2) * self.screen_scale_height)))
         small_image.fill((220, 220, 220))
         small_rect = small_image.get_rect(center=(self.image.get_width() / 2, self.image.get_height() / 2))
         self.image.blit(small_image, small_rect)
@@ -1707,7 +1746,7 @@ class GrandFactionDetail(UIMenu):
         self._layer = layer
         UIMenu.__init__(self, player_cursor_interact=False)
         self.header_font = self.game.preset_name_font
-        self.font = self.game.large_text_font
+        self.font = self.game.large_generic_ui_font
         self.font_size = self.font.size(" ")[1]
         self.image = Surface((900 * self.screen_scale_width, 1200 * self.screen_scale_height))
         self.image.fill((255, 255, 255))
@@ -1738,7 +1777,7 @@ class CharacterDescriptionShowCase(UIMenu):
         self._layer = layer
         UIMenu.__init__(self)
         self.header_font = self.game.battle_timer_font
-        self.font = self.game.large_text_font
+        self.font = self.game.large_generic_ui_font
         self.name_cap_font = self.game.screen_fade_font
         self.character_portraits = self.game.sprite_data.character_portraits
         self.showing_character = None
@@ -1773,7 +1812,7 @@ class CharacterMovesetShowCase(UIMenu):
         self.character_list = self.game.character_list
         self.effect_list = self.game.character_data.effect_list
         self.header_font = self.game.battle_timer_font
-        self.font = self.game.large_text_font
+        self.font = self.game.large_generic_ui_font
         self.font_space_size = self.font.size(" ")
         self.showing_character = None
         self.showing_moveset = None
@@ -1794,7 +1833,8 @@ class CharacterMovesetShowCase(UIMenu):
                 char_stat = []
                 range_use = ""
                 if this_moveset["AI Range"]:
-                    range_use += self.grab_text(("ui", "info_header_activate_range")) + add_comma_number(this_moveset["AI Range"])
+                    range_use += self.grab_text(("ui", "info_header_activate_range")) + add_comma_number(
+                        this_moveset["AI Range"])
                 if this_moveset["Range"]:
                     if range_use:
                         range_use += "/"
@@ -1802,7 +1842,8 @@ class CharacterMovesetShowCase(UIMenu):
                 if range_use:
                     char_stat.append(range_use)
                 if this_moveset["Resource Cost"]:
-                    char_stat.append(self.grab_text(("ui", "info_header_resource")) + str(this_moveset["Resource Cost"]))
+                    char_stat.append(
+                        self.grab_text(("ui", "info_header_resource")) + str(this_moveset["Resource Cost"]))
                 if this_moveset["Cooldown"]:
                     char_stat.append(self.grab_text(("ui", "info_header_cooldown")) + str(this_moveset["Cooldown"]))
                 if this_moveset["Power"]:
@@ -1816,7 +1857,8 @@ class CharacterMovesetShowCase(UIMenu):
                     char_stat.append(self.grab_text(("ui", "info_header_critical_bonus")) +
                                      str(this_moveset["Critical Chance Bonus"]))
                 if this_moveset["Element"]:
-                    char_stat.append(self.grab_text(("ui", "info_header_element")) + str(this_moveset["Element"]))
+                    char_stat.append(self.grab_text(("ui", "info_header_element")) +
+                                     self.grab_text(("ui", "element_" + str(this_moveset["Element"]))))
                 if this_moveset["Status"]:
                     tag_text = ""
                     ally_status_list = this_moveset["Status"]
@@ -1846,7 +1888,8 @@ class CharacterMovesetShowCase(UIMenu):
                     for prop in this_moveset["Property"]:
                         prop_text = self.grab_text(("ui", "property_" + prop))
                         if prop == "summon":
-                            prop_text = prop_text + self.grab_text(("character", this_moveset["Property"][prop], "Name"))
+                            prop_text = prop_text + self.grab_text(
+                                ("character", this_moveset["Property"][prop], "Name"))
                         if "(" not in prop_text:  # mean prop has no localisation, likely intentional
                             tag_text += prop_text + ", "
                     if tag_text:
@@ -1861,7 +1904,7 @@ class GrandFactionShowCase(UIMenu):
         self._layer = layer
         UIMenu.__init__(self)
         self.header_font = self.game.battle_timer_font
-        self.font = self.game.large_text_font
+        self.font = self.game.large_generic_ui_font
         self.character_portraits = self.game.sprite_data.character_portraits
         self.character_list = self.game.character_list
         self.image = Surface((900 * self.screen_scale_width, 1200 * self.screen_scale_height))
@@ -1872,9 +1915,9 @@ class GrandFactionShowCase(UIMenu):
         self.showcase_rect = {"ruler": [self.character_portraits[Default_Showcase_Character]["character_ui"].get_rect(
             center=(self.image.get_width() / 2, 250 * self.screen_scale_height))],
             "leader": [self.character_portraits[Default_Showcase_Character]["small"]["right"].get_rect(
-            center=(x * self.screen_scale_width, 600 * self.screen_scale_height)) for x in (150, 350, 550, 750)],
+                center=(x * self.screen_scale_width, 600 * self.screen_scale_height)) for x in (150, 350, 550, 750)],
             "troop": [self.character_portraits[Default_Showcase_Character]["small"]["right"].get_rect(
-            center=(x * self.screen_scale_width, 850 * self.screen_scale_height)) for x in (150, 350, 550, 750)]}
+                center=(x * self.screen_scale_width, 850 * self.screen_scale_height)) for x in (150, 350, 550, 750)]}
 
         self.rect = self.image.get_rect(topright=self.game.custom_preset_faction_selector.rect.bottomright)
 
@@ -1927,10 +1970,10 @@ class GrandMiniMap(UIMenu):
 
         self.map_data = self.game.map_data
         self.ui_purpose = ui_purpose
-        self.region_dict = {}
+        self.region_draw_dict = {}
+        self.region_control_data = {}
         self.pos = pos
         self.size = (size[0] * self.screen_scale_width, size[1] * self.screen_scale_height)
-        self.original_image = Surface((0, 0))
         self.base_image = None
         self.before_scale_image = None
         self.before_camera_image = None
@@ -1941,30 +1984,31 @@ class GrandMiniMap(UIMenu):
         self.image = Surface(self.size)
         self.rect = self.image.get_rect(midtop=pos)
 
-    def change_grand_setup(self, image):
+    def change_grand_setup(self, world_image):
         """Recreate minimap image, create faction image with region in colour of control faction"""
-        self.original_image = image
-
-        self.base_image = Surface(self.original_image.get_size())
+        image = scale(world_image, self.size)
+        self.base_image = Surface(image.get_size())
         self.base_image.fill((112, 140, 190))  # fill sea colour
-        self.region_dict = {}
-        area_dict = self.region_dict
-        faction_list = self.game.map_data.faction_list
-        for row_pos in range(self.original_image.get_width()):
-            for col_pos in range(self.original_image.get_height()):
-                colour = tuple(self.original_image.get_at((row_pos, col_pos)))[:3]
+        self.region_draw_dict = {}
+        region_draw_dict = self.region_draw_dict
+        faction_list = self.map_data.faction_list
+        for row_pos in range(image.get_width()):
+            for col_pos in range(image.get_height()):
+                colour = tuple(image.get_at((row_pos, col_pos)))[:3]
                 if colour != (0, 0, 0):
-                    if colour not in area_dict:
-                        area_dict[colour] = {"min_pos": [float("inf"), float("inf")], "max_pos": [0, 0], "array": []}
-                    if row_pos < area_dict[colour]["min_pos"][0]:
-                        area_dict[colour]["min_pos"][0] = row_pos
-                    if row_pos > area_dict[colour]["max_pos"][0]:
-                        area_dict[colour]["max_pos"][0] = row_pos
-                    if col_pos < area_dict[colour]["min_pos"][1]:
-                        area_dict[colour]["min_pos"][1] = col_pos
-                    if col_pos > area_dict[colour]["max_pos"][1]:
-                        area_dict[colour]["max_pos"][1] = col_pos
-                    area_dict[colour]["array"].append((row_pos, col_pos))
+                    region_id = self.map_data.region_by_colour_list[colour]["ID"]
+                    if region_id not in region_draw_dict:
+                        region_draw_dict[region_id] = {"min_pos": [float("inf"), float("inf")], "max_pos": [0, 0],
+                                                       "array": []}
+                    if row_pos < region_draw_dict[region_id]["min_pos"][0]:
+                        region_draw_dict[region_id]["min_pos"][0] = row_pos
+                    if row_pos > region_draw_dict[region_id]["max_pos"][0]:
+                        region_draw_dict[region_id]["max_pos"][0] = row_pos
+                    if col_pos < region_draw_dict[region_id]["min_pos"][1]:
+                        region_draw_dict[region_id]["min_pos"][1] = col_pos
+                    if col_pos > region_draw_dict[region_id]["max_pos"][1]:
+                        region_draw_dict[region_id]["max_pos"][1] = col_pos
+                    region_draw_dict[region_id]["array"].append((row_pos, col_pos))
                     self.base_image.set_at((row_pos, col_pos), faction_list["free"]["Colour"])
 
         self.before_scale_image = self.base_image.copy()
@@ -1980,42 +2024,42 @@ class GrandMiniMap(UIMenu):
             draw.rect(self.camera_border_image, (250, 100, 100), (0, 0, self.camera_border_image.get_width(),
                                                                   self.camera_border_image.get_height()),
                       width=int(10 * self.screen_scale_width))
-            self.change_grand_faction(area_dict)
 
-    def change_grand_faction(self, region_dict):
+    def change_grand_faction(self, region_control_data):
         """Used in grand campaign game minimap, repaint faction colour of control change regions"""
-        if self.region_dict != region_dict:
+        if self.region_control_data != region_control_data:
             self.before_scale_image = self.base_image.copy()
-            for colour in region_dict:
-                if region_dict[colour] != self.region_dict[colour]:
-                    self.draw_faction(colour)
-            self.region_dict = region_dict.copy()
+            for region_id in region_control_data:
+                if (region_id not in self.region_control_data or
+                        region_control_data[region_id] != self.region_control_data[region_id]):
+                    self.draw_faction(region_control_data[region_id], region_id)
+            self.region_control_data = region_control_data.copy()
             self.before_camera_image = smoothscale(self.before_scale_image, self.size)
             self.image = self.before_camera_image.copy()
 
-    def change_faction(self, faction):
+    def change_faction(self, faction, region_control_data):
         """Used in grand campaign setup menu, highlight region that selected faction control in white colour"""
+        self.region_control_data = region_control_data
         self.before_scale_image = self.base_image.copy()
-        for colour in self.region_dict:
-            if self.map_data.region_by_colour_list[colour]["Control"] == faction:
-                self.draw_faction(colour)
+        for region_id in self.region_draw_dict:
+            if self.map_data.region_list[region_id]["Control"] == faction:
+                self.draw_faction(faction, region_id)
         self.before_camera_image = smoothscale(self.before_scale_image, self.size)
         self.image = self.before_camera_image.copy()
 
-    def draw_faction(self, colour):
-        region_dict = self.region_dict
-        new_surf = Surface((region_dict[colour]["max_pos"][0] - region_dict[colour]["min_pos"][0],
-                            region_dict[colour]["max_pos"][1] - region_dict[colour]["min_pos"][1]), SRCALPHA)
+    def draw_faction(self, faction_control, region_id, add_border=True):
+        region_draw_data = self.region_draw_dict[region_id]
+        new_surf = Surface((region_draw_data["max_pos"][0] - region_draw_data["min_pos"][0],
+                            region_draw_data["max_pos"][1] - region_draw_data["min_pos"][1]), SRCALPHA)
         # draw colour based on faction control
-        faction_control = self.map_data.region_by_colour_list[colour]["Control"]
-        for pos in region_dict[colour]["array"]:
-            new_pos = (pos[0] - region_dict[colour]["min_pos"][0], pos[1] - region_dict[colour]["min_pos"][1])
+        for pos in region_draw_data["array"]:
+            new_pos = (pos[0] - region_draw_data["min_pos"][0], pos[1] - region_draw_data["min_pos"][1])
             new_surf.set_at(new_pos, (255, 255, 255))
         in_surf = smoothscale(new_surf, (new_surf.get_width() * 0.8, new_surf.get_height() * 0.8))
         in_surf.fill(self.game.map_data.faction_list[faction_control]["Colour"], special_flags=pygame.BLEND_RGBA_MIN)
 
         new_surf.blit(in_surf, in_surf.get_rect(center=(new_surf.get_width() / 2, new_surf.get_height() / 2)))
-        self.before_scale_image.blit(new_surf, new_surf.get_rect(topleft=region_dict[colour]["min_pos"]))
+        self.before_scale_image.blit(new_surf, new_surf.get_rect(topleft=region_draw_data["min_pos"]))
 
     def update(self, dt):
         """update map"""
@@ -2313,7 +2357,8 @@ class TextPopup(UIMenu):
                             text_image = Surface((width_text_wrapper,
                                                   calculate_long_text_size(text, self.font,
                                                                            self.font_size, width_text_wrapper,
-                                                                           start_pos=(self.font_size, self.font_size + 1))[1]))
+                                                                           start_pos=(
+                                                                           self.font_size, self.font_size + 1))[1]))
                             text_image.fill(bg_colour)
                             make_long_text(text_image, text, (self.font_size, self.font_size), self.font,
                                            color=font_colour, specific_width=width_text_wrapper)

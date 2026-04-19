@@ -1,26 +1,10 @@
 import csv
 import os
-import random
-import re
 import sys
-import time
-from math import atan2, degrees, radians
-from os import sep
-from os.path import join, split, normpath, abspath
+from os.path import join
 from pathlib import Path
 
-import pygame
-from pygame.transform import smoothscale, rotate, flip as pyflip
-from pygame.mixer import Channel
-from engine.battle.battle import Battle
-from engine.data.datalocalisation import Localisation
-from engine.data.datasound import SoundData
-from engine.game.game import Game
-from engine.uibattle.uibattle import UIBattle, UIScroll
-from engine.uimenu.uimenu import MenuCursor, NameList, MenuButton, TextPopup, InputUI, InputBox, ListBox
-from engine.utils.data_loading import csv_read, load_image, load_images, load_base_button, recursive_image_load
 from engine.utils.rotation import rotation_xy
-from engine.utils.sprite_altering import sprite_rotate, apply_sprite_effect, apply_sprite_colour
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 main_dir = "\\".join(main_dir.split("\\")[:-2])
@@ -33,7 +17,6 @@ data_dir = os.path.join(main_dir, "data")
 animation_dir = join(current_dir, "data", "animation")
 
 from engine.utils.data_loading import stat_convert
-
 
 part_column_header = ["head", "neck", "body", "r_arm_up", "r_arm_low", "r_hand", "l_arm_up",
                       "l_arm_low", "l_hand", "r_leg_up", "r_leg_low", "r_foot", "l_leg_up", "l_leg_low", "l_foot",
@@ -118,5 +101,6 @@ def effect_check():
                     if "effect_" in part and part_data and part_data[-1]:
                         if part_data[0] not in effect_list:
                             print(key, animation_name, frame_index, part, part_data)
+
 
 effect_check()

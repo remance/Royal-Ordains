@@ -23,4 +23,5 @@ def menu_keybind(self):
                 current_key = self.player_key_bind_list[key]
                 if type(current_key) == int:
                     current_key = pygame.key.name(current_key)
-                self.static_input_box.render_text(self.localisation.grab_text(("ui", "info_header_current_key")) + current_key)
+                self.static_input_box.render_text(
+                    self.localisation.grab_text(("ui", "info_header_current_key")) + current_key)

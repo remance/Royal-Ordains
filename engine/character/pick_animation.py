@@ -173,4 +173,3 @@ def pick_cutscene_animation(self, action):
 
     self.animation_name = animation_name
     self.update_sprite = True
-

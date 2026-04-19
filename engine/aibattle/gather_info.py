@@ -1,5 +1,5 @@
-from random import sample
 from operator import itemgetter
+from random import sample
 
 """Battle commander AI act and plan depend on their personality stat
 Cleverness 0 = does nothing
@@ -81,7 +81,8 @@ def gather_info_basic(self):  # clever 1
             }
 
     if self.battle.all_team_enemy_check[self.team]:
-        near_camp_enemy = sorted({enemy.base_pos[0]: abs(start_pos - enemy.base_pos[0]) for enemy in self.battle.all_team_enemy_check[self.team]}.items(), key=itemgetter(1))
+        near_camp_enemy = sorted({enemy.base_pos[0]: abs(start_pos - enemy.base_pos[0]) for enemy in
+                                  self.battle.all_team_enemy_check[self.team]}.items(), key=itemgetter(1))
         info["closest_enemy_distance_to_camp"] = near_camp_enemy[0]
 
     if self.air_group:

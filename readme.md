@@ -9,8 +9,9 @@ Made with pure python and [Pygame](https://github.com/pygame/pygame).
 
 [//]: # ([![]&#40;https://markdown-videos-api.jorgenkh.no/youtube/ar8TsS8spMU&#41;]&#40;https://youtu.be/ar8TsS8spMU&#41;)
 
-Wage war and command your army into a battle! Royal Ordains is a casual side-scrolling medieval fantasy strategy game 
-in the styles inspired by Medieval arts and more. Player takes indirect control of the commander in battle, who can call in troops and initiate various strategies and spells to change the course of battle.
+Wage war and command your army into a battle! Royal Ordains is a casual side-scrolling medieval fantasy strategy game
+in the styles inspired by Medieval arts and more. Player takes indirect control of the commander in battle, who can call
+in troops and initiate various strategies and spells to change the course of battle.
 
 <div align="center">    
     <img src="https://github.com/remance/preview/blob/main/pygamelogo.gif?raw=true" alt="Pygame Logo">
@@ -86,7 +87,6 @@ likely will cause error.
 - Call in hundreds of ground and air troops to wage a full-blown battle.
 
 - 3 Factions with 80 unique characters and more to come.
-
 
 [//]: # (# System Requirements)
 
@@ -219,7 +219,8 @@ compatible enough for other purposes with some modifications.
 - Various Ice by danielsoundsgood (https://linktr.ee/danielsoundsgood)
 - Catapult by Sounddino (https://sounddino.com/en/effects/catapult/)
 - Horse galloping by DRAGON-STUDIO (https://pixabay.com/users/dragon-studio-38165424/)
-- Boing, broom, firecracker, metal can, dragon roar, cow moo, power charge, toy_button, bone, machine pressure, toy squeak, ghost whisper by freesound_community (https://pixabay.com/users/freesound_community-46691455/)
+- Boing, broom, firecracker, metal can, dragon roar, cow moo, power charge, toy_button, bone, machine pressure, toy
+  squeak, ghost whisper by freesound_community (https://pixabay.com/users/freesound_community-46691455/)
 - Toy train by floraphonic (https://pixabay.com/users/floraphonic-38928062/)
 
 ### Music

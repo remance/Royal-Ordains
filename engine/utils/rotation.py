@@ -1,4 +1,4 @@
-from math import cos, sin, atan2, degrees, radians
+from math import cos, sin, atan2, degrees, radians, pi
 
 from pygame import Vector2
 
@@ -28,21 +28,17 @@ def rotation_xy(origin, point, angle):
     return Vector2(x, y)
 
 
-def set_rotate(self, base_target, convert=True, use_pos=False):
+def set_rotate(start_pos, target, convert_to_degree=True):
     """
     find angle using starting pos and base_target
-    :param self: any object with base_pos or pos as position attribute
-    :param base_target: pos for target position to rotate to
-    :param convert: convert degree for rotation
+    :param start_pos: starting pos
+    :param target: pos for target position to rotate to
+    :param convert_to_degree: convert degree for sprite rotation
     :param use_pos: use pos instead of base_pos
     :return: new angle
     """
-    if not use_pos:
-        my_radians = atan2(base_target[1] - self.base_pos[1], base_target[0] - self.base_pos[0])
-    else:
-        my_radians = atan2(base_target[1] - self.pos[1], base_target[0] - self.pos[0])
-    new_angle = int(degrees(my_radians))
-    if convert:
+    new_angle = int(degrees(atan2(target[1] - start_pos[1], target[0] - start_pos[0])))
+    if convert_to_degree:
         new_angle = convert_degree_angle(new_angle)
     return new_angle
 

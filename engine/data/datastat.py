@@ -7,7 +7,7 @@ from engine.utils.data_loading import stat_convert
 infinity = float("infinity")
 
 
-class CharacterData(GameData):
+class DataStat(GameData):
     def __init__(self):
         """
         For keeping all data related to character.
@@ -38,7 +38,7 @@ class CharacterData(GameData):
                             "Fire Resistance Bonus", "Water Resistance Bonus", "Air Resistance Bonus",
                             "Earth Resistance Bonus",
                             "Magic Resistance Bonus", "Poison Resistance Bonus", "Magic Resistance Bonus")
-            tuple_column = ("Status Conflict", )  # value in tuple only
+            tuple_column = ("Status Conflict",)  # value in tuple only
             dict_column = [index for index, item in enumerate(header) if item in dict_column]
             percent_column = [index for index, item in enumerate(header) if item in percent_column]
             float_column = [index for index, item in enumerate(header) if item in float_column]
@@ -63,7 +63,8 @@ class CharacterData(GameData):
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
             dict_column = ("Summon", "AI Condition", "Property",)
-            tuple_column = ("Effects", "Damage Effects", "Status", "Enemy Status", "Effect Enemy Status")  # value in tuple only
+            tuple_column = (
+            "Effects", "Damage Effects", "Status", "Enemy Status", "Effect Enemy Status")  # value in tuple only
             dict_column = [index for index, item in enumerate(header) if item in dict_column]
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
             for index, row in enumerate(rd[1:]):
@@ -222,11 +223,25 @@ class CharacterData(GameData):
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
                     row = stat_convert(row, n, i)
-                if row[0]:
+                if row[0]:  # keep preset using culture as dict key
                     if row[header.index("Culture")] not in self.preset_list:
                         self.preset_list[row[header.index("Culture")]] = {}
                     self.preset_list[row[header.index("Culture")]][row[0]] = {
                         header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
+        edit_file.close()
+
+        self.building_list = {}
+        with open(os.path.join(self.data_dir, "character", "building.csv"),
+                  encoding="utf-8", mode="r") as edit_file:
+            rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
+            header = rd[0]
+            tuple_column = ("Garrison Strategy", "Leader Reinforcement", "Troop Reinforcement",
+                            "Air Reinforcement", "Leader Recruit", "Unit Recruit", "Technology")
+            tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
+            for index, row in enumerate(rd[1:]):
+                for n, i in enumerate(row):
+                    row = stat_convert(row, n, i, tuple_column=tuple_column)
+                self.building_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
         edit_file.close()
 
 

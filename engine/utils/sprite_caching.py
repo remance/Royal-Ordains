@@ -145,5 +145,3 @@ def recursive_cast_pickleable_surface_to_surface(data, screen_scale, already_don
 
                 data[k] = tuple([c if type(c) is not CompilableSurface else
                                  surface_screen_scale(c.surface, screen_scale) for c in data[k]])
-
-

@@ -1,11 +1,11 @@
-from random import randint, uniform
+from random import randint
 
 from engine.character.character import BattleCharacter
-from engine.constants import Default_Screen_Width, Collision_Grid_X_Per_Scene, Default_Ground_Pos
+from engine.constants import Default_Screen_Width, Collision_Grid_X_Per_Battle_Scene, Default_Battle_Ground_Pos
 from engine.effect.effect import Effect, DamageEffect
 from engine.utils.rotation import find_target_point
 
-grid_width = Default_Screen_Width / Collision_Grid_X_Per_Scene
+grid_width = Default_Screen_Width / Collision_Grid_X_Per_Battle_Scene
 
 
 def activate_strategy(self, team, strategy, strategy_index, base_pos_x):
@@ -56,7 +56,8 @@ def activate_strategy(self, team, strategy, strategy_index, base_pos_x):
                     angle = effect_stat[4]
                     start_x = (base_pos_x + effect_stat[2]) * self.screen_scale_width
                 start_y = effect_stat[3] * self.screen_scale_height
-                base_target_pos = find_target_point(start_x / self.screen_scale_width, start_y / self.screen_scale_height,
+                base_target_pos = find_target_point(start_x / self.screen_scale_width,
+                                                    start_y / self.screen_scale_height,
                                                     100000, angle)
                 DamageEffect(stat["owner data"] | {"team": team, "direction": direction},
                              (effect_stat[0], effect_stat[1], start_x, start_y, angle,
@@ -78,7 +79,7 @@ def activate_strategy(self, team, strategy, strategy_index, base_pos_x):
                         start_x = 0
                     elif start_x > self.base_stage_end:
                         start_x = self.base_stage_end
-                    start_pos = (start_x, Default_Ground_Pos)
+                    start_pos = (start_x, Default_Battle_Ground_Pos)
 
                     BattleCharacter(self.last_char_game_id,
                                     self.character_list[spawn_name] |

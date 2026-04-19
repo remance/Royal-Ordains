@@ -1,16 +1,16 @@
 import sys
 import time
 from copy import deepcopy
+from os.path import join, sep, normpath, abspath, split, exists
+from pathlib import Path
 from random import choice, randint
 from types import MethodType
-from pathlib import Path
-from os.path import join, sep, normpath, abspath, split, exists
 
 import pygame
 from pygame import Vector2, display, sprite, Surface, SRCALPHA
+from pygame.event import get as get_event, clear as clear_event
 from pygame.locals import *
 from pygame.mixer import Sound, Channel
-from pygame.event import get as get_event, clear as clear_event
 
 from engine.aibattle.battle_commander_ai import BattleCommanderAI
 from engine.battle.activate_retreat import activate_retreat
@@ -39,7 +39,7 @@ from engine.battle.state_menu_process import state_menu_process
 from engine.battle.state_result_process import state_result_process
 from engine.battleobject.battleobject import StageObject
 from engine.camera.camera import Camera
-from engine.character.character import Character, BattleCharacter
+from engine.character.character import Character
 from engine.constants import *
 from engine.effect.effect import DamageEffect, Effect
 from engine.game.activate_input_popup import activate_input_popup
@@ -215,8 +215,6 @@ class Battle:
         self.stage_music_pool = {}  # pool for music already converted to pygame Sound
 
         self.weather_screen_adjust = self.screen_width / self.screen_height  # for weather sprite spawn position
-        self.right_corner = self.screen_width - (5 * self.screen_scale_width)
-        self.bottom_corner = self.screen_height - (5 * self.screen_scale_height)
 
         self.character_data = self.game.character_data
         self.character_list = self.character_data.character_list
@@ -282,6 +280,7 @@ class Battle:
         self.game_state = "battle"
         self.esc_menu_mode = "menu"
 
+        self.grand = None
         self.campaign = self.game.campaign
         self.mission = None
 
@@ -289,23 +288,23 @@ class Battle:
 
         # Create the game camera
         self.camera_pos = Vector2(500, 500)  # camera pos on scene
-        self.camera_left = (self.camera_pos[0] - self.camera_center_x)
+        self.camera_left_bound = (self.camera_pos[0] - self.camera_center_x)
 
-        self.base_camera_left = (self.camera_pos[0] - self.camera_center_x) / self.screen_scale_width
+        self.base_camera_left_bound = (self.camera_pos[0] - self.camera_center_x) / self.screen_scale_width
 
-        self.shown_camera_pos = self.camera_pos  # pos of camera shown to player, in case of screen shaking or other effects
+        self.shown_camera_center_pos = self.camera_pos  # pos of camera shown to player, in case of screen shaking or other effects
 
         self.camera = Camera(self.screen, (self.camera_width, self.camera_height))
         self.camera_w_center = self.camera.camera_w_center
         self.camera_h_center = self.camera.camera_h_center
-        self.camera_x_shift = self.shown_camera_pos[0] - self.camera_w_center
+        self.camera_x_shift = self.shown_camera_center_pos[0] - self.camera_w_center
 
         # Assign battle variable to some classes
-        Character.collision_grid_width = self.screen_width / Collision_Grid_X_Per_Scene  # collision grid size based on screen scale
-        Character.collision_grid_height = self.screen_height / Collision_Grid_Y_Per_Scene
+        Character.collision_grid_width = self.screen_width / Collision_Grid_X_Per_Battle_Scene  # collision grid size based on screen scale
+        Character.collision_grid_height = self.screen_height / Collision_Grid_Y_Per_Battle_Scene
         Character.sound_effect_pool = self.sound_effect_pool
-        DamageEffect.collision_grid_width = self.screen_width / Collision_Grid_X_Per_Scene
-        DamageEffect.collision_grid_height = self.screen_height / Collision_Grid_Y_Per_Scene
+        DamageEffect.collision_grid_width = self.screen_width / Collision_Grid_X_Per_Battle_Scene
+        DamageEffect.collision_grid_height = self.screen_height / Collision_Grid_Y_Per_Battle_Scene
         Effect.sound_effect_pool = self.sound_effect_pool
 
         # Create battle ui
@@ -320,25 +319,25 @@ class Battle:
         self.player_battle_interact = PlayerBattleInteract()
         self.tactical_map_ui = TacticalMap(battle_ui_images["tactic_alert"])
 
-        helper_images ={}
+        helper_images = {}
         part_folder = Path(join(self.data_dir, "ui", "battle_ui", "helper"))
         subdirectories = [split(sep.join(normpath(x).split(sep))) for x
                           in part_folder.iterdir() if x.is_dir()]
         for folder in subdirectories:
             folder_data_name = folder[-1]
             helper_images[folder_data_name] = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                       subfolder=("ui", "battle_ui", "helper", folder_data_name))
+                                                          subfolder=("ui", "battle_ui", "helper", folder_data_name))
 
         self.battle_helper_ui = BattleHelper(self.game.weather_icon_images,
                                              battle_ui_images["helperui"],
                                              battle_ui_images["helperui_base"],
                                              helper_images,
                                              (battle_ui_images["time_pause"],
-                                             battle_ui_images["time_slow"],
-                                             battle_ui_images["time_normal"],
-                                             battle_ui_images["time_fast"]),
+                                              battle_ui_images["time_slow"],
+                                              battle_ui_images["time_normal"],
+                                              battle_ui_images["time_fast"]),
                                              (battle_ui_images["time_select"],
-                                             battle_ui_images["time_unselect"])
+                                              battle_ui_images["time_unselect"])
                                              )
         self.battle_scale_ui = BattleScale(self.tactical_map_ui.rect.bottomleft)
         self.strategy_select_ui = StrategySelect(self.battle_scale_ui.rect.midbottom,
@@ -390,6 +389,7 @@ class Battle:
         Scene.image = Surface.subsurface(self.camera.image, (0, 0, self.camera.image.get_width(),
                                                              self.camera.image.get_height()))
         Scene.battle = self
+        Scene.camera = self.camera
         self.scene = Scene()
 
         self.empty_scene_image = Surface((self.screen_width, self.screen_height), SRCALPHA)
@@ -413,15 +413,16 @@ class Battle:
         self.cutscene_playing = None
         self.current_scene = 1
 
-    def prepare_new_stage(self, campaign, mission, team_stat, player_team, custom_stage_data, ai_retreat):
-        for message in self.inner_prepare_new_stage(campaign, mission, team_stat, player_team, custom_stage_data,
+    def prepare_new_stage(self, attach_grand, campaign, mission, team_stat, player_team, custom_stage_data, ai_retreat):
+        for message in self.inner_prepare_new_stage(attach_grand, campaign, mission, team_stat, player_team, custom_stage_data,
                                                     ai_retreat):
             self.game.error_log.write("Start Stage:" + "." + str(mission))
             print(message, end="")
 
-    def inner_prepare_new_stage(self, campaign, mission, team_stat, player_team, custom_stage_data=None,
+    def inner_prepare_new_stage(self, attach_grand, campaign, mission, team_stat, player_team, custom_stage_data=None,
                                 ai_retreat=False):
         """Setup stuff when start new battle"""
+        self.grand = attach_grand
         self.campaign = campaign
         self.mission = mission
         self.player_team = player_team
@@ -597,7 +598,7 @@ class Battle:
         already_check_char = set()
         battle_character_list = [item for item in battle_character_list if item]
         battle_character_list = list(set([char_id if "+" not in char_id else char_id.split("+")[0] for char_id in
-                                   battle_character_list]))
+                                          battle_character_list]))
         while battle_character_list:
             char_id = battle_character_list[0]
             battle_character_list.remove(char_id)
@@ -608,8 +609,9 @@ class Battle:
                 if self.character_list[char_id]["Sub Characters"]:
                     battle_character_list += set(
                         [item[0] for item in self.character_list[char_id]["Sub Characters"]])
-                battle_character_list = list(set([char_id if "+" not in char_id else char_id.split("+")[0] for char_id in
-                                           battle_character_list]))
+                battle_character_list = list(
+                    set([char_id if "+" not in char_id else char_id.split("+")[0] for char_id in
+                         battle_character_list]))
 
         battle_character_list = already_check_char
 
@@ -628,13 +630,18 @@ class Battle:
         # grids for collision are kept in y, x metrix
         # the last y grid is used strategy/range collision for ALL characters where height play no part, so + 1 grid y per
         self.all_team_ground_enemy_collision_grids = {index: [[sprite.Group() for _ in
-                                                               range(int(stage_len * Collision_Grid_X_Per_Scene))] for
-                                                              _ in range(Collision_Grid_Y_Per_Scene + 1)] for index in team_list}
+                                                               range(
+                                                                   int(stage_len * Collision_Grid_X_Per_Battle_Scene))]
+                                                              for
+                                                              _ in range(Collision_Grid_Y_Per_Battle_Scene + 1)] for
+                                                      index in team_list}
         self.all_team_air_enemy_collision_grids = {index: [[sprite.Group() for _ in
-                                                               range(int(stage_len * Collision_Grid_X_Per_Scene))] for
-                                                              _ in range(Collision_Grid_Y_Per_Scene + 1)] for index in team_list}
+                                                            range(int(stage_len * Collision_Grid_X_Per_Battle_Scene))]
+                                                           for
+                                                           _ in range(Collision_Grid_Y_Per_Battle_Scene + 1)] for index
+                                                   in team_list}
 
-        self.last_grid = int(stage_len * Collision_Grid_X_Per_Scene)
+        self.last_grid = int(stage_len * Collision_Grid_X_Per_Battle_Scene)
 
         for item in stage_data["character"]:
             if item["Arrive Condition"]:
@@ -727,7 +734,7 @@ class Battle:
         self.music_channel.set_endevent(self.SONG_END)
         self.fix_camera()
 
-        self.shown_camera_pos = self.camera_pos
+        self.shown_camera_center_pos = self.camera_pos
         self.scene.setup()
         self.tactical_map_ui.setup()  # setup tactical map ui to scale with stage size
         self.command_ui.setup()
@@ -805,9 +812,9 @@ class Battle:
                 elif key_state[pygame.K_LCTRL] or key_state[pygame.K_RCTRL]:
                     self.ctrl_press = True
             self.base_cursor_pos = Vector2(
-                ((self.battle_cursor.pos[0] / self.screen_scale_width) + self.base_camera_left),
+                ((self.battle_cursor.pos[0] / self.screen_scale_width) + self.base_camera_left_bound),
                 (self.battle_cursor.pos[1] / self.screen_scale_height))  # mouse pos on the map based on camera position
-            self.cursor_pos = Vector2(self.battle_cursor.pos[0] + self.camera_left,
+            self.cursor_pos = Vector2(self.battle_cursor.pos[0] + self.camera_left_bound,
                                       self.battle_cursor.pos[1])
             for event in get_event():  # get event that happen
                 if event.type == pygame.MOUSEBUTTONUP:

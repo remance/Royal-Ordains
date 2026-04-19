@@ -8,5 +8,3 @@ def fix_camera(self):
         self.camera_pos[1] = self.map_y_end
     elif self.camera_pos[1] < 0:  # camera does not move beyond left corner scene
         self.camera_pos[1] = 0
-    self.camera_left = (self.camera_pos[0] - self.camera_center_x)
-    self.base_camera_left = self.camera_left / self.screen_scale[0]

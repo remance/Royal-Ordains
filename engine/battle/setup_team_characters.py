@@ -1,5 +1,5 @@
 from engine.character.character import Character, BattleCharacter, CommanderBattleCharacter
-from engine.constants import Default_Ground_Pos, Default_Float_Pos, Default_Air_Pos
+from engine.constants import Default_Battle_Ground_Pos, Default_Battle_Float_Pos, Default_Battle_Air_Pos
 
 team_start_x_distance = 600
 
@@ -16,7 +16,7 @@ def setup_team_characters(self, stage_data):
             data["Team"] = team
             data["ID"] = team_stat["main_army"].commander_id
             if "POS" not in data:
-                data["POS"] = (start_x, Default_Ground_Pos)
+                data["POS"] = (start_x, Default_Battle_Ground_Pos)
 
             add_battle_char = CommanderBattleCharacter(self.last_char_game_id,
                                                        data | self.character_list[team_stat["main_army"].commander_id])
@@ -41,13 +41,13 @@ def add_neutral_character(self, input_data):
     data = input_data.copy()
     character_data = self.character_list[data["ID"]]
     if "fly" in character_data["Property"]:
-        data["POS"] = (data["POS"], Default_Air_Pos)
-        data["Ground Y POS"] = Default_Air_Pos
+        data["POS"] = (data["POS"], Default_Battle_Air_Pos)
+        data["Ground Y POS"] = Default_Battle_Air_Pos
     elif "float" in character_data["Property"]:
-        data["POS"] = (data["POS"], Default_Float_Pos)
-        data["Ground Y POS"] = Default_Float_Pos
+        data["POS"] = (data["POS"], Default_Battle_Float_Pos)
+        data["Ground Y POS"] = Default_Battle_Float_Pos
     else:
-        data["POS"] = (data["POS"], Default_Ground_Pos)
+        data["POS"] = (data["POS"], Default_Battle_Ground_Pos)
     if "no_battle" in data["Stage Property"] or "no_battle" in character_data["Property"]:
         add_battle_char = Character(self.last_char_game_id,
                                     data | self.character_list[data["ID"]])

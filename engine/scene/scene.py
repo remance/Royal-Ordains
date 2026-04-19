@@ -6,6 +6,7 @@ from pygame.surface import Surface
 class Scene(Sprite):
     image = None
     battle = None
+    camera = None
 
     def __init__(self):
         from engine.game.game import Game
@@ -22,9 +23,8 @@ class Scene(Sprite):
         self.images = {}
         self.full_scene_image = None
         self.current_scene_image = None
-        self.shown_camera_pos = None
-        self.camera_y_shift = None
-        self.camera_left = None
+        self.camera_top_bound = None
+        self.camera_left_bound = None
         self.rect = None
 
         self.alpha = 0
@@ -41,18 +41,18 @@ class Scene(Sprite):
         for scene_index, image in self.data.items():
             self.full_scene_image.blit(self.images[image], self.images[image].get_rect(
                 topleft=((scene_index - 1) * self.images[image].get_width(), 0)))
-        self.current_scene_image = Surface.subsurface(self.full_scene_image, (self.battle.camera_left, 0,
+        self.current_scene_image = Surface.subsurface(self.full_scene_image, (self.battle.camera_left_bound, 0,
                                                                               self.size_width, self.size_height))
 
     def update(self):
-        if self.camera_left != self.battle.camera_left:
-            self.camera_left = self.battle.camera_left
-            self.current_scene_image = Surface.subsurface(self.full_scene_image, (self.camera_left, 0,
+        if self.camera_left_bound != self.camera.camera_left_bound:
+            self.camera_left_bound = self.camera.camera_left_bound
+            self.current_scene_image = Surface.subsurface(self.full_scene_image, (self.camera_left_bound, 0,
                                                                                   self.size_width, self.size_height))
-        if self.camera_y_shift != self.battle.camera_topleft_y_shift:
-            self.camera_y_shift = self.battle.camera_topleft_y_shift
+        if self.camera_top_bound != self.camera.camera_top_bound:
+            self.camera_top_bound = self.camera.camera_top_bound
             self.rect = self.current_scene_image.get_rect(midtop=(self.current_scene_image.get_width() / 2,
-                                                                  self.camera_y_shift))
+                                                                  self.camera_top_bound))
         self.image.blit(self.current_scene_image, self.rect)
 
         if self.fade_start:

@@ -1,9 +1,8 @@
-import psutil
-
 from os import listdir, sep
-from os.path import join, getsize, split, normpath, abspath
+from os.path import join, getsize, split, normpath
 from pathlib import Path
 
+import psutil
 from pygame.transform import smoothscale, flip
 
 from engine.data.data import GameData
@@ -12,7 +11,7 @@ from engine.utils.sprite_caching import load_pickle_with_surfaces
 from engine.utils.text_making import text_render_with_bg
 
 
-class SpriteData(GameData):
+class DataSprite(GameData):
     def __init__(self, character_list, number_font):
         """
         Containing data related to sprite and animation
@@ -40,9 +39,9 @@ class SpriteData(GameData):
             mini_portrait = smoothscale(
                 self.character_portraits[file]["character_ui"], (200 * self.screen_scale[0],
                                                                  200 * self.screen_scale[1]))
-
             self.character_portraits[file]["small"] = {"right": mini_portrait,
                                                        "left": flip(mini_portrait, True, False)}
+
 
             # icon for setup like purchase unit or custom preset army setup
             self.character_portraits[file]["setup_ui"] = mini_portrait.copy()
@@ -58,9 +57,18 @@ class SpriteData(GameData):
                     self.character_portraits[file]["setup_ui"].blit(number_text, number_rect)
 
             mini_portrait = smoothscale(
+                self.character_portraits[file]["character_ui"], (150 * self.screen_scale[0],
+                                                                 150 * self.screen_scale[1]))
+
+            self.character_portraits[file]["tiny"] = {"right": mini_portrait,
+                                                      "left": flip(mini_portrait, True, False)}
+
+            mini_portrait = smoothscale(
                 self.character_portraits[file]["character_ui"], (100 * self.screen_scale[0],
                                                                  100 * self.screen_scale[1]))
-            self.character_portraits[file]["command"] = mini_portrait
+
+            self.character_portraits[file]["mini"] = {"right": mini_portrait,
+                                                      "left": flip(mini_portrait, True, False)}
 
         self.culture_coas = load_images(self.data_dir, screen_scale=self.screen_scale,
                                         subfolder=("ui", "culture_ui"))
@@ -69,6 +77,9 @@ class SpriteData(GameData):
             self.culture_coas[file]["small"] = smoothscale(
                 self.culture_coas[file]["culture_ui"], (200 * self.screen_scale[0],
                                                         200 * self.screen_scale[1]))
+            self.culture_coas[file]["tiny"] = smoothscale(
+                self.culture_coas[file]["culture_ui"], (150 * self.screen_scale[0],
+                                                        150 * self.screen_scale[1]))
 
         self.weather_matter_images = {}
         part_folder = Path(join(self.data_dir, "map", "weather", "matter"))

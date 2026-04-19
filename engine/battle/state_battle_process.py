@@ -34,7 +34,7 @@ def state_battle_process(self):
     dt = self.true_dt * self.game_speed
 
     self.dt = dt  # apply dt with game_speed for calculation
-    self.shown_camera_pos = self.camera_pos.copy()
+    self.shown_camera_center_pos = self.camera_pos.copy()
 
     current_frame = self.camera_pos[0] / self.screen_width
     if current_frame == 0.5:  # at center of first scene
@@ -181,7 +181,8 @@ def state_battle_process(self):
 
                 # give loser's supply to winning team
                 loser_team = Opposite_Team[self.winner_team]
-                remain_supply = self.team_stat[loser_team]["supply_resource"] + self.team_stat[loser_team]["supply_reserve"]
+                remain_supply = self.team_stat[loser_team]["supply_resource"] + self.team_stat[loser_team][
+                    "supply_reserve"]
                 transfer_supply = remain_supply * 0.25
                 self.team_stat[self.winner_team]["supply_resource"] += transfer_supply
 
@@ -206,7 +207,8 @@ def state_battle_process(self):
                     army = [self.team_stat[team]["main_army"]] + self.team_stat[team]["reinforcement_army"]
                     army = [this_army for this_army in army if this_army and this_army.commander_id]
                     if army:
-                        equal_distribute_supply = self.team_stat[team]["supply_resource"] + self.team_stat[team]["supply_reserve"] / len(army)
+                        equal_distribute_supply = self.team_stat[team]["supply_resource"] + self.team_stat[team][
+                            "supply_reserve"] / len(army)
                         for this_army in army:
                             this_army.supply = equal_distribute_supply
 
@@ -227,12 +229,15 @@ def state_battle_process(self):
                     self.change_game_state("result")
                     self.end_delay = 0
 
+        elif self.grand:  # update grand campaign during battle still ongoing
+            # time in battle is slower than time in grand campaign where 1 battle minute is equal to 1 phase instead of 1 second in campaign at normal speed
+            self.grand.state_grand_process(dt / 60)
+
     # update camera
-    self.camera_topleft_x_shift = self.shown_camera_pos[0] - self.camera_w_center
-    self.camera_topleft_y_shift = self.shown_camera_pos[1] - self.camera_center_y
-    self.camera.camera_topleft_x_shift = self.camera_topleft_x_shift
-    self.camera.camera_topleft_y_shift = self.camera_topleft_y_shift
-    self.camera.camera_right_x_shift = self.shown_camera_pos[0] + self.camera_w_center
+    self.camera.camera_left_bound = self.camera_left_bound
+    self.camera.camera_top_bound = self.shown_camera_center_pos[1] - self.camera_center_y
+    self.camera.camera_right_bound = self.shown_camera_center_pos[0] + self.camera_w_center
+    self.camera.camera_bottom_bound = self.shown_camera_center_pos[0] + self.camera_center_y
     self.scene.update()
     self.camera.update(self.battle_camera_object_drawer)
     self.outer_ui_updater.update(dt)

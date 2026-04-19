@@ -4,12 +4,13 @@ from math import radians, cos, sin
 from random import choice, uniform
 
 from pygame import Vector2
-from pygame.sprite import Sprite, collide_mask
 from pygame.mixer import find_channel
+from pygame.sprite import Sprite, collide_mask
 
 import engine.character.character
 from engine.character.apply_status import apply_status
 from engine.constants import *
+from engine.constants import Weak_To_Element
 from engine.effect.adjust_sprite import adjust_sprite, damage_effect_adjust_sprite
 from engine.effect.cal_damage import cal_damage
 from engine.effect.find_random_direction import find_random_direction
@@ -21,7 +22,6 @@ from engine.effect.reach_target import reach_target, showcase_reach_target
 from engine.effect.remain_logic import remain_logic
 from engine.utils.common import calculate_projectile_velocity, clean_object
 from engine.utils.rotation import set_rotate, convert_projectile_degree_angle
-from engine.constants import Weak_To_Element
 
 
 class Effect(Sprite):
@@ -50,7 +50,7 @@ class Effect(Sprite):
     remain_logic = remain_logic
 
     Base_Animation_Frame_Play_Time = Base_Animation_Frame_Play_Time
-    Default_Ground_Pos = Default_Ground_Pos
+    Default_Ground_Pos = Default_Battle_Ground_Pos
 
     def __init__(self, owner: (dict, engine.character.character.BattleCharacter),
                  part_stat: (list, tuple), moveset=None, base_target_pos=None, from_owner=True):
@@ -249,7 +249,7 @@ class Effect(Sprite):
 
         if self.base_target_pos and "no_travel" not in effect_stat_property and effect_stat["Travel Speed"]:
             if "direct" in moveset_property:  # direct shot, not use projectile movement with gravity
-                self.angle = self.set_rotate(self.base_target_pos)
+                self.angle = self.set_rotate(self.base_pos, self.base_target_pos)
                 self.sin_angle = sin(radians(self.angle))
                 self.cos_angle = cos(radians(self.angle))
                 self.direct_shot = True
@@ -553,7 +553,7 @@ class ShowcaseEffect(Effect):
         if self.base_target_pos and "no_travel" not in effect_stat_property and effect_stat["Travel Speed"]:
             target_distance = self.base_target_pos[0] - self.base_pos[0]
             self.travel_distance = target_distance
-            self.angle = self.set_rotate(self.base_target_pos)
+            self.angle = self.set_rotate(self.base_pos, self.base_target_pos)
             self.direct_shot = True
             if self.owner.direction == "left":
                 self.angle *= -1

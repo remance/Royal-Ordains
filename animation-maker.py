@@ -10,11 +10,12 @@ from os.path import join, split, normpath, abspath
 from pathlib import Path
 
 import pygame
-from pygame.transform import smoothscale, rotate, flip as pyflip
 from pygame.mixer import Channel
+from pygame.transform import smoothscale, rotate, flip as pyflip
+
 from engine.battle.battle import Battle
-from engine.data.datalocalisation import Localisation
-from engine.data.datasound import SoundData
+from engine.data.datalocalisation import DataLocalisation
+from engine.data.datasound import DataSound
 from engine.game.game import Game
 from engine.uibattle.uibattle import UIBattle
 from engine.uimenu.uimenu import UIScroll, MenuCursor, NameList, MenuButton, TextPopup, InputUI, InputBox, ListBox
@@ -81,11 +82,11 @@ Game.language = language
 Game.ui_font = csv_read(data_dir, "ui_font.csv", ("ui",), header_key=True)
 Game.font_dir = join(data_dir, "font")
 Game.ui_updater = ui
-sound_effect_pool = SoundData().sound_effect_pool
+sound_effect_pool = DataSound().sound_effect_pool
 Game.game = FakeGame(sound_effect_pool)
 Battle.battle = FakeBattle()
 
-localisation = Localisation()
+localisation = DataLocalisation()
 Game.localisation = localisation
 for item in Game.ui_font:  # add ttf file extension for font data reading.
     Game.ui_font[item] = join(Game.font_dir, Game.ui_font[item]["Font"] + ".ttf")
@@ -1542,16 +1543,17 @@ image = smoothscale(image, (int(image.get_width() * screen_scale[1]),
 text_popup = TextPopup(font_size=24)
 animation_character_button = Button("Ani Char", image, (image.get_width() / 2, image.get_height() / 2),
                                     description=(
-                                    "Select animation character", "Select animation character pool to edit."))
+                                        "Select animation character", "Select animation character pool to edit."))
 new_button = Button("New Ani", image, (image.get_width() * 1.5, image.get_height() / 2),
                     description=("Create new animation", "Create new empty animation with name input."))
 save_button = Button("Save", image, (image.get_width() * 2.5, image.get_height() / 2),
                      description=(
                          "Save all animation", "Save the current state of all animation only for this character."))
 compile_button = Button("Compile", image, (image.get_width() * 3.5, image.get_height() / 2),
-                        description=("Compile this character animations", "Compile this character animation for game used."))
+                        description=(
+                        "Compile this character animations", "Compile this character animation for game used."))
 compile_all_button = Button("Compile A", image, (image.get_width() * 4.5, image.get_height() / 2),
-                        description=("Compile all animations", "Compile all current animations for game used."))
+                            description=("Compile all animations", "Compile all current animations for game used."))
 size_button = Button("Zoom: ", image, (image.get_width() * 5.5, image.get_height() / 2),
                      description=(
                          "Change animation preview room zoom",
@@ -2057,7 +2059,8 @@ while True:
                         popup_list_box.rect.collidepoint(mouse_pos) or popup_list_box.scroll.rect.collidepoint(
                     mouse_pos)):
                     popup_list_box.scroll.current_row = list_scroll(mouse_scroll_up, mouse_scroll_down,
-                                                                    popup_list_box, popup_list_box.scroll.current_row, popup_list_box.namelist,
+                                                                    popup_list_box, popup_list_box.scroll.current_row,
+                                                                    popup_list_box.namelist,
                                                                     popup_namegroup, ui, screen_scale, layer=21)
                 elif anim_prop_list_box.rect.collidepoint(mouse_pos) or anim_prop_list_box.scroll.rect.collidepoint(
                         mouse_pos):
@@ -2104,12 +2107,14 @@ while True:
 
         elif anim_prop_list_box.scroll.event:  # scrolling on list
             if anim_prop_list_box.scroll.current_row is not None:
-                setup_list(NameList, anim_prop_list_box.scroll.current_row, anim_prop_list_box.namelist, anim_prop_namegroup,
+                setup_list(NameList, anim_prop_list_box.scroll.current_row, anim_prop_list_box.namelist,
+                           anim_prop_namegroup,
                            anim_prop_list_box, ui, screen_scale, layer=9, old_list=anim_property_select)
 
         elif frame_prop_list_box.scroll.event:  # scrolling on list
             if frame_prop_list_box.scroll.current_row is not None:
-                setup_list(NameList, frame_prop_list_box.scroll.current_row, frame_prop_list_box.namelist[current_frame],
+                setup_list(NameList, frame_prop_list_box.scroll.current_row,
+                           frame_prop_list_box.namelist[current_frame],
                            frame_prop_namegroup, frame_prop_list_box, ui, screen_scale, layer=9,
                            old_list=frame_property_select[current_frame])
 

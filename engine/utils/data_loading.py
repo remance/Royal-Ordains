@@ -274,21 +274,22 @@ def stat_convert(row, n, i, percent_column=(), list_column=(), tuple_column=(), 
             for item in new_i:
                 if ":" in item:
                     new_i2 = item.split(":")
-                    result_i[new_i2[0]] = new_i2[1]
+                    key = item_conversion(new_i2[0])
+                    result_i[key] = new_i2[1]
                     if "(" in new_i2[1]:  # tuple value
                         new_i2[1] = new_i2[1].replace(")", "").replace("(", "")
                         new_i2[1] = new_i2[1].split(";")
                         for k_index, k in enumerate(new_i2[1]):
                             new_i2[1][k_index] = item_conversion(k)
-                        result_i[new_i2[0]] = tuple(new_i2[1])
+                        result_i[key] = tuple(new_i2[1])
                     elif "{" in new_i2[1]:  # dict value with key=value instead of key:value
                         new_i2[1] = new_i2[1].replace("{", "").replace("}", "")
                         item_list = tuple([item_conversion(item2) for item2 in new_i2[1].split(";")])
-                        result_i[new_i2[0]] = {
+                        result_i[key] = {
                             i3.split("=")[0]: item_conversion(i3.split("=")[1]) if "=" in i3 else True for i3 in
                             item_list}
                     else:
-                        result_i[new_i2[0]] = item_conversion(result_i[new_i2[0]])
+                        result_i[key] = item_conversion(result_i[key])
                 else:
                     if "/" not in item:
                         result_i[item] = True

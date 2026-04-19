@@ -42,7 +42,7 @@ def conduct_troop_call(self):
         if "future_supply" in self.current_info:
             if current_info["total_power_comparison"] * uniform(0.5, 1.1) < (
                     (current_supply + self.current_info["future_supply"]) / sum(
-                    self.current_info["enemy_supply"])) * uniform(0.5, 1.25):
+                self.current_info["enemy_supply"])) * uniform(0.5, 1.25):
                 # higher power with more supply than enemy will make AI likely to reserve supply
                 call_now = False
 
@@ -54,13 +54,16 @@ def conduct_troop_call(self):
                     next(reversed(roulette)) + self.commander_attack_melee_prefer + int(random() * 10)] = "attack_melee"
             if "medium_melee" in check_troop_class or "heavy_melee" in check_troop_class or "heavy_range" in check_troop_class:
                 roulette[
-                    next(reversed(roulette)) + self.commander_defence_melee_prefer + int(random() * 10)] = "defend_melee"
+                    next(reversed(roulette)) + self.commander_defence_melee_prefer + int(
+                        random() * 10)] = "defend_melee"
             if "medium_cavalry" in check_troop_class or "heavy_cavalry" in check_troop_class:
                 roulette[
-                    next(reversed(roulette)) + self.commander_cavalry_melee_prefer + int(random() * 10)] = "melee_cavalry"
+                    next(reversed(roulette)) + self.commander_cavalry_melee_prefer + int(
+                        random() * 10)] = "melee_cavalry"
             if "light_cavalry" in check_troop_class:
                 roulette[
-                    next(reversed(roulette)) + self.commander_cavalry_range_prefer + int(random() * 10)] = "range_cavalry"
+                    next(reversed(roulette)) + self.commander_cavalry_range_prefer + int(
+                        random() * 10)] = "range_cavalry"
             if "light_range" in check_troop_class or "medium_range":
                 roulette[next(reversed(roulette)) + self.commander_range_prefer + int(random() * 10)] = "attack_range"
             if "siege" in check_troop_class or "support" in check_troop_class:

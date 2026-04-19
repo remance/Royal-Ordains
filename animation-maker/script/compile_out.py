@@ -63,6 +63,7 @@ def compile_out_data(data_dir, animation_dir):
 
 if __name__ == "__main__":
     import pygame
+
     current_dir = Path.cwd().parents[0]
     main_dir = current_dir.parents[0]
     data_dir = join(main_dir, "data")

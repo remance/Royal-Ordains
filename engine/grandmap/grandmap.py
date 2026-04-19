@@ -1,4 +1,3 @@
-from pygame import SRCALPHA
 from pygame.sprite import Sprite
 from pygame.surface import Surface
 
@@ -22,7 +21,6 @@ class GrandMap(Sprite):
         self.true_map_image = None
         self.full_shown_map_image = None
         self.current_show_map_image = None
-        self.shown_camera_pos = None
         self.camera_y_shift = None
         self.camera_pos = None
         self.rect = None
@@ -42,8 +40,8 @@ class GrandMap(Sprite):
                 self.full_shown_map_image.get_height() - self.size_height)
 
     def update(self):
-        if self.camera_pos != self.grand.shown_camera_pos:
-            self.camera_pos = self.grand.shown_camera_pos.copy()
+        if self.camera_pos != self.grand.shown_camera_topleft_pos:
+            self.camera_pos = self.grand.shown_camera_topleft_pos.copy()
             self.current_show_map_image = Surface.subsurface(self.full_shown_map_image,
                                                              (self.camera_pos[0], self.camera_pos[1],
                                                               self.size_width, self.size_height))
@@ -51,29 +49,3 @@ class GrandMap(Sprite):
         #     self.camera_y_shift = self.grand.camera_y_shift
         self.rect = self.current_show_map_image.get_rect(midtop=(self.current_show_map_image.get_width() / 2, 0))
         self.image.blit(self.current_show_map_image, self.rect)
-        if self.rect.collidepoint(self.grand.cursor.pos):
-            if self.grand.cursor.is_select_just_up:
-                region_colour = tuple(self.true_map_image.get_at((int(self.grand.base_cursor_pos[0]),
-                                                                  int(self.grand.base_cursor_pos[1]))))[:3]
-                if region_colour in self.grand.region_by_colour_list:
-                    controller = self.grand.current_campaign_state["region_control"][region_colour]
-                    self.grand.text_popup.popup(self.grand.cursor.rect.bottomright,
-                                                (self.grand.localisation.grab_text(("ui", "info_header_region")) +
-                                                 self.grand.localisation.grab_text(("region",
-                                                                                    self.region_by_colour_list[
-                                                                                        region_colour]["ID"], "Name")),
-                                                 self.grand.localisation.grab_text(("ui", "info_header_control")) +
-                                                 self.grand.localisation.grab_text(("faction", controller, "Name")),
-                                                 self.grand.localisation.grab_text(("ui", "info_header_income")),
-                                                 self.grand.localisation.grab_text(("ui", "info_header_supply")),
-                                                 self.grand.localisation.grab_text(("ui", "info_header_happiness"))),
-                                                width_text_wrapper=800 * self.screen_scale[0]
-                                                )
-                    self.grand.outer_ui_updater.add(self.grand.text_popup)
-                else:
-                    self.grand.outer_ui_updater.remove(self.grand.text_popup)
-            # elif self.grand.cursor.is_alt_select_just_up:
-            #     region_colour = tuple(self.true_map_image.get_at((int(self.grand.base_cursor_pos[0]),
-            #                                                       int(self.grand.base_cursor_pos[1]))))[:3]
-            #     if region_colour in self.grand.regions:
-            #         self.grand.outer_ui_updater.add(self.grand.region_manage_menu)

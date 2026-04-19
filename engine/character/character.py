@@ -127,14 +127,14 @@ class Character(sprite.Sprite):
     die_command_action = {"name": "Die", "uninterruptible": True,
                           "movable": True, "forced move": True, "hold": True, "die": True}
     die_moveset_command_action = {"name": "Die", "uninterruptible": True, "moveset": True,
-                          "movable": True, "forced move": True, "hold": True, "die": True}
+                                  "movable": True, "forced move": True, "hold": True, "die": True}
     spirit_command_action = {"name": "Spirit", "uninterruptible": True,
                              "movable": True, "forced move": True, "hold": True, "spirit": True}
 
     # static variable
     Base_Animation_Frame_Play_Time = Base_Animation_Frame_Play_Time
-    Default_Air_Pos = Default_Air_Pos
-    Default_Ground_Pos = Default_Ground_Pos
+    Default_Battle_Air_Pos = Default_Battle_Air_Pos
+    Default_Battle_Ground_Pos = Default_Battle_Ground_Pos
     Character_Gravity = Character_Gravity
 
     def __init__(self, game_id: int, stat: dict, additional_layer: (int, str) = 0, is_commander: bool = False) -> None:
@@ -214,7 +214,7 @@ class Character(sprite.Sprite):
         self.true_commander_order = ()
         self.base_pos = Vector2(stat["POS"][0],
                                 stat["POS"][1])  # true position of character in battle
-        self.base_ground_pos = self.Default_Ground_Pos
+        self.base_ground_pos = self.Default_Battle_Ground_Pos
         if "Ground Y POS" in stat and stat["Ground Y POS"]:  # replace ground pos based on data in stage
             self.base_ground_pos = stat["Ground Y POS"]
 
@@ -594,7 +594,7 @@ class BattleCharacter(Character):
 
         if stat["ID"] in self.battle.character_portraits:
             self.icon = self.battle.character_portraits[stat["ID"]]["small"]
-            self.command_icon = self.battle.character_portraits[stat["ID"]]["command"]
+            self.command_icon = self.battle.character_portraits[stat["ID"]]["mini"]["right"]
 
     def update(self, dt: float):
         """Character battle update, run when cutscene not playing"""

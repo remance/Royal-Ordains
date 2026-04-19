@@ -20,10 +20,9 @@ def add_comma_number(number):
 
 
 def number_to_minus_or_plus(number):
-    """Number should not be 0"""
-    if number > 0:
+    if number >= 0:
         return "+"
-    else:  # assuming number is not 0
+    else:
         return "-"
 
 

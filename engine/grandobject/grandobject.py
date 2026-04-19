@@ -14,11 +14,11 @@ class GrandObject(sprite.Sprite):
     grand = None
     screen_scale = None
 
-    def __init__(self, sprite_id, pos, angle=0, animation_frame_play_time=0.15):
-        if type(pos) is str:
-            self.base_pos = Vector2([float(item) for item in pos.split(",")])
+    def __init__(self, sprite_id, base_pos, angle=0, animation_frame_play_time=0.15):
+        if type(base_pos) is str:
+            self.base_pos = Vector2([float(item) for item in base_pos.split(",")])
         else:
-            self.base_pos = Vector2([float(item) for item in pos])
+            self.base_pos = Vector2([float(item) for item in base_pos])
 
         self.pos = Vector2((self.base_pos[0] * self.grand.map_shown_to_actual_scale_width,
                             self.base_pos[1] * self.grand.map_shown_to_actual_scale_height))
@@ -48,9 +48,7 @@ class GrandObject(sprite.Sprite):
 
     def change_state(self, new_state):
         self.active = new_state
-        if self.active:
-            self.active = False
+        if not new_state:
             self.current_animation = self.animation_pool["destroyed"]
         else:
-            self.active = True
             self.current_animation = self.animation_pool["base"]

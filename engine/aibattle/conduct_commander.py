@@ -60,7 +60,8 @@ def conduct_commander(self):
                 grid_range = find_grid_range(commander_base_posx, strategy_stat["Activate Range"] +
                                              strategy_stat["Range"], self.last_grid)
                 character_in_range += [ally.base_pos[0] for grid in grid_range for ally in
-                                       self.ground_ally_collision_grids[-1][grid] if ally in current_info["can_clarity"]]
+                                       self.ground_ally_collision_grids[-1][grid] if
+                                       ally in current_info["can_clarity"]]
 
             if len(character_in_range) >= strategy_range / uniform(50, 200):
                 # consider using strategy if possible number of characters is worth using based on range

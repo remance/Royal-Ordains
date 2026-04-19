@@ -4,7 +4,7 @@ import os
 from engine.utils.data_loading import csv_read, lore_csv_read
 
 
-class Localisation:
+class DataLocalisation:
     def __init__(self, debug=False):
         from engine.game.game import Game
         self.game = Game.game
@@ -87,14 +87,12 @@ class Localisation:
             except FileNotFoundError:
                 pass
 
-    def grab_text(self, key, alternative_text_data=None):
+    def grab_text(self, key):
         """
         Find localisation of provided object key name list,
         Return: Translated text if found in provided language, if not then English text, if not found anywhere then return key
         """
         text_data = self.text
-        if alternative_text_data:
-            text_data = alternative_text_data
 
         try:
             if self.language in text_data:  # in case config use language that not exist in data

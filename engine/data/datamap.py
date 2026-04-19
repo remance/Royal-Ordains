@@ -5,9 +5,10 @@ from pathlib import Path
 
 from engine.data.data import GameData
 from engine.utils.data_loading import stat_convert, load_image, csv_read
+from engine.utils.rotation import set_rotate
 
 
-class MapData(GameData):
+class DataMap(GameData):
     def __init__(self):
         """
         For keeping all data related to battle map.
@@ -36,6 +37,7 @@ class MapData(GameData):
         self.preset_map_data = {}
         self.region_list = {}
         self.route_list = {}
+        self.route_dot_draw_array = {}
         self.start_army_list = {}
         self.faction_list = {}
         self.region_by_colour_list = {}
@@ -47,14 +49,14 @@ class MapData(GameData):
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
-            hex2colour_column = ("Colour",)
-            hex2colour_column = [index for index, item in enumerate(header) if item in hex2colour_column]
-            tuple_column = ("Settlement POS",)
-            tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
             list_column = ["Build Slot " + str(index) for index in range(1, 11)]
             list_column = [index for index, item in enumerate(header) if item in list_column]
+            tuple_column = ("Settlement POS",)
+            tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
             dict_column = ("Object", "Route")
             dict_column = [index for index, item in enumerate(header) if item in dict_column]
+            hex2colour_column = ("Colour",)
+            hex2colour_column = [index for index, item in enumerate(header) if item in hex2colour_column]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
                     row = stat_convert(row, n, i, list_column=list_column, tuple_column=tuple_column,
@@ -68,16 +70,34 @@ class MapData(GameData):
         edit_file.close()
 
         self.route_list = {}
+        self.route_dot_draw_array = {}
         with open(os.path.join(self.data_dir, "map", "world", campaign, "route.csv"),
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
-            tuple_column = ("Route", "Dots")
+            list_column = ["Dots"]
+            list_column = [index for index, item in enumerate(header) if item in list_column]
+            tuple_column = ("Route", )
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
-                    row = stat_convert(row, n, i, tuple_column=tuple_column)
+                    row = stat_convert(row, n, i, list_column=list_column, tuple_column=tuple_column)
                 self.route_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
+                dot_route = self.route_list[row[0]]["Dots"]
+                for index, route in enumerate(dot_route):
+                    if route[0] not in self.route_dot_draw_array:
+                        self.route_dot_draw_array[route[0]] = {}
+                    if index + 1 != len(dot_route):
+                        self.route_dot_draw_array[route[0]][route[1]] = set_rotate(route, dot_route[index + 1])
+                    else:  # next destination is settlement use settlement pos to calculate angle instead
+                        self.route_dot_draw_array[route[0]][route[1]] = set_rotate(route, self.region_list[row[0][1]]["Settlement POS"])
+                    self.route_dot_draw_array[route[0]] = dict(sorted(self.route_dot_draw_array[route[0]].items()))
+
+                # add settlement pos to route after dots draw since dots do not include settlement
+                self.route_list[row[0]]["Dots"].insert(0, self.region_list[row[0][0]]["Settlement POS"])
+                self.route_list[row[0]]["Dots"].append(self.region_list[row[0][1]]["Settlement POS"])
+                self.route_list[row[0]]["Dots"] = tuple(self.route_list[row[0]]["Dots"])
+        self.route_dot_draw_array = dict(sorted(self.route_dot_draw_array.items()))
         edit_file.close()
 
         self.world_map = load_image(self.data_dir, (1, 1), "world.png", ("map", "world", campaign), no_alpha=True)
@@ -89,7 +109,7 @@ class MapData(GameData):
             header = rd[0]
             hex2colour_column = ("Colour",)
             hex2colour_column = [index for index, item in enumerate(header) if item in hex2colour_column]
-            dict_column = ("Faction Relation", )
+            dict_column = ("Faction Relation",)
             dict_column = [index for index, item in enumerate(header) if item in dict_column]
             tuple_column = ("Showcase Leader", "Showcase Troop")
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]

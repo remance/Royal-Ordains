@@ -1,6 +1,6 @@
 from engine.battle.setup_team_characters import add_neutral_character
 from engine.character.character import BattleCharacter
-from engine.constants import Default_Ground_Pos
+from engine.constants import Default_Battle_Ground_Pos
 
 
 def check_reinforcement(self):
@@ -29,7 +29,8 @@ def check_reinforcement(self):
                                     #      0, character_stat["Arrive Per Call"]])
                                     data = {"Team": condition, "ID": character}
                                     if "POS" not in data:
-                                        data["POS"] = (self.team_stat[condition]["start_pos"], Default_Ground_Pos)
+                                        data["POS"] = (
+                                        self.team_stat[condition]["start_pos"], Default_Battle_Ground_Pos)
 
                                     add_battle_char = BattleCharacter(self.last_char_game_id,
                                                                       data | self.character_list[character],

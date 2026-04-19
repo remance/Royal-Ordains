@@ -1,9 +1,9 @@
 from functools import lru_cache
 from operator import itemgetter
 
-from engine.constants import Default_Screen_Width, Collision_Grid_X_Per_Scene
+from engine.constants import Default_Screen_Width, Collision_Grid_X_Per_Battle_Scene
 
-grid_width = Default_Screen_Width / Collision_Grid_X_Per_Scene
+grid_width = Default_Screen_Width / Collision_Grid_X_Per_Battle_Scene
 
 
 @lru_cache(maxsize=10000)
@@ -112,6 +112,7 @@ def fighter_ai_prepare(self):
     """Check for both ground and air enemy"""
     grid_range = base_ai_prepare(self)
     near_enemy = [enemy for grid in grid_range for enemy in self.ground_enemy_collision_grids[-1][grid] if
-                  not enemy.invisible and not enemy.no_target] + [enemy for grid in grid_range for enemy in self.air_enemy_collision_grids[-1][grid] if
-                  not enemy.invisible and not enemy.no_target]
+                  not enemy.invisible and not enemy.no_target] + [enemy for grid in grid_range for enemy in
+                                                                  self.air_enemy_collision_grids[-1][grid] if
+                                                                  not enemy.invisible and not enemy.no_target]
     self.get_near_enemy(near_enemy)

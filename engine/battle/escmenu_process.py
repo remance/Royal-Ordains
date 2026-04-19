@@ -1,5 +1,3 @@
-from pygame.mixer import Channel
-
 from engine.uimenu.uimenu import ListAdapter
 from engine.utils.common import edit_config
 

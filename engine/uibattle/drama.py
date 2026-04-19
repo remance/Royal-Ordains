@@ -1,5 +1,5 @@
-from random import choice
 from datetime import datetime
+from random import choice
 
 from pygame import Surface, SRCALPHA
 

@@ -26,7 +26,7 @@ def move_logic(self, dt, done):
             move *= self.speed * dt
             new_pos = self.base_pos + move
             if not self.travel_spin:
-                self.angle = self.set_rotate(new_pos)
+                self.angle = self.set_rotate(self.base_pos, new_pos)
             else:  # spin while travel instead of angle to front direction
                 self.angle += (dt * 1000)
                 if self.angle >= 360:
@@ -41,8 +41,10 @@ def move_logic(self, dt, done):
                     self.travel_distance = 0
 
             if not self.random_move and (not self.travel_distance or
-                    new_pos[0] <= self.effect_base_stage_start or new_pos[0] > self.effect_base_stage_end or
-                    (not self.ignore_ground and new_pos[1] >= self.base_ground_pos) or new_pos[1] < -10000):
+                                         new_pos[0] <= self.effect_base_stage_start or new_pos[
+                                             0] > self.effect_base_stage_end or
+                                         (not self.ignore_ground and new_pos[1] >= self.base_ground_pos) or new_pos[
+                                             1] < -10000):
                 # pass outside of map or no longer move
                 if new_pos[1] >= self.base_ground_pos:
                     # reach ground

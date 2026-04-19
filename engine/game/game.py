@@ -6,22 +6,22 @@ from copy import deepcopy
 
 import pygame
 from pygame import sprite, display, mouse
+from pygame.event import get as get_event, clear as clear_event
 from pygame.font import Font
 from pygame.locals import *
 from pygame.mixer import Sound, Channel
-from pygame.event import get as get_event, clear as clear_event
 
 from engine.army.army import Army
 from engine.battle.battle import Battle
 from engine.battleobject.battleobject import StageObject
 from engine.character.character import Character, BattleCharacter, ShowcaseCharacter, SubShowcaseCharacter
 from engine.constants import *
-from engine.data.datalocalisation import Localisation
-from engine.data.datamap import MapData
-from engine.data.datasave import SaveData
-from engine.data.datasound import SoundData
-from engine.data.datasprite import SpriteData
-from engine.data.datastat import CharacterData
+from engine.data.datalocalisation import DataLocalisation
+from engine.data.datamap import DataMap
+from engine.data.datasave import DataSave
+from engine.data.datasound import DataSound
+from engine.data.datasprite import DataSprite
+from engine.data.datastat import DataStat
 from engine.effect.effect import Effect, ShowcaseEffect
 from engine.game.activate_input_popup import activate_input_popup
 from engine.game.assign_key import assign_key
@@ -39,15 +39,14 @@ from engine.game.make_option_menu import make_option_menu
 from engine.game.menu_custom_preset import menu_custom_preset
 from engine.game.menu_custom_setup import menu_custom_setup
 from engine.game.menu_grand_setup import menu_grand_setup
+from engine.game.menu_keybind import menu_keybind
 from engine.game.menu_lorebook import menu_lorebook
 from engine.game.menu_lorebook_beast import menu_lorebook_beast
-from engine.game.menu_keybind import menu_keybind
 from engine.game.menu_main import menu_main
 from engine.game.menu_mission_setup import menu_mission_setup
 from engine.game.menu_option import menu_option
 from engine.game.start_battle import start_battle
 from engine.grand.grand import Grand
-from engine.grandobject.grandobject import GrandObject
 from engine.menuobject.menuobject import MenuActor, MenuRotate, StaticImage
 from engine.uibattle.uibattle import (Profiler, FPSCount, CharacterSpeechBox)
 from engine.uimenu.uimenu import (MenuCursor, BoxUI, BrownMenuButton, MenuButton, UIScroll,
@@ -212,7 +211,7 @@ class Game:
 
         self.clock = pygame.time.Clock()  # set get clock
 
-        self.save_data = SaveData()
+        self.save_data = DataSave()
         self.before_save_preset_army_setup = deepcopy(self.save_data.custom_army_preset_save)
 
         self.loading = load_image(self.data_dir, self.screen_scale, "loading.png", ("ui", "mainmenu_ui"))
@@ -232,9 +231,10 @@ class Game:
         # ui font
         self.loading_screen_lore_font = Font(self.ui_font["main_button"], int(60 * self.screen_scale_height))
 
+        self.fps_counter_font = Font(self.ui_font["main_button"], int(28 * self.screen_scale_height))
         self.generic_ui_font = Font(self.ui_font["main_button"], int(30 * self.screen_scale_height))
-        self.fps_counter_font = Font(self.ui_font["main_button"], int(40 * self.screen_scale_height))
-        self.large_text_font = Font(self.ui_font["main_button"], int(50 * self.screen_scale_height))
+        self.medium_generic_ui_font = Font(self.ui_font["main_button"], int(40 * self.screen_scale_height))
+        self.large_generic_ui_font = Font(self.ui_font["main_button"], int(50 * self.screen_scale_height))
         self.battle_timer_font = Font(self.ui_font["main_button"], int(54 * self.screen_scale_height))
         self.screen_fade_font = Font(self.ui_font["manuscript_font"], int(100 * self.screen_scale_height))
         self.character_indicator_font = Font(self.ui_font["manuscript_font"], int(50 * self.screen_scale_height))
@@ -269,12 +269,12 @@ class Game:
         # SubsectionName.containers = self.ui_updater, self.ui_drawer, self.battle_ui_updater, self.battle_ui_drawer
 
         # Load sound effect
-        self.sound_data = SoundData()
+        self.sound_data = DataSound()
         self.sound_effect_pool = self.sound_data.sound_effect_pool
         self.music_pool = self.sound_data.music_pool
         self.ambient_pool = self.sound_data.ambient_pool
         self.weather_ambient_pool = self.sound_data.weather_ambient_pool
-        
+
         # Music player
         pygame.mixer.set_num_channels(1000)
         self.music_channel = Channel(0)
@@ -291,7 +291,7 @@ class Game:
         self.game_intro(False)  # run intro
 
         # Load game localisation data
-        self.localisation = Localisation()
+        self.localisation = DataLocalisation()
         Game.localisation = self.localisation
 
         # Create game cursor, make sure it is the first object in ui to be created, so it is always update first
@@ -299,9 +299,9 @@ class Game:
         self.add_to_ui_updater(self.cursor)
 
         # Battle related data
-        self.character_data = CharacterData()
+        self.character_data = DataStat()
         self.character_list = self.character_data.character_list
-        self.map_data = MapData()
+        self.map_data = DataMap()
 
         self.preset_map_data = self.map_data.preset_map_data
 
@@ -317,7 +317,7 @@ class Game:
         Effect.character_list = self.character_list
         Effect.effect_list = self.character_data.effect_list
 
-        self.sprite_data = SpriteData(self.character_list, self.character_indicator_font)
+        self.sprite_data = DataSprite(self.character_list, self.character_indicator_font)
         self.character_animation_data = self.sprite_data.character_animation_data  # character animation data pool
         self.character_portraits = self.sprite_data.character_portraits
         self.stage_object_animation_pool = self.sprite_data.stage_object_animation_pool
@@ -358,7 +358,7 @@ class Game:
         self.custom_battle_button = BrownMenuButton((.15, 0.5), (0.2, -1.5), key_name="button_custom_battle",
                                                     parent=main_menu_buttons_box)
         self.lorebook_button = BrownMenuButton((.15, 0.5), (0.6, -1.5), key_name="button_lorebook",
-                                                    parent=main_menu_buttons_box)
+                                               parent=main_menu_buttons_box)
         self.option_button = BrownMenuButton((.15, 0.5), (-0.25, 0), key_name="button_game_option",
                                              parent=main_menu_buttons_box)
         self.quit_button = BrownMenuButton((.15, 0.5), (0.25, 0), key_name="button_game_quit",
@@ -432,8 +432,8 @@ class Game:
         self.custom_stage_list = ("Stage_custom1", "Stage_custom2", "Stage_custom3", "Stage_custom4", "Stage_custom5")
         self.custom_stage_bar = ListUI(pivot=(-0.55, -0.85), origin=(-1, -1), size=(0.15, 0.25),
                                        items=GenericListAdapter(
-                                         [(-0, self.localisation.grab_text(("ui", item))) for item in
-                                          self.custom_stage_list]),
+                                           [(-0, self.localisation.grab_text(("ui", item))) for item in
+                                            self.custom_stage_list]),
                                        parent=self.screen, item_size=8, layer=10000)
 
         self.custom_battle_weather_strength_button = MenuButton(
@@ -474,8 +474,9 @@ class Game:
                                                   "player.png", ("ui", "mainmenu_ui")),
                              "computer": load_image(self.game.data_dir, self.screen_scale,
                                                     "computer.png", ("ui", "mainmenu_ui"))}
-        self.custom_battle_team_setup = {1: CustomTeamSetupUI(1, (self.screen_width * 0.25, self.screen_height * 0.435)),
-                                         2: CustomTeamSetupUI(2, (self.screen_width * 0.75, self.screen_height * 0.435))}
+        self.custom_battle_team_setup = {
+            1: CustomTeamSetupUI(1, (self.screen_width * 0.25, self.screen_height * 0.435)),
+            2: CustomTeamSetupUI(2, (self.screen_width * 0.75, self.screen_height * 0.435))}
 
         self.custom_team_army_buttons = {1: [], 2: []}
         self.custom_team_army_button_bars = {1: [], 2: []}
@@ -556,11 +557,11 @@ class Game:
         self.grand_setup_start_button = BrownMenuButton((.15, 0.5), (-0.6, 0), key_name="button_start",
                                                         parent=main_menu_buttons_box)
         self.grand_faction_selector = FactionSelector(3800, (self.screen_width / 2, 0))
-        self.grand_mini_map = GrandMiniMap(self.grand_faction_selector.rect.midbottom, (2000, 1200), "setup")
+        self.grand_setup_mini_map = GrandMiniMap(self.grand_faction_selector.rect.midbottom, (2000, 1200), "setup")
         self.grand_faction_detail = GrandFactionDetail()
 
         self.grand_faction_showcase = GrandFactionShowCase()
-        self.grand_menu_uis = (self.setup_back_button, self.grand_mini_map,
+        self.grand_menu_uis = (self.setup_back_button, self.grand_setup_mini_map,
                                self.grand_faction_detail, self.grand_faction_showcase,
                                self.grand_setup_start_button, self.grand_faction_selector)
 
@@ -597,13 +598,14 @@ class Game:
                                                     key_name="button_back", parent=main_menu_buttons_box)
         self.lorebook_faction_selector = FactionSelector(3800, (self.screen_width / 2, 0),
                                                          include_free=True, use_culture=True)
-        self.lorebook_showcase_character_selector = CharacterSelector((self.screen_width * 0.17, self.screen_height * 0.15))
+        self.lorebook_showcase_character_selector = CharacterSelector(
+            (self.screen_width * 0.17, self.screen_height * 0.15))
         self.lorebook_showcase_character_selector_scroll = UIScroll(self.lorebook_showcase_character_selector,
                                                                     self.lorebook_showcase_character_selector.rect.topright)
 
         self.lorebook_showcase_box = StaticImage((self.screen_width * 0.595, self.screen_height * 0.4),
                                                  load_image(self.game.data_dir, self.screen_scale,
-                                                   "showcase_box.png", ("ui", "mainmenu_ui")), 0)
+                                                            "showcase_box.png", ("ui", "mainmenu_ui")), 0)
         self.remove_from_ui_updater(self.lorebook_showcase_box)
 
         self.sprite_data.load_character_animation((Default_Showcase_Character,))
@@ -614,10 +616,13 @@ class Game:
                     animation_list.append(anim)
         animation_list = sorted(animation_list)
         self.lorebook_showcase_animation_list_box = ListUI(pivot=(0.7, -0.7), origin=(-1, -1), size=(0.15, 0.5),
-                                                           items=GenericListAdapter([[0, key] for key in animation_list if key != "Default"]),
+                                                           items=GenericListAdapter(
+                                                               [[0, key] for key in animation_list if
+                                                                key != "Default"]),
                                                            parent=self.screen, item_size=20)
         self.lorebook_showcase_character = ShowcaseCharacter(0, {"ID": Default_Showcase_Character,
-                                                                 "POS": Default_Showcase_Character_POS, "direction": "right"} |
+                                                                 "POS": Default_Showcase_Character_POS,
+                                                                 "direction": "right"} |
                                                              self.character_list[Default_Showcase_Character])
         self.lorebook_character_description_showcase = CharacterDescriptionShowCase()
         self.lorebook_character_moveset_showcase = CharacterMovesetShowCase()
@@ -625,7 +630,7 @@ class Game:
         self.lorebook_menu_uis = (self.lorebook_showcase_character_selector,
                                   self.lorebook_showcase_character_selector_scroll, self.lorebook_showcase_box,
                                   self.lorebook_showcase_animation_list_box, self.lorebook_back_button,
-                                  self.lorebook_faction_selector,  self.lorebook_character_description_showcase,
+                                  self.lorebook_faction_selector, self.lorebook_character_description_showcase,
                                   self.lorebook_character_moveset_showcase,
                                   self.all_showcase_characters, self.all_showcase_effects)
 
@@ -658,7 +663,7 @@ class Game:
                                    "d8_1_actor" in item], 1,
                                   animation_frame_play_time=0.1)
         self.d8_back = StaticImage((1670 * self.screen_scale_width, 1040 * self.screen_scale_height),
-                              self.background_image["d8_1_back"], 0)
+                                   self.background_image["d8_1_back"], 0)
 
         self.main_menu_actor = (self.o2, self.d8, self.d8_back, self.o2_actor, self.y3_actor,
                                 self.l5_actor, self.d8_actor)

@@ -10,7 +10,7 @@ empty_main_save = {"playtime": 0, "unlock": {"faction": [], "timeline": []},
                    "new": {"faction": [], "timeline": []}}
 
 
-class SaveData(GameData):
+class DataSave(GameData):
     def __init__(self):
         """
         For keeping all data related to player character save.

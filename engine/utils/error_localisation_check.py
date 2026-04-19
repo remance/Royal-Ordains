@@ -1,14 +1,12 @@
-import csv
 import os
-from pathlib import Path
 
 import pygame
 
-from engine.data.datalocalisation import Localisation
-from engine.data.datamap import MapData
+from engine.data.datalocalisation import DataLocalisation
+from engine.data.datamap import DataMap
+from engine.data.datastat import DataStat
 from engine.game.game import Game
 from engine.utils.data_loading import csv_read
-from engine.data.datastat import CharacterData
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 main_dir = "\\".join(main_dir.split("\\")[:-2])
@@ -42,10 +40,10 @@ Game.ui_font = csv_read(data_dir, "ui_font.csv", ("ui",), header_key=True)
 Game.font_dir = os.path.join(data_dir, "font")
 Game.ui_updater = ui
 
-character_data = CharacterData()
-localisation = Localisation()
+character_data = DataStat()
+localisation = DataLocalisation()
 Game.localisation = localisation
-battle_map_data = MapData()
+battle_map_data = DataMap()
 
 
 def event_localisation_check(language):

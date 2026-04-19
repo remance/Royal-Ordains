@@ -1,6 +1,6 @@
-from engine.constants import Collision_Grid_Y_Per_Scene
+from engine.constants import Collision_Grid_Y_Per_Battle_Scene
 
-max_grid_y_range = tuple(range(Collision_Grid_Y_Per_Scene + 1))
+max_grid_y_range = tuple(range(Collision_Grid_Y_Per_Battle_Scene + 1))
 
 
 def reset_sprite(self):
@@ -26,9 +26,9 @@ def battle_reset_sprite(self):
 
     grid_top = int(rect.topleft[1] / self.collision_grid_height)
     grid_bottom = int(rect.bottomleft[1] / self.collision_grid_height) + 1
-    if grid_top < Collision_Grid_Y_Per_Scene:
-        if grid_bottom > Collision_Grid_Y_Per_Scene:
-            grid_bottom = Collision_Grid_Y_Per_Scene
+    if grid_top < Collision_Grid_Y_Per_Battle_Scene:
+        if grid_bottom > Collision_Grid_Y_Per_Battle_Scene:
+            grid_bottom = Collision_Grid_Y_Per_Battle_Scene
         if grid_top < 0:
             grid_top = 0
     else:  # character that somehow exists lower than bottom of the screen, ignored for collision

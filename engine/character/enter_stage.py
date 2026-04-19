@@ -25,9 +25,9 @@ def delayed_enter_stage(self, dt):
         self.active = True
         if self.character_type == "air":
             self.invisible = False
-            self.base_pos = Vector2(self.start_pos, self.Default_Air_Pos)
+            self.base_pos = Vector2(self.start_pos, self.Default_Battle_Air_Pos)
         else:
-            self.base_pos = Vector2(self.start_pos, self.Default_Ground_Pos)
+            self.base_pos = Vector2(self.start_pos, self.Default_Battle_Ground_Pos)
         battle_character_enter_stage(self)
 
 

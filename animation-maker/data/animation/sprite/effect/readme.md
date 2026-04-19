@@ -1,1 +1,2 @@
-This folder keep all texture image of special effect such as arrow, artillery, magic attack and some other effects. This folder does not contain matter effect sprites for weather (see data/map/weather).
+This folder keep all texture image of special effect such as arrow, artillery, magic attack and some other effects. This
+folder does not contain matter effect sprites for weather (see data/map/weather).
