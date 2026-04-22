@@ -19,11 +19,13 @@ def add_comma_number(number):
     return "{:,}".format(number)
 
 
-def number_to_minus_or_plus(number):
-    if number >= 0:
-        return "+"
-    else:
-        return "-"
+def add_plus_to_number(number):
+    number_text = number
+    if type(number_text) is str and "," in number_text:
+        number_text = number_text.replace(",", "")
+    if float(number_text) >= 0:
+        return "+" + str(number)
+    return str(number)
 
 
 def sort_list_dir_with_str(dir_list, str_list):

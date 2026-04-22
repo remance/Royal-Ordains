@@ -12,7 +12,7 @@ from engine.utils.text_making import text_render_with_bg
 
 
 class DataSprite(GameData):
-    def __init__(self, character_list, number_font):
+    def __init__(self, character_list):
         """
         Containing data related to sprite and animation
         """
@@ -24,6 +24,7 @@ class DataSprite(GameData):
         self.grand_actor_animation_pool = {}
         self.character_portraits = {}
         self.strategy_icons = {}
+        self.grand_ui_icons = {}
         self.effect_animation_pool = {}
         # self.effect_animation_pool = load_pickle_with_surfaces(
         #     join(self.data_dir, "animation", "effect_animation.xz"),
@@ -31,6 +32,8 @@ class DataSprite(GameData):
 
         self.strategy_icons = load_images(self.data_dir, screen_scale=self.screen_scale,
                                           subfolder=("ui", "strategy_ui"))
+        self.grand_ui_icons = load_images(self.data_dir, screen_scale=self.screen_scale,
+                                          subfolder=("ui", "grand_ui"))
         self.character_portraits = load_images(self.data_dir, screen_scale=self.screen_scale,
                                                subfolder=("ui", "character_ui"))
 
@@ -42,7 +45,7 @@ class DataSprite(GameData):
             self.character_portraits[file]["small"] = {"right": mini_portrait,
                                                        "left": flip(mini_portrait, True, False)}
 
-
+            number_font = self.game.character_number_font
             # icon for setup like purchase unit or custom preset army setup
             self.character_portraits[file]["setup_ui"] = mini_portrait.copy()
             if file in character_list:

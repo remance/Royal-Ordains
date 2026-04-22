@@ -20,15 +20,12 @@ class GrandActor(sprite.Sprite):
     grand = None
     faction_circles = {}
 
-    def __init__(self, sprite_id, army, faction, base_pos):
-        if type(base_pos) is str:
-            self.base_pos = Vector2([float(item) for item in base_pos.split(",")])
-        else:
-            self.base_pos = Vector2([float(item) for item in base_pos])
-        self.pos = Vector2(army.pos)
-        self._layer = 100 + (self.pos[1] * 1000000)
+    def __init__(self, sprite_id, army, faction):
+        self.army_pos = Vector2(army.base_pos)
+        self._layer = 100 + (self.army_pos[1] * 1000000)
         sprite.Sprite.__init__(self, self.containers)
         self.army = army
+        self.grand_faction_actor_circle = None
         army.commander_actor = self
         self.faction = faction
         self.max_show_frame = 0
@@ -47,20 +44,27 @@ class GrandActor(sprite.Sprite):
         self.current_animation_frame = self.current_animation[self.show_frame]
         self.current_animation_direction = self.current_animation_frame[self.direction]
         self.image = self.current_animation_direction["sprite"]
+        self.pos = Vector2((self.army_pos[0] * self.grand.map_shown_to_actual_scale_width,
+                            self.army_pos[1] * self.grand.map_shown_to_actual_scale_height))
         self.rect = self.image.get_rect(center=self.pos)
         self.circle = GrandFactionActorCircle(self, faction)
+
+        self.target_pos = Vector2(self.pos)
 
         self.pick_animation("Idle")
         self.reset_sprite()
 
     def update(self, dt):
-        if self.army.pos != self.pos:
-            self.pos = Vector2(self.army.pos)
+        if self.army.base_pos != self.army_pos:
+            self.army_pos = Vector2(self.army.base_pos)
+            self.target_pos = Vector2((self.army_pos[0] * self.grand.map_shown_to_actual_scale_width,
+                                       self.army_pos[1] * self.grand.map_shown_to_actual_scale_height))
+
             self.grand.grand_camera_object_drawer.change_layer(100 + (self.pos[1] * 10))
-            if len(self.army.travel_route) > 1:
-                self.direction = "left"
-                if self.army.travel_route[0][0] > self.army.travel_route[1][0]:
-                    self.direction = "right"
+            if self.army.travelling:
+                self.direction = "right"
+                if self.target_pos[0] < self.pos[0]:
+                    self.direction = "left"
         self.play_animation(dt)
         if self.update_sprite:
             self.reset_sprite()
@@ -77,6 +81,7 @@ class GrandFactionActorCircle(sprite.Sprite):
         self._layer = actor.pos[1]
         sprite.Sprite.__init__(self, self.containers)
         self.actor = actor
+        actor.grand_faction_actor_circle = self
         if faction not in self.faction_circle_cache:
             image = Surface((100 * self.screen_scale[0], 50 * self.screen_scale[1]), SRCALPHA)
             selected_image = image.copy()

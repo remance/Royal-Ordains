@@ -1,6 +1,7 @@
 import csv
 import os
 
+from engine.constants import Turn_To_Phase
 from engine.data.data import GameData
 from engine.utils.data_loading import stat_convert
 
@@ -18,9 +19,11 @@ class DataStat(GameData):
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
+            dict_column = ("Coexistence Modifier", "Property",)
+            dict_column = [index for index, item in enumerate(header) if item in dict_column]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
-                    row = stat_convert(row, n, i)
+                    row = stat_convert(row, n, i, dict_column=dict_column)
                 self.culture_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
         edit_file.close()
 
@@ -242,6 +245,11 @@ class DataStat(GameData):
                 for n, i in enumerate(row):
                     row = stat_convert(row, n, i, tuple_column=tuple_column)
                 self.building_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
+                self.building_list[row[0]]["Build Time"] *= Turn_To_Phase  # convert build time to phase
+                # add repair time, which is half the build time, minimum is 1 phase
+                self.building_list[row[0]]["Repair Time"] = int(self.building_list[row[0]]["Build Time"] / 2)
+                if not self.building_list[row[0]]["Repair Time"]:
+                    self.building_list[row[0]]["Repair Time"] = 1
         edit_file.close()
 
 

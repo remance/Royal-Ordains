@@ -16,9 +16,20 @@ from engine.battle.drama_process import drama_process
 from engine.battle.play_sound_effect import play_sound_effect
 from engine.battle.shake_camera import shake_camera
 from engine.camera.camera import Camera
+from engine.game.activate_input_popup import activate_input_popup
+from engine.game.change_pause_update import change_pause_update
+from engine.grand.auto_battle_process import auto_battle_process
+from engine.grand.cal_faction_culture import cal_faction_culture
+from engine.grand.cal_faction_income import cal_faction_income
+from engine.grand.cal_region_income import cal_region_income
+from engine.grand.change_phase import change_phase
+from engine.grand.change_turn import change_turn
+from engine.grand.create_campaign_route_pathfinding import create_campaign_route_pathfinding
+from engine.grand.create_new_army import create_new_army
 from engine.grand.draw_route import draw_route
 from engine.grand.fix_camera import fix_camera
 from engine.grand.player_input import player_input_grand, battle_no_player_input_grand
+from engine.grand.sort_player_army_list import sort_player_army_list
 from engine.grand.state_grand_process import state_grand_process
 from engine.grandactor.grandactor import GrandActor, GrandFactionActorCircle
 from engine.grandmap.grandmap import GrandMap
@@ -28,8 +39,8 @@ from engine.uibattle.uibattle import FPSCount
 from engine.uigrand.uigrand import (YesNo, PlayerGrandInteract, PlayerFactionResourceBar, PlayerFactionCultureList,
                                     PlayerArmyList, PlayerArmyListSortOption, MiniTimeOrb, MapSettingOption,
                                     TimeInfoBar, TimeSettingOption, EventImportantPopup,
-                                    MenuBar, RegionManagement, CultureManagement, EventNotification)
-from engine.uimenu.uimenu import TextPopup, GrandMiniMap, UIScroll
+                                    MenuBar, RegionManagement, CultureManagement, EventNotification, ArmyInfo)
+from engine.uimenu.uimenu import TextPopup, GrandMiniMap, UIScroll, PresetArmySetupUI, CharacterSelector
 from engine.updater.updater import ReversedLayeredUpdates
 from engine.utils.common import clean_group_object
 from engine.utils.data_loading import load_image, load_images
@@ -39,13 +50,24 @@ class Grand:
     grand = None
     cursor = None
 
+    activate_input_popup = activate_input_popup
     add_sound_effect_queue = add_sound_effect_queue
+    auto_battle_process = auto_battle_process
+    cal_faction_culture = cal_faction_culture
+    cal_faction_income = cal_faction_income
+    cal_region_income = cal_region_income
     cal_shake_value = cal_shake_value
+    change_pause_update = change_pause_update
+    change_phase = change_phase
+    change_turn = change_turn
+    create_campaign_route_pathfinding = create_campaign_route_pathfinding
+    create_new_army = create_new_army
     drama_process = drama_process
     draw_route = draw_route
     fix_camera = fix_camera
     play_sound_effect = play_sound_effect
     shake_camera = shake_camera
+    sort_player_army_list = sort_player_army_list
     state_grand_process = state_grand_process
 
     def __init__(self, game):
@@ -113,6 +135,7 @@ class Grand:
         self.input_ui = game.input_ui
         self.input_ok_button = game.input_ok_button
         self.input_cancel_button = game.input_cancel_button
+        self.input_close_button = game.input_close_button
         self.input_popup_uis = game.input_popup_uis
         self.confirm_popup_uis = game.confirm_popup_uis
         self.all_input_popup_uis = game.all_input_popup_uis
@@ -133,17 +156,20 @@ class Grand:
         self.weather_data = self.map_data.weather_data
         self.faction_list = self.map_data.faction_list
         self.building_list = self.character_data.building_list
+        self.culture_list = self.character_data.culture_list
 
         self.sprite_data = self.game.sprite_data
-        self.character_animation_data = self.game.character_animation_data
-        self.character_portraits = self.game.character_portraits
-        self.effect_animation_pool = self.game.effect_animation_pool
+        self.grand_ui_icons = self.sprite_data.grand_ui_icons
+        self.character_animation_data = self.sprite_data.character_animation_data
+        self.character_portraits = self.sprite_data.character_portraits
+        self.effect_animation_pool = self.sprite_data.effect_animation_pool
         self.language = self.game.language
         self.localisation = self.game.localisation
         self.save_data = game.save_data
         self.main_story_profile = self.game.save_data.save_profile
 
         self.game_speed = 0
+        self.phase_timer = 0
         self.show_route = True
 
         self.screen = self.game.screen
@@ -188,6 +214,11 @@ class Grand:
         self.drama_text = TextDrama(self)  # message at the top of screen that show up for important event
         self.player_grand_interact = PlayerGrandInteract()
 
+        self.player_grand_preset_army_setup = PresetArmySetupUI((self.screen_width * 0.4, self.screen_height * 0.2),
+                                                          True)
+        self.player_army_info_ui = ArmyInfo(self.player_grand_preset_army_setup.rect.topleft)
+        self.player_grand_character_selector = CharacterSelector((self.screen_width * 0.78, self.screen_height * 0.2))
+
         self.player_faction_resource_bar_ui = PlayerFactionResourceBar()
         self.player_faction_culture_list_ui = PlayerFactionCultureList()
         self.mini_time_orb_ui = MiniTimeOrb()
@@ -223,6 +254,7 @@ class Grand:
         self.player_faction = None
         self.player_input = None
         self.current_campaign_state = {}
+        self.dots_army_occupation = {}
 
         self.region_by_colour_list = {}
         self.region_list = {}
@@ -281,7 +313,6 @@ class Grand:
 
         route_dot_draw_array = {}
         map_data_route_dot_draw_array = self.map_data.route_dot_draw_array
-        print(map_data_route_dot_draw_array)
         for x in map_data_route_dot_draw_array:
             scale_x = x * self.grand_map.map_shown_to_actual_scale_width
             route_dot_draw_array[scale_x] = {}
@@ -292,31 +323,24 @@ class Grand:
                     self.travel_dot_images[angle] = rotate(travel_dot_image, angle)
                 route_dot_draw_array[scale_x][scale_y] = self.travel_dot_images[angle]
         self.route_dot_draw_array = route_dot_draw_array
+
         # load actor animation sprite
         self.sprite_data.setup_campaign()
+
+        # create map of dots army occupation for battle engage checking
+        self.dots_army_occupation = {value["Settlement POS"]: [] for value in self.map_data.region_list.values()}
+        for route_data in self.map_data.route_list.values():
+            for dot in route_data["Dots"]:
+                self.dots_army_occupation[dot] = []
 
         # setup armies, replace dict with object
         for faction, faction_value in self.current_campaign_state["faction"].items():
             for index, army in enumerate(tuple(faction_value["army"])):
-                faction_value["army"][index] = Army(army["Faction"], self.character_list[army["Commander"]]["Culture"],
-                                                    army["Commander"],
-                                                    [army["Leader 1"], army["Leader 2"], army["Leader 3"]],
-                                                    [army["Troop 1"], army["Troop 2"], army["Troop 3"],
-                                                     army["Troop 4"], army["Troop 5"]],
-                                                    [army["Air 1"], army["Air 2"], army["Air 3"],
-                                                     army["Air 4"], army["Air 5"]],
-                                                    [army["Retinue 1"], army["Retinue 2"], army["Retinue 3"]],
-                                                    supply=army["Supply"], max_supply=army["Max Supply"],
-                                                    current_region=army["Region"], travel_route=army["Route"],
-                                                    broken=army["Broken"])
-                for character in (army["Commander"], army["Leader 1"], army["Leader 2"], army["Leader 3"],
-                                  army["Retinue 1"], army["Retinue 2"], army["Retinue 3"]):
-                    if character and self.character_list[character]["Is Unique"]:  # assign army to unique character
-                        self.current_campaign_state["faction"][army["Faction"]]["character"][character] = \
-                        faction_value["army"][index]
+                self.create_new_army(faction_value["army"], army, index=index, sort=False)
 
-                GrandActor(faction_value["army"][index].commander_id, faction_value["army"][index],
-                           army["Faction"], faction_value["army"][index].base_pos)
+        # create route graph for pathfinding
+        if not self.current_campaign_state["pathfinding"]:
+            self.create_campaign_route_pathfinding()
 
         # setup ui
         if self.player_faction:
@@ -354,6 +378,15 @@ class Grand:
             self.player_input = MethodType(battle_no_player_input_grand, self)
             self.outer_ui_updater.remove(self.only_player_ui)
 
+        for faction in self.faction_list:
+            if faction != "free":
+                self.cal_faction_culture(faction)
+
+                for region in self.current_campaign_state["faction"][faction]["region"]:
+                    self.cal_region_income(region)
+
+                self.cal_faction_income(faction)
+
         self.event_notification_ui.event_list_update()
         self.fix_camera()
 
@@ -370,7 +403,7 @@ class Grand:
         self.ui_timer = 0
         self.drama_timer = 0
         self.dt = 0
-        self.play_time = 0
+        self.phase_timer = 0
 
         self.base_cursor_pos = [0, 0]  # mouse pos on the map based on camera position
         self.cursor_pos = [0, 0]
@@ -408,7 +441,6 @@ class Grand:
 
             self.clock_time = self.clock.get_time()
             self.true_dt = self.clock_time / 1000  # dt before game_speed
-            self.play_time += self.true_dt
 
             for key in self.player_key_press:  # check for key holding
                 if type(self.player_key_bind[key]) is int and key_state[self.player_key_bind[key]]:
@@ -468,56 +500,98 @@ class Grand:
                             self.game.setup_profiler()
                         self.game.profiler.switch_show_hide()
 
-            # Update game time
-            dt = self.true_dt * self.game_speed
-            self.dt = dt  # apply dt with game_speed for calculation
-            self.shown_camera_topleft_pos = self.camera_pos.copy()
+            if self.input_popup:  # currently, have input text pop up on screen, stop everything else until done
+                if self.input_ok_button.event_press:
+                    done = True
 
-            self.player_input()
+                    if self.input_popup[1] in ("retreat", "retreat_assemble"):
+                        # for army in self.player_selected_army:  # TODO finish retreat function here
+                            # all army in the same battles retreat and lose battle
+                            # for battle in self.current_campaign_state["battle"]["auto battles"]:
+                        # for army in self.player_selected_army:
+                        #     army.issue_move_command(self.input_popup[2])
+                        pass
+                    elif self.input_popup[1] == "assemble":
+                        for army in self.player_selected_army:
+                            army.issue_move_command(self.input_popup[2])
 
-            if dt:
-                if dt > 0.016:  # one frame update should not be longer than 0.016 second (60 fps) for calculation
-                    dt = 0.016  # make it so stutter and lag does not cause overtime issue
+                    elif self.input_popup[1] == "quit":
+                        pygame.time.wait(1000)
+                        pygame.quit()
+                        sys.exit()
 
-                self.state_grand_process(dt)
+                    if done:
+                        self.change_pause_update(False)
+                        self.input_box.render_text("")
+                        self.input_popup = None
+                        self.remove_from_ui_updater(self.all_input_popup_uis)
 
-                self.ui_timer += self.true_dt  # ui update by real time instead of self time to reduce workload
+                elif self.input_cancel_button.event_press or self.input_close_button.event_press or self.esc_press:
+                    self.change_pause_update(False)
+                    self.input_box.render_text("")
+                    self.input_popup = None
+                    self.remove_from_ui_updater(self.all_input_popup_uis)
 
-                # Screen shaking
-                if self.screen_shake_value:
-                    decrease = 1000
-                    if self.screen_shake_value > decrease:
-                        decrease = self.screen_shake_value
-                    self.screen_shake_value -= (dt * decrease)
-                    if self.screen_shake_value < 0:
-                        self.screen_shake_value = 0
-                    else:
-                        self.shake_camera()
+                # elif self.input_popup[0] == "text_input":
+                #     if not self.text_delay:
+                #         if key_press[self.input_box.hold_key]:
+                #             self.input_box.player_input(None, key_press)
+                #             self.text_delay = 0.15
+                #     else:
+                #         self.text_delay -= self.dt
+                #         if self.text_delay < 0:
+                #             self.text_delay = 0
+            else:
+                # Update game time
+                dt = self.true_dt * self.game_speed
+                self.dt = dt  # apply dt with game_speed for calculation
+                self.shown_camera_topleft_pos = self.camera_pos.copy()
 
-                if self.sound_effect_queue:
-                    for key, value in self.sound_effect_queue.items():  # play each sound effect initiate in this loop
-                        self.play_sound_effect(key, value)
-                    self.sound_effect_queue = {}
+                self.player_input()
 
-                self.drama_process()
+                if dt:
+                    if dt > 0.016:  # one frame update should not be longer than 0.016 second (60 fps) for calculation
+                        dt = 0.016  # make it so stutter and lag does not cause overtime issue
 
-                if self.ui_timer >= 0.1:
-                    self.ui_drawer.draw(self.screen)  # draw the UI
-                    self.ui_timer -= 0.1
+                    self.state_grand_process(dt)
 
-            # Object related updater
-            self.grand_actor_updater.update(self.true_dt)
-            self.grand_effect_updater.update(self.true_dt)
+                    self.ui_timer += self.true_dt  # ui update by real time instead of self time to reduce workload
 
-            # update camera
-            self.camera.camera_left_bound = self.shown_camera_topleft_pos[0]
-            self.camera.camera_top_bound = self.shown_camera_topleft_pos[1]
-            self.camera.camera_right_bound = self.camera.camera_left_bound + self.screen_width
-            self.camera.camera_bottom_bound = self.camera.camera_top_bound + self.screen_height
-            self.grand_map.update()
-            if self.show_route:
-                # add route after map update draw to blit route dots on the map under other sprites
-                self.draw_route()
+                    # Screen shaking
+                    if self.screen_shake_value:
+                        decrease = 1000
+                        if self.screen_shake_value > decrease:
+                            decrease = self.screen_shake_value
+                        self.screen_shake_value -= (dt * decrease)
+                        if self.screen_shake_value < 0:
+                            self.screen_shake_value = 0
+                        else:
+                            self.shake_camera()
+
+                    if self.sound_effect_queue:
+                        for key, value in self.sound_effect_queue.items():  # play each sound effect initiate in this loop
+                            self.play_sound_effect(key, value)
+                        self.sound_effect_queue = {}
+
+                    self.drama_process()
+
+                    if self.ui_timer >= 0.1:
+                        self.ui_drawer.draw(self.screen)  # draw the UI
+                        self.ui_timer -= 0.1
+
+                # Object related updater
+                self.grand_actor_updater.update(self.true_dt)
+                self.grand_effect_updater.update(self.true_dt)
+
+                # update camera
+                self.camera.camera_left_bound = self.shown_camera_topleft_pos[0]
+                self.camera.camera_top_bound = self.shown_camera_topleft_pos[1]
+                self.camera.camera_right_bound = self.camera.camera_left_bound + self.screen_width
+                self.camera.camera_bottom_bound = self.camera.camera_top_bound + self.screen_height
+                self.grand_map.update()
+                if self.show_route:
+                    # add route after map update draw to blit route dots on the map under other sprites
+                    self.draw_route()
 
             self.camera.update(self.grand_camera_object_drawer)
             self.ui_updater.update(dt)

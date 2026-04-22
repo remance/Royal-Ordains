@@ -18,3 +18,8 @@ def draw_route(self):
                     break
         elif x > camera_right_bound:
             break
+
+    for army in self.player_selected_army:
+        # draw arrow movement for selected player armies that are travelling
+        if army.travelling:
+            pass

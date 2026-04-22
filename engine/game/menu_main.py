@@ -1,4 +1,4 @@
-from engine.constants import Custom_Default_Culture, Grand_Default_Faction
+from engine.constants import Custom_Default_Culture
 
 
 def menu_main(self):
@@ -28,39 +28,39 @@ def menu_main(self):
     elif self.grand_button.event_press:
         self.menu_state = "grand"
         self.load_grand_campaign("main")
-        self.custom_preset_faction_selector.change_faction(Grand_Default_Faction)
+        self.custom_preset_faction_selector.change_faction(self.map_data.default_grand_faction)
         self.background = self.background_image["empty_background"]
         self.remove_from_ui_updater(self.main_menu_buttons, self.main_menu_actor)
         self.add_to_ui_updater(self.grand_menu_uis)
 
     elif self.test_battle_button.event_press:
-        # self.custom_team_army[1][0].__init__("small", "small", "leader_bigta",
+        # self.custom_team_army[1][0].__init__("", "small", "small", "leader_bigta",
         #                                      [],
         #                                      [],
         #                                      [],
         #                                      ["mage_earth", "test", "test2"], supply=1000)
-        # self.custom_team_army[2][0].__init__("castle", "castle", "leader_buikuuh",
+        # self.custom_team_army[2][0].__init__("", "castle", "castle", "leader_buikuuh",
         #                                      [],
         #                                      [],
         #                                      [],
         #                                      ["mage_earth", "test2", "test"], supply=1000)
 
-        self.custom_team_army[1][0].__init__("small", "small", "leader_bigta",
+        self.custom_team_army[1][0].__init__("", "small", "small", "leader_bigta",
                                              ["small_rabbit_leader_knight", "leader_iri"],
                                              ["small_rabbit_spear", ],
                                              ["castle_human_air_flying_monk", "small_eagle_air_stone"],
                                              ["small_rabbit_leader_shaman"], supply=1000)
-        self.custom_team_army[1][1].__init__("small", "small", "leader_adaqua",
+        self.custom_team_army[1][1].__init__("", "small", "small", "leader_adaqua",
                                              ["small_rabbit_leader_knight", "small_rabbit_leader_knight"],
                                              ["small_rabbit_sling", ],
                                              ["castle_human_air_flying_monk", "small_eagle_air_stone"],
                                              ["small_rabbit_leader_shaman"], supply=500)
-        self.custom_team_army[2][0].__init__("castle", "castle", "leader_buikuuh",
+        self.custom_team_army[2][0].__init__("", "castle", "castle", "leader_buikuuh",
                                              ["small_rabbit_leader_banner", "castle_human_leader_mage"],
                                              ["small_rabbit_spear"],
                                              ["castle_cat_air_rocket_bomb", "castle_cat_air_rocket_bomb"],
                                              ["small_rabbit_leader_shaman"], supply=1000)
-        self.custom_team_army[2][1].__init__("castle", "castle", "small_rabbit_leader_hero",
+        self.custom_team_army[2][1].__init__("", "castle", "castle", "small_rabbit_leader_hero",
                                              ["small_rabbit_leader_knight", "leader_amgarn", "leader_vraesier", ],
                                              ["doll_candle_spear"],
                                              ["small_eagle_air_stone", "small_eagle_air_stone",
@@ -68,9 +68,9 @@ def menu_main(self):
                                              ["small_rabbit_leader_knight", "small_rabbit_leader_hero"], supply=700)
 
         for army in self.custom_team_army[1][2:]:
-            army.__init__("", "", None, [], [], [], [])
+            army.__init__("", "", "", None, [], [], [], [])
         for army in self.custom_team_army[2][2:]:
-            army.__init__("", "", None, [], [], [], [])
+            army.__init__("", "", "", None, [], [], [], [])
 
         team_stat = {
             0: {"faction": "free", "culture": "free", "strategy_resource": 0, "start_pos": 0.5, "air_group": [],

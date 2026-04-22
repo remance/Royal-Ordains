@@ -1,8 +1,9 @@
-import copy
 import csv
 import os
+from copy import deepcopy
 from pathlib import Path
 
+from engine.constants import Route_Travel_Modifier
 from engine.data.data import GameData
 from engine.utils.data_loading import stat_convert, load_image, csv_read
 from engine.utils.rotation import set_rotate
@@ -38,10 +39,12 @@ class DataMap(GameData):
         self.region_list = {}
         self.route_list = {}
         self.route_dot_draw_array = {}
+        self.route_pathfinding = {}
         self.start_army_list = {}
         self.faction_list = {}
         self.region_by_colour_list = {}
         self.world_map = None
+        self.default_grand_faction = None
 
     def load_campaign_data(self, campaign: str):
         self.region_list = {}
@@ -62,7 +65,7 @@ class DataMap(GameData):
                     row = stat_convert(row, n, i, list_column=list_column, tuple_column=tuple_column,
                                        dict_column=dict_column, hex2colour_column=hex2colour_column)
                 for header_index, value in enumerate(header):
-                    if "Build Slot" in value:
+                    if "Build Slot" in value and row[header_index]:
                         # add active building state to starting region building lists
                         row[header_index].append(True)
                 self.region_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
@@ -96,7 +99,13 @@ class DataMap(GameData):
                 # add settlement pos to route after dots draw since dots do not include settlement
                 self.route_list[row[0]]["Dots"].insert(0, self.region_list[row[0][0]]["Settlement POS"])
                 self.route_list[row[0]]["Dots"].append(self.region_list[row[0][1]]["Settlement POS"])
-                self.route_list[row[0]]["Dots"] = tuple(self.route_list[row[0]]["Dots"])
+                # convert to tuple
+                self.route_list[row[0]]["Dots"] = tuple([tuple(item) for item in self.route_list[row[0]]["Dots"]])
+
+                # create reverse route for each one
+                self.route_list[row[0][::-1]] = deepcopy(self.route_list[row[0]])
+                self.route_list[row[0][::-1]]["Dots"] = self.route_list[row[0]]["Dots"][::-1]
+
         self.route_dot_draw_array = dict(sorted(self.route_dot_draw_array.items()))
         edit_file.close()
 
@@ -120,6 +129,8 @@ class DataMap(GameData):
                 self.faction_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
         edit_file.close()
 
+        self.default_grand_faction = tuple(self.faction_list.keys())[0]
+
         self.start_army_list = {}
         with open(os.path.join(self.data_dir, "map", "world", campaign, "army.csv"),
                   encoding="utf-8", mode="r") as edit_file:
@@ -128,9 +139,8 @@ class DataMap(GameData):
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
                     row = stat_convert(row, n, i)
-                self.start_army_list[row[1]] = {header[index]: stuff for index, stuff in enumerate(row)}
-                self.start_army_list[row[1]]["Route"] = []
-                self.start_army_list[row[1]]["Broken"] = False
+                self.start_army_list[row[0]] = {header[index]: stuff for index, stuff in enumerate(row)}
+                self.start_army_list[row[0]]["Route"] = []
         edit_file.close()
 
     def read_map_data(self, campaign: str, map_name: str):
@@ -179,7 +189,7 @@ class DataMap(GameData):
                 rd[data_index + 1] = {header[index]: stuff for index, stuff in enumerate(data)}
             event_data = rd[1:]
             # keep event data in trigger structure for easier check
-            original_event_data = copy.deepcopy(event_data)
+            original_event_data = deepcopy(event_data)
             if event_data:
                 final_event_data = {"music": []}
                 for item in event_data:
@@ -219,6 +229,7 @@ class DataMap(GameData):
                 char_data = rd[1:]
             unit_file.close()
             return char_data
+
         except FileNotFoundError as b:
             print(b)
             return {}

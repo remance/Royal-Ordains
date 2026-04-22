@@ -29,8 +29,11 @@ def menu_custom_preset(self):
 
 
 def go_up(self):
+    # for character_type in ("commander", "retinue", "leader", "troop", "air"):
+    #     for index, rect in enumerate(self.portrait_type_rects[character_type]):
+
     if not self.custom_preset_army_setup.selected_portrait_index:
-        self.custom_preset_army_setup.change_portrait_selection((0, 0))
+        self.custom_preset_army_setup.change_portrait_selection("commander", 0)
     else:
         if self.custom_preset_army_setup.selected_portrait_index[0] != 0:
             self.custom_preset_army_setup.change_portrait_selection(tuple([value - 1 if not index else value for
@@ -40,7 +43,7 @@ def go_up(self):
 
 def go_down(self):
     if not self.custom_preset_army_setup.selected_portrait_index:
-        self.custom_preset_army_setup.change_portrait_selection((0, 0))
+        self.custom_preset_army_setup.change_portrait_selection("commander", 0)
     else:
         if self.custom_preset_army_setup.selected_portrait_index[0] != 4:
             self.custom_preset_army_setup.change_portrait_selection(tuple([value + 1 if not index else value for
@@ -50,7 +53,7 @@ def go_down(self):
 
 def go_left(self):
     if not self.custom_preset_army_setup.selected_portrait_index:
-        self.custom_preset_army_setup.change_portrait_selection((0, 0))
+        self.custom_preset_army_setup.change_portrait_selection("commander", 0)
     else:
         if len(self.custom_preset_army_setup.selected_portrait_index) == 1:  # air to ground
             self.custom_preset_army_setup.change_portrait_selection(
@@ -63,7 +66,7 @@ def go_left(self):
 
 def go_right(self):
     if not self.custom_preset_army_setup.selected_portrait_index:
-        self.custom_preset_army_setup.change_portrait_selection((0, 0))
+        self.custom_preset_army_setup.change_portrait_selection("commander", 0)
     else:
         if (len(self.custom_preset_army_setup.selected_portrait_index) == 2 and
                 self.custom_preset_army_setup.selected_portrait_index[1] == 3):  # ground to air

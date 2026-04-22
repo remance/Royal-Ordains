@@ -14,7 +14,6 @@ def call_reinforcement(self, team, call_type, character_index):
                 cooldown_check = self.team2_call_troop_cooldown_reinforcement
 
         character_to_call = call_pool[character_index]
-
         if "team" not in self.later_reinforcement:
             self.later_reinforcement["team"] = {team: {}}
         elif team not in self.later_reinforcement["team"]:

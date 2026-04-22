@@ -50,7 +50,7 @@ from engine.grand.grand import Grand
 from engine.menuobject.menuobject import MenuActor, MenuRotate, StaticImage
 from engine.uibattle.uibattle import (Profiler, FPSCount, CharacterSpeechBox)
 from engine.uimenu.uimenu import (MenuCursor, BoxUI, BrownMenuButton, MenuButton, UIScroll,
-                                  TextPopup, CustomTeamSetupUI, FactionSelector, CustomPresetArmySetupUI, GrandMiniMap,
+                                  TextPopup, CustomTeamSetupUI, FactionSelector, PresetArmySetupUI, GrandMiniMap,
                                   GrandFactionDetail, GrandFactionShowCase, CharacterDescriptionShowCase,
                                   CharacterMovesetShowCase, CharacterSelector, CustomPresetTitle, ListUI,
                                   CustomPresetListAdapter, GenericListAdapter)
@@ -229,22 +229,23 @@ class Game:
                                         subfolder=("font", "texture"), as_pillow_image=True)
 
         # ui font
-        self.loading_screen_lore_font = Font(self.ui_font["main_button"], int(60 * self.screen_scale_height))
-
+        self.profiler_font = Font(self.ui_font["main_button"], 16)
+        self.note_font = Font(self.ui_font["main_button"], int(24 * self.screen_scale_height))
         self.fps_counter_font = Font(self.ui_font["main_button"], int(28 * self.screen_scale_height))
         self.generic_ui_font = Font(self.ui_font["main_button"], int(30 * self.screen_scale_height))
         self.medium_generic_ui_font = Font(self.ui_font["main_button"], int(40 * self.screen_scale_height))
         self.large_generic_ui_font = Font(self.ui_font["main_button"], int(50 * self.screen_scale_height))
         self.battle_timer_font = Font(self.ui_font["main_button"], int(54 * self.screen_scale_height))
-        self.screen_fade_font = Font(self.ui_font["manuscript_font"], int(100 * self.screen_scale_height))
+        self.preset_name_font = Font(self.ui_font["main_button"], int(60 * self.screen_scale_height))
+        self.loading_screen_lore_font = Font(self.ui_font["main_button"], int(60 * self.screen_scale_height))
+
+        self.character_name_talk_prompt_font = Font(self.ui_font["talk_font"], int(40 * self.screen_scale_height))
         self.character_indicator_font = Font(self.ui_font["manuscript_font"], int(50 * self.screen_scale_height))
         self.damage_number_font = Font(self.ui_font["manuscript_font"], int(46 * self.screen_scale_height))
+        self.character_number_font = Font(self.ui_font["manuscript_font"], int(60 * self.screen_scale_height))
         self.critical_damage_number_font = Font(self.ui_font["manuscript_font2"], int(76 * self.screen_scale_height))
-        self.character_name_talk_prompt_font = Font(self.ui_font["talk_font"], int(40 * self.screen_scale_height))
         self.drama_font = Font(self.ui_font["manuscript_font"], int(90 * self.screen_scale_height))
-        self.preset_name_font = Font(self.ui_font["main_button"], int(60 * self.screen_scale_height))
-        self.note_font = Font(self.ui_font["main_button"], int(24 * self.screen_scale_height))
-        self.profiler_font = Font(self.ui_font["main_button"], 16)
+        self.screen_fade_font = Font(self.ui_font["manuscript_font"], int(100 * self.screen_scale_height))
 
         self.list_font1 = Font(self.ui_font["text_paragraph"], int(40 * Game.screen_scale_height))
         self.list_font2 = Font(self.ui_font["text_paragraph"], int(32 * Game.screen_scale_height))
@@ -317,7 +318,7 @@ class Game:
         Effect.character_list = self.character_list
         Effect.effect_list = self.character_data.effect_list
 
-        self.sprite_data = DataSprite(self.character_list, self.character_indicator_font)
+        self.sprite_data = DataSprite(self.character_list)
         self.character_animation_data = self.sprite_data.character_animation_data  # character animation data pool
         self.character_portraits = self.sprite_data.character_portraits
         self.stage_object_animation_pool = self.sprite_data.stage_object_animation_pool
@@ -403,7 +404,7 @@ class Game:
 
         # Custom battle select menu button
         self.custom_team_players = {1: "player", 2: "computer"}
-        self.custom_team_army = {index: [Army("", "", None, [], [],
+        self.custom_team_army = {index: [Army("", "", "", "", [], [],
                                               [], []) for _ in range(5)] for index in (1, 2)}
 
         self.selected_custom_stage_battle = Default_Selected_Stage_Custom_Battle
@@ -498,8 +499,8 @@ class Game:
         self.custom_culture_selector_popup = FactionSelector(1200,
                                                              (self.screen_width / 2, 0), layer=10000,
                                                              is_popup=True, include_random=True, use_culture=True)
-        self.custom_army_info_popup = CustomPresetArmySetupUI((self.screen_width * 0.5, self.screen_height * 0.5),
-                                                              False, layer=100000)
+        self.custom_army_info_popup = PresetArmySetupUI((self.screen_width * 0.5, self.screen_height * 0.5),
+                                                        False, layer=100000)
         self.custom_army_title_popup = CustomPresetTitle((self.custom_army_info_popup.image.get_width(),
                                                           80 * self.screen_scale_height),
                                                          (self.screen_rect.width / 2,
@@ -530,8 +531,8 @@ class Game:
         self.preset_save_button = BrownMenuButton((.15, 0.5), (-0.3, 0), key_name="button_save",
                                                   parent=main_menu_buttons_box)
 
-        self.custom_preset_army_setup = CustomPresetArmySetupUI((self.screen_width * 0.4, self.screen_height * 0.2),
-                                                                True)
+        self.custom_preset_army_setup = PresetArmySetupUI((self.screen_width * 0.4, self.screen_height * 0.2),
+                                                          True)
         self.custom_preset_army_title = CustomPresetTitle((self.game.screen_width * 0.8, 80 * self.screen_scale_height),
                                                           (self.screen_rect.width / 2,
                                                            self.custom_preset_army_setup.rect.midtop[1]))

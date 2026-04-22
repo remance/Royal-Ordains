@@ -1,6 +1,7 @@
 class GameData:
     def __init__(self):
         from engine.game.game import Game
+        self.game = Game.game
         self.main_dir = Game.main_dir
         self.data_dir = Game.data_dir
         self.font_dir = Game.font_dir

@@ -1,12 +1,17 @@
+from engine.constants import Phase_To_Game_Time, Turn_To_Phase
+
+
 def state_grand_process(self, dt):
-    self.current_campaign_state["phase_timer"] += dt
-    if self.current_campaign_state["phase_timer"] > 1:  # phase change every 1 second
-        self.current_campaign_state["phase_timer"] -= 1
-        if self.current_campaign_state["phase"] < 10:
+    self.phase_timer += dt
+    if self.phase_timer > Phase_To_Game_Time:
+        self.phase_timer -= Phase_To_Game_Time
+        if self.current_campaign_state["phase"] < Turn_To_Phase:
             self.current_campaign_state["phase"] += 1
+            self.change_phase()
         else:  # pass phase 10, increase turn and reset phase
             self.current_campaign_state["phase"] = 1
             self.current_campaign_state["turn"] += 1
+            self.change_turn()
         self.mini_time_orb.update_time()
     # if self.ai_process_list:
     #     limit = int(len(self.ai_process_list) / 20)

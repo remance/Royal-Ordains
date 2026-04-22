@@ -27,7 +27,8 @@ class Camera:
             if (surface_right_x > camera_left_bound and surface_left_x < camera_right_bound and
                     surface_bottom_y > camera_top_bound and surface_top_y < camera_bottom_bound):
                 # only blit if image in camera at all
-                image.blit(blit_object.image, (surface_left_x - camera_left_bound, surface_top_y - camera_top_bound))
+                image.blit(blit_object.image, (surface_left_x - camera_left_bound,
+                                               surface_top_y - camera_top_bound))
 
     def out_update(self, out_surfaces):
         image = self.image

@@ -4,21 +4,24 @@ def cal_region_income(self, region):
     total_supply_income = 0
     total_happiness = 0
     campaign_region_state = self.current_campaign_state["region"]
-    owner = campaign_region_state["control"]["owner"]
-    faction_culture_state = self.current_campaign_state["faction"][owner]["culture"]
-    for building in campaign_region_state["buildings"][region]:
-        if building[1] is True:  # only count active building (not damaged)
-            building_id = building[0]
-            building_stat = self.building_list[building_id]
-            integration_state = faction_culture_state[building_stat["Culture"]][1]
-            if integration_state > 0:
-                # integration more than 0 will allow building to give resource
-                total_gold_income += building_stat["Gold Income"] * integration_state
-                total_supply_income += building_stat["Supply Income"] * integration_state
-                total_happiness += campaign_region_state["Happiness"] * integration_state
+    owner = campaign_region_state["control"][region]
+    if owner != "free":
+        faction_culture_state = self.current_campaign_state["faction"][owner]["culture"]
+        for building in campaign_region_state["buildings"][region]:
+            if building and building[1]:  # only count active building (not damaged)
+                building_id = building[0]
+                building_stat = self.building_list[building_id]
+                integration_state = 1
+                if building_stat["Culture"] != "all":
+                    integration_state = faction_culture_state[building_stat["Culture"]]["integration"]
+                if integration_state > 0:
+                    # integration more than 0 will allow building to give resource, can be negative
+                    total_gold_income += building_stat["Gold Income"] * integration_state
+                    total_supply_income += building_stat["Supply Income"] * integration_state
+                    total_happiness += building_stat["Happiness"] * integration_state
 
-    region_income_state = campaign_region_state["income"][region]
+        region_income_state = campaign_region_state["income"][region]
 
-    region_income_state["gold_income"] = total_gold_income
-    region_income_state["supply_income"] = total_supply_income
-    region_income_state["happiness"] = total_happiness
+        region_income_state["gold_income"] = total_gold_income
+        region_income_state["supply_income"] = total_supply_income
+        region_income_state["happiness"] = total_happiness

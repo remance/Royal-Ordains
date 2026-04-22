@@ -124,6 +124,7 @@ class BattleCommanderAI:
             self.lower_think_time = 5 / self.clever
             self.higher_think_time = 10 / self.clever
             self.think_time = uniform(self.lower_think_time, self.higher_think_time)
+            self.think_timer = self.think_time
         if self.swift:  # 0 swiftness will do nothing
             self.lower_act_time = 10 / self.swift
             self.higher_act_time = 50 / self.swift

@@ -80,7 +80,7 @@ def menu_custom_setup(self):
                     preset = tuple(preset_list.keys())[bar.hover_index]
                     army_preset = self.convert_army_to_custom_deployable(preset_list[preset],
                                                                          setup_ui.team_setup[index]["culture"])
-                    self.custom_team_army[team][index].__init__(army_preset["culture"], army_preset["culture"],
+                    self.custom_team_army[team][index].__init__("", army_preset["culture"], army_preset["culture"],
                                                                 army_preset["commander"][0],
                                                                 army_preset["leader"],
                                                                 army_preset["troop"], army_preset["air"],
@@ -219,7 +219,7 @@ def menu_custom_setup(self):
                             preset = choice(tuple(preset_list.keys()))
 
                             army_preset = self.convert_army_to_custom_deployable(preset_list[preset], culture)
-                            new_random_army.__init__(army_preset["culture"], army_preset["culture"],
+                            new_random_army.__init__("", army_preset["culture"], army_preset["culture"],
                                                      army_preset["commander"][0],
                                                      army_preset["leader"], army_preset["troop"], army_preset["air"],
                                                      army_preset["retinue"], custom_preset_id=preset)

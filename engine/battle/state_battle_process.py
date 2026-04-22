@@ -1,4 +1,4 @@
-from engine.constants import Opposite_Team
+from engine.constants import Opposite_Team, Phase_To_Battle_Time
 
 
 def state_battle_process(self):
@@ -32,6 +32,8 @@ def state_battle_process(self):
 
     # Update game time
     dt = self.true_dt * self.game_speed
+    if dt > 0.016:  # one frame update should not be longer than 0.016 second (60 fps) for calculation
+        dt = 0.016  # make it so stutter and lag does not cause overtime issue
 
     self.dt = dt  # apply dt with game_speed for calculation
     self.shown_camera_center_pos = self.camera_pos.copy()
@@ -48,9 +50,6 @@ def state_battle_process(self):
         self.reach_scene = self.current_scene
 
     if dt:
-        if dt > 0.016:  # one frame update should not be longer than 0.016 second (60 fps) for calculation
-            dt = 0.016  # make it so stutter and lag does not cause overtime issue
-
         # Screen shaking
         if self.screen_shake_value:
             decrease = 1000
@@ -179,22 +178,30 @@ def state_battle_process(self):
                 result = "defeat"
                 self.winner_team = int(win_team)
 
-                # give loser's supply to winning team
+                # give upto 15% of loser's max supply to winning team
                 loser_team = Opposite_Team[self.winner_team]
-                remain_supply = self.team_stat[loser_team]["supply_resource"] + self.team_stat[loser_team][
-                    "supply_reserve"]
-                transfer_supply = remain_supply * 0.25
-                self.team_stat[self.winner_team]["supply_resource"] += transfer_supply
+
+                gain_supply = 0
+                transfer_supply = self.team_stat[loser_team]["total_supply"] * 0.15
 
                 if transfer_supply > self.team_stat[loser_team]["supply_resource"]:
                     # transfer from remaining active supply
-                    enough_transfer = transfer_supply - self.team_stat[loser_team]["supply_resource"]
-                    self.team_stat[loser_team]["supply_resource"] -= enough_transfer
+                    gain_supply += self.team_stat[loser_team]["supply_resource"]
+                    transfer_supply -= self.team_stat[loser_team]["supply_resource"]
+                    self.team_stat[loser_team]["supply_resource"] = 0
                     # transfer the rest from reserve
-                    transfer_supply -= enough_transfer
-                    self.team_stat[loser_team]["supply_reserve"] -= transfer_supply
+                    if self.team_stat[loser_team]["supply_reserve"] < transfer_supply:
+                        # not enough in reserve give whatever remain left
+                        gain_supply += self.team_stat[loser_team]["supply_reserve"]
+                        self.team_stat[loser_team]["supply_reserve"] = 0
+                    else:
+                        gain_supply += transfer_supply
+                        self.team_stat[loser_team]["supply_reserve"] -= transfer_supply
                 else:
+                    gain_supply += transfer_supply
                     self.team_stat[loser_team]["supply_resource"] -= transfer_supply
+
+                self.team_stat[self.winner_team]["supply_resource"] += gain_supply
 
                 if self.winner_team == self.player_team:
                     result = "victory"
@@ -230,8 +237,8 @@ def state_battle_process(self):
                     self.end_delay = 0
 
         elif self.grand:  # update grand campaign during battle still ongoing
-            # time in battle is slower than time in grand campaign where 1 battle minute is equal to 1 phase instead of 1 second in campaign at normal speed
-            self.grand.state_grand_process(dt / 60)
+            # time in battle is slower than time in grand campaign where 1 battle minute is equal to 1 phase instead of 1 second in campaign at normal game speed
+            self.grand.state_grand_process(dt / Phase_To_Battle_Time)
 
     # update camera
     self.camera.camera_left_bound = self.camera_left_bound

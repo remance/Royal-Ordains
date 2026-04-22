@@ -26,7 +26,6 @@ class DataLocalisation:
         self.read_localisation("building")
         self.read_localisation("character")
         self.read_localisation("culture")
-        self.read_localisation("faction")
         self.read_localisation("status")
         self.read_localisation("mission")
         self.read_localisation("scene")

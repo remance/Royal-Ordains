@@ -49,7 +49,7 @@ def check_reinforcement(self):
                                         # remove reinforcement from list when all arrive
                                         reinforcement["ground"].remove(this_reinforcement)
 
-                        if not reinforcement["ground"]:
+                        if not reinforcement["ground"]:  # no more reinforcement left
                             reinforcement.pop("ground")
 
                     if "air" in reinforcement:

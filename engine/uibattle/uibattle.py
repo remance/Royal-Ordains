@@ -839,7 +839,7 @@ class TacticalMap(UIBattle):
         UIMenu.update(self, dt)
 
         if self.event_press or self.event_alt_press:
-            self.battle.camera_pos[0] = ((self.cursor.pos[0] - self.rect.topleft[0]) * map_scale_width *
+            self.battle.camera_pos[0] = ((self.cursor.pos[0] - self.rect.topleft[0]) * self.map_scale_width *
                                          self.screen_scale_width)
             self.battle.fix_camera()
 

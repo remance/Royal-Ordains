@@ -249,7 +249,6 @@ class Battle:
         self.player_damage = 0
         self.player_kill = 0
         self.battle_scale = []
-        self.play_time = 0
         self.battle_time = 0.0
 
         self.team_stat = {team: {"faction": None, "culture": None, "strategy_resource": 0, "supply_resource": 0,
@@ -267,7 +266,7 @@ class Battle:
         self.current_weather = Weather(1, 0, 0)
 
         self.later_reinforcement = {"weather": {}, "time": {},
-                                    "team": {team: {"air": [], "ground": {}} for team in team_list}}
+                                    "team": {team: {"air": [], "ground": []} for team in team_list}}
         self.team1_call_leader_cooldown_reinforcement = {}
         self.team1_call_troop_cooldown_reinforcement = {}
         self.team2_call_leader_cooldown_reinforcement = {}
@@ -511,7 +510,6 @@ class Battle:
         self.team_stat = team_stat
 
         for team_stat in self.team_stat.values():
-            print("hh")
             team_stat["leader_call_list"] = []
             team_stat["troop_call_list"] = []
             team_stat["supply_resource"] = 0
@@ -756,7 +754,6 @@ class Battle:
         self.player_damage = 0
         self.player_kill = 0
         self.battle_scale = []
-        self.play_time = 0
 
         self.base_cursor_pos = [0, 0]  # mouse pos on the map based on camera position
         self.cursor_pos = [0, 0]
@@ -800,7 +797,6 @@ class Battle:
 
             self.clock_time = self.clock.get_time()
             self.true_dt = self.clock_time / 1000  # dt before game_speed
-            self.play_time += self.true_dt
 
             for key in self.player_key_press:  # check for key holding
                 if type(self.player_key_bind[key]) is int and key_state[self.player_key_bind[key]]:
@@ -948,7 +944,7 @@ class Battle:
         self.all_battle_ai_commanders = []
 
         self.later_reinforcement = {"weather": {}, "time": {},
-                                    "team": {team: {"air": [], "ground": {}} for team in team_list}}
+                                    "team": {team: {"air": [], "ground": []} for team in team_list}}
         self.ai_process_list = []
         self.team_commander = {team: None for team in team_list}
         self.player_commander = None

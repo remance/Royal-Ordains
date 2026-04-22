@@ -13,7 +13,7 @@ from pygame.transform import smoothscale, scale
 
 from engine.constants import (Custom_Default_Culture, Default_Showcase_Character_POS,
                               Default_Showcase_Character_air_POS,
-                              Default_Showcase_Character, Grand_Default_Faction, Opposite_Team,
+                              Default_Showcase_Character, Opposite_Team,
                               Retinue_Leadership_Add_Modifier)
 from engine.utils.common import keyboard_mouse_press_check
 from engine.utils.data_loading import load_image
@@ -451,8 +451,8 @@ class FactionSelector(UIMenu):
                 self.selected_faction = Custom_Default_Culture
                 self.change_faction(Custom_Default_Culture)
             else:
-                self.selected_faction = Grand_Default_Faction
-                self.change_faction(Grand_Default_Faction)
+                self.selected_faction = self.game.map_data.default_grand_faction
+                self.change_faction(self.selected_faction)
 
     def change_faction(self, new_select_faction):
         self.image = self.base_image.copy()
@@ -665,7 +665,8 @@ class CharacterSelector(UIMenu):
                         character_data = self.character_list[character_id]
                         if self.shown_character_type != "retinue":
                             char_stat = [self.grab_text(("ui", "info_header_name")) + self.grab_text(
-                                ("character", character_id, "Name")),
+                                ("character", character_id, "Name")) + " (" + str(character_data["Arrive Per Call"]) +
+                                         "x" + str(character_data["Capacity"]) + ")",
                                          self.grab_text(("character", character_id, "Description")),
                                          self.grab_text(("ui", "info_header_class")) + self.grab_text(
                                              ("ui", "class_" + character_data["Class"])),
@@ -676,6 +677,7 @@ class CharacterSelector(UIMenu):
                                          self.grab_text(("ui", "info_header_speed")) + str(character_data["Speed"]),
                                          self.grab_text(("ui", "info_header_cost")) + add_comma_number(
                                              character_data["Cost"])]
+
                             if character_data["Leadership"]:
                                 char_stat.append(self.grab_text(("ui", "info_header_leadership")) + str(
                                     character_data["Leadership"]))
@@ -686,13 +688,7 @@ class CharacterSelector(UIMenu):
                             if character_data["Supply"]:
                                 char_stat.append(
                                     self.grab_text(("ui", "info_header_supply_cost")) + str(character_data["Supply"]))
-                            if character_data["Arrive Per Call"] > 1:
-                                char_stat.append(
-                                    self.grab_text(("ui", "info_header_per_call")) + str(
-                                        character_data["Arrive Per Call"]))
-                            if character_data["Capacity"] > 1:
-                                char_stat.append(
-                                    self.grab_text(("ui", "info_header_capacity")) + str(character_data["Capacity"]))
+
 
                             for resistance in (
                             "Slash", "Crush", "Stab", "Fire", "Water", "Air", "Earth", "Magic", "Poison"):
@@ -721,7 +717,7 @@ class CharacterSelector(UIMenu):
                                          self.grab_text(("ui", "info_header_cost")) + add_comma_number(
                                              character_data["Cost"])]
                         self.game.text_popup.popup(self.cursor.rect, char_stat,
-                                                   width_text_wrapper=int(1200 * self.screen_scale_width))
+                                                   width_text_wrapper=int(1400 * self.screen_scale_width))
                         self.add_to_ui_updater(self.game.text_popup)
                     break
 
@@ -808,7 +804,7 @@ class CustomTeamSetupUI(UIMenu):
         self.image.blit(self.game.player_image[self.game.custom_team_players[self.team]], self.player_control_rect)
 
     def change_faction(self, culture, index):
-        self.game.custom_team_army[self.team][index].__init__("", "", None, [], [], [], [])
+        self.game.custom_team_army[self.team][index].__init__("", "", "", None, [], [], [], [])
         self.team_setup[index]["culture"] = culture
         self.team_setup[index]["army"] = None
         self.image.blit(self.circle, self.culture_coa_rects[index])
@@ -819,7 +815,7 @@ class CustomTeamSetupUI(UIMenu):
         if self.team_setup[index]["culture"] and self.team_setup[index]["culture"] != "random":
             self.add_to_ui_updater(self.game.custom_team_army_buttons[self.team][index])
 
-        self.game.custom_team_army[self.team][index].__init__("", "", None, [], [], [], [])
+        self.game.custom_team_army[self.team][index].__init__("", "", "", None, [], [], [], [])
         self.game.custom_team_army_buttons[self.team][index].change_state("")
         self.change_cost(index, 0)
 
@@ -888,7 +884,7 @@ class CustomTeamSetupUI(UIMenu):
                         break
 
 
-class CustomPresetArmySetupUI(UIMenu):
+class PresetArmySetupUI(UIMenu):
     empty_army_preset = {"Name": None,
                          "commander": [None],
                          "retinue": [None, None, None],
@@ -923,23 +919,23 @@ class CustomPresetArmySetupUI(UIMenu):
                     (self.selected_circle.get_width() / 2, self.selected_circle.get_height() / 2),
                     (self.selected_circle.get_width() / 2), width=int(20 * self.screen_scale_width))
 
-        rect = self.circle.get_rect(center=(750 * self.screen_scale_width, 100 * self.screen_scale_height))
+        rect = self.circle.get_rect(center=(150 * self.screen_scale_width, 150 * self.screen_scale_height))
         self.portrait_type_rects["commander"].append(rect)
 
-        for index in (1000, 1200, 1400):
-            rect = self.circle.get_rect(center=(index * self.screen_scale_width, 100 * self.screen_scale_height))
+        for index in (850, 1100, 1350):
+            rect = self.circle.get_rect(center=(index * self.screen_scale_width, 150 * self.screen_scale_height))
             self.portrait_type_rects["retinue"].append(rect)
 
-        for index in (500, 750, 1000):
-            rect = self.circle.get_rect(center=(index * self.screen_scale_width, 350 * self.screen_scale_height))
+        for index in (150, 400, 650):
+            rect = self.circle.get_rect(center=(index * self.screen_scale_width, 400 * self.screen_scale_height))
             self.portrait_type_rects["leader"].append(rect)
 
-        for index in (250, 500, 750, 1000, 1250):
+        for index in (150, 400, 650, 900, 1150):
             rect = self.circle.get_rect(center=(index * self.screen_scale_width, 650 * self.screen_scale_height))
             self.portrait_type_rects["troop"].append(rect)
 
-        for index in (250, 500, 750, 1000, 1250):
-            rect = self.circle.get_rect(center=(index * self.screen_scale_width, 950 * self.screen_scale_height))
+        for index in (150, 400, 650, 900, 1150):
+            rect = self.circle.get_rect(center=(index * self.screen_scale_width, 900 * self.screen_scale_height))
             self.portrait_type_rects["air"].append(rect)
 
         self.army_preset = deepcopy(self.empty_army_preset)
@@ -1761,13 +1757,7 @@ class GrandFactionDetail(UIMenu):
         self.image.blit(faction_name_text, faction_name_text.get_rect(center=(self.image.get_width() / 2,
                                                                               self.font_size)))
 
-        make_long_text(self.image, (self.grab_text(("faction", faction, "Description")),
-                                    "",
-                                    self.grab_text(("ui", "info_header_strengths")) + self.grab_text(
-                                        ("faction", faction, "Strengths")),
-                                    self.grab_text(("ui", "info_header_weaknesses")) + self.grab_text(
-                                        ("faction", faction, "Weaknesses"))
-                                    ),
+        make_long_text(self.image, (self.grab_text(("faction", faction, "Description"))),
                        (self.font_size / 2, self.font_size * 3), self.font,
                        color=(30, 30, 30), specific_width=(self.image.get_width() * 0.95))
 
@@ -1781,7 +1771,7 @@ class CharacterDescriptionShowCase(UIMenu):
         self.name_cap_font = self.game.screen_fade_font
         self.character_portraits = self.game.sprite_data.character_portraits
         self.showing_character = None
-        self.image = Surface((2000 * self.screen_scale_width, 550 * self.screen_scale_height))
+        self.image = Surface((2200 * self.screen_scale_width, 550 * self.screen_scale_height))
         self.image.fill((200, 200, 200))
         self.description_box = Surface((1500 * self.screen_scale_width, 450 * self.screen_scale_height))
         self.description_box.fill((200, 200, 200))
@@ -1816,7 +1806,7 @@ class CharacterMovesetShowCase(UIMenu):
         self.font_space_size = self.font.size(" ")
         self.showing_character = None
         self.showing_moveset = None
-        self.image = Surface((1840 * self.screen_scale_width, 550 * self.screen_scale_height))
+        self.image = Surface((1640 * self.screen_scale_width, 550 * self.screen_scale_height))
         self.image.fill((200, 200, 200))
         self.original_image = self.image.copy()
 
@@ -1907,6 +1897,7 @@ class GrandFactionShowCase(UIMenu):
         self.font = self.game.large_generic_ui_font
         self.character_portraits = self.game.sprite_data.character_portraits
         self.character_list = self.game.character_list
+        self.culture_coas = self.game.sprite_data.culture_coas
         self.image = Surface((900 * self.screen_scale_width, 1200 * self.screen_scale_height))
         self.image.fill((255, 255, 255))
         self.original_image = self.image.copy()
@@ -1915,9 +1906,13 @@ class GrandFactionShowCase(UIMenu):
         self.showcase_rect = {"ruler": [self.character_portraits[Default_Showcase_Character]["character_ui"].get_rect(
             center=(self.image.get_width() / 2, 250 * self.screen_scale_height))],
             "leader": [self.character_portraits[Default_Showcase_Character]["small"]["right"].get_rect(
-                center=(x * self.screen_scale_width, 600 * self.screen_scale_height)) for x in (150, 350, 550, 750)],
+                center=(x * self.screen_scale_width, 800 * self.screen_scale_height)) for x in (150, 350, 550, 750)],
             "troop": [self.character_portraits[Default_Showcase_Character]["small"]["right"].get_rect(
-                center=(x * self.screen_scale_width, 850 * self.screen_scale_height)) for x in (150, 350, 550, 750)]}
+                center=(x * self.screen_scale_width, 1000 * self.screen_scale_height)) for x in (150, 350, 550, 750)]}
+
+        self.culture = None
+        self.culture_rect = self.culture_coas[tuple(self.culture_coas.keys())[0]]["small"].get_rect(center=(
+            self.image.get_width() / 2, 600 * self.screen_scale_height))
 
         self.rect = self.image.get_rect(topright=self.game.custom_preset_faction_selector.rect.bottomright)
 
@@ -1928,6 +1923,11 @@ class GrandFactionShowCase(UIMenu):
         ruler_portrait = self.character_portraits[ruler]["character_ui"]
         self.image.blit(ruler_portrait, self.showcase_rect["ruler"][0])
         self.showcase = {"ruler": [ruler], "leader": [], "troop": []}
+
+        self.culture = faction_data["Culture"]
+        culture_coa = self.culture_coas[faction_data["Culture"]]["small"]
+        self.image.blit(culture_coa, self.culture_rect)
+
         for index, character in enumerate(faction_data["Showcase Leader"]):
             self.showcase["leader"].append(character)
             character_portrait = self.character_portraits[character]["small"]["right"]
@@ -1944,18 +1944,33 @@ class GrandFactionShowCase(UIMenu):
             inside_mouse_pos = Vector2(
                 (self.cursor.pos[0] - self.rect.topleft[0]),
                 (self.cursor.pos[1] - self.rect.topleft[1]))
-            for rect_type, rect_list in self.showcase_rect.items():
-                for index, rect in enumerate(rect_list):
-                    if rect.collidepoint(inside_mouse_pos):
-                        character_id = self.showcase[rect_type][index]
-                        char_stat = [self.grab_text(("ui", "info_header_name")) + self.grab_text(
-                            ("character", character_id, "Name")),
-                                     self.grab_text(("character", character_id, "Description"))]
+            if self.culture_rect.collidepoint(inside_mouse_pos):
+                culture_stat = [self.grab_text(("ui", "info_header_culture")) + self.grab_text(
+                    ("culture", self.culture, "Name")),
+                                self.grab_text(("culture", self.culture, "Description")),
+                                "",
+                                self.grab_text(("ui", "info_header_strengths")) + self.grab_text(
+                                    ("culture", self.culture, "Strengths")),
+                                "",
+                                self.grab_text(("ui", "info_header_weaknesses")) + self.grab_text(
+                                    ("culture", self.culture, "Weaknesses"))
+                ]
+                self.game.text_popup.popup(self.cursor.rect, culture_stat,
+                                           width_text_wrapper=int(1400 * self.screen_scale_width))
+                self.add_to_ui_updater(self.game.text_popup)
+            else:
+                for rect_type, rect_list in self.showcase_rect.items():
+                    for index, rect in enumerate(rect_list):
+                        if rect.collidepoint(inside_mouse_pos):
+                            character_id = self.showcase[rect_type][index]
+                            char_stat = [self.grab_text(("ui", "info_header_name")) + self.grab_text(
+                                ("character", character_id, "Name")),
+                                         self.grab_text(("character", character_id, "Description"))]
 
-                        self.game.text_popup.popup(self.cursor.rect, char_stat,
-                                                   width_text_wrapper=int(1200 * self.screen_scale_width))
-                        self.add_to_ui_updater(self.game.text_popup)
-                        return
+                            self.game.text_popup.popup(self.cursor.rect, char_stat,
+                                                       width_text_wrapper=int(1200 * self.screen_scale_width))
+                            self.add_to_ui_updater(self.game.text_popup)
+                            return
 
 
 class GrandMiniMap(UIMenu):
@@ -2282,8 +2297,7 @@ class CustomPresetTitle(UIMenu):
 
         text_surface = self.font.render(self.grab_text(("ui", "info_header_leadership")) +
                                         add_comma_number(int(leadership)) +
-                                        "/" + self.grab_text(("ui", "info_header_total_cost")) + add_comma_number(
-            cost),
+                                        "/" + self.grab_text(("ui", "info_header_cost")) + add_comma_number(cost),
                                         True, (30, 30, 30))
         text_rect = text_surface.get_rect(midright=(self.image.get_width(), self.image.get_height() / 2))
         self.image.blit(text_surface, text_rect)
@@ -2347,12 +2361,12 @@ class TextPopup(UIMenu):
                     for text in self.text_input:
                         image_height = int((self.font.size(text)[0] + self.font_size) / width_text_wrapper)
                         if not image_height:  # only one line
-                            text_image = Surface((width_text_wrapper, self.font_size))
+                            text_image = Surface((width_text_wrapper, self.font_size + 1))  # increase size a bit to prevent letter bottom cut
                             text_image.fill(bg_colour)
                             surface = self.font.render(text, True, font_colour)
                             text_image.blit(surface, (self.font_size, 0))
                             text_surface.append(text_image)  # text input font surface
-                            max_height += surface.get_height()
+                            max_height += surface.get_height() + 1
                         else:
                             text_image = Surface((width_text_wrapper,
                                                   calculate_long_text_size(text, self.font,
@@ -2363,7 +2377,7 @@ class TextPopup(UIMenu):
                             make_long_text(text_image, text, (self.font_size, self.font_size), self.font,
                                            color=font_colour, specific_width=width_text_wrapper)
                             text_surface.append(text_image)
-                            max_height += text_image.get_height()
+                            max_height += text_image.get_height() + 1
                 else:
                     max_width = 0
                     max_height = 0

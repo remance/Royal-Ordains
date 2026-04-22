@@ -26,7 +26,8 @@ def change_animation_frame(self):
 
 def next_animation_frame(self):
     """Add to sound queue for playing sound in battle"""
-    change_animation_frame(self)
+    if change_animation_frame(self):
+        return True
     if self.current_animation_frame["sound_effect"]:  # play sound from animation
         sound = self.current_animation_frame["sound_effect"]
         self.battle.add_sound_effect_queue(self.sound_effect_pool[sound[0]][0],

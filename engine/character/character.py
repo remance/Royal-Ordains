@@ -698,7 +698,6 @@ class BattleCharacter(Character):
                 if self.update_sprite:
                     self.reset_sprite()
                     self.update_sprite = False
-
                 if done and not self.x_momentum and not self.y_momentum:
                     # finish die animation and no momentum left
                     if not self.is_sub_character and not self.no_corpse:

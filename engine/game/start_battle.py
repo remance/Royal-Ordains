@@ -19,7 +19,6 @@ def start_battle(self, campaign, mission, team_stat, player_team, custom_stage_d
     # save_profile = self.save_data.save_profile
     # print(save_profile)
 
-    # save_profile["playtime"] += self.battle.play_time
     # save_profile["total kills"] += sum(self.battle.player_kill.values())
     # save_profile["total damages"] += sum(self.battle.player_damage.values())
     # for player, value in self.battle.player_kill.items():  # check for update for all active players to update state
