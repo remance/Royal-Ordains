@@ -7,6 +7,5 @@ def change_phase(self):
         for army in faction_data["army"]:
             army.change_phase()
 
-    for battle in self.current_campaign_state["battle"]["auto battles"]:  # process all auto battle
+    for battle in self.current_campaign_state["battle"]["auto"]:  # process all auto battle
         pass
-

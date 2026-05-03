@@ -1,5 +1,9 @@
 def activate_retreat(self, team):
-    self.drama_text.queue.append((self.localisation.grab_text(("ui", "Team")) + str(team) +
+    bad_drama = False
+    if team == self.player_team:
+        bad_drama = True
+    self.drama_text.queue.append((bad_drama,
+                                  self.localisation.grab_text(("ui", "Team")) + str(team) +
                                   self.localisation.grab_text(("ui", "retreats")),
                                   None))
     for character in self.battle.all_team_ally[self.team]:

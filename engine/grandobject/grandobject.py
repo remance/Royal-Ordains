@@ -43,8 +43,8 @@ class GrandObject(sprite.Sprite):
         self.angle = angle
         self.rect = self.image.get_rect(center=self.pos)
 
-    def update(self, dt):
-        self.play_animation(self.animation_frame_play_time, dt, self.hold)  # TODO add sound effect to scene object
+    def update(self, true_dt, dt):
+        self.play_animation(self.animation_frame_play_time, true_dt, self.hold)  # TODO add sound effect to scene object
 
     def change_state(self, new_state):
         self.active = new_state

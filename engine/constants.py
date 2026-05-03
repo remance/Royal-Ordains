@@ -34,6 +34,7 @@ Culture_Policy_Relation = {"reject": -30, "tolerate": 0, "restrict": -15, "parti
 
 """Route type travel modifier for army in grand campaign"""
 Route_Travel_Modifier = {"land": 1, "forest": 2, "hill": 2, "snow": 2, "sea": 3, "mountain": 3, "ocean": 4}
+Route_Difficulty_Colour = {1: (255, 255, 255), 2: (255, 240, 0), 3: (220, 128, 0), 4: (150, 0, 0)}
 
 # DO NOT CHANGE BELOW AS THEY MAY BREAK THE GAME
 Default_Screen_Width = 3840

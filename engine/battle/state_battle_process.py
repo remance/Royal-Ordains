@@ -183,7 +183,10 @@ def state_battle_process(self):
 
                 gain_supply = 0
                 transfer_supply = self.team_stat[loser_team]["total_supply"] * 0.15
-
+                remain_supply = self.team_stat[loser_team]["supply_resource"] + self.team_stat[loser_team][
+                    "supply_reserve"] * 0.15
+                if transfer_supply < remain_supply:  # max supply is less than remain supply, use remain instead
+                    transfer_supply = remain_supply
                 if transfer_supply > self.team_stat[loser_team]["supply_resource"]:
                     # transfer from remaining active supply
                     gain_supply += self.team_stat[loser_team]["supply_resource"]
@@ -203,10 +206,13 @@ def state_battle_process(self):
 
                 self.team_stat[self.winner_team]["supply_resource"] += gain_supply
 
+                bad_drama = True
                 if self.winner_team == self.player_team:
+                    bad_drama = False
                     result = "victory"
                 self.battle_helper_ui.battle_end(result)
-                victory_drama = (self.localisation.grab_text(("ui", "result_text_team")) + win_team +
+                victory_drama = (bad_drama,
+                                 self.localisation.grab_text(("ui", "result_text_team")) + win_team +
                                  self.localisation.grab_text(("ui", "result_text_win")), None)
 
                 # redistribute remaining supply to army

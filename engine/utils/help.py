@@ -48,9 +48,6 @@
 import csv
 import os
 
-from engine.data.data import GameData
-from engine.utils.data_loading import stat_convert
-
 current_dir = os.path.split(os.path.abspath(__file__))[0]
 
 main_dir = current_dir[:current_dir.rfind("\\") + 1].split("\\")
@@ -177,8 +174,10 @@ with open(os.path.join(data_dir, "character", "character.csv"),
                     if str(row[0]) in animation_pool_data:
                         if move_data["Move"] not in animation_pool_data[str(row[0])]:
                             print(str(row[0]), move_data["Move"])
-                        if move_data["Prepare Animation"] and move_data["Prepare Animation"]["name"] not in animation_pool_data[str(row[0])]:
+                        if move_data["Prepare Animation"] and move_data["Prepare Animation"]["name"] not in \
+                                animation_pool_data[str(row[0])]:
                             print(str(row[0]), move_data["Prepare Animation"]["name"])
 
-                        if move_data["After Animation"] and move_data["After Animation"]["name"] not in animation_pool_data[str(row[0])]:
+                        if move_data["After Animation"] and move_data["After Animation"]["name"] not in \
+                                animation_pool_data[str(row[0])]:
                             print(str(row[0]), move_data["After Animation"]["name"])

@@ -61,8 +61,10 @@ def create_campaign_route_pathfinding(self):
                     s.append(start_route)
                     path[i] = s[::-1]
                 if end_route >= 0:
-                    pathfinding_dict[(start_route_id, end_route_id)] = [region_key_index[item] for item in path[end_route]]
+                    pathfinding_dict[(start_route_id, end_route_id)] = [region_key_index[item] for item in
+                                                                        path[end_route]]
                 else:
                     pathfinding_dict[(start_route_id, end_route_id)] = [region_key_index[item] for item in path]
 
-                pathfinding_dict[(end_route_id, start_route_id)] = pathfinding_dict[(start_route_id, end_route_id)][::-1]
+                pathfinding_dict[(end_route_id, start_route_id)] = pathfinding_dict[(start_route_id, end_route_id)][
+                                                                   ::-1]

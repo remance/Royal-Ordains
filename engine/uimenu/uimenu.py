@@ -305,7 +305,8 @@ class MenuCursor(UIMenu):
 
         # middle mouse button press
         self.is_middle_mouse_select_just_down, self.is_middle_mouse_select_down, self.is_middle_mouse_select_just_up = keyboard_mouse_press_check(
-            mouse, 1, self.is_middle_mouse_select_just_down, self.is_middle_mouse_select_down, self.is_middle_mouse_select_just_up)
+            mouse, 1, self.is_middle_mouse_select_just_down, self.is_middle_mouse_select_down,
+            self.is_middle_mouse_select_just_up)
         self.middle_mouse_select_up = self.is_middle_mouse_select_just_up
 
         if self.is_select_down or self.is_alt_select_down:
@@ -689,9 +690,8 @@ class CharacterSelector(UIMenu):
                                 char_stat.append(
                                     self.grab_text(("ui", "info_header_supply_cost")) + str(character_data["Supply"]))
 
-
                             for resistance in (
-                            "Slash", "Crush", "Stab", "Fire", "Water", "Air", "Earth", "Magic", "Poison"):
+                                    "Slash", "Crush", "Stab", "Fire", "Water", "Air", "Earth", "Magic", "Poison"):
                                 if character_data[resistance + " Resistance"]:
                                     char_stat.append(
                                         self.grab_text(
@@ -1698,7 +1698,8 @@ class NameList(UIMenu):
         # White body square
         small_image = Surface(
             (
-            box.image.get_width() - int(16 * self.screen_scale_width), int((text_size + 2) * self.screen_scale_height)))
+                box.image.get_width() - int(16 * self.screen_scale_width),
+                int((text_size + 2) * self.screen_scale_height)))
         small_image.fill((220, 220, 220))
         small_rect = small_image.get_rect(center=(self.image.get_width() / 2, self.image.get_height() / 2))
         self.image.blit(small_image, small_rect)
@@ -1954,7 +1955,7 @@ class GrandFactionShowCase(UIMenu):
                                 "",
                                 self.grab_text(("ui", "info_header_weaknesses")) + self.grab_text(
                                     ("culture", self.culture, "Weaknesses"))
-                ]
+                                ]
                 self.game.text_popup.popup(self.cursor.rect, culture_stat,
                                            width_text_wrapper=int(1400 * self.screen_scale_width))
                 self.add_to_ui_updater(self.game.text_popup)
@@ -2361,7 +2362,8 @@ class TextPopup(UIMenu):
                     for text in self.text_input:
                         image_height = int((self.font.size(text)[0] + self.font_size) / width_text_wrapper)
                         if not image_height:  # only one line
-                            text_image = Surface((width_text_wrapper, self.font_size + 1))  # increase size a bit to prevent letter bottom cut
+                            text_image = Surface((width_text_wrapper,
+                                                  self.font_size + 1))  # increase size a bit to prevent letter bottom cut
                             text_image.fill(bg_colour)
                             surface = self.font.render(text, True, font_colour)
                             text_image.blit(surface, (self.font_size, 0))
@@ -2372,7 +2374,7 @@ class TextPopup(UIMenu):
                                                   calculate_long_text_size(text, self.font,
                                                                            self.font_size, width_text_wrapper,
                                                                            start_pos=(
-                                                                           self.font_size, self.font_size + 1))[1]))
+                                                                               self.font_size, self.font_size + 1))[1]))
                             text_image.fill(bg_colour)
                             make_long_text(text_image, text, (self.font_size, self.font_size), self.font,
                                            color=font_colour, specific_width=width_text_wrapper)

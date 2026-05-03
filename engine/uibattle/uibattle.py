@@ -564,6 +564,57 @@ class BattleScale(UIBattle):
                 self.image.fill((0, 0, 0), (0, 0, width, height))
 
 
+class EventNotification(UIBattle):
+    event_icons = {}
+
+    def __init__(self, pos):
+        self._layer = 5
+        UIBattle.__init__(self, player_cursor_interact=False)
+        self.font = self.game.medium_generic_ui_font
+        self.header_font = self.game.large_generic_ui_font
+        self.image = Surface((0 * self.screen_scale_width, 0 * self.screen_scale_height))
+        self.event_item_height = 100 * self.screen_scale_height
+        self.image.fill((0, 200, 50))
+        self.image_width = 800 * self.screen_scale_width
+        self.base_image = self.image.copy()
+        self.active_events = []
+        self.rect = self.image.get_rect(topleft=pos)
+
+    def add_event(self, event):
+        self.active_events.append([event, 4])  # each event got shown for 4 second before removed
+        if len(self.active_events) < 7:  # update image when add new event that will get shown right away
+            self.update_image()
+
+    def update_image(self):
+        self.image = Surface((self.image_width,
+                              len(self.active_events[:6]) * self.event_item_height), SRCALPHA)
+        for index, event in enumerate(self.active_events[:6]):  # show only max 6 items
+            event = event[0]
+            event_icon = self.event_icons[event[0]]
+            self.image.blit(event_icon, event_icon.get_rect(topleft=(0, index * self.event_item_height)))
+
+            event_text = text_render_with_bg(event[1], self.font)
+            self.image.blit(event_text, event_text.get_rect(topleft=(100 * self.screen_scale_width,
+                                                                     index * self.event_item_height)))
+
+            draw.line(self.image, (0, 0, 0), (0, index * self.event_item_height),
+                      (self.image_width, index * self.event_item_height))
+
+    def reset(self):
+        self.active_events = []
+        self.image = Surface((0 * self.screen_scale_width, 0 * self.screen_scale_height))
+
+    def update(self, dt):
+        image_update = False
+        for event in tuple(self.active_events[:6]):
+            event[1] -= dt
+            if event[1] < 0:
+                image_update = True
+                self.active_events.remove(event)
+        if image_update:
+            self.update_image()
+
+
 class BattleHelper(UIBattle):
     def __init__(self, weather_icon_images, helper_ui_image, helper_ui_base_image, helper_images, time_choice_images,
                  time_select_images):
@@ -584,10 +635,10 @@ class BattleHelper(UIBattle):
         self.base_battle_timer_rect_topright = (660 * self.screen_scale_width, 30 * self.screen_scale_height)
         time_choice_pos_x = 380 * self.screen_scale_width
         self.time_choice_rects = (
-        time_choice_images[0].get_rect(center=(time_choice_pos_x, 55 * self.screen_scale_height)),
-        time_choice_images[1].get_rect(center=(time_choice_pos_x, 110 * self.screen_scale_height)),
-        time_choice_images[2].get_rect(center=(time_choice_pos_x, 165 * self.screen_scale_height)),
-        time_choice_images[3].get_rect(center=(time_choice_pos_x, 215 * self.screen_scale_height)))
+            time_choice_images[0].get_rect(center=(time_choice_pos_x, 55 * self.screen_scale_height)),
+            time_choice_images[1].get_rect(center=(time_choice_pos_x, 110 * self.screen_scale_height)),
+            time_choice_images[2].get_rect(center=(time_choice_pos_x, 165 * self.screen_scale_height)),
+            time_choice_images[3].get_rect(center=(time_choice_pos_x, 215 * self.screen_scale_height)))
 
         self.helper_rect = self.helper_images["castle"]["normal"].get_rect(topleft=(50 * self.screen_scale_width, 0))
         self.helper_time_selector_rect = self.helper_images["castle"]["time_1"].get_rect(
@@ -1297,7 +1348,7 @@ class CharacterSpeechBox(UIBattle):
         self._layer = 9999999999999999998
         UIBattle.__init__(self, player_cursor_interact=False, has_containers=True)
         font = "simple"
-        if not self.simple_font and self.game.language in ("en", "es", "it", "fr", "de", ):
+        if not self.simple_font and self.game.language in ("en", "es", "it", "fr", "de",):
             # culture font only available for latin alphabet sadly
             font = "culture_" + character.culture
 
@@ -1413,7 +1464,7 @@ class CharacterSpeechBox(UIBattle):
         head_rect = (
             (self.character.pos[0] + (self.character.current_animation_direction["head"][0] * self.screen_scale_width)),
             (self.character.pos[1] + (
-                        self.character.current_animation_direction["head"][1] * self.screen_scale_height)))
+                    self.character.current_animation_direction["head"][1] * self.screen_scale_height)))
         if self.character.direction == "left":  # left direction facing
             if head_rect[0] - (
                     self.battle.shown_camera_center_pos[0] - self.battle.camera.camera_w_center) < self.max_length:

@@ -8,4 +8,3 @@ def change_region_control(self, region, new_faction):
 
     # if "culture" not in :
     # if new_faction == self.player_faction:  # add event
-

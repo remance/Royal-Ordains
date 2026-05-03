@@ -47,7 +47,7 @@ from engine.game.change_pause_update import change_pause_update
 from engine.scene.scene import Scene
 from engine.uibattle.drama import TextDrama
 from engine.uibattle.uibattle import (FPSCount, BattleHelper, BattleScale, BattleCursor, CharacterSpeechBox,
-                                      CharacterCommandIndicator, DamageNumber,
+                                      CharacterCommandIndicator, DamageNumber, EventNotification,
                                       PlayerBattleInteract, CharacterInteractPrompt,
                                       Command, TacticalMap, StrategySelect, ScreenFade, BattleResult)
 from engine.uimenu.uimenu import TextPopup, BrownMenuButton
@@ -309,9 +309,11 @@ class Battle:
         # Create battle ui
         Battle.battle_cursor = BattleCursor(load_images(self.data_dir,
                                                         subfolder=("ui", "cursor_battle")))  # no need to scale cursor
+        EventNotification.event_icons = self.sprite_data.grand_ui_icons
 
         battle_ui_images = load_images(self.data_dir, screen_scale=self.screen_scale,
                                        subfolder=("ui", "battle_ui"))
+        self.battle_ui_images = battle_ui_images
         CharacterSpeechBox.images = battle_ui_images
 
         self.command_ui = Command(battle_ui_images["call_count"], battle_ui_images["air_count"])
@@ -342,7 +344,10 @@ class Battle:
         self.strategy_select_ui = StrategySelect(self.battle_scale_ui.rect.midbottom,
                                                  self.sprite_data.strategy_icons)
 
-        self.always_command_ui = (self.tactical_map_ui, self.battle_helper_ui, self.battle_scale_ui)
+        self.grand_event_notification = EventNotification(self.command_ui.rect.bottomleft)
+
+        self.always_command_ui = (self.tactical_map_ui, self.battle_helper_ui, self.battle_scale_ui,
+                                  self.grand_event_notification)
         self.only_player_command_ui = (self.command_ui, self.strategy_select_ui, self.player_battle_interact)
 
         self.character_command_indicator = CharacterCommandIndicator(600, battle_ui_images["player_order_move"],
@@ -413,7 +418,8 @@ class Battle:
         self.current_scene = 1
 
     def prepare_new_stage(self, attach_grand, campaign, mission, team_stat, player_team, custom_stage_data, ai_retreat):
-        for message in self.inner_prepare_new_stage(attach_grand, campaign, mission, team_stat, player_team, custom_stage_data,
+        for message in self.inner_prepare_new_stage(attach_grand, campaign, mission, team_stat, player_team,
+                                                    custom_stage_data,
                                                     ai_retreat):
             self.game.error_log.write("Start Stage:" + "." + str(mission))
             print(message, end="")
@@ -834,36 +840,28 @@ class Battle:
 
                     # FOR DEVELOPMENT comment out later
                     if event.key == K_KP_1:
-                        self.drama_text.queue.append(("Hello and welcome to showcase video", "Dollhi"))
+                        self.drama_text.queue.append((False, "Hello and welcome to showcase video", "Dollhi"))
                         self.screen_shake_value += 1000
                     elif event.key == K_KP_2:
-                        self.drama_text.queue.append(("Show case: Reworked battle system.", None))
+                        self.drama_text.queue.append((True, "Show case: Reworked battle system.", None))
                         for enemy in self.all_battle_characters:
                             enemy.health = 0
                     elif event.key == K_KP_3:
-                        self.drama_text.queue.append(
-                            ("In some maps, neutral animals may appear based on specific condition", None))
+                        self.drama_text.queue.append((
+                            False, "In some maps, neutral animals may appear based on specific condition", None))
                         self.team_commander[1].health = 0
                     elif event.key == K_KP_4:
-                        self.drama_text.queue.append(
-                            ("Each can have a different behaviour, some just move around doing nothing", None))
+                        self.drama_text.queue.append((
+                            False, "Each can have a different behaviour, some just move around doing nothing", None))
                         for enemy in self.all_battle_characters:
                             if enemy.alive:
                                 enemy.health -= 100
-                        self.drama_text.queue.append(
-                            ("They will return when out of resource and require rest to be ready again", None))
+                        self.drama_text.queue.append((
+                            False, "They will return when out of resource and require rest to be ready again", None))
                     elif event.key == K_KP_5:
-                        # self.drama_text.queue.append(("Maybe need to add clear unit selector around here", None))
-                        # self.drama_text.queue.append(
-                        #     ("Some may be curious like bear cub that will follow any coming close, very dangerous",
-                        #      None))
-                        self.team_commander[1].ai_speak("hurt")
+                        self.grand_event_notification.add_event(("bad", "test"))
                     elif event.key == K_KP_6:
-                        # self.drama_text.queue.append(
-                        #     ("Some will even attack, buff, debuff or even summon enemies", None))
-                        # self.call_in_air_group(2, [index for index, _ in enumerate(self.team_stat[2]["air_group"])],
-                        #                        500)
-                        self.team_commander[2].ai_speak("hurt")
+                        self.grand_event_notification.add_event(("good", "test"))
                     elif event.key == K_KP_7:
                         self.activate_strategy(2, "Spell_huge_stone", 1000)
                     elif event.key == K_KP_8:  # clear profiler
@@ -920,6 +918,7 @@ class Battle:
         self.battle_cursor.change_image("normal")
 
         self.command_ui.reset()
+        self.grand_event_notification.reset()
 
         # stop all sounds
         for sound_ch in self.battle_sound_channels:

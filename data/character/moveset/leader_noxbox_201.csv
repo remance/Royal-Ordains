@@ -1,7 +1,7 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
-"Skill1","Magic Spear",,,"self:{no_engage=500}",5000,7000,5,10,40,160,8,8,,"magic",,,,
-"Skill2","Magic Tempest",,,,6000,,30,40,6,1000,,,,"magic",,,,"effect_target_placement"
-"Skill3","Decelerate Time",,,,6000,10000,60,30,,,,,,,,"slow",,
-"Skill4","Magic Bombardment",,,,8000,10000,15,20,23,40,20,40,,"magic",,,,"arc:high"
-"Skill5","Teleport",,,"self:{no_engage=10000;no_stay}",20000,,10,10,,,,,,,,,,"movable,x_momentum:2000,repeat,,speed:100000"
-"Skill6","Mana Preparation",,,"self:{resource<=30}",10000,,60,,,,,,,,"resource_generation,resource_kit",,,"no_ai_range_check_setup"
+"Skill1","Magic Fish",,,"self:{no_engage=500}",5000,7000,5,13,40,160,8,8,,"magic",,,,
+"Skill2","Magic Star",,,,6000,15000,30,33,7,1000,,,,"magic",,,,
+"Skill3","Decelerate Time",,,,6000,10000,60,23,,,,,,"magic",,"slow",,
+"Skill4","Magic Bombardment",,,,8000,10000,15,13,23,150,60,110,,"magic",,,,"arc:high"
+"Skill5","Teleport","name:Skill5Ready",,"self:{no_engage=10000;no_stay}",20000,,20,13,,,,,,"magic",,,,"movable,x_momentum:3000,repeat,speed:100000"
+"Skill6","Mana Recharge",,,"self:{resource<=30}",10000,,60,3,,,,,,"magic","resource_generation,resource_kit",,,"no_ai_range_check_setup"

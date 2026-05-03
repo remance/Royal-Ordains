@@ -12,7 +12,8 @@ def state_grand_process(self, dt):
             self.current_campaign_state["phase"] = 1
             self.current_campaign_state["turn"] += 1
             self.change_turn()
-        self.mini_time_orb.update_time()
+        self.mini_time_orb_ui.update_time()
+
     # if self.ai_process_list:
     #     limit = int(len(self.ai_process_list) / 20)
     #     if limit < 20:
@@ -28,3 +29,6 @@ def state_grand_process(self, dt):
     #
     # for battle_ai_commander in self.all_battle_ai_commanders:
     #     battle_ai_commander.update(dt)
+
+    # if self.current_campaign_state["battle"]["manual"]:
+    #     self.battle.grand_event_notification

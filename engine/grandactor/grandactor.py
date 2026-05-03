@@ -1,9 +1,9 @@
 from pygame import sprite, Vector2, draw, Surface, SRCALPHA
-from pygame.transform import smoothscale
 
 from engine.battleobject.adjust_sprite import adjust_sprite
 from engine.character.reset_sprite import reset_sprite
 from engine.constants import Base_Animation_Frame_Play_Time
+from engine.grandactor.move_logic import move_logic
 from engine.grandactor.pick_animation import pick_animation
 from engine.grandactor.play_animation import play_animation
 from engine.utils.common import clean_object
@@ -14,6 +14,7 @@ class GrandActor(sprite.Sprite):
     clean_object = clean_object
     play_animation = play_animation
     pick_animation = pick_animation
+    move_logic = move_logic
     reset_sprite = reset_sprite
 
     containers = None
@@ -24,6 +25,12 @@ class GrandActor(sprite.Sprite):
         self.army_pos = Vector2(army.base_pos)
         self._layer = 100 + (self.army_pos[1] * 1000000)
         sprite.Sprite.__init__(self, self.containers)
+        self.drawer = self.grand.grand_camera_object_drawer
+
+        self.map_shown_to_actual_scale_width = self.grand.map_shown_to_actual_scale_width
+        self.map_shown_to_actual_scale_height = self.grand.map_shown_to_actual_scale_height
+        self.skip_move_length = 100 * self.map_shown_to_actual_scale_width
+
         self.army = army
         self.grand_faction_actor_circle = None
         army.commander_actor = self
@@ -44,28 +51,38 @@ class GrandActor(sprite.Sprite):
         self.current_animation_frame = self.current_animation[self.show_frame]
         self.current_animation_direction = self.current_animation_frame[self.direction]
         self.image = self.current_animation_direction["sprite"]
-        self.pos = Vector2((self.army_pos[0] * self.grand.map_shown_to_actual_scale_width,
-                            self.army_pos[1] * self.grand.map_shown_to_actual_scale_height))
+        self.pos = Vector2((self.army_pos[0] * self.map_shown_to_actual_scale_width,
+                            self.army_pos[1] * self.map_shown_to_actual_scale_height))
         self.rect = self.image.get_rect(center=self.pos)
         self.circle = GrandFactionActorCircle(self, faction)
 
         self.target_pos = Vector2(self.pos)
-
+        self.animation_name = "Idle"
         self.pick_animation("Idle")
         self.reset_sprite()
 
-    def update(self, dt):
-        if self.army.base_pos != self.army_pos:
-            self.army_pos = Vector2(self.army.base_pos)
-            self.target_pos = Vector2((self.army_pos[0] * self.grand.map_shown_to_actual_scale_width,
-                                       self.army_pos[1] * self.grand.map_shown_to_actual_scale_height))
+    def update(self, true_dt, dt):
+        army = self.army
+        if army.game_id in self.grand.current_campaign_state["battle"]["armies"]:  # in battle
+            if self.animation_name != "Idle":
+                self.pick_animation("Idle")
+        elif army.travelling or self.pos != self.target_pos:
+            if self.animation_name != "Walk":  # pick walk animation
+                self.pick_animation("Walk")
+        else:  # idle
+            if self.animation_name != "Idle":
+                self.pick_animation("Idle")
 
-            self.grand.grand_camera_object_drawer.change_layer(100 + (self.pos[1] * 10))
-            if self.army.travelling:
-                self.direction = "right"
-                if self.target_pos[0] < self.pos[0]:
-                    self.direction = "left"
-        self.play_animation(dt)
+        if self.army.base_pos != self.army_pos:  # moving to new dot point
+            self.army_pos = Vector2(army.base_pos)
+            self.target_pos = Vector2((self.army_pos[0] * self.map_shown_to_actual_scale_width,
+                                       self.army_pos[1] * self.map_shown_to_actual_scale_height))
+
+        if self.pos != self.target_pos:
+            self.move_logic(dt)
+            self.drawer.change_layer(self, 100 + (self.pos[1] * 10))
+
+        self.play_animation(true_dt)
         if self.update_sprite:
             self.reset_sprite()
             self.update_sprite = False
@@ -80,6 +97,7 @@ class GrandFactionActorCircle(sprite.Sprite):
     def __init__(self, actor, faction):
         self._layer = actor.pos[1]
         sprite.Sprite.__init__(self, self.containers)
+        self.drawer = self.grand.grand_camera_object_drawer
         self.actor = actor
         actor.grand_faction_actor_circle = self
         if faction not in self.faction_circle_cache:
@@ -106,7 +124,7 @@ class GrandFactionActorCircle(sprite.Sprite):
 
         self.rect = self.image.get_rect(center=self.pos)
 
-    def update(self, dt):
+    def update(self, true_dt, dt):
         if self.actor.army in self.grand.player_selected_army:
             self.image = self.selected_image
         else:
@@ -115,5 +133,5 @@ class GrandFactionActorCircle(sprite.Sprite):
         actor_pos = self.actor.pos
         if self.pos != actor_pos:
             self.pos = actor_pos.copy()
-            self.grand.grand_camera_object_drawer.change_layer(actor_pos[1])
+            self.drawer.change_layer(self, actor_pos[1])
         self.rect.center = self.pos

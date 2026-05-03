@@ -1,5 +1,6 @@
-from engine.constants import Culture_Policy_Integration
 from random import randint
+
+from engine.constants import Culture_Policy_Integration
 
 
 def menu_grand_setup(self):
@@ -53,7 +54,7 @@ def menu_grand_setup(self):
                                      "income": {key: {"gold_income": 0, "supply_income": 0, "happiness": 0} for key in
                                                 self.map_data.region_list}
                                      },
-                          "battle": {"armies": {}, "auto battles": {}, "manual battle": None},
+                          "battle": {"armies": {}, "auto": {}, "manual": None},
                           "pathfinding": {},
                           "faction": all_faction_state, "eventlog": [],
                           "time": randint(0, 999999999999999999999999),

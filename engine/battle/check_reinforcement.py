@@ -30,7 +30,7 @@ def check_reinforcement(self):
                                     data = {"Team": condition, "ID": character}
                                     if "POS" not in data:
                                         data["POS"] = (
-                                        self.team_stat[condition]["start_pos"], Default_Battle_Ground_Pos)
+                                            self.team_stat[condition]["start_pos"], Default_Battle_Ground_Pos)
 
                                     add_battle_char = BattleCharacter(self.last_char_game_id,
                                                                       data | self.character_list[character],

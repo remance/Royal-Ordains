@@ -1,13 +1,11 @@
 # import uuid str(uuid.uuid1())
 
-from pygame import Vector2
-
-from engine.constants import Retinue_Leadership_Add_Modifier
 from engine.army.change_active_commander_actor import change_active_commander_actor
 from engine.army.change_phase import change_phase
 from engine.army.deploy_from_reserve import deploy_from_reserve
 from engine.army.issue_move_command import issue_move_command
 from engine.army.remove_army_from_active import remove_army_from_active
+from engine.constants import Retinue_Leadership_Add_Modifier
 
 
 class Army:

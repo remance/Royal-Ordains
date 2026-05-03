@@ -39,6 +39,7 @@ class DataMap(GameData):
         self.region_list = {}
         self.route_list = {}
         self.route_dot_draw_array = {}
+        self.dot_route_difficulty = {}
         self.route_pathfinding = {}
         self.start_army_list = {}
         self.faction_list = {}
@@ -74,31 +75,35 @@ class DataMap(GameData):
 
         self.route_list = {}
         self.route_dot_draw_array = {}
+        self.dot_route_difficulty = {}
         with open(os.path.join(self.data_dir, "map", "world", campaign, "route.csv"),
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
             list_column = ["Dots"]
             list_column = [index for index, item in enumerate(header) if item in list_column]
-            tuple_column = ("Route", )
+            tuple_column = ("Route",)
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
                     row = stat_convert(row, n, i, list_column=list_column, tuple_column=tuple_column)
                 self.route_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
-                dot_route = self.route_list[row[0]]["Dots"]
+                route_data = self.route_list[row[0]]
+                dot_route = route_data["Dots"]
                 for index, route in enumerate(dot_route):
                     if route[0] not in self.route_dot_draw_array:
                         self.route_dot_draw_array[route[0]] = {}
                     if index + 1 != len(dot_route):
                         self.route_dot_draw_array[route[0]][route[1]] = set_rotate(route, dot_route[index + 1])
                     else:  # next destination is settlement use settlement pos to calculate angle instead
-                        self.route_dot_draw_array[route[0]][route[1]] = set_rotate(route, self.region_list[row[0][1]]["Settlement POS"])
+                        self.route_dot_draw_array[route[0]][route[1]] = set_rotate(route, self.region_list[row[0][1]][
+                            "Settlement POS"])
                     self.route_dot_draw_array[route[0]] = dict(sorted(self.route_dot_draw_array[route[0]].items()))
+                    self.dot_route_difficulty[tuple(route)] = Route_Travel_Modifier[route_data["Type"]]
 
                 # add settlement pos to route after dots draw since dots do not include settlement
-                self.route_list[row[0]]["Dots"].insert(0, self.region_list[row[0][0]]["Settlement POS"])
-                self.route_list[row[0]]["Dots"].append(self.region_list[row[0][1]]["Settlement POS"])
+                route_data["Dots"].insert(0, self.region_list[row[0][0]]["Settlement POS"])
+                route_data["Dots"].append(self.region_list[row[0][1]]["Settlement POS"])
                 # convert to tuple
                 self.route_list[row[0]]["Dots"] = tuple([tuple(item) for item in self.route_list[row[0]]["Dots"]])
 

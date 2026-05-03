@@ -319,7 +319,8 @@
 "leader_mounniley","death","human",6500,89,81,62,93,0.25,0.25,0.25,0.25,0.25,0.25,0.25,0.25,0.5,,,,,1,1,,,"TRUE","TRUE",,"strategy_age_of_heroes",7,9,10,,,,,,,,"fear,terror","ground","medium_melee","melee",1250,,,"no_upgrade"
 "leader_mratarvir","free","undead",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"strategy_determination",,,,,,,,,,,,"ground",,,,,,
 "leader_mratarvir_revenger","free","undead",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"strategy_precise_execution",,,,,,,,,,,,"ground",,,,,,
-"leader_nadvalin","small","construct",3000,67,40,38,13,0.5,-0.5,0.75,0.75,,-0.25,0.25,,0.75,,,,,1,1,,,"TRUE","TRUE",,"strategy_absolute_might",6,7,5,,,,,,,,,"ground","medium_melee","melee",700,,,"no_upgrade"
+"leader_nadvalin","small","construct",3000,67,40,38,13,0.5,-0.5,0.75,0.75,,-0.25,0.25,,0.75,,,,,1,1,,,"TRUE","TRUE",,"strategy_absolute_might",6,7,5,,,,,,,,,"ground","medium_melee","melee",700,,,
+"leader_nadvalin_upgrade","small","construct",,,,,,,,,,,,,,,,,,,,,,,"TRUE","TRUE",,"strategy_absolute_might",,,,,,,,,,,,"ground","medium_melee","melee",,,,
 "leader_nalana","small","sun_elf",2200,18,34,65,42,-0.25,0.25,0.25,-1,0.75,0.5,0.5,0.75,-0.25,,300,,,1,1,,,"TRUE","TRUE",,"weather_rain",1,7,5,,,,,,,,,"ground","support","range",,,,
 "leader_nalana_beauty","small","sun_elf",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"weather_rain",,,,,,,,,,,,"ground","support","range",,,,
 "leader_nalana_thorn","small","sun_elf",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"strategy_natural_chaos",,,,,,,,,,,,"ground","support","melee",,,,

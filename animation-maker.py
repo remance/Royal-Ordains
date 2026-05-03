@@ -1551,7 +1551,7 @@ save_button = Button("Save", image, (image.get_width() * 2.5, image.get_height()
                          "Save all animation", "Save the current state of all animation only for this character."))
 compile_button = Button("Compile", image, (image.get_width() * 3.5, image.get_height() / 2),
                         description=(
-                        "Compile this character animations", "Compile this character animation for game used."))
+                            "Compile this character animations", "Compile this character animation for game used."))
 compile_all_button = Button("Compile A", image, (image.get_width() * 4.5, image.get_height() / 2),
                             description=("Compile all animations", "Compile all current animations for game used."))
 size_button = Button("Zoom: ", image, (image.get_width() * 5.5, image.get_height() / 2),

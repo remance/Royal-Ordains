@@ -1,4 +1,4 @@
-from math import cos, sin, atan2, degrees, radians, pi
+from math import cos, sin, atan2, degrees, radians
 
 from pygame import Vector2
 

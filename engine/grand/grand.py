@@ -16,6 +16,7 @@ from engine.battle.drama_process import drama_process
 from engine.battle.play_sound_effect import play_sound_effect
 from engine.battle.shake_camera import shake_camera
 from engine.camera.camera import Camera
+from engine.constants import Route_Difficulty_Colour
 from engine.game.activate_input_popup import activate_input_popup
 from engine.game.change_pause_update import change_pause_update
 from engine.grand.auto_battle_process import auto_battle_process
@@ -39,7 +40,7 @@ from engine.uibattle.uibattle import FPSCount
 from engine.uigrand.uigrand import (YesNo, PlayerGrandInteract, PlayerFactionResourceBar, PlayerFactionCultureList,
                                     PlayerArmyList, PlayerArmyListSortOption, MiniTimeOrb, MapSettingOption,
                                     TimeInfoBar, TimeSettingOption, EventImportantPopup,
-                                    MenuBar, RegionManagement, CultureManagement, EventNotification, ArmyInfo)
+                                    MenuBar, RegionManagement, EventNotification, ArmyInfo)
 from engine.uimenu.uimenu import TextPopup, GrandMiniMap, UIScroll, PresetArmySetupUI, CharacterSelector
 from engine.updater.updater import ReversedLayeredUpdates
 from engine.utils.common import clean_group_object
@@ -72,6 +73,7 @@ class Grand:
 
     def __init__(self, game):
         self.game = game
+        self.battle = self.game.battle
         Grand.grand = self
         Grand.cursor = game.cursor
 
@@ -201,7 +203,7 @@ class Grand:
         GrandObject.screen_scale = self.screen_scale
 
         # Create grand ui
-        self.travel_dot_images = {}  # get added during campaign prepare
+        self.travel_dot_images = {1: {}, 2: {}, 3: {}, 4: {}}  # get added during campaign prepare
         grand_ui_images = load_images(self.data_dir, screen_scale=self.screen_scale,
                                       subfolder=("ui", "grand_ui"))
         self.decision_select = YesNo(grand_ui_images)
@@ -215,7 +217,7 @@ class Grand:
         self.player_grand_interact = PlayerGrandInteract()
 
         self.player_grand_preset_army_setup = PresetArmySetupUI((self.screen_width * 0.4, self.screen_height * 0.2),
-                                                          True)
+                                                                True)
         self.player_army_info_ui = ArmyInfo(self.player_grand_preset_army_setup.rect.topleft)
         self.player_grand_character_selector = CharacterSelector((self.screen_width * 0.78, self.screen_height * 0.2))
 
@@ -261,7 +263,8 @@ class Grand:
         self.route_list = {}
         self.route_dot_draw_array = {}
 
-        self.always_ui = (self.player_grand_interact, self.mini_map, self.map_setting_option_ui, self.mini_time_orb_ui, self.time_info_bar_ui,
+        self.always_ui = (self.player_grand_interact, self.mini_map, self.map_setting_option_ui,
+                          self.mini_time_orb_ui, self.time_info_bar_ui,
                           self.time_setting_ui, self.menu_bar_ui, self.event_notification_ui)
 
         self.only_player_ui = (self.player_faction_resource_bar_ui, self.player_faction_culture_list_ui,
@@ -304,12 +307,15 @@ class Grand:
         self.region_list = self.map_data.region_list
         self.route_list = self.map_data.route_list
 
-        travel_dot_image = Surface((20 * self.screen_scale_width, 30 * self.screen_scale_height), SRCALPHA)
-        travel_dot_image.fill((0, 0, 0))
-        white_part = Surface((10 * self.screen_scale_width, 15 * self.screen_scale_height), SRCALPHA)
-        white_part.fill((255, 255, 255))
-        travel_dot_image.blit(white_part, white_part.get_rect(center=(travel_dot_image.get_width() / 2,
-                                                                      travel_dot_image.get_height() / 2)))
+        travel_dot_images = {1: None, 2: None, 3: None, 4: None}
+        for key in travel_dot_images:
+            dot_image = Surface((20 * self.screen_scale_width, 30 * self.screen_scale_height), SRCALPHA)
+            dot_image.fill((0, 0, 0))
+            difficulty_part = Surface((10 * self.screen_scale_width, 15 * self.screen_scale_height), SRCALPHA)
+            difficulty_part.fill(Route_Difficulty_Colour[key])
+            dot_image.blit(difficulty_part, difficulty_part.get_rect(center=(dot_image.get_width() / 2,
+                                                                             dot_image.get_height() / 2)))
+            travel_dot_images[key] = dot_image
 
         route_dot_draw_array = {}
         map_data_route_dot_draw_array = self.map_data.route_dot_draw_array
@@ -319,9 +325,10 @@ class Grand:
             for y in map_data_route_dot_draw_array[x]:
                 scale_y = y * self.grand_map.map_shown_to_actual_scale_height
                 angle = map_data_route_dot_draw_array[x][y]
-                if angle not in self.travel_dot_images:
-                    self.travel_dot_images[angle] = rotate(travel_dot_image, angle)
-                route_dot_draw_array[scale_x][scale_y] = self.travel_dot_images[angle]
+                difficulty = self.map_data.dot_route_difficulty[(x, y)]
+                if angle not in self.travel_dot_images[difficulty]:
+                    self.travel_dot_images[difficulty][angle] = rotate(travel_dot_images[difficulty], angle)
+                route_dot_draw_array[scale_x][scale_y] = self.travel_dot_images[difficulty][angle]
         self.route_dot_draw_array = route_dot_draw_array
 
         # load actor animation sprite
@@ -387,7 +394,7 @@ class Grand:
 
                 self.cal_faction_income(faction)
 
-        self.event_notification_ui.event_list_update()
+        self.event_notification_ui.update_image()
         self.fix_camera()
 
         self.input_popup = None  # no popup asking for user text input state
@@ -463,7 +470,7 @@ class Grand:
                         self.cursor.scroll_up = True
                     elif event.button == 5:  # Mouse scroll up
                         self.cursor.scroll_down = True
-                # elif event.type == self.SONG_END:  # whatever music end, pick random from default battle music
+                # elif event.type == self.SONG_END: # whatever music end, pick random from default battle music
                 #     self.music.play(choice(self.default_battle_music_pool), fade_ms=100)
 
                 elif event.type == QUIT:  # quit game
@@ -479,16 +486,10 @@ class Grand:
 
                     # FOR DEVELOPMENT comment out later
                     if event.key == K_F1:
-                        self.drama_text.queue.append(("Hello and welcome to showcase video", "Dollhi"))
+                        self.drama_text.queue.append(True, ("Hello and welcome to showcase video", "Dollhi"))
                     # elif event.key == K_F2:
-                    #     self.drama_text.queue.append(("Show case: Neutral Enemy", None))
                     # elif event.key == K_F3:
-                    #     self.drama_text.queue.append(
-                    #         ("In some maps, neutral animals may appear based on specific condition", None))
-
                     # elif event.key == K_F6:
-                    #     self.drama_text.queue.append(
-                    #         ("Some will even attack, buff, debuff or even summon enemies", None))
                     # self.screen_shake_value = 11111
                     # elif event.key == K_F7:
                     # self.screen_shake_value = 11111
@@ -500,14 +501,14 @@ class Grand:
                             self.game.setup_profiler()
                         self.game.profiler.switch_show_hide()
 
-            if self.input_popup:  # currently, have input text pop up on screen, stop everything else until done
+            if self.input_popup:  # currently, have input text pop up on screen, stop everything else until done.
                 if self.input_ok_button.event_press:
                     done = True
 
                     if self.input_popup[1] in ("retreat", "retreat_assemble"):
                         # for army in self.player_selected_army:  # TODO finish retreat function here
-                            # all army in the same battles retreat and lose battle
-                            # for battle in self.current_campaign_state["battle"]["auto battles"]:
+                        # all army in the same battles retreat and lose battle
+                        # for battle in self.current_campaign_state["battle"]["auto battles"]:
                         # for army in self.player_selected_army:
                         #     army.issue_move_command(self.input_popup[2])
                         pass
@@ -540,7 +541,7 @@ class Grand:
                 #     else:
                 #         self.text_delay -= self.dt
                 #         if self.text_delay < 0:
-                #             self.text_delay = 0
+                #             self.text_delay = 0.
             else:
                 # Update game time
                 dt = self.true_dt * self.game_speed
@@ -550,12 +551,12 @@ class Grand:
                 self.player_input()
 
                 if dt:
-                    if dt > 0.016:  # one frame update should not be longer than 0.016 second (60 fps) for calculation
-                        dt = 0.016  # make it so stutter and lag does not cause overtime issue
+                    if dt > 0.016:  # one frame update should not be longer than 0.016 second (60 fps) for calculation.
+                        dt = 0.016  # make it so stutter and lag does not cause overtime issue.
 
                     self.state_grand_process(dt)
 
-                    self.ui_timer += self.true_dt  # ui update by real time instead of self time to reduce workload
+                    self.ui_timer += self.true_dt  # ui update by real time instead of self time to reduce workload.
 
                     # Screen shaking
                     if self.screen_shake_value:
@@ -580,7 +581,7 @@ class Grand:
                         self.ui_timer -= 0.1
 
                 # Object related updater
-                self.grand_actor_updater.update(self.true_dt)
+                self.grand_actor_updater.update(self.true_dt, dt)
                 self.grand_effect_updater.update(self.true_dt)
 
                 # update camera
@@ -590,7 +591,7 @@ class Grand:
                 self.camera.camera_bottom_bound = self.camera.camera_top_bound + self.screen_height
                 self.grand_map.update()
                 if self.show_route:
-                    # add route after map update draw to blit route dots on the map under other sprites
+                    # add route after map update draw to blit route dots on the map under other sprites.
                     self.draw_route()
 
             self.camera.update(self.grand_camera_object_drawer)

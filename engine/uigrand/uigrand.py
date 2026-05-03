@@ -4,6 +4,7 @@ from pygame import Vector2, Surface, SRCALPHA, Rect, draw, Color
 from pygame.transform import smoothscale
 
 from engine.constants import Culture_Policy_Integration
+from engine.uibattle.uibattle import EventNotification as BattleEventNotification
 from engine.uimenu.uimenu import UIMenu
 from engine.utils.text_making import add_plus_to_number, add_comma_number, text_render_with_bg, minimise_number_text
 
@@ -110,8 +111,8 @@ class PlayerFactionResourceBar(UIGrand):
     def __init__(self):
         self._layer = 5
         UIGrand.__init__(self)
-        self.image = Surface((1400 * self.screen_scale_width, 100 * self.screen_scale_height), SRCALPHA)
-        self.image.fill((255, 200, 80))
+        self.image = Surface((1400 * self.screen_scale_width, 80 * self.screen_scale_height), SRCALPHA)
+        self.image.fill((80, 200, 255))
         self.image.blit(self.grand_ui_icons["gold"], (50 * self.screen_scale_width,
                                                       20 * self.screen_scale_height))
         self.image.blit(self.grand_ui_icons["supply"], (600 * self.screen_scale_width,
@@ -143,7 +144,7 @@ class PlayerFactionResourceBar(UIGrand):
                 if text != "happiness":
                     value = (add_comma_number(resource[index][0]) + " (" +
                              add_plus_to_number(add_comma_number(resource[index][1])) + ")")
-                value = self.font.render(value, True, (0, 0, 0))
+                value = text_render_with_bg(value, self.font)
                 blit_text_rect = value.get_rect(topleft=self.text_rect[text])
                 self.image.blit(value, blit_text_rect)
                 self.blit_text_rect[text] = blit_text_rect
@@ -157,7 +158,8 @@ class PlayerFactionResourceBar(UIGrand):
             for key, rect in self.blit_text_rect.items():
                 if rect.collidepoint(inside_mouse_pos):
                     text = [self.grab_text(("ui", "info_text_" + key)), ""]
-                    resource_effect_list = self.grand.current_campaign_state["faction"][self.grand.player_faction][key + "_effect"]
+                    resource_effect_list = self.grand.current_campaign_state["faction"][self.grand.player_faction][
+                        key + "_effect"]
                     text_sum = {key: 0 for key in resource_effect_list}
                     for key2, value2 in resource_effect_list.items():
                         if type(value2) is list:
@@ -240,12 +242,13 @@ class PlayerFactionCultureList(UIGrand):
                 if rect.collidepoint(inside_mouse_pos):
                     culture_state = self.grand.current_campaign_state["faction"][self.grand.player_faction]["culture"][
                         culture]
-                    text = (self.grab_text(("ui", "info_header_culture")) + self.grab_text(("culture", culture, "Name")),
-                            self.grab_text(("ui", "info_header_policy")) + self.grab_text(
-                                ("ui", "culture_" + culture_state["policy"])),
-                            self.grab_text(("ui", "info_header_integration")) + self.culture_value[culture][
-                                "integration"],
-                            self.grab_text(("ui", "info_header_influence")) + self.culture_value[culture]["influence"])
+                    text = (
+                    self.grab_text(("ui", "info_header_culture")) + self.grab_text(("culture", culture, "Name")),
+                    self.grab_text(("ui", "info_header_policy")) + self.grab_text(
+                        ("ui", "culture_" + culture_state["policy"])),
+                    self.grab_text(("ui", "info_header_integration")) + self.culture_value[culture][
+                        "integration"],
+                    self.grab_text(("ui", "info_header_influence")) + self.culture_value[culture]["influence"])
                     self.text_popup.popup(self.cursor.rect.bottomright, text,
                                           width_text_wrapper=self.max_description_box_width)
                     self.outer_ui_updater.add(self.text_popup)
@@ -312,7 +315,11 @@ class PlayerArmyList(UIGrand):
         self.empty_selected_base_image.fill((200, 100, 100))
 
         self.empty_card_image.blit(self.grand_ui_icons["supply"], (145 * self.screen_scale_width,
+                                                                   10 * self.screen_scale_height))
+
+        self.empty_card_image.blit(self.grand_ui_icons["number"], (145 * self.screen_scale_width,
                                                                    80 * self.screen_scale_height))
+
         self.current_row = 0
         self.total_row = 0
         self.max_row_show = 1  # trick the scroller to use additional row instead of total
@@ -333,18 +340,18 @@ class PlayerArmyList(UIGrand):
         #     card_image.blit(leader_image, leader_image.get_rect(
         #         topleft=(((100 * index) + 150) * self.screen_scale_width, 0)))
 
-        total_number_text = add_comma_number(army.total_number)
-        text_surface = text_render_with_bg(total_number_text,
-                                           self.font, (0, 0, 0), (255, 255, 255))
-        card_image.blit(text_surface, text_surface.get_rect(topleft=((240 * self.screen_scale_width),
-                                                                     10 * self.screen_scale_height)))
-
         supply_text_colour = (255, 255, 255)
         if army.supply / army.max_supply < 0.2:
             supply_text_colour = (150, 20, 20)
         supply_text = minimise_number_text(army.supply) + "/" + minimise_number_text(army.max_supply)
         text_surface = text_render_with_bg(supply_text,
                                            self.font, (0, 0, 0), supply_text_colour)
+        card_image.blit(text_surface, text_surface.get_rect(topleft=((240 * self.screen_scale_width),
+                                                                     10 * self.screen_scale_height)))
+
+        total_number_text = add_comma_number(army.total_number)
+        text_surface = text_render_with_bg(total_number_text,
+                                           self.font, (0, 0, 0), (255, 255, 255))
         card_image.blit(text_surface, text_surface.get_rect(topleft=((240 * self.screen_scale_width),
                                                                      80 * self.screen_scale_height)))
 
@@ -378,7 +385,8 @@ class PlayerArmyList(UIGrand):
     def reset_card(self, army):
         """Reset only specific card based on input index"""
         self.army_card_list[army] = self.draw_army_card(army)
-        if self.grand.current_campaign_state["faction"][self.grand.player_faction]["army"].index(army) >= self.current_row:
+        if self.grand.current_campaign_state["faction"][self.grand.player_faction]["army"].index(
+                army) >= self.current_row:
             # redraw list if card is being shown in ui
             self.draw_list()
 
@@ -396,6 +404,7 @@ class PlayerArmyList(UIGrand):
     def draw_list(self):
         self.image = self.base_image.copy()
         show_index = 0
+        len_army_rects_check = len(self.army_rects) - 1
         for index, army in enumerate(self.grand.current_campaign_state["faction"][self.grand.player_faction]["army"]):
             if index >= self.current_row:
                 if army not in self.grand.player_selected_army:
@@ -403,7 +412,7 @@ class PlayerArmyList(UIGrand):
                 else:
                     self.image.blit(self.army_card_list[army][1], self.army_rects[show_index])
                 show_index += 1
-            if show_index == len(self.army_rects) - 1:
+            if show_index == len_army_rects_check:
                 break
 
     def update(self, dt):
@@ -446,8 +455,10 @@ class PlayerArmyList(UIGrand):
                                                       self.grand.player_army_info_ui)
                         elif self.event_middle_mouse_press:
                             self.grand.camera_pos = Vector2(
-                                (army.base_pos[0] * self.grand.map_shown_to_actual_scale_width) - self.half_screen_width,
-                                (army.base_pos[1] * self.grand.map_shown_to_actual_scale_height) - self.half_screen_height)
+                                (army.base_pos[
+                                     0] * self.grand.map_shown_to_actual_scale_width) - self.half_screen_width,
+                                (army.base_pos[
+                                     1] * self.grand.map_shown_to_actual_scale_height) - self.half_screen_height)
                             self.grand.fix_camera()
                         else:
                             text = (self.grab_text(("ui", "info_header_commander")) + self.grab_text(
@@ -488,14 +499,27 @@ class TimeInfoBar(UIGrand):
     def __init__(self):
         self._layer = 4
         UIGrand.__init__(self, player_cursor_interact=False)
-        self.image = Surface((800 * self.screen_scale_width, 100 * self.screen_scale_height), SRCALPHA)
-        self.image.fill((50, 50, 255))
+        self.font = self.game.large_generic_ui_font
+        self.image = Surface((800 * self.screen_scale_width, 80 * self.screen_scale_height), SRCALPHA)
+        self.image.fill((150, 150, 255))
         self.base_image = self.image.copy()
+        self.turn = 0
+        self.phase = 0
         self.rect = self.image.get_rect(topright=(self.grand.mini_time_orb_ui.rect.topleft[0] +
                                                   (self.image.get_width() * 0.05), 0))
 
     def update(self, dt):
         UIMenu.update(self, dt)
+        current_campaign_state = self.grand.current_campaign_state
+        if self.turn != current_campaign_state["turn"] or self.phase != current_campaign_state["phase"]:
+            self.turn = current_campaign_state["turn"]
+            self.phase = current_campaign_state["phase"]
+            self.image = self.base_image.copy()
+            text_surface = text_render_with_bg("Turn: " + str(self.turn), self.font)
+            self.image.blit(text_surface, (150 * self.screen_scale_width, 20 * self.screen_scale_height))
+
+            text_surface = text_render_with_bg("Phase: " + str(self.phase), self.font)
+            self.image.blit(text_surface, (450 * self.screen_scale_width, 20 * self.screen_scale_height))
 
 
 class TimeSettingOption(UIGrand):
@@ -503,13 +527,50 @@ class TimeSettingOption(UIGrand):
         self._layer = 5
         UIGrand.__init__(self)
 
-        self.image = Surface((700 * self.screen_scale_width, 100 * self.screen_scale_height))
+        self.image = Surface((700 * self.screen_scale_width, 80 * self.screen_scale_height))
         self.image.fill((10, 100, 200))
+        self.time_option = 0
+
+        battle_ui_images = self.game.battle.battle_ui_images
+        self.time_select_image = battle_ui_images["time_select"]
+        self.time_option_rects = {key: key.get_rect(
+            topleft=((100 * index) * self.screen_scale_width, 0)) for index, key in
+            enumerate([battle_ui_images["time_pause"],
+                       battle_ui_images["time_normal"],
+                       battle_ui_images["time_fast"],
+                       battle_ui_images["time_faster"]])}
+        for index, image in enumerate(self.time_option_rects):
+            rect = self.time_option_rects[image]
+            self.image.blit(battle_ui_images["time_unselect"], rect)
+            self.image.blit(image, rect)
+
+        self.base_image = self.image.copy()
+
+        for index, image in enumerate(self.time_option_rects):  # add selected border after base image
+            rect = self.time_option_rects[image]
+            if index == self.time_option:
+                self.image.blit(battle_ui_images["time_select"], rect)
+                self.image.blit(image, rect)
+                break
+
         self.rect = self.image.get_rect(topright=((self.grand.mini_time_orb_ui.rect.topleft[0],
                                                    self.grand.time_info_bar_ui.rect.bottomleft[1])))
 
     def update(self, dt):
         UIMenu.update(self, dt)
+        if self.event_press:
+            inside_mouse_pos = Vector2(
+                (self.cursor.pos[0] - self.rect.topleft[0]),
+                (self.cursor.pos[1] - self.rect.topleft[1]))
+            for index, image in enumerate(self.time_option_rects):
+                rect = self.time_option_rects[image]
+                if rect.collidepoint(inside_mouse_pos):
+                    if index != self.grand.game_speed:
+                        self.grand.game_speed = index
+                        self.image = self.base_image.copy()
+                        self.image.blit(self.time_select_image, rect)
+                        self.image.blit(image, rect)
+                    break
 
 
 class MiniTimeOrb(UIGrand):
@@ -553,30 +614,45 @@ class ArmyInfo(UIGrand):
             self.grab_text(("ui", "info_header_upkeep")) + add_comma_number(army_dict["upkeep"]), True, (0, 0, 0))
         self.image.blit(text_surface, text_surface.get_rect(topleft=(0, 80 * self.screen_scale_height)))
 
-        text_surface = self.font.render(self.grab_text(("ui", "info_header_supply")) + add_comma_number(army_dict["supply"]), True, (0, 0, 0))
+        text_surface = self.font.render(
+            self.grab_text(("ui", "info_header_supply")) + add_comma_number(army_dict["supply"]), True, (0, 0, 0))
         self.image.blit(text_surface, text_surface.get_rect(topleft=(0, 160 * self.screen_scale_height)))
 
         text_surface = self.font.render(
-            self.grab_text(("ui", "info_header_max_supply")) + add_comma_number(army_dict["max_supply"]), True, (0, 0, 0))
+            self.grab_text(("ui", "info_header_max_supply")) + add_comma_number(army_dict["max_supply"]), True,
+            (0, 0, 0))
         self.image.blit(text_surface, text_surface.get_rect(topleft=(0, 240 * self.screen_scale_height)))
+
         text_surface = self.font.render(
-            self.grab_text(("ui", "info_header_leadership")) + str(army_dict["leadership"]), True, (0, 0, 0))
+            self.grab_text(("ui", "info_header_current_supply_call_capacity")) +
+            add_comma_number(int(army_dict["supply"] / army_dict["total_supply_usage"] * 100)) + "%", True, (0, 0, 0))
         self.image.blit(text_surface, text_surface.get_rect(topleft=(0, 320 * self.screen_scale_height)))
 
         text_surface = self.font.render(
-            self.grab_text(("ui", "info_header_total_number")) + add_comma_number(army_dict["total_number"]), True, (0, 0, 0))
+            self.grab_text(("ui", "info_header_max_supply_call_capacity")) +
+            add_comma_number(int(army_dict["max_supply"] / army_dict["total_supply_usage"] * 100)) + "%", True,
+            (0, 0, 0))
         self.image.blit(text_surface, text_surface.get_rect(topleft=(0, 400 * self.screen_scale_height)))
+
+        text_surface = self.font.render(
+            self.grab_text(("ui", "info_header_leadership")) + str(army_dict["leadership"]), True, (0, 0, 0))
+        self.image.blit(text_surface, text_surface.get_rect(topleft=(0, 480 * self.screen_scale_height)))
+
+        text_surface = self.font.render(
+            self.grab_text(("ui", "info_header_total_number")) + add_comma_number(army_dict["total_number"]), True,
+            (0, 0, 0))
+        self.image.blit(text_surface, text_surface.get_rect(topleft=(0, 560 * self.screen_scale_height)))
 
         if army_dict["strategy"]:
             text_surface = self.font.render(
                 self.grab_text(("ui", "info_header_strategy")), True, (0, 0, 0))
-            self.image.blit(text_surface, text_surface.get_rect(topleft=(0, 480 * self.screen_scale_height)))
+            self.image.blit(text_surface, text_surface.get_rect(topleft=(0, 640 * self.screen_scale_height)))
 
             for index, strategy in enumerate(army_dict["strategy"]):
                 text_surface = self.font.render(
                     "=" + self.grab_text(("strategy", strategy, "Name")), True, (0, 0, 0))
                 self.image.blit(text_surface, text_surface.get_rect(
-                    topleft=(0, (540 * self.screen_scale_height) + (index * 80 * self.screen_scale_height))))
+                    topleft=(0, (720 * self.screen_scale_height) + (index * 80 * self.screen_scale_height))))
 
 
 class ArmyManagement(UIGrand):
@@ -626,24 +702,18 @@ class RegionManagement(UIGrand):
                 (self.cursor.pos[1] - self.rect.topleft[1]))
 
 
-class EventNotification(UIGrand):
+class EventNotification(BattleEventNotification, UIGrand):
     event_icons = {}
 
     def __init__(self):
         self._layer = 5
+        BattleEventNotification.__init__(self, (0, 0))
         UIGrand.__init__(self)
-        self.font = self.game.generic_ui_font
-        self.header_font = self.game.large_generic_ui_font
-        self.image = Surface((0 * self.screen_scale_width, 0 * self.screen_scale_height))
-        self.event_item_height = 100 * self.screen_scale_height
-        self.image.fill((0, 200, 50))
-        self.base_image = self.image.copy()
         self.all_event_rects = [Rect(0, index * 100 * self.screen_scale_height,
                                      800 * self.screen_scale_width, self.event_item_height) for index in range(10)]
-        self.active_event_rects = []
         self.rect = self.image.get_rect(bottomleft=(0, self.grand.region_management_ui.rect.topleft[1]))
 
-    def event_list_update(self):
+    def update_image(self):
         event_list = self.grand.current_campaign_state["eventlog"]
         self.image = Surface((800 * self.screen_scale_width, len(event_list[:10]) * self.event_item_height))
         self.image.fill((0, 200, 50))
@@ -669,7 +739,8 @@ class EventNotification(UIGrand):
             for index, rect in enumerate(self.active_event_rects):
                 if rect.collidepoint(inside_mouse_pos):
                     if self.event_press:  # open event popup
-                        self.grand.event_important_popup.event_popup(self.grand.current_campaign_state["eventlog"][index])
+                        self.grand.event_important_popup.event_popup(
+                            self.grand.current_campaign_state["eventlog"][index])
                         self.grand.current_campaign_state["eventlog"].pop(index)
                         self.event_list_update()
                     elif self.event_middle_mouse_press:  # go to event location
@@ -815,8 +886,8 @@ class PlayerGrandInteract(UIGrand):
                 if self.selection_start_pos:  # release hold while band exist
                     player_armies = self.grand.current_campaign_state["faction"][self.grand.player_faction]["army"]
                     army_select_list = list(set([army for index, army in enumerate(player_armies) if
-                                          index in self.rect.collidelistall([army.commander_actor.rect for
-                                                                             army in player_armies])]))
+                                                 index in self.rect.collidelistall([army.commander_actor.rect for
+                                                                                    army in player_armies])]))
                     if army_select_list:
                         if self.grand.shift_press:
                             self.grand.player_selected_army += army_select_list
@@ -847,7 +918,8 @@ class PlayerGrandInteract(UIGrand):
                             (int(self.grand.base_cursor_pos[0]), int(self.grand.base_cursor_pos[1]))))[:3]
                         if region_colour in self.grand.region_by_colour_list:
                             region_id = self.grand.region_by_colour_list[region_colour]["ID"]
-                            if any([army in self.grand.current_campaign_state["battle"]["armies"] for army in self.grand.player_selected_army]):
+                            if any([army in self.grand.current_campaign_state["battle"]["armies"] for army in
+                                    self.grand.player_selected_army]):
                                 # there is army in battle, this will cause battle lost and armies retreat from battle,
                                 # ask for confirmation first
                                 if any([army.assembling for army in self.grand.player_selected_army]):
@@ -858,7 +930,8 @@ class PlayerGrandInteract(UIGrand):
                                                                     self.game.confirm_popup_uis)
                                 else:
                                     self.grand.activate_input_popup(("confirm_input", "retreat_assemble", region_id),
-                                                                    self.grab_text(("ui", "warn_input_retreat_assemble")),
+                                                                    self.grab_text(
+                                                                        ("ui", "warn_input_retreat_assemble")),
                                                                     self.game.confirm_popup_uis)
                             elif any([army.assembling for army in self.grand.player_selected_army]):
                                 # there is army assembling, this will cause assemble to be cancelled,
@@ -885,12 +958,14 @@ class PlayerGrandInteract(UIGrand):
                         height = abs(y1 - y2)
                         selection_rect = Rect(left, top, width, height)
                         self.rect = Rect(left + self.grand.camera_pos[0],
-                                         top + self.grand.camera_pos[1], width, height)  # rect for collision unit selection check
+                                         top + self.grand.camera_pos[1], width,
+                                         height)  # rect for collision unit selection check
                         draw.rect(self.grand_camera.image, (0, 0, 0), selection_rect, self.inner_line_size)
                         draw.rect(self.grand_camera.image, (255, 255, 255), selection_rect, self.line_size)
                     else:
                         self.rect = Rect(left + self.grand.camera_pos[0],
-                                         top + self.grand.camera_pos[1], 1, 1)  # rect for collision unit selection check
+                                         top + self.grand.camera_pos[1], 1,
+                                         1)  # rect for collision unit selection check
         else:
             self.reset()
 #

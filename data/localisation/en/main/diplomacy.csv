@@ -1,0 +1,189 @@
+"ID","Target","Relation","Text ID","Text"
+"leader_doll_king","any","good","greet_1","Our royal domain receives you, flesh one."
+"leader_doll_king","any","good","greet_2",
+"leader_doll_king","any","good","greet_3",
+"leader_doll_king","any","good","greet_4","We consider your arrival."
+"leader_doll_king","any","good","taunt_1","Your flesh will leave your mortal shell soon enough."
+"leader_doll_king","any","good","taunt_2","You will be the foundation of our new world."
+"leader_doll_king","any","good","taunt_3","Accept your place in the new world."
+"leader_doll_king","any","good","accept_1",
+"leader_doll_king","any","good","accept_2","Fine offerings."
+"leader_doll_king","any","good","accept_3",
+"leader_doll_king","any","good","deal_1","We present this exchange to you."
+"leader_doll_king","any","good","deal_2",
+"leader_doll_king","any","good","deal_3",
+"leader_doll_king","any","good","deal_4",
+"leader_doll_king","any","good","reject_1","Not good enough."
+"leader_doll_king","any","good","reject_2","Your offerings are insufficient."
+"leader_doll_king","any","good","reject_3","We cannot accept this exchange."
+"leader_doll_king","any","good","reject_4","Just a slight modification, and we can reach a consensus."
+"leader_doll_king","any","good","you_reject_1","We will delay our request."
+"leader_doll_king","any","good","you_reject_2",
+"leader_doll_king","any","good","you_reject_3",
+"leader_doll_king","any","good","they_war_1","Surrender and you will do better under our eternal guidance."
+"leader_doll_king","any","good","they_war_2",
+"leader_doll_king","any","good","you_war_1","We are not surprised."
+"leader_doll_king","any","good","you_war_2","Never believe the filthy flesh, as they say."
+"leader_doll_king","any","good","you_war_3","Our conviction only grow stronger."
+"leader_doll_king","any","good","lose_1",
+"leader_doll_king","any","neutral","greet_1","Bring us tributes, and we will let you live."
+"leader_doll_king","any","neutral","greet_2","We listen."
+"leader_doll_king","any","neutral","greet_3",
+"leader_doll_king","any","neutral","taunt_1","We will not be lenient."
+"leader_doll_king","any","neutral","taunt_2",
+"leader_doll_king","any","neutral","taunt_3",
+"leader_doll_king","any","neutral","accept_1","We accept, for now."
+"leader_doll_king","any","neutral","accept_2","Acceptable."
+"leader_doll_king","any","neutral","accept_3","We agree to this exchange."
+"leader_doll_king","any","neutral","accept_4",
+"leader_doll_king","any","neutral","deal_1",
+"leader_doll_king","any","neutral","deal_2",
+"leader_doll_king","any","neutral","deal_3",
+"leader_doll_king","any","neutral","reject_1","Illogical."
+"leader_doll_king","any","neutral","reject_2","Reject."
+"leader_doll_king","any","neutral","reject_3","Deny."
+"leader_doll_king","any","neutral","reject_4",
+"leader_doll_king","any","neutral","you_reject_1",
+"leader_doll_king","any","neutral","you_reject_2",
+"leader_doll_king","any","neutral","they_war_1","The world will change. We demand it."
+"leader_doll_king","any","neutral","they_war_2",
+"leader_doll_king","any","neutral","you_war_1","This is within our calculation."
+"leader_doll_king","any","neutral","you_war_2",
+"leader_doll_king","any","neutral","you_war_3",
+"leader_doll_king","any","neutral","lose_1",
+"leader_doll_king","any","bad","greet_1","You have a glimpse of time that we give, so utter your offerings."
+"leader_doll_king","any","bad","greet_2","Take your filthy air with you."
+"leader_doll_king","any","bad","greet_3",
+"leader_doll_king","any","bad","taunt_1","Your ""life"" will be spared if you surrender to us."
+"leader_doll_king","any","bad","taunt_2",
+"leader_doll_king","any","bad","taunt_3",
+"leader_doll_king","any","bad","accept_1",
+"leader_doll_king","any","bad","accept_2",
+"leader_doll_king","any","bad","deal_1","We do not offer this term lightly."
+"leader_doll_king","any","bad","deal_2","Accept or perish."
+"leader_doll_king","any","bad","reject_1",
+"leader_doll_king","any","bad","reject_2",
+"leader_doll_king","any","bad","reject_3",
+"leader_doll_king","any","bad","you_reject_1","We were too kind."
+"leader_doll_king","any","bad","you_reject_2",
+"leader_doll_king","any","bad","they_war_1","The future requires not your existence."
+"leader_doll_king","any","bad","they_war_2",
+"leader_doll_king","any","bad","you_war_1",
+"leader_doll_king","any","bad","you_war_2","Inferior logic only returns inferior decisions."
+"leader_doll_king","any","bad","you_war_3","Initiate third sub-protocol, bypass exception."
+"leader_doll_king","any","bad","lose_1","Only decay will away you."
+"leader_doll_king","death","good","greet_1","Welcome, fellow Doll!"
+"leader_doll_king","death","good","greet_2","The world will soon belong to us. We promise you."
+"leader_doll_king","death","good","greet_3",
+"leader_doll_king","death","good","taunt_1","Join us, together we become one realm, but you can keep your old way."
+"leader_doll_king","death","good","taunt_2",
+"leader_doll_king","death","good","taunt_3",
+"leader_doll_king","death","good","accept_1","A fine exchange!"
+"leader_doll_king","death","good","accept_2","Together, we shall rise to rule!"
+"leader_doll_king","death","good","accept_3",
+"leader_doll_king","death","good","accept_4",
+"leader_doll_king","death","good","reject_1","Is there an error in your decision-making process?"
+"leader_doll_king","death","good","reject_2","Do you require a new module?"
+"leader_doll_king","death","good","reject_3",
+"leader_doll_king","death","good","reject_4",
+"leader_doll_king","death","good","they_war_1",
+"leader_doll_king","death","good","they_war_2",
+"leader_doll_king","death","good","you_war_1","Has your system gone wild? No matter, we will fix you up good again."
+"leader_doll_king","death","good","you_war_2","A little error like this requires examination. We will schedule a repair."
+"leader_doll_king","death","good","you_war_3",
+"leader_doll_king","death","neutral","greet_1","Greetings, weird looking doll."
+"leader_doll_king","death","neutral","greet_2","You may be made the past living but you still are one of us."
+"leader_doll_king","death","neutral","greet_3",
+"leader_doll_king","death","neutral","taunt_1","Materials of the past, we look forward only. "
+"leader_doll_king","death","neutral","taunt_2",
+"leader_doll_king","death","neutral","taunt_3",
+"leader_doll_king","death","neutral","they_war_1",
+"leader_doll_king","death","neutral","they_war_2",
+"leader_doll_king","death","neutral","you_war_1",
+"leader_doll_king","death","neutral","you_war_2",
+"leader_doll_king","death","neutral","you_war_3",
+"leader_doll_king","death","bad","greet_1","What do you want, traitor?"
+"leader_doll_king","death","bad","greet_2","You wish to make amends?"
+"leader_doll_king","death","bad","greet_3",
+"leader_doll_king","death","bad","taunt_1",
+"leader_doll_king","death","bad","taunt_2",
+"leader_doll_king","death","bad","taunt_3",
+"leader_doll_king","death","bad","accept_1",
+"leader_doll_king","death","bad","accept_2",
+"leader_doll_king","death","bad","accept_3",
+"leader_doll_king","death","bad","accept_4",
+"leader_doll_king","death","bad","reject_1",
+"leader_doll_king","death","bad","reject_2",
+"leader_doll_king","death","bad","reject_3",
+"leader_doll_king","death","bad","they_war_1","You have become too erroneous; remodelling operation in process."
+"leader_doll_king","death","bad","they_war_2",
+"leader_doll_king","death","bad","you_war_1",
+"leader_doll_king","death","bad","you_war_2",
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+,,,,
+"leader_king","any","good","greet_1","Welcome to our kingdom."
+"leader_king","any","good","taunt_1","You are welcome to lose."
+"leader_king","any","good","taunt_2","You are welcome to surrender."
+"leader_king","any","good","accept_1","You are welcome."
+"leader_king","any","good","accept_2","We welcome this offer."
+"leader_king","any","good","deal_1","You are welcome to accept."
+"leader_king","any","good","reject_1",
+"leader_king","any","good","you_reject_1","We welcome this rejection."
+"leader_king","any","good","you_reject_2",
+"leader_king","any","good","they_war_1","You are welcome to resist"
+"leader_king","any","good","you_war_1","We welcome this war."
+"leader_king","any","good","lose_1",
+"leader_king","any","neutral","greet_1",
+"leader_king","any","neutral","greet_2",
+"leader_king","any","neutral","greet_3",
+"leader_king","any","neutral","taunt_1",
+"leader_king","any","neutral","taunt_2",
+"leader_king","any","neutral","taunt_3",
+"leader_king","any","neutral","accept_1",
+"leader_king","any","neutral","accept_2",
+"leader_king","any","neutral","accept_3",
+"leader_king","any","neutral","accept_4",
+"leader_king","any","neutral","deal_1",
+"leader_king","any","neutral","deal_2",
+"leader_king","any","neutral","deal_3",
+"leader_king","any","neutral","reject_1",
+"leader_king","any","neutral","reject_2",
+"leader_king","any","neutral","reject_3",
+"leader_king","any","neutral","reject_4",
+"leader_king","any","neutral","you_reject_1",
+"leader_king","any","neutral","you_reject_2",
+"leader_king","any","neutral","they_war_1",
+"leader_king","any","neutral","they_war_2",
+"leader_king","any","neutral","you_war_1",
+"leader_king","any","neutral","you_war_2",
+"leader_king","any","neutral","you_war_3",
+"leader_king","any","neutral","lose_1",
+"leader_king","any","bad","greet_1",
+"leader_king","any","bad","greet_2",
+"leader_king","any","bad","greet_3",
+"leader_king","any","bad","taunt_1",
+"leader_king","any","bad","taunt_2",
+"leader_king","any","bad","taunt_3",
+"leader_king","any","bad","accept_1",
+"leader_king","any","bad","accept_2",
+"leader_king","any","bad","deal_1",
+"leader_king","any","bad","deal_2",
+"leader_king","any","bad","reject_1",
+"leader_king","any","bad","reject_2",
+"leader_king","any","bad","reject_3",
+"leader_king","any","bad","you_reject_1",
+"leader_king","any","bad","you_reject_2",
+"leader_king","any","bad","they_war_1",
+"leader_king","any","bad","they_war_2",
+"leader_king","any","bad","you_war_1",
+"leader_king","any","bad","you_war_2",
+"leader_king","any","bad","you_war_3",
+"leader_king","any","bad","lose_1",

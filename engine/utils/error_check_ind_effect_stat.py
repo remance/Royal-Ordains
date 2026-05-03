@@ -4,8 +4,6 @@ import sys
 from os.path import join
 from pathlib import Path
 
-from engine.utils.rotation import rotation_xy
-
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 main_dir = "\\".join(main_dir.split("\\")[:-2])
 current_dir = join(main_dir, "animation-maker")  # animation maker folder

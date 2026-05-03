@@ -21,6 +21,7 @@
 "central_arrow",,2800,"TRUE","stick",,"arrow",400,,
 "cheesecake",,1000,"TRUE","bounce",,"toy",500,,"travel_spin"
 "cold_air",7,,"TRUE",,,,,,
+"crash_blue",,,,,,,,,
 "crash_enemy",,,,,,,,,
 "crash_gold",,,,,,,,,
 "crash_player",,,,,,,,,
@@ -61,11 +62,13 @@
 "light",,,,,,,600,3,
 "light_burst_medium",,,,,,,,,
 "magic_ball",,600,"TRUE",,,"magic_bolt",800,,"travel_spin"
-"magic_bolt",,4000,"TRUE",,,,500,,
+"magic_bolt",,4000,"TRUE",,,"magic_bolt",500,,
 "magic_bomb",,1000,,,"magic_explosion","magic_bomb",2000,,"reach_effect_spawn_ground:bottom,travel_spin"
 "magic_explosion",,,"TRUE",,,"magic_explosion",4000,20,
+"magic_fish",,3500,"TRUE",,,"magic_bolt",1000,,
 "magic_rune",,1000,"TRUE",,"magic_rune_explosion","stone",10,,"travel_spin"
 "magic_rune_explosion",,,"TRUE",,,"magic_explosion",1000,5,
+"magic_star",,1500,"TRUE",,,"magic_bomb",300,,"travel_spin"
 "meteor",,10000,,,"meteor_explosion","meteor",30000,200,"reach_effect_spawn_ground:bottom,start_move_delay:3"
 "meteor_explosion",,,"TRUE",,,"meteor_explosion",100000,10000,"play_time_mod:1.25"
 "movement",,,,,,,,,
@@ -113,4 +116,4 @@
 "crimson_flare",,,,,,,,,
 "lightning_red",,,"TRUE",,,,,,
 "lightning_blast_red",,5500,"TRUE",,,,,,
-"monkey_dump",,3000,TRUE,"bounce",,"stone",100,,"travel_spin"
+"monkey_dump",,3000,"TRUE","bounce",,"stone",100,,"travel_spin"

@@ -10,17 +10,16 @@ grid_width = Default_Screen_Width / Collision_Grid_X_Per_Battle_Scene
 
 def activate_strategy(self, team, strategy, strategy_index, base_pos_x):
     stat = self.strategy_list[strategy]
+    commander = self.team_commander[team]
     if (self.team_stat[team]["strategy_resource"] > stat["Resource Cost"] and (
-            not self.team_commander[team] or not stat["Activate Range"] or
-            abs(self.team_commander[team].base_pos[0] - base_pos_x) < stat["Activate Range"])):
+            not commander or not stat["Activate Range"] or
+            abs(commander.base_pos[0] - base_pos_x) < stat["Activate Range"])):
         self.team_stat[team]["strategy_resource"] -= stat["Resource Cost"]
 
         if team == self.player_team:
-            self.drama_text.queue.append((self.localisation.grab_text(("strategy", strategy, "Ally")),
-                                          None))
+            self.drama_text.queue.append((False, self.localisation.grab_text(("strategy", strategy, "Ally")), None))
         else:
-            self.drama_text.queue.append((self.localisation.grab_text(("strategy", strategy, "Enemy")),
-                                          None))
+            self.drama_text.queue.append((True, self.localisation.grab_text(("strategy", strategy, "Enemy")), None))
             self.tactical_map_ui.warn_strategy(base_pos_x)
 
         self.team_stat[team]["strategy_cooldown"][strategy_index] = stat["Cooldown"]

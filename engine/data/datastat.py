@@ -67,7 +67,7 @@ class DataStat(GameData):
             header = rd[0]
             dict_column = ("Summon", "AI Condition", "Property",)
             tuple_column = (
-            "Effects", "Damage Effects", "Status", "Enemy Status", "Effect Enemy Status")  # value in tuple only
+                "Effects", "Damage Effects", "Status", "Enemy Status", "Effect Enemy Status")  # value in tuple only
             dict_column = [index for index, item in enumerate(header) if item in dict_column]
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
             for index, row in enumerate(rd[1:]):

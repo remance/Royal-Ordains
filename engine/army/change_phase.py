@@ -1,5 +1,5 @@
 def change_phase(self):
-    if self.game_id not in self.grand.current_campaign_state["battle"]["armies"]:  # in battle
+    if self.game_id in self.grand.current_campaign_state["battle"]["armies"]:  # in battle
         pass
 
     elif self.assembling:
@@ -28,21 +28,21 @@ def change_phase(self):
             # move to next dot in route
             travelling["progress"] = 0  # reset progress
             self.grand.dots_army_occupation[self.base_pos].remove(self)  # remove army from old occupation
-            self.base_pos = travelling[2][0][1]
-            self.grand.dots_army_occupation[self.base_pos].add(self)
-            travelling["dot_routes"][0] = travelling["dot_routes"][0][1:]  # remove passed dot
+            self.base_pos = travelling["dot_routes"][0][1]
+            self.grand.dots_army_occupation[self.base_pos].append(self)
+            travelling["dot_routes"][0].pop(0)  # remove passed dot
 
-            if not travelling["dot_routes"][0]:  # finish this route
+            if len(travelling["dot_routes"][0]) == 1:  # finish this route
                 travelling["dot_routes"].pop(0)
                 travelling["difficulties"].pop(0)
                 travelling["remain_phase_require"].pop(0)
             else:
-                travelling["remain_phase_require"][0] -= travelling["difficulties"][0]
+                travelling["remain_phase_require"][0].pop(0)
 
-            self.travel_remain = sum(travelling["remain_phase_require"])
+            self.travel_remain = sum([sum(value) for value in travelling["remain_phase_require"]])
             region_colour = tuple(self.grand.grand_map.true_map_image.get_at((int(self.base_pos[0]),
                                                                               int(self.base_pos[1]))))[:3]
-            self.current_region = self.grand.region_by_colour_list[region_colour]
+            self.current_region = self.grand.region_by_colour_list[region_colour]["ID"]
             if not travelling["dot_routes"]:  # no more route left, finish travel
                 self.travelling = {}
 
