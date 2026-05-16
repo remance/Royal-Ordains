@@ -10,13 +10,19 @@ def cal_faction_income(self, faction):
     region_income_state = self.current_campaign_state["region"]["income"]
 
     list_of_happiness_effect = {"region_income": [], "influence_effect": [], "coexist_effect": [], "event_effect": []}
-    list_of_gold_income_effect = {"start_income": total_gold_income, "region_income": [], "army_upkeep": []}
-    list_of_supply_income_effect = {"start_income": total_supply_income, "region_income": []}
+    list_of_gold_income_effect = {"start_income": total_gold_income, "region_income": [], "army_upkeep": [], "event_effect": []}
+    list_of_supply_income_effect = {"start_income": total_supply_income, "region_income": [], "event_effect": []}
 
     for event in faction_data["event"]:  # add happiness from event first
         for effect, effect_value in self.map_data.event_list[event]["Effect"]:
             if effect == "happiness":
                 total_happiness += effect_value
+                list_of_happiness_effect["event_effect"].append((event, effect_value))
+            elif effect == "gold":
+                total_gold_income += effect_value
+                list_of_happiness_effect["event_effect"].append((event, effect_value))
+            elif effect == "supply":
+                total_supply_income += effect_value
                 list_of_happiness_effect["event_effect"].append((event, effect_value))
 
     influence_happiness_modifier = 0

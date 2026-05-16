@@ -113,8 +113,7 @@ class Battle:
         Battle.battle = self
         # TODO LIST
         # add back battle cutscene
-        # empty custom slot should tell commander/leader/troop/air
-        # change retinue from custom to can set in preset
+        # add cache of sprite loading for scaling at least for character and effect? will need some sort of data hashing check as well
         # rework scene to use common paper background for same area (upto 14 pages?)
         # finish main menu
 
@@ -311,8 +310,7 @@ class Battle:
                                                         subfolder=("ui", "cursor_battle")))  # no need to scale cursor
         EventNotification.event_icons = self.sprite_data.grand_ui_icons
 
-        battle_ui_images = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                       subfolder=("ui", "battle_ui"))
+        battle_ui_images = self.game.battle_ui_images
         self.battle_ui_images = battle_ui_images
         CharacterSpeechBox.images = battle_ui_images
 
@@ -390,8 +388,7 @@ class Battle:
         self.cursor_pos = [0, 0]
 
         # Battle map object
-        Scene.image = Surface.subsurface(self.camera.image, (0, 0, self.camera.image.get_width(),
-                                                             self.camera.image.get_height()))
+        Scene.image = Surface.subsurface(self.camera.image, self.camera.image.get_rect())
         Scene.battle = self
         Scene.camera = self.camera
         self.scene = Scene()

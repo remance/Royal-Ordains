@@ -4,7 +4,7 @@ import engine.character.character
 from engine.utils.common import clean_object
 
 
-def die(self):
+def die(self, retreat=False):
     """Character dead"""
     # remove from updater
     if self in self.battle.ai_process_list:
@@ -43,8 +43,12 @@ def die(self):
     self.sub_characters = []
 
     # return supply when die
-    self.battle.team_stat[self.team]["supply_reserve"] += self.supply * 0.5
-    self.battle.team_stat[self.enemy_team]["supply_reserve"] += self.supply * 0.25
+    if retreat:
+        # manage to retreat mean fully return supply and not give any to enemy
+        self.battle.team_stat[self.team]["supply_reserve"] += self.supply
+    else:
+        self.battle.team_stat[self.team]["supply_reserve"] += self.supply * 0.5
+        self.battle.team_stat[self.enemy_team]["supply_reserve"] += self.supply * 0.25
 
     if self.leader:  # remove self from leader stuff
         if self.leader.alive:
@@ -66,7 +70,7 @@ def die(self):
     self.status_duration = {}
 
 
-def air_die(self):
+def air_die(self, retreat=False):
     for air_group in self.battle.team_stat[self.team]["air_group"]:
         if self in air_group:
             air_group.remove(self)

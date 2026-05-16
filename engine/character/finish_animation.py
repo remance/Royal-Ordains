@@ -19,19 +19,22 @@ def finish_animation(self, done):
                 if current_moveset["Status"]:  # moveset apply status effect to self and allies in range
                     for effect in current_moveset["Status"]:
                         self.apply_status(effect)
-                        for ally in self.near_ally:  # loop ally after effect so effect apply loop is more efficient
-                            if ally[1] <= current_moveset["Range"]:  # apply status based on range
-                                ally[0].apply_status(effect)
+                        for ally, ally_distance in self.near_ally:
+                            # loop ally after effect so effect apply loop is more efficient
+                            if ally_distance <= current_moveset["Range"]:  # apply status based on range
+                                if ally.alive:
+                                    ally.apply_status(effect)
                             else:  # further ally from range, no longer need to check
                                 break
 
                 if current_moveset["Enemy Status"]:
-                    for enemy in self.near_enemy:
-                        for effect in current_moveset["Enemy Status"]:
-                            if enemy[1] <= current_moveset["Range"]:  # apply status based on range
-                                enemy[0].apply_status(effect)
-                            else:  # further enemy from range, no longer need to check
-                                break
+                    for enemy, enemy_distance in self.near_enemy:
+                        if enemy_distance <= current_moveset["Range"]:  # apply status based on range
+                            if enemy.alive:
+                                for effect in current_moveset["Enemy Status"]:
+                                    enemy.apply_status(effect)
+                        else:  # further enemy from range, no longer need to check
+                            break
 
         if "next action" in current_action and (not self.interrupt_animation or
                                                 "interruptable" in command_action) and \

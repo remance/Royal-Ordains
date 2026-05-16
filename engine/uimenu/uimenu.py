@@ -211,14 +211,14 @@ class UIScroll(UIMenu):
         UIMenu.__init__(self)
 
         self.ui.scroll = self
-        self.height_ui = self.ui.image.get_height()
+        self.ui_height = self.ui.image.get_height()
         self.max_row_show = self.ui.max_row_show
         self.pos = pos
-        self.image = Surface((10, self.height_ui))
+        self.image = Surface((10, self.ui_height))
         self.image.fill((255, 255, 255))
         self.base_image = self.image.copy()
         self.button_colour = (100, 100, 100)
-        draw.rect(self.image, self.button_colour, (0, 0, self.image.get_width(), self.height_ui))
+        draw.rect(self.image, self.button_colour, (0, 0, self.image.get_width(), self.ui_height))
         self.rect = self.image.get_rect(topright=self.pos)
         self.current_row = 0
         self.row_size = 0
@@ -232,8 +232,8 @@ class UIScroll(UIMenu):
             max_row = (self.current_row + self.max_row_show) * 100 / self.row_size
         max_row = max_row - percent_row
         draw.rect(self.image, self.button_colour,
-                  (0, int(self.height_ui * percent_row / 100), self.image.get_width(),
-                   int(self.height_ui * max_row / 100)))
+                  (0, int(self.ui_height * percent_row / 100), self.image.get_width(),
+                   int(self.ui_height * max_row / 100)))
 
     def change_image(self, new_row=None, row_size=None):
         """New row is input of scrolling by user to new row, row_size is changing based on adding more item or clear"""
@@ -248,7 +248,7 @@ class UIScroll(UIMenu):
         UIMenu.update(self, dt)
         if self.mouse_over and (self.event_hold or self.event_press):
             mouse_value = (self.cursor.pos[1] - self.pos[
-                1]) * 100 / self.height_ui  # find what percentage of mouse_pos at the scroll bar (0 = top, 100 = bottom)
+                1]) * 100 / self.ui_height  # find what percentage of mouse_pos at the scroll bar (0 = top, 100 = bottom)
             if mouse_value > 100:
                 mouse_value = 100
             if mouse_value < 0:
@@ -731,51 +731,68 @@ class CustomTeamSetupUI(UIMenu):
         self.font = self.game.preset_name_font
         self.note_font = self.game.note_font
         self.font_width = self.font.size("a")[0]
-        self.image = Surface((int(1600 * self.screen_scale_width), int(1300 * self.screen_scale_height)), SRCALPHA)
+        self.image = Surface((int(1800 * self.screen_scale_width), int(1400 * self.screen_scale_height)), SRCALPHA)
         self.image.fill((150, 220, 220))
-        self.text_box_image = Surface((int(400 * self.screen_scale_width), int(60 * self.screen_scale_height)))
-        self.text_box_image.fill((150, 220, 220))
-        self.warn_text_box = Surface((int(600 * self.screen_scale_width), int(60 * self.screen_scale_height)))
-        self.warn_text_box.fill((150, 220, 220))
-        self.empty_warn_text_box = self.warn_text_box.copy()
-        text = self.note_font.render(self.grab_text(("ui", "warn_cost_exceed")), True, (30, 30, 30))
-        self.warn_text_box.blit(text, text.get_rect(midright=(self.warn_text_box.get_width(),
-                                                              self.warn_text_box.get_height() / 2)))
-        self.rect = self.image.get_rect(center=pos)
-        self.total_gold = 0
-        self.team = team
+
+        self.image.blit(self.game.grand_ui_images["gold"],
+                        self.game.grand_ui_images["gold"].get_rect(
+                            topright=(self.image.get_width() - 50 * self.screen_scale_width,
+                                      50 * self.screen_scale_height)))
+        self.image.blit(self.game.grand_ui_images["supply"],
+                        self.game.grand_ui_images["supply"].get_rect(topleft=(
+                            50 * self.screen_scale_width, 50 * self.screen_scale_height)))
 
         self.circle = Surface((200 * self.screen_scale_width, 200 * self.screen_scale_height), SRCALPHA)
         draw.circle(self.circle, (255, 255, 255),
                     (self.circle.get_width() / 2, self.circle.get_height() / 2),
                     (self.circle.get_width() / 2))
 
-        self.player_control_rect = self.circle.get_rect(
-            center=((self.image.get_width() / 2), 100 * self.screen_scale_width))
-        self.change_player_control()
+        self.text_box_image = Surface((int(400 * self.screen_scale_width), int(60 * self.screen_scale_height)))
+        self.text_box_image.fill((150, 220, 220))
 
         self.culture_coa_rects = []
-        self.cost_text_rects = {"total": 50 * self.screen_scale_height, "warn": 100 * self.screen_scale_height}
-        for index, y in enumerate((300, 520, 740, 960, 1180)):
+        self.cost_text_rects = {"total": 150 * self.screen_scale_height, "warn": 200 * self.screen_scale_height}
+        for index, y in enumerate((350, 570, 790, 1010, 1230)):
             self.cost_text_rects[index] = y * self.screen_scale_height
-            rect = self.circle.get_rect(center=(200 * self.screen_scale_width, y * self.screen_scale_height))
+            rect = self.circle.get_rect(center=(500 * self.screen_scale_width, y * self.screen_scale_height))
             self.culture_coa_rects.append(rect)
             self.image.blit(self.circle, rect)
-            self.change_cost(index, 0)
+            self.change_cost(index, 0, 0, check_total=False)
+
+        self.cost_warn_text_box = Surface((int(800 * self.screen_scale_width), int(60 * self.screen_scale_height)))
+        self.cost_warn_text_box.fill((150, 220, 220))
+        self.empty_cost_warn_box = self.cost_warn_text_box.copy()
+        text = self.note_font.render(self.grab_text(("ui", "warn_cost_exceed")), True, (30, 30, 30))
+        self.cost_warn_text_box.blit(text, text.get_rect(midright=(self.cost_warn_text_box.get_width(),
+                                                                   self.cost_warn_text_box.get_height() / 2)))
+        self.cost_warn_text_box_rect = self.cost_warn_text_box.get_rect(midright=(self.image.get_width(),
+                                                                                  self.cost_text_rects["warn"]))
+
+        self.supply_warn_text_box = Surface((int(800 * self.screen_scale_width), int(60 * self.screen_scale_height)))
+        self.supply_warn_text_box.fill((150, 220, 220))
+        self.empty_supply_warn_box = self.supply_warn_text_box.copy()
+        text = self.note_font.render(self.grab_text(("ui", "warn_supply_exceed")), True, (30, 30, 30))
+        self.supply_warn_text_box.blit(text, text.get_rect(midleft=(0,
+                                                                     self.supply_warn_text_box.get_height() / 2)))
+        self.supply_warn_text_box_rect = self.supply_warn_text_box.get_rect(midleft=(0, self.cost_text_rects["warn"]))
+
+        self.rect = self.image.get_rect(center=pos)
+        self.total_gold = 0
+        self.total_supply = 0
+        self.team = team
+
+        self.player_control_rect = self.circle.get_rect(
+            center=((self.image.get_width() / 2), 150 * self.screen_scale_width))
+        self.change_player_control()
 
         self.selected_culture_rect = None
         self.team_setup = {index: {"culture": None, "army": None} for index in range(5)}
 
         self.rect = self.image.get_rect(center=pos)
 
-    def change_cost(self, index, cost):
-        text_box_image = self.text_box_image.copy()
-        text = self.font.render(add_comma_number(cost), True, (30, 30, 30))
+    def check_total_cost(self):
 
-        text_box_image.blit(text, text.get_rect(midright=(text_box_image.get_width(), text_box_image.get_height() / 2)))
-        self.image.blit(text_box_image,
-                        text_box_image.get_rect(midright=(self.image.get_width(), self.cost_text_rects[index])))
-
+        # check and add gold remain
         total_cost = 0
         for army in self.game.custom_team_army[self.team]:
             total_cost += army.cost
@@ -783,21 +800,57 @@ class CustomTeamSetupUI(UIMenu):
             remain = int(self.game.custom_battle_team1_gold_button.text.replace(",", "").split(": ")[1]) - total_cost
         else:
             remain = int(self.game.custom_battle_team2_gold_button.text.replace(",", "").split(": ")[1]) - total_cost
+
         if remain < 0:
-            self.image.blit(self.warn_text_box, self.warn_text_box.get_rect(midright=(self.image.get_width(),
-                                                                                      self.cost_text_rects["warn"])))
+            self.image.blit(self.cost_warn_text_box, self.cost_warn_text_box_rect)
         else:
-            self.image.blit(self.empty_warn_text_box,
-                            self.empty_warn_text_box.get_rect(midright=(self.image.get_width(),
-                                                                        self.cost_text_rects["warn"])))
+            self.image.blit(self.empty_cost_warn_box, self.cost_warn_text_box_rect)
 
         text_box_image = self.text_box_image.copy()
 
-        text = self.font.render(add_comma_number(remain) + " " +
-                                self.grab_text(("ui", "info_text_gold")), True, (30, 30, 30))
+        text = self.font.render(add_comma_number(remain), True, (30, 30, 30))
         text_box_image.blit(text, text.get_rect(midright=(text_box_image.get_width(), text_box_image.get_height() / 2)))
         self.image.blit(text_box_image, text_box_image.get_rect(midright=(self.image.get_width(),
                                                                           self.cost_text_rects["total"])))
+
+        # check and add supply remain
+        total_supply = 0
+        for army in self.game.custom_team_army[self.team]:
+            total_supply += army.total_supply_usage
+        if self.team == 1:
+            remain = int(
+                self.game.custom_battle_team1_supply_button.text.replace(",", "").split(": ")[1]) - total_supply
+        else:
+            remain = int(
+                self.game.custom_battle_team2_supply_button.text.replace(",", "").split(": ")[1]) - total_supply
+
+        if remain < 0:
+            self.image.blit(self.supply_warn_text_box, self.supply_warn_text_box_rect)
+        else:
+            self.image.blit(self.empty_supply_warn_box, self.supply_warn_text_box_rect)
+        text_box_image = self.text_box_image.copy()
+
+        text = self.font.render(add_comma_number(remain), True, (30, 30, 30))
+        text_box_image.blit(text, text.get_rect(midleft=(0, text_box_image.get_height() / 2)))
+        self.image.blit(text_box_image, text_box_image.get_rect(midleft=(0,  self.cost_text_rects["total"])))
+
+    def change_cost(self, index, cost, supply, check_total=True):
+        text_box_image = self.text_box_image.copy()
+        text = self.font.render(add_comma_number(cost), True, (30, 30, 30))
+
+        text_box_image.blit(text, text.get_rect(midright=(text_box_image.get_width(), text_box_image.get_height() / 2)))
+        self.image.blit(text_box_image,
+                        text_box_image.get_rect(midright=(self.image.get_width(), self.cost_text_rects[index])))
+
+        text_box_image = self.text_box_image.copy()
+        text = self.font.render(add_comma_number(supply), True, (30, 30, 30))
+
+        text_box_image.blit(text, text.get_rect(midleft=(0, text_box_image.get_height() / 2)))
+        self.image.blit(text_box_image,
+                        text_box_image.get_rect(midleft=(0, self.cost_text_rects[index])))
+
+        if check_total:
+            self.check_total_cost()
 
     def change_player_control(self):
         self.image.blit(self.circle, self.player_control_rect)
@@ -817,7 +870,7 @@ class CustomTeamSetupUI(UIMenu):
 
         self.game.custom_team_army[self.team][index].__init__("", "", "", None, [], [], [], [])
         self.game.custom_team_army_buttons[self.team][index].change_state("")
-        self.change_cost(index, 0)
+        self.change_cost(index, 0, 0)
 
     def update(self, dt):
         UIMenu.update(self, dt)
@@ -902,6 +955,7 @@ class PresetArmySetupUI(UIMenu):
         self.image = Surface((int(1500 * self.screen_scale_width), int(1080 * self.screen_scale_height)), SRCALPHA)
         self.image.fill((180, 100, 180))
         self.total_gold_cost = 0
+        self.total_supply_usage = 0
         self.total_leadership = 0
         self.portrait_type_rects = {"commander": [],
                                     "retinue": [],
@@ -948,12 +1002,14 @@ class PresetArmySetupUI(UIMenu):
         """Reset army preset when player change faction"""
         self.current_preset = ""
         self.total_gold_cost = 0
+        self.total_supply_usage = 0
         self.total_leadership = 0
         self.army_preset = deepcopy(self.empty_army_preset)
         self.selected_faction = selected_faction
         self.selected_portrait_index = ()
         self.game.character_selector.add(None, "")
-        self.game.custom_preset_army_title.change_text(self.current_preset, self.total_gold_cost, self.total_leadership)
+        self.game.custom_preset_army_title.change_text(self.current_preset, self.total_gold_cost,
+                                                       self.total_supply_usage, self.total_leadership)
         self.game.custom_preset_list_box.adapter.__init__()  # reset custom preset list as well
         self.reset()
 
@@ -1010,6 +1066,7 @@ class PresetArmySetupUI(UIMenu):
         self.image.fill((180, 100, 180))
 
         self.total_gold_cost = 0
+        self.total_supply_usage = 0
         self.total_leadership = 0
 
         for character_type in ("commander", "retinue", "leader", "troop", "air"):
@@ -1027,8 +1084,11 @@ class PresetArmySetupUI(UIMenu):
                         self.total_leadership += self.character_list[character][
                                                      "Leadership"] * Retinue_Leadership_Add_Modifier
                     self.total_gold_cost += self.character_list[character]["Cost"]
+                    if character_type not in ("commander", "air", "retinue"):
+                        self.total_supply_usage += self.character_list[character]["Supply"] * self.character_list[character]["Capacity"]
 
-        self.game.custom_preset_army_title.change_text(self.current_preset, self.total_gold_cost, self.total_leadership)
+        self.game.custom_preset_army_title.change_text(self.current_preset, self.total_gold_cost,
+                                                       self.total_supply_usage, self.total_leadership)
 
     def update(self, dt):
         UIMenu.update(self, dt)
@@ -1321,7 +1381,7 @@ class MenuButton(UIMenu):
                 key_name = (key_name,)
             for item in key_name:
                 if type(item) is int or item.isdigit():
-                    self.text += add_comma_number(item)
+                    self.text += add_comma_number(int(item))
                 else:
                     self.text += self.grab_text(("ui", item))
             text_surface = self.font.render(self.text, True, (30, 30, 30))
@@ -1350,6 +1410,7 @@ class MenuButton(UIMenu):
             elif self.cursor.is_select_down:
                 self.event_hold = True
                 self.cursor.is_select_just_down = False  # reset select button to prevent overlap interaction
+                self.image = self.button_click_image
 
     def change_state(self, key_name, no_localisation=False):
         self.button_normal_image = self.base_image0.copy()
@@ -1469,14 +1530,21 @@ class BrownMenuButton(UIMenu, Containable):  # NOTE: the button is not brown any
 
         hover_button = normal_button.copy()
         draw.rect(hover_button, "#DD0000", hover_button.get_rect(), 2)
-        return normal_button, hover_button
+
+        dark_shade = Surface(hover_button.get_size(), SRCALPHA)
+        dark_shade.fill((0, 0, 0, 80))
+        click_button = normal_button.copy()
+        click_button.blit(dark_shade, (0, 0))
+        return normal_button, hover_button, click_button
 
     def get_relative_size_inside_container(self):
         return self.size
 
     def refresh(self):
         self.image = self.images[0]
-        if self.mouse_over:
+        if self.event:
+            self.image = self.images[2]
+        elif self.mouse_over:
             self.image = self.images[1]
 
     def get_relative_position_inside_container(self):
@@ -2037,8 +2105,7 @@ class GrandMiniMap(UIMenu):
             self.map_scale_height = self.grand.grand_map.full_shown_map_image.get_height() / self.image.get_height()
             self.camera_border_image = Surface((self.screen_width / self.map_scale_width,
                                                 self.screen_height / self.map_scale_height), SRCALPHA)
-            draw.rect(self.camera_border_image, (250, 100, 100), (0, 0, self.camera_border_image.get_width(),
-                                                                  self.camera_border_image.get_height()),
+            draw.rect(self.camera_border_image, (250, 100, 100), self.camera_border_image.get_rect(),
                       width=int(10 * self.screen_scale_width))
 
     def change_grand_faction(self, region_control_data):
@@ -2281,14 +2348,14 @@ class CustomPresetListAdapter(ListAdapterHideExpand):
 class CustomPresetTitle(UIMenu):
     def __init__(self, size, pos):
         UIMenu.__init__(self)
-        self.font = self.game.preset_name_font
+        self.font = self.game.medium_generic_ui_font
         self.pos = pos
         self.name = ""
         self.image = pygame.Surface(size)
         self.image.fill((150, 150, 150))
         self.rect = self.image.get_rect(midbottom=self.pos)
 
-    def change_text(self, name, cost, leadership):
+    def change_text(self, name, cost, supply, leadership):
         self.name = name
         self.image.fill((150, 150, 150))
 
@@ -2298,7 +2365,8 @@ class CustomPresetTitle(UIMenu):
 
         text_surface = self.font.render(self.grab_text(("ui", "info_header_leadership")) +
                                         add_comma_number(int(leadership)) +
-                                        "/" + self.grab_text(("ui", "info_header_cost")) + add_comma_number(cost),
+                                        "/" + self.grab_text(("ui", "info_header_cost")) + add_comma_number(cost) +
+                                        "/" + self.grab_text(("ui", "info_header_supply")) + add_comma_number(supply),
                                         True, (30, 30, 30))
         text_rect = text_surface.get_rect(midright=(self.image.get_width(), self.image.get_height() / 2))
         self.image.blit(text_surface, text_rect)

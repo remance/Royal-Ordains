@@ -1,5 +1,5 @@
 from configparser import ConfigParser
-
+from engine.constants import *
 import pygame
 import screeninfo
 
@@ -16,6 +16,13 @@ def create_config(self):
                          "fps": 0, "master_volume": 100.0, "music_volume": 100.0, "easy_text": 0, "show_dmg_number": 1,
                          "voice_volume": 100.0, "effect_volume": 50.0, "max_fps": 60,
                          "language": "en",
+                         "selected_custom_stage_battle": Default_Selected_Stage_Custom_Battle,
+                         "team1_supply_limit_custom_battle": Default_Supply_limit_Custom_Battle,
+                         "team2_supply_limit_custom_battle": Default_Supply_limit_Custom_Battle,
+                         "team1_gold_limit_custom_battle": Default_Gold_limit_Custom_Battle,
+                         "team2_gold_limit_custom_battle": Default_Gold_limit_Custom_Battle,
+                         "selected_weather_custom_battle": Default_Weather_Custom_Battle,
+                         "selected_weather_strength_custom_battle": Default_Weather_Strength_Custom_Battle,
                          "keybind": {"Confirm": pygame.K_RETURN,
                                      "Left": pygame.K_a, "Right": pygame.K_d,
                                      "Up": pygame.K_w, "Down": pygame.K_s,

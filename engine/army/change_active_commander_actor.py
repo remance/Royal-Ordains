@@ -6,9 +6,9 @@ def change_active_commander_actor(self, new_commander_char_id):
     self.commander_id = new_commander_char_id
 
     # remove previous actor
-    self.grand.grand_actor_updater.remove(self.commander_actor.grand_faction_actor_circle)
-    self.grand.grand_camera_object_drawer.remove(self.commander_actor.grand_faction_actor_circle)
-    clean_object(self.commander_actor.grand_faction_actor_circle)
+    self.grand.grand_actor_updater.remove(self.commander_actor.army_bar)
+    self.grand.grand_camera_object_drawer.remove(self.commander_actor.army_bar)
+    clean_object(self.commander_actor.army_bar)
 
     self.grand.grand_actor_updater.remove(self.commander_actor)
     self.grand.grand_camera_object_drawer.remove(self.commander_actor)

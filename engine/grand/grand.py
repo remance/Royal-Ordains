@@ -32,7 +32,7 @@ from engine.grand.fix_camera import fix_camera
 from engine.grand.player_input import player_input_grand, battle_no_player_input_grand
 from engine.grand.sort_player_army_list import sort_player_army_list
 from engine.grand.state_grand_process import state_grand_process
-from engine.grandactor.grandactor import GrandActor, GrandFactionActorCircle
+from engine.grandactor.grandactor import GrandActor, GrandFactionActorBar
 from engine.grandmap.grandmap import GrandMap
 from engine.grandobject.grandobject import GrandObject
 from engine.uibattle.drama import TextDrama
@@ -116,7 +116,7 @@ class Grand:
         self.grand_effect_updater = sprite.Group()  # updater for effect objects
 
         GrandActor.containers = self.grand_actor_updater, self.grand_camera_object_drawer
-        GrandFactionActorCircle.containers = self.grand_actor_updater, self.grand_camera_object_drawer
+        GrandFactionActorBar.containers = self.grand_actor_updater, self.grand_camera_object_drawer
 
         GrandObject.containers = self.grand_actor_updater, self.grand_camera_object_drawer
 
@@ -187,8 +187,7 @@ class Grand:
 
         # Create map object
         GrandMap.grand = self
-        GrandMap.image = Surface.subsurface(self.camera.image, (0, 0, self.camera.image.get_width(),
-                                                                self.camera.image.get_height()))
+        GrandMap.image = Surface.subsurface(self.camera.image, self.camera.image.get_rect())
         self.map_x_end = 0
         self.map_y_end = 0
         self.map_shown_to_actual_scale_width = 1
@@ -197,15 +196,14 @@ class Grand:
 
         Army.grand = self
         GrandActor.grand = self
-        GrandFactionActorCircle.grand = self
+        GrandFactionActorBar.grand = self
         GrandObject.grand = self
-        GrandFactionActorCircle.screen_scale = self.screen_scale
+        GrandFactionActorBar.screen_scale = self.screen_scale
         GrandObject.screen_scale = self.screen_scale
 
         # Create grand ui
         self.travel_dot_images = {1: {}, 2: {}, 3: {}, 4: {}}  # get added during campaign prepare
-        grand_ui_images = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                      subfolder=("ui", "grand_ui"))
+        grand_ui_images = self.game.grand_ui_images
         self.decision_select = YesNo(grand_ui_images)
         self.mini_map = GrandMiniMap((self.screen_width - ((796 / 2) * self.screen_scale_width),
                                       self.screen_height - (432 * self.screen_scale_height)),
@@ -385,14 +383,7 @@ class Grand:
             self.player_input = MethodType(battle_no_player_input_grand, self)
             self.outer_ui_updater.remove(self.only_player_ui)
 
-        for faction in self.faction_list:
-            if faction != "free":
-                self.cal_faction_culture(faction)
-
-                for region in self.current_campaign_state["faction"][faction]["region"]:
-                    self.cal_region_income(region)
-
-                self.cal_faction_income(faction)
+        self.change_turn()
 
         self.event_notification_ui.update_image()
         self.fix_camera()

@@ -11,11 +11,11 @@ def play_animation(self, dt):
     """
     self.frame_timer += dt
     if self.frame_timer >= self.final_animation_frame_play_time:  # start next frame or end animation
+        self.update_sprite = True
         if change_animation_frame(self):
             return True
         self.final_animation_frame_play_time = self.animation_frame_play_time
         if "play_time_mod" in self.current_animation_frame:
             self.final_animation_frame_play_time *= self.current_animation_frame["play_time_mod"]
 
-        self.update_sprite = True
     return False

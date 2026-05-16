@@ -41,7 +41,7 @@ with open(join(main_dir, "animation-maker", "data", "animation", file_name), enc
                     new_column[2] = str(round(float(new_column[2]) - 200, 1))
                     # if float(new_column[3]) < -180:
                     # new_column[3] = str(round(float(new_column[3]) * 0.5, 1))
-                    new_column[6] = "7"
+                    # new_column[6] = "7"
                     new_column = ",".join(new_column)
                     row[col_index] = new_column
         final_save.append(row)

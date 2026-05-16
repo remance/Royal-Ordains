@@ -37,7 +37,7 @@ def air_health_resource_logic(self):
             self.resource -= self.timer
             if self.resource <= self.min_resource_move:
                 self.resource = 0
-                self.issue_commander_order(("back", self.start_pos))
+                self.issue_commander_order(("back", self.retreat_pos))
     else:
         # replenish health and resource while not active in battle
         if self.health != infinity and self.health < self.base_health:

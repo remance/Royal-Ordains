@@ -21,9 +21,9 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
     except Exception:
         pass
 
-    event_sprite_pool = {}
+    event_actor_sprite_pool = {}
     try:
-        event_sprite_pool = load_pickle_with_surfaces(join(data_dir, "animation", "event.xz"),
+        event_actor_sprite_pool = load_pickle_with_surfaces(join(data_dir, "animation", "event_actor.xz"),
                                                       (1, 1), add_mask=False)
     except Exception:
         pass
@@ -36,8 +36,8 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                 # world actor only for leader characters
                 world_actor_animation_pool[character] = {}
 
-            if character not in event_sprite_pool:
-                event_sprite_pool[character] = {}
+            if character not in event_actor_sprite_pool:
+                event_actor_sprite_pool[character] = {}
 
             for animation_name, animation_frame in animation_pool[character].items():
                 if "EXCLUDE_" not in animation_name:
@@ -69,9 +69,9 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                         else:  # save to event sprite data instead
                             event_animation_name = animation_name + str(frame_index)
                             if animation_name + str(frame_index) not in effect_sprite_adjust:
-                                event_sprite_pool[character][event_animation_name] = {}
-                            event_sprite_pool[character][event_animation_name]["right"] = frame_data_r
-                            event_sprite_pool[character][event_animation_name]["left"] = frame_data_l
+                                event_actor_sprite_pool[character][event_animation_name] = {}
+                            event_actor_sprite_pool[character][event_animation_name]["right"] = frame_data_r
+                            event_actor_sprite_pool[character][event_animation_name]["left"] = frame_data_l
 
                         min_x = float("infinity")
                         max_x = -float("infinity")
@@ -282,7 +282,7 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                                         frame_data_list["right"]["effects"][part_header])]
 
             save_pickle_with_surfaces(join(data_dir, "animation", character + ".xz"), character_animation_pool)
-    save_pickle_with_surfaces(join(data_dir, "animation", "event.xz"), event_sprite_pool)
+    save_pickle_with_surfaces(join(data_dir, "animation", "event_actor.xz"), event_actor_sprite_pool)
     save_pickle_with_surfaces(join(data_dir, "animation", "world_actor.xz"), world_actor_animation_pool)
 
     if not compile_specific:

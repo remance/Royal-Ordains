@@ -266,8 +266,8 @@ class Character(sprite.Sprite):
         self.ai_behaviour = stat["AI Behaviour"]
 
         self.ai_move = MethodType(ai_move_dict["default"], self)
-        if self.is_commander:  # leader use behaviour that move based on commander order
-            self.ai_move = MethodType(ai_move_dict["leader"], self)
+        if self.is_commander:  # commander use behaviour that move based on player/ ai commander order
+            self.ai_move = MethodType(ai_move_dict["commander"], self)
         elif self.ai_behaviour in ai_move_dict:
             self.ai_move = MethodType(ai_move_dict[self.ai_behaviour], self)
 
@@ -453,6 +453,9 @@ class BattleCharacter(Character):
         # self.total_defence_power_score = 0
         self.total_power_score = 0
         self.start_pos = self.battle.team_stat[self.team]["start_pos"]
+        self.retreat_pos = self.start_pos * 2
+        if not self.start_pos:
+            self.retreat_pos = -10000
 
         # Get char stat
         self.leader = None
@@ -575,8 +578,8 @@ class BattleCharacter(Character):
         self.ai_enemy_max_effect_range = stat["ai_enemy_max_effect_range"]
         self.ai_ally_max_effect_range = stat["ai_ally_max_effect_range"]
 
-        self.retreat_stage_end = self.battle.base_stage_end + self.sprite_width
-        self.retreat_stage_start = -self.sprite_width
+        self.retreat_stage_end = self.battle.base_stage_end + (self.sprite_width * 2)
+        self.retreat_stage_start = -self.sprite_width * 2
         self.enemy_start_pos = self.battle.team_stat[self.enemy_team]["start_pos"]
 
         if self.movesets:
@@ -659,9 +662,9 @@ class BattleCharacter(Character):
                 self.alive = False  # remove character that retreat pass stage border, enter dead state
                 self.health = 0
                 for sub_character in self.sub_characters:
-                    sub_character.die()
+                    sub_character.die(retreat=True)
                     sub_character.erase()
-                self.die()
+                self.die(retreat=True)
                 self.erase()
 
         else:  # die
@@ -836,8 +839,7 @@ class ShowcaseCharacter(Character):
     # static variable
     is_sub_character = False
 
-    def __init__(self, game_id: int, stat: dict, leader: BattleCharacter = None,
-                 is_commander: bool = False, is_summon: bool = False) -> None:
+    def __init__(self, game_id: int, stat: dict) -> None:
         """
         BattleCharacter object represent a character that take part in the battle in stage
         Character has three different stage of stat;
@@ -853,7 +855,7 @@ class ShowcaseCharacter(Character):
         self.final_animation_frame_play_time = self.animation_frame_play_time
 
         # variable for attack cross function check
-        Character.__init__(self, game_id, stat, additional_layer="showcase", is_commander=is_commander)
+        Character.__init__(self, game_id, stat, additional_layer="showcase", is_commander=False)
         self.movesets = stat["Move"]
 
         if stat["Sub Characters"]:  # add sub characters

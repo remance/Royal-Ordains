@@ -9,5 +9,5 @@ def deploy_from_reserve(self, region):
     self.grand.grand_actor_updater.add(self.commander_actor)
     self.grand.grand_camera_object_drawer.add(self.commander_actor)
 
-    self.grand.grand_actor_updater.add(self.commander_actor.grand_faction_actor_circle)
-    self.grand.grand_camera_object_drawer.add(self.commander_actor.grand_faction_actor_circle)
+    self.grand.grand_actor_updater.add(self.commander_actor.army_bar)
+    self.grand.grand_camera_object_drawer.add(self.commander_actor.army_bar)

@@ -1,3 +1,5 @@
+
+
 def change_phase(self):
     self.current_campaign_state
 

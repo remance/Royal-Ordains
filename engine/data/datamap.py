@@ -42,6 +42,7 @@ class DataMap(GameData):
         self.dot_route_difficulty = {}
         self.route_pathfinding = {}
         self.start_army_list = {}
+        self.event_list = {}
         self.faction_list = {}
         self.region_by_colour_list = {}
         self.world_map = None
@@ -67,8 +68,9 @@ class DataMap(GameData):
                                        dict_column=dict_column, hex2colour_column=hex2colour_column)
                 for header_index, value in enumerate(header):
                     if "Build Slot" in value and row[header_index]:
-                        # add active building state to starting region building lists
-                        row[header_index].append(True)
+                        # add active building state to non-empty starting region building lists
+                        if row[header_index]:
+                            row[header_index].append(True)
                 self.region_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
                 self.region_by_colour_list[row[1]] = {header[index]: stuff for index, stuff in enumerate(row)}
         edit_file.close()
@@ -114,6 +116,19 @@ class DataMap(GameData):
         self.route_dot_draw_array = dict(sorted(self.route_dot_draw_array.items()))
         edit_file.close()
 
+        self.event_list = {}
+        with open(os.path.join(self.data_dir, "map", "world", campaign, "event.csv"),
+                  encoding="utf-8", mode="r") as edit_file:
+            rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
+            header = rd[0]
+            dict_column = ("Condition", "Effect")
+            dict_column = [index for index, item in enumerate(header) if item in dict_column]
+            for index, row in enumerate(rd[1:]):
+                for n, i in enumerate(row):
+                    row = stat_convert(row, n, i, dict_column=dict_column)
+                self.event_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
+        edit_file.close()
+
         self.world_map = load_image(self.data_dir, (1, 1), "world.png", ("map", "world", campaign), no_alpha=True)
 
         self.faction_list = {}
@@ -156,27 +171,12 @@ class DataMap(GameData):
             if map_name == map_file_name:
                 self.preset_map_data[map_name] = {}
 
-                if map_file_name != "event":  # city scene use different reading
-                    original_event_data, event_data = self.load_map_event_data(campaign, map_file_name)
-                    self.preset_map_data[map_name] = \
-                        {"data": csv_read(file_map, "object_pos.csv", header_key=True),
-                         "character": self.load_map_unit_data(campaign, map_file_name),
-                         "event_data": original_event_data,
-                         "event": event_data}
-                else:  # events, read each scene
-                    read_folder = Path(os.path.join(self.data_dir, "map", "stage", "preset", "event"))
-                    sub4_directories = [x for x in read_folder.iterdir() if x.is_dir()]
-                    for file_scene in sub4_directories:
-                        scene_file_name = os.sep.join(os.path.normpath(file_scene).split(os.sep)[-1:])
-                        original_event_data, event_data = self.load_map_event_data(campaign, map_file_name.lower(),
-                                                                                   scene_id=scene_file_name.lower())
-                        self.preset_map_data[map_name][
-                            scene_file_name] = \
-                            {"data": csv_read(file_scene, "object_pos.csv", header_key=True),
-                             "character": self.load_map_unit_data(map_file_name.lower(),
-                                                                  scene_id=scene_file_name.lower()),
-                             "event_data": original_event_data,
-                             "event": event_data}
+                original_event_data, event_data = self.load_map_event_data(campaign, map_file_name)
+                self.preset_map_data[map_name] = \
+                    {"data": csv_read(file_map, "object_pos.csv", header_key=True),
+                     "character": self.load_map_unit_data(campaign, map_file_name),
+                     "event_data": original_event_data,
+                     "event": event_data}
                 break
 
     def load_map_event_data(self, campaign, map_id, scene_id=""):

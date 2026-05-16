@@ -16,14 +16,14 @@ Custom_Default_Culture = "castle"
 Default_Showcase_Character = "leader_tulia"
 Default_Selected_Stage_Custom_Battle = "stage_custom1"
 
-Default_Supply_limit_Custom_Battle = 1000
+Default_Supply_limit_Custom_Battle = 5000
 Default_Gold_limit_Custom_Battle = 5000
 Default_Weather_Custom_Battle = 1
 Default_Weather_Strength_Custom_Battle = 0
 Retinue_Leadership_Add_Modifier = 0.3
 
 Phase_To_Game_Time = 1  # in second to 1 phase
-Turn_To_Phase = 11  # in phase to 1 turn
+Turn_To_Phase = 12  # in phase to 1 turn
 Phase_To_Battle_Time = 60  # in second
 
 """culture policy for grand campaign

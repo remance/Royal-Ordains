@@ -96,7 +96,7 @@ def play_battle_animation(self, dt, hold_check):
             self.sprite_deal_damage = False
             for key, part_data in self.current_animation_direction["effects"].items():
                 if part_data[8] and part_data[0] in self.effect_list:  # independent effect must exist in effect list
-                    if "no_target" in self.current_action:
+                    if "no_target" in self.current_action or "target" not in self.current_action:
                         target = None
                     else:
                         target = self.current_action["target"]

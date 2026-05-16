@@ -1,4 +1,4 @@
-"ID","Name","Description","Lore"
+"wood_","Name","Description","Lore"
 "barren_orc_axe","Simpler Orc","A very simple orc carrying an axe. Nothing simpler than this.",
 "barren_orc_berserker","Madder Orc","An orc berserker. Exceedingly dangerous to all enemies.","Willingly enter into the state of berserk via hallucinogenic fungus gourmandisation."
 "barren_orc_drum","Calmer Orc","An orc drummer. A music to the spirit of battle. Can rouse allies to fight better.",
@@ -86,7 +86,7 @@
 "doll_leader_repair","Doctor Dophe","A doctor doll. Provide great healing for all friends.","Written somewhere, ""A Doctor Dophe repair robot with a self-manufacturing nanotech drone hub"". One may wonder how Doctor Dophe can heal other dolls with their fake tools. A doctor's secret is worth a million for sure."
 "doll_maid_knight","Knightly Maid Doll","An armoured maid. Great in melee and service.","Written somewhere, ""A Victorian-style inspire Annie maid pushie-type doll"". Originally, Simple maid lookalike dolls that actually possesses no innate cleaning capability. After observing a maid's metal broom shattering a package box, the Doll King repurposed these maid dolls into a maid knight that can smash anyone into a bin like the trash they are. Likes to scrape the floor with the metal broom, mimicking a real maid cleaning."
 "doll_thrower","Launch Pad","A launch pad for the Flying Doll. Can launch the doll from a very long range to wreak havoc among enemies.","Written somewhere, ""A mobile flying jump pad with extremely bouncy commercial-grade reinforced vinyl"". This machine has only one purpose: to give a big jump so high that it is almost flying. And so it is that dolls will jump into heaven."
-"doll_titan","Gigantic Battle Doll","A gigantic doll. Very tough and sluggish. Excels at fighting a large group of enemies.","Written somewhere, ""A giant, very huggable, cuddly doll with an automated hugging function"". The largest dolls in the family, these titans were not designed for battle, but time has changed. Their size and durability make them unmatchable in ramming through the enemy's defence and hail of missiles."
+"doll_titan","Gigantic Doll","A gigantic doll. Very tough and sluggish. Excels at fighting a large group of enemies.","Written somewhere, ""A giant, very huggable, cuddly doll with an automated hugging function"". The largest dolls in the family, these titans were not designed for battle, but time has changed. Their size and durability make them unmatchable in ramming through the enemy's defence and hail of missiles."
 "doll_wagon_bomber_1","Wagon Bomber","A doll on a wagon that throw many things, including bombs.",
 "doll_wagon_bomber_2","Wagon Bomber","A doll on a wagon that throw many things, including bombs.",
 "doll_wagon_bomber_3","Wagon Bomber","A doll on a wagon that throw many things, including bombs.",
@@ -319,7 +319,7 @@
 "leader_mounniley","Mounniley",,
 "leader_mratarvir","Mratarvir",,
 "leader_mratarvir_revenger",,,
-"leader_nadvalin","Nadvalin","A mysterious-looking girl. Despite the look, her fists can deal immense damage.",
+"leader_nadvalin","Nadvalin","A mysterious-looking girl. Despite the look, her fists can deal immense damage.","It is uncertain where Nadvalin came from or why she carries a tree with her, but she is amiable and free-spirited enough that even vert creatures become friends with her in a short time. This little girl does not tolerate bullying of any kind."
 "leader_nalana","Nalana","An elvish flower keeper. She can use flower thorns and pollens to inflict damage over time and confuse enemies. Additionally, she can provide minor regeneration to nearby allies.",
 "leader_nalana_beauty",,,
 "leader_nalana_thorn",,,
@@ -332,8 +332,7 @@
 "leader_negkoi","Negkoi",,
 "leader_noxbox_201","Noxbox 201","An iron box-looking thing that seems to be able to move on its own. Surprisingly, it can dispense a wide array of powerful magics.","Written somewhere, ""A universal assistance robot with spacious self-storage"". Noxbox201 is one of the many of its kind; it does not possess any special or combat functions. One day, however, it discovered a magical wand in an abandoned storage. Such an immensely powerful artefact allows Noxbox201 to become a powerful magician beyond imagination."
 "leader_nraesier","Nraesier","An observant pathfinder. Unmatched in scouting skills, and packed many throwing knives to dispatch enemies from a distance.","Elder twin sister of Vraesier. Talker and thinker of the pair. Wherever Vraesier go, the shadow of Nraesier is never far away, is what the saying goes to those who know the pair. They both seem to have a single shared purpose, or rather a single person of interest that they most long to find. Likes to dote on her sister in free time."
-"leader_nraesier_demon","Demoness Nraesier",,
-"leader_nraesier_spymaster",,,
+"leader_nraesier_spymaster","Lady Spymaster",,
 "leader_oanogoht","Oanogoht",,
 "leader_olsilin","Olsilin","A prankster sprite. She can cast a random effect on both nearby allies and enemies that can be beneficial or detrimental. Cannot be damaged in any way.","Sprites are powerful and whimsical beings. There is no law, no moral, or might that can constrain them. They are so swift that not even a hawk can catch them while asleep. Olsilin is no doubt one of them. She possesses the magic power of an archwizard, but cares so little to wield the full power for anything meaningful. Instead, she will play around and randomly cast magic on people around her for entertainment."
 "leader_oodoo","Oodoo",,
@@ -413,7 +412,8 @@
 "leader_vok_furier",,,
 "leader_vok_fury",,,
 "leader_vraesier","Vraesier","Skilled fighter in melee combat, can bleed enemies and fight a long battle on her own.","This bandit has one thing really going, and that is her skill in battle. Her rough manner and appearance did not help to avoid being held in contempt by most in the civilised world. Still, this so-called ""knave"" can easily take down even the most skilled knight with ease. Not really a social person, and the stoic appearance kept many at a distance."
-"leader_vraesier_demon","Hatred Demoness",,
+"leader_demoness","Demoness",,
+"leader_demoness_merged","Merged Demoness",,
 "leader_vraesier_lady","Lady Justice",,
 "leader_vurus","Vurus","Accomplished commander and strategist. Can provide support to his troops with numerous buffs, but is rather unkeen on direct combat.","Grand Marshall, Chief Strategist Advisor, and Flower Knight Overseer of the Kingdom of Masendor. Vurus is absolutely brilliant in warfare. Fought in countless battles for the Kingdom, defeat is rarely conceivable with him as the commander in battle."
 "leader_vurus_old","Vurus the Old",,

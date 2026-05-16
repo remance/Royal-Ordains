@@ -1,4 +1,5 @@
 from pygame import Vector2
+from engine.utils.rotation import set_rotate
 
 
 def move_logic(self, dt, done):
@@ -26,7 +27,7 @@ def move_logic(self, dt, done):
             move *= self.speed * dt
             new_pos = self.base_pos + move
             if not self.travel_spin:
-                self.angle = self.set_rotate(self.base_pos, new_pos)
+                self.angle = set_rotate(self.base_pos, new_pos)
             else:  # spin while travel instead of angle to front direction
                 self.angle += (dt * 1000)
                 if self.angle >= 360:

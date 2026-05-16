@@ -3,7 +3,6 @@ def pick_animation(self, animation_name):
     # reset various animation variable
     self.show_frame = 0
     self.frame_timer = 0
-
     if animation_name in self.animation_pool:
         self.current_animation = self.animation_pool[animation_name]
     else:  # animation not found, use default

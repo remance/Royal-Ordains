@@ -1,4 +1,5 @@
-from pygame import sprite, Vector2, draw, Surface, SRCALPHA
+from pygame import Vector2, draw, Surface, SRCALPHA
+from pygame.sprite import Sprite
 
 from engine.battleobject.adjust_sprite import adjust_sprite
 from engine.character.reset_sprite import reset_sprite
@@ -9,7 +10,10 @@ from engine.grandactor.play_animation import play_animation
 from engine.utils.common import clean_object
 
 
-class GrandActor(sprite.Sprite):
+same_dot_placement_pos_offset = ((0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), )
+
+
+class GrandActor(Sprite):
     adjust_sprite = adjust_sprite
     clean_object = clean_object
     play_animation = play_animation
@@ -24,7 +28,7 @@ class GrandActor(sprite.Sprite):
     def __init__(self, sprite_id, army, faction):
         self.army_pos = Vector2(army.base_pos)
         self._layer = 100 + (self.army_pos[1] * 1000000)
-        sprite.Sprite.__init__(self, self.containers)
+        Sprite.__init__(self, self.containers)
         self.drawer = self.grand.grand_camera_object_drawer
 
         self.map_shown_to_actual_scale_width = self.grand.map_shown_to_actual_scale_width
@@ -32,7 +36,6 @@ class GrandActor(sprite.Sprite):
         self.skip_move_length = 100 * self.map_shown_to_actual_scale_width
 
         self.army = army
-        self.grand_faction_actor_circle = None
         army.commander_actor = self
         self.faction = faction
         self.max_show_frame = 0
@@ -46,7 +49,7 @@ class GrandActor(sprite.Sprite):
         self.width_scale = 1
         self.animation_pool = self.grand.sprite_data.grand_actor_animation_pool[sprite_id]
         self.direction = "right"
-        self.current_action = {}
+        self.current_action = {"repeat": True}
         self.current_animation = self.animation_pool["Idle"]
         self.current_animation_frame = self.current_animation[self.show_frame]
         self.current_animation_direction = self.current_animation_frame[self.direction]
@@ -54,7 +57,7 @@ class GrandActor(sprite.Sprite):
         self.pos = Vector2((self.army_pos[0] * self.map_shown_to_actual_scale_width,
                             self.army_pos[1] * self.map_shown_to_actual_scale_height))
         self.rect = self.image.get_rect(center=self.pos)
-        self.circle = GrandFactionActorCircle(self, faction)
+        self.army_bar = GrandFactionActorBar(self, faction)
 
         self.target_pos = Vector2(self.pos)
         self.animation_name = "Idle"
@@ -82,13 +85,13 @@ class GrandActor(sprite.Sprite):
             self.move_logic(dt)
             self.drawer.change_layer(self, 100 + (self.pos[1] * 10))
 
-        self.play_animation(true_dt)
+        self.play_animation(true_dt)  # actor play animation based on real-time instead of game speed
         if self.update_sprite:
             self.reset_sprite()
             self.update_sprite = False
 
 
-class GrandFactionActorCircle(sprite.Sprite):
+class GrandFactionActorBar(Sprite):
     containers = None
     faction_circle_cache = {}
     screen_scale = None
@@ -96,10 +99,9 @@ class GrandFactionActorCircle(sprite.Sprite):
 
     def __init__(self, actor, faction):
         self._layer = actor.pos[1]
-        sprite.Sprite.__init__(self, self.containers)
+        Sprite.__init__(self, self.containers)
         self.drawer = self.grand.grand_camera_object_drawer
         self.actor = actor
-        actor.grand_faction_actor_circle = self
         if faction not in self.faction_circle_cache:
             image = Surface((100 * self.screen_scale[0], 50 * self.screen_scale[1]), SRCALPHA)
             selected_image = image.copy()

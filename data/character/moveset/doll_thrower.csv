@@ -1,2 +1,2 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
-"Attack1","Jumper Out",,,"self:{no_engage=800}",13000,12000,15,,70,160,1500,1000,0.15,"crush",,,,"arc,no_defence,far_target,summon:doll_jumper,summon_on_effect"
+"Attack1","Jumper Out",,,"self:{no_engage=800}",13000,12000,15,,70,160,1500,1000,0.15,"crush",,,,"arc,no_defence,far_target,summon:doll_lander,summon_on_effect"

@@ -137,7 +137,7 @@ def conduct_troop_call(self):
                         for air_group in self.air_group:
                             for character in air_group:
                                 if character.alive and character.active:
-                                    character.issue_commander_order(("back", character.start_pos))
+                                    character.issue_commander_order(("back", character.retreat_pos))
 
             elif air_interceptor_available_to_call and self.commander_air_prefer >= uniform(0, 10):
                 # stupid commander randomly send interceptor

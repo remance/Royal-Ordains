@@ -482,7 +482,7 @@ class Command(UIBattle):
                                     # right click on active air group order it to exit the battle
                                     for character in self.player_air_group[air_group]:
                                         if character.alive:
-                                            character.issue_commander_order(("back", character.start_pos))
+                                            character.issue_commander_order(("back", character.retreat_pos))
                         return
 
     def popup_description(self, call_shortcut_name, call_remain, character):
@@ -940,6 +940,7 @@ class StrategySelect(UIBattle):
         self.player_team = self.battle.player_team
         self.player_team_stat = self.battle.team_stat[self.player_team]
         self.strategy_status = {}
+        self.strategy_rect = {}
         self.image = self.base_image.copy()
         if self.player_team:
             pos_x = 250 * self.screen_scale_height
@@ -1427,6 +1428,7 @@ class CharacterSpeechBox(UIBattle):
         self.cutscene_event = cutscene_event
         self.base_pos = self.character.base_pos.copy()
         self.finish_unfolding = False
+        self.direction_left = False
         self.current_length = start_top.get_width()
 
         self.max_length = self.base_image.get_width()
@@ -1459,42 +1461,43 @@ class CharacterSpeechBox(UIBattle):
 
     def update(self, dt):
         """Play unfold animation and blit text at the end"""
-        direction_left = False
-        # always use p1 head to place speak
-        head_rect = (
-            (self.character.pos[0] + (self.character.current_animation_direction["head"][0] * self.screen_scale_width)),
-            (self.character.pos[1] + (
-                    self.character.current_animation_direction["head"][1] * self.screen_scale_height)))
-        if self.character.direction == "left":  # left direction facing
-            if head_rect[0] - (
-                    self.battle.shown_camera_center_pos[0] - self.battle.camera.camera_w_center) < self.max_length:
-                self.base_image = self.right_image
-                self.rect = self.image.get_rect(bottomleft=head_rect)
-            else:
-                # text will exceed screen, go other way
-                direction_left = True
-                self.base_image = self.left_image
-                self.rect = self.image.get_rect(bottomright=head_rect)
+        if self.character.alive:  # update head position
+            self.direction_left = False
+            # always use p1 head to place speak
+            head_rect = (
+                (self.character.pos[0] + (self.character.current_animation_direction["head"][0] * self.screen_scale_width)),
+                (self.character.pos[1] + (
+                        self.character.current_animation_direction["head"][1] * self.screen_scale_height)))
+            if self.character.direction == "left":  # left direction facing
+                if head_rect[0] - (
+                        self.battle.shown_camera_center_pos[0] - self.battle.camera.camera_w_center) < self.max_length:
+                    self.base_image = self.right_image
+                    self.rect = self.image.get_rect(bottomleft=head_rect)
+                else:
+                    # text will exceed screen, go other way
+                    self.direction_left = True
+                    self.base_image = self.left_image
+                    self.rect = self.image.get_rect(bottomright=head_rect)
 
-        else:  # right direction facing
-            if (self.battle.shown_camera_center_pos[0] + self.battle.camera.camera_w_center) - \
-                    head_rect[0] < self.max_length:
-                # text will exceed screen, go other way
-                direction_left = True
-                self.base_image = self.left_image
-                self.rect = self.image.get_rect(bottomright=head_rect)
-            else:
-                self.base_image = self.right_image
-                self.rect = self.image.get_rect(bottomleft=head_rect)
+            else:  # right direction facing
+                if (self.battle.shown_camera_center_pos[0] + self.battle.camera.camera_w_center) - \
+                        head_rect[0] < self.max_length:
+                    # text will exceed screen, go other way
+                    self.direction_left = True
+                    self.base_image = self.left_image
+                    self.rect = self.image.get_rect(bottomright=head_rect)
+                else:
+                    self.base_image = self.right_image
+                    self.rect = self.image.get_rect(bottomleft=head_rect)
 
-        if self.rect.midtop[1] < 0:  # exceed top scene
-            self.rect = self.image.get_rect(midtop=(self.rect.midtop[0], 0))
+            if self.rect.midtop[1] < 0:  # exceed top scene
+                self.rect = self.image.get_rect(midtop=(self.rect.midtop[0], 0))
 
         if self.current_length < self.max_length:  # keep unfolding if not yet reach max length
             self.current_length += self.max_length * dt
             if self.current_length > self.max_length:
                 self.current_length = self.max_length
-            if direction_left:
+            if self.direction_left:
                 self.image = self.base_image.subsurface((self.max_length - self.current_length, 0,
                                                          self.current_length, self.image.get_height()))
             else:
@@ -1507,11 +1510,6 @@ class CharacterSpeechBox(UIBattle):
                 self.character.speech = None
                 self.kill()
                 return
-
-        if not self.character.alive:  # kill speech if character die
-            self.character.speech = None
-            self.kill()
-            return
 
 
 class DamageNumber(UIBattle):

@@ -12,10 +12,15 @@ def apply_status(self, status):
         #     if effect_stat["Status Sprite"]:
         #         StatusEffect(self, (effect_stat["Status Sprite"], "base",
         #                             self.pos[0], self.pos[1], 0, 0, 0, 1, 1))
-        for current_status in tuple(self.status_duration.keys()):  # remove conflicted status
-            conflict_check = self.status_list[current_status]["Status Conflict"]
-            if conflict_check and status in conflict_check:
-                self.status_duration.pop(current_status)
+        if self.status_duration:
+            conflict_found = False
+            for current_status in tuple(self.status_duration.keys()):  # remove conflicted status
+                conflict_check = self.status_list[current_status]["Status Conflict"]
+                if conflict_check and status in conflict_check:
+                    conflict_found = True
+                    self.status_duration.pop(current_status)
+            if conflict_found:
+                return  # conflicting also prevent the status from being applied
 
         if "false_order" in status_stat["Property"] and not self.is_commander:  # apply false order
             if status_stat["Property"]["false_order"] == "advance":

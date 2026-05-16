@@ -98,7 +98,6 @@ class Weather(UIBattle):
 
 
 class MatterSprite(UIBattle):
-    set_rotate = set_rotate
 
     def __init__(self, start_pos, target, speed, image, random_sprite_angle):
         self._layer = 1
@@ -111,7 +110,7 @@ class MatterSprite(UIBattle):
         if random_sprite_angle:
             self.image = transform.rotate(image, uniform(0, 359))
         else:
-            self.image = transform.rotate(image, self.set_rotate(self.base_pos, self.target))
+            self.image = transform.rotate(image, set_rotate(self.base_pos, self.target))
         self.screen_start = -self.image.get_width() * 2
         self.screen_end_x = (self.image.get_width() * 1.5) + self.screen_width
         self.screen_end_y = (self.image.get_height() * 1.5) + self.screen_height

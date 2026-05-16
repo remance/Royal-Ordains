@@ -13,8 +13,8 @@ def remove_army_from_active(self, destroyed=False):
     grand.grand_actor_updater.remove(self.commander_actor)
     grand.grand_camera_object_drawer.remove(self.commander_actor)
 
-    grand.grand_actor_updater.remove(self.commander_actor.grand_faction_actor_circle)
-    grand.grand_camera_object_drawer.remove(self.commander_actor.grand_faction_actor_circle)
+    grand.grand_actor_updater.remove(self.commander_actor.army_bar)
+    grand.grand_camera_object_drawer.remove(self.commander_actor.army_bar)
 
     if self.faction == grand.player_faction:  # reset ui
         grand.player_army_list_ui.reset_list()

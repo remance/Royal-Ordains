@@ -27,7 +27,6 @@ from engine.utils.rotation import set_rotate, convert_projectile_degree_angle
 class Effect(Sprite):
     apply_status = apply_status
     clean_object = clean_object
-    set_rotate = set_rotate
 
     character_list: dict = None
     containers = None
@@ -249,9 +248,7 @@ class Effect(Sprite):
 
         if self.base_target_pos and "no_travel" not in effect_stat_property and effect_stat["Travel Speed"]:
             if "direct" in moveset_property:  # direct shot, not use projectile movement with gravity
-                self.angle = self.set_rotate(self.base_pos, self.base_target_pos)
-                self.sin_angle = sin(radians(self.angle))
-                self.cos_angle = cos(radians(self.angle))
+                self.angle = set_rotate(self.base_pos, self.base_target_pos)
                 self.direct_shot = True
             else:
                 if "arc" in moveset_property:
@@ -288,12 +285,16 @@ class Effect(Sprite):
                 offence_mistake = self.travel_distance / 2 * offence_mistake
                 self.travel_distance = uniform(self.travel_distance - offence_mistake,
                                                self.travel_distance + offence_mistake)
-                self.sin_angle = sin(radians(self.angle))
-                self.cos_angle = cos(radians(self.angle))
 
+        self.velocity = 0
+        if self.travel_distance:
             self.velocity = calculate_projectile_velocity(self.angle, self.travel_distance)
             if type(self.velocity) is complex:
                 self.velocity = 10000
+
+        self.sin_angle = sin(radians(self.angle))
+        self.cos_angle = cos(radians(self.angle))
+
         if not self.speed:  # reset travel distance for effect with no speed
             self.travel_distance = 0
 
@@ -553,11 +554,13 @@ class ShowcaseEffect(Effect):
         if self.base_target_pos and "no_travel" not in effect_stat_property and effect_stat["Travel Speed"]:
             target_distance = self.base_target_pos[0] - self.base_pos[0]
             self.travel_distance = target_distance
-            self.angle = self.set_rotate(self.base_pos, self.base_target_pos)
+            self.angle = set_rotate(self.base_pos, self.base_target_pos)
             self.direct_shot = True
             if self.owner.direction == "left":
                 self.angle *= -1
 
+        self.velocity = 0
+        if self.travel_distance:
             self.velocity = calculate_projectile_velocity(self.angle, self.travel_distance)
             if type(self.velocity) is complex:
                 self.velocity = 10000

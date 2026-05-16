@@ -66,12 +66,7 @@ def activate_strategy(self, team, strategy, strategy_index, base_pos_x):
         if stat["Summon"]:
             if "chaos summon" in stat["Property"]:  # chaos summon enemy with neutral team
                 team = 0
-            for spawn in stat["Summon"]:
-                spawn_name = spawn
-                spawn_num = 1
-                if "+" in spawn_name:  # + indicate number of possible summon number
-                    spawn_num = int(spawn_name.split("+")[1])
-                    spawn_name = spawn_name.split("+")[0]
+            for spawn_name, spawn_num in stat["Summon"].items():
                 for _ in range(spawn_num):
                     start_x = base_pos_x
                     if start_x < 0:

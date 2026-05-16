@@ -1,4 +1,4 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
-"Skill1","Majestic Aura",,,,3000,5000,20,11,,,,,,,"strengthen","fear",,
-"Skill2","Begone",,,"self:{health<=50}",800,,15,22,20,150,2000,1000,,"crush",,"stagger",,
-"Skill3","Best Doll",,,,20000,20000,60,33,,,,,,,"supreme_defence",,,
+"Skill1","Majestic Aura",,,,3000,5000,30,11,,,,,,,"strengthen","fear",,
+"Skill2","Begone",,,"self:{health<=50}",1000,,15,22,20,150,2000,1000,,"crush",,"stagger",,
+"Skill3","Best Doll",,,,15000,20000,70,33,,,,,,,"supreme_defence",,,

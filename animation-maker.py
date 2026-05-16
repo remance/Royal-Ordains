@@ -346,7 +346,7 @@ class Filmstrip(pygame.sprite.Sprite):
         if self.activate:
             select_colour = (150, 200, 100)
         if select:
-            pygame.draw.rect(self.image, select_colour, (0, 0, self.image.get_width(), self.image.get_height()),
+            pygame.draw.rect(self.image, select_colour, self.image.get_rect(),
                              int(self.image.get_width() / 5))
 
     def add_strip(self, image=None, change=True):
@@ -363,7 +363,7 @@ class Filmstrip(pygame.sprite.Sprite):
             self.image = self.base_image2.copy()
         self.base_image3 = self.base_image2.copy()
         if not self.activate:  # draw black corner and replace film dot
-            pygame.draw.rect(self.base_image3, (0, 0, 0), (0, 0, self.image.get_width(), self.image.get_height()),
+            pygame.draw.rect(self.base_image3, (0, 0, 0), self.image.get_rect(),
                              int(self.image.get_width() / 5))
 
 
@@ -433,7 +433,7 @@ class BodyHelper(pygame.sprite.Sprite):
         self.size = size
         self.image = pygame.Surface(self.size, pygame.SRCALPHA)
         self.image.fill((255, 255, 200))
-        pygame.draw.rect(self.image, (100, 150, 150), (0, 0, self.image.get_width(), self.image.get_height()), 3)
+        pygame.draw.rect(self.image, (100, 150, 150), self.image.get_rect(), 3)
         self.base_image = self.image.copy()  # for original before add part and click
         self.rect = self.image.get_rect(center=pos)
         self.ui_type = ui_type
@@ -687,7 +687,7 @@ class NameBox(pygame.sprite.Sprite):
         self.size = size
         self.image = pygame.Surface(self.size)
         self.image.fill((182, 233, 242))
-        pygame.draw.rect(self.image, (100, 200, 0), (0, 0, self.image.get_width(), self.image.get_height()), 2)
+        pygame.draw.rect(self.image, (100, 200, 0), self.image.get_rect(), 2)
         self.base_image = self.image.copy()
         self.pos = pos
         self.rect = self.image.get_rect(midtop=self.pos)

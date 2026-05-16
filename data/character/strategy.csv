@@ -77,7 +77,7 @@
 "strategy_diversion",8000,750,60,35,,,,,,,,,,,,"false_retreat",,,
 "strategy_divine_potency",,2000,60,60,,,,,,,,,,,"bless,strengthen,cure",,,,
 "strategy_divine_purity",2000,5000,60,40,,,,,,,,,,,"bless,cure,clear_mind",,,,
-"strategy_doll_wave",500,,120,60,,,,,,,,,,"doll_candle_spear:4,doll_claw:4,doll_maid_knight:2,doll_butler_knife:2",,,,,
+"strategy_doll_wave",1000,,120,60,,,,,,,,,,"doll_candle_spear:4,doll_claw:3,doll_maid_knight:2,doll_butler_knife:2",,,,,
 "strategy_dread_fury",,2500,120,60,,,,,,,,,,,"berserk,half_resource_cost","fear",,,
 "strategy_dream_of_unification",2000,4000,120,75,,,,,,,,,,,"true_speed,full_power",,,,
 "strategy_encourage",6000,4000,45,15,,,,,,,,,,,"hope",,,,

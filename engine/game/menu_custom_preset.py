@@ -4,6 +4,10 @@ from os import path
 from engine.constants import Custom_Default_Culture
 
 
+custom_army_character_type_list = ("commander", "leader", "troop", "air")
+custom_army_character_type_max_index = {"commander": 0, "retinue": 2, "leader": 2, "troop": 4, "air": 4}  # len - 1
+
+
 def menu_custom_preset(self):
     if self.preset_back_button.event_press or self.esc_press:  # back to start_set menu
         self.menu_state = "custom"
@@ -29,53 +33,57 @@ def menu_custom_preset(self):
 
 
 def go_up(self):
-    # for character_type in ("commander", "retinue", "leader", "troop", "air"):
-    #     for index, rect in enumerate(self.portrait_type_rects[character_type]):
-
-    if not self.custom_preset_army_setup.selected_portrait_index:
+    selected_portrait_index = self.custom_preset_army_setup.selected_portrait_index
+    if not selected_portrait_index:
         self.custom_preset_army_setup.change_portrait_selection("commander", 0)
     else:
-        if self.custom_preset_army_setup.selected_portrait_index[0] != 0:
-            self.custom_preset_army_setup.change_portrait_selection(tuple([value - 1 if not index else value for
-                                                                           index, value in enumerate(
-                    self.custom_preset_army_setup.selected_portrait_index)]))
+        current_selected_type = selected_portrait_index[0]
+        current_index = custom_army_character_type_list.index(current_selected_type)
+        if current_index:
+            new_type = custom_army_character_type_list[current_index - 1]
+            new_index = selected_portrait_index[1]
+            if custom_army_character_type_max_index[new_type] < new_index:
+                new_index = custom_army_character_type_max_index[new_type]
+            self.custom_preset_army_setup.change_portrait_selection(new_type, new_index)
 
 
 def go_down(self):
-    if not self.custom_preset_army_setup.selected_portrait_index:
+    selected_portrait_index = self.custom_preset_army_setup.selected_portrait_index
+    if not selected_portrait_index:
         self.custom_preset_army_setup.change_portrait_selection("commander", 0)
     else:
-        if self.custom_preset_army_setup.selected_portrait_index[0] != 4:
-            self.custom_preset_army_setup.change_portrait_selection(tuple([value + 1 if not index else value for
-                                                                           index, value in enumerate(
-                    self.custom_preset_army_setup.selected_portrait_index)]))
+        current_selected_type = selected_portrait_index[0]
+        current_index = custom_army_character_type_list.index(current_selected_type)
+        if current_index < len(custom_army_character_type_list) - 1:
+            new_type = custom_army_character_type_list[current_index + 1]
+            new_index = selected_portrait_index[1]
+            if custom_army_character_type_max_index[new_type] < new_index:
+                new_index = custom_army_character_type_max_index[new_type]
+            self.custom_preset_army_setup.change_portrait_selection(new_type, new_index)
 
 
 def go_left(self):
-    if not self.custom_preset_army_setup.selected_portrait_index:
+    selected_portrait_index = self.custom_preset_army_setup.selected_portrait_index
+    if not selected_portrait_index:
         self.custom_preset_army_setup.change_portrait_selection("commander", 0)
     else:
-        if len(self.custom_preset_army_setup.selected_portrait_index) == 1:  # air to ground
-            self.custom_preset_army_setup.change_portrait_selection(
-                (self.custom_preset_army_setup.selected_portrait_index[0], 3))
-        elif self.custom_preset_army_setup.selected_portrait_index[1]:
-            self.custom_preset_army_setup.change_portrait_selection(
-                (self.custom_preset_army_setup.selected_portrait_index[0],
-                 self.custom_preset_army_setup.selected_portrait_index[1] - 1))
+        current_selected_type = selected_portrait_index[0]
+        new_index = selected_portrait_index[1] - 1
+        if new_index < 0:
+            new_index = custom_army_character_type_max_index[current_selected_type]
+        self.custom_preset_army_setup.change_portrait_selection(current_selected_type, new_index)
 
 
 def go_right(self):
-    if not self.custom_preset_army_setup.selected_portrait_index:
+    selected_portrait_index = self.custom_preset_army_setup.selected_portrait_index
+    if not selected_portrait_index:
         self.custom_preset_army_setup.change_portrait_selection("commander", 0)
     else:
-        if (len(self.custom_preset_army_setup.selected_portrait_index) == 2 and
-                self.custom_preset_army_setup.selected_portrait_index[1] == 3):  # ground to air
-            self.custom_preset_army_setup.change_portrait_selection(
-                (self.custom_preset_army_setup.selected_portrait_index[0],))
-        elif len(self.custom_preset_army_setup.selected_portrait_index) == 2:
-            self.custom_preset_army_setup.change_portrait_selection(
-                (self.custom_preset_army_setup.selected_portrait_index[0],
-                 self.custom_preset_army_setup.selected_portrait_index[1] + 1))
+        current_selected_type = selected_portrait_index[0]
+        new_index = selected_portrait_index[1] + 1
+        if new_index > custom_army_character_type_max_index[current_selected_type]:
+            new_index = 0
+        self.custom_preset_army_setup.change_portrait_selection(current_selected_type, new_index)
 
 
 custom_preset_key_hold = {"Up": go_up, "Down": go_down, "Left": go_left, "Right": go_right}
