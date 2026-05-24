@@ -30,6 +30,7 @@ class GrandMap(Sprite):
         self.size_height = self.screen_height
 
     def setup(self, true_map, shown_map):
+        self.camera_pos = None
         self.true_map_image = true_map
         self.full_shown_map_image = shown_map
         self.map_shown_to_actual_scale_width = self.full_shown_map_image.get_width() / self.true_map_image.get_width()
@@ -49,3 +50,6 @@ class GrandMap(Sprite):
         #     self.camera_y_shift = self.grand.camera_y_shift
         self.rect = self.current_show_map_image.get_rect(midtop=(self.current_show_map_image.get_width() / 2, 0))
         self.image.blit(self.current_show_map_image, self.rect)
+        if self.grand.show_route:
+            # add route after map update draw to blit route dots on the map under other sprites.
+            self.grand.draw_route()

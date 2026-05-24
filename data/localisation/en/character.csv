@@ -1,4 +1,4 @@
-"wood_","Name","Description","Lore"
+"ID","Name","Description","Lore"
 "barren_orc_axe","Simpler Orc","A very simple orc carrying an axe. Nothing simpler than this.",
 "barren_orc_berserker","Madder Orc","An orc berserker. Exceedingly dangerous to all enemies.","Willingly enter into the state of berserk via hallucinogenic fungus gourmandisation."
 "barren_orc_drum","Calmer Orc","An orc drummer. A music to the spirit of battle. Can rouse allies to fight better.",
@@ -383,7 +383,7 @@
 "leader_soheh_fume",,,
 "leader_sonagsha","Sonagsha",,
 "leader_sonagsha_establish",,,
-"leader_taladamun","Taladamun","A human? magical jester. Know many tricks and magics that are incomprehensible.","Many believe Taladumun to be a human, but no one really knows for sure, not even the Ringmaster Enladist. But it is of no matter to the Circus, for his world-class magic acts are unmatched in the whole realm. Captivating the audience like no other, Taladumun will bring joy to all."
+"leader_taladamun","Taladamun","A human? magical magician. Know many tricks and magics that are incomprehensible.","Many believe Taladumun to be a human, but no one really knows for sure, not even the Ringmaster Enladist. But it is of no matter to the Circus, for his world-class silent magical acts are unmatched in the whole realm. Captivating the audience like no other, Taladumun will bring joy to all."
 "leader_taladamun_mirror",,,
 "leader_taladamun_smoke",,,
 "leader_tehcu","Tehcu",,

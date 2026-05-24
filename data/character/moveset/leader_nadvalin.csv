@@ -1,4 +1,4 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
-"Skill1","Playful Punch",,,,250,,4,15,85,120,800,400,0.25,"crush",,"cripple",,
+"Skill1","Playful Punch",,,,250,,4,15,85,170,800,800,0.25,"crush",,"cripple",,
 "Skill2","Brain Down",,,,250,,6,20,125,60,,-1000,0.5,"crush",,"blacked_out",,
 "Skill3","Repair",,,"self:{health<=40}",10000,,60,30,,,,,,,"large_health_potion",,,"no_ai_range_check_setup"

@@ -1,15 +1,16 @@
 from engine.constants import Route_Travel_Modifier
 
 
-def issue_move_command(self, target_destination):
+def issue_move_command(self, target_destination, direct=False):
     travelling = self.travelling
     if not travelling or travelling["type"] != "retreat":
         # cannot issue new move command while in retreat
         old_destination = None
         if travelling:
             old_destination = travelling["destination"]
-        if old_destination != target_destination or (not travelling and self.current_region != target_destination):
-            # cannot issue new move command to move to current region
+        if (old_destination != target_destination or (not travelling and self.current_region != target_destination) or
+                self.travel_how != direct):
+            # issue new move command to move to different target region or use different mean
             route_list = self.grand.route_list
             new_travel_route_id = []
             command_type = "move"
@@ -23,7 +24,10 @@ def issue_move_command(self, target_destination):
 
             if self.current_region != target_destination:
                 if (self.current_region, target_destination) in self.pathfinding_array:
-                    new_travel_route_id = list(self.pathfinding_array[(self.current_region, target_destination)])
+                    if direct:
+                        new_travel_route_id = list(self.direct_routing_array[(self.current_region, target_destination)])
+                    else:
+                        new_travel_route_id = list(self.pathfinding_array[(self.current_region, target_destination)])
                 else:  # somehow destination region has no path to reach, end function
                     return
 
@@ -61,10 +65,14 @@ def issue_move_command(self, target_destination):
                 for index, item in enumerate(new_travel_route_id):
                     dots = list(route_list[item]["Dots"])
                     dot_routes.append(dots)
-
                 if self.base_pos in dot_routes[0]:  # already travelling along the path, remove already travelled dots
                     first_route = dot_routes[0]
                     dot_routes[0] = first_route[first_route.index(self.base_pos):]
+                    if len(dot_routes[0]) <= 1:
+                        dot_routes.pop(0)
+                    if not dot_routes:  # turn out no route to move
+                        return
+                    # print(travelling["dot_routes"][0])
 
                 if self.assembling:  # cancel assembling when move for any reason  TODO add event inform this cancel
                     self.assembling = {}
@@ -84,3 +92,11 @@ def issue_move_command(self, target_destination):
 
                 if self.grand.player_faction == self.faction:
                     self.grand.player_army_list_ui.reset_card(self)
+        self.travel_how = direct
+
+
+# old 'progress': 1, 'destination': 'test5', 'id_routes': [('test7', 'test8'), ('test8', 'test5')], 'dot_routes': [[(1754, 847), (1763, 831)], [(1763, 831), (1749, 829), (1736, 821), (1721, 811), (1705, 803), (1690, 796), (1671, 789), (1654, 782), (1630, 788)]], 'difficulties': [2, 1], 'remain_phase_require': [[2, 1, 2, 1], [2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1]]}
+# test8 test9 (1754, 847) [('test7', 'test8'), ('test8', 'test9')] [[(1670, 900), (1688, 893), (1701, 884), (1714, 876), (1728, 866), (1744, 857), (1754, 847), (1763, 831)], [(1763, 831), (1763, 854), (1762, 870), (1761, 886), (1758, 905), (1753, 918), (1749, 930), (1745, 975)]]
+
+# old 'destination': 'test9', 'id_routes': [('test7', 'test8'), ('test8', 'test9')], 'dot_routes': [[(1763, 854), (1762, 870), (1761, 886), (1758, 905), (1753, 918), (1749, 930), (1745, 975)]], 'difficulties': [1], 'remain_phase_require': [[1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1]]}
+# test8 test5 (1763, 854) [('test7', 'test8'), ('test8', 'test5')] [[(1670, 900), (1688, 893), (1701, 884), (1714, 876), (1728, 866), (1744, 857), (1754, 847), (1763, 831)], [(1763, 831), (1749, 829), (1736, 821), (1721, 811), (1705, 803), (1690, 796), (1671, 789), (1654, 782), (1630, 788)]]

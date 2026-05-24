@@ -1,4 +1,4 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
 "Skill1","Curse",,,,1000,2000,60,10,,80,,,,"magic",,,"curse",
-"Skill2","Earth Bolt",,,"self:{no_engage=200}",1800,2200,4,5,40,60,20,80,,"earth",,,,"arc"
-"Skill3","Magic Ball",,,"self:{no_engage=200}",3000,4000,4,5,16,40,50,10,,"magic",,,,"arc"
+"Skill2","Earth Bolt",,,"self:{no_engage=200}",1800,2200,5,5,40,60,20,80,,"earth",,,,"arc"
+"Skill3","Magic Ball",,,"self:{no_engage=200}",3000,4000,5,5,16,40,50,10,,"magic",,,,"arc"

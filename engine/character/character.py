@@ -141,21 +141,7 @@ class Character(sprite.Sprite):
         """
         Character object represent a single character in battle
         """
-        sprite.Sprite.__init__(self, self.containers)
-        # these two commands require replacement of x_momentum and direction, so can not be used as class variable
-        self.walk_command_action = {"name": "Walk", "movable": True, "walk": True, "interruptable": True}
-        self.run_command_action = {"name": "Run", "movable": True, "run": True, "interruptable": True}
-
-        self.in_drawer = False
-        self.blit_culling_check = self.battle.blit_culling_check
-        self.battle_camera_drawer = self.battle.battle_camera_object_drawer
-        self.all_team_enemy_check = self.battle.all_team_enemy_check
-
         self.char_id = stat["ID"]
-        self.race = stat["Race"]
-        self.culture = stat["Culture"]
-        self.game_id = game_id  # object ID for reference
-
         self.animation_pool = self.battle.character_animation_data[self.char_id]  # list of animation this character
         self.sprite_height = self.animation_pool["Default"][0]["right"]["sprite"].get_height() * 1.5
         self.sprite_width = self.animation_pool["Default"][0]["right"]["sprite"].get_width() * 0.5
@@ -167,6 +153,21 @@ class Character(sprite.Sprite):
             self._layer = 1
         else:
             self._layer = int((10000 - self.sprite_height) + additional_layer)
+        sprite.Sprite.__init__(self, self.containers)
+
+        # these two commands require replacement of x_momentum and direction, so can not be used as class variable
+        self.walk_command_action = {"name": "Walk", "movable": True, "walk": True, "interruptable": True}
+        self.run_command_action = {"name": "Run", "movable": True, "run": True, "interruptable": True}
+
+        self.in_drawer = False
+        self.blit_culling_check = self.battle.blit_culling_check
+        self.battle_camera_drawer = self.battle.battle_camera_object_drawer
+        self.all_team_enemy_check = self.battle.all_team_enemy_check
+
+        self.race = stat["Race"]
+        self.culture = stat["Culture"]
+        self.game_id = game_id  # object ID for reference
+
         self.name = self.battle.localisation.grab_text(("character", stat["ID"], "Name"))
         self.cutscene_event = None
         self.speech = None
@@ -397,7 +398,8 @@ class BattleCharacter(Character):
     is_sub_character = False
 
     def __init__(self, game_id: int, stat: dict, leader: BattleCharacter = None,
-                 additional_layer: (int, str) = 0, is_commander: bool = False, is_summon: bool = False) -> None:
+                 additional_layer: (int, str) = 0, is_commander: bool = False, is_summon: bool = False,
+                 additional_current_state=None) -> None:
         """
         BattleCharacter object represent a character that take part in the battle in stage
         Character has three different stage of stat;
@@ -547,6 +549,12 @@ class BattleCharacter(Character):
         if type(ai_speak_data) is dict:
             self.ai_speak_list = ai_speak_data
 
+        if additional_current_state:  # assign value in state to variable
+            self.health = additional_current_state["health"]
+            self.resource = additional_current_state["resource"]
+            self.status_duration = additional_current_state["status"]
+            self.move_cooldown = additional_current_state["cooldown"]
+
         # variable for attack cross function check
         self.is_effect_type = False
         self.duration = 0
@@ -639,7 +647,7 @@ class BattleCharacter(Character):
                 if hold_check and self.already_hit:  # release hold when hit something
                     hold_check = False
                 if not self.penetrate and "run" in self.current_action:
-                    # remove momentum in running attack animation when penetrate run out
+                    # remove momentum only in running attack animation when penetrate run out
                     self.x_momentum = 0
 
             # if hold_check and not self.x_momentum and not self.y_momentum and self.already_hit:
@@ -802,9 +810,9 @@ class AirBattleCharacter(BattleCharacter):
                 self.alive = False
                 self.health = 0
                 for sub_character in self.sub_characters:
-                    sub_character.die()
+                    sub_character.die(retreat=True)
                     sub_character.erase()
-                self.die()
+                self.die(retreat=True)
                 self.erase()
 
 
@@ -821,7 +829,6 @@ class CommanderBattleCharacter(BattleCharacter):
         self.followers_len_check = [0, 0]
         self.max_followers_len_check = 0
         BattleCharacter.__init__(self, game_id, stat, is_commander=True, additional_layer=100000000)
-        # self.max_enemy_range_check = self.last_grid * Default_Screen_Width  # commander check enemy at all range instead
         self.max_ai_commander_range = self.ai_max_attack_range
         for strategy in self.battle.team_stat[self.team]["strategy"]:
             strategy_stat = self.battle.strategy_list[strategy]

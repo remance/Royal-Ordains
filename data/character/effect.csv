@@ -63,8 +63,8 @@
 "landing_medium",,,,,,"landing_huge",1000,100,
 "light",,,,,,,600,3,
 "light_burst_medium",,,,,,,,,
-"lightning_blast_red",,5500,"TRUE",,,,,,
-"lightning_red",,,"TRUE",,,,,,
+"lightning_blast_red",,,"TRUE",,,,,,
+"lightning_red",,5500,"TRUE",,,,,,
 "magic_ball",,600,"TRUE",,,"magic_bolt",800,,"travel_spin"
 "magic_bolt",,4000,"TRUE",,,"magic_bolt",500,,
 "magic_bomb",,1000,,,"magic_explosion","magic_bomb",2000,,"reach_effect_spawn_ground:bottom,travel_spin"
@@ -118,3 +118,8 @@
 "water_spray",,,"TRUE",,,,,,
 "weirdstick",,1000,"TRUE","bounce",,"toy",500,,"travel_spin"
 "yuawies_leaf",,3500,"TRUE","stick",,"arrow",50,,
+"doll_candle",,,,,,,,,
+"doll_claw",,,,,,,,,
+"doll_hammer",,,,,,,,,
+"doll_knight_cav",,,,,,,,,
+"taladamun_bird",,2500,,,,,,,

@@ -4,7 +4,7 @@
 "betrayal","loyalty",120,,,,,,,,,,,,,,,,,,,"betrayal"
 "blacked_out","cure",4,-1,-1,-1,,5,,,,,,,,,,,,,"TRUE",
 "bleeding","cure",20,-0.05,,,,-20,,,,,,,,,,,"bleeding",,,
-"bless","curse",30,0.3,0.3,0.2,-0.1,,,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,,,"TRUE",
+"bless","curse",30,0.3,0.3,0.2,-0.1,,,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,,,"TRUE",
 "blind","cure",6,-0.5,-0.3,-0.2,0.2,,,,,,,,,,,,,"TRUE","TRUE","blind"
 "bloom",,60,,,,,2,1.5,,,,,,,,,,,,,
 "brave","terror",30,0.3,,0.2,,,0.5,,,,,,,,,,,,,
@@ -17,7 +17,7 @@
 "confuse","cure",10,-0.25,-0.4,-0.25,,,,,,,,,,,,,,,,
 "cripple","cure",45,-0.4,-0.15,-0.45,,,,,,,,,,,,,,"TRUE","TRUE",
 "cure",,20,,,,,,,,,,,,,,,,,"TRUE","TRUE",
-"curse","bless",30,-0.25,-0.2,-0.1,0.1,,-0.5,-0.25,-0.25,-0.25,-0.25,-0.25,-0.25,-0.25,-0.25,-0.25,,,"TRUE",
+"curse","bless",30,-0.25,-0.2,-0.1,0.1,,-0.5,-0.2,-0.2,-0.2,-0.2,-0.2,-0.2,-0.2,-0.2,-0.2,,,"TRUE",
 "daze","clarity",7,,-0.1,-0.25,,,-1,,,,,,,,,,,,,
 "deadly_poison","cure",30,-0.3,,-0.1,,-20,-2,,,,,,,,,,,,,
 "defence_boost",,30,,0.25,,,,,,,,,,,,,,,"TRUE","TRUE",
@@ -47,7 +47,7 @@
 "health_potion",,1,,,,,150,,,,,,,,,,,,,"TRUE",
 "hope","fear",30,0.1,,,-0.05,,,,,,,,,,,,,,,
 "hot","burn,drench,cold",10,-0.05,-0.1,-0.05,,,,,,,-0.15,,,,,,,,,
-"invisible","burn,drench,wet,freezing,bleeding",15,,0.1,,,,,,,,,,,,,,,"TRUE","TRUE","invisible"
+"invisible","burn,drench,wet,freezing,bleeding",15,,0.2,,,,,,,,,,,,,,,"TRUE","TRUE","invisible"
 "jousting_charge",,7,0.2,0.1,0.8,,,,,,,,,,,,,,"TRUE","TRUE",
 "large_heal",,5,,,,,40,,,,,,,,,,,,,"TRUE",
 "large_health_potion",,1,,,,,700,,,,,,,,,,,,,"TRUE",
@@ -86,6 +86,7 @@
 "stun","cure",5,-0.15,-0.25,-0.4,,,,,,,,,,,,,,,"TRUE",
 "suppressed",,10,,-0.05,-0.2,0.1,,,,,,,,,,,,,,,
 "supreme_defence",,20,,1,,,,,,,,,,,,,,,"TRUE","TRUE",
+"supreme_resistance",,60,,,,,,,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,,"TRUE","TRUE",
 "tactical_retreat",,20,,,,,,,,,,,,,,,,,"TRUE","TRUE","false_order:retreat"
 "terror","brave,clarity",30,-0.25,,,0.15,,,,,,,,,,,,,,,
 "time_stop",,10,-1,-1,-1,1000,,,,,,,,,,,,,"TRUE","TRUE",
@@ -94,3 +95,8 @@
 "wasp",,10,,,,,-3,,,,,,,,,,,,,,
 "water_shield",,15,,,,,,,,,,,0.8,,,,,,"TRUE","TRUE",
 "wet","burn",30,,,-0.1,,,,,,,0.25,-0.25,-0.5,,,,,"TRUE","TRUE",
+"cosmos_blood_moon",,60,0.5,-0.5,0.25,0.1,,,,,,,,,,,,,"TRUE","TRUE",
+"cosmos_royal_moon",,60,,,,,,,,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,,"TRUE","TRUE",
+"cosmos_vert_moon",,60,0.25,0.25,,,,2,,,,,,,,,,,"TRUE","TRUE",
+"cosmos_diamond_sun",,60,1,1,,,5,,,,,,,,,,,,"TRUE","TRUE",
+"cosmos_radiant_eclipse",,60,-0.25,-0.25,-0.25,,,,,,,,,,,,,,"TRUE","TRUE",

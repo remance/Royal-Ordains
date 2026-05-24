@@ -6,7 +6,7 @@ from engine.constants import Culture_Policy_Integration
 
 def menu_grand_setup(self):
     if self.setup_back_button.event_press or self.esc_press:  # back to start_set menu
-        self.remove_from_ui_updater(self.grand_menu_uis)
+        self.remove_from_ui_menu_updater(self.grand_menu_uis)
         self.grand_faction_selector.change_faction(self.map_data.default_grand_faction)
         self.back_mainmenu()
 
@@ -64,16 +64,17 @@ def menu_grand_setup(self):
                                      },
                           "free_leader": {},
                           "battle": {"armies": {}, "auto": {}, "manual": None},
-                          "pathfinding": {}, "possible_events": deepcopy(self.map_data.event_list),
+                          "pathfinding": {}, "direct_routing": {},
+                          "possible_events": deepcopy(self.map_data.event_list),
                           "faction": all_faction_state,
                           "free_faction": free_faction_state["free"], "eventlog": [],
-                          "time": randint(0, 999999999999999999999999),
+                          "cosmic_time": 0, "cosmic_event": [],
                           "turn": 1, "phase": 1}
 
         self.grand.prepare_new_campaign("main", player_faction, campaign_state)
 
         # after quit grand campaign
-        self.remove_from_ui_updater(self.grand_menu_uis)
+        self.remove_from_ui_menu_updater(self.grand_menu_uis)
         self.grand_faction_selector.change_faction(self.map_data.default_grand_faction)
         self.back_mainmenu()
 

@@ -80,7 +80,7 @@ def move_logic(self, dt):
                     self.y_momentum -= dt * move_speed
                     if self.y_momentum <= 0:  # reach highest y momentum now fall down
                         self.y_momentum = -self.Character_Gravity
-            elif self.y_momentum < 0:  # no more velocity to go up, must go down
+            elif self.y_momentum < 0:  # no more momentum to go up, must go down
                 if self.base_pos[1] < ground_pos:
                     move_speed += self.Character_Gravity
                     # falling down if not flying and not in temporary stopping or dead

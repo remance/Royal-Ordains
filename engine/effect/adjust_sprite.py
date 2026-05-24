@@ -143,7 +143,6 @@ def damage_effect_adjust_sprite(self):
     grid_range_y = (range(grid_top, grid_bottom))
     if self.grid_range_y != grid_range_y:
         self.grid_range_y = grid_range_y
-
     self.mask = self.base_image["mask"][close_rotation_dict[int(self.angle)]]
 
 #

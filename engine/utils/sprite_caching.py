@@ -1,5 +1,6 @@
 import lzma
 import pickle
+import hashlib
 
 from PIL import Image
 from pygame import Surface
@@ -36,12 +37,10 @@ def surface_screen_scale(surface, screen_scale):
     @param screen_scale: scale based on screen resolution
     @return: scaled surface
     """
-    scale = (screen_scale[0], screen_scale[1])
-    if scale[0] != 1 or scale[1] != 1:
-        return smoothscale(surface, (surface.get_width() * scale[0],
-                                     surface.get_height() * scale[1]))
-    else:
-        return surface
+    if screen_scale != (1, 1):
+        return smoothscale(surface, (surface.get_width() * screen_scale[0],
+                                     surface.get_height() * screen_scale[1]))
+    return surface
 
 
 def recursive_dict_creation(data):
@@ -61,14 +60,26 @@ def save_pickle_with_surfaces(file_path, data):
 
     recursive_cast_surface_to_pickleable_surface(new_data)
     with lzma.open(file_path, "wb") as handle:
+        serial_data = pickle.dumps(new_data)
         pickle.dump(new_data, handle)
+    handle.close()
+    return hashlib.sha256(serial_data).hexdigest()
 
 
 def load_pickle_with_surfaces(file_path, screen_scale, effect_sprite_adjust=False, add_mask=True):
+    """
+    Load pickled surfaces
+    @param file_path:
+    @param screen_scale:
+    @param effect_sprite_adjust: create mask for different angle as well or not when create mask
+    @param add_mask: create mask or not
+    @return:
+    """
     with lzma.open(file_path, "rb") as handle:
         data = pickle.load(handle)
-    data = {key: value for key, value in data.items()}
-    recursive_cast_pickleable_surface_to_surface(data, screen_scale, {}, effect_sprite_adjust,
+    handle.close()
+    recursive_cast_pickleable_surface_to_surface(data, screen_scale, {},
+                                                 effect_sprite_adjust=effect_sprite_adjust,
                                                  add_mask=add_mask)
     return data
 
@@ -77,8 +88,11 @@ def recursive_cast_surface_to_pickleable_surface(data):
     f = recursive_cast_surface_to_pickleable_surface
     if data:
         if type(data) is dict:
-            for k, v in data.items():
-                if type(v) is dict:
+            for k in tuple(data.keys()):
+                v = data[k]
+                if k == "mask":  # remove mask from saving
+                    data.pop(k)
+                elif type(v) is dict:
                     f(v)
                 elif type(v) is Surface:
                     data[k] = CompilableSurface(v)
@@ -102,11 +116,14 @@ def recursive_cast_pickleable_surface_to_surface(data, screen_scale, already_don
             elif type(v) is CompilableSurface:
                 if v not in already_done:
                     data[k] = surface_screen_scale(v.surface, screen_scale)
-                    if k == "sprite" and add_mask:  # add mask
+                    if (k == "sprite" or parent_key == "sprite") and add_mask:  # add mask
                         if effect_sprite_adjust:
-                            data["mask"] = {angle: from_surface(rotate(data[k], angle)) for angle in
-                                            (90, 120, 45, 0, -90, -45, -120, 180, -180)}
-                            data[k] = {0: data[k]}
+                            if parent_key == "sprite":
+                                parent_data["mask"] = {angle: from_surface(rotate(data[k], angle)) for angle in
+                                                       (90, 120, 45, 0, -90, -45, -120, 180, -180)}
+                            else:
+                                data["mask"] = {angle: from_surface(rotate(data[k], angle)) for angle in
+                                                (90, 120, 45, 0, -90, -45, -120, 180, -180)}
                         else:
                             data["mask"] = from_surface(data[k])
 

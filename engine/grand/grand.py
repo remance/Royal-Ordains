@@ -12,6 +12,7 @@ from engine.army.army import Army
 from engine.battle.add_sound_effect_queue import add_sound_effect_queue
 from engine.battle.battle import set_start_load, set_done_load
 from engine.battle.cal_shake_value import cal_shake_value
+from engine.battle.change_game_state import change_game_state
 from engine.battle.drama_process import drama_process
 from engine.battle.play_sound_effect import play_sound_effect
 from engine.battle.shake_camera import shake_camera
@@ -29,18 +30,22 @@ from engine.grand.create_campaign_route_pathfinding import create_campaign_route
 from engine.grand.create_new_army import create_new_army
 from engine.grand.draw_route import draw_route
 from engine.grand.fix_camera import fix_camera
+from engine.grand.grand_process import grand_process
+from engine.grand.make_esc_menu import make_esc_menu
 from engine.grand.player_input import player_input_grand, battle_no_player_input_grand
 from engine.grand.sort_player_army_list import sort_player_army_list
 from engine.grand.state_grand_process import state_grand_process
+from engine.grand.state_menu_process import state_menu_process, back_to_grand_state
 from engine.grandactor.grandactor import GrandActor, GrandFactionActorBar
 from engine.grandmap.grandmap import GrandMap
 from engine.grandobject.grandobject import GrandObject
 from engine.uibattle.drama import TextDrama
 from engine.uibattle.uibattle import FPSCount
 from engine.uigrand.uigrand import (YesNo, PlayerGrandInteract, PlayerFactionResourceBar, PlayerFactionCultureList,
-                                    PlayerArmyList, PlayerArmyListSortOption, MiniTimeOrb, MapSettingOption,
+                                    PlayerArmyList, PlayerArmyListSortOption, MapSettingOption,
                                     TimeInfoBar, TimeSettingOption, EventImportantPopup,
                                     MenuBar, RegionManagement, EventNotification, ArmyInfo)
+from engine.uigrand.cosmos import CosmosUI, MiniCosmosUI
 from engine.uimenu.uimenu import TextPopup, GrandMiniMap, UIScroll, PresetArmySetupUI, CharacterSelector
 from engine.updater.updater import ReversedLayeredUpdates
 from engine.utils.common import clean_group_object
@@ -54,10 +59,12 @@ class Grand:
     activate_input_popup = activate_input_popup
     add_sound_effect_queue = add_sound_effect_queue
     auto_battle_process = auto_battle_process
+    back_to_grand_state = back_to_grand_state
     cal_faction_culture = cal_faction_culture
     cal_faction_income = cal_faction_income
     cal_region_income = cal_region_income
     cal_shake_value = cal_shake_value
+    change_game_state = change_game_state
     change_pause_update = change_pause_update
     change_phase = change_phase
     change_turn = change_turn
@@ -66,10 +73,16 @@ class Grand:
     drama_process = drama_process
     draw_route = draw_route
     fix_camera = fix_camera
+    grand_process = grand_process
+    make_esc_menu = make_esc_menu
     play_sound_effect = play_sound_effect
     shake_camera = shake_camera
     sort_player_army_list = sort_player_army_list
+    state_process = state_grand_process
     state_grand_process = state_grand_process
+    state_menu_process = state_menu_process
+
+    process_list = {"grand": state_grand_process, "menu": state_menu_process}
 
     def __init__(self, game):
         self.game = game
@@ -108,10 +121,11 @@ class Grand:
 
         # grand campaign object group
         self.grand_camera_object_drawer = sprite.LayeredUpdates()
-        self.grand_camera_ui_drawer = sprite.LayeredUpdates()  # this is drawer for ui in grand campaign, does not move alonge with camera
-        self.outer_ui_updater = sprite.LayeredUpdates()
-        self.ui_updater = ReversedLayeredUpdates()  # this is updater and drawer for ui, all image pos should be based on the screen
-        self.ui_drawer = sprite.LayeredUpdates()
+        self.grand_camera_ui_updater = sprite.LayeredUpdates()  # this is for ui on grand map, all image pos should be based on the screen
+        self.grand_camera_ui_drawer = sprite.LayeredUpdates()
+        self.ui_menu_drawer = sprite.LayeredUpdates()
+        self.outer_ui_updater = sprite.LayeredUpdates()  # this is drawer for ui on screen, does not move alonge with camera
+        self.ui_menu_updater = ReversedLayeredUpdates()
         self.grand_actor_updater = ReversedLayeredUpdates()  # updater for actor objects,
         self.grand_effect_updater = sprite.Group()  # updater for effect objects
 
@@ -129,7 +143,7 @@ class Grand:
         self.button_sound_channel = self.game.button_sound_channel
         self.SONG_END = pygame.USEREVENT + 1
 
-        self.effect_sound_channel = tuple([Channel(ch_num) for ch_num in range(4, 1000)])
+        self.effect_sound_channels = tuple([Channel(ch_num) for ch_num in range(4, 1000)])
 
         self.text_popup = TextPopup()
 
@@ -201,10 +215,41 @@ class Grand:
         GrandFactionActorBar.screen_scale = self.screen_scale
         GrandObject.screen_scale = self.screen_scale
 
+        self.clock_time = 0
+        self.true_dt = 0
+        self.dt = 0  # Realtime used for time calculation
+        self.screen_shake_value = 0  # count for how long to shake camera
+
+        self.ui_timer = 0  # This is timer for ui update function, use realtime
+        self.drama_timer = 0
+
+        self.base_cursor_pos = [0, 0]  # mouse base pos on the map based on camera position
+        self.cursor_pos = [0, 0]
+
+        self.game_state = "grand"
+        self.esc_menu_mode = "menu"
+
+        self.player_selected_army = []
+        self.player_selected_region = None
+        self.campaign = None
+        self.player_faction = None
+        self.player_input = None
+        self.current_campaign_state = {"cosmic_event": ()}
+        self.dots_army_occupation = {}
+
+        self.region_by_colour_list = {}
+        self.region_list = {}
+        self.route_list = {}
+        self.route_dot_draw_array = {}
+
         # Create grand ui
         self.travel_dot_images = {1: {}, 2: {}, 3: {}, 4: {}}  # get added during campaign prepare
-        grand_ui_images = self.game.grand_ui_images
-        self.decision_select = YesNo(grand_ui_images)
+        self.grand_ui_images = self.game.grand_ui_images
+        self.cosmos_ui_images = self.game.cosmos_ui_images
+        self.decision_select = YesNo()
+
+        self.cosmic_ui = CosmosUI()
+        self.mini_cosmic_ui = MiniCosmosUI(self.game.cosmos_ui_images, self.cosmic_ui)
         self.mini_map = GrandMiniMap((self.screen_width - ((796 / 2) * self.screen_scale_width),
                                       self.screen_height - (432 * self.screen_scale_height)),
                                      (796, 432), "grand")
@@ -212,16 +257,15 @@ class Grand:
         self.event_important_popup = EventImportantPopup()
 
         self.drama_text = TextDrama(self)  # message at the top of screen that show up for important event
-        self.player_grand_interact = PlayerGrandInteract()
+        self.player_interact = PlayerGrandInteract()
 
-        self.player_grand_preset_army_setup = PresetArmySetupUI((self.screen_width * 0.4, self.screen_height * 0.2),
+        self.player_grand_preset_army_setup = PresetArmySetupUI((self.screen_width * 0.45, self.screen_height * 0.2),
                                                                 True)
         self.player_army_info_ui = ArmyInfo(self.player_grand_preset_army_setup.rect.topleft)
         self.player_grand_character_selector = CharacterSelector((self.screen_width * 0.78, self.screen_height * 0.2))
 
         self.player_faction_resource_bar_ui = PlayerFactionResourceBar()
         self.player_faction_culture_list_ui = PlayerFactionCultureList()
-        self.mini_time_orb_ui = MiniTimeOrb()
         self.time_info_bar_ui = TimeInfoBar()
         self.time_setting_ui = TimeSettingOption()
         self.menu_bar_ui = MenuBar()
@@ -234,35 +278,18 @@ class Grand:
         self.event_notification_ui = EventNotification()
 
         self.fps_count = FPSCount(self)  # FPS number counter
-        if self.game.show_fps:
-            self.outer_ui_updater.add(self.fps_count)
 
-        self.clock_time = 0
-        self.true_dt = 0
-        self.dt = 0  # Realtime used for time calculation
-        self.screen_shake_value = 0  # count for how long to shake camera
+        # Battle ESC menu
+        esc_menu_dict = self.make_esc_menu()
 
-        self.ui_timer = 0  # This is timer for ui update function, use realtime
-        self.drama_timer = 0
+        self.grand_menu_button = esc_menu_dict["grand_menu_button"]
+        self.esc_option_menu_button = esc_menu_dict["esc_option_menu_button"]
+        self.esc_slider_menu = esc_menu_dict["esc_slider_menu"]
+        self.esc_value_boxes = esc_menu_dict["esc_value_boxes"]
+        self.esc_option_text = esc_menu_dict["volume_texts"]
 
-        self.base_cursor_pos = [0, 0]  # mouse base pos on the map based on camera position
-        self.cursor_pos = [0, 0]
-
-        self.player_selected_army = []
-        self.player_selected_region = None
-        self.campaign = None
-        self.player_faction = None
-        self.player_input = None
-        self.current_campaign_state = {}
-        self.dots_army_occupation = {}
-
-        self.region_by_colour_list = {}
-        self.region_list = {}
-        self.route_list = {}
-        self.route_dot_draw_array = {}
-
-        self.always_ui = (self.player_grand_interact, self.mini_map, self.map_setting_option_ui,
-                          self.mini_time_orb_ui, self.time_info_bar_ui,
+        self.always_ui = (self.player_interact, self.mini_map, self.map_setting_option_ui,
+                          self.mini_cosmic_ui, self.time_info_bar_ui,
                           self.time_setting_ui, self.menu_bar_ui, self.event_notification_ui)
 
         self.only_player_ui = (self.player_faction_resource_bar_ui, self.player_faction_culture_list_ui,
@@ -282,7 +309,7 @@ class Grand:
         self.current_campaign_state = save_state_data
 
         # Stop all sound
-        for sound_ch in self.effect_sound_channel:
+        for sound_ch in self.effect_sound_channels:
             if sound_ch.get_busy():
                 sound_ch.stop()
         self.current_music = None
@@ -290,6 +317,11 @@ class Grand:
 
         print("Start loading", campaign)
         yield set_start_load(self, "Campaign setup")
+        if self.game.show_fps:
+            self.outer_ui_updater.add(self.fps_count)
+        else:
+            self.outer_ui_updater.remove(self.fps_count)
+
         self.game.loading_lore_text = self.localisation.grab_text(
             ("load", randint(0, len(self.localisation.text[self.language]["load"]) - 1), "Text"))
 
@@ -340,6 +372,7 @@ class Grand:
 
         # setup armies, replace dict with object
         for faction, faction_value in self.current_campaign_state["faction"].items():
+
             for index, army in enumerate(tuple(faction_value["army"])):
                 self.create_new_army(faction_value["army"], army, index=index, sort=False)
 
@@ -352,6 +385,8 @@ class Grand:
             self.player_faction_culture_list_ui.culture_change()
         self.mini_map.change_grand_setup(self.map_data.world_map)
         self.mini_map.change_grand_faction(self.current_campaign_state["region"]["control"])
+        self.cosmic_ui.reset(self.current_campaign_state["cosmic_time"])
+        self.mini_cosmic_ui.reset()
 
         campaign_building_state = self.current_campaign_state["region"]["buildings"]
         for region, region_objects in self.current_campaign_state["region"]["objects"].items():
@@ -383,7 +418,7 @@ class Grand:
             self.player_input = MethodType(battle_no_player_input_grand, self)
             self.outer_ui_updater.remove(self.only_player_ui)
 
-        self.change_turn()
+        self.change_turn(turn_change=False)
 
         self.event_notification_ui.update_image()
         self.fix_camera()
@@ -413,7 +448,7 @@ class Grand:
 
         self.screen.fill((0, 0, 0))
         self.outer_ui_updater.add(self.cursor)
-
+        self.add_to_ui_menu_updater(self.cursor)
         yield set_done_load()
 
     def run_grand(self):
@@ -492,124 +527,29 @@ class Grand:
                             self.game.setup_profiler()
                         self.game.profiler.switch_show_hide()
 
-            if self.input_popup:  # currently, have input text pop up on screen, stop everything else until done.
-                if self.input_ok_button.event_press:
-                    done = True
-
-                    if self.input_popup[1] in ("retreat", "retreat_assemble"):
-                        # for army in self.player_selected_army:  # TODO finish retreat function here
-                        # all army in the same battles retreat and lose battle
-                        # for battle in self.current_campaign_state["battle"]["auto battles"]:
-                        # for army in self.player_selected_army:
-                        #     army.issue_move_command(self.input_popup[2])
-                        pass
-                    elif self.input_popup[1] == "assemble":
-                        for army in self.player_selected_army:
-                            army.issue_move_command(self.input_popup[2])
-
-                    elif self.input_popup[1] == "quit":
-                        pygame.time.wait(1000)
-                        pygame.quit()
-                        sys.exit()
-
-                    if done:
-                        self.change_pause_update(False)
-                        self.input_box.render_text("")
-                        self.input_popup = None
-                        self.remove_from_ui_updater(self.all_input_popup_uis)
-
-                elif self.input_cancel_button.event_press or self.input_close_button.event_press or self.esc_press:
-                    self.change_pause_update(False)
-                    self.input_box.render_text("")
-                    self.input_popup = None
-                    self.remove_from_ui_updater(self.all_input_popup_uis)
-
-                # elif self.input_popup[0] == "text_input":
-                #     if not self.text_delay:
-                #         if key_press[self.input_box.hold_key]:
-                #             self.input_box.player_input(None, key_press)
-                #             self.text_delay = 0.15
-                #     else:
-                #         self.text_delay -= self.dt
-                #         if self.text_delay < 0:
-                #             self.text_delay = 0.
-            else:
-                # Update game time
-                dt = self.true_dt * self.game_speed
-                self.dt = dt  # apply dt with game_speed for calculation
-                self.shown_camera_topleft_pos = self.camera_pos.copy()
-
-                self.player_input()
-
-                if dt:
-                    if dt > 0.016:  # one frame update should not be longer than 0.016 second (60 fps) for calculation.
-                        dt = 0.016  # make it so stutter and lag does not cause overtime issue.
-
-                    self.state_grand_process(dt)
-
-                    self.ui_timer += self.true_dt  # ui update by real time instead of self time to reduce workload.
-
-                    # Screen shaking
-                    if self.screen_shake_value:
-                        decrease = 1000
-                        if self.screen_shake_value > decrease:
-                            decrease = self.screen_shake_value
-                        self.screen_shake_value -= (dt * decrease)
-                        if self.screen_shake_value < 0:
-                            self.screen_shake_value = 0
-                        else:
-                            self.shake_camera()
-
-                    if self.sound_effect_queue:
-                        for key, value in self.sound_effect_queue.items():  # play each sound effect initiate in this loop
-                            self.play_sound_effect(key, value)
-                        self.sound_effect_queue = {}
-
-                    self.drama_process()
-
-                    if self.ui_timer >= 0.1:
-                        self.ui_drawer.draw(self.screen)  # draw the UI
-                        self.ui_timer -= 0.1
-
-                # Object related updater
-                self.grand_actor_updater.update(self.true_dt, dt)
-                self.grand_effect_updater.update(self.true_dt)
-
-                # update camera
-                self.camera.camera_left_bound = self.shown_camera_topleft_pos[0]
-                self.camera.camera_top_bound = self.shown_camera_topleft_pos[1]
-                self.camera.camera_right_bound = self.camera.camera_left_bound + self.screen_width
-                self.camera.camera_bottom_bound = self.camera.camera_top_bound + self.screen_height
-                self.grand_map.update()
-                if self.show_route:
-                    # add route after map update draw to blit route dots on the map under other sprites.
-                    self.draw_route()
-
-            self.camera.update(self.grand_camera_object_drawer)
-            self.ui_updater.update(dt)
-            self.outer_ui_updater.update(dt)
-            self.camera.update(self.grand_camera_ui_drawer)
-            self.camera.out_update(self.outer_ui_updater)
+            return_state = self.state_process()  # run code based on current state
+            if return_state is not None:
+                self.exit_grand()
+                return return_state
 
             display.update()  # update game display, draw everything
             self.clock.tick(1000)  # clock update even if self pause
 
-    def add_to_ui_updater(self, *args):
-        self.ui_updater.add(*args)
-        self.ui_drawer.add(*args)
+    def add_to_ui_menu_updater(self, *args):
+        self.ui_menu_updater.add(*args)
+        self.ui_menu_drawer.add(*args)
 
-    def remove_from_ui_updater(self, *args):
-        self.ui_updater.remove(*args)
-        self.ui_drawer.remove(*args)
+    def remove_from_ui_menu_updater(self, *args):
+        self.ui_menu_updater.remove(*args)
+        self.ui_menu_drawer.remove(*args)
 
-    def exit_battle(self):
+    def exit_grand(self):
         # remove menu and ui
-        self.remove_from_ui_updater(self.battle_menu_button.values(), self.esc_slider_menu.values(),
-                                    self.esc_value_boxes.values(), self.esc_option_text.values(),
-                                    self.scene_translation_text_popup)
+        self.remove_from_ui_menu_updater(self.grand_menu_button.values(), self.esc_slider_menu.values(),
+                                         self.esc_value_boxes.values(), self.esc_option_text.values())
 
         # stop all sounds
-        for sound_ch in self.effect_sound_channel:
+        for sound_ch in self.effect_sound_channels:
             if sound_ch.get_busy():
                 sound_ch.stop()
         self.current_music = None
@@ -617,14 +557,26 @@ class Grand:
         self.stage_music_pool = {}
 
         # remove all reference from battle object
-        self.ai_process_list = []
-        self.clean_character_group()
+        self.player_army_list_ui.reset()
+        self.time_setting_ui.reset()
+        self.player_selected_army = []
+        self.player_selected_region = None
+        self.campaign = None
+        self.player_faction = None
+        self.player_input = None
+        self.current_campaign_state = {}
+        self.dots_army_occupation = {}
 
-        clean_group_object((self.all_battle_characters, self.battle_character_updater, self.battle_effect_updater,
-                            self.weather_matters,
-                            self.player_leader_indicators))
+        self.region_by_colour_list = {}
+        self.region_list = {}
+        self.route_list = {}
+        self.route_dot_draw_array = {}
+
+        self.ai_process_list = []
+
+        clean_group_object((self.grand_camera_ui_updater, self.grand_actor_updater, self.grand_effect_updater))
 
         self.sound_effect_queue = {}
 
         self.drama_timer = 0  # reset drama text popup
-        self.remove_from_ui_updater(self.drama_text)
+        self.remove_from_ui_menu_updater(self.drama_text)

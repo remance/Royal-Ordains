@@ -1,3 +1,3 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
-"Attack1","Smash",,,,300,,2,,37,16,35,-100,,"crush",,"daze",,
+"Attack1","Smash",,,,300,,5,,35,16,35,-100,,"crush",,"daze",,
 "Skill1","Battle Maid",,,"self:{no_status=true_speed}",2000,,15,100,,,,,,,"true_speed",,,

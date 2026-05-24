@@ -5,7 +5,7 @@ from engine.constants import *
 
 
 def menu_custom_setup(self):
-    self.remove_from_ui_updater(self.custom_army_info_popup, self.custom_army_title_popup)
+    self.remove_from_ui_menu_updater(self.custom_army_info_popup, self.custom_army_title_popup)
     for team, team_bars in self.custom_team_army_button_bars.items():
         for index, bar in enumerate(team_bars):
             if bar.mouse_over and bar.hover_index is not None:  # hover over
@@ -24,7 +24,7 @@ def menu_custom_setup(self):
                                                              army_preset["cost"], army_preset["supply"],
                                                              army_preset["leadership"])
                     self.custom_army_info_popup.popup(army_preset)
-                self.add_to_ui_updater(self.custom_army_info_popup, self.custom_army_title_popup)
+                self.add_to_ui_menu_updater(self.custom_army_info_popup, self.custom_army_title_popup)
                 self.custom_army_info_popup.rect.midright = self.custom_battle_team_setup[
                     Opposite_Team[team]].rect.midright
                 self.custom_army_title_popup.rect.midbottom = self.custom_army_info_popup.rect.midtop
@@ -49,7 +49,7 @@ def menu_custom_setup(self):
                 return
             elif (self.cursor.select_up or self.cursor.alt_select_up or self.esc_press) and not bar.mouse_over:
                 # click somewhere else
-                self.remove_from_ui_updater(bar)
+                self.remove_from_ui_menu_updater(bar)
 
     for team, team_buttons in self.custom_team_army_buttons.items():
         for index, button in enumerate(team_buttons):  # hover over
@@ -71,24 +71,24 @@ def menu_custom_setup(self):
                                                                  army_preset["supply"],
                                                                  army_preset["leadership"])
                         self.custom_army_info_popup.popup(army_preset)
-                    self.add_to_ui_updater(self.custom_army_info_popup, self.custom_army_title_popup)
+                    self.add_to_ui_menu_updater(self.custom_army_info_popup, self.custom_army_title_popup)
                     self.custom_army_info_popup.rect.midright = self.custom_battle_team_setup[
                         Opposite_Team[team]].rect.midright
                     self.custom_army_title_popup.rect.midbottom = self.custom_army_info_popup.rect.midtop
 
                 if button.event_press:
-                    if self.custom_team_army_button_bars[team][index] in self.ui_updater:
-                        self.remove_from_ui_updater(self.custom_team_army_button_bars[team][index])
+                    if self.custom_team_army_button_bars[team][index] in self.ui_menu_updater:
+                        self.remove_from_ui_menu_updater(self.custom_team_army_button_bars[team][index])
                     else:  # add bar list
-                        self.add_to_ui_updater(self.custom_team_army_button_bars[team][index])
+                        self.add_to_ui_menu_updater(self.custom_team_army_button_bars[team][index])
 
                         bar_preset_list = []
 
                         for key, value in preset_list.items():
                             bar_preset_list.append((0, str(value["Name"])))
                         self.custom_team_army_button_bars[team][index].adapter.__init__(bar_preset_list)
-                        self.remove_from_ui_updater([item for item in self.all_custom_battle_bars if
-                                                     item != self.custom_team_army_button_bars[team][index]])
+                        self.remove_from_ui_menu_updater([item for item in self.all_custom_battle_bars if
+                                                          item != self.custom_team_army_button_bars[team][index]])
                 return
 
     if self.cursor.select_up or self.cursor.alt_select_up or self.esc_press:
@@ -99,7 +99,7 @@ def menu_custom_setup(self):
             self.custom_stage_bar.adapter.last_click = ()
 
         elif not self.custom_stage_bar.mouse_over:  # click somewhere else
-            self.remove_from_ui_updater(self.custom_stage_bar)
+            self.remove_from_ui_menu_updater(self.custom_stage_bar)
 
         if (self.custom_weather_strength_bar.adapter.last_click and
                 self.custom_weather_strength_bar.adapter.last_click[0] == "click"):
@@ -109,7 +109,7 @@ def menu_custom_setup(self):
             self.custom_weather_strength_bar.adapter.last_click = ()
 
         elif not self.custom_weather_strength_bar.mouse_over:  # click somewhere else
-            self.remove_from_ui_updater(self.custom_weather_strength_bar)
+            self.remove_from_ui_menu_updater(self.custom_weather_strength_bar)
 
         if self.custom_weather_bar.adapter.last_click and self.custom_weather_bar.adapter.last_click[0] == "click":
             self.custom_battle_weather_type_button.change_state(
@@ -119,10 +119,10 @@ def menu_custom_setup(self):
             self.custom_weather_bar.adapter.last_click = ()
 
         elif not self.custom_weather_bar.mouse_over:  # click somewhere else
-            self.remove_from_ui_updater(self.custom_weather_bar)
+            self.remove_from_ui_menu_updater(self.custom_weather_bar)
 
         if self.setup_back_button.event_press or self.esc_press:  # back to start_set menu
-            self.remove_from_ui_updater(self.custom_battle_menu_uis_remove)
+            self.remove_from_ui_menu_updater(self.custom_battle_menu_uis_remove)
             for index in range(0, 4):
                 self.custom_battle_team_setup[1].change_faction(None, index)
                 self.custom_battle_team_setup[2].change_faction(None, index)
@@ -137,8 +137,8 @@ def menu_custom_setup(self):
             self.custom_preset_army_title.change_text("", self.custom_preset_army_setup.total_gold_cost,
                                                       self.custom_preset_army_setup.total_supply_usage,
                                                       self.custom_preset_army_setup.total_leadership)
-            self.add_to_ui_updater(self.custom_preset_menu_uis)
-            self.remove_from_ui_updater(self.custom_battle_menu_uis_remove)
+            self.add_to_ui_menu_updater(self.custom_preset_menu_uis)
+            self.remove_from_ui_menu_updater(self.custom_battle_menu_uis_remove)
             for index in range(0, 4):
                 self.custom_battle_team_setup[1].change_faction(None, index)
                 self.custom_battle_team_setup[2].change_faction(None, index)
@@ -174,27 +174,27 @@ def menu_custom_setup(self):
                                                          self.custom_team_army[2][0].total_supply_usage)
 
         elif self.custom_battle_stage_button.event_press:
-            if self.custom_stage_bar in self.ui_updater:  # remove the bar list if click again
-                self.remove_from_ui_updater(self.custom_stage_bar)
+            if self.custom_stage_bar in self.ui_menu_updater:  # remove the bar list if click again
+                self.remove_from_ui_menu_updater(self.custom_stage_bar)
             else:  # add bar list
-                self.add_to_ui_updater(self.custom_stage_bar)
-                self.remove_from_ui_updater(
+                self.add_to_ui_menu_updater(self.custom_stage_bar)
+                self.remove_from_ui_menu_updater(
                     [item for item in self.all_custom_battle_bars if item != self.custom_stage_bar])
 
         elif self.custom_battle_weather_strength_button.event_press:
-            if self.custom_weather_strength_bar in self.ui_updater:  # remove the bar list if click again
-                self.remove_from_ui_updater(self.custom_weather_strength_bar)
+            if self.custom_weather_strength_bar in self.ui_menu_updater:  # remove the bar list if click again
+                self.remove_from_ui_menu_updater(self.custom_weather_strength_bar)
             else:  # add bar list
-                self.add_to_ui_updater(self.custom_weather_strength_bar)
-                self.remove_from_ui_updater(
+                self.add_to_ui_menu_updater(self.custom_weather_strength_bar)
+                self.remove_from_ui_menu_updater(
                     [item for item in self.all_custom_battle_bars if item != self.custom_weather_strength_bar])
 
         elif self.custom_battle_weather_type_button.event_press:  # click on resolution bar
-            if self.custom_weather_bar in self.ui_updater:  # remove the bar list if click again
-                self.remove_from_ui_updater(self.custom_weather_bar)
+            if self.custom_weather_bar in self.ui_menu_updater:  # remove the bar list if click again
+                self.remove_from_ui_menu_updater(self.custom_weather_bar)
             else:  # add bar list
-                self.add_to_ui_updater(self.custom_weather_bar)
-                self.remove_from_ui_updater(
+                self.add_to_ui_menu_updater(self.custom_weather_bar)
+                self.remove_from_ui_menu_updater(
                     [item for item in self.all_custom_battle_bars if item != self.custom_weather_bar])
 
         elif self.custom_battle_team1_gold_button.event_press:

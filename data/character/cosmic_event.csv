@@ -1,0 +1,10 @@
+"ID","Cosmic Replace","Event Scene","Event Actor","Effect","Duration"
+"blood_moon","pale_moon:blood_pale_moon",,,"battle:cosmos_blood_moon",
+"diamond_sun",,,,"battle:cosmos_diamond_sun,happiness:10,supply:1000",10
+"full_alignment",,,,"universe:",
+"great_comet",,,,"happiness:-15",
+"radiant_eclipse","sun:radiant_eclipse_sun",,,"battle:cosmos_radiant_eclipse,supply:-500",5
+"red_visit","red_planet:red_planet_close",,,,
+"royal_moon","pale_moon:royal_pale_moon",,,"battle:cosmos_royal_moon,gold:600",5
+"trio_conjunction",,,,"battle:",
+"vert_moon","pale_moon:vert_pale_moon",,,"battle:cosmos_vert_moon,supply:300",5

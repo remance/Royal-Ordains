@@ -1,5 +1,6 @@
 from os.path import join
-
+import pickle
+import lzma
 import pygame
 from pygame import Surface, SRCALPHA, Vector2
 from pygame.transform import smoothscale, flip
@@ -24,7 +25,15 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
     event_actor_sprite_pool = {}
     try:
         event_actor_sprite_pool = load_pickle_with_surfaces(join(data_dir, "animation", "event_actor.xz"),
-                                                      (1, 1), add_mask=False)
+                                                            (1, 1), add_mask=False)
+    except Exception:
+        pass
+
+    animation_pickle_hash = {}
+    try:
+        with open(join(data_dir, "animation", "animation_pickle_hash.xz"), "rb") as read_file:
+            animation_pickle_hash = pickle.load(read_file)
+        read_file.close()
     except Exception:
         pass
 
@@ -176,7 +185,6 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                                         min_y = part[3] - height_check  # most top y pos
                                     if part[3] + height_check > max_y:
                                         max_y = part[3] + height_check  # lowest bottom y pos
-
                             image = Surface((abs(min_x) + abs(max_x), abs(min_y) + abs(max_y)), SRCALPHA)
                             pose_layer_list = {k: v[6] for k, v in animation_data.items() if v and len(v) > 5 and
                                                ("effect" not in k or not v[9]) and "Template" not in v[1]}
@@ -281,7 +289,12 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                                     -item if index in (2, 4) else item for index, item in enumerate(
                                         frame_data_list["right"]["effects"][part_header])]
 
-            save_pickle_with_surfaces(join(data_dir, "animation", character + ".xz"), character_animation_pool)
+                if "EVENT_" in animation_name:
+                    # remove EVENT from animation pool save
+                    character_animation_pool.pop(animation_name)
+
+            character_hash = save_pickle_with_surfaces(join(data_dir, "animation", character + ".xz"), character_animation_pool)
+            animation_pickle_hash[character] = character_hash
     save_pickle_with_surfaces(join(data_dir, "animation", "event_actor.xz"), event_actor_sprite_pool)
     save_pickle_with_surfaces(join(data_dir, "animation", "world_actor.xz"), world_actor_animation_pool)
 
@@ -308,7 +321,7 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                 for frame_index, surface in enumerate(frame_list):
                     image, crop_offset = crop_sprite(surface, character_offset=False)
                     effect_animation_pool_save[effect_type][effect_name][0][1][1][frame_index] = {
-                        "sprite": CompilableSurface(image),
+                        "sprite": {0: CompilableSurface(image)},
                         "offset": crop_offset}
             if effect_type in effect_sprite_adjust:
                 for flip_value in effect_sprite_adjust[effect_type]:
@@ -330,10 +343,14 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
 
                                 effect_animation_pool_save[effect_type][effect_name][flip_value][width_scale][
                                     height_scale][frame_index] = {
-                                    "sprite": CompilableSurface(image),
+                                    "sprite": {0: CompilableSurface(image)},
                                     "offset": crop_offset}
     recursive_remove_mask(effect_animation_pool_save)
-    save_pickle_with_surfaces(join(data_dir, "animation", "effect_animation.xz"), effect_animation_pool_save)
+    animation_pickle_hash["effect"] = save_pickle_with_surfaces(join(data_dir, "animation", "effect_animation.xz"),
+                                                                effect_animation_pool_save)
+
+    with lzma.open(join(data_dir, "animation", "animation_pickle_hash.xz"), "wb") as handle:
+        pickle.dump(animation_pickle_hash, handle)
     print("done")
 
 

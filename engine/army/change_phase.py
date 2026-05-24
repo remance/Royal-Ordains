@@ -33,6 +33,7 @@ def change_phase(self):
             travelling["dot_routes"][0].pop(0)  # remove passed dot
 
             if len(travelling["dot_routes"][0]) == 1:  # finish this route
+                travelling["id_routes"].pop(0)
                 travelling["dot_routes"].pop(0)
                 travelling["difficulties"].pop(0)
                 travelling["remain_phase_require"].pop(0)

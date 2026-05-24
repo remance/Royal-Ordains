@@ -857,7 +857,7 @@ class TacticalMap(UIBattle):
                           (line_end, 0),
                           (line_end, self.image_height), width=self.strategy_line_width)
 
-                if self.battle.player_battle_interact.show_strategy_activate_line:
+                if self.battle.player_interact.show_strategy_activate_line:
                     # draw strategy range if player cursor is within activation range, mean strategy can be used
                     line_start = (self.battle.base_cursor_pos[
                                       0] - self.current_strategy_base_range) / map_scale_width

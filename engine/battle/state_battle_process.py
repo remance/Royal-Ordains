@@ -16,8 +16,8 @@ def state_battle_process(self):
             self.localisation.grab_text(
                 ("scene", self.scene.data[self.current_scene], "Text")),
             width_text_wrapper=self.screen_width)
-        self.add_to_ui_updater(self.cursor, self.battle_menu_button.values(),
-                               self.scene_translation_text_popup)  # add menu and its buttons to drawer
+        self.add_to_ui_menu_updater(self.cursor, self.battle_menu_button.values(),
+                                    self.scene_translation_text_popup)  # add menu and its buttons to drawer
         self.outer_ui_updater.remove(self.battle_cursor)
     # elif not self.cutscene_playing:
     #     if self.player_key_press["Inventory Menu"]:
@@ -148,7 +148,6 @@ def state_battle_process(self):
             if self.all_battle_characters:
                 self.battle_scale = [len(value) / len(self.all_battle_characters) for value in
                                      self.all_team_ally.values()]
-            self.ui_drawer.draw(self.screen)  # draw the UI
             self.ui_timer -= 0.1
 
         if not self.cutscene_playing:  # no current cutscene check for event
@@ -231,12 +230,12 @@ def state_battle_process(self):
             else:
                 self.end_delay += dt
                 if self.end_delay >= 5:  # show result
-                    self.outer_ui_updater.remove(self.command_ui, self.strategy_select_ui, self.player_battle_interact,
+                    self.outer_ui_updater.remove(self.command_ui, self.strategy_select_ui, self.player_interact,
                                                  self.battle_scale_ui, self.tactical_map_ui,
                                                  self.battle_helper_ui, self.battle_cursor)
                     self.outer_ui_updater.add(self.battle_result_ui, self.out_of_battle_result_button)
 
-                    self.add_to_ui_updater(self.cursor)
+                    self.add_to_ui_menu_updater(self.cursor)
 
                     self.battle_result_ui.show_result()
                     self.change_game_state("result")
@@ -244,7 +243,7 @@ def state_battle_process(self):
 
         elif self.grand:  # update grand campaign during battle still ongoing
             # time in battle is slower than time in grand campaign where 1 battle minute is equal to 1 phase instead of 1 second in campaign at normal game speed
-            self.grand.state_grand_process(dt / Phase_To_Battle_Time)
+            self.grandgrand_process(dt / Phase_To_Battle_Time)
 
     # update camera
     self.camera.camera_left_bound = self.camera_left_bound

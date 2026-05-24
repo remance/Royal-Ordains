@@ -2,13 +2,17 @@ from os import listdir, sep
 from os.path import join, getsize, split, normpath
 from pathlib import Path
 
+import pickle
+import ast
+import lzma
 import psutil
 from pygame.transform import smoothscale, flip
 
 from engine.data.data import GameData
 from engine.utils.data_loading import load_images
-from engine.utils.sprite_caching import load_pickle_with_surfaces
+from engine.utils.sprite_caching import load_pickle_with_surfaces, save_pickle_with_surfaces
 from engine.utils.text_making import text_render_with_bg
+from engine.utils.common import edit_config
 
 
 class DataSprite(GameData):
@@ -26,9 +30,33 @@ class DataSprite(GameData):
         self.strategy_icons = {}
         self.grand_ui_icons = {}
         self.effect_animation_pool = {}
-        # self.effect_animation_pool = load_pickle_with_surfaces(
-        #     join(self.data_dir, "animation", "effect_animation.xz"),
-        #     screen_scale=self.screen_scale, effect_sprite_adjust=True)
+        self.animation_pickle_hash = {}
+
+        try:
+            with lzma.open(join(self.data_dir, "animation", "animation_pickle_hash.xz"), "rb") as read_file:
+                self.animation_pickle_hash = pickle.load(read_file)
+            read_file.close()
+        except Exception:
+            pass
+
+        config_animation_hash = ast.literal_eval(self.game.config["VERSION"]["hash"])
+
+        # if (self.game.screen_size != (1, 1) and (self.game.screen_size != config_animation_hash["screen_resolution"] or
+        #         "effect" not in self.animation_pickle_hash or not config_animation_hash["effect"] or
+        #         self.animation_pickle_hash["effect"] != config_animation_hash["effect"])):
+        #     # effect sprite or screen resolution got changed, load and scale
+        #     self.effect_animation_pool = load_pickle_with_surfaces(
+        #         join(self.data_dir, "animation", "effect_animation.xz"),
+        #         screen_scale=self.screen_scale, effect_sprite_adjust=True)
+        #
+        #     # save the above pool to cache for future use
+        #     save_pickle_with_surfaces(join(self.data_dir, "animation", "cache_effect_animation.xz"),
+        #                               self.effect_animation_pool)
+        #     config_animation_hash["effect"] = self.animation_pickle_hash["effect"]
+        # else:
+        #     self.effect_animation_pool = load_pickle_with_surfaces(
+        #         join(self.data_dir, "animation", "cache_effect_animation.xz"),
+        #         screen_scale=(1, 1), effect_sprite_adjust=True)
 
         self.strategy_icons = load_images(self.data_dir, screen_scale=self.screen_scale,
                                           subfolder=("ui", "strategy_ui"))
@@ -97,6 +125,11 @@ class DataSprite(GameData):
         # self.stage_object_animation_pool = load_pickle_with_surfaces(
         #     join(self.data_dir, "animation", "stage_object.xz"),
         #     screen_scale=self.screen_scale, battle_only=True)
+
+        # save screen resolution size in config for later game launch sprite scale check
+        config_animation_hash["screen_resolution"] = self.game.screen_size
+        edit_config("VERSION", "hash", config_animation_hash,
+                    self.game.config_path, self.game.config)
 
     def setup_campaign(self):
         """Setup animation for campaign, only run once"""

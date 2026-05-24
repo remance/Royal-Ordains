@@ -3,7 +3,7 @@ from engine.constants import Default_Showcase_Character_POS
 
 def menu_lorebook_beast(self):
     if self.lorebook_back_button.event_press or self.esc_press:  # back to start_set menu
-        self.remove_from_ui_updater(self.lorebook_menu_uis)
+        self.remove_from_ui_menu_updater(self.lorebook_menu_uis)
         self.back_mainmenu()
 
     elif self.lorebook_showcase_character_selector_scroll.event:

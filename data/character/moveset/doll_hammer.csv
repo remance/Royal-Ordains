@@ -1,2 +1,2 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
-"Attack1","Hammer Down",,,,330,,4,,26,10,70,80,0.2,"crush",,"stun",,
+"Attack1","Hammer Down",,,,330,,6,,36,24,70,90,0.2,"crush",,"stun",,

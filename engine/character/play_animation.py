@@ -94,6 +94,9 @@ def play_battle_animation(self, dt, hold_check):
                 self.final_animation_frame_play_time *= self.current_animation_frame["play_time_mod"]
 
             self.sprite_deal_damage = False
+            current_moveset = self.current_moveset
+            if "no_moveset" in self.current_action:
+                current_moveset = None
             for key, part_data in self.current_animation_direction["effects"].items():
                 if part_data[8] and part_data[0] in self.effect_list:  # independent effect must exist in effect list
                     if "no_target" in self.current_action or "target" not in self.current_action:
@@ -102,15 +105,15 @@ def play_battle_animation(self, dt, hold_check):
                         target = self.current_action["target"]
 
                     if "trap" in self.effect_list[part_data[0]]["Property"]:  # trap effect
-                        TrapEffect(self, part_data, self.current_moveset)
+                        TrapEffect(self, part_data, current_moveset)
                     elif self.effect_list[part_data[0]]["Damage"]:  # damage effect
-                        DamageEffect(self, part_data, self.current_moveset, base_target_pos=target)
+                        DamageEffect(self, part_data, current_moveset, base_target_pos=target)
                     else:  # no damage effect
-                        if self.current_moveset:
-                            Effect(self, part_data, self.current_moveset, base_target_pos=target)
+                        if current_moveset:
+                            Effect(self, part_data, current_moveset, base_target_pos=target)
                         else:
                             Effect(self, part_data)
-            if "sprite_deal_damage" in self.current_animation_frame["property"] and self.current_moveset:
+            if "sprite_deal_damage" in self.current_animation_frame["property"] and current_moveset:
                 self.sprite_deal_damage = True
 
             self.update_sprite = True

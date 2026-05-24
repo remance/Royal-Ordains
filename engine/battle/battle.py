@@ -2,7 +2,6 @@ import sys
 import time
 from copy import deepcopy
 from os.path import join, sep, normpath, abspath, split, exists
-from pathlib import Path
 from random import choice, randint
 from types import MethodType
 
@@ -25,7 +24,6 @@ from engine.battle.check_reinforcement import check_reinforcement
 from engine.battle.create_air_group import create_air_group
 from engine.battle.drama_process import drama_process
 from engine.battle.end_cutscene_event import end_cutscene_event
-from engine.battle.escmenu_process import escmenu_process, back_to_battle_state
 from engine.battle.event_process import event_process
 from engine.battle.fix_camera import fix_camera
 from engine.battle.make_esc_menu import make_esc_menu
@@ -35,7 +33,7 @@ from engine.battle.player_input_cutscene import player_input_cutscene
 from engine.battle.setup_team_characters import setup_team_characters
 from engine.battle.shake_camera import shake_camera
 from engine.battle.state_battle_process import state_battle_process
-from engine.battle.state_menu_process import state_menu_process
+from engine.battle.state_menu_process import state_menu_process, back_to_battle_state
 from engine.battle.state_result_process import state_result_process
 from engine.battleobject.battleobject import StageObject
 from engine.camera.camera import Camera
@@ -90,7 +88,6 @@ class Battle:
     drama_process = drama_process
     end_cutscene_event = end_cutscene_event
     back_to_battle_state = back_to_battle_state
-    escmenu_process = escmenu_process
     fix_camera = fix_camera
     make_esc_menu = make_esc_menu
     player_input_cutscene = player_input_cutscene
@@ -149,13 +146,14 @@ class Battle:
         # battle object group
         self.battle_camera_object_drawer = sprite.LayeredUpdates()
         self.battle_camera_ui_drawer = sprite.LayeredUpdates()  # this is drawer for ui in battle, does not move alonge with camera
-        self.ui_updater = ReversedLayeredUpdates()  # this is updater and drawer for ui, all image pos should be based on the screen
-        self.ui_drawer = sprite.LayeredUpdates()
+        self.ui_menu_updater = ReversedLayeredUpdates()
+        self.ui_menu_drawer = sprite.LayeredUpdates()
 
         self.battle_character_updater = ReversedLayeredUpdates()  # updater for character objects,
         # higher layer characters got update first for the purpose of blit culling check
         self.battle_character_updater.cutscene_update = MethodType(cutscene_update, self.battle_character_updater)
         # for battle UI stuff that need to be updated in real time like drama and weather objects, also used as drawer
+        # all image pos should be based on the screen
         self.outer_ui_updater = sprite.LayeredUpdates()
         self.battle_effect_updater = sprite.Group()  # updater for effect objects (e.g. range attack sprite)
         self.battle_effect_updater.cutscene_update = MethodType(cutscene_update, self.battle_effect_updater)
@@ -315,22 +313,13 @@ class Battle:
         CharacterSpeechBox.images = battle_ui_images
 
         self.command_ui = Command(battle_ui_images["call_count"], battle_ui_images["air_count"])
-        self.player_battle_interact = PlayerBattleInteract()
+        self.player_interact = PlayerBattleInteract()
         self.tactical_map_ui = TacticalMap(battle_ui_images["tactic_alert"])
-
-        helper_images = {}
-        part_folder = Path(join(self.data_dir, "ui", "battle_ui", "helper"))
-        subdirectories = [split(sep.join(normpath(x).split(sep))) for x
-                          in part_folder.iterdir() if x.is_dir()]
-        for folder in subdirectories:
-            folder_data_name = folder[-1]
-            helper_images[folder_data_name] = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                                          subfolder=("ui", "battle_ui", "helper", folder_data_name))
 
         self.battle_helper_ui = BattleHelper(self.game.weather_icon_images,
                                              battle_ui_images["helperui"],
                                              battle_ui_images["helperui_base"],
-                                             helper_images,
+                                             self.game.helper_images,
                                              (battle_ui_images["time_pause"],
                                               battle_ui_images["time_slow"],
                                               battle_ui_images["time_normal"],
@@ -346,7 +335,7 @@ class Battle:
 
         self.always_command_ui = (self.tactical_map_ui, self.battle_helper_ui, self.battle_scale_ui,
                                   self.grand_event_notification)
-        self.only_player_command_ui = (self.command_ui, self.strategy_select_ui, self.player_battle_interact)
+        self.only_player_command_ui = (self.command_ui, self.strategy_select_ui, self.player_interact)
 
         self.character_command_indicator = CharacterCommandIndicator(600, battle_ui_images["player_order_move"],
                                                                      battle_ui_images["player_order_attack"])
@@ -362,8 +351,6 @@ class Battle:
         self.drama_text = TextDrama(self)  # message at the top of screen that show up for important event
 
         self.fps_count = FPSCount(self)  # FPS number counter
-        if self.game.show_fps:
-            self.outer_ui_updater.add(self.fps_count)
 
         # Battle ESC menu
         esc_menu_dict = self.make_esc_menu()
@@ -431,6 +418,10 @@ class Battle:
         self.winner_team = None
         self.player_enemy_team = None
         # add common battle ui
+        if self.game.show_fps:
+            self.outer_ui_updater.add(self.fps_count)
+        else:
+            self.outer_ui_updater.remove(self.fps_count)
         self.outer_ui_updater.add(self.always_command_ui)
         if self.player_team:
             self.player_enemy_team = (0, 2, 1)[self.player_team]
@@ -769,7 +760,7 @@ class Battle:
 
         self.screen.fill((0, 0, 0))
         self.outer_ui_updater.add(self.battle_cursor)
-        self.remove_from_ui_updater(self.cursor)
+        self.remove_from_ui_menu_updater(self.cursor)
 
         if self.start_cutscene:
             # play start cutscene
@@ -869,8 +860,6 @@ class Battle:
                             self.game.setup_profiler()
                         self.game.profiler.switch_show_hide()
 
-            self.ui_updater.update(self.dt)  # update ui before more specific update
-
             return_state = self.state_process()  # run code based on current state
             if return_state is not None:
                 return return_state
@@ -878,13 +867,13 @@ class Battle:
             display.update()  # update game display, draw everything
             self.clock.tick(1000)  # clock update even if self pause
 
-    def add_to_ui_updater(self, *args):
-        self.ui_updater.add(*args)
-        self.ui_drawer.add(*args)
+    def add_to_ui_menu_updater(self, *args):
+        self.ui_menu_updater.add(*args)
+        self.ui_menu_drawer.add(*args)
 
-    def remove_from_ui_updater(self, *args):
-        self.ui_updater.remove(*args)
-        self.ui_drawer.remove(*args)
+    def remove_from_ui_menu_updater(self, *args):
+        self.ui_menu_updater.remove(*args)
+        self.ui_menu_drawer.remove(*args)
 
     def clean_character_group(self):
         for character in self.all_battle_characters:
@@ -908,9 +897,9 @@ class Battle:
 
     def exit_battle(self):
         # remove menu and ui
-        self.remove_from_ui_updater(self.battle_menu_button.values(), self.esc_slider_menu.values(),
-                                    self.esc_value_boxes.values(), self.esc_option_text.values(),
-                                    self.scene_translation_text_popup)
+        self.remove_from_ui_menu_updater(self.battle_menu_button.values(), self.esc_slider_menu.values(),
+                                         self.esc_value_boxes.values(), self.esc_option_text.values(),
+                                         self.scene_translation_text_popup)
 
         self.battle_cursor.change_image("normal")
 

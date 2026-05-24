@@ -2,6 +2,12 @@ from engine.constants import Culture_Policy_Integration
 
 
 def change_turn(self, turn_change=True):
+    """
+    Update campaign state when turn change
+    @param self: Grand object
+    @param turn_change: turn actually change or not, function can be used for campaign setup when False
+    @return:
+    """
     for faction in self.current_campaign_state["faction"]:
         faction_state = self.current_campaign_state["faction"][faction]
 

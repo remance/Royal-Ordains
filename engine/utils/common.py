@@ -3,6 +3,7 @@ from math import radians, sin
 
 import pygame
 import pygame.freetype
+from engine.updater.updater import ReversedLayeredUpdates
 
 
 def empty_method(*args):
@@ -76,6 +77,7 @@ def edit_config(section, option, value, filename, config):
     config.set(section, option, str(value))
     with open(filename, "w") as configfile:
         config.write(configfile)
+    configfile.close()
 
 
 def setup_list(item_class, current_row, show_list, item_group, box, ui_class, layer=15):
@@ -139,18 +141,33 @@ def list_scroll(screen_scale, mouse_scroll_up, mouse_scroll_down, scroll, box, c
     return current_row
 
 
+def compensate_distance(velocity, cos_angle, distance):
+    """For some reason the calculate_projectile_velocity function below is not correct, need to compensate distance
+    to find more accurate result"""
+    compens = velocity ** 2 * cos_angle ** 2
+    if compens < distance:
+        if cos_angle > 0.5:
+            return distance * (distance / compens) ** 0.5
+        else:
+            return distance * (distance / compens) / 2
+    return distance
+
+
 def calculate_projectile_target(velocity, angle):
-    angle = radians(angle)
-    return velocity ** 2 * sin(2 * angle)
+    return velocity ** 2 * sin(2 * radians(angle))
 
 
 def calculate_projectile_velocity(angle, distance):
     """Velocity required for object to reach give distance and angle"""
-    angle = radians(angle)
     if angle:
-        return (distance / (sin(2 * angle))) ** 0.5
+        if angle > 90:
+            return (distance / (sin(2 * radians(-angle)))) ** 0.5
+        elif angle in (-90, 90, -180, 180, -360, 360):
+            return distance / 100
+        else:
+            return (distance / (sin(2 * radians(angle)))) ** 0.5
     else:
-        return distance ** 0.5
+        return distance / 100
 
 
 def float_check(value):
@@ -165,7 +182,8 @@ def clean_group_object(groups):
     """Clean all attributes of every object in group in list"""
     for group in groups:
         if len(group) > 0:
-            if type(group) is pygame.sprite.Group or type(group) is list or type(group) is tuple:
+            if type(group) in (pygame.sprite.Group, list, tuple, ReversedLayeredUpdates,
+                               pygame.sprite.LayeredUpdates):
                 for stuff in group:
                     clean_object(stuff)
                 group.empty()

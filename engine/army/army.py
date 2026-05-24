@@ -46,10 +46,12 @@ class Army:
         self.current_region = current_region  # current region the army is at
         self.travel_remain = 0
         self.travelling = travelling
+        self.travel_how = None
 
         self.base_pos = None
         include_culture_influence = False
         self.pathfinding_array = {}
+        self.direct_routing_array = {}
 
         if current_region:  # active army in grand campaign exist in region, so can be used as purpose indication
             include_culture_influence = True
@@ -59,6 +61,7 @@ class Army:
             else:
                 self.base_pos = self.grand.region_list[current_region]["Settlement POS"]
             self.pathfinding_array = self.grand.current_campaign_state["pathfinding"]
+            self.direct_routing_array = self.grand.current_campaign_state["direct_routing"]
 
         self.reset_stat(include_culture_influence=include_culture_influence)
 

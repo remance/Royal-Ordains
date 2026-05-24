@@ -6,8 +6,6 @@ def draw_route(self):
     camera_right_bound = self.camera.camera_right_bound
     camera_top_bound = self.camera.camera_top_bound
     camera_bottom_bound = self.camera.camera_bottom_bound
-    # print(camera_left_bound, camera_top_bound, camera_right_bound, camera_bottom_bound)
-    # print(self.route_dot_draw_array)
     for x in self.route_dot_draw_array:
         if camera_left_bound < x < camera_right_bound:
             for y in self.route_dot_draw_array[x]:
@@ -46,7 +44,6 @@ def draw_route(self):
                 if this_army_line and this_army_line not in lines_to_draws:
                     lines_to_draws.append(this_army_line)
 
-        # print(lines_to_draws)
         for line_to_draw in lines_to_draws:
             if len(line_to_draw) > 1:
                 draw.lines(self.camera.image, (0, 0, 0), False, line_to_draw, int(24 * self.screen_scale_width))

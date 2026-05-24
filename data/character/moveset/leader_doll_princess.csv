@@ -1,5 +1,5 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
-"Skill1","Lightning Blast",,,,2000,,4,5,30,60,,-50,0.2,"air",,,"stun",
-"Skill2","Lightning Bolt",,,,6000,7000,5,15,20,30,,-25,0.2,"air",,,"electrocution","override_target:(self_height;use_range),no_target"
+"Skill1","Lightning Blast",,,,1000,,4,5,30,60,,-50,0.2,"air",,,"stun",
+"Skill2","Lightning Bolt",,,,6000,7000,5,15,20,30,,-25,0.2,"air",,,"electrocution",
 "Skill3","Power Princess",,,"self:{resource<=80}",100000,,60,,,,,,,"air","resource_generation",,,"no_ai_range_check_setup"
 "Die","Explode",,,"self:die",,1000,,,50,400,500,1000,,"fire",,,,"no_ai_range_check_setup"

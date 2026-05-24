@@ -31,7 +31,7 @@ def die(self, retreat=False):
             # main character no longer has sub characters, check if main character is consider no longer active
             # does not include main character that is dead already
             self.main_character.health = 0
-    else:  # count dead only for main character
+    elif not retreat:  # count dead only for main character and not retreat
         self.battle.team_loss[self.team] += 1
     self.main_character = None
 
@@ -44,8 +44,8 @@ def die(self, retreat=False):
 
     # return supply when die
     if retreat:
-        # manage to retreat mean fully return supply and not give any to enemy
-        self.battle.team_stat[self.team]["supply_reserve"] += self.supply
+        # manage to retreat mean return some supply but not give any to enemy
+        self.battle.team_stat[self.team]["supply_reserve"] += self.supply * 0.5
     else:
         self.battle.team_stat[self.team]["supply_reserve"] += self.supply * 0.5
         self.battle.team_stat[self.enemy_team]["supply_reserve"] += self.supply * 0.25
@@ -77,7 +77,7 @@ def air_die(self, retreat=False):
             if not air_group:  # empty air group, remove it
                 self.battle.team_stat[self.team]["air_group"].remove(air_group)
             break
-    die(self)
+    die(self, retreat=retreat)
 
 
 def commander_die(self):

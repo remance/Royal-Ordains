@@ -152,7 +152,7 @@ def flank_ai(self):
     if not self.command_action:
         if "idle" not in self.commander_order:
             if self.nearest_enemy and self.nearest_enemy.alive and self.nearest_enemy.character_class not in (
-                    "light_melee", "medium_melee", "heavy_melee", "medium_cavalry", "heavy_cavalry"):
+                    "medium_melee", "heavy_melee", "medium_cavalry", "heavy_cavalry"):
                 # flanker will focus on light troop to fight, switch command to attack
                 self.issue_commander_order(("attack", self.nearest_enemy_pos[0]))
             elif self.enemy_commander and self.enemy_commander.alive:

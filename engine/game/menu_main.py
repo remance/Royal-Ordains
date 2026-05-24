@@ -8,8 +8,8 @@ def menu_main(self):
         for index in range(0, 4):
             self.custom_battle_team_setup[1].change_faction(None, index)
             self.custom_battle_team_setup[2].change_faction(None, index)
-        self.remove_from_ui_updater(self.main_menu_buttons, self.main_menu_actor)
-        self.add_to_ui_updater(self.custom_battle_menu_uis)
+        self.remove_from_ui_menu_updater(self.main_menu_buttons, self.main_menu_actor)
+        self.add_to_ui_menu_updater(self.custom_battle_menu_uis)
 
     # elif self.mission_button.event_press:
     #     self.menu_state = "mission"
@@ -22,16 +22,16 @@ def menu_main(self):
         self.custom_preset_faction_selector.change_faction(Custom_Default_Culture)
         self.background = self.background_image["empty_background"]
         self.lorebook_showcase_character_selector.add(self.lorebook_faction_selector.selected_faction, None)
-        self.remove_from_ui_updater(self.main_menu_buttons, self.main_menu_actor)
-        self.add_to_ui_updater(self.lorebook_menu_uis)
+        self.remove_from_ui_menu_updater(self.main_menu_buttons, self.main_menu_actor)
+        self.add_to_ui_menu_updater(self.lorebook_menu_uis)
 
     elif self.grand_button.event_press:
         self.menu_state = "grand"
         self.load_grand_campaign("main")
         self.custom_preset_faction_selector.change_faction(self.map_data.default_grand_faction)
         self.background = self.background_image["empty_background"]
-        self.remove_from_ui_updater(self.main_menu_buttons, self.main_menu_actor)
-        self.add_to_ui_updater(self.grand_menu_uis)
+        self.remove_from_ui_menu_updater(self.main_menu_buttons, self.main_menu_actor)
+        self.add_to_ui_menu_updater(self.grand_menu_uis)
 
     elif self.test_battle_button.event_press:
         # self.custom_team_army[1][0].__init__("", "small", "small", "leader_bigta",
@@ -46,26 +46,25 @@ def menu_main(self):
         #                                      ["mage_earth", "test2", "test"], supply=1000)
 
         self.custom_team_army[1][0].__init__("", "small", "small", "leader_bigta",
-                                             ["small_rabbit_leader_knight", "leader_iri"],
-                                             ["small_rabbit_spear", ],
-                                             ["castle_human_air_flying_monk", "small_eagle_air_stone"],
-                                             ["small_rabbit_leader_shaman"], supply=1000)
+                                             ["leader_doll_princess", ],
+                                             [],
+                                             [],
+                                             ["small_rabbit_leader_shaman"], supply=10000)
         self.custom_team_army[1][1].__init__("", "small", "small", "leader_adaqua",
                                              ["small_rabbit_leader_knight", "small_rabbit_leader_knight"],
                                              ["small_rabbit_sling", ],
                                              ["castle_human_air_flying_monk", "small_eagle_air_stone"],
                                              ["small_rabbit_leader_shaman"], supply=500)
         self.custom_team_army[2][0].__init__("", "castle", "castle", "leader_buikuuh",
-                                             ["small_rabbit_leader_banner", "castle_human_leader_mage"],
-                                             ["small_rabbit_spear"],
-                                             ["castle_cat_air_rocket_bomb", "castle_cat_air_rocket_bomb"],
-                                             ["small_rabbit_leader_shaman"], supply=1000)
-        self.custom_team_army[2][1].__init__("", "castle", "castle", "small_rabbit_leader_hero",
-                                             ["small_rabbit_leader_knight", "leader_amgarn", "leader_vraesier", ],
-                                             ["doll_candle_spear"],
-                                             ["small_eagle_air_stone", "small_eagle_air_stone",
-                                              "castle_human_air_flying_monk"],
-                                             ["small_rabbit_leader_knight", "small_rabbit_leader_hero"], supply=700)
+                                             ["leader_adaqua", ],
+                                             [],
+                                             [],
+                                             ["small_rabbit_leader_shaman"], supply=10000)
+        self.custom_team_army[2][1].__init__("", "castle", "castle", "",
+                                             [],
+                                             [],
+                                             [],
+                                             [], supply=700)
 
         for army in self.custom_team_army[1][2:]:
             army.__init__("", "", "", None, [], [], [], [])
@@ -95,10 +94,10 @@ def menu_main(self):
 
     elif self.option_button.event_press:  # change main menu to option menu
         self.menu_state = "option"
-        self.remove_from_ui_updater(self.main_menu_buttons, self.main_menu_actor)
+        self.remove_from_ui_menu_updater(self.main_menu_buttons, self.main_menu_actor)
         self.background = self.background_image["empty_background"]
-        self.add_to_ui_updater(self.option_menu_buttons, self.option_menu_sliders.values(), self.value_boxes.values(),
-                               self.option_text_list)
+        self.add_to_ui_menu_updater(self.option_menu_buttons, self.option_menu_sliders.values(), self.value_boxes.values(),
+                                    self.option_text_list)
 
     elif self.quit_button.event_press or self.esc_press:  # open quit game confirmation input
         self.activate_input_popup(("confirm_input", "quit"), self.localisation.grab_text(("ui", "input_quit_game")),

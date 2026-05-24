@@ -20,7 +20,7 @@ from engine.effect.move_logic import move_logic
 from engine.effect.play_animation import play_animation
 from engine.effect.reach_target import reach_target, showcase_reach_target
 from engine.effect.remain_logic import remain_logic
-from engine.utils.common import calculate_projectile_velocity, clean_object
+from engine.utils.common import calculate_projectile_velocity, clean_object, compensate_distance
 from engine.utils.rotation import set_rotate, convert_projectile_degree_angle
 
 
@@ -101,7 +101,7 @@ class Effect(Sprite):
         self.travel_distance = 0
         self.travel_progress = 0
         self.travel = False
-        self.direct_shot = False  # determine what method to use for sprite movement
+        self.direct_shot = True  # determine what method to use for sprite movement
         self.sound_effect = None
         self.sound_timer = 0
         self.sound_duration = 0
@@ -247,10 +247,10 @@ class Effect(Sprite):
                 self.enemy_collision_grids = self.battle.all_team_air_enemy_collision_grids[self.team]
 
         if self.base_target_pos and "no_travel" not in effect_stat_property and effect_stat["Travel Speed"]:
-            if "direct" in moveset_property:  # direct shot, not use projectile movement with gravity
+            if "direct" in moveset_property:  # direct shot, not use projectile movement with velocity
                 self.angle = set_rotate(self.base_pos, self.base_target_pos)
-                self.direct_shot = True
             else:
+                self.direct_shot = False
                 if "arc" in moveset_property:
                     target_distance = self.base_target_pos[0] - self.base_pos[0]
                     self.travel_distance = target_distance
@@ -279,21 +279,21 @@ class Effect(Sprite):
                 offence_mistake = self.offence
                 if offence_mistake > 100:
                     offence_mistake = 100
-                offence_mistake = 1 - (offence_mistake / 100)
-                if offence_mistake < 0:
+                offence_mistake = 1 - (offence_mistake / 110)
+                if offence_mistake <= 0:
                     offence_mistake = 0
-                offence_mistake = self.travel_distance / 2 * offence_mistake
+                else:
+                    offence_mistake = self.travel_distance / 2 * offence_mistake
                 self.travel_distance = uniform(self.travel_distance - offence_mistake,
                                                self.travel_distance + offence_mistake)
 
-        self.velocity = 0
-        if self.travel_distance:
-            self.velocity = calculate_projectile_velocity(self.angle, self.travel_distance)
-            if type(self.velocity) is complex:
-                self.velocity = 10000
-
         self.sin_angle = sin(radians(self.angle))
         self.cos_angle = cos(radians(self.angle))
+        self.velocity = 0
+        if self.travel_distance:
+            self.velocity = calculate_projectile_velocity(abs(self.angle), abs(self.travel_distance))
+            self.velocity = calculate_projectile_velocity(abs(self.angle),
+                                                          compensate_distance(self.velocity, self.cos_angle, abs(self.travel_distance)))
 
         if not self.speed:  # reset travel distance for effect with no speed
             self.travel_distance = 0
@@ -473,7 +473,7 @@ class ShowcaseEffect(Effect):
         self._layer = 999999999999999999999997
 
         Sprite.__init__(self, self.containers)
-        self.battle.game.add_to_ui_updater(self)
+        self.battle.game.add_to_ui_menu_updater(self)
         self.show_frame = 0
         self.frame_timer = 0
         self.renew_sprite = True

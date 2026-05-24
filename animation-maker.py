@@ -36,8 +36,8 @@ class FakeGame:
         self.play_effect_volume = 0
         self.dt = 0.01
         self.sound_effect_pool = sound_effect_pool
-        self.add_to_ui_updater = None
-        self.remove_from_ui_updater = None
+        self.add_to_ui_menu_updater = None
+        self.remove_from_ui_menu_updater = None
         self.button_sound_channel = Channel(3)
 
 
@@ -81,7 +81,7 @@ Game.screen_scale = screen_scale
 Game.language = language
 Game.ui_font = csv_read(data_dir, "ui_font.csv", ("ui",), header_key=True)
 Game.font_dir = join(data_dir, "font")
-Game.ui_updater = ui
+Game.ui_menu_updater = ui
 sound_effect_pool = DataSound().sound_effect_pool
 Game.game = FakeGame(sound_effect_pool)
 Battle.battle = FakeBattle()

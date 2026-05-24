@@ -7,12 +7,15 @@ def enter_stage(self):
 
 def battle_character_enter_stage(self):
     """run once when scene start or character just get created"""
+    self.status_update()
     # Add character to list
     self.ally_list.add(self)
     if not self.invincible:  # not add to list if can't take damage
         for team in self.battle.all_team_enemy_check:
             if team != self.team and not self.no_target:
                 self.battle.all_team_enemy_check[team].add(self)
+    if not self.is_commander:
+        self.issue_commander_order(("attack", self.battle.team_stat[self.enemy_team]["start_pos"]))
     self.enemy_commander = self.battle.team_commander[self.enemy_team]
     self.pick_animation()
 

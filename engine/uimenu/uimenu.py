@@ -127,8 +127,8 @@ class UIMenu(Sprite):
         """
         from engine.game.game import Game
         self.game = Game.game
-        self.add_to_ui_updater = self.game.add_to_ui_updater
-        self.remove_from_ui_updater = self.game.remove_from_ui_updater
+        self.add_to_ui_menu_updater = self.game.add_to_ui_menu_updater
+        self.remove_from_ui_menu_updater = self.game.remove_from_ui_menu_updater
         self.button_sound_channel = self.game.button_sound_channel
         self.sound_effect_pool = self.game.sound_effect_pool
         self.screen_scale_width = Game.screen_scale_width
@@ -145,7 +145,7 @@ class UIMenu(Sprite):
         self.localisation = Game.localisation
         self.grab_text = self.localisation.grab_text
         self.cursor = Game.cursor
-        self.updater = Game.ui_updater
+        self.updater = Game.ui_menu_updater
         self.player_interact = player_cursor_interact
         self.play_sound_when_click = play_sound_when_click
         if has_containers:
@@ -492,19 +492,19 @@ class FactionSelector(UIMenu):
                     else:
                         self.game.text_popup.popup(self.cursor.rect,
                                                    self.grab_text(("faction", faction, "Name")))
-                    self.add_to_ui_updater(self.game.text_popup)
+                    self.add_to_ui_menu_updater(self.game.text_popup)
                     if self.event_press:
                         self.button_sound_channel.play(choice(self.sound_effect_pool["button"]))
                         self.button_sound_channel.set_volume(self.game.play_effect_volume)
                         if self.is_popup:  # remove popup ui
-                            self.remove_from_ui_updater(self)
+                            self.remove_from_ui_menu_updater(self)
                             self.selected_faction = faction
                         else:
                             self.change_faction(faction)
                     break
 
         elif self.cursor.select_up and self.is_popup:  # remove popup ui
-            self.remove_from_ui_updater(self)
+            self.remove_from_ui_menu_updater(self)
 
 
 class CharacterSelector(UIMenu):
@@ -636,7 +636,7 @@ class CharacterSelector(UIMenu):
                                 if lorebook_showcase_character.char_id != character_id:
                                     self.game.all_showcase_characters.remove(lorebook_showcase_character.sub_characters)
                                     self.game.all_showcase_characters.remove(lorebook_showcase_character)
-                                    self.remove_from_ui_updater(
+                                    self.remove_from_ui_menu_updater(
                                         (lorebook_showcase_character.sub_characters, lorebook_showcase_character))
                                     for character in lorebook_showcase_character.sub_characters:
                                         character.erase()
@@ -649,8 +649,8 @@ class CharacterSelector(UIMenu):
                                     lorebook_showcase_character.__init__(
                                         0, {"ID": character_id, "POS": pos,
                                             "direction": "right"} | self.character_list[character_id])
-                                    self.add_to_ui_updater(lorebook_showcase_character,
-                                                           lorebook_showcase_character.sub_characters)
+                                    self.add_to_ui_menu_updater(lorebook_showcase_character,
+                                                                lorebook_showcase_character.sub_characters)
                                     animation_list = list(
                                         self.game.sprite_data.character_animation_data[character_id].keys())
                                     for character in self.character_list[character_id]["Sub Characters"]:
@@ -718,7 +718,7 @@ class CharacterSelector(UIMenu):
                                              character_data["Cost"])]
                         self.game.text_popup.popup(self.cursor.rect, char_stat,
                                                    width_text_wrapper=int(1400 * self.screen_scale_width))
-                        self.add_to_ui_updater(self.game.text_popup)
+                        self.add_to_ui_menu_updater(self.game.text_popup)
                     break
 
 
@@ -861,12 +861,12 @@ class CustomTeamSetupUI(UIMenu):
         self.team_setup[index]["culture"] = culture
         self.team_setup[index]["army"] = None
         self.image.blit(self.circle, self.culture_coa_rects[index])
-        self.remove_from_ui_updater(self.game.custom_team_army_buttons[self.team][index])
+        self.remove_from_ui_menu_updater(self.game.custom_team_army_buttons[self.team][index])
         if self.team_setup[index]["culture"]:
             self.image.blit(self.culture_coas[self.team_setup[index]["culture"]]["small"],
                             self.culture_coa_rects[index])
         if self.team_setup[index]["culture"] and self.team_setup[index]["culture"] != "random":
-            self.add_to_ui_updater(self.game.custom_team_army_buttons[self.team][index])
+            self.add_to_ui_menu_updater(self.game.custom_team_army_buttons[self.team][index])
 
         self.game.custom_team_army[self.team][index].__init__("", "", "", None, [], [], [], [])
         self.game.custom_team_army_buttons[self.team][index].change_state("")
@@ -909,7 +909,7 @@ class CustomTeamSetupUI(UIMenu):
 
                 self.game.text_popup.popup((cursor_pos[0], cursor_pos[1] - (100 * self.screen_scale_height)),
                                            self.grab_text(("ui", "text_" + self.game.custom_team_players[self.team])))
-                self.add_to_ui_updater(self.game.text_popup)
+                self.add_to_ui_menu_updater(self.game.text_popup)
 
             else:
                 for index, rect in enumerate(self.culture_coa_rects):
@@ -920,20 +920,20 @@ class CustomTeamSetupUI(UIMenu):
                             show_pos = (self.rect.topleft[0] + rect.topright[0],
                                         self.rect.topleft[1] + rect.topright[1])
                             self.game.custom_culture_selector_popup.rect.topleft = show_pos
-                            self.add_to_ui_updater(self.game.custom_culture_selector_popup)
+                            self.add_to_ui_menu_updater(self.game.custom_culture_selector_popup)
                             self.selected_culture_rect = index
                             # reset other team setup ui in case player select faction rect while popup for other team
                             self.game.custom_battle_team_setup[Opposite_Team[self.team]].selected_culture_rect = None
 
                         elif self.event_alt_press:
-                            if self.game.custom_culture_selector_popup in self.game.ui_updater:
-                                self.remove_from_ui_updater(self.game.custom_culture_selector_popup)
+                            if self.game.custom_culture_selector_popup in self.game.ui_menu_updater:
+                                self.remove_from_ui_menu_updater(self.game.custom_culture_selector_popup)
                             self.change_faction(None, index)
 
                         self.game.text_popup.popup(
                             (cursor_pos[0], cursor_pos[1] - (100 * self.screen_scale_height)),
                             self.grab_text(("culture", str(self.team_setup[index]["culture"]).lower(), "Name")))
-                        self.add_to_ui_updater(self.game.text_popup)
+                        self.add_to_ui_menu_updater(self.game.text_popup)
                         break
 
 
@@ -1127,7 +1127,7 @@ class PresetArmySetupUI(UIMenu):
                         self.game.text_popup.popup((self.cursor.pos[0],
                                                     self.cursor.pos[1] - (100 * self.screen_scale_height)),
                                                    character_name_text)
-                        self.add_to_ui_updater(self.game.text_popup)
+                        self.add_to_ui_menu_updater(self.game.text_popup)
                         return
 
 
@@ -1944,11 +1944,14 @@ class CharacterMovesetShowCase(UIMenu):
                         char_stat.append(tag_text)
                 if this_moveset["Property"]:
                     tag_text = ""
-                    for prop in this_moveset["Property"]:
+                    moveset_property = this_moveset["Property"]
+                    for prop in moveset_property:
                         prop_text = self.grab_text(("ui", "property_" + prop))
                         if prop == "summon":
                             prop_text = prop_text + self.grab_text(
-                                ("character", this_moveset["Property"][prop], "Name"))
+                                ("character", moveset_property[prop], "Name"))
+                        elif prop == "x_momentum":
+                            prop_text = prop_text + str(moveset_property[prop])
                         if "(" not in prop_text:  # mean prop has no localisation, likely intentional
                             tag_text += prop_text + ", "
                     if tag_text:
@@ -2026,7 +2029,7 @@ class GrandFactionShowCase(UIMenu):
                                 ]
                 self.game.text_popup.popup(self.cursor.rect, culture_stat,
                                            width_text_wrapper=int(1400 * self.screen_scale_width))
-                self.add_to_ui_updater(self.game.text_popup)
+                self.add_to_ui_menu_updater(self.game.text_popup)
             else:
                 for rect_type, rect_list in self.showcase_rect.items():
                     for index, rect in enumerate(rect_list):
@@ -2038,7 +2041,7 @@ class GrandFactionShowCase(UIMenu):
 
                             self.game.text_popup.popup(self.cursor.rect, char_stat,
                                                        width_text_wrapper=int(1200 * self.screen_scale_width))
-                            self.add_to_ui_updater(self.game.text_popup)
+                            self.add_to_ui_menu_updater(self.game.text_popup)
                             return
 
 
@@ -2502,7 +2505,6 @@ class TextPopup(UIMenu):
                         exec(f"self.rect = self.image.get_rect({popup_rect[0]}=popup_rect[1])")
                     else:
                         self.rect = self.image.get_rect(topleft=popup_rect)
-
             self.popup_rect = popup_rect
 
 

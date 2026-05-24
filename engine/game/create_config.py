@@ -10,8 +10,6 @@ def create_config(self):
     screen = screeninfo.get_monitors()[0]
     screen_width = int(screen.width)
     screen_height = int(screen.height)
-    config["VERSION"] = {"ver": self.game_version}
-
     config["DEFAULT"] = {"screen_width": screen_width, "screen_height": screen_height, "full_screen": 0,
                          "fps": 0, "master_volume": 100.0, "music_volume": 100.0, "easy_text": 0, "show_dmg_number": 1,
                          "voice_volume": 100.0, "effect_volume": 50.0, "max_fps": 60,
@@ -49,6 +47,10 @@ def create_config(self):
                          }
 
     config["USER"] = {key: value for key, value in config["DEFAULT"].items()}
+
+    config["VERSION"] = {"ver": self.game_version, "hash": {"screen_resolution": None,
+                                                            "character": {},
+                                                            "effect": {}}}
     with open(self.config_path, "w") as cf:
         config.write(cf)
     config.read_file(open(self.config_path))
