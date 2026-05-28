@@ -110,7 +110,6 @@ class Battle:
         Battle.battle = self
         # TODO LIST
         # add back battle cutscene
-        # add cache of sprite loading for scaling at least for character and effect? will need some sort of data hashing check as well
         # rework scene to use common paper background for same area (upto 14 pages?)
         # finish main menu
 
@@ -278,7 +277,7 @@ class Battle:
 
         self.grand = None
         self.campaign = self.game.campaign
-        self.mission = None
+        self.stage = None
 
         self.screen = self.game.screen
 
@@ -401,107 +400,11 @@ class Battle:
         self.cutscene_playing = None
         self.current_scene = 1
 
-    def prepare_new_stage(self, attach_grand, campaign, mission, team_stat, player_team, custom_stage_data, ai_retreat):
-        for message in self.inner_prepare_new_stage(attach_grand, campaign, mission, team_stat, player_team,
-                                                    custom_stage_data,
-                                                    ai_retreat):
-            self.game.error_log.write("Start Stage:" + "." + str(mission))
-            print(message, end="")
-
-    def inner_prepare_new_stage(self, attach_grand, campaign, mission, team_stat, player_team, custom_stage_data=None,
-                                ai_retreat=False):
-        """Setup stuff when start new battle"""
-        self.grand = attach_grand
-        self.campaign = campaign
-        self.mission = mission
-        self.player_team = player_team
-        self.winner_team = None
-        self.player_enemy_team = None
-        # add common battle ui
-        if self.game.show_fps:
-            self.outer_ui_updater.add(self.fps_count)
-        else:
-            self.outer_ui_updater.remove(self.fps_count)
-        self.outer_ui_updater.add(self.always_command_ui)
-        if self.player_team:
-            self.player_enemy_team = (0, 2, 1)[self.player_team]
-            self.player_culture = team_stat[self.player_team]["culture"]
-            self.player_input = MethodType(player_input_battle, self)
-            self.outer_ui_updater.add(self.only_player_command_ui)
-        else:  # no player in battle, use another method that does not allow some hotkey input
-            self.player_input = MethodType(battle_no_player_input_battle, self)
-            self.player_culture = Custom_Default_Culture
-            self.outer_ui_updater.remove(self.only_player_command_ui)
-
-        # Stop all sound
-        for sound_ch in self.battle_sound_channels:
-            if sound_ch.get_busy():
-                sound_ch.stop()
-        self.current_music = None
-        self.current_ambient = None
-
-        print("Start loading", self.mission)
-        self.game.loading_lore_text = self.localisation.grab_text(
-            ("load", randint(0, len(self.localisation.text[self.language]["load"]) - 1), "Text"))
-
-        yield set_start_load(self, "stage setup")
-
-        self.map_data.read_map_data(campaign, mission)
-        stage_data = self.game.preset_map_data[mission]
-
-        stage_object_data = stage_data["data"]
-        stage_event_data = deepcopy(stage_data["event"])
-
-        loaded_item = []
-        self.cutscene_playing = None
-        self.base_stage_end = 0
-        self.effect_base_stage_end = 0
-        self.base_stage_start = 0
-        self.stage_start = self.camera_center_x
-        self.stage_end = -self.camera_center_x
-        self.end_delay = 0
-        self.start_cutscene = []
-        self.event_list = {}
-        self.player_interact_event_list = {}
-        self.stage_music_pool = {}
-        self.speech_prompt.clear()
-        self.character_command_indicator.setup()
-
-        for value in stage_object_data.values():
-            if "scene" in value["Type"]:  # assign scene data
-                if value["Object"] not in loaded_item:  # load image
-                    image = self.empty_scene_image
-                    if exists(join(self.data_dir, "map", "scene", str(value["Object"] + ".png"))):
-                        image = load_image(self.data_dir, self.screen_scale,
-                                           str(value["Object"]) + ".png", ("map", "scene"))
-                    self.scene.images[value["Object"]] = image
-                    loaded_item.append(value["Object"])
-                self.scene.data[value["POS"]] = value["Object"]
-            elif value["Type"] == "object":
-                StageObject(value["Object"], value["POS"])
-
-        if stage_event_data:  # add scene if event has a scene change event
-            for value in stage_data["event_data"]:
-                if value["Type"] == "bgchange":
-                    image = self.empty_scene_image
-
-                    images = self.scene.images
-
-                    if value["Object"] not in images:
-                        if exists(join(self.data_dir, "map", "scene", value["Object"] + ".png")):
-                            image = load_image(self.data_dir, self.screen_scale, value["Object"] + ".png",
-                                               ("map", "scene"))  # no scaling yet
-                        images[value["Object"]] = image
-
-        stage_bg_data = {}
-        for key in self.scene.data:
-            if key != "event":
-                stage_bg_data[key] = None
-        stage_len = len(stage_bg_data)
-        self.base_stage_end = stage_len * Default_Screen_Width
-        self.effect_base_stage_end = self.base_stage_end + 20000
-        self.stage_end = self.camera_center_x + ((stage_len - 1) * self.screen_width)
+    def setup_battle_start(self, campaign, stage, team_stat):
         self.team_stat = team_stat
+        self.map_data.read_map_data(campaign, stage)
+        stage_len = len([value for value in self.game.preset_map_data[stage]["data"].values() if "scene" in value["Type"]])
+        self.base_stage_end = stage_len * Default_Screen_Width
 
         for team_stat in self.team_stat.values():
             team_stat["leader_call_list"] = []
@@ -560,6 +463,103 @@ class Battle:
                     team_stat["troop_call_list"] += [
                         [item, self.character_list[item]["Capacity"], self.character_list[item]["Supply"]] for item in
                         army.ground_group]
+
+    def prepare_new_stage(self, attach_grand, campaign, stage, team_stat, player_team, custom_stage_data, ai_retreat):
+        for message in self.inner_prepare_new_stage(attach_grand, campaign, stage, team_stat, player_team,
+                                                    custom_stage_data,
+                                                    ai_retreat):
+            self.game.error_log.write("Start Stage:" + "." + str(stage))
+            print(message, end="")
+
+    def inner_prepare_new_stage(self, attach_grand, campaign, stage, team_stat, player_team, custom_stage_data=None,
+                                ai_retreat=False):
+        """Setup stuff when start new battle"""
+        self.grand = attach_grand
+        self.campaign = campaign
+        self.stage = stage
+        self.player_team = player_team
+        self.winner_team = None
+        self.player_enemy_team = None
+        # add common battle ui
+        if self.game.show_fps:
+            self.outer_ui_updater.add(self.fps_count)
+        else:
+            self.outer_ui_updater.remove(self.fps_count)
+        self.outer_ui_updater.add(self.always_command_ui)
+        if self.player_team:
+            self.player_enemy_team = (0, 2, 1)[self.player_team]
+            self.player_culture = team_stat[self.player_team]["culture"]
+            self.player_input = MethodType(player_input_battle, self)
+            self.outer_ui_updater.add(self.only_player_command_ui)
+        else:  # no player in battle, use another method that does not allow some hotkey input
+            self.player_input = MethodType(battle_no_player_input_battle, self)
+            self.player_culture = Custom_Default_Culture
+            self.outer_ui_updater.remove(self.only_player_command_ui)
+
+        # Stop all sound
+        for sound_ch in self.battle_sound_channels:
+            if sound_ch.get_busy():
+                sound_ch.stop()
+        self.current_music = None
+        self.current_ambient = None
+
+        print("Start loading", self.stage)
+        self.game.loading_lore_text = self.localisation.grab_text(
+            ("load", randint(0, len(self.localisation.text[self.language]["load"]) - 1), "Text"))
+
+        yield set_start_load(self, "stage setup")
+
+        stage_data = self.game.preset_map_data[stage]
+
+        stage_object_data = stage_data["data"]
+        stage_event_data = deepcopy(stage_data["event"])
+
+        loaded_item = []
+        self.cutscene_playing = None
+        self.base_stage_end = 0
+        self.effect_base_stage_end = 0
+        self.base_stage_start = 0
+        self.stage_start = self.camera_center_x
+        self.stage_end = -self.camera_center_x
+        self.end_delay = 0
+        self.start_cutscene = []
+        self.event_list = {}
+        self.player_interact_event_list = {}
+        self.stage_music_pool = {}
+        self.speech_prompt.clear()
+        self.character_command_indicator.setup()
+
+        for value in stage_object_data.values():
+            if "scene" in value["Type"]:  # assign scene data
+                if value["Object"] not in loaded_item:  # load image
+                    image = self.empty_scene_image
+                    if exists(join(self.data_dir, "map", "scene", str(value["Object"] + ".png"))):
+                        image = load_image(self.data_dir, self.screen_scale,
+                                           str(value["Object"]) + ".png", ("map", "scene"))
+                    self.scene.images[value["Object"]] = image
+                    loaded_item.append(value["Object"])
+                self.scene.data[value["POS"]] = value["Object"]
+            elif value["Type"] == "object":
+                StageObject(value["Object"], value["POS"])
+
+        if stage_event_data:  # add scene if event has a scene change event
+            for value in stage_data["event_data"]:
+                if value["Type"] == "bgchange":
+                    image = self.empty_scene_image
+
+                    images = self.scene.images
+
+                    if value["Object"] not in images:
+                        if exists(join(self.data_dir, "map", "scene", value["Object"] + ".png")):
+                            image = load_image(self.data_dir, self.screen_scale, value["Object"] + ".png",
+                                               ("map", "scene"))  # no scaling yet
+                        images[value["Object"]] = image
+
+        stage_len = len(
+            [value for value in self.game.preset_map_data[stage]["data"].values() if "scene" in value["Type"]])
+        self.base_stage_end = stage_len * Default_Screen_Width
+        self.effect_base_stage_end = self.base_stage_end + 20000
+        self.stage_end = self.camera_center_x + ((stage_len - 1) * self.screen_width)
 
         self.last_char_game_id = 0
         self.spawn_delay_timer = {}
@@ -710,11 +710,12 @@ class Battle:
                                      value3[0]["Property"]["sound distance"],
                                      value3[0]["Property"]["shake value"]))
 
-        if custom_stage_data:  # add custom battle weather
-            if 0 not in self.event_list:
-                self.event_list[0] = {}
-            self.event_list[0]["weather"] = (custom_stage_data["weather"][0], randint(145, 215),
-                                             custom_stage_data["weather"][1])
+        if custom_stage_data:
+            if "weather" in custom_stage_data:  # add custom battle weather
+                if 0 not in self.event_list:
+                    self.event_list[0] = {}
+                self.event_list[0]["weather"] = (custom_stage_data["weather"][0], randint(145, 215),
+                                                 custom_stage_data["weather"][1])
 
         if self.player_team:
             self.camera_pos = Vector2(self.team_stat[self.player_team]["start_pos"] * self.screen_scale_width,

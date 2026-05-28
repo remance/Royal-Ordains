@@ -19,7 +19,7 @@ def menu_grand_setup(self):
             faction_state = all_faction_state
             if faction == "free":
                 faction_state = free_faction_state
-            faction_state[faction] = {"army": [], "reserve": [], "plan": {},
+            faction_state[faction] = {"alliance": [faction], "hostile": [], "army": [], "reserve": [], "plan": {},
                                       "region": [key for key, value in self.map_data.region_list.items() if
                                                  value["Control"] == faction],
                                       "culture": {
@@ -63,7 +63,7 @@ def menu_grand_setup(self):
                                                 self.map_data.region_list}
                                      },
                           "free_leader": {},
-                          "battle": {"armies": {}, "auto": {}, "manual": None},
+                          "battle": {"armies": [], "dot": {}, "state": {}, "auto": [], "manual": None},
                           "pathfinding": {}, "direct_routing": {},
                           "possible_events": deepcopy(self.map_data.event_list),
                           "faction": all_faction_state,

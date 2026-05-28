@@ -1,11 +1,14 @@
 from os import listdir, sep
 from os.path import join, getsize, split, normpath
 from pathlib import Path
-
+from time import sleep
+from math import ceil
 import pickle
 import ast
 import lzma
 import psutil
+from threading import Thread
+from multiprocessing import cpu_count
 from pygame.transform import smoothscale, flip
 
 from engine.data.data import GameData
@@ -21,6 +24,10 @@ class DataSprite(GameData):
         Containing data related to sprite and animation
         """
         GameData.__init__(self)
+        self.load_threads = cpu_count()
+        if self.load_threads > 10:
+            self.load_threads = 10
+
         self.number_text_cache = {}
         self.character_animation_data = {}
         self.stage_object_animation_pool = {}
@@ -142,35 +149,27 @@ class DataSprite(GameData):
                 join(self.data_dir, "animation", "world_actor.xz"),
                 screen_scale=self.screen_scale, add_mask=False)
 
-    def load_character_animation(self, character_list, clear=False):
-        if clear:
-            self.character_animation_data.clear()
+    def load_character_animation(self, character_list):
+        if len(character_list) > self.load_threads:
+            chunk = ceil(len(character_list) / self.load_threads)
+            chunks = [tuple(character_list)[i:i + chunk] for i in range(0, len(character_list), chunk)]
+            threads = []
+            for index, character_todo in enumerate(chunks):
+                thread = Thread(target=load_character_sprite, args=(self.data_dir, self.screen_scale,
+                                                                    self.character_animation_data, character_todo))
+                threads.append(thread)
+                thread.start()
+
+            for thread in threads:
+                thread.join()
         else:
+            load_character_sprite(self.data_dir, self.screen_scale, self.character_animation_data, character_list)
 
-            """
-            Retrieves and prints system RAM information in GB.
-            """
-            # Get memory statistics
-            available_mem = psutil.virtual_memory().available / (1024 ** 3) * 1000
 
-            total_require_mem_to_load = 0
-            part_folder = Path(join(self.data_dir, "animation"))
-            for file in listdir(part_folder):
-                file_name = file.split(".")[0]
-                if file_name not in self.character_animation_data and file_name in character_list:
-                    # convert to mb, and estimated ram required (around 10x of file size)
-                    total_require_mem_to_load += getsize(join(self.data_dir, "animation", file)) * 10 / 1048576
-            if total_require_mem_to_load > available_mem:
-                # need to free memory, remove previously loaded unused sprite
-                for character in tuple(self.character_animation_data.keys()):
-                    if character not in character_list:
-                        self.character_animation_data.pop(character)
-
-        part_folder = Path(join(self.data_dir, "animation"))
-        for file in listdir(part_folder):
-            file_name = file.split(".")[0]
-            if file_name not in self.character_animation_data and file_name in character_list:
-                # get animation for each character
-                self.character_animation_data[file_name] = load_pickle_with_surfaces(
-                    join(self.data_dir, "animation", file),
-                    screen_scale=self.screen_scale)
+def load_character_sprite(data_dir, screen_scale, character_animation_data, character_list):
+    for file_name in character_list:
+        if file_name not in character_animation_data:
+            # get animation for each character that is not yet loaded
+            character_animation_data[file_name] = load_pickle_with_surfaces(
+                join(data_dir, "animation", file_name + ".xz"),
+                screen_scale=screen_scale)

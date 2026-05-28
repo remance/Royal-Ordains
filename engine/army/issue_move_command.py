@@ -77,7 +77,7 @@ def issue_move_command(self, target_destination, direct=False):
                 if self.assembling:  # cancel assembling when move for any reason  TODO add event inform this cancel
                     self.assembling = {}
 
-                if self in self.grand.current_campaign_state["battle"]["armies"]:
+                if self.game_id in self.grand.current_campaign_state["battle"]["armies"]:
                     command_type = "retreat"
 
                 route_difficulties = [Route_Travel_Modifier[route_list[new_travel_route_id[index]]["Type"]] for

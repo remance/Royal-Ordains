@@ -7,7 +7,7 @@ def remove_army_from_active(self, destroyed=False):
 
     grand.current_campaign_state[self.faction]["army"].remove(self)
     grand.current_campaign_state[self.faction]["reserved"].add(self)
-    grand.dots_army_occupation[self.base_pos].remove(self)
+    grand.dots_army_occupation[self.base_pos].remove(self.game_id)
 
     # remove actor and actor circle from updater
     grand.grand_actor_updater.remove(self.commander_actor)

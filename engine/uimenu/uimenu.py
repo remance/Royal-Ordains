@@ -1308,6 +1308,10 @@ class InputBox(UIMenu):
                     self.current_pos = self.select_start_pos + len(paste_text)
                     self.select_start_pos = None
                     self.select_end_pos = None
+            elif event_key == pygame.K_a:  # select all
+                self.select_end_pos = len(self.text)
+                self.current_pos = self.select_end_pos
+                self.select_start_pos = 0
 
         elif event_unicode != "" or self.hold_key_unicode != "":
             if event_unicode != "":  # input event_unicode first before holding one
@@ -2083,7 +2087,7 @@ class GrandMiniMap(UIMenu):
             for col_pos in range(image.get_height()):
                 colour = tuple(image.get_at((row_pos, col_pos)))[:3]
                 if colour != (0, 0, 0):
-                    region_id = self.map_data.region_by_colour_list[colour]["ID"]
+                    region_id = self.map_data.region_by_colour_index[colour]
                     if region_id not in region_draw_dict:
                         region_draw_dict[region_id] = {"min_pos": [float("inf"), float("inf")], "max_pos": [0, 0],
                                                        "array": []}
@@ -2434,12 +2438,12 @@ class TextPopup(UIMenu):
                         image_height = int((self.font.size(text)[0] + self.font_size) / width_text_wrapper)
                         if not image_height:  # only one line
                             text_image = Surface((width_text_wrapper,
-                                                  self.font_size + 1))  # increase size a bit to prevent letter bottom cut
+                                                  self.font_size + 3))  # increase size a bit to prevent letter bottom cut
                             text_image.fill(bg_colour)
                             surface = self.font.render(text, True, font_colour)
                             text_image.blit(surface, (self.font_size, 0))
                             text_surface.append(text_image)  # text input font surface
-                            max_height += surface.get_height() + 1
+                            max_height += surface.get_height() + 3
                         else:
                             text_image = Surface((width_text_wrapper,
                                                   calculate_long_text_size(text, self.font,
@@ -2450,7 +2454,7 @@ class TextPopup(UIMenu):
                             make_long_text(text_image, text, (self.font_size, self.font_size), self.font,
                                            color=font_colour, specific_width=width_text_wrapper)
                             text_surface.append(text_image)
-                            max_height += text_image.get_height() + 1
+                            max_height += text_image.get_height() + 3
                 else:
                     max_width = 0
                     max_height = 0
@@ -2512,7 +2516,7 @@ class BoxUI(UIMenu, Containable, Container):
     def __init__(self, pos, size, parent, layer=-1):
         self._layer = layer
         UIMenu.__init__(self, player_cursor_interact=False)
-        self.font = Font(self.ui_font["main_button"], int(120 * self.screen_scale_height))
+        self.font = Font(self.ui_font["main_button"], int(100 * self.screen_scale_height))
         self.black_border_size = 6 * self.screen_scale_width
         self.black_border_size_x2 = self.black_border_size * 2
         self.black_border_size_x4 = self.black_border_size * 4
@@ -2520,7 +2524,10 @@ class BoxUI(UIMenu, Containable, Container):
         self.size = size
         self.pos = pos
         self.rect = self.get_adjusted_rect_to_be_inside_container(self.parent)
-        self.image = Surface(self.rect[2:], SRCALPHA)
+        self.image = Surface(self.rect[2:])
+        self.text_surface = Surface((self.image.get_width() - self.black_border_size_x2, self.image.get_height() * 0.4))
+        self.text_surface.fill((200, 180, 150))
+        self.text_rect = self.text_surface.get_rect(center=(self.image.get_width() / 2, self.image.get_height() / 4))
         self.image.fill((0, 0, 0))
         self.image.fill((200, 180, 150), (self.black_border_size,
                                           self.black_border_size,
@@ -2535,10 +2542,11 @@ class BoxUI(UIMenu, Containable, Container):
                                           self.image.get_width() - self.black_border_size_x2,
                                           self.image.get_height() - self.black_border_size_x2
                                           ))
+        self.text_surface.fill((200, 180, 150))
+        make_long_text(self.text_surface, text, (0, 0), self.font,
+                       with_texture=(None, (Color("black"), (255, 255, 255), 2)), alignment="center")
 
-        text_surface = text_render_with_bg(text, self.font)
-        text_rect = text_surface.get_rect(center=(self.image.get_width() / 2, self.image.get_height() / 4))
-        self.image.blit(text_surface, text_rect)
+        self.image.blit(self.text_surface, self.text_rect)
 
     def get_relative_size_inside_container(self):
         return self.size[0] / self.parent.get_width(), self.size[1] / self.parent.get_height()

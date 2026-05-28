@@ -62,6 +62,8 @@ class Army:
                 self.base_pos = self.grand.region_list[current_region]["Settlement POS"]
             self.pathfinding_array = self.grand.current_campaign_state["pathfinding"]
             self.direct_routing_array = self.grand.current_campaign_state["direct_routing"]
+            self.grand.dots_army_occupation[self.base_pos][self.game_id] = self
+            self.region_by_pos_index = self.grand.region_by_pos_index
 
         self.reset_stat(include_culture_influence=include_culture_influence)
 

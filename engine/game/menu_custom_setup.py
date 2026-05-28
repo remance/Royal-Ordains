@@ -318,7 +318,7 @@ def menu_custom_setup(self):
                         player = 1
                     elif self.custom_team_players[2] == "player":
                         player = 2
-                    self.start_battle("main", self.selected_custom_stage_battle, team_stat, player,
+                    self.start_battle(None, "main", self.selected_custom_stage_battle, team_stat, player,
                                       custom_stage_data={
                                           "weather": (self.selected_weather_custom_battle,
                                                       self.selected_weather_strength_custom_battle)})

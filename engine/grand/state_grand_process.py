@@ -5,15 +5,28 @@ from pygame import quit as pg_quit
 
 def state_grand_process(self):
     if self.input_popup:  # currently, have input text pop up on screen, stop everything else until done.
+        self.ui_menu_updater.update(self.true_dt)
+        self.grand_map.update()
+
+        self.camera.update(self.grand_camera_object_drawer)
+        self.camera.out_update(self.outer_ui_updater)
+        self.camera.out_update(self.ui_menu_drawer)
+
         if self.input_ok_button.event_press:
             done = True
 
             if self.input_popup[1] in ("retreat", "retreat_assemble"):
-                # for army in self.player_selected_army:  # TODO finish retreat function here
                 # all army in the same battles retreat and lose battle
-                # for battle in self.current_campaign_state["battle"]["auto battles"]:
+                for army in self.player_selected_army:  # TODO finish retreat function here
+                    army.issue_move_command(self.input_popup[2][0], direct=self.input_popup[2][1])
+                    # if army.base_pos in self.current_campaign_state["battle"]["auto"]:
+                    #     self.current_campaign_state["battle"]["auto"].remove(army.base_pos)
+                    #
+                    # for battle in self.current_campaign_state["battle"]["auto"]:
+
+                    # self.grand.current_campaign_state["battle"]["armies"].remove(self.game_id)
                 # for army in self.player_selected_army:
-                #     army.issue_move_command(self.input_popup[2][0], direct=self.input_popup[2][1])
+
                 pass
             elif self.input_popup[1] == "assemble":
                 for army in self.player_selected_army:
@@ -94,6 +107,9 @@ def state_grand_process(self):
         self.grand_actor_updater.update(self.true_dt, dt)
         self.grand_effect_updater.update(self.true_dt)
 
+        # if self.current_campaign_state["battle"]["manual"]:
+        #     self.battle.grand_event_notification
+
         # update camera
         self.camera.camera_left_bound = self.shown_camera_topleft_pos[0]
         self.camera.camera_top_bound = self.shown_camera_topleft_pos[1]
@@ -101,28 +117,10 @@ def state_grand_process(self):
         self.camera.camera_bottom_bound = self.camera.camera_top_bound + self.screen_height
         self.grand_map.update()
 
-    # self.menu_bar_ui
-    self.grand_camera_ui_updater.update(self.true_dt)
-    self.camera.update(self.grand_camera_object_drawer)
-    self.outer_ui_updater.update(dt)
-    self.camera.update(self.ui_menu_drawer)
-    self.camera.out_update(self.outer_ui_updater)
+        # update ui and add object to camera
+        self.grand_camera_ui_updater.update(self.true_dt)
+        self.camera.update(self.grand_camera_object_drawer)
+        self.outer_ui_updater.update(dt)
+        self.camera.update(self.ui_menu_drawer)
+        self.camera.out_update(self.outer_ui_updater)
 
-    # if self.ai_process_list:
-    #     limit = int(len(self.ai_process_list) / 20)
-    #     if limit < 20:
-    #         limit = 20
-    #         if limit > len(self.ai_process_list):
-    #             limit = len(self.ai_process_list)
-    #     for index in range(limit):
-    #         this_character = self.ai_process_list[index]
-    #         if this_character.alive:
-    #             this_character.ai_prepare()
-    #
-    #     self.ai_process_list = self.ai_process_list[limit:]
-    #
-    # for battle_ai_commander in self.all_battle_ai_commanders:
-    #     battle_ai_commander.update(dt)
-
-    # if self.current_campaign_state["battle"]["manual"]:
-    #     self.battle.grand_event_notification

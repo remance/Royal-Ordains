@@ -17,7 +17,7 @@ class GrandMap(Sprite):
         self.half_screen = self.screen_width / 2
         self._layer = 0
         Sprite.__init__(self)
-        self.region_by_colour_list = self.grand.map_data.region_by_colour_list
+        self.region_by_colour_list = self.grand.map_data.region_by_colour_index
         self.true_map_image = None
         self.full_shown_map_image = None
         self.current_show_map_image = None

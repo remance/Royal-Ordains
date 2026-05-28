@@ -1,7 +1,10 @@
 "ID","Faction","Region","Commander","Leader 1","Leader 2","Leader 3","Troop 1","Troop 2","Troop 3","Troop 4","Troop 5","Air 1","Air 2","Air 3","Air 4","Air 5","Retinue 1","Retinue 2","Retinue 3","Supply","Max Supply"
 1,"weealliance","test1","leader_bigta","small_rabbit_leader_banner",,,"small_rabbit_spear","small_rabbit_spear","small_rabbit_sling",,,,,,,,,,,1000,1000
 2,"masendor","test7","leader_tulia","castle_human_leader_ranger",,,"castle_human_militia_spear","castle_human_militia_bow",,,,,,,,,,,,2000,2000
-3,"masendor","test8","leader_hermanos","castle_human_leader_banner",,,"castle_dog_flail","castle_human_militia_spear",,,,,,,,,,,,3000,1000
+3,"masendor","test8","leader_hermanos","castle_human_leader_banner",,,"castle_dog_flail","castle_human_militia_spear",,,,,,,,,,,,300,1000
 4,"free","test2","leader_adaqua",,,,"castle_human_militia_spear","castle_human_militia_spear","castle_human_militia_bow",,,,,,,,,,,1000,1200
 5,"free","test3","small_rabbit_leader_banner","small_rabbit_leader_banner",,,"small_rabbit_spear","small_rabbit_spear","small_rabbit_sling","small_rabbit_sling",,,,,,,,,,1000,1000
 6,"dollkingdom","test12","leader_doll_prince",,,,"doll_candle_spear","doll_candle_spear","doll_knight_cav",,,,,,,,,,,1000,1000
+7,"masendor","test7","leader_vraesier","castle_human_leader_ranger",,,"castle_human_militia_spear","castle_human_militia_bow",,,,,,,,,,,,2000,2000
+8,"masendor","test7","leader_nraesier","castle_human_leader_ranger",,,"castle_human_militia_spear","castle_human_militia_bow",,,,,,,,,,,,2000,2000
+9,"masendor","test7","leader_champion","castle_human_leader_ranger",,,"castle_human_militia_spear","castle_human_militia_bow",,,,,,,,,,,,2000,2000

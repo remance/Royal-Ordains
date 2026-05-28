@@ -20,8 +20,6 @@ def create_new_army(self, faction_army_value, army, index="new", sort=True):
                                      supply=army["Supply"], max_supply=army["Max Supply"],
                                      current_region=army["Region"], travelling=army["Route"])
 
-    self.dots_army_occupation[faction_army_value[index].base_pos].append(faction_army_value[index])
-
     GrandActor(faction_army_value[index].commander_id, faction_army_value[index],
                army_faction)
 

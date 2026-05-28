@@ -4,7 +4,7 @@ def sort_player_army_list(self):
     if how[1] == "descend":
         reverse = False
     if how[0] == "supply":
-        self.current_campaign_state["faction"][self.player_faction]["army"].sort(key=lambda x: x.supply,
+        self.current_campaign_state["faction"][self.player_faction]["army"].sort(key=lambda x: x.supply / x.max_supply,
                                                                                  reverse=reverse)
     elif how[0] == "number":
         self.current_campaign_state["faction"][self.player_faction]["army"].sort(key=lambda x: x.total_number,

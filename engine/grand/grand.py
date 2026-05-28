@@ -34,6 +34,7 @@ from engine.grand.grand_process import grand_process
 from engine.grand.make_esc_menu import make_esc_menu
 from engine.grand.player_input import player_input_grand, battle_no_player_input_grand
 from engine.grand.sort_player_army_list import sort_player_army_list
+from engine.grand.start_battle_engagement import start_battle_engagement
 from engine.grand.state_grand_process import state_grand_process
 from engine.grand.state_menu_process import state_menu_process, back_to_grand_state
 from engine.grandactor.grandactor import GrandActor, GrandFactionActorBar
@@ -78,6 +79,7 @@ class Grand:
     play_sound_effect = play_sound_effect
     shake_camera = shake_camera
     sort_player_army_list = sort_player_army_list
+    start_battle_engagement = start_battle_engagement
     state_process = state_grand_process
     state_grand_process = state_grand_process
     state_menu_process = state_menu_process
@@ -237,7 +239,8 @@ class Grand:
         self.current_campaign_state = {"cosmic_event": ()}
         self.dots_army_occupation = {}
 
-        self.region_by_colour_list = {}
+        self.region_by_colour_index = {}
+        self.region_by_pos_index = {}
         self.region_list = {}
         self.route_list = {}
         self.route_dot_draw_array = {}
@@ -333,7 +336,8 @@ class Grand:
         self.map_shown_to_actual_scale_height = self.grand_map.map_shown_to_actual_scale_height
 
         self.faction_list = self.map_data.faction_list
-        self.region_by_colour_list = self.map_data.region_by_colour_list
+        self.region_by_colour_index = self.map_data.region_by_colour_index
+        self.region_by_pos_index = self.map_data.region_by_pos_index
         self.region_list = self.map_data.region_list
         self.route_list = self.map_data.route_list
 
@@ -365,10 +369,11 @@ class Grand:
         self.sprite_data.setup_campaign()
 
         # create map of dots army occupation for battle engage checking
-        self.dots_army_occupation = {value["Settlement POS"]: [] for value in self.map_data.region_list.values()}
+        self.dots_army_occupation = {value["Settlement POS"]: {} for
+                                     value in self.map_data.region_list.values()}
         for route_data in self.map_data.route_list.values():
             for dot in route_data["Dots"]:
-                self.dots_army_occupation[dot] = []
+                self.dots_army_occupation[dot] = {}
 
         # setup armies, replace dict with object
         for faction, faction_value in self.current_campaign_state["faction"].items():
@@ -419,6 +424,7 @@ class Grand:
             self.outer_ui_updater.remove(self.only_player_ui)
 
         self.change_turn(turn_change=False)
+        self.sort_player_army_list()
 
         self.event_notification_ui.update_image()
         self.fix_camera()
@@ -567,7 +573,7 @@ class Grand:
         self.current_campaign_state = {}
         self.dots_army_occupation = {}
 
-        self.region_by_colour_list = {}
+        self.region_by_colour_index = {}
         self.region_list = {}
         self.route_list = {}
         self.route_dot_draw_array = {}

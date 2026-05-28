@@ -55,12 +55,12 @@ def calculate_long_text_size(text, font, font_size, max_text_width, start_pos=(0
             if x + word_width >= max_text_width:
                 exceed_max_width = True
                 x = font_size  # reset x
-                y += word_height + 1  # start on new row.
+                y += word_height + 3  # start on new row.
             if not exceed_max_width:
                 true_max_width += word_width + space
             x += word_width + space
         x = font_size  # reset x
-        y += word_height + 1  # start on new row
+        y += word_height + 3  # start on new row
     return true_max_width, y
 
 
@@ -82,7 +82,7 @@ def make_long_text(surface, text, pos, font, color=Color("black"), with_texture=
         text = [text]
     x, y = [0, pos[1]]
     true_x = pos[0]
-    word_height = font.size(" ")[1] + 1  # add + 1 to prevent letter with long bottom like "g" being clipped
+    word_height = font.size(" ")[1] + 3  # add + 3 to prevent letter with long bottom like "g" being clipped
     max_width = surface.get_width()
     if specific_width:
         max_width = specific_width
@@ -149,11 +149,11 @@ def text_render_with_texture(text, font, texture, with_bg=None):
         text_surface = font.render(text, True, (0, 0, 0))
     else:
         text_surface = text_render_with_bg(text, font, gf_colour=with_bg[0], o_colour=with_bg[1], opx=with_bg[2])
-    size = text_surface.get_size()
-    data = image.tobytes(text_surface, "RGBA")  # convert image to string data for filtering effect
-    text_surface = Image.frombytes("RGBA", size, data)  # use PIL to get image data
 
     if texture:
+        size = text_surface.get_size()
+        data = image.tobytes(text_surface, "RGBA")  # convert image to string data for filtering effect
+        text_surface = Image.frombytes("RGBA", size, data)  # use PIL to get image data
         surface = Image.new("RGBA", size, (0, 0, 0, 0))
         texture_size = texture.size
         new_texture = texture.crop((texture_size[0] - size[0], texture_size[1] - size[1],
@@ -179,11 +179,9 @@ def text_render_with_bg(text, font, gf_colour=Color("black"), o_colour=(255, 255
     :return: Text surface
     """
     text_surface = font.render(text, True, gf_colour)
-    w = text_surface.get_width() + 2 * opx
-    h = font.get_height()
-
-    osurf = Surface((w, h + 2 * opx), pygame.SRCALPHA)
-    osurf.fill((0, 0, 0, 0))
+    osurf = Surface((text_surface.get_width() + 2 * opx,
+                     font.get_height() + 2 * opx), SRCALPHA)
+    # osurf.fill((0, 0, 0, 50))
 
     surface = osurf.copy()
 
@@ -199,12 +197,9 @@ def text_render_with_bg(text, font, gf_colour=Color("black"), o_colour=(255, 255
 
 def circle_points(r):
     """Calculate text point to add background"""
-    circle_cache = {}
     r = int(round(r))
-    if r in circle_cache:
-        return circle_cache[r]
     x, y, e = r, 0, 1 - r
-    circle_cache[r] = points = []
+    points = []
     while x >= y:
         points.append((x, y))
         y += 1

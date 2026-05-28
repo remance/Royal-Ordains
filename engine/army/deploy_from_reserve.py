@@ -3,7 +3,7 @@ def deploy_from_reserve(self, region):
     self.base_pos = self.grand.region_list[region]["Settlement POS"]
     self.grand.current_campaign_state[self.faction]["reserved"].remove(self)
     self.grand.current_campaign_state[self.faction]["army"].add(self)
-    self.grand.dots_army_occupation[self.base_pos].add(self)
+    self.grand.dots_army_occupation[self.base_pos].append(self.game_id)
 
     # add actor and actor circle from updater
     self.grand.grand_actor_updater.add(self.commander_actor)

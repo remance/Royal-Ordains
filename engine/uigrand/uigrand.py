@@ -357,7 +357,7 @@ class PlayerArmyList(UIGrand):
         supply_text_colour = (255, 255, 255)
         if army.supply / army.max_supply < 0.2:
             supply_text_colour = (150, 20, 20)
-        supply_text = minimise_number_text(army.supply) + "/" + minimise_number_text(army.max_supply)
+        supply_text = (str(int(army.supply / army.max_supply * 100)) + "%")
         text_surface = text_render_with_bg(supply_text,
                                            self.font, (0, 0, 0), supply_text_colour)
         card_image.blit(text_surface, text_surface.get_rect(topleft=((240 * self.screen_scale_width),
@@ -940,8 +940,8 @@ class PlayerGrandInteract(UIGrand):
 
                         region_colour = tuple(self.grand.grand_map.true_map_image.get_at(
                             (int(self.grand.base_cursor_pos[0]), int(self.grand.base_cursor_pos[1]))))[:3]
-                        if region_colour in self.grand.region_by_colour_list:
-                            region_id = self.grand.region_by_colour_list[region_colour]["ID"]
+                        if region_colour in self.grand.region_by_colour_index:
+                            region_id = self.grand.region_by_colour_index[region_colour]
                             self.grand.region_management_ui.change_selected_region(region_id)
                         else:  # select at water region, remove region management ui
                             self.grand.region_management_ui.change_selected_region(None)
@@ -953,9 +953,9 @@ class PlayerGrandInteract(UIGrand):
                     if self.grand.player_selected_army:  # order selected army to move to region at mouse pos
                         region_colour = tuple(self.grand.grand_map.true_map_image.get_at(
                             (int(self.grand.base_cursor_pos[0]), int(self.grand.base_cursor_pos[1]))))[:3]
-                        if region_colour in self.grand.region_by_colour_list:
-                            region_id = self.grand.region_by_colour_list[region_colour]["ID"]
-                            if any([army in self.grand.current_campaign_state["battle"]["armies"] for army in
+                        if region_colour in self.grand.region_by_colour_index:
+                            region_id = self.grand.region_by_colour_index[region_colour]
+                            if any([army.game_id in self.grand.current_campaign_state["battle"]["armies"] for army in
                                     self.grand.player_selected_army]):
                                 # there is army in battle, this will cause battle lost and armies retreat from battle,
                                 # ask for confirmation first

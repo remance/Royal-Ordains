@@ -71,6 +71,7 @@ def menu_main(self):
         for army in self.custom_team_army[2][2:]:
             army.__init__("", "", "", None, [], [], [], [])
 
+        stage_stat = {}
         team_stat = {
             0: {"faction": "free", "culture": "free", "strategy_resource": 0, "start_pos": 0.5, "air_group": [],
                 "active_retinue": (), "retinue": (),
@@ -90,7 +91,7 @@ def menu_main(self):
                 "main_army": self.custom_team_army[2][0],
                 "reinforcement_army": self.custom_team_army[2][1:2]}}
 
-        self.start_battle("main", "test", team_stat, 1)
+        self.start_battle(None, "main", "test", team_stat, 1)
 
     elif self.option_button.event_press:  # change main menu to option menu
         self.menu_state = "option"

@@ -1453,7 +1453,7 @@ class CharacterSpeechBox(UIBattle):
                 self.timer += int(len(text) / 20)
 
         self.battle.save_data.save_profile["battle log"].append(
-            ("(" + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + ") At " + self.battle.mission + ", " +
+            ("(" + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + ") At " + self.battle.stage + ", " +
              self.character.name + ": ", text))
         if len(self.battle.save_data.save_profile["battle log"]) > 500:
             self.battle.save_data.save_profile["battle log"] = self.battle.save_data.save_profile["battle log"][
