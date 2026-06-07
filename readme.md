@@ -220,7 +220,7 @@ compatible enough for other purposes with some modifications.
 - Catapult by Sounddino (https://sounddino.com/en/effects/catapult/)
 - Horse galloping by DRAGON-STUDIO (https://pixabay.com/users/dragon-studio-38165424/)
 - Boing, broom, firecracker, metal can, dragon roar, cow moo, power charge, toy_button, bone, machine pressure, toy
-  squeak, ghost whisper by freesound_community (https://pixabay.com/users/freesound_community-46691455/)
+  squeak, dig, goo, bird fly, ghost whisper by freesound_community (https://pixabay.com/users/freesound_community-46691455/)
 - Toy train by floraphonic (https://pixabay.com/users/floraphonic-38928062/)
 
 ### Music
@@ -250,8 +250,10 @@ compatible enough for other purposes with some modifications.
 
 - Windy, forest ambient by Pixabay (https://pixabay.com/users/pixabay-1/)
 - Heavy rain weather ambient sound by lebaston100 (https://freesound.org/people/lebaston100/)
+- Meadow ambient by freesound_community (https://pixabay.com/users/freesound_community-46691455/)
+- Light rain, ocean ambient sound by SoundsForYou (https://pixabay.com/users/soundsforyou-4861230/)
 
-[//]: # (## Translation)
+- [//]: # (## Translation)
 
 [//]: # (## Help with game coding and bugs fixed:)
 

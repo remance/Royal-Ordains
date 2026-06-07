@@ -3,6 +3,7 @@ from random import randint
 from engine.character.character import BattleCharacter
 from engine.constants import Default_Screen_Width, Collision_Grid_X_Per_Battle_Scene, Default_Battle_Ground_Pos
 from engine.effect.effect import Effect, DamageEffect
+from engine.uibattle.uibattle import StrategyIcon
 from engine.utils.rotation import find_target_point
 
 grid_width = Default_Screen_Width / Collision_Grid_X_Per_Battle_Scene
@@ -21,6 +22,8 @@ def activate_strategy(self, team, strategy, strategy_index, base_pos_x):
         else:
             self.drama_text.queue.append((True, self.localisation.grab_text(("strategy", strategy, "Enemy")), None))
             self.tactical_map_ui.warn_strategy(base_pos_x)
+
+        StrategyIcon(strategy, base_pos_x)
 
         self.team_stat[team]["strategy_cooldown"][strategy_index] = stat["Cooldown"]
         if stat["Property"]:

@@ -2,8 +2,12 @@ import ast
 import configparser
 import sys
 from copy import deepcopy
+from os import listdir
 from os.path import join, sep, normpath, split
 from pathlib import Path
+from threading import Thread
+from multiprocessing import cpu_count
+from math import ceil
 
 import pygame
 from pygame import sprite, display, mouse
@@ -59,6 +63,7 @@ from engine.uimenu.uimenu import (MenuCursor, BoxUI, BrownMenuButton, MenuButton
                                   CustomPresetListAdapter, GenericListAdapter)
 from engine.updater.updater import ReversedLayeredUpdates
 from engine.utils.data_loading import load_image, load_images, csv_read
+from engine.utils.common import edit_config
 
 game_name = "Royal Ordains"  # Game name that will appear as game name at the windows bar
 
@@ -303,7 +308,6 @@ class Game:
             self.helper_images[folder_data_name] = load_images(self.data_dir, screen_scale=self.screen_scale,
                                                                subfolder=("ui", "battle_ui", "helper", folder_data_name))
 
-
         # Initialise groups
         Game.ui_menu_updater = ReversedLayeredUpdates()  # main drawer for ui in main menu
         Game.ui_menu_drawer = sprite.LayeredUpdates()
@@ -330,7 +334,7 @@ class Game:
         self.weather_ambient_pool = self.sound_data.weather_ambient_pool
 
         # Music player
-        pygame.mixer.set_num_channels(1000)
+        pygame.mixer.set_num_channels(1001)
         self.music_channel = Channel(0)
         self.music_channel.set_volume(self.play_music_volume)
         self.current_ambient = None
@@ -338,7 +342,7 @@ class Game:
         self.ambient_channel.set_volume(self.play_effect_volume)
         self.weather_ambient_channel = Channel(2)
         self.weather_ambient_channel.set_volume(self.play_effect_volume)
-        self.button_sound_channel = Channel(3)
+        self.button_sound_channel = Channel(1000)
         self.button_sound_channel.set_volume(self.play_effect_volume)
 
         self.game_intro(False)  # run intro
@@ -380,6 +384,22 @@ class Game:
         Effect.effect_animation_pool = self.effect_animation_pool
         ShowcaseEffect.effect_animation_pool = self.effect_animation_pool
         StageObject.stage_object_animation_pool = self.stage_object_animation_pool
+
+        if cpu_count() - 1 > 0:
+            # if load_threads > 10:
+            #     load_threads = 10
+            self.load_sprite_background_threads = []
+
+            thread = Thread(target=self.sprite_data.load_effect_sprites,
+                            args=(self.screen_size, self.sprite_data.config_animation_hash,
+                                  self.sprite_data.animation_pickle_hash, self.data_dir, self.effect_animation_pool,
+                                  self.screen_scale), daemon=True)
+            self.load_sprite_background_threads.append(thread)
+            thread.start()
+        else:
+            self.sprite_data.load_effect_sprites(self.screen_size, self.sprite_data.config_animation_hash,
+                                                 self.sprite_data.animation_pickle_hash, self.data_dir,
+                                                 self.effect_animation_pool, self.screen_scale)
 
         # Main menu interface
         BrownMenuButton.button_frame = load_image(self.game.data_dir, (1, 1),
@@ -718,7 +738,9 @@ class Game:
 
         self.music_channel.play(Sound(self.music_pool["menu"]), loops=-1)
         self.music_channel.set_volume(self.play_music_volume)
-        self.run_game()
+        self.profiler = Profiler()
+
+        self.update()
 
     def game_intro(self, intro):
         timer = 0
@@ -746,13 +768,23 @@ class Game:
         self.ui_menu_drawer.remove(*args)
 
     def setup_profiler(self):
-        self.profiler = Profiler()
         self.profiler.enable()
         self.battle.outer_ui_updater.add(self.profiler)
 
-    def run_game(self):
+    def update(self):
         clear_event()
         while True:
+            if self.load_sprite_background_threads:
+                for thread in tuple(self.load_sprite_background_threads):
+                    if not thread.is_alive():
+                        thread.join()
+                        self.load_sprite_background_threads.remove(thread)
+
+                if not self.load_sprite_background_threads:
+                    # save screen resolution size in config for later game launch sprite scale check
+                    self.sprite_data.config_animation_hash["screen_resolution"] = self.screen_size
+                    edit_config("VERSION", "hash", self.sprite_data.config_animation_hash,
+                                self.config_path, self.config)
             # Get user input
             self.remove_from_ui_menu_updater(self.text_popup)
             self.dt = self.clock.get_time() / 1000  # dt before game_speed

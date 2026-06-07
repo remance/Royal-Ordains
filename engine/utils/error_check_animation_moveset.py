@@ -100,6 +100,9 @@ for character, data in animation_pool_data.items():
             if "sprite_deal_damage" in frame["frame_property"] or "sprite_deal_damage" in frame["animation_property"]:
                 if "Attack" not in animation and "Skill" not in animation:
                     print(character, animation, index, )
+            if frame["sound_effect"]:
+                if len(frame["sound_effect"]) != 3:
+                    print("sound data problem", character, animation, index, frame["sound_effect"])
 
 with open(os.path.join(data_dir, "character", "character.csv"),
           encoding="utf-8", mode="r") as edit_file:

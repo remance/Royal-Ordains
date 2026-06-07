@@ -21,6 +21,19 @@ def menu_main(self):
         self.menu_state = "beast"
         self.custom_preset_faction_selector.change_faction(Custom_Default_Culture)
         self.background = self.background_image["empty_background"]
+
+        self.sprite_data.load_character_animation((self.lorebook_showcase_character.char_id,))
+        animation_list = list(self.sprite_data.character_animation_data[self.lorebook_showcase_character.char_id].keys())
+        for character in self.character_list[self.lorebook_showcase_character.char_id]["Sub Characters"]:
+            for anim in self.game.sprite_data.character_animation_data[character[0]]:
+                if anim not in animation_list:
+                    animation_list.append(anim)
+        animation_list = sorted(animation_list)
+        self.lorebook_showcase_animation_list_box.adapter.__init__(
+            [[0, key] for key in animation_list if key != "Default"])
+        self.lorebook_character_description_showcase.change_character(self.lorebook_showcase_character.char_id)
+        self.lorebook_character_moveset_showcase.change_moveset(self.lorebook_showcase_character.char_id, None)
+
         self.lorebook_showcase_character_selector.add(self.lorebook_faction_selector.selected_faction, None)
         self.remove_from_ui_menu_updater(self.main_menu_buttons, self.main_menu_actor)
         self.add_to_ui_menu_updater(self.lorebook_menu_uis)

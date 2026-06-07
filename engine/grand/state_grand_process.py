@@ -60,9 +60,12 @@ def state_grand_process(self):
         #             self.text_delay = 0.
     else:
         if self.esc_press or self.menu_bar_ui.option_selected == "menu":  # pause game and open menu
+            self.music_channel.set_volume(0)
+            self.ambient_channel.set_volume(0)
+
             for sound_ch in self.effect_sound_channels:
                 if sound_ch.get_busy():  # pause all sound playing
-                    sound_ch.pause()
+                    sound_ch.set_volume(0)
 
             self.menu_bar_ui.option_selected = None
             self.change_game_state("menu")  # open menu

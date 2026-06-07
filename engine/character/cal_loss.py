@@ -55,7 +55,7 @@ def cal_loss(self, attacker, final_damage, impact, hit_angle, critical):
                                                            self.rect.center[1],
                                                            uniform(0, 360), 0, 0, 1, 1),
                                                     from_owner=False)
-                        self.battle.add_sound_effect_queue(self.sound_effect_pool["knock_down"][0], self.pos,
+                        self.battle.add_sound_effect_queue(self.sound_effect_pool["knock_down"][0], self.base_pos,
                                                            self.knock_down_sound_distance,
                                                            self.knock_down_screen_shake,
                                                            volume_mod=self.hit_volume_mod)  # larger size play louder sound
@@ -76,7 +76,7 @@ def cal_loss(self, attacker, final_damage, impact, hit_angle, critical):
                 engine.effect.effect.Effect(None, ("damaged", "base", self.rect.center[0],
                                                    self.rect.center[1], uniform(0, 360), 0, 0, 1, 1),
                                             from_owner=False)
-                self.battle.add_sound_effect_queue(self.sound_effect_pool["damaged"][0], self.pos,
+                self.battle.add_sound_effect_queue(self.sound_effect_pool["damaged"][0], self.base_pos,
                                                    self.dmg_sound_distance,
                                                    self.dmg_screen_shake,
                                                    volume_mod=self.hit_volume_mod)

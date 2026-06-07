@@ -19,6 +19,7 @@ from engine.battle.cal_shake_value import cal_shake_value
 from engine.battle.call_in_air_group import call_in_air_group
 from engine.battle.call_reinforcement import call_reinforcement
 from engine.battle.change_game_state import change_game_state
+from engine.battle.check_battle_character_to_load import check_battle_character_to_load
 from engine.battle.check_event import check_event
 from engine.battle.check_reinforcement import check_reinforcement
 from engine.battle.create_air_group import create_air_group
@@ -47,7 +48,7 @@ from engine.uibattle.drama import TextDrama
 from engine.uibattle.uibattle import (FPSCount, BattleHelper, BattleScale, BattleCursor, CharacterSpeechBox,
                                       CharacterCommandIndicator, DamageNumber, EventNotification,
                                       PlayerBattleInteract, CharacterInteractPrompt,
-                                      Command, TacticalMap, StrategySelect, ScreenFade, BattleResult)
+                                      Command, TacticalMap, StrategyIcon, StrategySelect, ScreenFade, BattleResult)
 from engine.uimenu.uimenu import TextPopup, BrownMenuButton
 from engine.updater.updater import ReversedLayeredUpdates
 from engine.utils.common import clean_group_object, cutscene_update
@@ -77,17 +78,19 @@ class Battle:
     activate_strategy = activate_strategy
     activate_retreat = activate_retreat
     add_sound_effect_queue = add_sound_effect_queue
-    check_event = check_event
+    back_to_battle_state = back_to_battle_state
     cal_shake_value = cal_shake_value
     call_in_air_group = call_in_air_group
     call_reinforcement = call_reinforcement
     change_game_state = change_game_state
     change_pause_update = change_pause_update
+    check_battle_character_to_load = check_battle_character_to_load
+    check_event = check_event
     check_reinforcement = check_reinforcement
     create_air_group = create_air_group
     drama_process = drama_process
     end_cutscene_event = end_cutscene_event
-    back_to_battle_state = back_to_battle_state
+    event_process = event_process
     fix_camera = fix_camera
     make_esc_menu = make_esc_menu
     player_input_cutscene = player_input_cutscene
@@ -98,7 +101,6 @@ class Battle:
     state_menu_process = state_menu_process
     state_result_process = state_result_process
     shake_camera = shake_camera
-    event_process = event_process
 
     battle = None
     battle_cursor = None
@@ -173,6 +175,7 @@ class Battle:
         DamageNumber.containers = self.battle_effect_updater, self.battle_camera_ui_drawer
         Effect.containers = self.battle_effect_updater
         StageObject.containers = self.battle_effect_updater, self.battle_stage_objects, self.battle_camera_object_drawer
+        StrategyIcon.containers = self.battle_effect_updater, self.battle_camera_ui_drawer
         DamageEffect.containers = self.battle_effect_updater
         MatterSprite.containers = self.weather_matters, self.outer_ui_updater
         Character.containers = self.battle_character_updater, self.all_battle_characters
@@ -188,7 +191,7 @@ class Battle:
         self.button_sound_channel = self.game.button_sound_channel
         self.SONG_END = pygame.USEREVENT + 1
 
-        self.battle_sound_channels = tuple([Channel(ch_num) for ch_num in range(1000)])
+        self.effect_sound_channels = tuple([Channel(ch_num) for ch_num in range(4, 1000)])
 
         # Text popup
         self.text_popup = TextPopup()
@@ -267,6 +270,7 @@ class Battle:
         self.team1_call_troop_cooldown_reinforcement = {}
         self.team2_call_leader_cooldown_reinforcement = {}
         self.team2_call_troop_cooldown_reinforcement = {}
+        self.awaiting_armies = {team: [] for team in team_list}
         BattleCommanderAI.battle = self
         self.battle_ai_commander1 = BattleCommanderAI(1)
         self.battle_ai_commander2 = BattleCommanderAI(2)
@@ -286,7 +290,8 @@ class Battle:
         self.camera_left_bound = (self.camera_pos[0] - self.camera_center_x)
 
         self.base_camera_left_bound = (self.camera_pos[0] - self.camera_center_x) / self.screen_scale_width
-
+        self.base_camera_pos = Vector2(self.camera_pos[0] / self.screen_scale_width,
+                                       self.camera_pos[1] / self.screen_scale_height)
         self.shown_camera_center_pos = self.camera_pos  # pos of camera shown to player, in case of screen shaking or other effects
 
         self.camera = Camera(self.screen, (self.camera_width, self.camera_height))
@@ -311,6 +316,7 @@ class Battle:
         self.battle_ui_images = battle_ui_images
         CharacterSpeechBox.images = battle_ui_images
 
+        StrategyIcon.strategy_icons = self.sprite_data.strategy_icons
         self.command_ui = Command(battle_ui_images["call_count"], battle_ui_images["air_count"])
         self.player_interact = PlayerBattleInteract()
         self.tactical_map_ui = TacticalMap(battle_ui_images["tactic_alert"])
@@ -442,10 +448,10 @@ class Battle:
                                     break
 
                 for retinue in retinue_list:
-                    team_stat["leadership"] += (self.character_data.character_list[retinue]["Leadership"] *
+                    team_stat["leadership"] += (self.character_list[retinue]["Leadership"] *
                                                 Retinue_Leadership_Add_Modifier)
                     team_stat["strategy_cooldown"][len(team_stat["strategy"])] = 0
-                    team_stat["strategy"].append(self.character_data.character_list[retinue]["Strategy"])
+                    team_stat["strategy"].append(self.character_list[retinue]["Strategy"])
 
                 team_stat["active_retinue"] = retinue_list
             team_stat["strategy_resource"] = team_stat["leadership"]
@@ -497,8 +503,16 @@ class Battle:
             self.outer_ui_updater.remove(self.only_player_command_ui)
 
         # Stop all sound
-        for sound_ch in self.battle_sound_channels:
+        self.music_channel.set_volume(0)
+        self.music_channel.stop()
+        self.ambient_channel.set_volume(0)
+        self.ambient_channel.stop()
+        self.weather_ambient_channel.set_volume(0)
+        self.weather_ambient_channel.stop()
+
+        for sound_ch in self.effect_sound_channels:
             if sound_ch.get_busy():
+                sound_ch.set_volume(0)
                 sound_ch.stop()
         self.current_music = None
         self.current_ambient = None
@@ -587,25 +601,8 @@ class Battle:
                     battle_character_list.append(character)
                 for character in value.leader_group:
                     battle_character_list.append(character)
-        already_check_char = set()
-        battle_character_list = [item for item in battle_character_list if item]
-        battle_character_list = list(set([char_id if "+" not in char_id else char_id.split("+")[0] for char_id in
-                                          battle_character_list]))
-        while battle_character_list:
-            char_id = battle_character_list[0]
-            battle_character_list.remove(char_id)
-            if char_id not in already_check_char:
-                already_check_char.add(char_id)
-                if self.character_list[char_id]["Summon List"]:
-                    battle_character_list += (self.character_list[char_id]["Summon List"])
-                if self.character_list[char_id]["Sub Characters"]:
-                    battle_character_list += set(
-                        [item[0] for item in self.character_list[char_id]["Sub Characters"]])
-                battle_character_list = list(
-                    set([char_id if "+" not in char_id else char_id.split("+")[0] for char_id in
-                         battle_character_list]))
 
-        battle_character_list = already_check_char
+        battle_character_list = self.check_battle_character_to_load(battle_character_list)
 
         if stage_event_data:  # add character if event has character create event
             for value in stage_data["event_data"]:
@@ -613,7 +610,9 @@ class Battle:
                     battle_character_list.add(value["Object"])
 
         self.sprite_data.load_character_animation(battle_character_list)
-
+        for thread in tuple(self.game.load_sprite_background_threads):  # must finish any loading thread before start battle
+            thread.join()
+            self.game.load_sprite_background_threads.remove(thread)
         yield set_done_load()
 
         yield set_start_load(self, "common setup")
@@ -724,7 +723,10 @@ class Battle:
             self.camera_pos = Vector2((self.base_stage_end / 2) * self.screen_scale_width,
                                       self.camera_center_y)
 
-        self.music_channel.set_endevent(self.SONG_END)
+        # start with default music, will play other music based on event later
+        self.music_channel.set_volume(self.play_music_volume)
+        self.music_channel.play(choice(self.default_battle_music_pool), fade_ms=100)
+
         self.fix_camera()
 
         self.shown_camera_center_pos = self.camera_pos
@@ -814,6 +816,7 @@ class Battle:
                     elif event.button == 5:  # Mouse scroll up
                         self.cursor.scroll_down = True
                 elif event.type == self.SONG_END:  # whatever music end, pick random from default battle music
+                    self.music_channel.set_volume(self.play_music_volume)
                     self.music_channel.play(choice(self.default_battle_music_pool), fade_ms=100)
 
                 elif event.type == QUIT:  # quit game
@@ -908,7 +911,14 @@ class Battle:
         self.grand_event_notification.reset()
 
         # stop all sounds
-        for sound_ch in self.battle_sound_channels:
+        self.music_channel.set_volume(0)
+        self.music_channel.stop()
+        self.ambient_channel.set_volume(0)
+        self.ambient_channel.stop()
+        self.weather_ambient_channel.set_volume(0)
+        self.weather_ambient_channel.stop()
+
+        for sound_ch in self.effect_sound_channels:
             if sound_ch.get_busy():
                 sound_ch.stop()
         self.current_music = None

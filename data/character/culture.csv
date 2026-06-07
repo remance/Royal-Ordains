@@ -15,5 +15,5 @@
 "mountain","small:5,port:10,sea:-15","proud"
 "port","port""sea:5","compliance"
 "sea",,
-"small","wood:5,",
+"small","wood:5",
 "wood",,

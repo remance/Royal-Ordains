@@ -1,9 +1,7 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
-"Attack1","Spear Piercing",,,,400,,,,35,50,45,,,"air",,,,
+"Attack1","Mace Smite",,,,350,,,,35,50,90,,,"magic",,,,
 "Attack2","Flail Arc",,,,500,,,,50,20,30,-120,,"fire",,,,
 "Attack3","Sword Slash",,,,250,,,,24,30,20,15,0.3,"water",,,,
-"Attack4","Axe Slam",,,,300,,,,40,40,50,30,,"earth",,,,
-"Skill1","Guiding Wind",,,,300,,,7,14,100,45,300,,"air",,,,
-"Skill2","Ember Storm",,,,300,,,22,80,100,350,,,"fire",,"burn",,
-"Skill3","Ice Spear",,,,350,,,10,35,150,,,0.1,"water",,,"cold",
-"Skill4","Stone Storm",,,"self:{no_engage=300}",2500,,,5,20,15,20,,,"earth",,,"disrupt",
+"Skill1","Darkness Engulf",,,,300,,,7,28,200,-500,-500,,"magic",,"blind",,
+"Skill2","Ember Strike",,,,300,,,22,80,100,2000,,,"fire",,,,
+"Skill3","Cold Unleash",,,,350,,,10,15,200,,,0.1,"water",,,"cold",

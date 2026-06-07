@@ -1,7 +1,6 @@
 import datetime
 import os
 
-import pygame
 from PIL import Image
 from pygame import Color, Surface, image, SRCALPHA
 

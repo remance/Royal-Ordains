@@ -112,8 +112,8 @@ for p in range(1, max_person + 1):
 anim_column_header += ["effect_1", "effect_2", "effect_3", "effect_4", "effect_5", "effect_6", "effect_7",
                        "effect_8",
                        "frame_property", "animation_property", "sound_effect"]  # For csv saving and accessing
-frame_property_list = ["sprite_deal_damage", "hold", "play_time_mod_", "effect_blur_", "effect_fade_",
-                       "effect_contrast_", "effect_brightness_", "effect_grey",
+frame_property_list = ["sprite_deal_damage", "reset_already_hit", "hold", "play_time_mod_", "effect_blur_",
+                       "effect_fade_", "effect_contrast_", "effect_brightness_", "effect_grey",
                        "effect_colour_", "exclude_p1", "exclude_p2", "exclude_p3",
                        "exclude_p4"]  # starting property list
 
@@ -122,6 +122,7 @@ anim_property_list = ["interuptrevert", "norestart"] + frame_property_list
 """Property explanation:
 sprite_deal_damage: Indicate frame deal damage, will also require moveset data for check in game 
 hold: Frame or entire animation will be played until release from holding
+reset_already_hit: Indicate reset already hit enemy list check on this frame in game
 play_time_mod_: Value of play time modification, higher mean longer play time
 effect_blur_: Put blur effect on entire frame based on the input value
 effect_contrast_: Put colour contrast effect on entire frame based on the input value

@@ -179,8 +179,6 @@ class Effect(Sprite):
             self.sound_effect = choice(self.sound_effect_pool[effect_stat["Sound Effect"]])
             self.sound_duration = self.sound_effect.get_length()
             self.sound_timer = self.sound_duration
-            if self.sound_duration > 2 and self.travel_distance:
-                self.sound_timer = self.sound_duration / 0.5
         if "travel_spin" in effect_stat_property:
             self.travel_spin = True
         if "ignore_ground" in effect_stat_property:
@@ -314,8 +312,8 @@ class Effect(Sprite):
             if self.sound_effect:
                 if self.sound_timer < self.sound_duration:
                     self.sound_timer += dt
-                else:  # play sound
-                    self.battle.add_sound_effect_queue(self.sound_effect, self.pos,
+                elif self.sound_distance > self.base_pos.distance_to(self.battle.base_camera_pos):  # play sound
+                    self.battle.add_sound_effect_queue(self.sound_effect, self.base_pos,
                                                        self.sound_distance, self.shake_value)
                     if self.travel:  # remove sound for moving effect
                         self.sound_effect = None
@@ -349,10 +347,13 @@ class DamageEffect(Effect):
             self.remain_logic(dt)
         else:
             if self.sound_effect:
+                print(self.sound_timer, self.sound_duration, self.sound_distance,
+                      self.base_pos.distance_to(self.battle.base_camera_pos))
                 if self.sound_timer < self.sound_duration:
                     self.sound_timer += dt
-                else:  # play sound
-                    self.battle.add_sound_effect_queue(self.sound_effect, self.pos,
+                elif self.sound_distance > self.base_pos.distance_to(self.battle.base_camera_pos):  # play sound
+
+                    self.battle.add_sound_effect_queue(self.sound_effect, self.base_pos,
                                                        self.sound_distance, self.shake_value)
                     if self.travel:  # remove sound for moving effect
                         self.sound_effect = None
@@ -400,9 +401,9 @@ class TrapEffect(DamageEffect):
         done, just_start = self.play_animation(self.animation_frame_play_time, dt)
 
         if self.activate and done:
-            if self.sound_effect:
+            if self.sound_effect and self.sound_distance > self.base_pos.distance_to(self.battle.base_camera_pos):
                 # play sound, check for distance here to avoid timer reset when not on screen
-                self.battle.add_sound_effect_queue(self.sound_effect, self.pos,
+                self.battle.add_sound_effect_queue(self.sound_effect, self.base_pos,
                                                    self.sound_distance, 0)
                 self.sound_timer = 0
             self.reach_target()
@@ -449,10 +450,10 @@ class StatusEffect(Effect):
         if self.sound_effect and self.sound_timer < self.sound_duration:
             self.sound_timer += dt
 
-        if self.sound_effect and self.sound_timer >= self.sound_duration and \
-                self.sound_distance > self.battle.camera_pos.distance_to(self.pos):
+        if (self.sound_effect and self.sound_timer >= self.sound_duration and
+                self.sound_distance > self.base_pos.distance_to(self.battle.base_camera_pos)):
             # play sound, check for distance here to avoid timer reset when not on screen
-            self.battle.add_sound_effect_queue(self.sound_effect, self.pos,
+            self.battle.add_sound_effect_queue(self.sound_effect, self.base_pos,
                                                self.sound_distance, 0)
             self.sound_effect = None
             self.sound_timer = 0
@@ -589,7 +590,7 @@ class ShowcaseEffect(Effect):
                 if sound_effect_channel:
                     sound_effect_channel.set_volume(self.battle.play_effect_volume)
                     sound_effect_channel.play(self.sound_effect)
-                self.battle.add_sound_effect_queue(self.sound_effect, self.pos,
+                self.battle.add_sound_effect_queue(self.sound_effect, self.base_pos,
                                                    self.sound_distance, self.shake_value)
                 if self.travel:
                     self.sound_effect = None

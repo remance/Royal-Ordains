@@ -144,7 +144,7 @@
 "leader_amunsa","free","human",4800,60,68,38,29,0.25,0.5,,-0.25,,0.25,-0.25,0.25,,2400,270,350,290,1,1,2,,"TRUE","TRUE",,"strategy_bravery",7,6,5,5,2,3,4,6,,,,"ground","medium_melee","melee",440,"TRUE",,
 "leader_amunsa_warsmith","free","human",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"strategy_great_assault",,,,,,,,,,,,"ground",,,,,,"better_melee"
 "leader_amupadeble","death","moon_elf",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"strategy_blazing_heart",,,,,,,,,,,,"ground",,,,,,"no_upgrade"
-"leader_aquanturas","castle","human",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"strategy_rally",,,,,,,,,,,,"ground","medium_cavalry","range",,,,
+"leader_aquanturas","castle","human",3500,71,34,87,71,0.5,,0.25,,0.25,,0.25,,,3700,440,320,220,1,1,0.5,,"TRUE","TRUE",,"strategy_rally",7,7,8,2,5,3,6,5,,,,"ground","medium_cavalry","range",,,,
 "leader_aquanturas_newway","castle","human",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"strategy_lightning_advance",,,,,,,,,,,,"ground",,,,,,"use_gun_better_dmg_and_moveset"
 "leader_aquanturas_oldway","castle","human",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"strategy_steady_advance",,,,,,,,,,,,"ground",,,,,,"better_strategy/leader"
 "leader_armina","wood","sun_elf",2200,32,21,13,60,,,,-0.5,0.5,0.25,0.25,0.25,-0.5,,,,130,1,1,,,"TRUE","TRUE",,"strategy_clarity",,,,,,,,,,,,"ground",,,,,,
@@ -270,6 +270,9 @@
 "leader_kaweina","desert","moon_elf",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,,,,,,,,,,,,,"ground",,,,,,
 "leader_kaweina_hard","desert","moon_elf",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,,,,,,,,,,,,,"ground",,,,,,"harder_dance_move,_focus_on_offence"
 "leader_kaweina_soft","desert","moon_elf",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,,,,,,,,,,,,,"ground",,,,,,"softer_dance_move,_focus_on_defence"
+"leader_kelwy","small","vertkin",1700,60,14,28,64,,0.25,,0.25,-0.5,,,,,,,,80,1,1,2,,"TRUE","TRUE",,,2,7,4,2,6,2,8,8,,,,"ground","light_range","range",330,,,
+"leader_kelwy_blaster","small","vertkin",2000,45,41,40,82,0.25,0.25,0.25,0.25,-0.5,,,,,,,,160,1,1,1,,"TRUE","TRUE",,"strategy_steady_advance",5,7,6,3,4,3,8,8,,,"slow,fear","ground","medium_range","mix",380,,,
+"leader_kelwy_sharpshooter","small","vertkin",1500,95,7,15,30,,,,0.25,-0.5,,,,,,,,80,1,1,4,,"TRUE","TRUE",,"strategy_static_mastery",2,7,3,1,8,1,8,8,,,,"ground","light_range","range",400,,,
 "leader_kifid","marsh","goblin",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"strategy_precise_execution",,,,,,,,,,,,"ground",,,,,,"no_upgrade"
 "leader_king","castle","human",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE","TRUE",,,,,,,,,,,,,"ground","support","idle",,,"invincible","no_upgrade"
 "leader_kirnharl","port","human",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,,,,,,,,,,,,,"ground",,,,,,
@@ -327,7 +330,7 @@
 "leader_nalluqqeiyt","demon","demon",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"strategy_cowardice",,,,,,,,,,,,"ground",,,,,,"no_upgrade"
 "leader_nass","port","halfling",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"strategy_great_resistance",,,,,,,,,,,,"ground",,,,,,
 "leader_nass_diplomat","port","halfling",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,,,,,,,,,,,,,"ground",,,,,,
-"leader_nayedien","castle","sun_elf",3600,30,90,70,13,,,,0.25,,0.25,,0.25,-0.5,,400,,160,1,1,,,"TRUE","TRUE",,"strategy_loyalty",4,8,6,,,,,,,,,"ground","light_melee",,600,,,
+"leader_nayedien","castle","sun_elf",3600,42,90,70,13,,,,0.25,,0.25,,0.25,-0.5,,360,,160,1,1,,,"TRUE","TRUE",,"strategy_loyalty",4,8,6,6,2,2,6,4,,,,"ground","light_melee","melee",600,"TRUE",,
 "leader_nayedien_queen","castle","sun_elf",5250,30,80,82,60,,,,,,0.5,,0.5,-0.5,,450,,300,1,1,,,"TRUE","TRUE",,"strategy_majesty",5,9,9,,,,,,,,,"ground","support",,,,,"strategy/leader_focus,_no_more_attack_move"
 "leader_nayedien_transcendental","castle","sun_elf",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"strategy_great_enlightenment",,,,,,,,,,,,"ground","light_melee",,,,,"combat_focus"
 "leader_negkoi","death","orc",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"strategy_entrap",,,,,,,,,,,,"ground",,,,,,"no_upgrade"

@@ -66,6 +66,7 @@ class Weather(UIBattle):
         if "random_sprite_angle" in stat["Property"]:
             self.random_sprite_angle = True
 
+        self.battle.weather_ambient_channel.set_volume(0)
         self.battle.weather_ambient_channel.stop()
         if stat["Ambient"]:
             if stat["Ambient"] in self.battle.weather_ambient_pool:

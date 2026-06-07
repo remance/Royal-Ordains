@@ -6,9 +6,13 @@ def state_battle_process(self):
     self.player_input()
 
     if self.esc_press:  # pause game and open menu
-        for sound_ch in self.battle_sound_channels:
+        self.music_channel.set_volume(0)
+        self.ambient_channel.set_volume(0)
+        self.weather_ambient_channel.set_volume(0)
+
+        for sound_ch in self.effect_sound_channels:
             if sound_ch.get_busy():  # pause all sound playing
-                sound_ch.pause()
+                sound_ch.set_volume(0)
 
         self.change_game_state("menu")  # open menu
         self.scene_translation_text_popup.popup(

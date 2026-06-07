@@ -109,9 +109,18 @@ def back_to_battle_state(self):
                                      self.esc_value_boxes.values(), self.esc_option_text.values(), self.cursor,
                                      self.scene_translation_text_popup)
     self.outer_ui_updater.add(self.battle_cursor)
-    if self.current_music:
-        self.music_channel.unpause()
-    for sound_ch in self.battle_sound_channels:
+
+    self.music_channel.set_volume(self.play_music_volume)
+    self.music_channel.unpause()
+
+    self.ambient_channel.set_volume(self.play_effect_volume)
+    self.ambient_channel.unpause()
+
+    self.weather_ambient_channel.set_volume(self.play_effect_volume)
+    self.weather_ambient_channel.unpause()
+
+    for sound_ch in self.effect_sound_channels:
         if sound_ch.get_busy():  # unpause all sound playing
+            sound_ch.set_volume(self.play_effect_volume)
             sound_ch.unpause()
     self.change_game_state("battle")

@@ -31,7 +31,7 @@ def next_animation_frame(self):
     if self.current_animation_frame["sound_effect"]:  # play sound from animation
         sound = self.current_animation_frame["sound_effect"]
         self.battle.add_sound_effect_queue(self.sound_effect_pool[sound[0]][0],
-                                           self.pos, sound[1], sound[2])
+                                           self.base_pos, sound[1], sound[2])
 
 
 def showcase_next_animation_frame(self):
@@ -63,12 +63,13 @@ def play_showcase_animation(self, dt, hold_check):
         if "play_time_mod" in self.current_animation_frame:
             self.final_animation_frame_play_time *= self.current_animation_frame["play_time_mod"]
 
-        for key, part_data in self.current_animation_direction["effects"].items():
-            if part_data[8] and part_data[0] in self.effect_list:  # independent effect must exist in effect list
-                if "trap" in self.effect_list[part_data[0]]["Property"]:  # trap effect
-                    pass
-                else:
-                    ShowcaseEffect(self, part_data, base_target_pos=self.current_action["target"])
+        if self.battle.game.effect_animation_pool:  # play only when effect_animation_pool is finished loading
+            for key, part_data in self.current_animation_direction["effects"].items():
+                if part_data[8] and part_data[0] in self.effect_list:  # independent effect must exist in effect list
+                    if "trap" in self.effect_list[part_data[0]]["Property"]:  # trap effect
+                        pass
+                    else:
+                        ShowcaseEffect(self, part_data, base_target_pos=self.current_action["target"])
 
         self.update_sprite = True
     return False
@@ -97,6 +98,10 @@ def play_battle_animation(self, dt, hold_check):
             current_moveset = self.current_moveset
             if "no_moveset" in self.current_action:
                 current_moveset = None
+
+            if "reset_already_hit" in self.current_action:
+                self.already_hit = []
+
             for key, part_data in self.current_animation_direction["effects"].items():
                 if part_data[8] and part_data[0] in self.effect_list:  # independent effect must exist in effect list
                     if "no_target" in self.current_action or "target" not in self.current_action:

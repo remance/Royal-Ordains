@@ -93,9 +93,13 @@ def back_to_grand_state(self):
     self.remove_from_ui_menu_updater(self.grand_menu_button.values(), self.esc_option_menu_button,
                                      self.esc_slider_menu.values(),
                                      self.esc_value_boxes.values(), self.esc_option_text.values())
-    if self.current_music:
-        self.music_channel.unpause()
+
+    self.music_channel.set_volume(self.play_music_volume)
+    self.music_channel.unpause()
+    self.ambient_channel.set_volume(self.play_effect_volume)
+    self.ambient_channel.unpause()
     for sound_ch in self.effect_sound_channels:
         if sound_ch.get_busy():  # unpause all sound playing
+            sound_ch.set_volume(self.play_effect_volume)
             sound_ch.unpause()
     self.change_game_state("grand")

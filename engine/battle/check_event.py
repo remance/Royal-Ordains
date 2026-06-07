@@ -20,10 +20,10 @@ def check_event(self):
                     if self.event_list[key]["music"] != "none":
                         self.current_music = self.stage_music_pool[
                             self.event_list[key]["music"]]
-                    if self.current_music:
-                        self.music_channel.play(self.current_music, loops=-1, fade_ms=100)
                         self.music_channel.set_volume(self.play_music_volume)
+                        self.music_channel.play(self.current_music, loops=-1, fade_ms=100)
                     else:  # stop music
+                        self.music_channel.set_volume(0)
                         self.music_channel.stop()
                     self.event_list[key].pop("music")
                 if "ambient" in self.event_list[key]:  # change ambient
@@ -33,15 +33,16 @@ def check_event(self):
                                                          self.event_list[key][
                                                              "ambient"]])
                     if self.current_ambient:
-                        self.ambient_channel.play(self.current_ambient, loops=-1, fade_ms=100)
                         self.ambient_channel.set_volume(self.play_effect_volume)
+                        self.ambient_channel.play(self.current_ambient, loops=-1, fade_ms=100)
                     else:  # stop ambient
+                        self.ambient_channel.set_volume(0)
                         self.ambient_channel.stop()
                     self.event_list[key].pop("ambient")
                 if "sound" in self.event_list[key]:  # play sound
                     for sound_effect in self.event_list[key]["sound"]:
                         self.add_sound_effect_queue(sound_effect[0],
-                                                    self.camera_pos, sound_effect[1], sound_effect[2])
+                                                    self.base_camera_pos, sound_effect[1], sound_effect[2])
                     self.event_list[key].pop("sound")
                 if "cutscene" in self.event_list[key]:  # cutscene
                     self.cutscene_finish_camera_delay = 1

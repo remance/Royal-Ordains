@@ -265,8 +265,8 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                                     -item if index in (2, 4) else item for index, item in enumerate(
                                         frame_data_list["right"]["effects"][part_header])]
 
-                if "EVENT_" in animation_name:
-                    # remove EVENT from animation pool save
+                if "EVENT_" in animation_name or "GRAND_" in animation_name or "DIPLOMACY_" in animation_name:
+                    # remove EVENT, GRAND, and DIPLOMACY from battle animation pool save
                     character_animation_pool.pop(animation_name)
 
             character_hash = save_pickle_with_surfaces(join(data_dir, "animation", character + ".xz"), character_animation_pool)

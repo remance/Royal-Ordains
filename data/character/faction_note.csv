@@ -9,7 +9,7 @@
 "marsh","leader_motji'aa","leader_lohgehh","leader_lukukpo","leader_boggod","leader_lepgusd","leader_kifid","leader_mahunsijee","leader_tuojesa","leader_glomuk","leader_laguasangte","no natural happiness and gold generation of its own, require trigger of events from buildings and battles.","aztec","low_number,_high_capacity,_low_supply_cost,_low_quality,low upkeep",,"only_guard_give_garrison"
 "mountain","leader_asgane","leader_duskuksa","leader_lohvroh","leader_minara","leader_augtual","leader_oodoo","leader_zakalanirn","leader_gsunper","leader_lanslina","leader_salansan","focus on tradition and dark elf integration dark elf building bring light units variety and high happiness increase at some gold upkeep cost.","egyptian_inspired","high_supply_cost,_low_number,_low_capacity,high_quality,high upkeep",,
 "port","leader_ehi","leader_peva","leader_motdasis","leader_vanmaggas","leader_kirnharl","leader_kaddun","leader_ikkanwi","leader_soheh","leader_nass","leader_sino","focus on tech vs low, high tech unit come from trade port that cost a lot to hire, will require many gold buildings to sustain",,"moderate_supply_cost,_moderate_number,_low_capacity,high_quality,high upkeep",,
-"small","leader_bigta","leader_adaqua","leader_yuawies","leader_iri","leader_buikuuh","leader_nalana","leader_olsilin","leader_vasla","leader_nadvalin","leader_kak","focus on war vs peace, most war buildings cost happiness, low gold and supply generation","medieval","high_number,_high_capacity,_low_supply_cost,_low_quality,low upkeep","better_capacity",
+"small","leader_bigta","leader_adaqua","leader_yuawies","leader_iri","leader_buikuuh","leader_kelwy","leader_olsilin","leader_vasla","leader_nadvalin","leader_kak","focus on war vs peace, most war buildings cost happiness, low gold and supply generation","medieval","high_number,_high_capacity,_low_supply_cost,_low_quality,low upkeep","better_capacity",
 "wood","leader_pakakvadi","leader_armina","leader_bauqah","leader_erkevhern","leader_qeunci","leader_dimwa","leader_jumu","leader_shedna","leader_mashalue","leader_peltino","almost no gold generation, require getting gold from battle victory","early_medieval","moderate_supply_cost,_low_number,_moderate_capacity,moderate_quality,low upkeep",,
 ,,,,,,,,,,,,,,,
 ,,,,,,,,,,,,,,,
@@ -18,6 +18,6 @@
 ,,,,,,,,,,,,,,,
 ,,,,,,,,,,,,,,,
 "holy","leader_aunnial","leader_niavesia","leader_veno","leader_ralaviel","leader_gaf_ra_naf","leader_raasohd","leader_ab","leader_zy","leader__caemilr","leader_aarlindei","lack true medium quality troop, powerful elite and numerous low rank, ","high_medieval",,,
-"great","leader_bavala","leader_pasgelo","leader_piaerlun","leader_namena","leader_vinellan","leader_pakakvadi","leader_sarkarli","leader_sofelon","leader_migial","leader_foarsulan",,"late_byzantine_mozaic",,,
-"magic","leader_thashilu","leader_niunnul","leader_jolpodun","leader_janiggys","leader_olmomonoo","leader_venswa","leader_dunane","leader_fenryu","leader_vinellan",,,,,,
+"great","leader_bavala","leader_pasgelo","leader_piaerlun","leader_namena","leader_vinellan","leader_pakakvadi","leader_sarkarli","leader_sofelon","leader_migial","leader_nalana",,"late_byzantine_mozaic",,,
+"magic","leader_thashilu","leader_niunnul","leader_jolpodun","leader_janiggys","leader_olmomonoo","leader_venswa","leader_dunane","leader_fenryu","leader_vinellan","leader_foarsulan",,,,,
 "sea",,,,,,,,,,,,,,,

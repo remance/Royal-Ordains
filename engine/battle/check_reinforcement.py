@@ -24,9 +24,6 @@ def check_reinforcement(self):
                                 this_reinforcement[2] += self.dt
                                 if this_reinforcement[2] >= this_reinforcement[1]:
                                     this_reinforcement[2] -= this_reinforcement[1]
-                                    # self.later_reinforcement["team"][team]["ground"].append(
-                                    #     [character_to_call[0], character_stat["Respond Time"],
-                                    #      0, character_stat["Arrive Per Call"]])
                                     data = {"Team": condition, "ID": character}
                                     if "POS" not in data:
                                         data["POS"] = (

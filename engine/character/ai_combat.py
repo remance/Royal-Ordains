@@ -168,7 +168,7 @@ def common_ai(self):
                         # blind cause random direction attack
                         new_direction = choice(("left", "right"))
                     self.command_action["direction"] = new_direction
-                self.ai_timer = 0.2
+                self.ai_timer = 0.5
 
 
 def air_ai(self):
@@ -180,7 +180,7 @@ def air_ai(self):
             if "interruptable" in self.current_action:
                 # stop interruptable action to attack
                 self.interrupt_animation = True
-        self.ai_timer = 0.2
+        self.ai_timer = 0.5
 
 
 ai_combat_dict = {"default": no_ai, "melee": common_ai, "range": common_ai, "flank": common_ai, "nice": common_ai,

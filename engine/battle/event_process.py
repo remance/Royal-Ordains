@@ -124,38 +124,44 @@ def event_process(self):
             elif child_event["Type"] == "music":  # play new music
                 if str(child_event["Object"]).lower() == "none":
                     self.current_music = None
+                    self.music_channel.set_volume(0)
                     self.music_channel.stop()
                 elif str(child_event["Object"]).lower() == "pause":
                     self.current_music = None  # remove current music so when game unpause it not replace event
+                    self.music_channel.set_volume(0)
                     self.music_channel.pause()
                 elif str(child_event["Object"]).lower() == "resume":
                     self.current_music = 1
+                    self.music_channel.set_volume(self.play_music_volume)
                     self.music_channel.unpause()
                 else:
                     self.current_music = self.stage_music_pool[str(child_event["Object"])]
-                    self.music_channel.play(self.current_music, loops=-1, fade_ms=100)
                     self.music_channel.set_volume(self.play_music_volume)
+                    self.music_channel.play(self.current_music, loops=-1, fade_ms=100)
                 self.cutscene_playing.remove(child_event)
 
             elif child_event["Type"] == "ambient":  # play new ambient
                 if str(child_event["Object"]).lower() == "none":
                     self.current_ambient = None
+                    self.ambient_channel.set_volume(0)
                     self.ambient_channel.stop()
                 elif str(child_event["Object"]).lower() == "pause":
                     self.current_ambient = None  # remove current ambient so when game unpause it not replace event
+                    self.ambient_channel.set_volume(0)
                     self.ambient_channel.pause()
                 elif str(child_event["Object"]).lower() == "resume":
                     self.current_ambient = 1
+                    self.ambient_channel.set_volume(self.play_effect_volume)
                     self.ambient_channel.unpause()
                 else:
                     self.current_ambient = Sound(self.ambient_pool[str(child_event["Object"])])
-                    self.ambient_channel.play(self.current_ambient, loops=-1, fade_ms=100)
                     self.ambient_channel.set_volume(self.play_effect_volume)
+                    self.ambient_channel.play(self.current_ambient, loops=-1, fade_ms=100)
                 self.cutscene_playing.remove(child_event)
 
             elif child_event["Type"] == "sound":  # play sound
                 self.add_sound_effect_queue(choice(self.sound_effect_pool[str(child_event["Object"])]),
-                                            self.camera_pos, child_event["Property"]["sound distance"],
+                                            self.base_camera_pos, child_event["Property"]["sound distance"],
                                             child_event["Property"]["shake value"])
                 self.cutscene_playing.remove(child_event)
 

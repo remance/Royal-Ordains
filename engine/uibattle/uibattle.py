@@ -791,7 +791,7 @@ class TacticalMap(UIBattle):
     def warn_strategy(self, strategy_base_posx):
         """Add bell icon to warn where enemy use strategy"""
         self.battle.add_sound_effect_queue(choice(self.sound_effect_pool["alert"]),
-                                           self.battle.camera_pos, 2000000, 0)
+                                           self.battle.base_camera_pos, 2000000, 0)
         self.strategy_status.append([strategy_base_posx / self.map_scale_width, 3])
 
     def update(self, dt):
@@ -1438,11 +1438,11 @@ class CharacterSpeechBox(UIBattle):
 
         if voice:
             self.battle.add_sound_effect_queue(choice(self.battle.sound_effect_pool[voice[0]]),
-                                               self.battle.camera_pos, voice[1],
+                                               self.character.base_pos, voice[1],
                                                voice[2], volume="voice")
         elif voice is False:  # None will play no sound
             self.battle.add_sound_effect_queue(choice(self.battle.sound_effect_pool["parchment_write"]),
-                                               self.battle.camera_pos, 1000,
+                                               self.character.base_pos, 1000,
                                                0, volume="voice")
 
         if specific_timer:
@@ -1510,6 +1510,24 @@ class CharacterSpeechBox(UIBattle):
                 self.character.speech = None
                 self.kill()
                 return
+
+
+class StrategyIcon(UIBattle):
+    strategy_icons = {}
+
+    def __init__(self, icon, base_pos_x):
+        self._layer = 9999999999999999996
+        UIBattle.__init__(self, has_containers=True)
+        self.timer = 5
+        self.image = self.strategy_icons[icon]
+
+        self.rect = self.image.get_rect(center=(base_pos_x * self.screen_scale_width,
+                                                800 * self.screen_scale_height))
+
+    def update(self, dt):
+        self.timer -= dt
+        if self.timer <= 0:
+            self.kill()
 
 
 class DamageNumber(UIBattle):

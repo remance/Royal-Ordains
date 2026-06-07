@@ -311,10 +311,15 @@ class Grand:
         self.player_faction = player_faction
         self.current_campaign_state = save_state_data
 
-        # Stop all sound
+        # Stop all effect sound
         for sound_ch in self.effect_sound_channels:
             if sound_ch.get_busy():
+                sound_ch.set_volume(0)
                 sound_ch.stop()
+        self.ambient_channel.set_volume(0)
+        self.ambient_channel.stop()
+        self.music_channel.set_volume(0)
+        self.music_channel.stop()
         self.current_music = None
         self.current_ambient = None
 
@@ -555,6 +560,10 @@ class Grand:
                                          self.esc_value_boxes.values(), self.esc_option_text.values())
 
         # stop all sounds
+        self.music_channel.set_volume(0)
+        self.music_channel.stop()
+        self.ambient_channel.set_volume(0)
+        self.ambient_channel.stop()
         for sound_ch in self.effect_sound_channels:
             if sound_ch.get_busy():
                 sound_ch.stop()
