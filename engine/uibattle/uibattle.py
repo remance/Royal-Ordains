@@ -276,7 +276,7 @@ class Command(UIBattle):
 
     def setup(self):
         self.player_team = self.battle.player_team
-        self.player_team_stat = self.battle.team_stat[self.player_team]
+        self.player_team_stat = self.battle.team_state[self.player_team]
         self.player_enemy_team = self.battle.player_enemy_team
         self.player_air_group = self.player_team_stat["air_group"]
         self.check_air_group = None
@@ -473,7 +473,7 @@ class Command(UIBattle):
                                 # active or completely dead air group cannot be activated
                                 if self.player_air_group_number[air_group]:
                                     self.battle.call_in_air_group(self.player_team, (air_group,),
-                                                                  self.battle.team_stat[self.player_enemy_team][
+                                                                  self.battle.team_state[self.player_enemy_team][
                                                                       "start_pos"])
                             elif self.event_alt_press:
                                 if (self.player_air_group_number[air_group] and
@@ -938,7 +938,7 @@ class StrategySelect(UIBattle):
 
     def setup(self):
         self.player_team = self.battle.player_team
-        self.player_team_stat = self.battle.team_stat[self.player_team]
+        self.player_team_stat = self.battle.team_state[self.player_team]
         self.strategy_status = {}
         self.strategy_rect = {}
         self.image = self.base_image.copy()
@@ -1220,15 +1220,15 @@ class BattleResult(UIBattle, BoxUI):
     def show_result(self):
         self.image = self.base_image.copy()
         # Always assume that main army of team 1 and 2 exist
-        if self.battle.team_stat[1]["main_army"]:
-            portrait = self.character_portraits[self.battle.team_stat[1]["main_army"].commander_id]["character_ui"]
+        if self.battle.team_state[1]["main_army"]:
+            portrait = self.character_portraits[self.battle.team_state[1]["main_army"].commander_id]["character_ui"]
             self.image.blit(portrait,
                             portrait.get_rect(center=(1000 * self.screen_scale_width, 250 * self.screen_scale_height)))
 
-        if self.battle.team_stat[2]["main_army"]:
+        if self.battle.team_state[2]["main_army"]:
             # flip portrait to face left
             portrait = flip(
-                self.character_portraits[self.battle.team_stat[2]["main_army"].commander_id]["character_ui"], True,
+                self.character_portraits[self.battle.team_state[2]["main_army"].commander_id]["character_ui"], True,
                 False)
             self.image.blit(portrait,
                             portrait.get_rect(center=(1900 * self.screen_scale_width, 250 * self.screen_scale_height)))
@@ -1272,8 +1272,8 @@ class BattleResult(UIBattle, BoxUI):
                 self.image.blit(text_surface, text_rect)
             elif key == "supply":
                 remain_supply = int(
-                    self.battle.team_stat[1]["supply_resource"] + self.battle.team_stat[1]["supply_reserve"])
-                diff = str(int(remain_supply - self.battle.team_stat[1]["total_supply"]))
+                    self.battle.team_state[1]["supply_resource"] + self.battle.team_state[1]["supply_reserve"])
+                diff = str(int(remain_supply - self.battle.team_state[1]["total_supply"]))
                 if "-" not in diff:
                     diff = "+" + diff
                 text_surface = self.header_font.render(str(remain_supply) + " (" + diff + ")", True, (0, 0, 0))
@@ -1281,8 +1281,8 @@ class BattleResult(UIBattle, BoxUI):
                 self.image.blit(text_surface, text_rect)
 
                 remain_supply = int(
-                    self.battle.team_stat[2]["supply_resource"] + self.battle.team_stat[2]["supply_reserve"])
-                diff = str(int(remain_supply - self.battle.team_stat[2]["total_supply"]))
+                    self.battle.team_state[2]["supply_resource"] + self.battle.team_state[2]["supply_reserve"])
+                diff = str(int(remain_supply - self.battle.team_state[2]["total_supply"]))
                 if "-" not in diff:
                     diff = "+" + diff
                 text_surface = self.header_font.render(str(remain_supply) + " (" + diff + ")", True, (0, 0, 0))
@@ -1465,7 +1465,8 @@ class CharacterSpeechBox(UIBattle):
             self.direction_left = False
             # always use p1 head to place speak
             head_rect = (
-                (self.character.pos[0] + (self.character.current_animation_direction["head"][0] * self.screen_scale_width)),
+                (self.character.pos[0] + (
+                        self.character.current_animation_direction["head"][0] * self.screen_scale_width)),
                 (self.character.pos[1] + (
                         self.character.current_animation_direction["head"][1] * self.screen_scale_height)))
             if self.character.direction == "left":  # left direction facing

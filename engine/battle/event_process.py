@@ -40,7 +40,7 @@ def event_process(self):
                             self.cutscene_in_progress = True
                             text = None
                             if child_event["Text ID"]:
-                                text = self.localisation.grab_text(
+                                text = self.grab_text(
                                     ("event", child_event["Text ID"], "Text"))
                             use_font_texture = None
                             if "font texture" in child_event["Property"]:

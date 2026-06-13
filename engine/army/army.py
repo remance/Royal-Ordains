@@ -20,7 +20,8 @@ class Army:
 
     def __init__(self, army_id: str, faction: str, culture: str, commander_char_id: str, leader_group: list,
                  ground_group: list, air_group: list, retinue: list, supply: int = 0, max_supply: int = 0,
-                 custom_preset_id=None, current_region=None, travelling: dict = None, assembling: dict = None):
+                 custom_preset_id=None, current_region=None, travelling: dict = None, travel_how=None,
+                 assembling: dict = None):
         self.game_id = army_id
         self.faction = faction
         self.culture = culture
@@ -46,7 +47,7 @@ class Army:
         self.current_region = current_region  # current region the army is at
         self.travel_remain = 0
         self.travelling = travelling
-        self.travel_how = None
+        self.travel_how = travel_how
 
         self.base_pos = None
         include_culture_influence = False
@@ -113,7 +114,7 @@ class Army:
                 "ground_group": self.ground_group, "air_group": self.ground_group,
                 "retinue": self.retinue, "supply": self.supply, "custom_preset_id": self.custom_preset_id,
                 "base_pos": self.base_pos, "current_region": self.current_region,
-                "travel_route": self.travelling
+                "travel_route": self.travelling, "travel_how": self.travel_how, "assembling": self.assembling
                 }
 
     @property

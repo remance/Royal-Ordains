@@ -1,4 +1,4 @@
-from engine.uimenu.uimenu import BrownMenuButton, BoxUI, SliderMenu, ValueBox, OptionMenuText, ListUI, ListAdapter
+from engine.uimenu.uimenu import BrownMenuButton, BoxUI, SliderMenu, ValueBox, OptionMenuText
 
 
 def make_esc_menu(self):

@@ -107,7 +107,7 @@ def start_speech(self, event, event_property):
             self.new_angle *= -1
             self.rotate_logic()
 
-    self.speech = CharacterSpeechBox(self, self.battle.localisation.grab_text(("event", event["Text ID"], "Text")),
+    self.speech = CharacterSpeechBox(self, self.battle.grab_text(("event", event["Text ID"], "Text")),
                                      specific_timer=specific_timer,
                                      player_input_indicator=player_input_indicator,
                                      cutscene_event=event, voice=voice,

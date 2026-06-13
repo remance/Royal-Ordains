@@ -3,6 +3,7 @@ from math import radians, sin
 
 import pygame
 import pygame.freetype
+
 from engine.updater.updater import ReversedLayeredUpdates
 
 

@@ -1,5 +1,6 @@
 from math import radians
 from random import uniform
+
 from pygame import Vector2, draw, Surface, SRCALPHA
 from pygame.sprite import Sprite
 
@@ -9,8 +10,8 @@ from engine.constants import Base_Animation_Frame_Play_Time
 from engine.grandactor.move_logic import move_logic
 from engine.grandactor.pick_animation import pick_animation
 from engine.grandactor.play_animation import play_animation
-from engine.utils.rotation import set_rotate, rotation_xy
 from engine.utils.common import clean_object
+from engine.utils.rotation import set_rotate, rotation_xy
 
 same_dot_placement_pos_offset = []
 for y in range(1, 10):
@@ -19,7 +20,7 @@ for y in range(1, 10):
     else:
         x_list = (0, -1, 1, -2, 2)
     for x in x_list:
-        same_dot_placement_pos_offset.append(Vector2(x * 10, y * 20))
+        same_dot_placement_pos_offset.append(Vector2(x * 5, y * 10))
 
 
 class GrandActor(Sprite):

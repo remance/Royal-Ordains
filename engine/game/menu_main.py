@@ -23,7 +23,8 @@ def menu_main(self):
         self.background = self.background_image["empty_background"]
 
         self.sprite_data.load_character_animation((self.lorebook_showcase_character.char_id,))
-        animation_list = list(self.sprite_data.character_animation_data[self.lorebook_showcase_character.char_id].keys())
+        animation_list = list(
+            self.sprite_data.character_animation_data[self.lorebook_showcase_character.char_id].keys())
         for character in self.character_list[self.lorebook_showcase_character.char_id]["Sub Characters"]:
             for anim in self.game.sprite_data.character_animation_data[character[0]]:
                 if anim not in animation_list:
@@ -85,32 +86,33 @@ def menu_main(self):
             army.__init__("", "", "", None, [], [], [], [])
 
         stage_stat = {}
-        team_stat = {
+        team_state = {
             0: {"faction": "free", "culture": "free", "strategy_resource": 0, "start_pos": 0.5, "air_group": [],
-                "active_retinue": (), "retinue": (),
+                "active_retinue": (),
                 "strategy": [], "strategy_cooldown": {},
                 "main_army": None,
                 "reinforcement_army": []},
             1: {"faction": self.custom_team_army[1][0].faction,
                 "culture": self.custom_team_army[1][0].culture,
-                "strategy_resource": 0, "start_pos": 0, "air_group": [], "active_retinue": (), "retinue": (),
+                "strategy_resource": 0, "start_pos": 0, "air_group": [], "active_retinue": (),
                 "strategy": [], "strategy_cooldown": {},
                 "main_army": self.custom_team_army[1][0],
                 "reinforcement_army": self.custom_team_army[1][1:2]},
             2: {"faction": self.custom_team_army[2][0].faction,
                 "culture": self.custom_team_army[2][0].culture,
                 "strategy_resource": 0, "start_pos": 1, "air_group": [],
-                "active_retinue": (), "retinue": (), "strategy": [], "strategy_cooldown": {},
+                "active_retinue": (), "strategy": [], "strategy_cooldown": {},
                 "main_army": self.custom_team_army[2][0],
                 "reinforcement_army": self.custom_team_army[2][1:2]}}
 
-        self.start_battle(None, "main", "test", team_stat, 1)
+        self.start_battle(None, "main", "test", team_state, 1, setup_battle=True)
 
     elif self.option_button.event_press:  # change main menu to option menu
         self.menu_state = "option"
         self.remove_from_ui_menu_updater(self.main_menu_buttons, self.main_menu_actor)
         self.background = self.background_image["empty_background"]
-        self.add_to_ui_menu_updater(self.option_menu_buttons, self.option_menu_sliders.values(), self.value_boxes.values(),
+        self.add_to_ui_menu_updater(self.option_menu_buttons, self.option_menu_sliders.values(),
+                                    self.value_boxes.values(),
                                     self.option_text_list)
 
     elif self.quit_button.event_press or self.esc_press:  # open quit game confirmation input

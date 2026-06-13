@@ -1,13 +1,13 @@
-"ID","Colour","Control","Capital","Settlement POS","Build Slot 1","Build Slot 2","Build Slot 3","Build Slot 4","Build Slot 5","Build Slot 6","Build Slot 7","Build Slot 8","Build Slot 9","Build Slot 10","Object"
-"test1","ffeb00","weealliance","TRUE","1790,558","small_settlement_3_warren_moderate","unique_rabbit_jousting_arena","unique_rabbit_first_warren","small_barrack_a1_warrior_warren","free_build","free_build",,,,,"2:(unique_rabbit_jousting_arena;1750;550;0),3:(unique_rabbit_first_warren;1940;855;0)"
-"test2","ff4100","free",,"1729,684","small_settlement_1_warren_tiny","free_build","free_build","free_build","free_build",,,,,,
-"test3","1ebf00","free",,"1978,576","free_settlement","unique_great_red_tree","free_build","free_build","free_build",,,,,,
-"test4","be4444","free",,"2134,669","small_settlement_2_warren_small","small_food_1_garden","free_build","free_build",,,,,,,
-"test5","29352d","free",,"1630,788","castle_settlement_2_keep","castle_money_a1_market","castle_food_c1_ranch","free_build",,,,,,,
-"test6","797a68","free",,"1570,960","castle_settlement_1_motte","castle_food_a1_farm","free_build","free_build",,,,,,,
-"test7","a39ff8","masendor",,"1670,900","castle_settlement_2_keep","castle_money_c1_slum","castle_money_c1_slum","free_build",,,,,,,
-"test8","474e19","masendor","TRUE","1763,831","castle_settlement_3_castle","unique_black_palace","castle_barrack_a1_barrack","castle_money_a1_market","free_build","free_build","free_build",,,,
-"test9","25393a","free",,"1745,975","castle_settlement_2_keep","castle_food_c1_ranch","castle_barrack_a1_barrack","free_build","free_build","free_iron",,,,,
-"test10","a8fef1","free",,"1934,843","castle_settlement_1_motte","castle_food_a1_farm","castle_food_b1_granary","free_build",,,,,,,
-"test11","ffaa00","free",,"1857,990","free_settlement","free_build","free_build","free_build","free_build",,,,,,
-"test12","de3bab","dollkingdom","TRUE","2087,930","doll_settlement_2_house_rich","doll_food_1_lumber","free_build","free_build","free_build","free_build","free_build","free_build",,,
+"ID","Colour","Control","Capital","Settlement POS","Build Slot 1","Build Slot 2","Build Slot 3","Build Slot 4","Build Slot 5","Build Slot 6","Build Slot 7","Build Slot 8","Build Slot 9","Build Slot 10","Object","Route Stage Template"
+"test1","ffeb00","weealliance","TRUE","1790,558","small_settlement_3_warren_moderate","unique_rabbit_jousting_arena","unique_rabbit_first_warren","small_barrack_a1_warrior_warren","free_build","free_build",,,,,"2:(unique_rabbit_jousting_arena;1750;550;0),3:(unique_rabbit_first_warren;1940;855;0)","central_plain,6,10"
+"test2","ff4100","free",,"1729,684","small_settlement_1_warren_tiny","free_build","free_build","free_build","free_build",,,,,,,"central_plain,6,10"
+"test3","1ebf00","free",,"1978,576","free_settlement","unique_great_red_tree","free_build","free_build","free_build",,,,,,,"pamat_forest,4,8"
+"test4","be4444","free",,"2134,669","small_settlement_2_warren_small","small_food_1_garden","free_build","free_build",,,,,,,,"pamat_forest,2,4"
+"test5","29352d","free",,"1630,788","castle_settlement_2_keep","castle_money_a1_market","castle_food_c1_ranch","free_build",,,,,,,,"central_plain,4,8"
+"test6","797a68","free",,"1570,960","castle_settlement_1_motte","castle_food_a1_farm","free_build","free_build",,,,,,,,"central_plain,4,8"
+"test7","a39ff8","masendor",,"1670,900","castle_settlement_2_keep","castle_money_c1_slum","castle_money_c1_slum","free_build",,,,,,,,"central_plain,2,4"
+"test8","474e19","masendor","TRUE","1763,831","castle_settlement_3_castle","unique_black_palace","castle_barrack_a1_barrack","castle_money_a1_market","free_build","free_build","free_build",,,,,"central_plain,4,8"
+"test9","25393a","free",,"1745,975","castle_settlement_2_keep","castle_food_c1_ranch","castle_barrack_a1_barrack","free_build","free_build","free_iron",,,,,,"central_plain,4,8"
+"test10","a8fef1","free",,"1934,843","castle_settlement_1_motte","castle_food_a1_farm","castle_food_b1_granary","free_build",,,,,,,,"central_mountain,8,10"
+"test11","ffaa00","free",,"1857,990","free_settlement","free_build","free_build","free_build","free_build",,,,,,,"central_mountain,4,6"
+"test12","de3bab","dollkingdom","TRUE","2087,930","doll_settlement_2_house_rich","doll_food_1_lumber","free_build","free_build","free_build","free_build","free_build","free_build",,,,"central_mountain,4,10"

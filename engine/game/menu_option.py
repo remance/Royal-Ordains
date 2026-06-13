@@ -15,7 +15,8 @@ def menu_option(self):
         self.remove_from_ui_menu_updater(self.resolution_bar)
 
     if self.back_button.event_press or self.esc_press:  # back to start_set menu
-        self.remove_from_ui_menu_updater(self.option_menu_buttons, self.option_text_list, self.option_menu_sliders.values(),
+        self.remove_from_ui_menu_updater(self.option_menu_buttons, self.option_text_list,
+                                         self.option_menu_sliders.values(),
                                          self.value_boxes.values(), self.resolution_bar)
         self.back_mainmenu()
 

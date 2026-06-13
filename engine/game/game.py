@@ -2,20 +2,18 @@ import ast
 import configparser
 import sys
 from copy import deepcopy
-from os import listdir
+from multiprocessing import cpu_count
 from os.path import join, sep, normpath, split
 from pathlib import Path
 from threading import Thread
-from multiprocessing import cpu_count
-from math import ceil
 
 import pygame
 from pygame import sprite, display, mouse
 from pygame.event import get as get_event, clear as clear_event
-from pygame.transform import scale
 from pygame.font import Font
 from pygame.locals import *
 from pygame.mixer import Sound, Channel
+from pygame.transform import scale
 
 from engine.army.army import Army
 from engine.battle.battle import Battle
@@ -32,12 +30,12 @@ from engine.effect.effect import Effect, ShowcaseEffect
 from engine.game.activate_input_popup import activate_input_popup
 from engine.game.assign_key import assign_key
 from engine.game.back_mainmenu import back_mainmenu
+from engine.game.change_custom_battle_config import change_custom_battle_config
 from engine.game.change_keybind import change_keybind
 from engine.game.change_pause_update import change_pause_update
 from engine.game.change_sound_volume import change_sound_volume
 from engine.game.convert_army_to_custom_deployable import convert_army_to_custom_deployable
 from engine.game.create_config import create_config
-from engine.game.change_custom_battle_config import change_custom_battle_config
 from engine.game.get_keybind_button_name import get_keybind_button_name
 from engine.game.load_grand_campaign import load_grand_campaign
 from engine.game.loading_screen import loading_screen
@@ -62,8 +60,8 @@ from engine.uimenu.uimenu import (MenuCursor, BoxUI, BrownMenuButton, MenuButton
                                   CharacterMovesetShowCase, CharacterSelector, CustomPresetTitle, ListUI,
                                   CustomPresetListAdapter, GenericListAdapter)
 from engine.updater.updater import ReversedLayeredUpdates
-from engine.utils.data_loading import load_image, load_images, csv_read
 from engine.utils.common import edit_config
+from engine.utils.data_loading import load_image, load_images, csv_read
 
 game_name = "Royal Ordains"  # Game name that will appear as game name at the windows bar
 
@@ -172,7 +170,7 @@ class Game:
             self.team2_gold_limit_custom_battle = int(self.config["USER"]["team2_gold_limit_custom_battle"])
             self.selected_weather_custom_battle = int(self.config["USER"]["selected_weather_custom_battle"])
             self.selected_weather_strength_custom_battle = int(self.config["USER"][
-                "selected_weather_strength_custom_battle"])
+                                                                   "selected_weather_strength_custom_battle"])
             if self.game_version != self.config["VERSION"]["ver"]:  # remake config as game version change
                 raise KeyError  # cause KeyError to reset config file
         except (KeyError, TypeError, NameError) as b:  # config error will make the game recreate config with default
@@ -201,7 +199,7 @@ class Game:
             self.team2_gold_limit_custom_battle = int(self.config["USER"]["team2_gold_limit_custom_battle"])
             self.selected_weather_custom_battle = int(self.config["USER"]["selected_weather_custom_battle"])
             self.selected_weather_strength_custom_battle = int(self.config["USER"][
-                "selected_weather_strength_custom_battle"])
+                                                                   "selected_weather_strength_custom_battle"])
 
         Game.language = self.language
 
@@ -306,7 +304,8 @@ class Game:
         for folder in subdirectories:
             folder_data_name = folder[-1]
             self.helper_images[folder_data_name] = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                                               subfolder=("ui", "battle_ui", "helper", folder_data_name))
+                                                               subfolder=(
+                                                                   "ui", "battle_ui", "helper", folder_data_name))
 
         # Initialise groups
         Game.ui_menu_updater = ReversedLayeredUpdates()  # main drawer for ui in main menu
@@ -385,16 +384,17 @@ class Game:
         ShowcaseEffect.effect_animation_pool = self.effect_animation_pool
         StageObject.stage_object_animation_pool = self.stage_object_animation_pool
 
+        self.load_sprite_background_threads = []
+
         if cpu_count() - 1 > 0:
             # if load_threads > 10:
             #     load_threads = 10
-            self.load_sprite_background_threads = []
-
             thread = Thread(target=self.sprite_data.load_effect_sprites,
                             args=(self.screen_size, self.sprite_data.config_animation_hash,
                                   self.sprite_data.animation_pickle_hash, self.data_dir, self.effect_animation_pool,
                                   self.screen_scale), daemon=True)
             self.load_sprite_background_threads.append(thread)
+            print(self.load_sprite_background_threads)
             thread.start()
         else:
             self.sprite_data.load_effect_sprites(self.screen_size, self.sprite_data.config_animation_hash,
@@ -474,7 +474,7 @@ class Game:
         self.custom_battle_preset_button = BrownMenuButton((.15, 0.5), (0, 0), key_name="button_custom_preset",
                                                            parent=main_menu_buttons_box)
         self.custom_battle_reset_button = BrownMenuButton((.15, 0.5), (0, 1.5), key_name="button_custom_reset",
-                                                           parent=main_menu_buttons_box)
+                                                          parent=main_menu_buttons_box)
 
         self.custom_battle_multi_purposes_list = ListUI(pivot=(-0.15, 0.14), origin=(-1, -1), size=(0.2, 0.35),
                                                         items=GenericListAdapter(()),
@@ -544,10 +544,11 @@ class Game:
                 self.custom_team_army_buttons[team].append(MenuButton(
                     self.drop_big_button_lists, (team_x_pos[team], self.screen_rect.height * y_pos[index]),
                     font_size=52, layer=9000))
-                self.custom_team_army_button_bars[team].append(ListUI(pivot=(team_y_pivot[team], drop_bar_y_pivot[index]),
-                                                                      origin=(-1, -1), size=(0.3, 0.25),
-                                                                      items=GenericListAdapter([]),
-                                                                      parent=self.screen, item_size=7, layer=10000))
+                self.custom_team_army_button_bars[team].append(
+                    ListUI(pivot=(team_y_pivot[team], drop_bar_y_pivot[index]),
+                           origin=(-1, -1), size=(0.3, 0.25),
+                           items=GenericListAdapter([]),
+                           parent=self.screen, item_size=7, layer=10000))
 
         self.custom_culture_selector_popup = FactionSelector(1200,
                                                              (self.screen_width / 2, 0), layer=10000,
@@ -898,13 +899,15 @@ class Game:
                                 self.custom_battle_team1_gold_button.change_state(
                                     ("info_header_gold_limit", self.team1_gold_limit_custom_battle))
                                 self.custom_battle_team_setup[1].change_cost(0, self.custom_team_army[1][0].cost,
-                                                                             self.custom_team_army[1][0].total_supply_usage)
+                                                                             self.custom_team_army[1][
+                                                                                 0].total_supply_usage)
                             else:
                                 self.team2_gold_limit_custom_battle = int(self.input_box.text)
                                 self.custom_battle_team2_gold_button.change_state(
                                     ("info_header_gold_limit", self.team2_gold_limit_custom_battle))
                                 self.custom_battle_team_setup[2].change_cost(0, self.custom_team_army[2][0].cost,
-                                                                             self.custom_team_army[2][0].total_supply_usage)
+                                                                             self.custom_team_army[2][
+                                                                                 0].total_supply_usage)
 
                     elif self.input_popup[1] == "custom_supply":
                         if self.input_box.text.isdigit():
@@ -913,13 +916,15 @@ class Game:
                                 self.custom_battle_team1_supply_button.change_state(
                                     ("info_header_supply_limit", self.team1_supply_limit_custom_battle))
                                 self.custom_battle_team_setup[1].change_cost(0, self.custom_team_army[1][0].cost,
-                                                                             self.custom_team_army[1][0].total_supply_usage)
+                                                                             self.custom_team_army[1][
+                                                                                 0].total_supply_usage)
                             else:
                                 self.team2_supply_limit_custom_battle = int(self.input_box.text)
                                 self.custom_battle_team2_supply_button.change_state(
                                     ("info_header_supply_limit", self.team2_supply_limit_custom_battle))
                                 self.custom_battle_team_setup[2].change_cost(0, self.custom_team_army[2][0].cost,
-                                                                             self.custom_team_army[2][0].total_supply_usage)
+                                                                             self.custom_team_army[2][
+                                                                                 0].total_supply_usage)
 
                     elif self.input_popup[1] == "quit":
                         pygame.time.wait(1000)

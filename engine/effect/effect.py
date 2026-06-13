@@ -291,7 +291,8 @@ class Effect(Sprite):
         if self.travel_distance:
             self.velocity = calculate_projectile_velocity(abs(self.angle), abs(self.travel_distance))
             self.velocity = calculate_projectile_velocity(abs(self.angle),
-                                                          compensate_distance(self.velocity, self.cos_angle, abs(self.travel_distance)))
+                                                          compensate_distance(self.velocity, self.cos_angle,
+                                                                              abs(self.travel_distance)))
 
         if not self.speed:  # reset travel distance for effect with no speed
             self.travel_distance = 0
@@ -347,8 +348,6 @@ class DamageEffect(Effect):
             self.remain_logic(dt)
         else:
             if self.sound_effect:
-                print(self.sound_timer, self.sound_duration, self.sound_distance,
-                      self.base_pos.distance_to(self.battle.base_camera_pos))
                 if self.sound_timer < self.sound_duration:
                     self.sound_timer += dt
                 elif self.sound_distance > self.base_pos.distance_to(self.battle.base_camera_pos):  # play sound

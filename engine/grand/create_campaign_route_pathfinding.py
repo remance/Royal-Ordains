@@ -117,8 +117,8 @@ def create_campaign_route_pathfinding(self):
                     path[i] = s[::-1]
                 if end_route >= 0:
                     direct_route_dict[(start_route_id, end_route_id)] = [region_key_index[item] for item in
-                                                                        path[end_route]]
+                                                                         path[end_route]]
                 else:
                     direct_route_dict[(start_route_id, end_route_id)] = [region_key_index[item] for item in path]
                 direct_route_dict[(end_route_id, start_route_id)] = direct_route_dict[(start_route_id, end_route_id)][
-                                                                   ::-1]
+                                                                    ::-1]

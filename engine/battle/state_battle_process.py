@@ -17,7 +17,7 @@ def state_battle_process(self):
         self.change_game_state("menu")  # open menu
         self.scene_translation_text_popup.popup(
             (self.screen_rect.midleft[0], self.screen_height * 0.82),
-            self.localisation.grab_text(
+            self.grab_text(
                 ("scene", self.scene.data[self.current_scene], "Text")),
             width_text_wrapper=self.screen_width)
         self.add_to_ui_menu_updater(self.cursor, self.battle_menu_button.values(),
@@ -54,8 +54,8 @@ def state_battle_process(self):
         self.reach_scene = self.current_scene
 
     if dt:
-        # Screen shaking
         if self.screen_shake_value:
+            # Screen shaking
             decrease = 1000
             if self.screen_shake_value > decrease:
                 decrease = self.screen_shake_value
@@ -64,6 +64,9 @@ def state_battle_process(self):
                 self.screen_shake_value = 0
             else:
                 self.shake_camera()
+
+        if self.awaiting_armies:
+            self.add_new_army_joining()
 
         ai_process_list = self.ai_process_list  # process ai prepare
         if ai_process_list:
@@ -85,22 +88,22 @@ def state_battle_process(self):
         if self.later_reinforcement:
             self.check_reinforcement()
 
-        for team, team_stat in self.team_stat.items():
-            team_stat["strategy_cooldown"] = {key: value - dt if value > dt else 0 for
-                                              key, value in team_stat["strategy_cooldown"].items()}
+        for team, team_state in self.team_state.items():
+            team_state["strategy_cooldown"] = {key: value - dt if value > dt else 0 for
+                                               key, value in team_state["strategy_cooldown"].items()}
             team_commander = self.team_commander[team]
-            if team_commander and team_commander.alive and team_stat["strategy_resource"] < 200:
-                team_stat["strategy_resource"] += dt * team_stat["strategy_regen"]
-                if team_stat["strategy_resource"] > 100:
-                    team_stat["strategy_resource"] = 100
+            if team_commander and team_commander.alive and team_state["strategy_resource"] < 200:
+                team_state["strategy_resource"] += dt * team_state["strategy_regen"]
+                if team_state["strategy_resource"] > 100:
+                    team_state["strategy_resource"] = 100
 
-            if team_stat["supply_reserve"]:
-                if team_stat["supply_reserve"] > 0.1:
-                    supply_transfer = team_stat["supply_reserve"] * 0.004 * dt
+            if team_state["supply_reserve"]:
+                if team_state["supply_reserve"] > 0:
+                    supply_transfer = team_state["supply_reserve"] * 0.004 * dt
                 else:
-                    supply_transfer = team_stat["supply_reserve"]
-                team_stat["supply_resource"] += supply_transfer
-                team_stat["supply_reserve"] -= supply_transfer
+                    supply_transfer = team_state["supply_reserve"]
+                team_state["supply_resource"] += supply_transfer
+                team_state["supply_reserve"] -= supply_transfer
 
         if self.cutscene_finish_camera_delay and not self.cutscene_playing:
             self.cutscene_finish_camera_delay -= self.true_dt
@@ -185,29 +188,29 @@ def state_battle_process(self):
                 loser_team = Opposite_Team[self.winner_team]
 
                 gain_supply = 0
-                transfer_supply = self.team_stat[loser_team]["total_supply"] * 0.15
-                remain_supply = self.team_stat[loser_team]["supply_resource"] + self.team_stat[loser_team][
+                transfer_supply = self.team_state[loser_team]["total_supply"] * 0.15
+                remain_supply = self.team_state[loser_team]["supply_resource"] + self.team_state[loser_team][
                     "supply_reserve"] * 0.15
                 if transfer_supply < remain_supply:  # max supply is less than remain supply, use remain instead
                     transfer_supply = remain_supply
-                if transfer_supply > self.team_stat[loser_team]["supply_resource"]:
+                if transfer_supply > self.team_state[loser_team]["supply_resource"]:
                     # transfer from remaining active supply
-                    gain_supply += self.team_stat[loser_team]["supply_resource"]
-                    transfer_supply -= self.team_stat[loser_team]["supply_resource"]
-                    self.team_stat[loser_team]["supply_resource"] = 0
+                    gain_supply += self.team_state[loser_team]["supply_resource"]
+                    transfer_supply -= self.team_state[loser_team]["supply_resource"]
+                    self.team_state[loser_team]["supply_resource"] = 0
                     # transfer the rest from reserve
-                    if self.team_stat[loser_team]["supply_reserve"] < transfer_supply:
+                    if self.team_state[loser_team]["supply_reserve"] < transfer_supply:
                         # not enough in reserve give whatever remain left
-                        gain_supply += self.team_stat[loser_team]["supply_reserve"]
-                        self.team_stat[loser_team]["supply_reserve"] = 0
+                        gain_supply += self.team_state[loser_team]["supply_reserve"]
+                        self.team_state[loser_team]["supply_reserve"] = 0
                     else:
                         gain_supply += transfer_supply
-                        self.team_stat[loser_team]["supply_reserve"] -= transfer_supply
+                        self.team_state[loser_team]["supply_reserve"] -= transfer_supply
                 else:
                     gain_supply += transfer_supply
-                    self.team_stat[loser_team]["supply_resource"] -= transfer_supply
+                    self.team_state[loser_team]["supply_resource"] -= transfer_supply
 
-                self.team_stat[self.winner_team]["supply_resource"] += gain_supply
+                self.team_state[self.winner_team]["supply_resource"] += gain_supply
 
                 bad_drama = True
                 if self.winner_team == self.player_team:
@@ -215,15 +218,15 @@ def state_battle_process(self):
                     result = "victory"
                 self.battle_helper_ui.battle_end(result)
                 victory_drama = (bad_drama,
-                                 self.localisation.grab_text(("ui", "result_text_team")) + win_team +
-                                 self.localisation.grab_text(("ui", "result_text_win")), None)
+                                 self.grab_text(("ui", "result_text_team")) + win_team +
+                                 self.grab_text(("ui", "result_text_win")), None)
 
                 # redistribute remaining supply to army
-                for team in self.team_stat:
-                    army = [self.team_stat[team]["main_army"]] + self.team_stat[team]["reinforcement_army"]
+                for team in self.team_state:
+                    army = [self.team_state[team]["main_army"]] + self.team_state[team]["reinforcement_army"]
                     army = [this_army for this_army in army if this_army and this_army.commander_id]
                     if army:
-                        equal_distribute_supply = self.team_stat[team]["supply_resource"] + self.team_stat[team][
+                        equal_distribute_supply = self.team_state[team]["supply_resource"] + self.team_state[team][
                             "supply_reserve"] / len(army)
                         for this_army in army:
                             this_army.supply = equal_distribute_supply
@@ -246,7 +249,8 @@ def state_battle_process(self):
                     self.end_delay = 0
 
         elif self.grand:  # update grand campaign during battle still ongoing
-            # time in battle is slower than time in grand campaign where 1 battle minute is equal to 1 phase instead of 1 second in campaign at normal game speed
+            # time in battle is slower than time in grand campaign where 1 battle minute is equal to 1 phase
+            # instead of 1 second in campaign at normal game speed
             self.grandgrand_process(dt / Phase_To_Battle_Time)
 
     # update camera
@@ -258,5 +262,6 @@ def state_battle_process(self):
     self.camera.update(self.battle_camera_object_drawer)
     self.outer_ui_updater.update(dt)
     self.camera.update(self.battle_camera_ui_drawer)
+
     self.camera.out_update(self.outer_ui_updater)
     self.blit_culling_check.clear()

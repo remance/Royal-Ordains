@@ -1,4 +1,5 @@
 import sys
+
 import pygame
 from pygame import quit as pg_quit
 
@@ -123,7 +124,7 @@ def state_grand_process(self):
         # update ui and add object to camera
         self.grand_camera_ui_updater.update(self.true_dt)
         self.camera.update(self.grand_camera_object_drawer)
+        self.camera.update(self.grand_camera_ui_drawer)
         self.outer_ui_updater.update(dt)
         self.camera.update(self.ui_menu_drawer)
         self.camera.out_update(self.outer_ui_updater)
-

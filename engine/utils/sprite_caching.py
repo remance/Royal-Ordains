@@ -1,6 +1,6 @@
+import hashlib
 import lzma
 import pickle
-import hashlib
 
 from PIL import Image
 from pygame import Surface

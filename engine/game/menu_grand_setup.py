@@ -1,5 +1,4 @@
 from copy import deepcopy
-from random import randint
 
 from engine.constants import Culture_Policy_Integration
 
@@ -13,13 +12,22 @@ def menu_grand_setup(self):
     elif self.grand_setup_start_button.event_press:
         all_faction_state = {}
         free_faction_state = {}
+        alliance_state = {}
         player_faction = self.grand_faction_selector.selected_faction
         for faction, faction_value in self.map_data.faction_list.items():
             # start faction culture set at max level policy and max integration
             faction_state = all_faction_state
             if faction == "free":
                 faction_state = free_faction_state
-            faction_state[faction] = {"alliance": [faction], "hostile": [], "army": [], "reserve": [], "plan": {},
+            faction_alliance = faction_value["Diplomacy State"]["alliance"]
+            if faction_alliance:
+                if faction_alliance not in alliance_state:
+                    alliance_state[faction_alliance] = [faction]
+                else:
+                    alliance_state[faction_alliance].append(faction)
+            faction_state[faction] = {"alliance": faction_value["Diplomacy State"]["alliance"],
+                                      "hostile": faction_value["Diplomacy State"]["hostile"], "army": [], "reserve": [],
+                                      "plan": {},
                                       "region": [key for key, value in self.map_data.region_list.items() if
                                                  value["Control"] == faction],
                                       "culture": {
@@ -52,6 +60,7 @@ def menu_grand_setup(self):
                     faction_state[army["Faction"]]["character"][character] = army_id
 
         campaign_state = {"player_camera_pos": None, "player_faction": None,
+                          "alliance": alliance_state,
                           "region": {"control": {key: value["Control"] for key, value in
                                                  self.map_data.region_list.items()},
                                      "buildings": {key: [value["Build Slot " + str(index)] for index in range(1, 11) if
@@ -63,7 +72,7 @@ def menu_grand_setup(self):
                                                 self.map_data.region_list}
                                      },
                           "free_leader": {},
-                          "battle": {"armies": [], "dot": {}, "state": {}, "auto": [], "manual": None},
+                          "battle": {"armies": [], "dot": [], "factions": [], "auto": {}, "manual": None},
                           "pathfinding": {}, "direct_routing": {},
                           "possible_events": deepcopy(self.map_data.event_list),
                           "faction": all_faction_state,

@@ -1,6 +1,7 @@
-from os.path import join
-import pickle
 import lzma
+import pickle
+from os.path import join
+
 import pygame
 from pygame import Surface, SRCALPHA, Vector2
 from pygame.transform import smoothscale, flip
@@ -269,7 +270,8 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                     # remove EVENT, GRAND, and DIPLOMACY from battle animation pool save
                     character_animation_pool.pop(animation_name)
 
-            character_hash = save_pickle_with_surfaces(join(data_dir, "animation", character + ".xz"), character_animation_pool)
+            character_hash = save_pickle_with_surfaces(join(data_dir, "animation", character + ".xz"),
+                                                       character_animation_pool)
             animation_pickle_hash[character] = character_hash
             if "_leader_" in character or "leader_" == character[:7]:
                 for animation_name, animation_frame in animation_pool[character].items():

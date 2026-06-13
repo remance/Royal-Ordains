@@ -3,7 +3,6 @@ from os import path
 
 from engine.constants import Custom_Default_Culture
 
-
 custom_army_character_type_list = ("commander", "leader", "troop", "air")
 custom_army_character_type_max_index = {"commander": 0, "retinue": 2, "leader": 2, "troop": 4, "air": 4}  # len - 1
 

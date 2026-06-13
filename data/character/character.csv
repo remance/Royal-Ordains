@@ -393,7 +393,7 @@
 "leader_tehcu","barren","orc",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"strategy_god_of_war",,,,,,,,,,,,"ground",,"melee",,,,
 "leader_tehcu_demon","barren","orc",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"strategy_god_of_war",,,,,,,,,,,,"ground",,"melee",,,,"debuff_focus"
 "leader_tehcu_hero","barren","orc",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"strategy_god_of_war",,,,,,,,,,,,"ground",,"melee",,,,"buff_focus"
-"leader_tensimpho","doll","undead",3100,76,91,30,70,0.5,-0.5,0.75,0.25,0.25,0.5,-0.5,0.5,0.75,100,200,50,165,1,1,,,"TRUE","TRUE",,"spell_mass_slow",5,10,3,4,3,3,9,10,,,,"ground","light_melee","melee",390,,,"no_upgrade"
+"leader_tensimpho","doll","undead",3100,76,91,30,70,-0.25,-1,0.5,0.25,0.25,0.5,-0.75,0.5,0.75,100,200,50,165,1,1,,,"TRUE","TRUE",,"spell_mass_slow",5,10,3,4,3,3,9,10,,,,"ground","light_melee","melee",390,,,"no_upgrade"
 "leader_tolhhunn","demon","demon",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"strategy_chaos_invasion",,,,,,,,,,,,"ground",,,,,,"no_upgrade"
 "leader_tolzarnkan","demon","demon",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"strategy_gate_of_hell",,,,,,,,,,,,"ground",,,,,,"no_upgrade"
 "leader_tulia","castle","human",1500,64,35,50,52,,0.25,,,,0.25,0.25,,,1200,380,170,130,1,1,2,,"TRUE","TRUE",,"strategy_ensnare",5,6,6,2,6,2,2,6,,,,"ground","light_range","range",300,"TRUE",,

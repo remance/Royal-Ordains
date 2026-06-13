@@ -1,13 +1,11 @@
-from math import cos, sin, radians, atan2
+from math import cos, sin, radians
 
-from pygame import Vector2, draw, sprite, Surface, SRCALPHA
-from pygame.mask import from_surface
-from pygame.sprite import collide_mask, Sprite
-from pygame.transform import rotate, smoothscale, flip
+from pygame import Vector2, draw, Surface
+from pygame.transform import rotate
 
-from engine.uigrand.uigrand import UIGrand
-from engine.utils.rotation import find_target_point, set_rotate
 from engine.constants import Turn_To_Phase
+from engine.uigrand.uigrand import UIGrand
+from engine.utils.rotation import set_rotate
 
 
 def circle_orbit(center, radius, angle, *args):
@@ -75,7 +73,7 @@ class MiniCosmosUI(UIGrand):
     def update(self, dt):
         UIGrand.update(self, dt)
         if self.mouse_over:
-            text = [self.localisation.grab_text(("ui", "info_header_current_cosmic_events")),]
+            text = [self.localisation.grab_text(("ui", "info_header_current_cosmic_events")), ]
             cosmic_event_list = self.grand.current_campaign_state["cosmic_event"]
             if cosmic_event_list:
                 for event in cosmic_event_list:
@@ -113,30 +111,30 @@ class CosmosUI(UIGrand):
         self.terra = CosmicEntity(15, 0, (50, 50, 180), "earth",
                                   specific_base_pos=(1250, 1080))  # center of cosmos ui image before scaling
 
-        comet_hidden_planet_center = CosmicEntity(0,  0, (255, 255, 255), "",
+        comet_hidden_planet_center = CosmicEntity(0, 0, (255, 255, 255), "",
                                                   specific_base_pos=(750, 1836))
 
         # Add planets
         self.planets = {"pale_moon": CosmicEntity(10, 0, (230, 230, 230), "pale_moon",
-                                     orbit={"parent": self.terra, "speed": 1, "radius": 190}),
+                                                  orbit={"parent": self.terra, "speed": 1, "radius": 190}),
                         "dark_moon": CosmicEntity(10, 0, (30, 125, 230), "dark_moon",
-                                     orbit={"parent": self.terra, "speed": 0.8, "radius": 260}),
+                                                  orbit={"parent": self.terra, "speed": 0.8, "radius": 260}),
                         "red_planet": CosmicEntity(10, 0, (200, 30, 30), "red_planet",
-                                     orbit={"parent": self.terra, "speed": 0.048, "radius": 288},
-                                     epicycle={"speed": 0.16, "radius": 120}),
+                                                   orbit={"parent": self.terra, "speed": 0.048, "radius": 288},
+                                                   epicycle={"speed": 0.16, "radius": 120}),
                         "sun": CosmicEntity(15, 0, (255, 100, 10), "sun",
-                                     orbit={"parent": self.terra, "speed": 0.2, "radius": 480}),
+                                            orbit={"parent": self.terra, "speed": 0.2, "radius": 480}),
                         "purple_planet": CosmicEntity(10, 0, (160, 70, 160),
                                                       "purple_planet",
                                                       orbit={"parent": self.terra, "speed": 0.006, "radius": 593},
                                                       epicycle={"speed": 0.048, "radius": 120}),
                         "green_planet": CosmicEntity(10, 0, (86, 150, 86), "green_planet",
-                                     orbit={"parent": self.terra, "speed": 0.002, "radius": 779},
-                                     epicycle={"speed": 0.04, "radius": 100}),
+                                                     orbit={"parent": self.terra, "speed": 0.002, "radius": 779},
+                                                     epicycle={"speed": 0.04, "radius": 100}),
                         "comet": CosmicEntity(7, 200, (255, 255, 0), "comet",
-                                     orbit={"parent": comet_hidden_planet_center, "angle": 300,
-                                            "speed": 0.01, "radius": (1200, 2200), "radius_scale": 10},
-                                     movement_angle=True),
+                                              orbit={"parent": comet_hidden_planet_center, "angle": 300,
+                                                     "speed": 0.01, "radius": (1200, 2200), "radius_scale": 10},
+                                              movement_angle=True),
                         "earth": self.terra}
 
         self.sun = self.planets["sun"]
@@ -232,7 +230,7 @@ class CosmosUI(UIGrand):
             green_moon_alignment = all(
                 (moon_alignment, pale_moon.rect.clipline(terra_base_pos, self.green_planet.pos)))
             trio_alignment = all((red_planet.rect.clipline(terra_base_pos, self.purple_planet.pos),
-                                 (red_planet.rect.clipline(terra_base_pos, self.green_planet.pos))))
+                                  (red_planet.rect.clipline(terra_base_pos, self.green_planet.pos))))
             diamond_sun_alignment = all((trio_alignment, red_planet.rect.clipline(terra_base_pos, sun.pos)))
             full_alignment = all((moon_alignment, eclipse_alignment, red_moon_alignment, purple_moon_alignment,
                                   green_moon_alignment))
@@ -333,7 +331,8 @@ class CosmicEntity(UIGrand):
             if not self.using_event_image:
                 for event in cosmic_event:
                     if self.cosmic_id in self.cosmic_event_list[event]["Cosmic Replace"]:
-                        self.base_image = self.cosmos_ui_images[self.cosmic_event_list[event]["Cosmic Replace"][self.cosmic_id]]
+                        self.base_image = self.cosmos_ui_images[
+                            self.cosmic_event_list[event]["Cosmic Replace"][self.cosmic_id]]
                         self.image = self.base_image
                         break
                 self.using_event_image = True
@@ -347,7 +346,7 @@ class CosmicEntity(UIGrand):
         if self.orbit_speed:
             self.current_orbit_angle += self.orbit_speed * dt
             new_pos = self.orbit_process(self.parent.base_pos, self.orbit_radius, self.current_orbit_angle,
-                                                self.orbit_angle)
+                                         self.orbit_angle)
             if self.movement_angle and self.base_pos:
                 sprite_angle = int(set_rotate(self.base_pos, new_pos))
                 if sprite_angle not in self.rotate_cache[self.cosmic_id]:

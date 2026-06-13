@@ -19,12 +19,12 @@ def conduct_troop_call(self):
         leader_call_cooldown = self.battle.team2_call_leader_cooldown_reinforcement
         troop_call_cooldown = self.battle.team2_call_troop_cooldown_reinforcement
 
-    current_supply = self.team_stat["supply_resource"]
+    current_supply = self.team_state["supply_resource"]
 
     # plan for troop related
-    troop_available_to_call = [item for index, item in enumerate(self.team_stat["troop_call_list"]) if
+    troop_available_to_call = [item for index, item in enumerate(self.team_state["troop_call_list"]) if
                                index not in troop_call_cooldown and current_supply >= item[2]]
-    leader_available_to_call = [index for index, item in enumerate(self.team_stat["leader_call_list"]) if
+    leader_available_to_call = [index for index, item in enumerate(self.team_state["leader_call_list"]) if
                                 index not in leader_call_cooldown and current_supply >= item[2]]
 
     troop_class_available_to_call = {index: self.character_list[item[0]]["Class"] for index, item in
@@ -147,5 +147,5 @@ def conduct_troop_call(self):
                         air_interceptor_available_to_call.remove(air_group)
 
             if air_to_call:
-                self.battle.call_in_air_group(self.team, air_to_call, self.team_stat["start_pos"])
+                self.battle.call_in_air_group(self.team, air_to_call, self.team_state["start_pos"])
     # print(air_available_to_call)

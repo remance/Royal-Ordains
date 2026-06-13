@@ -36,7 +36,7 @@ class TextDrama(UIBattle):
         battle_log = self.battle.save_data.save_profile["battle log"]
         battle_log.append(
             ("(" + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + ") At " + self.battle.stage + ", " +
-             self.localisation.grab_text(("ui", "log_header_battle")), self.queue[0][1]))
+             self.grab_text(("ui", "log_header_battle")), self.queue[0][1]))
         if len(battle_log) > 500:
             self.battle.save_data.save_profile["battle log"] = battle_log[1:]
 

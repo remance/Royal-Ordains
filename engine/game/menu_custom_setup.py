@@ -167,7 +167,8 @@ def menu_custom_setup(self):
             self.custom_battle_stage_button.change_state(self.selected_custom_stage_battle)
             self.custom_battle_weather_type_button.change_state(
                 "weather_" + str(self.selected_weather_custom_battle))
-            self.custom_battle_weather_strength_button.change_state(self.custom_weather_strength_list[self.selected_weather_strength_custom_battle])
+            self.custom_battle_weather_strength_button.change_state(
+                self.custom_weather_strength_list[self.selected_weather_strength_custom_battle])
             self.custom_battle_team_setup[1].change_cost(0, self.custom_team_army[1][0].cost,
                                                          self.custom_team_army[1][0].total_supply_usage)
             self.custom_battle_team_setup[2].change_cost(0, self.custom_team_army[2][0].cost,
@@ -295,30 +296,31 @@ def menu_custom_setup(self):
                 else:
                     custom_team_army[1][0].supply = self.team1_supply_limit_custom_battle
                     custom_team_army[2][0].supply = self.team2_supply_limit_custom_battle
-                    team_stat = {0: {"faction": "free", "culture": "free",
-                                     "strategy_resource": 0, "start_pos": 0.5, "air_group": [],
-                                     "active_retinue": (), "retinue": (), "strategy": [], "strategy_cooldown": {},
-                                     "main_army": None, "reinforcement_army": []},
-                                 1: {"faction": custom_team_army[1][0].faction,
-                                     "culture": custom_team_army[1][0].culture,
-                                     "strategy_resource": 0,
-                                     "start_pos": 0, "air_group": [],
-                                     "active_retinue": (), "retinue": (), "strategy": [], "strategy_cooldown": {},
-                                     "main_army": custom_team_army[1][0],
-                                     "reinforcement_army": custom_team_army[1][1:]},
-                                 2: {"faction": custom_team_army[2][0].faction,
-                                     "culture": custom_team_army[2][0].culture,
-                                     "strategy_resource": 100,
-                                     "start_pos": 1, "air_group": [],
-                                     "active_retinue": (), "retinue": (), "strategy": [], "strategy_cooldown": {},
-                                     "main_army": custom_team_army[2][0],
-                                     "reinforcement_army": custom_team_army[2][1:]}}
+                    team_state = {0: {"faction": "free", "culture": "free",
+                                      "strategy_resource": 0, "start_pos": 0.5, "air_group": [],
+                                      "active_retinue": (), "strategy": [], "strategy_cooldown": {},
+                                      "main_army": None, "reinforcement_army": []},
+                                  1: {"faction": custom_team_army[1][0].faction,
+                                      "culture": custom_team_army[1][0].culture,
+                                      "strategy_resource": 0,
+                                      "start_pos": 0, "air_group": [],
+                                      "active_retinue": (), "strategy": [], "strategy_cooldown": {},
+                                      "main_army": custom_team_army[1][0],
+                                      "reinforcement_army": custom_team_army[1][1:]},
+                                  2: {"faction": custom_team_army[2][0].faction,
+                                      "culture": custom_team_army[2][0].culture,
+                                      "strategy_resource": 0,
+                                      "start_pos": 1, "air_group": [],
+                                      "active_retinue": (), "strategy": [], "strategy_cooldown": {},
+                                      "main_army": custom_team_army[2][0],
+                                      "reinforcement_army": custom_team_army[2][1:]}}
                     player = None
                     if self.custom_team_players[1] == "player":
                         player = 1
                     elif self.custom_team_players[2] == "player":
                         player = 2
-                    self.start_battle(None, "main", self.selected_custom_stage_battle, team_stat, player,
+                    self.start_battle(None, "main", self.selected_custom_stage_battle, team_state, player,
                                       custom_stage_data={
                                           "weather": (self.selected_weather_custom_battle,
-                                                      self.selected_weather_strength_custom_battle)})
+                                                      self.selected_weather_strength_custom_battle)},
+                                      setup_battle=True)

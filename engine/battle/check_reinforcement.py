@@ -1,4 +1,4 @@
-from engine.battle.setup_team_characters import add_neutral_character
+from engine.battle.setup_team_characters import add_neutral_stage_character
 from engine.character.character import BattleCharacter
 from engine.constants import Default_Battle_Ground_Pos
 
@@ -11,7 +11,7 @@ def check_reinforcement(self):
             if condition_type != "team":
                 if condition_check[condition_type](self, condition):
                     for key_data in reinforcement.copy():
-                        add_neutral_character(self, key_data)
+                        add_neutral_stage_character(self, key_data)
                         reinforcement.remove(key_data)  # remove added reinforcement from list
             else:
                 if self.team_commander[condition] and self.team_commander[condition].alive and \
@@ -27,7 +27,7 @@ def check_reinforcement(self):
                                     data = {"Team": condition, "ID": character}
                                     if "POS" not in data:
                                         data["POS"] = (
-                                            self.team_stat[condition]["start_pos"], Default_Battle_Ground_Pos)
+                                            self.team_state[condition]["start_pos"], Default_Battle_Ground_Pos)
 
                                     add_battle_char = BattleCharacter(self.last_char_game_id,
                                                                       data | self.character_list[character],
@@ -44,7 +44,7 @@ def check_reinforcement(self):
                             reinforcement.pop("ground")
 
                     if "air" in reinforcement:
-                        if reinforcement["air"] and len(self.team_stat[condition]["air_group"]) < 5:
+                        if reinforcement["air"] and len(self.team_state[condition]["air_group"]) < 5:
                             # No more than 5 controllable air groups can be available in battle
                             self.create_air_group(reinforcement["air"][0], condition,
                                                   self.team_commander[condition])

@@ -31,8 +31,8 @@ class BattleCommanderAI:
         self.character_list = self.battle.character_list
         self.commander = self.battle.team_commander[team]
         self.enemy_commander = self.battle.team_commander[self.enemy_team]
-        self.team_stat = self.battle.team_stat[team]
-        self.enemy_team_stat = self.battle.team_stat[self.enemy_team]
+        self.team_state = self.battle.team_state[team]
+        self.enemy_team_state = self.battle.team_state[self.enemy_team]
 
         self.ground_enemy_collision_grids = self.battle.all_team_ground_enemy_collision_grids[self.team]
         self.air_enemy_collision_grids = self.battle.all_team_air_enemy_collision_grids[self.team]
@@ -43,8 +43,8 @@ class BattleCommanderAI:
         self.can_clarity_status_list = self.battle.can_clarity_status_list
         self.strategy_list = self.battle.strategy_list
         self.last_grid = self.battle.last_grid
-        self.air_group = self.team_stat["air_group"]
-        self.own_strategy = self.team_stat["strategy"]
+        self.air_group = self.team_state["air_group"]
+        self.own_strategy = self.team_state["strategy"]
         self.own_strategy_type = {"weather": set(), "ally": set(), "enemy": set(), "summon": set(),
                                   "cure": set(), "clarity": set()}
         self.has_cure_strategy = False
@@ -81,7 +81,7 @@ class BattleCommanderAI:
             self.commander_air_prefer = commander_stat["Commander Air Like"]
             self.commander_leader_prefer = commander_stat["Commander Leader Like"]
 
-            for strategy in self.team_stat["strategy"]:
+            for strategy in self.team_state["strategy"]:
                 stat = self.strategy_list[strategy]
                 if stat["Power"] or stat["Enemy Status"]:  # attack/summon strategy to use at enemy
                     self.own_strategy_type["enemy"].add(strategy)
@@ -102,7 +102,7 @@ class BattleCommanderAI:
                 if "weather" in stat["Property"]:
                     self.own_strategy_type["weather"].add(strategy)
 
-        self.enemy_strategy = self.battle.team_stat[self.enemy_team]["strategy"]
+        self.enemy_strategy = self.battle.team_state[self.enemy_team]["strategy"]
         self.enemy_strategy_type = {"ally": set(), "enemy": set()}
         for strategy in self.enemy_strategy:
             stat = self.strategy_list[strategy]
@@ -129,7 +129,7 @@ class BattleCommanderAI:
             self.lower_act_time = 10 / self.swift
             self.higher_act_time = 50 / self.swift
             self.act_time = uniform(self.lower_act_time, self.higher_act_time)
-        self.start_pos = self.battle.team_stat[self.team]["start_pos"]
+        self.start_pos = self.battle.team_state[self.team]["start_pos"]
 
     def update(self, dt):
         if self.commander.alive:

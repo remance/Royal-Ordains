@@ -773,7 +773,7 @@ class CustomTeamSetupUI(UIMenu):
         self.empty_supply_warn_box = self.supply_warn_text_box.copy()
         text = self.note_font.render(self.grab_text(("ui", "warn_supply_exceed")), True, (30, 30, 30))
         self.supply_warn_text_box.blit(text, text.get_rect(midleft=(0,
-                                                                     self.supply_warn_text_box.get_height() / 2)))
+                                                                    self.supply_warn_text_box.get_height() / 2)))
         self.supply_warn_text_box_rect = self.supply_warn_text_box.get_rect(midleft=(0, self.cost_text_rects["warn"]))
 
         self.rect = self.image.get_rect(center=pos)
@@ -832,7 +832,7 @@ class CustomTeamSetupUI(UIMenu):
 
         text = self.font.render(add_comma_number(remain), True, (30, 30, 30))
         text_box_image.blit(text, text.get_rect(midleft=(0, text_box_image.get_height() / 2)))
-        self.image.blit(text_box_image, text_box_image.get_rect(midleft=(0,  self.cost_text_rects["total"])))
+        self.image.blit(text_box_image, text_box_image.get_rect(midleft=(0, self.cost_text_rects["total"])))
 
     def change_cost(self, index, cost, supply, check_total=True):
         text_box_image = self.text_box_image.copy()
@@ -1085,7 +1085,8 @@ class PresetArmySetupUI(UIMenu):
                                                      "Leadership"] * Retinue_Leadership_Add_Modifier
                     self.total_gold_cost += self.character_list[character]["Cost"]
                     if character_type not in ("commander", "air", "retinue"):
-                        self.total_supply_usage += self.character_list[character]["Supply"] * self.character_list[character]["Capacity"]
+                        self.total_supply_usage += self.character_list[character]["Supply"] * \
+                                                   self.character_list[character]["Capacity"]
 
         self.game.custom_preset_army_title.change_text(self.current_preset, self.total_gold_cost,
                                                        self.total_supply_usage, self.total_leadership)

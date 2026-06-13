@@ -40,4 +40,3 @@ def change_turn(self, turn_change=True):
             army.reset_stat()
 
         self.cal_faction_income(faction)
-

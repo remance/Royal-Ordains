@@ -282,6 +282,12 @@ def stat_convert(row, n, i, percent_column=(), list_column=(), tuple_column=(), 
                         for k_index, k in enumerate(new_i2[1]):
                             new_i2[1][k_index] = item_conversion(k)
                         result_i[key] = tuple(new_i2[1])
+                    elif "[" in new_i2[1]:  # list value
+                        new_i2[1] = new_i2[1].replace("]", "").replace("[", "")
+                        new_i2[1] = new_i2[1].split(";")
+                        for k_index, k in enumerate(new_i2[1]):
+                            new_i2[1][k_index] = item_conversion(k)
+                        result_i[key] = list(new_i2[1])
                     elif "{" in new_i2[1]:  # dict value with key=value instead of key:value
                         new_i2[1] = new_i2[1].replace("{", "").replace("}", "")
                         item_list = tuple([item_conversion(item2) for item2 in new_i2[1].split(";")])
@@ -317,7 +323,7 @@ def item_conversion(i):
             return 0
         # if i[0] == "{" and i[-1] == "}":  # dict item
         #
-        elif i[0] == "(" and i[-1] == ")":  # tuple item
+        elif (i[0] == "(" and i[-1] == ")") or (i[0] == "[" and i[-1] == "]"):  # tuple/list item
             i = i[1:-1]
             i = i.split(";")  # item with item1;item2 instead of ","
             for index_c, c in enumerate(i):

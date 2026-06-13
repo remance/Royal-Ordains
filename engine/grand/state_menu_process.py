@@ -1,4 +1,5 @@
 import sys
+
 import pygame
 from pygame import quit as pg_quit
 
@@ -47,13 +48,15 @@ def state_menu_process(self):
 
                     elif key == "option":  # open option menu
                         self.esc_menu_mode = "option"  # change to option menu mode
-                        self.remove_from_ui_menu_updater(self.grand_menu_button.values())  # remove start_set esc menu button
+                        self.remove_from_ui_menu_updater(
+                            self.grand_menu_button.values())  # remove start_set esc menu button
                         self.add_to_ui_menu_updater(self.esc_option_menu_button, self.esc_slider_menu.values(),
                                                     self.esc_value_boxes.values(), self.esc_option_text.values())
 
                     elif key == "save":  # open save menu
                         self.esc_menu_mode = "save"  # change to option menu mode
-                        self.remove_from_ui_menu_updater(self.grand_menu_button.values())  # remove start_set esc menu button
+                        self.remove_from_ui_menu_updater(
+                            self.grand_menu_button.values())  # remove start_set esc menu button
                         self.add_to_ui_menu_updater()
 
                     elif key == "end":  # end battle
@@ -70,7 +73,8 @@ def state_menu_process(self):
         elif self.esc_menu_mode == "battle":  # battle log
             if self.esc_dialogue_button.event_press or self.esc_press:  # confirm or esc, close option menu
                 self.esc_menu_mode = "menu"  # go back to start_set esc menu
-                self.remove_from_ui_menu_updater(self.esc_dialogue_button, self.dialogue_box)  # remove option menu sprite
+                self.remove_from_ui_menu_updater(self.esc_dialogue_button,
+                                                 self.dialogue_box)  # remove option menu sprite
                 self.add_to_ui_menu_updater(self.grand_menu_button.values())  # add start_set esc menu buttons back
 
         elif self.esc_menu_mode == "option":  # option menu

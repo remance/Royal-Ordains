@@ -1,13 +1,14 @@
+import ast
+import lzma
+import pickle
+from math import ceil
+from multiprocessing import cpu_count
 from os import sep, listdir
 from os.path import join, split, normpath, getsize
 from pathlib import Path
-from math import ceil
-import pickle
-import ast
-import lzma
-import psutil
 from threading import Thread
-from multiprocessing import cpu_count
+
+import psutil
 from pygame.transform import smoothscale, flip
 
 from engine.data.data import GameData
@@ -170,9 +171,10 @@ class DataSprite(GameData):
     @staticmethod
     def load_effect_sprites(screen_size, config_animation_hash, animation_pickle_hash, data_dir, effect_animation_pool,
                             screen_scale):
-        if (screen_size != (1, 1) and (screen_size != config_animation_hash["screen_resolution"] or
-                                       "effect" not in animation_pickle_hash or not config_animation_hash[
-                    "effect"] or animation_pickle_hash["effect"] != config_animation_hash["effect"])):
+        if (not Path(join(data_dir, "animation", "cache_effect_animation.xz")).exists() or
+                (screen_size != (1, 1) and (screen_size != config_animation_hash["screen_resolution"] or
+                                            "effect" not in animation_pickle_hash or not config_animation_hash[
+                            "effect"] or animation_pickle_hash["effect"] != config_animation_hash["effect"]))):
             # effect sprite or screen resolution got changed, load and scale
 
             new_effect_animation_pool = load_pickle_with_surfaces(
@@ -181,7 +183,7 @@ class DataSprite(GameData):
 
             # save the above pool to cache for future use
             save_pickle_with_surfaces(join(data_dir, "animation", "cache_effect_animation.xz"),
-                                      effect_animation_pool)
+                                      new_effect_animation_pool)
             config_animation_hash["effect"] = animation_pickle_hash["effect"]
         else:
             new_effect_animation_pool = load_pickle_with_surfaces(

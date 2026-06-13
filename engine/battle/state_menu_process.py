@@ -1,6 +1,7 @@
 import sys
 
 from pygame import quit as pg_quit
+
 from engine.uimenu.uimenu import ListAdapter
 from engine.utils.common import edit_config
 
@@ -29,6 +30,8 @@ def state_menu_process(self):
                 sys.exit()
             elif input_popup == "end_battle":
                 self.back_to_battle_state()
+                if self.grand:
+                    return  # TODO add here updated battle state to return for auto battle state
                 return False
 
         elif self.input_cancel_button.event_press or self.esc_press:
@@ -70,19 +73,20 @@ def state_menu_process(self):
 
                     elif key == "end":  # end battle
                         self.activate_input_popup(("confirm_input", "end_battle"),
-                                                  self.localisation.grab_text(("ui", "input_leave_battle")),
+                                                  self.grab_text(("ui", "input_leave_battle")),
                                                   self.confirm_popup_uis)
 
                     elif key == "quit":  # quit game
                         self.activate_input_popup(("confirm_input", "quit"),
-                                                  self.localisation.grab_text(("ui", "input_quit_game")),
+                                                  self.grab_text(("ui", "input_quit_game")),
                                                   self.confirm_popup_uis)
                     break  # found clicked button, break loop
 
         elif self.esc_menu_mode == "battle":  # battle log
             if self.esc_dialogue_button.event_press or self.esc_press:  # confirm or esc, close option menu
                 self.esc_menu_mode = "menu"  # go back to start_set esc menu
-                self.remove_from_ui_menu_updater(self.esc_dialogue_button, self.dialogue_box)  # remove option menu sprite
+                self.remove_from_ui_menu_updater(self.esc_dialogue_button,
+                                                 self.dialogue_box)  # remove option menu sprite
                 self.add_to_ui_menu_updater(self.battle_menu_button.values(),
                                             self.scene_translation_text_popup)  # add start_set esc menu buttons back
 

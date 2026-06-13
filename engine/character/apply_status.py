@@ -25,7 +25,7 @@ def apply_status(self, status):
         if "false_order" in status_stat["Property"] and not self.is_commander:  # apply false order
             if status_stat["Property"]["false_order"] == "advance":
                 # move command to enemy camp
-                self.issue_commander_order(("move", self.battle.team_stat[self.enemy_team]["start_pos"]),
+                self.issue_commander_order(("move", self.battle.team_state[self.enemy_team]["start_pos"]),
                                            false_order=True)
             elif status_stat["Property"]["false_order"] == "idle":
                 # attack command to enemy camp

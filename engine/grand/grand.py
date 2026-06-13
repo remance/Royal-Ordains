@@ -42,15 +42,16 @@ from engine.grandmap.grandmap import GrandMap
 from engine.grandobject.grandobject import GrandObject
 from engine.uibattle.drama import TextDrama
 from engine.uibattle.uibattle import FPSCount
+from engine.uigrand.cosmos import CosmosUI, MiniCosmosUI
 from engine.uigrand.uigrand import (YesNo, PlayerGrandInteract, PlayerFactionResourceBar, PlayerFactionCultureList,
+                                    DotArmyInfoBanner,
                                     PlayerArmyList, PlayerArmyListSortOption, MapSettingOption,
                                     TimeInfoBar, TimeSettingOption, EventImportantPopup,
                                     MenuBar, RegionManagement, EventNotification, ArmyInfo)
-from engine.uigrand.cosmos import CosmosUI, MiniCosmosUI
 from engine.uimenu.uimenu import TextPopup, GrandMiniMap, UIScroll, PresetArmySetupUI, CharacterSelector
 from engine.updater.updater import ReversedLayeredUpdates
 from engine.utils.common import clean_group_object
-from engine.utils.data_loading import load_image, load_images
+from engine.utils.data_loading import load_image
 
 
 class Grand:
@@ -133,6 +134,7 @@ class Grand:
 
         GrandActor.containers = self.grand_actor_updater, self.grand_camera_object_drawer
         GrandFactionActorBar.containers = self.grand_actor_updater, self.grand_camera_object_drawer
+        DotArmyInfoBanner.containers = self.grand_camera_ui_updater, self.grand_camera_ui_drawer
 
         GrandObject.containers = self.grand_actor_updater, self.grand_camera_object_drawer
 
@@ -246,6 +248,7 @@ class Grand:
         self.route_dot_draw_array = {}
 
         # Create grand ui
+        self.dots_army_info_banners = {}
         self.travel_dot_images = {1: {}, 2: {}, 3: {}, 4: {}}  # get added during campaign prepare
         self.grand_ui_images = self.game.grand_ui_images
         self.cosmos_ui_images = self.game.cosmos_ui_images
@@ -368,6 +371,7 @@ class Grand:
                 if angle not in self.travel_dot_images[difficulty]:
                     self.travel_dot_images[difficulty][angle] = rotate(travel_dot_images[difficulty], angle)
                 route_dot_draw_array[scale_x][scale_y] = self.travel_dot_images[difficulty][angle]
+
         self.route_dot_draw_array = route_dot_draw_array
 
         # load actor animation sprite
@@ -379,6 +383,10 @@ class Grand:
         for route_data in self.map_data.route_list.values():
             for dot in route_data["Dots"]:
                 self.dots_army_occupation[dot] = {}
+
+                self.dots_army_info_banners[dot] = DotArmyInfoBanner(
+                    dot, (dot[0] * self.grand_map.map_shown_to_actual_scale_width,
+                          dot[1] * self.grand_map.map_shown_to_actual_scale_height))
 
         # setup armies, replace dict with object
         for faction, faction_value in self.current_campaign_state["faction"].items():
@@ -580,7 +588,10 @@ class Grand:
         self.player_faction = None
         self.player_input = None
         self.current_campaign_state = {}
-        self.dots_army_occupation = {}
+        self.dots_army_occupation.clear()
+        for dot in self.dots_army_info_banners:
+            self.dots_army_info_banners[dot].kill()
+        self.dots_army_info_banners.clear()
 
         self.region_by_colour_index = {}
         self.region_list = {}

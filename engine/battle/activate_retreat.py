@@ -8,6 +8,6 @@ def activate_retreat(self, team):
                                   None))
     for character in self.battle.all_team_ally[self.team]:
         character.broken = True
-    for air_group in self.battle.team_stat[self.team]["air_group"]:
+    for air_group in self.battle.team_state[self.team]["air_group"]:
         for character in air_group:
             character.broken = True

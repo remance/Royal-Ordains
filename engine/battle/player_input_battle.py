@@ -28,7 +28,7 @@ def camera_go_right(self):
 
 
 def key_call_leader(self, index):
-    if index < len(self.team_stat[self.player_team]["leader_call_list"]):
+    if index < len(self.team_state[self.player_team]["leader_call_list"]):
         self.call_reinforcement(self.player_team, "leader", index)
 
 
@@ -45,7 +45,7 @@ def key_call_leader_3(self):
 
 
 def key_call_troop(self, index):
-    if index < len(self.team_stat[self.player_team]["troop_call_list"]):
+    if index < len(self.team_state[self.player_team]["troop_call_list"]):
         self.call_reinforcement(self.player_team, "troop", index)
 
 
@@ -70,8 +70,8 @@ def key_call_troop_5(self):
 
 
 def key_call_air(self, index):
-    if self.team_stat[self.player_team]["air_group"] and index < len(self.team_stat[self.player_team]["air_group"]):
-        self.call_in_air_group(self.player_team, (index,), self.team_stat[self.player_enemy_team]["start_pos"])
+    if self.team_state[self.player_team]["air_group"] and index < len(self.team_state[self.player_team]["air_group"]):
+        self.call_in_air_group(self.player_team, (index,), self.team_state[self.player_enemy_team]["start_pos"])
 
 
 def key_call_air_1(self):
@@ -95,10 +95,10 @@ def key_call_air_5(self):
 
 
 def key_select_strategy(self, index):
-    player_team_stat = self.team_stat[self.player_team]
-    if player_team_stat["strategy"] and index < len(player_team_stat["strategy"]):
-        this_strategy = player_team_stat["strategy"][index]
-        if not player_team_stat["strategy_cooldown"][index]:
+    player_team_state = self.team_state[self.player_team]
+    if player_team_state["strategy"] and index < len(player_team_state["strategy"]):
+        this_strategy = player_team_state["strategy"][index]
+        if not player_team_state["strategy_cooldown"][index]:
             # strategy exist and not in cooldown
             self.player_selected_strategy = (this_strategy, index)
             strategy_stat = self.strategy_list[this_strategy]

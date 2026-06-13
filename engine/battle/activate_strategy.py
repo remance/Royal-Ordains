@@ -12,10 +12,10 @@ grid_width = Default_Screen_Width / Collision_Grid_X_Per_Battle_Scene
 def activate_strategy(self, team, strategy, strategy_index, base_pos_x):
     stat = self.strategy_list[strategy]
     commander = self.team_commander[team]
-    if (self.team_stat[team]["strategy_resource"] > stat["Resource Cost"] and (
+    if (self.team_state[team]["strategy_resource"] > stat["Resource Cost"] and (
             not commander or not stat["Activate Range"] or
             abs(commander.base_pos[0] - base_pos_x) < stat["Activate Range"])):
-        self.team_stat[team]["strategy_resource"] -= stat["Resource Cost"]
+        self.team_state[team]["strategy_resource"] -= stat["Resource Cost"]
 
         if team == self.player_team:
             self.drama_text.queue.append((False, self.localisation.grab_text(("strategy", strategy, "Ally")), None))
@@ -25,7 +25,7 @@ def activate_strategy(self, team, strategy, strategy_index, base_pos_x):
 
         StrategyIcon(strategy, base_pos_x)
 
-        self.team_stat[team]["strategy_cooldown"][strategy_index] = stat["Cooldown"]
+        self.team_state[team]["strategy_cooldown"][strategy_index] = stat["Cooldown"]
         if stat["Property"]:
             if "weather" in stat["Property"]:  # strategy that change weather
                 self.current_weather.__init__(stat["Property"]["weather"], randint(120, 250),
@@ -47,7 +47,7 @@ def activate_strategy(self, team, strategy, strategy_index, base_pos_x):
 
         if stat["Damage Effects"]:
             for effect_stat in stat["Damage Effects"]:
-                if not self.team_stat[team]["start_pos"]:  # assume that the data is based on right side origin
+                if not self.team_state[team]["start_pos"]:  # assume that the data is based on right side origin
                     # effect come from left side
                     direction = "left"
                     angle = 180 - effect_stat[4]

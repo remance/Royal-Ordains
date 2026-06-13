@@ -1,7 +1,9 @@
 from configparser import ConfigParser
-from engine.constants import *
+
 import pygame
 import screeninfo
+
+from engine.constants import *
 
 
 def create_config(self):

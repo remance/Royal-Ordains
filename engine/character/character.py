@@ -78,6 +78,7 @@ class Character(sprite.Sprite):
     screen_scale_width = 1
     screen_scale_height = 1
 
+    sub_characters = []
     image = Surface((0, 0))  # start with empty surface
     mask = from_surface(image)
     rect = image.get_rect(topleft=(0, 0))
@@ -168,7 +169,7 @@ class Character(sprite.Sprite):
         self.culture = stat["Culture"]
         self.game_id = game_id  # object ID for reference
 
-        self.name = self.battle.localisation.grab_text(("character", stat["ID"], "Name"))
+        self.name = self.battle.grab_text(("character", stat["ID"], "Name"))
         self.cutscene_event = None
         self.speech = None
         self.is_commander = is_commander
@@ -454,7 +455,7 @@ class BattleCharacter(Character):
         # self.total_offence_power_score = 0
         # self.total_defence_power_score = 0
         self.total_power_score = 0
-        self.start_pos = self.battle.team_stat[self.team]["start_pos"]
+        self.start_pos = self.battle.team_state[self.team]["start_pos"]
         self.retreat_pos = self.start_pos * 2
         if not self.start_pos:
             self.retreat_pos = -10000
@@ -588,7 +589,7 @@ class BattleCharacter(Character):
 
         self.retreat_stage_end = self.battle.base_stage_end + (self.sprite_width * 2)
         self.retreat_stage_start = -self.sprite_width * 2
-        self.enemy_start_pos = self.battle.team_stat[self.enemy_team]["start_pos"]
+        self.enemy_start_pos = self.battle.team_state[self.enemy_team]["start_pos"]
 
         if self.movesets:
             if self.is_commander:
@@ -830,7 +831,7 @@ class CommanderBattleCharacter(BattleCharacter):
         self.max_followers_len_check = 0
         BattleCharacter.__init__(self, game_id, stat, is_commander=True, additional_layer=100000000)
         self.max_ai_commander_range = self.ai_max_attack_range
-        for strategy in self.battle.team_stat[self.team]["strategy"]:
+        for strategy in self.battle.team_state[self.team]["strategy"]:
             strategy_stat = self.battle.strategy_list[strategy]
             if strategy_stat["Activate Range"] > self.max_ai_commander_range:
                 self.max_ai_commander_range = strategy_stat["Activate Range"]

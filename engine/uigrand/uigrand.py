@@ -243,12 +243,12 @@ class PlayerFactionCultureList(UIGrand):
                     culture_state = self.grand.current_campaign_state["faction"][self.grand.player_faction]["culture"][
                         culture]
                     text = (
-                    self.grab_text(("ui", "info_header_culture")) + self.grab_text(("culture", culture, "Name")),
-                    self.grab_text(("ui", "info_header_policy")) + self.grab_text(
-                        ("ui", "culture_" + culture_state["policy"])),
-                    self.grab_text(("ui", "info_header_integration")) + self.culture_value[culture][
-                        "integration"],
-                    self.grab_text(("ui", "info_header_influence")) + self.culture_value[culture]["influence"])
+                        self.grab_text(("ui", "info_header_culture")) + self.grab_text(("culture", culture, "Name")),
+                        self.grab_text(("ui", "info_header_policy")) + self.grab_text(
+                            ("ui", "culture_" + culture_state["policy"])),
+                        self.grab_text(("ui", "info_header_integration")) + self.culture_value[culture][
+                            "integration"],
+                        self.grab_text(("ui", "info_header_influence")) + self.culture_value[culture]["influence"])
                     self.text_popup.popup(self.cursor.rect.bottomright, text,
                                           width_text_wrapper=self.max_description_box_width)
                     self.outer_ui_updater.add(self.text_popup)
@@ -260,6 +260,98 @@ class RegionInfoBanner(UIGrand):
         self._layer = 5
         UIGrand.__init__(self)
         self.font = self.game.medium_generic_ui_font
+
+
+class DotArmyInfoBanner(UIGrand):
+    base_image = Surface((0, 0))
+
+    def __init__(self, base_pos, pos):
+        self._layer = 5
+        UIGrand.__init__(self, has_containers=True, player_cursor_interact=False)
+        self.font = self.game.medium_generic_ui_font
+        self.base_pos = base_pos
+        self.dots_army_occupation = self.grand.dots_army_occupation
+        self.grand_camera_ui_drawer = self.grand.grand_camera_ui_drawer
+        self.previous_state_value_list = {}
+        self.pos = pos
+        self.image = self.base_image
+        self.rect = self.image.get_rect(midtop=pos)
+
+    def reset(self, state_value_list):
+        if state_value_list != self.previous_state_value_list:
+            self.previous_state_value_list = state_value_list
+
+            if "battle" in state_value_list:
+                text = " VS "
+
+            else:
+                if state_value_list["player"][0]:
+                    text = (minimise_number_text(state_value_list["player"][0]) + "/" +
+                            minimise_number_text(
+                                state_value_list["player"][1] / state_value_list["player"][2] * 100) + "%")
+                    surface_colour = (100, 100, 220)
+                elif state_value_list["enemy"][0]:
+                    text = (minimise_number_text(state_value_list["enemy"][0]) + "/" +
+                            minimise_number_text(
+                                state_value_list["enemy"][1] / state_value_list["enemy"][2] * 100) + "%")
+                    surface_colour = (220, 100, 100)
+                else:
+                    # neutral only shown when no player or enemy army in this dot
+                    text = (minimise_number_text(state_value_list["neutral"][0]) + "/" +
+                            minimise_number_text(
+                                state_value_list["neutral"][1] / state_value_list["neutral"][2] * 100) + "%")
+                    surface_colour = (180, 180, 180)
+                text_image = text_render_with_bg(text, self.font)
+                image_size = (int(text_image.get_width() * 1.2), int(text_image.get_height() * 1.2))
+                self.image = Surface(image_size)
+                self.image.fill(surface_colour,
+                                (image_size[0] * 0.05, image_size[1] * 0.05,
+                                 image_size[0] * 0.85, image_size[1] * 0.85))
+                self.image.blit(text_image, text_image.get_rect(center=(image_size[0] / 2, image_size[1] / 2)))
+
+            self.rect = self.image.get_rect(midtop=self.pos)
+
+    def update(self, dt):
+        if self.base_pos in self.grand.current_campaign_state["battle"]["dot"]:  # battle going on
+            state_value_list = ([0, 0, 0], [0, 0, 0])
+            for army in self.grand.current_campaign_state["battle"]["auto"][self.base_pos][""].values():
+                if army.faction == self.grand.player_faction:
+                    state_value_list[0][0] += army.total_number
+                    state_value_list["player"][1] += army.max_supply
+                    state_value_list["player"][2] += army.total_supply_usage
+                elif self.grand.player_faction and army.faction in self.grand.current_campaign_state["faction"][
+                    self.grand.player_faction]["hostile"]:
+                    state_value_list["enemy"][0] += army.total_number
+                    state_value_list["enemy"][1] += army.max_supply
+                    state_value_list["enemy"][2] += army.total_supply_usage
+                else:
+                    state_value_list["neutral"][0] += army.total_number
+                    state_value_list["neutral"][1] += army.max_supply
+                    state_value_list["neutral"][2] += army.total_supply_usage
+            if self not in self.grand_camera_ui_drawer:
+                self.grand_camera_ui_drawer.add(self)
+        elif self.dots_army_occupation[self.base_pos]:
+            state_value_list = {"player": [0, 0, 0], "enemy": [0, 0, 0], "neutral": [0, 0, 0]}
+            for army in self.dots_army_occupation[self.base_pos].values():
+                if army.faction == self.grand.player_faction:
+                    state_value_list["player"][0] += army.total_number
+                    state_value_list["player"][1] += army.max_supply
+                    state_value_list["player"][2] += army.total_supply_usage
+                elif self.grand.player_faction and army.faction in self.grand.current_campaign_state["faction"][
+                    self.grand.player_faction]["hostile"]:
+                    state_value_list["enemy"][0] += army.total_number
+                    state_value_list["enemy"][1] += army.max_supply
+                    state_value_list["enemy"][2] += army.total_supply_usage
+                else:
+                    state_value_list["neutral"][0] += army.total_number
+                    state_value_list["neutral"][1] += army.max_supply
+                    state_value_list["neutral"][2] += army.total_supply_usage
+            self.reset(state_value_list)
+            if self not in self.grand_camera_ui_drawer:
+                self.grand_camera_ui_drawer.add(self)
+        else:
+            if self in self.grand_camera_ui_drawer:
+                self.grand_camera_ui_drawer.remove(self)
 
 
 class PlayerArmyListSortOption(UIGrand):
@@ -510,8 +602,10 @@ class MenuBar(UIGrand):
         self.image = Surface((600 * self.screen_scale_width, 100 * self.screen_scale_height), SRCALPHA)
         self.image.fill((50, 50, 200))
         self.button_rects = {"character": button_images["character"].get_rect(topleft=(0, 0)),
-                             "diplomacy": button_images["diplomacy"].get_rect(topleft=(150 * self.screen_scale_width, 0)),
-                             "technology": button_images["technology"].get_rect(topleft=(300 * self.screen_scale_width, 0)),
+                             "diplomacy": button_images["diplomacy"].get_rect(
+                                 topleft=(150 * self.screen_scale_width, 0)),
+                             "technology": button_images["technology"].get_rect(
+                                 topleft=(300 * self.screen_scale_width, 0)),
                              "menu": button_images["menu"].get_rect(topleft=(450 * self.screen_scale_width, 0))}
         for key, value in self.button_rects.items():
             self.image.blit(button_images[key], self.button_rects[key])
@@ -656,7 +750,9 @@ class ArmyInfo(UIGrand):
         self.image.blit(text_surface, text_surface.get_rect(topleft=(header_indent, 240 * self.screen_scale_height)))
 
         text_surface = self.font.render(add_comma_number(int(army_dict["supply"])) + " (" +
-            add_comma_number(int(army_dict["supply"] / army_dict["total_supply_usage"] * 100)) + "%)", True, (0, 0, 0))
+                                        add_comma_number(
+                                            int(army_dict["supply"] / army_dict["total_supply_usage"] * 100)) + "%)",
+                                        True, (0, 0, 0))
         self.image.blit(text_surface, text_surface.get_rect(topleft=(value_indent, 300 * self.screen_scale_height)))
 
         text_surface = self.font.render(self.grab_text(("ui", "info_header_max_supply_capacity")), True, (0, 0, 0))
@@ -677,13 +773,14 @@ class ArmyInfo(UIGrand):
         text_surface = self.font.render(self.grab_text(("ui", "info_header_total_number")), True, (0, 0, 0))
         self.image.blit(text_surface, text_surface.get_rect(topleft=(header_indent, 600 * self.screen_scale_height)))
 
-        text_surface = self.font.render( add_comma_number(army_dict["total_number"]), True, (0, 0, 0))
+        text_surface = self.font.render(add_comma_number(army_dict["total_number"]), True, (0, 0, 0))
         self.image.blit(text_surface, text_surface.get_rect(topleft=(value_indent, 660 * self.screen_scale_height)))
 
         if army_dict["strategy"]:
             text_surface = self.font.render(
                 self.grab_text(("ui", "info_header_strategy")), True, (0, 0, 0))
-            self.image.blit(text_surface, text_surface.get_rect(topleft=(header_indent, 720 * self.screen_scale_height)))
+            self.image.blit(text_surface,
+                            text_surface.get_rect(topleft=(header_indent, 720 * self.screen_scale_height)))
 
             for index, strategy in enumerate(army_dict["strategy"]):
                 text_surface = self.font.render(
@@ -957,7 +1054,7 @@ class PlayerGrandInteract(UIGrand):
                             region_id = self.grand.region_by_colour_index[region_colour]
                             if any([army.game_id in self.grand.current_campaign_state["battle"]["armies"] for army in
                                     self.grand.player_selected_army]):
-                                # there is army in battle, this will cause battle lost and armies retreat from battle,
+                                # player army in battle, this will cause battle lost and armies retreat from battle,
                                 # ask for confirmation first
                                 if any([army.assembling for army in self.grand.player_selected_army]):
                                     # there is also army assembling, this will cause assemble to be cancelled,

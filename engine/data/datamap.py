@@ -142,7 +142,7 @@ class DataMap(GameData):
             header = rd[0]
             hex2colour_column = ("Colour",)
             hex2colour_column = [index for index, item in enumerate(header) if item in hex2colour_column]
-            dict_column = ("Faction Relation",)
+            dict_column = ("Faction Relation", "Diplomacy State")
             dict_column = [index for index, item in enumerate(header) if item in dict_column]
             tuple_column = ("Showcase Leader", "Showcase Troop")
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]

@@ -10,8 +10,8 @@ def conduct_commander(self):
     current_info = self.current_info
 
     # plan for commander, overall, strategy related
-    victory_chance = self.team_stat["supply_resource"]
-    if current_info and current_info["available_strategy"] and self.clever > uniform(0, 120 - self.team_stat[
+    victory_chance = self.team_state["supply_resource"]
+    if current_info and current_info["available_strategy"] and self.clever > uniform(0, 120 - self.team_state[
         "strategy_resource"]):
         for strategy_index, strategy in current_info["available_strategy"]:
             # shuffle strategy list so that
@@ -120,7 +120,7 @@ def conduct_commander(self):
             if "enemy_commander_health" in current_info:
                 victory_chance += current_info["enemy_commander_health"]
                 if "future_supply" in current_info:
-                    ((self.team_stat["supply_resource"] + self.current_info["future_supply"]) / sum(
+                    ((self.team_state["supply_resource"] + self.current_info["future_supply"]) / sum(
                         self.current_info["enemy_supply"]))
 
             if "available_enemy_strategy" in current_info:
@@ -148,7 +148,7 @@ def conduct_commander(self):
         if enemy_commander and enemy_commander.alive:  # put attack on enemy commander
             commander.issue_commander_order(("attack", enemy_commander.base_pos[0]))
         else:  # put attack on enemy spawn point
-            commander.issue_commander_order(("attack", self.enemy_team_stat["start_pos"]))
+            commander.issue_commander_order(("attack", self.enemy_team_state["start_pos"]))
     elif "support" in commander_what_to_do:
         # move to support from distance
         start_pos = commander.start_pos

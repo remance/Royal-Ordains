@@ -45,10 +45,10 @@ def die(self, retreat=False):
     # return supply when die
     if retreat:
         # manage to retreat mean return some supply but not give any to enemy
-        self.battle.team_stat[self.team]["supply_reserve"] += self.supply * 0.5
+        self.battle.team_state[self.team]["supply_reserve"] += self.supply * 0.5
     else:
-        self.battle.team_stat[self.team]["supply_reserve"] += self.supply * 0.5
-        self.battle.team_stat[self.enemy_team]["supply_reserve"] += self.supply * 0.25
+        self.battle.team_state[self.team]["supply_reserve"] += self.supply * 0.5
+        self.battle.team_state[self.enemy_team]["supply_reserve"] += self.supply * 0.25
 
     if self.leader:  # remove self from leader stuff
         if self.leader.alive:
@@ -71,11 +71,11 @@ def die(self, retreat=False):
 
 
 def air_die(self, retreat=False):
-    for air_group in self.battle.team_stat[self.team]["air_group"]:
+    for air_group in self.battle.team_state[self.team]["air_group"]:
         if self in air_group:
             air_group.remove(self)
             if not air_group:  # empty air group, remove it
-                self.battle.team_stat[self.team]["air_group"].remove(air_group)
+                self.battle.team_state[self.team]["air_group"].remove(air_group)
             break
     die(self, retreat=retreat)
 
@@ -85,7 +85,7 @@ def commander_die(self):
         self.battle.player_selected_strategy = None
     for character in self.battle.all_team_ally[self.team]:
         character.broken = True
-    for air_group in self.battle.team_stat[self.team]["air_group"]:
+    for air_group in self.battle.team_state[self.team]["air_group"]:
         for character in air_group:
             character.broken = True
     self.battle.team_commander[self.team] = None

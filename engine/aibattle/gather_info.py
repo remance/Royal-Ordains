@@ -74,8 +74,8 @@ def gather_info_basic(self):  # clever 1
     Shuffle strategy list so available strategies are given random priority to be used"""
     start_pos = self.commander.start_pos
     strategy_list = [(index, strategy) for index, strategy in enumerate(self.own_strategy) if
-                     not self.team_stat["strategy_cooldown"][index] and
-                     self.strategy_list[strategy]["Resource Cost"] <= self.team_stat["strategy_resource"]]
+                     not self.team_state["strategy_cooldown"][index] and
+                     self.strategy_list[strategy]["Resource Cost"] <= self.team_state["strategy_resource"]]
     info = {"commander_health": self.commander.health / self.commander.base_health,
             "available_strategy": sample(strategy_list, len(strategy_list)),
             }
@@ -167,8 +167,8 @@ def gather_info_status(self):  # clever 6
 
 
 def gather_info_supply(self):  # clever 7
-    return {"future_supply": self.team_stat["supply_reserve"],
-            "enemy_supply": (self.enemy_team_stat["supply_resource"], self.enemy_team_stat["supply_reserve"])}
+    return {"future_supply": self.team_state["supply_reserve"],
+            "enemy_supply": (self.enemy_team_state["supply_resource"], self.enemy_team_state["supply_reserve"])}
 
 
 def gather_info_weather(self):  # clever 8
@@ -177,15 +177,15 @@ def gather_info_weather(self):  # clever 8
 
 def gather_info_enemy_strategy(self):  # clever 9
     return {"available_enemy_strategy": [strategy for index, strategy in enumerate(self.enemy_strategy) if
-                                         not self.enemy_team_stat["strategy_cooldown"][index] and
+                                         not self.enemy_team_state["strategy_cooldown"][index] and
                                          self.strategy_list[strategy]["Resource Cost"] <=
-                                         self.enemy_team_stat["strategy_resource"]]}
+                                         self.enemy_team_state["strategy_resource"]]}
 
 
 def check_air_group(self, team):
     air_group = {True: {"interceptor": {}, "fighter": {}, "bomber": {}},
                  False: {"interceptor": {}, "fighter": {}, "bomber": {}}}
-    for index, group in enumerate(self.battle.team_stat[team]["air_group"]):
+    for index, group in enumerate(self.battle.team_state[team]["air_group"]):
         if group:
             air_group[group[0].active][group[0].ai_behaviour] = {
                 index: (len(group), sum([character.power_score for character in group]), group)}

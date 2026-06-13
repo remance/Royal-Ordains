@@ -264,3 +264,6 @@
 "cosmos_trio_conjunction","Trio Conjunction"
 "cosmos_vert_moon","Vert Moon"
 "info_text_none","None"
+"info_text_enemy's","Enemy's "
+"info_text_your","Your "
+"info_text_army_arrive","'s army has arrived."

@@ -43,7 +43,8 @@ def issue_move_command(self, target_destination, direct=False):
                     # leave the current route
                     current_route_id = travelling["id_routes"][0]
 
-                    if current_route_id not in new_travel_route_id and current_route_id[::-1] not in new_travel_route_id:
+                    if current_route_id not in new_travel_route_id and current_route_id[
+                                                                       ::-1] not in new_travel_route_id:
                         if self.current_region == current_route_id[1]:  # finish travel
                             new_travel_route_id.insert(0, current_route_id)
                         else:  # revert back
@@ -93,7 +94,6 @@ def issue_move_command(self, target_destination, direct=False):
                 if self.grand.player_faction == self.faction:
                     self.grand.player_army_list_ui.reset_card(self)
         self.travel_how = direct
-
 
 # old 'progress': 1, 'destination': 'test5', 'id_routes': [('test7', 'test8'), ('test8', 'test5')], 'dot_routes': [[(1754, 847), (1763, 831)], [(1763, 831), (1749, 829), (1736, 821), (1721, 811), (1705, 803), (1690, 796), (1671, 789), (1654, 782), (1630, 788)]], 'difficulties': [2, 1], 'remain_phase_require': [[2, 1, 2, 1], [2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1]]}
 # test8 test9 (1754, 847) [('test7', 'test8'), ('test8', 'test9')] [[(1670, 900), (1688, 893), (1701, 884), (1714, 876), (1728, 866), (1744, 857), (1754, 847), (1763, 831)], [(1763, 831), (1763, 854), (1762, 870), (1761, 886), (1758, 905), (1753, 918), (1749, 930), (1745, 975)]]
