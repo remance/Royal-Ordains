@@ -1,0 +1,8 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
+"Skill1","Call Cat","name:SkillReady,no_moveset",,,10000,,,10,,,,,,,,,,"summon:death_cat_necromancer"
+"Skill2","Raise Knight","name:SkillReady,no_moveset",,,10000,,,10,,,,,,,,,,"summon:death_undead_grave_knight"
+"Skill3","Raise Ghoul","name:SkillReady,no_moveset",,,10000,,,10,,,,,,,,,,"summon:death_undead_ghoul"
+"Skill4","Call Dog","name:SkillReady,no_moveset",,,10000,,,10,,,,,,,,,,"summon:death_undead_hound"
+"Skill5",,,,,,,,,,,,,,,,,,
+"Skill6",,,,,,,,,,,,,,,,,,
+"Skill7",,,,,,,,,,,,,,,,,,

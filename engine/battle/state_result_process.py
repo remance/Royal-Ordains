@@ -7,6 +7,7 @@ def state_result_process(self):
     self.outer_ui_updater.update(self.true_dt)
 
     self.camera.out_update(self.outer_ui_updater)
+    self.ui_menu_updater.update(self.true_dt)
     self.ui_menu_drawer.draw(self.screen)  # draw the UI
 
     if self.out_of_battle_result_button.event_press or self.esc_press:

@@ -13,6 +13,7 @@ def setup_team_characters(self, stage_data):
                 data["Team"] = team
                 add_battle_char = CommanderBattleCharacter(self.last_char_game_id,
                                                            team_state["commander_unit"])
+                add_battle_char.enter_stage()
                 commander_char = add_battle_char
                 self.team_commander[team] = commander_char
                 if team == self.player_team:
@@ -25,7 +26,8 @@ def setup_team_characters(self, stage_data):
                 # unit in team_state indicate this is battle that player control from auto
                 data = {key: value for key, value in unit.items()}
                 data["Team"] = team
-                BattleCharacter(self.last_char_game_id, data | self.character_list[data["ID"]])
+                add_battle_char = BattleCharacter(self.last_char_game_id, data | self.character_list[data["ID"]])
+                add_battle_char.enter_stage()
                 self.last_char_game_id += 1
 
         elif team_state["main_army"]:
@@ -41,6 +43,7 @@ def setup_team_characters(self, stage_data):
 
             add_battle_char = CommanderBattleCharacter(self.last_char_game_id,
                                                        data | self.character_list[team_state["main_army"].commander_id])
+            add_battle_char.enter_stage()
             commander_char = add_battle_char
             self.team_commander[team] = commander_char
             if team == self.player_team:
@@ -70,7 +73,9 @@ def add_neutral_stage_character(self, input_data):
     if "no_battle" in data["Stage Property"] or "no_battle" in character_data["Property"]:
         add_battle_char = Character(self.last_char_game_id,
                                     data | self.character_list[data["ID"]])
+        add_battle_char.enter_stage()
         self.last_char_game_id += 1
     else:
         add_battle_char = BattleCharacter(self.last_char_game_id, data | self.character_list[data["ID"]])
+        add_battle_char.enter_stage()
         self.last_char_game_id += 1

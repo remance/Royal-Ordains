@@ -10,6 +10,7 @@ def status_update(self):
     self.element_resistance = {element: value for
                                element, value in self.base_element_resistance.items()}
     self.resource_cost_modifier = self.base_resource_cost_modifier
+
     self.blind = False
     self.false_order = False
 
@@ -72,3 +73,4 @@ def status_update(self):
         self.health -= 0.1
         if self.health < 0:
             self.health = 0
+

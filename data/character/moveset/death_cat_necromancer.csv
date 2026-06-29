@@ -1,0 +1,4 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
+"Skill1","Raise Zombie","name:SkillReady,no_moveset","name:SkillEnd,no_moveset",,5000,,,30,,,,,,,,,,"summon:death_undead_zombie"
+"Skill2","Raise Skeleton","name:SkillReady,no_moveset","name:SkillEnd,no_moveset",,5000,,,30,,,,,,,,,,"summon:death_undead_skeleton_bone"
+"Skill3","Raise Ghoul","name:SkillReady,no_moveset","name:SkillEnd,no_moveset",,5000,,,30,,,,,,,,,,"summon:death_undead_ghoul"

@@ -45,8 +45,9 @@ def reach_target(self, how=None):
         char_stat = {"ID": summon, "direction": self.direction, "Team": self.team, "POS": self.base_pos}
         if "summon_spawn_ground" in effect_stat_property:
             char_stat["spawn_at_ground"] = effect_stat_property["summon_spawn_ground"]
-        (engine.character.character.
-         BattleCharacter(self.battle.last_char_game_id, self.character_list[summon] | char_stat, is_summon=True))
+        add_battle_character = engine.character.character.BattleCharacter(
+            self.battle.last_char_game_id, self.character_list[summon] | char_stat, is_summon=True)
+        add_battle_character.enter_stage()
         self.battle.last_char_game_id += 1
 
     if self.after_reach and how == "ground":

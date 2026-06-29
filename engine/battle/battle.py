@@ -629,9 +629,7 @@ class Battle:
                     battle_character_list.add(value["Object"])
 
         self.sprite_data.load_character_animation(battle_character_list)
-        print(self.load_sprite_background_threads, self.game.load_sprite_background_threads, "what")
         for thread in tuple(self.load_sprite_background_threads):  # must finish any loading thread before start battle
-            print(thread, self.effect_animation_pool, "hmm")
             thread.join()
             self.load_sprite_background_threads.remove(thread)
         yield set_done_load()

@@ -1,0 +1,4 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
+"Attack1","Blood Slash",,,,350,,,,50,60,50,20,,"slash",,,,
+"Attack2","Infect Bite",,,,200,,10,10,80,10,,,0.5,"stab",,"deadly_poison",,
+"Skill1","Blood Drain",,,"self:{health<=50}",2500,,10,40,15,200,15,50,,"magic","regeneration,small_heal",,,

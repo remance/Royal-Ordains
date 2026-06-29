@@ -1,0 +1,4 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
+"Attack1","Blood Orb",,,"self:{no_engage=700}",2200,2500,2,,20,,20,10,,"magic",,,,
+"Attack2","Blood Slap",,,,250,,5,,10,,500,300,,"crush",,,,
+"Skill1","Blood Drain",,,"self:{health<=50}",2500,,10,40,15,,15,50,,"magic","regeneration,small_heal",,,

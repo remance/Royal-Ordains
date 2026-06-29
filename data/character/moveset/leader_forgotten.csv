@@ -1,0 +1,5 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
+"Attack1","Slumber Strike",,,"self:{health>=70}",400,,,,18,40,20,20,,"crush",,,,
+"Attack2","Awaken Strike",,,"self:{health<=70}",400,,,,40,110,220,120,0.3,"crush",,,,
+"Skill1","Awaken Might",,,"self:{health<=50}",5000,,60,,,,,,,,"full_power",,,
+"Skill2","Long Slumber",,,"self:{health>=100}",1000000,1000,5,,,,,,,"slow","slow",,,

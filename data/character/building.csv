@@ -65,7 +65,7 @@
 "death_barrack_a1_graveyard",,"death_settlement_1_ruin",,,,,,,,"death_undead_zombie",,,,,,,"death",,
 "death_barrack_a2_tomb","death_barrack_a1_graveyard","death_settlement_2_dark_hamlet",,,,,,,,"death_undead_zombie,death_undead_skeleton_bone",,,,,,,"death",,
 "death_barrack_a3_crypt","death_barrack_a2_tomb","death_settlement_3_still_city",,,,,,,,"death_undead_zombie,death_undead_skeleton_bone,death_undead_ghoul",,,,,,,"death",,
-"death_barrack_a4_citadel","death_barrack_a3_crypt","death_settlement_4_waking_city",,,,,,,,"death_undead_zombie,death_undead_skeleton_bone,death_undead_ghoul,death_undead_bone_golem",,,,,,,"death",,
+"death_barrack_a4_citadel","death_barrack_a3_crypt","death_settlement_4_waking_city",,,,,,,,"death_undead_zombie,death_undead_skeleton_bone,death_undead_ghoul,death_undead_skeleton_golem",,,,,,,"death",,
 "death_barrack_a5_ziggurat","death_barrack_a4_citadel","death_settlement_5_necropolis",,,,,,,,"death_cat_necromancer",,,,,,,"death",,
 "death_barrack_b1_haunted_mansion",,"death_settlement_3_still_city",,,,,,,,"death_undead_banshee",,,,,,,"death",,
 "death_barrack_c1_barrow_mound",,"death_settlement_2_dark_hamlet",,,,,,,,"death_undead_hound",,,,,,,"death",,

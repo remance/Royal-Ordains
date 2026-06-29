@@ -1,0 +1,4 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
+"Skill1","Inner Display",,,,1000,1500,5,,,,,,,,,"confuse",,
+"Skill2","White Vision",,,,1500,2000,5,,,,,,,,,"disorient",,
+"Skill3","Regal Glory",,,,500,10000,30,50,,,,,,,"enraged","blacked_out",,

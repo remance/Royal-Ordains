@@ -1,0 +1,5 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
+"Attack1","Slam",,,,500,,3,,120,70,80,-400,,"crush",,,,
+"Attack2","Strike",,,,500,,3,,80,200,700,,,"crush",,,,
+"Skill1","Reinforce",,,,4000,,,100,,,,,,,"stone_skin",,,
+"Skill2","Charge",,"name:Skill2End","self:{no_engage=500;no_stay}",2000,,30,,130,1000,1000,-500,,"crush","charge","stun",,"run,movable,x_momentum:(1600;2400),repeat"

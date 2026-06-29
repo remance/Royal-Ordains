@@ -3041,8 +3041,7 @@ while True:
                         property_to_pool_data(naming)
                         break
 
-            elif (text_input_popup[1] == "change_size" and input_box.text and
-                  float(input_box.text) and re.search("[a-zA-Z]", input_box.text) is None):
+            elif text_input_popup[1] == "change_size" and input_box.text:
                 try:
                     model.size = float(input_box.text)
                     model.read_animation(animation_name, old=True)

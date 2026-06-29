@@ -1,0 +1,2 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
+"Attack1","Bones Throw",,,"self:{no_engage=500}",5000,7000,3,,6,2,15,-2,,"crush",,,,"arc"

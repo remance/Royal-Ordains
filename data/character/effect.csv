@@ -15,7 +15,8 @@
 "bolt",,3400,"TRUE","stick",,"bolt",1800,,
 "bomb",,1000,,,"explosion_big","bomb_drop",1900,,
 "bomb_small",,1350,,,"explosion_small","stone",1700,,
-"boulder",,2500,"TRUE","stick",,"stone",2400,,
+"bone",,1000,"TRUE","bounce",,"stone",1100,,"travel_spin"
+"boulder",,2500,"TRUE","stick",,"stone_big",2200,,
 "bullet",,10000,"TRUE",,,"bullet",3000,2,
 "caltrops",30,,"TRUE",,,,,,
 "cannonball",,4000,"TRUE","bounce",,"cannon_ball_small",2800,3,
@@ -28,6 +29,8 @@
 "crash_player",,,,,,,,,
 "crimson_flare",,,,,,,,,
 "curse_skull",,800,"TRUE",,,"curse_skull",1700,,
+"corpse_catapult",,2000,"TRUE",,,"stone_big",2000,,
+"corpse_catapult_explode",,,"TRUE",,,,,,
 "damaged",,,,,,,,,
 "dark_day",,,,,,,,,
 "doll_knife",,3000,"TRUE","stick",,"bolt",1400,,

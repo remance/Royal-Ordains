@@ -1,0 +1,4 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
+"Skill1","Raise Zombie","name:Skill1Ready,no_moveset",,,8000,,3,5,,,,,,,,,,"summon:death_undead_zombie"
+"Skill2","Spirit Guidance",,,"self:{resource<=40}",3000,3000,50,,,,,,,,"resource_generation",,,
+"Skill3","Lamp of Life",,,"ally:{health<=50}",3000,3000,80,60,,,,,,,"master_heal",,,

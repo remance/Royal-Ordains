@@ -1,0 +1,5 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
+"Attack1","Slam",,,,500,,3,,100,100,80,-400,,"crush",,,,
+"Attack2","Strike",,,,500,,3,,70,150,700,,,"crush",,,,
+"Skill1","Scream",,,,500,2500,30,,,,,,,,,"fear,terror,suppressed",,
+"Skill2","Charge",,"name:Skill2End","self:{no_engage=500;no_stay}",2000,,30,,160,1000,500,-500,,"crush","charge","stagger",,"run,movable,x_momentum:(1600;2400),repeat"

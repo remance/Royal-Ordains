@@ -29,9 +29,10 @@ def check_reinforcement(self):
                                         data["POS"] = (
                                             self.team_state[condition]["start_pos"], Default_Battle_Ground_Pos)
 
-                                    add_battle_char = BattleCharacter(self.last_char_game_id,
+                                    add_battle_character = BattleCharacter(self.last_char_game_id,
                                                                       data | self.character_list[character],
                                                                       self.team_commander[condition])
+                                    add_battle_character.enter_stage()
                                     self.team_deployed[condition] += 1
                                     self.last_char_game_id += 1
 

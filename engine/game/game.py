@@ -394,7 +394,6 @@ class Game:
                                   self.sprite_data.animation_pickle_hash, self.data_dir, self.effect_animation_pool,
                                   self.screen_scale), daemon=True)
             self.load_sprite_background_threads.append(thread)
-            print(self.load_sprite_background_threads)
             thread.start()
         else:
             self.sprite_data.load_effect_sprites(self.screen_size, self.sprite_data.config_animation_hash,

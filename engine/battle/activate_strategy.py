@@ -78,9 +78,10 @@ def activate_strategy(self, team, strategy, strategy_index, base_pos_x):
                         start_x = self.base_stage_end
                     start_pos = (start_x, Default_Battle_Ground_Pos)
 
-                    BattleCharacter(self.last_char_game_id,
-                                    self.character_list[spawn_name] |
-                                    {"ID": spawn_name, "Team": team, "POS": start_pos}, is_summon=True)
+                    add_battle_character = BattleCharacter(self.last_char_game_id,
+                                                    self.character_list[spawn_name] |
+                                                    {"ID": spawn_name, "Team": team, "POS": start_pos}, is_summon=True)
+                    add_battle_character.enter_stage()
                     self.last_char_game_id += 1
                     Effect(None, ("movement", "summon", start_pos[0],
                                   start_pos[1], 0, 0, 0, 1, 1), from_owner=False)
