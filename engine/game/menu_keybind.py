@@ -19,10 +19,10 @@ def menu_keybind(self):
         for key, value in self.keybind_icon.items():
             if value.event_press:
                 self.activate_input_popup(("keybind_input", key),
-                                          self.localisation.grab_text(("ui", "input_key_assign")) + key,
+                                          self.grab_text(("ui", "input_key_assign")) + key,
                                           self.inform_popup_uis)
                 current_key = self.player_key_bind_list[key]
                 if type(current_key) == int:
                     current_key = pygame.key.name(current_key)
                 self.static_input_box.render_text(
-                    self.localisation.grab_text(("ui", "info_header_current_key")) + current_key)
+                    self.grab_text(("ui", "info_header_current_key")) + current_key)

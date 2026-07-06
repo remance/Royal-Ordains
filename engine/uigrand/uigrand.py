@@ -305,8 +305,8 @@ class DotArmyInfoBanner(UIGrand):
                 image_size = (int(text_image.get_width() * 1.2), int(text_image.get_height() * 1.2))
                 self.image = Surface(image_size)
                 self.image.fill(surface_colour,
-                                (image_size[0] * 0.05, image_size[1] * 0.05,
-                                 image_size[0] * 0.85, image_size[1] * 0.85))
+                                (image_size[0] * 0.05, image_size[1] * 0.1,
+                                 image_size[0] * 0.92, image_size[1] * 0.85))
                 self.image.blit(text_image, text_image.get_rect(center=(image_size[0] / 2, image_size[1] / 2)))
 
             self.rect = self.image.get_rect(midtop=self.pos)
@@ -461,20 +461,20 @@ class PlayerArmyList(UIGrand):
         card_image.blit(text_surface, text_surface.get_rect(topleft=((240 * self.screen_scale_width),
                                                                      80 * self.screen_scale_height)))
 
-        text_surface = text_render_with_bg(self.localisation.grab_text(("region", army.current_region, "Name")),
+        text_surface = text_render_with_bg(self.grab_text(("region", army.current_region, "Name")),
                                            self.font, (0, 0, 0), supply_text_colour)
         card_image.blit(text_surface, text_surface.get_rect(topright=(card_image.get_width() -
                                                                       (50 * self.screen_scale_width),
                                                                       10 * self.screen_scale_height)))
 
         if army.game_id in self.grand.current_campaign_state["battle"]["armies"]:
-            activity = self.localisation.grab_text(("ui", "info_text_combat"))
+            activity = self.grab_text(("ui", "info_text_combat"))
         elif army.travelling:
-            activity = ">> " + self.localisation.grab_text(("region", army.travelling["destination"], "Name"))
+            activity = ">> " + self.grab_text(("region", army.travelling["destination"], "Name"))
         elif army.assembling:
-            activity = self.localisation.grab_text(("ui", "info_text_assemble"))
+            activity = self.grab_text(("ui", "info_text_assemble"))
         else:
-            activity = self.localisation.grab_text(("ui", "info_text_idle"))
+            activity = self.grab_text(("ui", "info_text_idle"))
         text_surface = text_render_with_bg(activity,
                                            self.font, (0, 0, 0), (255, 255, 255))
         card_image.blit(text_surface, text_surface.get_rect(topright=(card_image.get_width() -

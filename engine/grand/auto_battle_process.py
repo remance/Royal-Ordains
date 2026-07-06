@@ -2,6 +2,7 @@ from engine.constants import Phase_To_Battle_Time
 
 
 def auto_battle_process(self, battle_state):
+    """Update auto battle when phase pass in turn based manner"""
     # update supply, strategy
     full_team_state = battle_state["team"]
     for team, team_state in full_team_state.items():
@@ -26,7 +27,7 @@ def auto_battle_process(self, battle_state):
 
     # call troop
 
-    pass
+    # update all characters
 
 
 def add_reinforcement(self, army):

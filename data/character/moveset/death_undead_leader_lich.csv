@@ -3,3 +3,4 @@
 "Attack2","Dark Claw",,,,300,,5,,56,80,,,,"magic",,,,
 "Skill1","Corruption",,,,7000,20000,90,50,,,,,,"magic","curse,daze","curse,daze",,
 "Skill2","Discord Flow",,,,7000,20000,90,50,,,,,,"magic","resource_generation","resource_drain",,
+"Skill3","Raise Ghouls",,,,6000,,10,5,,,,,,,,,,"summon:death_undead_ghoul"

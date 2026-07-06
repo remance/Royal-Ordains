@@ -200,19 +200,19 @@ def menu_custom_setup(self):
 
         elif self.custom_battle_team1_gold_button.event_press:
             self.activate_input_popup(("text_input", "custom_gold", 1),
-                                      self.localisation.grab_text(("ui", "input_gold_team1")), self.input_popup_uis)
+                                      self.grab_text(("ui", "input_gold_team1")), self.input_popup_uis)
 
         elif self.custom_battle_team2_gold_button.event_press:
             self.activate_input_popup(("text_input", "custom_gold", 2),
-                                      self.localisation.grab_text(("ui", "input_gold_team2")), self.input_popup_uis)
+                                      self.grab_text(("ui", "input_gold_team2")), self.input_popup_uis)
 
         elif self.custom_battle_team1_supply_button.event_press:
             self.activate_input_popup(("text_input", "custom_supply", 1),
-                                      self.localisation.grab_text(("ui", "input_supply_team1")), self.input_popup_uis)
+                                      self.grab_text(("ui", "input_supply_team1")), self.input_popup_uis)
 
         elif self.custom_battle_team2_supply_button.event_press:
             self.activate_input_popup(("text_input", "custom_supply", 2),
-                                      self.localisation.grab_text(("ui", "input_supply_team2")), self.input_popup_uis)
+                                      self.grab_text(("ui", "input_supply_team2")), self.input_popup_uis)
 
         elif self.custom_battle_setup_start_battle_button.event_press:  # player click start button
             # do quick check whether army assigned for both teams
@@ -226,7 +226,7 @@ def menu_custom_setup(self):
                         team_exist[team] = True
             if False in tuple(team_exist.values()):  # no army exist, output warning
                 self.activate_input_popup(("confirm_input", "no_army"),
-                                          self.localisation.grab_text(("ui", "warn_no_army")),
+                                          self.grab_text(("ui", "warn_no_army")),
                                           self.inform_popup_uis)
             else:
                 # recreate army with fund cut
@@ -291,7 +291,7 @@ def menu_custom_setup(self):
                             team_exist[team] = True
                 if False in tuple(team_exist.values()):
                     self.activate_input_popup(("confirm_input", "no_army"),
-                                              self.localisation.grab_text(("ui", "warn_no_army")),
+                                              self.grab_text(("ui", "warn_no_army")),
                                               self.inform_popup_uis)
                 else:
                     custom_team_army[1][0].supply = self.team1_supply_limit_custom_battle
@@ -320,6 +320,7 @@ def menu_custom_setup(self):
                     elif self.custom_team_players[2] == "player":
                         player = 2
                     self.start_battle(None, "main", self.selected_custom_stage_battle, team_state, player,
+                                      self.grab_text(("ui", "info_text_custom_battle")),
                                       custom_stage_data={
                                           "weather": (self.selected_weather_custom_battle,
                                                       self.selected_weather_strength_custom_battle)},

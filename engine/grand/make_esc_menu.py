@@ -42,7 +42,7 @@ def make_esc_menu(self):
 
     volume_texts = {key: OptionMenuText((volume_slider[key].pos[0] - (volume_slider[key].pos[0] / 4.5),
                                          volume_slider[key].pos[1]),
-                                        self.localisation.grab_text(key=("ui", "option_" + key + "_volume",)),
+                                        self.grab_text(key=("ui", "option_" + key + "_volume",)),
                                         font_size) for key in volume_slider}
 
     return {"grand_menu_button": grand_menu_button,

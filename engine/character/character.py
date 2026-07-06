@@ -545,9 +545,9 @@ class BattleCharacter(Character):
         self.near_ally = []
         self.near_enemy = []
 
-        ai_speak_data = self.battle.localisation.grab_text(("ai_speak", stat["ID"]))
-        if type(ai_speak_data) is dict:
-            self.ai_speak_list = ai_speak_data
+        ai_speak_list = self.battle.localisation.grab_text(("ai_speak", stat["ID"]))
+        if type(ai_speak_list) is dict:  # only add if not empty
+            self.ai_speak_list = ai_speak_list
 
         if additional_current_state:  # assign value in state to variable
             self.health = additional_current_state["health"]

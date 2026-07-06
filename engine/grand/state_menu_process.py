@@ -61,12 +61,12 @@ def state_menu_process(self):
 
                     elif key == "end":  # end battle
                         self.activate_input_popup(("confirm_input", "end_grand"),
-                                                  self.localisation.grab_text(("ui", "input_leave_grand")),
+                                                  self.grab_text(("ui", "input_leave_grand")),
                                                   self.confirm_popup_uis)
 
                     elif key == "quit":  # quit game
                         self.activate_input_popup(("confirm_input", "quit"),
-                                                  self.localisation.grab_text(("ui", "input_quit_game")),
+                                                  self.grab_text(("ui", "input_quit_game")),
                                                   self.confirm_popup_uis)
                     break  # found clicked button, break loop
 

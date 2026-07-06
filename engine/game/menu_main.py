@@ -105,7 +105,8 @@ def menu_main(self):
                 "main_army": self.custom_team_army[2][0],
                 "reinforcement_army": self.custom_team_army[2][1:2]}}
 
-        self.start_battle(None, "main", "test", team_state, 1, setup_battle=True)
+        self.start_battle(None, "main", "test", team_state, 1, self.grab_text(("ui", "info_text_custom_battle")),
+                          setup_battle=True)
 
     elif self.option_button.event_press:  # change main menu to option menu
         self.menu_state = "option"
@@ -116,5 +117,5 @@ def menu_main(self):
                                     self.option_text_list)
 
     elif self.quit_button.event_press or self.esc_press:  # open quit game confirmation input
-        self.activate_input_popup(("confirm_input", "quit"), self.localisation.grab_text(("ui", "input_quit_game")),
+        self.activate_input_popup(("confirm_input", "quit"), self.grab_text(("ui", "input_quit_game")),
                                   self.confirm_popup_uis)

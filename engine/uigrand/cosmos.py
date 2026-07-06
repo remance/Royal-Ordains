@@ -73,13 +73,13 @@ class MiniCosmosUI(UIGrand):
     def update(self, dt):
         UIGrand.update(self, dt)
         if self.mouse_over:
-            text = [self.localisation.grab_text(("ui", "info_header_current_cosmic_events")), ]
+            text = [self.grab_text(("ui", "info_header_current_cosmic_events")), ]
             cosmic_event_list = self.grand.current_campaign_state["cosmic_event"]
             if cosmic_event_list:
                 for event in cosmic_event_list:
-                    text.append("- " + self.localisation.grab_text(("ui", "cosmos_" + event)))
+                    text.append("- " + self.grab_text(("ui", "cosmos_" + event)))
             else:
-                text.append(self.localisation.grab_text(("ui", "info_text_none")))
+                text.append(self.grab_text(("ui", "info_text_none")))
             self.text_popup.popup(("topright", self.cursor.rect.bottomleft), text)
             self.outer_ui_updater.add(self.text_popup)
             if self.event_press:
@@ -199,7 +199,7 @@ class CosmosUI(UIGrand):
                 # only draw planet in inner circle
                 image.blit(planet.image, planet.rect)
                 if self.show_text:
-                    info_text = self.font.render(self.localisation.grab_text("cosmos", planet.cosmic_id, "Name"), True,
+                    info_text = self.font.render(self.grab_text("cosmos", planet.cosmic_id, "Name"), True,
                                                  (255, 255, 255))
                     image.blit(info_text, (int(planet.pos[0]),
                                            int(planet.pos[1] - planet.image.get_height() * 0.8)))

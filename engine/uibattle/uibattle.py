@@ -31,6 +31,7 @@ class UIBattle(UIMenu):
         self.outer_ui_updater = self.battle.outer_ui_updater
         self.battle_camera_ui_drawer = self.battle.battle_camera_ui_drawer
         self.battle_effect_updater = self.battle.battle_effect_updater
+        self.text_popup = self.battle.text_popup
         self.max_description_box_width = int(1000 * self.screen_scale_width)
 
 
@@ -200,7 +201,6 @@ class Command(UIBattle):
         self._layer = 9
         UIBattle.__init__(self)
         self.character_list = self.battle.character_list
-        self.text_popup = self.battle.text_popup
         self.character_portraits = self.battle.character_portraits
         self.number_font = self.game.character_indicator_font
         self.image = Surface((800 * self.screen_scale_width, 400 * self.screen_scale_height), SRCALPHA)
@@ -647,6 +647,8 @@ class BattleHelper(UIBattle):
         self.time_text = None
         self.weather = None
         self.battle_state = "normal"
+        self.battle_name = ""
+        self.battle_info_text = ()
         self.weather_icon_images = weather_icon_images
 
         self.time_choice = (0, 0.5, 1, 3)
@@ -654,10 +656,10 @@ class BattleHelper(UIBattle):
         self.rect = self.image.get_rect(topright=(self.screen_width, 0))
 
     def setup(self):
+        self.battle_name = self.battle.battle_name
         self.time_text = None
         self.time_option = 2
         self.battle.game_speed = self.time_choice[self.time_option]
-        self.weather = self.battle.current_weather.weather_now
         self.reset_image()
 
     def battle_end(self, result):
@@ -679,12 +681,10 @@ class BattleHelper(UIBattle):
             else:
                 image.blit(self.time_select_images[1], rect)
             image.blit(self.time_choice_images[index], rect)
-
-        icon_image = self.weather_icon_images[self.weather.split("_")[0]].copy()
-        strength_text = text_render_with_bg(str(int(self.weather.split("_")[1]) + 1), self.font)
-        icon_image.blit(strength_text, strength_text.get_rect(bottomright=icon_image.get_size()))
-        image.blit(icon_image,
-                   icon_image.get_rect(center=(570 * self.screen_scale_width, 175 * self.screen_scale_height)))
+        if self.weather:
+            icon_image = self.weather_icon_images[self.weather]
+            image.blit(icon_image,
+                       icon_image.get_rect(center=(570 * self.screen_scale_width, 175 * self.screen_scale_height)))
 
     def update(self, dt):
         """Update battle time"""
@@ -693,21 +693,34 @@ class BattleHelper(UIBattle):
 
         if self.weather != self.battle.current_weather.weather_now:
             self.weather = self.battle.current_weather.weather_now
+            self.battle_info_text = (self.battle_name,
+                                     "",
+                                     self.grab_text(("ui", "info_header_weather")) +
+                                     self.grab_text(("ui", "weather_strength_" + self.weather.split("_")[1])) +
+                                     self.grab_text(("ui", "weather_" + self.weather.split("_")[0])))
             must_reset_image = True
 
         UIMenu.update(self, dt)
 
-        if self.event_press:
+        if self.rect.collidepoint(self.cursor.pos):
             inside_mouse_pos = Vector2(
                 (self.cursor.pos[0] - self.rect.topleft[0]),
                 (self.cursor.pos[1] - self.rect.topleft[1]))
+            helper_mouse_over = False
             for index, rect in enumerate(self.time_choice_rects):
                 if rect.collidepoint(inside_mouse_pos):
-                    self.time_option = index
-                    if self.battle.game_speed != self.time_choice[index]:
-                        self.battle.game_speed = self.time_choice[index]
-                        must_reset_image = True
+                    helper_mouse_over = True
+                    if self.event_press:
+                        self.time_option = index
+                        if self.battle.game_speed != self.time_choice[index]:
+                            self.battle.game_speed = self.time_choice[index]
+                            must_reset_image = True
+                    break
+            if not helper_mouse_over:
 
+                self.text_popup.popup(("topright", self.rect.bottomright), self.battle_info_text,
+                                      width_text_wrapper=self.max_description_box_width)
+                self.outer_ui_updater.add(self.text_popup)
         if must_reset_image:
             self.reset_image()
 
@@ -900,20 +913,18 @@ class StrategySelect(UIBattle):
     number_text_cache = {}
     strategy_text_cache = {}
 
-    def __init__(self, pos, strategy_icons):
+    def __init__(self, pos, strategy_icons, resource_image):
         self._layer = 10
         UIBattle.__init__(self)
         self.strategy_list = self.battle.strategy_list
-        self.text_popup = self.battle.text_popup
         self.strategy_icons = strategy_icons
         self.font = self.game.battle_timer_font
         self.update_timer = 0
         self.strategy_status = {}
-        self.full_resource_text = text_render_with_bg("100", self.font)
-        self.full_resource_text_width = self.full_resource_text.get_width()
-        self.full_resource_text.fill((0, 0, 0))
-        self.resource_text_rect = self.full_resource_text.get_rect(bottomright=(self.full_resource_text.get_width(),
-                                                                                self.full_resource_text.get_height()))
+        self.base_resource_image = resource_image
+        self.resource_image_center = (resource_image.get_width() / 2, resource_image.get_height() / 2)
+        self.resource_text_rect = resource_image.get_rect(bottomright=(resource_image.get_width(),
+                                                                       resource_image.get_height()))
         self.selected_strategy_icon = Surface((150 * self.screen_scale_width, 150 * self.screen_scale_height), SRCALPHA)
         draw.circle(self.selected_strategy_icon, (200, 200, 50),
                     (self.selected_strategy_icon.get_width() / 2, self.selected_strategy_icon.get_height() / 2),
@@ -924,8 +935,7 @@ class StrategySelect(UIBattle):
                     (self.cooldown_strategy_icon.get_width() / 2, self.cooldown_strategy_icon.get_height() / 2),
                     (self.cooldown_strategy_icon.get_width() / 2))
 
-        self.base_image = Surface((1200 * self.screen_scale_width, 150 * self.screen_scale_height), SRCALPHA)
-        self.base_image.fill((0, 0, 0, 125))
+        self.base_image = Surface((1250 * self.screen_scale_width, 150 * self.screen_scale_height), SRCALPHA)
         self.image = self.base_image.copy()
         self.image_width = self.image.get_width()
         self.image_height = self.image.get_height()
@@ -943,7 +953,7 @@ class StrategySelect(UIBattle):
         self.strategy_rect = {}
         self.image = self.base_image.copy()
         if self.player_team:
-            pos_x = 250 * self.screen_scale_height
+            pos_x = 250 * self.screen_scale_width
             for index, strategy in enumerate(self.player_team_stat["strategy"]):
                 if strategy not in self.strategy_icons:
                     icon_image = self.strategy_icons["default"].copy()
@@ -955,7 +965,7 @@ class StrategySelect(UIBattle):
                                                     self.font)
                 text_rect = shortcut_text.get_rect(bottomright=(icon_image.get_width(), icon_image.get_height()))
                 icon_image.blit(shortcut_text, text_rect)
-                pos_x += 180 * self.screen_scale_height
+                pos_x += 180 * self.screen_scale_width
                 self.strategy_rect[index] = rect
                 self.icon_cache[index] = icon_image
 
@@ -964,13 +974,17 @@ class StrategySelect(UIBattle):
             self.update_timer += self.battle.true_dt
             if self.update_timer > 0.1:
                 image = self.image
-                current_strategy_resource = str(int(self.player_team_stat["strategy_resource"]))
+                current_strategy_resource = int(self.player_team_stat["strategy_resource"])
                 if self.current_strategy_resource != current_strategy_resource:
                     self.current_strategy_resource = current_strategy_resource
-                    text = text_render_with_bg(current_strategy_resource, self.font)
-                    self.full_resource_text.fill((0, 0, 0))
-                    self.full_resource_text.blit(text, text.get_rect(topright=(self.full_resource_text_width, 0)))
-                image.blit(self.full_resource_text, self.resource_text_rect)
+                    if current_strategy_resource not in self.number_text_cache:
+                        text = text_render_with_bg(str(current_strategy_resource), self.font)
+                        self.number_text_cache[current_strategy_resource] = text
+                    else:
+                        text = self.number_text_cache[current_strategy_resource]
+                    resource_image = self.base_resource_image.copy()
+                    resource_image.blit(text, text.get_rect(center=self.resource_image_center))
+                    image.blit(resource_image, self.resource_text_rect)
                 for index, strategy in enumerate(self.player_team_stat["strategy"]):
                     cooldown = self.player_team_stat["strategy_cooldown"][index]
                     check = (cooldown, (strategy, index) == self.battle.player_selected_strategy)
@@ -979,14 +993,15 @@ class StrategySelect(UIBattle):
                         image.blit(self.icon_cache[index], self.strategy_rect[index])
 
                         if cooldown:  # in cooldown
+                            cooldown = int(cooldown)
                             image.blit(self.cooldown_strategy_icon, self.strategy_rect[index])
-                            if int(cooldown) in self.number_text_cache:
-                                number_text = self.number_text_cache[int(cooldown)]
+                            if cooldown in self.number_text_cache:
+                                number_text = self.number_text_cache[cooldown]
                             else:
-                                number_text = text_render_with_bg(str(int(cooldown)), self.font,
+                                number_text = text_render_with_bg(str(cooldown), self.font,
                                                                   gf_colour=(255, 255, 255),
                                                                   o_colour=(0, 0, 0))
-                                self.number_text_cache[int(cooldown)] = number_text
+                                self.number_text_cache[cooldown] = number_text
                             image.blit(number_text, number_text.get_rect(center=self.strategy_rect[index].center))
                         elif self.battle.player_selected_strategy and index == self.battle.player_selected_strategy[1]:
                             image.blit(self.selected_strategy_icon, self.strategy_rect[index])

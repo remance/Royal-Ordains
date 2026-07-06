@@ -38,14 +38,14 @@ def make_option_menu(self, main_menu_buttons_box):
 
     fps_text = OptionMenuText(
         (fps_box.pos[0] - (fps_box.pos[0] / 5), fps_box.pos[1]),
-        self.localisation.grab_text(key=("ui", "option_fps",)), font_size)
+        self.grab_text(key=("ui", "option_fps",)), font_size)
     fullscreen_text = OptionMenuText(
         (fullscreen_box.pos[0] - (fullscreen_box.pos[0] / 5), fullscreen_box.pos[1]),
-        self.localisation.grab_text(key=("ui", "option_full_screen",)), font_size)
+        self.grab_text(key=("ui", "option_full_screen",)), font_size)
     easy_text = OptionMenuText((easy_text_box.pos[0] - (easy_text_box.pos[0] / 10), easy_text_box.pos[1]),
-                               self.localisation.grab_text(key=("ui", "option_easy_text",)), font_size)
+                               self.grab_text(key=("ui", "option_easy_text",)), font_size)
     show_dmg_text = OptionMenuText((show_dmg_box.pos[0] - (show_dmg_box.pos[0] / 10), show_dmg_box.pos[1]),
-                                   self.localisation.grab_text(key=("ui", "option_show_dmg_text",)), font_size)
+                                   self.grab_text(key=("ui", "option_show_dmg_text",)), font_size)
 
     # Volume change scroll bar
     scroller_images = (self.option_menu_images["scroller_box"], self.option_menu_images["scroller"])
@@ -70,7 +70,7 @@ def make_option_menu(self, main_menu_buttons_box):
 
     volume_texts = {key: OptionMenuText((volume_slider[key].pos[0] - (volume_slider[key].pos[0] / 4.5),
                                          volume_slider[key].pos[1]),
-                                        self.localisation.grab_text(key=("ui", "option_" + key + "_volume",)),
+                                        self.grab_text(key=("ui", "option_" + key + "_volume",)),
                                         font_size) for key in volume_slider}
 
     # Resolution changing bar that fold out the list when clicked
@@ -84,76 +84,76 @@ def make_option_menu(self, main_menu_buttons_box):
 
     resolution_text = OptionMenuText((resolution_drop.pos[0] - (resolution_drop.pos[0] / 4.5),
                                       resolution_drop.pos[1]),
-                                     self.localisation.grab_text(key=("ui", "option_display_resolution",)),
+                                     self.grab_text(key=("ui", "option_display_resolution",)),
                                      font_size)
 
     keybind_text = {"Confirm": OptionMenuText((self.screen_rect.width / 6, self.screen_rect.height * 0.1),
-                                              self.localisation.grab_text(
+                                              self.grab_text(
                                                   key=("ui", "keybind_confirm")), font_size),
                     "Menu/Cancel": OptionMenuText((self.screen_rect.width / 6, self.screen_rect.height * 0.17),
-                                                  self.localisation.grab_text(
+                                                  self.grab_text(
                                                       key=("ui", "keybind_menu")), font_size),
                     "Up": OptionMenuText((self.screen_rect.width / 6, self.screen_rect.height * 0.24),
-                                         self.localisation.grab_text(key=("ui", "keybind_move_up")), font_size),
+                                         self.grab_text(key=("ui", "keybind_move_up")), font_size),
                     "Down": OptionMenuText((self.screen_rect.width / 6, self.screen_rect.height * 0.31),
-                                           self.localisation.grab_text(key=("ui", "keybind_move_down")), font_size),
+                                           self.grab_text(key=("ui", "keybind_move_down")), font_size),
                     "Left": OptionMenuText((self.screen_rect.width / 6, self.screen_rect.height * 0.38),
-                                           self.localisation.grab_text(key=("ui", "keybind_move_left")), font_size),
+                                           self.grab_text(key=("ui", "keybind_move_left")), font_size),
                     "Right": OptionMenuText((self.screen_rect.width / 6, self.screen_rect.height * 0.45),
-                                            self.localisation.grab_text(key=("ui", "keybind_move_right")), font_size),
+                                            self.grab_text(key=("ui", "keybind_move_right")), font_size),
                     "Call Leader 1": OptionMenuText((self.screen_rect.width / 6, self.screen_rect.height * 0.52),
-                                                    self.localisation.grab_text(key=("ui", "keybind_call_leader1")),
+                                                    self.grab_text(key=("ui", "keybind_call_leader1")),
                                                     font_size),
                     "Call Leader 2": OptionMenuText((self.screen_rect.width / 6, self.screen_rect.height * 0.59),
-                                                    self.localisation.grab_text(key=("ui", "keybind_call_leader2")),
+                                                    self.grab_text(key=("ui", "keybind_call_leader2")),
                                                     font_size),
                     "Call Leader 3": OptionMenuText((self.screen_rect.width / 6, self.screen_rect.height * 0.66),
-                                                    self.localisation.grab_text(key=("ui", "keybind_call_leader3")),
+                                                    self.grab_text(key=("ui", "keybind_call_leader3")),
                                                     font_size),
                     "Call Troop 1": OptionMenuText((self.screen_rect.width / 2.1, self.screen_rect.height * 0.1),
-                                                   self.localisation.grab_text(key=("ui", "keybind_call_troop1")),
+                                                   self.grab_text(key=("ui", "keybind_call_troop1")),
                                                    font_size),
                     "Call Troop 2": OptionMenuText((self.screen_rect.width / 2.1, self.screen_rect.height * 0.17),
-                                                   self.localisation.grab_text(key=("ui", "keybind_call_troop2")),
+                                                   self.grab_text(key=("ui", "keybind_call_troop2")),
                                                    font_size),
                     "Call Troop 3": OptionMenuText((self.screen_rect.width / 2.1, self.screen_rect.height * 0.24),
-                                                   self.localisation.grab_text(key=("ui", "keybind_call_troop3")),
+                                                   self.grab_text(key=("ui", "keybind_call_troop3")),
                                                    font_size),
                     "Call Troop 4": OptionMenuText((self.screen_rect.width / 2.1, self.screen_rect.height * 0.31),
-                                                   self.localisation.grab_text(key=("ui", "keybind_call_troop4")),
+                                                   self.grab_text(key=("ui", "keybind_call_troop4")),
                                                    font_size),
                     "Call Troop 5": OptionMenuText((self.screen_rect.width / 2.1, self.screen_rect.height * 0.38),
-                                                   self.localisation.grab_text(key=("ui", "keybind_call_troop5")),
+                                                   self.grab_text(key=("ui", "keybind_call_troop5")),
                                                    font_size),
                     "Call Air 1": OptionMenuText((self.screen_rect.width / 2.1, self.screen_rect.height * 0.45),
-                                                 self.localisation.grab_text(key=("ui", "keybind_call_air1")),
+                                                 self.grab_text(key=("ui", "keybind_call_air1")),
                                                  font_size),
                     "Call Air 2": OptionMenuText((self.screen_rect.width / 2.1, self.screen_rect.height * 0.52),
-                                                 self.localisation.grab_text(key=("ui", "keybind_call_air2")),
+                                                 self.grab_text(key=("ui", "keybind_call_air2")),
                                                  font_size),
                     "Call Air 3": OptionMenuText((self.screen_rect.width / 2.1, self.screen_rect.height * 0.59),
-                                                 self.localisation.grab_text(key=("ui", "keybind_call_air3")),
+                                                 self.grab_text(key=("ui", "keybind_call_air3")),
                                                  font_size),
                     "Call Air 4": OptionMenuText((self.screen_rect.width / 2.1, self.screen_rect.height * 0.66),
-                                                 self.localisation.grab_text(key=("ui", "keybind_call_air4")),
+                                                 self.grab_text(key=("ui", "keybind_call_air4")),
                                                  font_size),
                     "Call Air 5": OptionMenuText((self.screen_rect.width / 2.1, self.screen_rect.height * 0.73),
-                                                 self.localisation.grab_text(key=("ui", "keybind_call_air5")),
+                                                 self.grab_text(key=("ui", "keybind_call_air5")),
                                                  font_size),
                     "Strategy 1": OptionMenuText((self.screen_rect.width / 1.2, self.screen_rect.height * 0.1),
-                                                 self.localisation.grab_text(key=("ui", "keybind_select_strategy1")),
+                                                 self.grab_text(key=("ui", "keybind_select_strategy1")),
                                                  font_size),
                     "Strategy 2": OptionMenuText((self.screen_rect.width / 1.2, self.screen_rect.height * 0.17),
-                                                 self.localisation.grab_text(key=("ui", "keybind_select_strategy2")),
+                                                 self.grab_text(key=("ui", "keybind_select_strategy2")),
                                                  font_size),
                     "Strategy 3": OptionMenuText((self.screen_rect.width / 1.2, self.screen_rect.height * 0.24),
-                                                 self.localisation.grab_text(key=("ui", "keybind_select_strategy3")),
+                                                 self.grab_text(key=("ui", "keybind_select_strategy3")),
                                                  font_size),
                     "Strategy 4": OptionMenuText((self.screen_rect.width / 1.2, self.screen_rect.height * 0.31),
-                                                 self.localisation.grab_text(key=("ui", "keybind_select_strategy4")),
+                                                 self.grab_text(key=("ui", "keybind_select_strategy4")),
                                                  font_size),
                     "Strategy 5": OptionMenuText((self.screen_rect.width / 1.2, self.screen_rect.height * 0.38),
-                                                 self.localisation.grab_text(key=("ui", "keybind_select_strategy5")),
+                                                 self.grab_text(key=("ui", "keybind_select_strategy5")),
                                                  font_size),
                     }
 

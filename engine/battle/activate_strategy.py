@@ -18,9 +18,9 @@ def activate_strategy(self, team, strategy, strategy_index, base_pos_x):
         self.team_state[team]["strategy_resource"] -= stat["Resource Cost"]
 
         if team == self.player_team:
-            self.drama_text.queue.append((False, self.localisation.grab_text(("strategy", strategy, "Ally")), None))
+            self.drama_text.queue.append((False, self.grab_text(("strategy", strategy, "Ally")), None))
         else:
-            self.drama_text.queue.append((True, self.localisation.grab_text(("strategy", strategy, "Enemy")), None))
+            self.drama_text.queue.append((True, self.grab_text(("strategy", strategy, "Enemy")), None))
             self.tactical_map_ui.warn_strategy(base_pos_x)
 
         StrategyIcon(strategy, base_pos_x)

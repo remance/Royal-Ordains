@@ -2,3 +2,4 @@
 "Attack1","Blood Orb",,,"self:{no_engage=700}",2200,2500,2,,20,,20,10,,"magic",,,,
 "Attack2","Blood Slap",,,,250,,5,,10,,500,300,,"crush",,,,
 "Skill1","Blood Drain",,,"self:{health<=50}",2500,,10,40,15,,15,50,,"magic","regeneration,small_heal",,,
+"Skill2","Raise Pets",,,,7000,,10,10,,,,,,,,,,"summon:death_undead_hound"

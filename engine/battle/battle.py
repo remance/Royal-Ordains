@@ -50,7 +50,8 @@ from engine.uibattle.drama import TextDrama
 from engine.uibattle.uibattle import (FPSCount, BattleHelper, BattleScale, BattleCursor, CharacterSpeechBox,
                                       CharacterCommandIndicator, DamageNumber, EventNotification,
                                       PlayerBattleInteract, CharacterInteractPrompt,
-                                      Command, TacticalMap, StrategyIcon, StrategySelect, ScreenFade, BattleResult)
+                                      Command, TacticalMap, StrategyIcon, StrategySelect,
+                                      ScreenFade, BattleResult)
 from engine.uimenu.uimenu import TextPopup, BrownMenuButton
 from engine.updater.updater import ReversedLayeredUpdates
 from engine.utils.common import clean_group_object, cutscene_update
@@ -292,6 +293,7 @@ class Battle:
         self.grand = None
         self.campaign = self.game.campaign
         self.stage = None
+        self.battle_name = ""
 
         self.screen = self.game.screen
 
@@ -344,13 +346,14 @@ class Battle:
                                              )
         self.battle_scale_ui = BattleScale(self.tactical_map_ui.rect.bottomleft)
         self.strategy_select_ui = StrategySelect(self.battle_scale_ui.rect.midbottom,
-                                                 self.sprite_data.strategy_icons)
+                                                 self.sprite_data.strategy_icons, battle_ui_images["strategy_resource"])
 
         self.grand_event_notification = EventNotification(self.command_ui.rect.bottomleft)
 
         self.always_command_ui = (self.tactical_map_ui, self.battle_helper_ui, self.battle_scale_ui,
                                   self.grand_event_notification)
-        self.only_player_command_ui = (self.command_ui, self.strategy_select_ui, self.player_interact)
+        self.only_player_command_ui = (self.command_ui, self.strategy_select_ui,
+                                       self.player_interact)
 
         self.character_command_indicator = CharacterCommandIndicator(600, battle_ui_images["player_order_move"],
                                                                      battle_ui_images["player_order_attack"])
@@ -481,16 +484,17 @@ class Battle:
                         [item, self.character_list[item]["Capacity"], self.character_list[item]["Supply"]] for item in
                         army.ground_group]
 
-    def prepare_new_stage(self, attach_grand, campaign, stage, team_state, player_team,
+    def prepare_new_stage(self, attach_grand, campaign, stage, team_state, player_team, battle_name,
                           custom_stage_data, ai_retreat):
-        for message in self.inner_prepare_new_stage(attach_grand, campaign, stage, team_state, player_team,
+        for message in self.inner_prepare_new_stage(attach_grand, campaign, stage, team_state, player_team, battle_name,
                                                     custom_stage_data, ai_retreat):
             self.game.error_log.write("Start Stage:" + "." + str(stage))
             print(message, end="")
 
-    def inner_prepare_new_stage(self, attach_grand, campaign, stage, team_state, player_team,
+    def inner_prepare_new_stage(self, attach_grand, campaign, stage, team_state, player_team, battle_name,
                                 custom_stage_data=None, ai_retreat=False):
         """Setup stuff when start new battle"""
+        self.battle_name = battle_name
         self.team_state = team_state
         stage_len = len(
             [value for value in self.game.preset_map_data[stage]["data"].values() if "scene" in value["Type"]])

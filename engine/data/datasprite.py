@@ -15,6 +15,7 @@ from engine.data.data import GameData
 from engine.utils.data_loading import load_images
 from engine.utils.sprite_caching import load_pickle_with_surfaces, save_pickle_with_surfaces
 from engine.utils.text_making import text_render_with_bg
+from engine.utils.common import edit_config
 
 
 class DataSprite(GameData):
@@ -66,6 +67,7 @@ class DataSprite(GameData):
             # icon for setup like purchase unit or custom preset army setup
             self.character_portraits[file]["setup_ui"] = mini_portrait.copy()
             if file in character_list:
+                icon = self.character_portraits[file]["setup_ui"]
                 add_number = character_list[file]["Capacity"]
                 if add_number:
                     if add_number not in self.number_text_cache:
@@ -74,7 +76,9 @@ class DataSprite(GameData):
                     else:
                         number_text = self.number_text_cache[add_number]
                     number_rect = number_text.get_rect(bottomright=mini_portrait.get_size())
-                    self.character_portraits[file]["setup_ui"].blit(number_text, number_rect)
+                    icon.blit(number_text, number_rect)
+                
+                icon.blit(self.game.battle_ui_images["class_" + self.game.character_list[file]["Class"]], (0, 0))
 
             mini_portrait = smoothscale(
                 self.character_portraits[file]["character_ui"], (150 * self.screen_scale[0],
@@ -169,11 +173,16 @@ class DataSprite(GameData):
             load_character_sprite(self.data_dir, self.screen_scale, self.character_animation_data, character_list)
 
     @staticmethod
-    def load_effect_sprites(screen_size, config_animation_hash, animation_pickle_hash, data_dir, effect_animation_pool,
-                            screen_scale):
+    def load_effect_sprites(game):
+        config_animation_hash = game.sprite_data.config_animation_hash
+        data_dir = game.data_dir
+        effect_animation_pool = game.effect_animation_pool
+        animation_pickle_hash = game.sprite_data.animation_pickle_hash
+        screen_size = game.screen_size
+        screen_scale = game.screen_scale
         if (not Path(join(data_dir, "animation", "cache_effect_animation.xz")).exists() or
-                (screen_size != (1, 1) and (screen_size != config_animation_hash["screen_resolution"] or
-                                            "effect" not in animation_pickle_hash or not config_animation_hash[
+                (screen_scale != (1, 1) and (screen_size != config_animation_hash["screen_resolution"] or
+                                             "effect" not in animation_pickle_hash or not config_animation_hash[
                             "effect"] or animation_pickle_hash["effect"] != config_animation_hash["effect"]))):
             # effect sprite or screen resolution got changed, load and scale
 
@@ -181,10 +190,16 @@ class DataSprite(GameData):
                 join(data_dir, "animation", "effect_animation.xz"),
                 screen_scale=screen_scale, effect_sprite_adjust=True)
 
+            # below need to be redone if character sprite need caching as well
             # save the above pool to cache for future use
             save_pickle_with_surfaces(join(data_dir, "animation", "cache_effect_animation.xz"),
                                       new_effect_animation_pool)
+
+            # save screen resolution size in config for later game launch sprite scale check
             config_animation_hash["effect"] = animation_pickle_hash["effect"]
+            config_animation_hash["screen_resolution"] = game.screen_size
+            edit_config("VERSION", "hash", config_animation_hash,
+                        game.config_path, game.config)
         else:
             new_effect_animation_pool = load_pickle_with_surfaces(
                 join(data_dir, "animation", "cache_effect_animation.xz"),

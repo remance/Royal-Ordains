@@ -139,10 +139,8 @@ def reload_animation(animation, char, specific_frame=None):
     frames = [this_image for this_image in char.animation_list if
               this_image is not None]
     for frame_index in range(max_frame):
-        if (not specific_frame and activate_list[frame_index]) or (specific_frame and frame_index == specific_frame):
-            frames[frame_index] = apply_sprite_effect(frames[frame_index],
-                                                      frame_property_select[frame_index] + anim_property_select)
-        filmstrip_list[frame_index].add_strip(frames[frame_index])
+        if not specific_frame or frame_index == specific_frame:
+            filmstrip_list[frame_index].add_strip(frames[frame_index])
     animation.reload(frames)
 
     for helper in helper_list:
@@ -164,9 +162,11 @@ def property_to_pool_data(which):
         if anim_prop_list_box.rect.collidepoint(mouse_pos):
             for frame in range(len(current_pool[animation_character][animation_name])):
                 current_pool[animation_character][animation_name][frame]["animation_property"] = select_list.copy()
+        model.edit_part(mouse_pos, "")
     elif which == "frame":
         model.frame_list[current_frame]["frame_property"] = select_list.copy()
         current_pool[animation_character][animation_name][current_frame]["frame_property"] = select_list.copy()
+        model.edit_part(mouse_pos, "", specific_frame=current_frame)
 
 
 def change_animation_character(new_character: str):
@@ -273,7 +273,7 @@ def change_animation(new_name):
 def change_frame_process():
     global current_frame_row
     anim.show_frame = current_frame
-    model.edit_part(mouse_pos, "change")
+    model.edit_part(mouse_pos, "change", specific_frame=current_frame)
     if model.frame_list[current_frame]["sound_effect"]:
         sound_selector.change_name(str(model.frame_list[current_frame]["sound_effect"][0]))
         sound_distance_selector.change_name(str(model.frame_list[current_frame]["sound_effect"][1]))
@@ -345,7 +345,7 @@ class Filmstrip(pygame.sprite.Sprite):
         self.image = self.base_image3.copy()
         select_colour = (200, 100, 100)
         if self.activate:
-            select_colour = (150, 200, 100)
+            select_colour = (100, 150, 50)
         if select:
             pygame.draw.rect(self.image, select_colour, self.image.get_rect(),
                              int(self.image.get_width() / 5))
@@ -822,7 +822,7 @@ class Model:
         global activate_list, showroom_base_point
         #  sprite animation generation from data
         self.animation_part_list = [{key: None for key in self.mask_part_list}] * max_frame
-        self.animation_list = [self.create_animation_film(None, current_frame, empty=True)] * max_frame
+        self.animation_list = [self.create_animation_sprite(None, current_frame, empty=True)] * max_frame
         self.bodypart_list = [{key: value for key, value in self.all_part_list.items()}] * max_frame
         self.part_name_list = [{key: None for key in self.mask_part_list}] * max_frame
         for key, value in self.mask_part_list.items():  # reset rect list
@@ -871,7 +871,7 @@ class Model:
                 pose_layer_list = self.make_layer_list(sprite_part)
                 self.animation_part_list[index] = sprite_part
                 self.part_name_list[index] = part_name
-                image = self.create_animation_film(pose_layer_list, index)
+                image = self.create_animation_sprite(pose_layer_list, index)
                 self.animation_list[index] = image
             self.frame_list = frame_list
 
@@ -898,7 +898,7 @@ class Model:
         setup_list(NameList, current_frame_row, frame_prop_list_box.namelist[current_frame], frame_prop_namegroup,
                    frame_prop_list_box, ui, screen_scale, layer=9, old_list=frame_property_select[current_frame])
 
-    def create_animation_film(self, pose_layer_list, frame, empty=False):
+    def create_animation_sprite(self, pose_layer_list, frame, empty=False):
         image = pygame.Surface((default_sprite_size[0], default_sprite_size[1]),
                                pygame.SRCALPHA)  # default size will scale down later
         save_mask = False
@@ -910,6 +910,8 @@ class Model:
                 if part is not None and part[0] is not None:
                     image = self.part_to_sprite(image, part[0], layer, part[2], part[3], part[4], part[6], part[7],
                                                 save_mask=save_mask)
+
+        image = apply_sprite_effect(image, frame_property_select[frame] + anim_property_select)
         return image
 
     def generate_body(self, bodypart_list):
@@ -1328,7 +1330,7 @@ class Model:
             for frame_num, _ in enumerate(self.animation_list):
                 if specific_frame is None or (frame_num == specific_frame):
                     pose_layer_list = self.make_layer_list(self.animation_part_list[frame_num])
-                    surface = self.create_animation_film(pose_layer_list, frame_num)
+                    surface = self.create_animation_sprite(pose_layer_list, frame_num)
                     self.animation_list[frame_num] = surface
                     old_sound_effect = []
                     if "sound_effect" in self.frame_list[frame_num]:
@@ -2177,7 +2179,7 @@ while True:
                     else:
                         play_animation_button.change_option(0)  # stop animation
                         play_animation = False
-                        model.edit_part(None, "change")
+                        # model.edit_part(None, "change")
 
                 elif grid_button.rect.collidepoint(mouse_pos):
                     if grid_button.current_option == 0:  # remove grid
@@ -2715,7 +2717,7 @@ while True:
                         model.part_name_list[current_frame] = {key: (value[:].copy() if value is not None else value)
                                                                for key, value in
                                                                copy_name_frame.items()}
-                        model.edit_part(mouse_pos, "change")
+                        model.edit_part(mouse_pos, "change", specific_frame=current_frame)
 
                 elif part_copy_press:
                     if model.part_selected:

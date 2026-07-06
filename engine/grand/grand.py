@@ -185,6 +185,7 @@ class Grand:
         self.effect_animation_pool = self.sprite_data.effect_animation_pool
         self.language = self.game.language
         self.localisation = self.game.localisation
+        self.grab_text = self.localisation.grab_text
         self.save_data = game.save_data
         self.main_story_profile = self.game.save_data.save_profile
 
@@ -333,7 +334,7 @@ class Grand:
         else:
             self.outer_ui_updater.remove(self.fps_count)
 
-        self.game.loading_lore_text = self.localisation.grab_text(
+        self.game.loading_lore_text = self.grab_text(
             ("load", randint(0, len(self.localisation.text[self.language]["load"]) - 1), "Text"))
 
         self.map_x_end, self.map_y_end = self.grand_map.setup(self.map_data.world_map, load_image(

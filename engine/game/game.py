@@ -348,6 +348,7 @@ class Game:
 
         # Load game localisation data
         self.localisation = DataLocalisation()
+        self.grab_text = self.localisation.grab_text
         Game.localisation = self.localisation
 
         # Create game cursor, make sure it is the first object in ui to be created, so it is always update first
@@ -390,15 +391,11 @@ class Game:
             # if load_threads > 10:
             #     load_threads = 10
             thread = Thread(target=self.sprite_data.load_effect_sprites,
-                            args=(self.screen_size, self.sprite_data.config_animation_hash,
-                                  self.sprite_data.animation_pickle_hash, self.data_dir, self.effect_animation_pool,
-                                  self.screen_scale), daemon=True)
+                            args=(self, ), daemon=True)
             self.load_sprite_background_threads.append(thread)
             thread.start()
         else:
-            self.sprite_data.load_effect_sprites(self.screen_size, self.sprite_data.config_animation_hash,
-                                                 self.sprite_data.animation_pickle_hash, self.data_dir,
-                                                 self.effect_animation_pool, self.screen_scale)
+            self.sprite_data.load_effect_sprites(self)
 
         # Main menu interface
         BrownMenuButton.button_frame = load_image(self.game.data_dir, (1, 1),
@@ -485,7 +482,7 @@ class Game:
         self.custom_stage_list = ("stage_custom1", "stage_custom2", "stage_custom3", "stage_custom4", "stage_custom5")
         self.custom_stage_bar = ListUI(pivot=(-0.55, -0.85), origin=(-1, -1), size=(0.15, 0.25),
                                        items=GenericListAdapter(
-                                           [(-0, self.localisation.grab_text(("ui", item))) for item in
+                                           [(-0, self.grab_text(("ui", item))) for item in
                                             self.custom_stage_list]),
                                        parent=self.screen, item_size=8, layer=10000)
 
@@ -495,7 +492,7 @@ class Game:
         self.custom_weather_strength_list = ("weather_strength_0", "weather_strength_1", "weather_strength_2")
         self.custom_weather_strength_bar = ListUI(pivot=(-0.15, -0.85), origin=(-1, -1), size=(0.15, 0.25),
                                                   items=GenericListAdapter(
-                                                      [(0, self.localisation.grab_text(("ui", item))) for item in
+                                                      [(0, self.grab_text(("ui", item))) for item in
                                                        self.custom_weather_strength_list]),
                                                   parent=self.screen, item_size=8, layer=10000)
 
@@ -505,7 +502,7 @@ class Game:
         self.custom_weather_list = tuple(self.map_data.weather_data.keys())
         self.custom_weather_bar = ListUI(pivot=(0.25, -0.85), origin=(-1, -1), size=(0.15, 0.25),
                                          items=GenericListAdapter([(
-                                             0, self.localisation.grab_text(("ui", "weather_" + str(item)))) for item in
+                                             0, self.grab_text(("ui", "weather_" + str(item)))) for item in
                                              self.custom_weather_list]),
                                          parent=self.screen, item_size=8, layer=10000)
 
@@ -779,12 +776,6 @@ class Game:
                     if not thread.is_alive():
                         thread.join()
                         self.load_sprite_background_threads.remove(thread)
-
-                if not self.load_sprite_background_threads:
-                    # save screen resolution size in config for later game launch sprite scale check
-                    self.sprite_data.config_animation_hash["screen_resolution"] = self.screen_size
-                    edit_config("VERSION", "hash", self.sprite_data.config_animation_hash,
-                                self.config_path, self.config)
             # Get user input
             self.remove_from_ui_menu_updater(self.text_popup)
             self.dt = self.clock.get_time() / 1000  # dt before game_speed
@@ -878,7 +869,7 @@ class Game:
                         else:
                             done = False
                             self.activate_input_popup(("confirm_input", "exist_name"),
-                                                      self.localisation.grab_text(("ui", "warn_name_in_use")),
+                                                      self.grab_text(("ui", "warn_name_in_use")),
                                                       self.game.inform_popup_uis)
 
                     elif "remove_preset" in self.input_popup[1]:

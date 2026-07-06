@@ -76,6 +76,7 @@ class GrandActor(Sprite):
         self.army_bar = GrandFactionActorBar(self, faction)
 
         slot = tuple(self.dots_army_occupation[army.base_pos].keys()).index(self.army_id)
+        # change pos to based on slot
         target_pos = rotation_xy(self.army_pos, self.army_pos + same_dot_placement_pos_offset[slot],
                                  radians(-set_rotate(self.previous_army_pos, self.army_pos)))
         self.pos = Vector2(((target_pos[0]) * self.map_shown_to_actual_scale_width,

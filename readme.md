@@ -219,7 +219,7 @@ compatible enough for other purposes with some modifications.
 - Various Ice by danielsoundsgood (https://linktr.ee/danielsoundsgood)
 - Catapult by Sounddino (https://sounddino.com/en/effects/catapult/)
 - Horse galloping by DRAGON-STUDIO (https://pixabay.com/users/dragon-studio-38165424/)
-- Boing, broom, firecracker, metal can, dragon roar, cow moo, power charge, toy_button, bone, machine pressure, toy
+- Boing, broom, firecracker, metal can, dog growl, dragon roar, cow moo, power charge, toy_button, bone, machine pressure, toy
   squeak, dig, goo, bird fly, clock, ghost whisper, woman scream  by
   freesound_community (https://pixabay.com/users/freesound_community-46691455/)
 - Toy train by floraphonic (https://pixabay.com/users/floraphonic-38928062/)
