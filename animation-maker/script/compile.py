@@ -12,7 +12,7 @@ from engine.utils.sprite_caching import save_pickle_with_surfaces, load_pickle_w
 
 
 def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_pool, effect_animation_pool,
-                 compile_specific=None):
+                 effect_list, compile_specific=None):
     part_sprite_adjust = {}
     effect_sprite_adjust = {}
     world_actor_animation_pool = {}
@@ -331,6 +331,10 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                         if "effect" in part_header and len(part) > 5 and part[
                             9] and "property" not in part_header:
                             add_ind_effect_adjust_sprite(effect_sprite_adjust, part)
+                            if part[0] in effect_list and effect_list[part[0]]["After Reach Effect"]:
+                                add_ind_effect_adjust_sprite(effect_sprite_adjust,
+                                                             [effect_list[part[0]]["After Reach Effect"],
+                                                              "base", 0, 0, 0, 0, 0, part[7], part[8]])
 
     for effect_type, data in effect_animation_pool.items():
         if effect_type not in effect_animation_pool_save:

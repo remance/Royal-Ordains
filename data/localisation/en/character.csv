@@ -39,7 +39,7 @@
 "death_gargoyle_air","Flying Gargoyle","A flying gargoyle. Strong and sturdy with its stone body.",
 "death_rat_tower_disease_thrower","Disease Thrower","A ratman with disease rot bags. Does not deal much direct damage, but the disease will greatly impede living enemies.",
 "death_undead_banshee","Banshee","Wailing banshee. This ghost can inflict extremely powerful debuffs on enemy but can do only little damage to anyone, including fellow ghosts.","Banshees are sorrowful maiden spirits who were killed before finding love. Unable to pass on, necromancers like to lure them into enemies' ranks, whereas these banshees will scream bloody in frustration at all who suffer the misfortune of facing them."
-"death_undead_skeleton_golem","Bone Golem","A huge troll skeleton golem. Tougher than it should be. Powerhouse of the death frontline.",
+"death_undead_skeleton_golem","Bone Golem","A huge troll skeleton golem. Tougher than it should be. Powerhouse of the death frontline.","The great strength and resilience of trolls remain long after their death. Only remaining as a skeleton, they do not possess regenerative blood but also no longer suffer from the weakness of poison. Only the most skilled necromancers are capable of controlling such frightening beings."
 "death_undead_corpse_thrower","Corpse Catapult","A corpse catapult. Can hurl a diseased corpse from afar to crush the unfortunate victim and also explode into a plague mist.",
 "death_undead_ghoul","Ghoul","A speedy ghoul. Can swiftly sneak through the battlefield and hit enemies where it hurts with plague.","Ghouls are among the most dangerous undead creatures that necromancers and raise. They are agile and filled to the brim with deadly plague that only the strong can survive. Wild ghouls are the main reason why the Death Land remain untouched by every living civilisation."
 "death_undead_grave_knight","Grave Knight","A grave knight. Heavily armoured and armed with a spear and shield, serve well as a slow-moving but indomitable force.",
@@ -479,7 +479,7 @@
 "neutral_medium_barricade","Medium Barricade","A medium barricade. It can withstand a decent amount of force.","Medium-sized barricades like these were created with moderate efforts. They could adequately deter approaching enemies and may even hold them long enough to dispatch them with arrows. Many strategists tended to deploy them in great numbers at choke points."
 "neutral_minotaur","Minotaur","A great minotaur. This half-bull is as strong as a troll in melee combat.",
 "neutral_monkey_leader_fog_shaman","Fog Shaman",,
-"neutral_phoenix","Phoenix","A burning phoenix. Can resurrect once from death and deal strong fire damage.",
+"neutral_phoenix","Young Phoenix","A young phoenix. Can resurrect from death and deal strong fire damage.","Young phoenixes that were reborn from their previous death not too long ago and still live on the ground. They are immortal, so no matter how many times they die, they will come back from the ashes. One day they will grow and fly to the sun for a family visit. It is widely believed that ingesting the blood of an old phoenix can make one live forever."
 "neutral_raptor","Raptor",,
 "neutral_rat_club","Clubratman",,
 "neutral_small_barricade","Small Barricade","A small barricade. Best not to rely on it too much.","Small barricades like these were often objects of scrutiny. ""Ohh, they are so small. How can they ever hope to stop anything?"" or ""Not even goblins will care about these small little things."" and so on. Fools all."
@@ -566,3 +566,5 @@
 "wood_tree","Forest Will",,
 "wood_turtle","Turtle",,
 "wood_werewolf","Werewolf",,
+"neutral_order_knightess",,,
+"summon_chaos_creature","Forbidden Creature","Beware of the unknown. It may have the making of an innocuous look, but trust not in its deception.","The depth of truth. Uncovered within history. Kill the lies; bury them. And then be blessed with the creation of reality."

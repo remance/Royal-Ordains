@@ -1,4 +1,4 @@
-from random import randint
+from random import randint, uniform
 
 from engine.character.character import BattleCharacter
 from engine.constants import Default_Screen_Width, Collision_Grid_X_Per_Battle_Scene, Default_Battle_Ground_Pos
@@ -11,6 +11,8 @@ grid_width = Default_Screen_Width / Collision_Grid_X_Per_Battle_Scene
 
 def activate_strategy(self, team, strategy, strategy_index, base_pos_x):
     stat = self.strategy_list[strategy]
+    range_check = stat["Range"]
+    stat_property = stat["Property"]
     commander = self.team_commander[team]
     if (self.team_state[team]["strategy_resource"] > stat["Resource Cost"] and (
             not commander or not stat["Activate Range"] or
@@ -26,9 +28,9 @@ def activate_strategy(self, team, strategy, strategy_index, base_pos_x):
         StrategyIcon(strategy, base_pos_x)
 
         self.team_state[team]["strategy_cooldown"][strategy_index] = stat["Cooldown"]
-        if stat["Property"]:
-            if "weather" in stat["Property"]:  # strategy that change weather
-                self.current_weather.__init__(stat["Property"]["weather"], randint(120, 250),
+        if stat_property:
+            if "weather" in stat_property:  # strategy that change weather
+                self.current_weather.__init__(stat_property["weather"], randint(120, 250),
                                               randint(0, 2))
 
         if stat["Effects"]:
@@ -67,11 +69,14 @@ def activate_strategy(self, team, strategy, strategy_index, base_pos_x):
                              moveset=stat, base_target_pos=base_target_pos, from_owner=False)
 
         if stat["Summon"]:
-            if "chaos summon" in stat["Property"]:  # chaos summon enemy with neutral team
+            if "chaos_summon" in stat_property:  # chaos summon enemy with neutral team
                 team = 0
             for spawn_name, spawn_num in stat["Summon"].items():
                 for _ in range(spawn_num):
                     start_x = base_pos_x
+                    if "random_summon_pos" in stat_property:
+                        # put summon to random pos
+                        start_x = base_pos_x + uniform(-range_check, range_check)
                     if start_x < 0:
                         start_x = 0
                     elif start_x > self.base_stage_end:
@@ -86,7 +91,6 @@ def activate_strategy(self, team, strategy, strategy_index, base_pos_x):
                     Effect(None, ("movement", "summon", start_pos[0],
                                   start_pos[1], 0, 0, 0, 1, 1), from_owner=False)
 
-        range_check = stat["Range"]
         if stat["Enemy Status"]:
             grid_left = int((base_pos_x - range_check) / grid_width)
             if grid_left < 0:

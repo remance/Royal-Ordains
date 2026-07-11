@@ -1,0 +1,4 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
+"Attack1","Fire Beak",,,,200,,,,16,100,60,,0.2,"fire",,"hot",,
+"Skill1","Fire Breath",,,"self:{no_engage=400}",2000,2500,8,5,40,60,30,,,"fire",,"burn",,
+"Die","Rebirth",,,"self:die",,,,,7,500,,,,"fire",,,,"summon:neutral_phoenix"

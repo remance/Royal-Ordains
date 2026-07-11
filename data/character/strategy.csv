@@ -1,5 +1,5 @@
 "ID","Activate Range","Range","Cooldown","Resource Cost","Offence","Power","Penetrate","Impact X","Impact Y","Critical Chance","Element","Effects","Damage Effects","Summon","Status","Enemy Status","Effect Enemy Status","AI Condition","Property"
-"garrison_summon_death_undead_tower",500,,600,,,,,,,,,,,"death_undead_tower:1",,,,,
+"garrison_summon_death_undead_tower",500,,700,,,,,,,,,,,"death_undead_tower:1",,,,,
 "garrison_summon_great_elf_heal_tent",500,,900,,,,,,,,,,,"great_elf_heal_tent:1",,,,,
 "garrison_summon_great_elf_tower",500,,900,,,,,,,,,,,"great_elf_tower:1",,,,,
 "garrison_summon_human_castle",500,,900,,,,,,,,,,,"castle_human_castle:1",,,,,
@@ -13,12 +13,12 @@
 "spell_airburst_huge",8000,1200,20,30,60,110,800,200,100,0.1,"air",,"(air_burst_large;base;0;500;0;0;1;1;1)",,,,"stun","air",
 "spell_blizzard",3000,8000,15,70,,,,,,,"water",,,,,,,,
 "spell_cold_air",2000,6000,5,10,,,,,,,"water",,,,,,"cold",,
-"spell_death_cloud",5000,3000,30,70,,,,,,,"poison",,,,,,,,
-"spell_decay",,,10,30,,,,,,,"poison",,,,,,,,
+"spell_death_cloud",5000,3000,30,70,,,,,,,"poison",,,,,,"plague,deadly_poison",,
+"spell_decay",,,10,30,,,,,,,"poison",,,,,"rust,poison",,,
 "spell_earth_domain",,10000,10,15,,,,,,,"earth",,,,,,,,
 "spell_earth_eruption",4000,500,15,35,,,,,,,"earth",,,,,,,,
 "spell_earth_wall",3500,800,15,35,70,10,1000,800,1500,,"earth",,"(earth_wall;base;0;2000;360;0;1;1;1)",,,,,,"override_target:(ground;bottom),ignore_ground"
-"spell_earthquake",0,100000,15,70,,,,,,,"earth",,,,,,,,
+"spell_earthquake",0,100000,15,70,,,,,,,"earth",,,,,"earthquake",,,
 "spell_fire_barrage",6500,2000,15,30,40,35,180,40,60,,"fire",,"(fireball;base;850;-500;-160;0;1;1;1),(fireball;base;1000;-770;-160;0;1;1;1),(fireball;base;1200;-540;-160;0;1;1;1),(fireball;base;950;-600;-160;0;1;1;1),(fireball;base;1130;-660;-160;0;1;1;1)",,,,,,
 "spell_fire_domain",,10000,10,15,,,,,,,"fire",,,,,,,,"override_target:(ground;bottom)"
 "spell_firewall",3500,1000,15,50,30,5,200,,,,"fire",,"(fire_medium;base;250;2000;0;0;1;1;1),(fire_medium;base;-250;2000;0;0;1;1;1)",,,,,,
@@ -48,7 +48,7 @@
 "spell_poison_beam",,,15,25,60,70,1000,,,,"poison",,,,,,"poison",,
 "spell_poison_domain",,10000,10,15,,,,,,,,,,,,,,,
 "spell_skeleton_horde",4500,1000,5,20,,,,,,,,,,"death_undead_skeleton_bone:20",,,,,
-"spell_smoke",7000,1500,10,10,,,,,,,,,,,"smoke","smoke",,,
+"spell_smoke",7000,1500,10,10,,,,,,,"air",,,,"smoke","smoke",,,
 "spell_stone_rain",6000,1000,5,10,30,45,80,100,-50,,"earth",,"(boulder;speed;850;-500;-160;0;1;1;1),(boulder;speed;1000;-770;-160;0;1;1;1),(boulder;speed;1200;-540;-160;0;1;1;1),(boulder;speed;950;-600;-160;0;1;1;1),(boulder;speed;1130;-660;-160;0;1;1;1),(boulder;speed;870;-700;-160;0;1;1;1)",,,,"disrupt",,"direct"
 "spell_taladamun_mirror",,500,15,40,,,,,,,,,,"summon_taladamun_mirror:3",,,,,
 "spell_water_domain",,10000,10,15,,,,,,,,,,,,,,,
@@ -60,8 +60,10 @@
 "strategy_arcane_blossom",100,4000,90,10,,,,,,,,,,,"regeneration,resource_generation",,,,
 "strategy_blazing_heart",,1,60,5,,,,,,,,,,,"full_power",,,,
 "strategy_bravery",4000,2000,30,10,,,,,,,,,,,"brave",,,,
+"strategy_bribery_betrayal",4000,4000,60,60,,,,,,,,,,,,"false_retreat",,,
 "strategy_brilliance",6000,4000,60,60,,,,,,,,,,,"full_power,half_resource_cost,supreme_defence",,,,
-"strategy_chaos_invasion",,1000,120,70,,,,,,,,,,"demon_warrior:3,demon_fire_breather:3,demon_creeper_claw:3",,,,,
+"strategy_demon_invasion",,1000,120,70,,,,,,,,,,"demon_warrior:3,demon_fire_breather:3,demon_creeper_claw:3",,,,,
+"spell_chaos_world",,50000,600,100,,,,,,,"magic",,,,,,,,"chaos_summon,random_summon_pos"
 "strategy_clarity",5000,2000,15,5,,,,,,,,,,,"clarity",,,,
 "strategy_command_collapse",,4000,60,60,,,,,,,,,,,,"false_idle,confuse",,,
 "strategy_commander's_duty",,1,60,5,,,,,,,,,,,"haste,resource_generation,clarity",,,,
@@ -150,6 +152,7 @@
 "strategy_unity",4000,5000,30,30,,,,,,,,,,,"strengthen,hope",,,,
 "strategy_unwavering_faith",,1500,30,45,,,,,,,,,,,"clarity,pure_focus",,,,
 "strategy_web_of_deception",,10000,60,60,,,,,,,,,,,"offence_boost,defence_boost","provoke,confuse",,,
+"strategy_will_domination",,4000,90,60,,,,,,,,,,,,"will_domination",,,
 "test",5000,5000,1,1,,,,,,,,"(test_effect;base;0;800;0;0;1;1;1)","(ice_pillar;base;0;3000;0;0;1;1;1)",,,,"stun",,"override_target:(ground;bottom),ignore_ground"
 "test2",40000,3000,1,1,100,10,100000,4000,4000,,"fire","(test_effect;base;0;800;0;0;1;1;1)","(meteor;base;5500;-6100;-140;0;1;1;1)","small_rabbit_tower:1",,,"stun",,
 "weather_blood",,1,120,30,,,,,,,,,,,,,,,"weather:12"

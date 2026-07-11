@@ -2,7 +2,14 @@ def apply_status(self, status):
     # from engine.effect.effect import StatusEffect
     if status not in self.status_immunity:
         status_stat = self.status_list[status]  # get status stat
-        if (self.race == "construct" and not status_stat["Construct Apply"]) or (
+        status_property = status_stat["Property"]
+        if "apply_type_only" in status_property:
+            # use construct apply and undead apply as only character type check instead
+            if (self.race != "construct" and status_stat["Construct Apply"]) or (
+                    self.race != "undead" and status_stat["Undead Apply"]):
+                # status only applied to construct or undead character
+                return
+        elif (self.race == "construct" and not status_stat["Construct Apply"]) or (
                 self.race == "undead" and not status_stat["Undead Apply"]):
             # some status cannot be applied to construct or undead character
             return
@@ -22,16 +29,16 @@ def apply_status(self, status):
             if conflict_found:
                 return  # conflicting also prevent the status from being applied
 
-        if "false_order" in status_stat["Property"] and not self.is_commander:  # apply false order
-            if status_stat["Property"]["false_order"] == "advance":
+        if "false_order" in status_property and not self.is_commander:  # apply false order
+            if status_property["false_order"] == "advance":
                 # move command to enemy camp
                 self.issue_commander_order(("move", self.battle.team_state[self.enemy_team]["start_pos"]),
                                            false_order=True)
-            elif status_stat["Property"]["false_order"] == "idle":
+            elif status_property["false_order"] == "idle":
                 # attack command to enemy camp
                 self.issue_commander_order(("idle", self.base_pos[0]),
                                            false_order=True)
-            elif status_stat["Property"]["false_order"] == "retreat":
+            elif status_property["false_order"] == "retreat":
                 # retreat from battle
                 self.issue_commander_order(("broken",), false_order=True)
         self.status_duration[status] = status_stat["Duration"]
