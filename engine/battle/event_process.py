@@ -179,7 +179,8 @@ def event_process(self):
                     layer_id = event_property["Layer ID"]
                 add_battle_character = BattleCharacter(game_id, layer_id, event_property | self.character_list[
                     child_event["Object"]] |
-                                {"ID": child_event["Object"], "Ground Y POS": event_property["POS"][1]})
+                                                       {"ID": child_event["Object"],
+                                                        "Ground Y POS": event_property["POS"][1]})
                 add_battle_character.enter_stage()
                 self.cutscene_playing.remove(child_event)
             elif child_event["Type"] == "place":  # place scene object

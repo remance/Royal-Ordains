@@ -1,17 +1,11 @@
-from engine.grandactor.grandactor import GrandActor
+from engine.grandarmyactor.grandarmyactor import GrandArmyActor
+
 from engine.utils.common import clean_object
 
 
 def change_active_commander_actor(self, new_commander_char_id):
     self.commander_id = new_commander_char_id
 
-    # remove previous actor
-    self.grand.grand_actor_updater.remove(self.commander_actor.army_bar)
-    self.grand.grand_camera_object_drawer.remove(self.commander_actor.army_bar)
-    clean_object(self.commander_actor.army_bar)
+    # change commander actor
+    self.commander_actor.change_team_state()
 
-    self.grand.grand_actor_updater.remove(self.commander_actor)
-    self.grand.grand_camera_object_drawer.remove(self.commander_actor)
-    clean_object(self.commander_actor)
-
-    self.commander_actor = GrandActor(self.commander_id, self, self.faction)

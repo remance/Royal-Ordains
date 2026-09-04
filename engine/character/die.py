@@ -61,9 +61,9 @@ def die(self, retreat=False):
                 start_pos = (self.base_pos[0] + uniform(-200, 200),
                              self.base_pos[1])
                 add_battle_character = engine.character.character.BattleCharacter(self.battle.last_char_game_id,
-                                                           self.character_list[spawn_name] |
-                                                           {"ID": spawn_name,
-                                                            "Team": self.team, "POS": start_pos})
+                                                                                  self.character_list[spawn_name] |
+                                                                                  {"ID": spawn_name,
+                                                                                   "Team": self.team, "POS": start_pos})
                 add_battle_character.enter_stage()
                 self.battle.last_char_game_id += 1
 

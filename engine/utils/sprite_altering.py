@@ -50,7 +50,7 @@ def convert_palette_sprite(sprite_pic):
     return data2
 
 
-def apply_sprite_colour(surface, colour=None, white_colour=True):
+def apply_sprite_colour(surface, colour=None, white_colour=True, white_only=False):
     """Colorise body part sprite"""
     if surface is not None:
         size = surface.get_size()
@@ -66,6 +66,15 @@ def apply_sprite_colour(surface, colour=None, white_colour=True):
 
             surface = ImageOps.colorize(surface, black="black", mid=colour, white=mid_colour).convert("RGB")
         surface.putalpha(alpha)  # put back alpha
+        if white_only:
+            surface2 = Image.frombytes("RGBA", size, data)
+            for x in range(surface2.width):
+                for y in range(surface2.height):
+                    original_pixel = surface2.getpixel((x, y))
+                    mean = sum(original_pixel[0:3]) / 3
+                    if (sum(abs(item - mean) for item in original_pixel) / 3) / mean > 0.1:
+                        # colourise whitish pixel only
+                        surface2.putpixel((x, y), surface.getpixel((x, y)))
         surface = surface.tobytes()
         surface = image.frombytes(surface, size, "RGBA")  # convert image back to a pygame surface
     return surface

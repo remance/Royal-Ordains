@@ -2,10 +2,10 @@
 
 from engine.army.change_active_commander_actor import change_active_commander_actor
 from engine.army.change_phase import change_phase
-from engine.army.deploy_from_reserve import deploy_from_reserve
 from engine.army.issue_move_command import issue_move_command
 from engine.army.remove_army_from_active import remove_army_from_active
 from engine.constants import Retinue_Leadership_Add_Modifier
+from engine.grand.deploy_army_from_reserve import deploy_army_from_reserve
 
 
 class Army:
@@ -14,21 +14,23 @@ class Army:
 
     change_active_commander_actor = change_active_commander_actor
     change_phase = change_phase
-    deploy_from_reserve = deploy_from_reserve
+    deploy_from_reserve = deploy_army_from_reserve
     issue_move_command = issue_move_command
     remove_army_from_active = remove_army_from_active
 
-    def __init__(self, army_id: str, faction: str, culture: str, commander_char_id: str, leader_group: list,
-                 ground_group: list, air_group: list, retinue: list, supply: int = 0, max_supply: int = 0,
+    def __init__(self, army_id: str, faction: str, culture: str, commander_char_id: str, leader_group: dict,
+                 ground_group: dict, air_group: dict, retinue: dict, supply: int = 0, max_supply: int = 0,
                  custom_preset_id=None, current_region=None, travelling: dict = None, travel_how=None,
                  assembling: dict = None):
         self.game_id = army_id
         self.faction = faction
         self.culture = culture
-        self.leader_group = [item for item in leader_group if item]  # remove 0 or empty item
-        self.ground_group = [item for item in ground_group if item]
-        self.air_group = [item for item in air_group if item]
-        self.retinue = [item for item in retinue if item]
+        self.leader_group = {key: value for key, value in leader_group.items() if key}  # remove 0 or empty item
+        self.ground_group = {key: value for key, value in ground_group.items() if key}
+        self.air_group = {key: value for key, value in air_group.items() if key}
+        self.retinue = {key: value for key, value in retinue.items() if key}
+        self.full_preset = {"commander": commander_char_id, "leader": self.leader_group,
+                            "ground": self.ground_group, "air": self.air_group}
         self.commander_id = commander_char_id
         self.custom_preset_id = custom_preset_id
         self.commander_actor = None
@@ -55,6 +57,7 @@ class Army:
         self.direct_routing_array = {}
 
         if current_region:  # active army in grand campaign exist in region, so can be used as purpose indication
+            self.base_world_map = self.grand.map_data.base_world_map
             include_culture_influence = True
             if travelling:
                 self.travel_remain = sum(travelling["remain_phase_require"])

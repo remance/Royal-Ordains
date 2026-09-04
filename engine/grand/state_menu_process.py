@@ -8,7 +8,9 @@ from engine.utils.common import edit_config
 
 def state_menu_process(self):
     self.ui_menu_updater.update(self.true_dt)
-    self.grand_map.update()
+    self.camera.update(self.grand_camera_region_drawer)
+    # add route after map region draw to blit route dots on the map under other sprites.
+    self.draw_route()
 
     self.camera.update(self.grand_camera_object_drawer)
     self.camera.out_update(self.outer_ui_updater)
@@ -95,9 +97,9 @@ def state_menu_process(self):
 
 def back_to_grand_state(self):
     self.remove_from_ui_menu_updater(self.grand_menu_button.values(), self.esc_option_menu_button,
-                                     self.esc_slider_menu.values(),
+                                     self.esc_slider_menu.values(), self.cursor,
                                      self.esc_value_boxes.values(), self.esc_option_text.values())
-
+    self.outer_ui_updater.add(self.cursor)
     self.music_channel.set_volume(self.play_music_volume)
     self.music_channel.unpause()
     self.ambient_channel.set_volume(self.play_effect_volume)

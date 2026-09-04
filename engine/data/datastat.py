@@ -241,9 +241,11 @@ class DataStat(GameData):
             tuple_column = ("Garrison Strategy", "Leader Reinforcement", "Troop Reinforcement",
                             "Air Reinforcement", "Leader Recruit", "Unit Recruit", "Technology")
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
+            dict_column = ("Income Boost",)
+            dict_column = [index for index, item in enumerate(header) if item in dict_column]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
-                    row = stat_convert(row, n, i, tuple_column=tuple_column)
+                    row = stat_convert(row, n, i, tuple_column=tuple_column, dict_column=dict_column)
                 self.building_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
                 self.building_list[row[0]]["Build Time"] *= Turn_To_Phase  # convert build time to phase
                 # add repair time, which is half the build time, minimum is 1 phase

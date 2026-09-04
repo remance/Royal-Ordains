@@ -5,7 +5,6 @@ from os.path import join
 import pygame
 from pygame import Surface, SRCALPHA, Vector2
 from pygame.transform import smoothscale, flip
-from script.compile_out import compile_out_data
 
 from engine.utils.sprite_altering import sprite_rotate, apply_sprite_effect, crop_sprite
 from engine.utils.sprite_caching import save_pickle_with_surfaces, load_pickle_with_surfaces, CompilableSurface
@@ -15,13 +14,6 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                  effect_list, compile_specific=None):
     part_sprite_adjust = {}
     effect_sprite_adjust = {}
-    world_actor_animation_pool = {}
-    already_done_check_actor_anim = {}
-    try:
-        world_actor_animation_pool = load_pickle_with_surfaces(join(data_dir, "animation", "world_actor.xz"),
-                                                               (1, 1), add_mask=False)
-    except Exception:
-        pass
 
     event_actor_sprite_pool = {}
     try:
@@ -42,13 +34,9 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
         if not compile_specific or character == compile_specific:
             print(character)
             character_animation_pool = {}
-            if "_leader_" in character or "leader_" == character[:7]:  # create for grand world actor
-                # world actor only for leader characters
-                world_actor_animation_pool[character] = {}
 
             if character not in event_actor_sprite_pool:
                 event_actor_sprite_pool[character] = {}
-            grand_image_size_check = []
             for animation_name, animation_frame in animation_pool[character].items():
                 if "EXCLUDE_" not in animation_name:
                     character_animation_pool[animation_name] = {"max frame": len(animation_frame) - 1}
@@ -73,7 +61,7 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                             frame_data_l["head"] = (-animation_data["p1_head"][2], animation_data["p1_head"][3])
 
                         frame_data_list = {"right": frame_data_r, "left": frame_data_l}
-                        if "EVENT_" not in animation_name and "GRAND_" not in animation_name:
+                        if "EVENT_" not in animation_name:
                             character_animation_pool[animation_name][frame_index]["right"] = frame_data_r
                             character_animation_pool[animation_name][frame_index]["left"] = frame_data_l
                         elif "EVENT_" in animation_name:  # save to event sprite data instead
@@ -249,12 +237,6 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                             frame_data_list["left"]["offset"] = Vector2(-frame_data_list["right"]["offset"][0],
                                                                         frame_data_list["right"]["offset"][1])
 
-                        if "_leader_" in character or "leader_" == character[:7]:
-                            if animation_name in ("Idle", "Walk", "Die") or "GRAND_" in animation_name:
-                                # keep scaling for grand actor sprite saving after
-                                image = part_sprite_adjust[animation_data_str]["sprite"].surface
-                                scale = 0.2
-                                grand_image_size_check.append(int(image.size[0] * scale))
                         # save ind effect part data for rect check or object related functions
                         for part_header, part in animation_data.items():  # add ind effect to data
                             if "effect" in part_header and len(part) > 5 and part[9] and "property" not in part_header:
@@ -266,60 +248,15 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                                     -item if index in (2, 4) else item for index, item in enumerate(
                                         frame_data_list["right"]["effects"][part_header])]
 
-                if "EVENT_" in animation_name or "GRAND_" in animation_name or "DIPLOMACY_" in animation_name:
-                    # remove EVENT, GRAND, and DIPLOMACY from battle animation pool save
+                if "EVENT_" in animation_name or "DIPLOMACY_" in animation_name:
+                    # remove EVENT and DIPLOMACY from battle animation pool save
                     character_animation_pool.pop(animation_name)
 
             character_hash = save_pickle_with_surfaces(join(data_dir, "animation", character + ".xz"),
                                                        character_animation_pool)
             animation_pickle_hash[character] = character_hash
-            if "_leader_" in character or "leader_" == character[:7]:
-                for animation_name, animation_frame in animation_pool[character].items():
-                    if "EXCLUDE_" not in animation_name:
-                        scale = 0.2
-                        if max(grand_image_size_check) > 300:  # too large, change to maximum size
-                            scale *= 300 / max(grand_image_size_check)
-
-                        if animation_name in ("Idle", "Walk", "Die") or "GRAND_" in animation_name:
-                            for frame_index, animation_data in enumerate(animation_frame):
-                                # save to world actor
-                                animation_data_str = str(
-                                    {key: value for key, value in animation_data.items() if
-                                     ("effect" not in key or
-                                      (len(value) > 5 and not value[9])) and (
-                                             "property" not in key or not any(
-                                         [prop for prop in value if "effect_" in prop or "exclude_" in prop]))})
-
-                                grand_animation_name = animation_name
-                                if "GRAND_" in grand_animation_name:
-                                    grand_animation_name = grand_animation_name.replace("GRAND_", "")
-                                if grand_animation_name not in world_actor_animation_pool[character]:
-                                    world_actor_animation_pool[character][grand_animation_name] = {}
-
-                                image = part_sprite_adjust[animation_data_str]["sprite"].surface
-                                offset = part_sprite_adjust[animation_data_str]["offset"]
-                                if animation_data_str in already_done_check_actor_anim:
-                                    world_actor_animation_pool[character][grand_animation_name][frame_index] = (
-                                        already_done_check_actor_anim)[animation_data_str]
-                                else:
-                                    size = [int(image.size[0] * scale), int(image.size[1] * scale)]
-
-                                    offset = Vector2(offset[0] * scale, offset[1] * scale)
-                                    to_add = {
-                                        "right": {"sprite": CompilableSurface(image.resize(size)),
-                                                  "offset": offset},
-                                        "left": {"sprite": None, "offset": Vector2(-offset[0], offset[1])},
-                                        "sound_effect": None}
-                                    if animation_data["sound_effect"]:
-                                        to_add["sound_effect"] = tuple(animation_data["sound_effect"])
-                                    world_actor_animation_pool[character][grand_animation_name][frame_index] = to_add
-                                    already_done_check_actor_anim[animation_data_str] = to_add
 
     save_pickle_with_surfaces(join(data_dir, "animation", "event_actor.xz"), event_actor_sprite_pool)
-    save_pickle_with_surfaces(join(data_dir, "animation", "world_actor.xz"), world_actor_animation_pool)
-
-    if not compile_specific:
-        compile_out_data(data_dir, animation_dir)
 
     print("effect")
     effect_animation_pool_save = {}

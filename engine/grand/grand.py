@@ -1,8 +1,11 @@
+import configparser
 import sys
+from os.path import join
 from random import randint
 from types import MethodType
 
 import pygame
+from engine.grandarmyactor.grandarmyactor import GrandArmyActor
 from pygame import Vector2, display, sprite, Surface, SRCALPHA
 from pygame.locals import *
 from pygame.mixer import Channel
@@ -37,21 +40,19 @@ from engine.grand.sort_player_army_list import sort_player_army_list
 from engine.grand.start_battle_engagement import start_battle_engagement
 from engine.grand.state_grand_process import state_grand_process
 from engine.grand.state_menu_process import state_menu_process, back_to_grand_state
-from engine.grandactor.grandactor import GrandActor, GrandFactionActorBar
-from engine.grandmap.grandmap import GrandMap
 from engine.grandobject.grandobject import GrandObject
+from engine.grandregion.grandregion import GrandRegion
 from engine.uibattle.drama import TextDrama
 from engine.uibattle.uibattle import FPSCount
 from engine.uigrand.cosmos import CosmosUI, MiniCosmosUI
 from engine.uigrand.uigrand import (YesNo, PlayerGrandInteract, PlayerFactionResourceBar, PlayerFactionCultureList,
-                                    DotArmyInfoBanner,
+                                    DotInfoBanner, DotInfoBannerArmy, DotInfoBannerSettlement,
                                     PlayerArmyList, PlayerArmyListSortOption, MapSettingOption,
                                     TimeInfoBar, TimeSettingOption, EventImportantPopup,
                                     MenuBar, RegionManagement, EventNotification, ArmyInfo)
 from engine.uimenu.uimenu import TextPopup, GrandMiniMap, UIScroll, PresetArmySetupUI, CharacterSelector
 from engine.updater.updater import ReversedLayeredUpdates
 from engine.utils.common import clean_group_object
-from engine.utils.data_loading import load_image
 
 
 class Grand:
@@ -123,20 +124,21 @@ class Grand:
         self.screen_scale_height = game.screen_scale_height
 
         # grand campaign object group
+        self.grand_camera_region_drawer = sprite.LayeredUpdates()
         self.grand_camera_object_drawer = sprite.LayeredUpdates()
         self.grand_camera_ui_updater = sprite.LayeredUpdates()  # this is for ui on grand map, all image pos should be based on the screen
         self.grand_camera_ui_drawer = sprite.LayeredUpdates()
         self.ui_menu_drawer = sprite.LayeredUpdates()
         self.outer_ui_updater = sprite.LayeredUpdates()  # this is drawer for ui on screen, does not move alonge with camera
         self.ui_menu_updater = ReversedLayeredUpdates()
-        self.grand_actor_updater = ReversedLayeredUpdates()  # updater for actor objects,
+        self.grand_object_updater = ReversedLayeredUpdates()  # updater for actor objects,
         self.grand_effect_updater = sprite.Group()  # updater for effect objects
 
-        GrandActor.containers = self.grand_actor_updater, self.grand_camera_object_drawer
-        GrandFactionActorBar.containers = self.grand_actor_updater, self.grand_camera_object_drawer
-        DotArmyInfoBanner.containers = self.grand_camera_ui_updater, self.grand_camera_ui_drawer
+        GrandArmyActor.containers = self.grand_object_updater, self.grand_camera_object_drawer
+        DotInfoBanner.containers = self.grand_camera_ui_updater, self.grand_camera_ui_drawer
 
-        GrandObject.containers = self.grand_actor_updater, self.grand_camera_object_drawer
+        GrandObject.containers = self.grand_object_updater, self.grand_camera_object_drawer
+        GrandRegion.containers = self.grand_object_updater, self.grand_camera_region_drawer
 
         # Music and sound player
         self.current_music = None
@@ -180,6 +182,7 @@ class Grand:
 
         self.sprite_data = self.game.sprite_data
         self.grand_ui_icons = self.sprite_data.grand_ui_icons
+        self.building_portraits = self.sprite_data.building_portraits
         self.character_animation_data = self.sprite_data.character_animation_data
         self.character_portraits = self.sprite_data.character_portraits
         self.effect_animation_pool = self.sprite_data.effect_animation_pool
@@ -205,20 +208,22 @@ class Grand:
         self.camera_x_shift = self.shown_camera_topleft_pos[0] - self.camera_w_center
 
         # Create map object
-        GrandMap.grand = self
-        GrandMap.image = Surface.subsurface(self.camera.image, self.camera.image.get_rect())
+        self.base_world_map = None
         self.map_x_end = 0
         self.map_y_end = 0
-        self.map_shown_to_actual_scale_width = 1
-        self.map_shown_to_actual_scale_height = 1
-        self.grand_map = GrandMap()
+        self.shown_world_map_width = 1
+        self.shown_world_map_height = 1
+        self.map_shown_to_base_scale_width = 1
+        self.map_shown_to_base_scale_height = 1
+        self.army_move_line_width = int(24 * self.screen_scale_width)
+        self.army_move_inner_line_width = int(12 * self.screen_scale_width)
 
         Army.grand = self
-        GrandActor.grand = self
-        GrandFactionActorBar.grand = self
+        GrandArmyActor.grand = self
         GrandObject.grand = self
-        GrandFactionActorBar.screen_scale = self.screen_scale
         GrandObject.screen_scale = self.screen_scale
+        GrandRegion.grand = self
+        GrandRegion.screen_scale = self.screen_scale
 
         self.clock_time = 0
         self.true_dt = 0
@@ -240,6 +245,7 @@ class Grand:
         self.player_faction = None
         self.player_input = None
         self.current_campaign_state = {"cosmic_event": ()}
+        self.settlement_dots = {}
         self.dots_army_occupation = {}
 
         self.region_by_colour_index = {}
@@ -250,6 +256,7 @@ class Grand:
 
         # Create grand ui
         self.dots_army_info_banners = {}
+        self.dots_settlement_info_banners = {}
         self.travel_dot_images = {1: {}, 2: {}, 3: {}, 4: {}}  # get added during campaign prepare
         self.grand_ui_images = self.game.grand_ui_images
         self.cosmos_ui_images = self.game.cosmos_ui_images
@@ -337,18 +344,25 @@ class Grand:
         self.game.loading_lore_text = self.grab_text(
             ("load", randint(0, len(self.localisation.text[self.language]["load"]) - 1), "Text"))
 
-        self.map_x_end, self.map_y_end = self.grand_map.setup(self.map_data.world_map, load_image(
-            self.data_dir, self.screen_scale, "grand.png", ("map", "world", campaign),
-            no_alpha=True))
+        grand_config = configparser.ConfigParser()  # initiate config reader
+        grand_config.read_file(open(join(self.data_dir, "map", "world", campaign, "grand.ini")))  # read config file
+        self.shown_world_map_width = int(grand_config["MAP"]["map_width"]) * self.screen_scale_width
+        self.shown_world_map_height = int(grand_config["MAP"]["map_height"]) * self.screen_scale_height
 
-        self.map_shown_to_actual_scale_width = self.grand_map.map_shown_to_actual_scale_width
-        self.map_shown_to_actual_scale_height = self.grand_map.map_shown_to_actual_scale_height
-
+        self.base_world_map = self.map_data.base_world_map
         self.faction_list = self.map_data.faction_list
         self.region_by_colour_index = self.map_data.region_by_colour_index
         self.region_by_pos_index = self.map_data.region_by_pos_index
         self.region_list = self.map_data.region_list
         self.route_list = self.map_data.route_list
+
+        self.map_shown_to_base_scale_width = self.shown_world_map_width / self.base_world_map.get_width()
+        self.map_shown_to_base_scale_height = self.shown_world_map_height / self.base_world_map.get_height()
+
+        self.map_x_end = self.shown_world_map_width - self.screen_width
+        self.map_y_end = self.shown_world_map_height - self.screen_height
+
+        self.sprite_data.load_region_sprite(campaign)
 
         travel_dot_images = {1: None, 2: None, 3: None, 4: None}
         for key in travel_dot_images:
@@ -363,10 +377,10 @@ class Grand:
         route_dot_draw_array = {}
         map_data_route_dot_draw_array = self.map_data.route_dot_draw_array
         for x in map_data_route_dot_draw_array:
-            scale_x = x * self.grand_map.map_shown_to_actual_scale_width
+            scale_x = x * self.map_shown_to_base_scale_width
             route_dot_draw_array[scale_x] = {}
             for y in map_data_route_dot_draw_array[x]:
-                scale_y = y * self.grand_map.map_shown_to_actual_scale_height
+                scale_y = y * self.map_shown_to_base_scale_height
                 angle = map_data_route_dot_draw_array[x][y]
                 difficulty = self.map_data.dot_route_difficulty[(x, y)]
                 if angle not in self.travel_dot_images[difficulty]:
@@ -375,25 +389,28 @@ class Grand:
 
         self.route_dot_draw_array = route_dot_draw_array
 
-        # load actor animation sprite
-        self.sprite_data.setup_campaign()
-
         # create map of dots army occupation for battle engage checking
-        self.dots_army_occupation = {value["Settlement POS"]: {} for
-                                     value in self.map_data.region_list.values()}
+        self.settlement_dots = {value["Settlement POS"]: key for key, value in self.map_data.region_list.items()}
+        self.dots_army_occupation = {key: {} for
+                                     key in self.settlement_dots}
+
         for route_data in self.map_data.route_list.values():
             for dot in route_data["Dots"]:
+                army_dot_y_offset = 20
+                if dot in self.settlement_dots:  # settlement dot
+                    army_dot_y_offset = 35
+                    self.dots_settlement_info_banners[dot] = DotInfoBannerSettlement(
+                        dot, (dot[0] * self.map_shown_to_base_scale_width,
+                              (dot[1] + 20) * self.map_shown_to_base_scale_height), self.settlement_dots[dot])
                 self.dots_army_occupation[dot] = {}
-
-                self.dots_army_info_banners[dot] = DotArmyInfoBanner(
-                    dot, (dot[0] * self.grand_map.map_shown_to_actual_scale_width,
-                          dot[1] * self.grand_map.map_shown_to_actual_scale_height))
+                self.dots_army_info_banners[dot] = DotInfoBannerArmy(
+                    dot, (dot[0] * self.map_shown_to_base_scale_width,
+                          (dot[1] + army_dot_y_offset) * self.map_shown_to_base_scale_height))
 
         # setup armies, replace dict with object
         for faction, faction_value in self.current_campaign_state["faction"].items():
-
             for index, army in enumerate(tuple(faction_value["army"])):
-                self.create_new_army(faction_value["army"], army, index=index, sort=False)
+                self.create_new_army(faction_value["army"], army, index=index, sort=False, no_assemble=True)
 
         # create route graph for pathfinding
         if not self.current_campaign_state["pathfinding"]:
@@ -402,16 +419,26 @@ class Grand:
         # setup ui
         if self.player_faction:
             self.player_faction_culture_list_ui.culture_change()
-        self.mini_map.change_grand_setup(self.map_data.world_map)
+        self.mini_map.change_grand_setup(self.map_data.base_world_map)
         self.mini_map.change_grand_faction(self.current_campaign_state["region"]["control"])
         self.cosmic_ui.reset(self.current_campaign_state["cosmic_time"])
         self.mini_cosmic_ui.reset()
 
         campaign_building_state = self.current_campaign_state["region"]["buildings"]
         for region, region_objects in self.current_campaign_state["region"]["objects"].items():
+            region_buildings = campaign_building_state[region]
+            # create region objects
+            GrandRegion(region, self.region_list[region]["Region POS"],
+                        self.current_campaign_state["region"]["control"][region])
+
+            # create wonder objects
             for key, region_object in region_objects.items():
-                wonder = GrandObject(region_object[0], (region_object[1], region_object[2]), region_object[3])
-                wonder.change_state(campaign_building_state[region][key][1])  # change based on its building state
+                GrandObject(region_object[0], (region_object[1], region_object[2]),
+                            region_buildings[key][1])
+
+            # create settlement objects
+            GrandObject(region_buildings[0][0], self.region_list[region]["Settlement POS"],
+                        region_buildings[0][1])
 
         # setup camera position
         if self.current_campaign_state["player_camera_pos"]:
@@ -421,13 +448,13 @@ class Grand:
                 for region in self.region_list.values():
                     if region["Capital"] and region["Control"] == player_faction:
                         self.camera_pos = Vector2((region["Settlement POS"][0] *
-                                                   self.grand_map.map_shown_to_actual_scale_width) - self.camera_center_x,
+                                                   self.map_shown_to_base_scale_width) - self.camera_center_x,
                                                   (region["Settlement POS"][1] *
-                                                   self.grand_map.map_shown_to_actual_scale_height) - self.camera_center_y)
+                                                   self.map_shown_to_base_scale_height) - self.camera_center_y)
                         break
             else:  # no player faction, camera at center of grand map
-                self.camera_pos = Vector2((self.grand_map.full_shown_map_image.get_width() / 2) - self.camera_center_x,
-                                          (self.grand_map.full_shown_map_image.get_height() / 2) - self.camera_center_y)
+                self.camera_pos = Vector2((self.shown_world_map_width / 2) - self.camera_center_x,
+                                          (self.shown_world_map_height / 2) - self.camera_center_y)
 
         if player_faction:
             self.player_input = MethodType(player_input_grand, self)
@@ -468,16 +495,17 @@ class Grand:
 
         self.screen.fill((0, 0, 0))
         self.outer_ui_updater.add(self.cursor)
-        self.add_to_ui_menu_updater(self.cursor)
         yield set_done_load()
 
     def run_grand(self):
         frame = 0
         while True:  # grand running
+            self.screen.fill((120, 120, 200))  # draw sea
             self.outer_ui_updater.remove(self.text_popup)
+
             frame += 1
 
-            if frame % 30 == 0 and hasattr(self.game, "profiler"):  # Remove for stable release, along with dev key
+            if frame >= 30 and hasattr(self.game, "profiler"):  # Remove for stable release, along with dev key
                 self.game.profiler.refresh()
                 frame = 0
 
@@ -507,8 +535,8 @@ class Grand:
             self.cursor_pos = Vector2(self.cursor.pos[0] + self.camera_pos[0],
                                       self.cursor.pos[1] + self.camera_pos[1])
             self.base_cursor_pos = Vector2(  # mouse pos on the map based on camera position
-                (self.cursor_pos[0] / self.map_shown_to_actual_scale_width,
-                 self.cursor_pos[1] / self.map_shown_to_actual_scale_height))
+                (self.cursor_pos[0] / self.map_shown_to_base_scale_width,
+                 self.cursor_pos[1] / self.map_shown_to_base_scale_height))
 
             for event in pygame.event.get():  # get event that happen
                 if event.type == pygame.MOUSEBUTTONUP:
@@ -518,11 +546,6 @@ class Grand:
                         self.cursor.scroll_down = True
                 # elif event.type == self.SONG_END: # whatever music end, pick random from default battle music
                 #     self.music.play(choice(self.default_battle_music_pool), fade_ms=100)
-
-                elif event.type == QUIT:  # quit game
-                    pygame.quit()
-                    sys.exit()
-
                 elif event.type == pygame.KEYDOWN:
                     event_key_press = event.key
                     if event_key_press in self.player_key_bind_name:  # check for key press
@@ -546,6 +569,9 @@ class Grand:
                         if not hasattr(self.game, "profiler"):
                             self.game.setup_profiler()
                         self.game.profiler.switch_show_hide()
+                elif event.type == QUIT:  # quit game
+                    pygame.quit()
+                    sys.exit()
 
             return_state = self.state_process()  # run code based on current state
             if return_state is not None:
@@ -589,10 +615,14 @@ class Grand:
         self.player_faction = None
         self.player_input = None
         self.current_campaign_state = {}
+        self.settlement_dots = {}
         self.dots_army_occupation.clear()
         for dot in self.dots_army_info_banners:
             self.dots_army_info_banners[dot].kill()
         self.dots_army_info_banners.clear()
+        for dot in self.dots_settlement_info_banners:
+            self.dots_settlement_info_banners[dot].kill()
+        self.dots_settlement_info_banners.clear()
 
         self.region_by_colour_index = {}
         self.region_list = {}
@@ -601,7 +631,7 @@ class Grand:
 
         self.ai_process_list = []
 
-        clean_group_object((self.grand_camera_ui_updater, self.grand_actor_updater, self.grand_effect_updater))
+        clean_group_object((self.grand_camera_ui_updater, self.grand_object_updater, self.grand_effect_updater))
 
         self.sound_effect_queue = {}
 

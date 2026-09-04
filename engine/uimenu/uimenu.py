@@ -127,6 +127,7 @@ class UIMenu(Sprite):
         """
         from engine.game.game import Game
         self.game = Game.game
+        self.font_text_cache = self.game.font_text_cache
         self.add_to_ui_menu_updater = self.game.add_to_ui_menu_updater
         self.remove_from_ui_menu_updater = self.game.remove_from_ui_menu_updater
         self.button_sound_channel = self.game.button_sound_channel
@@ -2109,8 +2110,8 @@ class GrandMiniMap(UIMenu):
         self.rect = self.image.get_rect(midtop=self.pos)
 
         if self.ui_purpose == "grand":
-            self.map_scale_width = self.grand.grand_map.full_shown_map_image.get_width() / self.image.get_width()
-            self.map_scale_height = self.grand.grand_map.full_shown_map_image.get_height() / self.image.get_height()
+            self.map_scale_width = self.grand.shown_world_map_width / self.image.get_width()
+            self.map_scale_height = self.grand.shown_world_map_height / self.image.get_height()
             self.camera_border_image = Surface((self.screen_width / self.map_scale_width,
                                                 self.screen_height / self.map_scale_height), SRCALPHA)
             draw.rect(self.camera_border_image, (250, 100, 100), self.camera_border_image.get_rect(),

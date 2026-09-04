@@ -1,5 +1,7 @@
 # Royal Ordains  <img src="https://github.com/remance/preview2/blob/main/rabbit.png?raw=true">
 
+## Also on Codeberg: https://codeberg.org/Remance/Royal-Ordains
+
 ### This is the Book of Royal Ordains. A manuscript that tells the history and fate of the great realms.
 
 Made with pure python and [Pygame](https://github.com/pygame/pygame).
@@ -219,10 +221,11 @@ compatible enough for other purposes with some modifications.
 - Various Ice by danielsoundsgood (https://linktr.ee/danielsoundsgood)
 - Catapult by Sounddino (https://sounddino.com/en/effects/catapult/)
 - Horse galloping by DRAGON-STUDIO (https://pixabay.com/users/dragon-studio-38165424/)
-- Boing, broom, firecracker, metal can, dog growl, dragon roar, cow moo, power charge, toy_button, bone, machine pressure, toy
-  squeak, dig, goo, bird fly, clock, ghost whisper, woman scream  by
+- Boing, broom, firecracker, metal can, dog growl, dragon roar, cow moo, power charge, toy_button, bone, machine
+  pressure, toy
+  squeak, dig, goo, lyre, bird fly, clock, ghost whisper, woman scream by
   freesound_community (https://pixabay.com/users/freesound_community-46691455/)
-- Toy train by floraphonic (https://pixabay.com/users/floraphonic-38928062/)
+- Corpse splash, toy train by floraphonic (https://pixabay.com/users/floraphonic-38928062/)
 
 ### Music
 

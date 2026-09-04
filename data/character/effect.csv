@@ -32,7 +32,10 @@
 "corpse_catapult",,2000,"TRUE",,,"stone_big",2000,,
 "corpse_catapult_explode",,,"TRUE",,,,,,
 "damaged",,,,,,,,,
+"dark_claw",,,"TRUE",,,,,,
 "dark_day",,,,,,,,,
+"dark_energy",,1000,"TRUE",,"dark_energy_explosion",,,,"travel_spin"
+"dark_energy_explosion",,,"TRUE",,,"magic_explosion",1500,3,
 "doll_knife",,3000,"TRUE","stick",,"bolt",1400,,
 "doll_lander",,2500,"TRUE",,,"stone_big",3000,,"travel_spin,summon:doll_lander,summon_spawn_ground:bottom"
 "ducky",,1000,"TRUE","bounce",,"quack",1300,,"travel_spin"
@@ -128,3 +131,5 @@
 "doll_knight_cav",,,,,,,,,
 "taladamun_bird",,250000,,,,"birdfly",2500,,
 "rotten_flesh",,1600,"TRUE",,,"stone",1800,,"travel_spin"
+"greek_cow",,1800,"TRUE","move","greek_cow_explode","stone_huge",3500,,"travel_spin,reach_effect_spawn_ground:bottom"
+"greek_cow_explode",,,"TRUE",,,"corpse_splash",3000,,

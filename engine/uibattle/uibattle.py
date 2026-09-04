@@ -192,7 +192,6 @@ class ScreenFade(UIBattle):
 
 
 class Command(UIBattle):
-    number_text_cache = {}
     number_respond_text_cache = {}
     number_cooldown_text_cache = {}
     stat_cache = {}
@@ -203,6 +202,7 @@ class Command(UIBattle):
         self.character_list = self.battle.character_list
         self.character_portraits = self.battle.character_portraits
         self.number_font = self.game.character_indicator_font
+        self.number_text_cache = self.font_text_cache[self.number_font]
         self.image = Surface((800 * self.screen_scale_width, 400 * self.screen_scale_height), SRCALPHA)
         self.image_width = self.image.get_width()
         self.image.fill((0, 0, 0, 125))
@@ -717,7 +717,6 @@ class BattleHelper(UIBattle):
                             must_reset_image = True
                     break
             if not helper_mouse_over:
-
                 self.text_popup.popup(("topright", self.rect.bottomright), self.battle_info_text,
                                       width_text_wrapper=self.max_description_box_width)
                 self.outer_ui_updater.add(self.text_popup)
@@ -910,8 +909,7 @@ class TacticalMap(UIBattle):
 
 class StrategySelect(UIBattle):
     icon_cache = {}
-    number_text_cache = {}
-    strategy_text_cache = {}
+    strategy_text_list_cache = {}
 
     def __init__(self, pos, strategy_icons, resource_image):
         self._layer = 10
@@ -919,6 +917,8 @@ class StrategySelect(UIBattle):
         self.strategy_list = self.battle.strategy_list
         self.strategy_icons = strategy_icons
         self.font = self.game.battle_timer_font
+
+        self.number_text_cache = self.font_text_cache[self.font]
         self.update_timer = 0
         self.strategy_status = {}
         self.base_resource_image = resource_image
@@ -1015,7 +1015,7 @@ class StrategySelect(UIBattle):
                 for index, rect in self.strategy_rect.items():
                     if rect.collidepoint(inside_mouse_pos):
                         this_strategy = self.player_team_stat["strategy"][index]
-                        if this_strategy not in self.strategy_text_cache:
+                        if this_strategy not in self.strategy_text_list_cache:
                             strategy_stat = self.strategy_list[this_strategy]
                             text = (self.grab_text(("strategy", this_strategy, "Name")),
                                     self.grab_text(("strategy", this_strategy, "Description")),
@@ -1026,9 +1026,9 @@ class StrategySelect(UIBattle):
                                     self.grab_text(("ui", "info_header_strategy_range")) +
                                     str(strategy_stat["Range"])
                                     )
-                            self.strategy_text_cache[this_strategy] = text
+                            self.strategy_text_list_cache[this_strategy] = text
                         else:
-                            text = self.strategy_text_cache[this_strategy]
+                            text = self.strategy_text_list_cache[this_strategy]
                         self.text_popup.popup(self.rect.bottomleft, text,
                                               width_text_wrapper=self.max_description_box_width)
                         self.outer_ui_updater.add(self.text_popup)

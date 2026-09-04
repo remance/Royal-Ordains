@@ -7,8 +7,6 @@ from pygame import quit as pg_quit
 def state_grand_process(self):
     if self.input_popup:  # currently, have input text pop up on screen, stop everything else until done.
         self.ui_menu_updater.update(self.true_dt)
-        self.grand_map.update()
-
         self.camera.update(self.grand_camera_object_drawer)
         self.camera.out_update(self.outer_ui_updater)
         self.camera.out_update(self.ui_menu_drawer)
@@ -70,6 +68,8 @@ def state_grand_process(self):
 
             self.menu_bar_ui.option_selected = None
             self.change_game_state("menu")  # open menu
+            self.outer_ui_updater.remove(self.cursor)
+            self.add_to_ui_menu_updater(self.cursor)
             self.add_to_ui_menu_updater(self.grand_menu_button.values())  # add menu and its buttons to drawer
 
         # Update game time
@@ -108,7 +108,7 @@ def state_grand_process(self):
             self.drama_process()
 
         # Object related updater
-        self.grand_actor_updater.update(self.true_dt, dt)
+        self.grand_object_updater.update(self.true_dt, dt)
         self.grand_effect_updater.update(self.true_dt)
 
         # if self.current_campaign_state["battle"]["manual"]:
@@ -119,11 +119,14 @@ def state_grand_process(self):
         self.camera.camera_top_bound = self.shown_camera_topleft_pos[1]
         self.camera.camera_right_bound = self.camera.camera_left_bound + self.screen_width
         self.camera.camera_bottom_bound = self.camera.camera_top_bound + self.screen_height
-        self.grand_map.update()
 
         # update ui and add object to camera
         self.grand_camera_ui_updater.update(self.true_dt)
+        self.camera.update(self.grand_camera_region_drawer)
+        # add route after map region draw to blit route dots on the map under other sprites.
+        self.draw_route()
         self.camera.update(self.grand_camera_object_drawer)
+
         self.camera.update(self.grand_camera_ui_drawer)
         self.outer_ui_updater.update(dt)
         self.camera.update(self.ui_menu_drawer)

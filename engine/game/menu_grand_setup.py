@@ -63,7 +63,7 @@ def menu_grand_setup(self):
                           "alliance": alliance_state,
                           "region": {"control": {key: value["Control"] for key, value in
                                                  self.map_data.region_list.items()},
-                                     "buildings": {key: [value["Build Slot " + str(index)] for index in range(1, 11) if
+                                     "buildings": {key: [value["Build Slot " + str(index)] for index in range(1, 10) if
                                                          value["Build Slot " + str(index)]] for key, value in
                                                    self.map_data.region_list.items()},
                                      "objects": {key: value["Object"] for key, value in

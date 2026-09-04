@@ -60,7 +60,6 @@ from engine.uimenu.uimenu import (MenuCursor, BoxUI, BrownMenuButton, MenuButton
                                   CharacterMovesetShowCase, CharacterSelector, CustomPresetTitle, ListUI,
                                   CustomPresetListAdapter, GenericListAdapter)
 from engine.updater.updater import ReversedLayeredUpdates
-from engine.utils.common import edit_config
 from engine.utils.data_loading import load_image, load_images, csv_read
 
 game_name = "Royal Ordains"  # Game name that will appear as game name at the windows bar
@@ -271,6 +270,17 @@ class Game:
         self.list_font2 = Font(self.ui_font["text_paragraph"], int(32 * Game.screen_scale_height))
         self.list_font3 = Font(self.ui_font["text_paragraph"], int(24 * Game.screen_scale_height))
 
+        # must add font object above to cache dict if require caching
+        self.font_text_cache = {self.profiler_font: {}, self.note_font: {}, self.fps_counter_font: {},
+                                self.generic_ui_font: {}, self.medium_generic_ui_font: {},
+                                self.large_generic_ui_font: {},
+                                self.battle_timer_font: {}, self.preset_name_font: {},
+                                self.loading_screen_lore_font: {},
+                                self.character_name_talk_prompt_font: {}, self.character_indicator_font: {},
+                                self.damage_number_font: {}, self.character_number_font: {},
+                                self.critical_damage_number_font: {}, self.drama_font: {}, self.screen_fade_font: {},
+                                self.list_font1: {}, self.list_font2: {}, self.list_font3: {}}
+
         # Load UI images
         self.weather_icon_images = load_images(self.data_dir, screen_scale=self.screen_scale,
                                                subfolder=("ui", "weather_ui"))
@@ -388,10 +398,8 @@ class Game:
         self.load_sprite_background_threads = []
 
         if cpu_count() - 1 > 0:
-            # if load_threads > 10:
-            #     load_threads = 10
             thread = Thread(target=self.sprite_data.load_effect_sprites,
-                            args=(self, ), daemon=True)
+                            args=(self,), daemon=True)
             self.load_sprite_background_threads.append(thread)
             thread.start()
         else:
@@ -459,8 +467,8 @@ class Game:
 
         # Custom battle select menu button
         self.custom_team_players = {1: "player", 2: "computer"}
-        self.custom_team_army = {index: [Army("", "", "", "", [], [],
-                                              [], []) for _ in range(5)] for index in (1, 2)}
+        self.custom_team_army = {index: [Army("", "", "", "", {}, {},
+                                              {}, {}) for _ in range(5)] for index in (1, 2)}
 
         self.setup_back_button = BrownMenuButton((.15, 0.5), (0.6, 0),
                                                  key_name="button_back", parent=main_menu_buttons_box)

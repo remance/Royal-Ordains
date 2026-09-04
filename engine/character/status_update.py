@@ -73,4 +73,3 @@ def status_update(self):
         self.health -= 0.1
         if self.health < 0:
             self.health = 0
-

@@ -1,6 +1,6 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
 "Attack1","Dark Energy",,,,1500,2000,3,,26,42,,,,"magic",,,,
 "Attack2","Dark Claw",,,,300,,5,,56,80,,,,"magic",,,,
-"Skill1","Corruption",,,,7000,20000,90,50,,,,,,"magic","curse,daze","curse,daze",,
-"Skill2","Discord Flow",,,,7000,20000,90,50,,,,,,"magic","resource_generation","resource_drain",,
-"Skill3","Raise Ghouls",,,,6000,,10,5,,,,,,,,,,"summon:death_undead_ghoul"
+"Skill1","Corruption",,,,7000,20000,100,30,,,,,,"magic","curse,daze","curse,daze",,
+"Skill2","Discord Flow",,,,7000,20000,100,30,,,,,,"magic","resource_generation","resource_drain",,
+"Skill3","Raise Ghouls",,,,6000,,15,,,,,,,"magic",,,,"summon:death_undead_ghoul"

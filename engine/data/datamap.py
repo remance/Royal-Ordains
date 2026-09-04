@@ -46,7 +46,7 @@ class DataMap(GameData):
         self.faction_list = {}
         self.region_by_colour_index = {}
         self.region_by_pos_index = {}
-        self.world_map = None
+        self.base_world_map = None
         self.default_grand_faction = None
 
     def load_campaign_data(self, campaign: str):
@@ -59,7 +59,7 @@ class DataMap(GameData):
             header = rd[0]
             list_column = ["Build Slot " + str(index) for index in range(1, 11)]
             list_column = [index for index, item in enumerate(header) if item in list_column]
-            tuple_column = ("Settlement POS",)
+            tuple_column = ("Region POS", "Settlement POS",)
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
             dict_column = ("Object", "Route")
             dict_column = [index for index, item in enumerate(header) if item in dict_column]
@@ -133,7 +133,8 @@ class DataMap(GameData):
                 self.event_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
         edit_file.close()
 
-        self.world_map = load_image(self.data_dir, (1, 1), "world.png", ("map", "world", campaign), no_alpha=True)
+        self.base_world_map = load_image(self.data_dir, (1, 1), "world.png",
+                                         ("map", "world", campaign), no_alpha=True)  # no scaling for this
 
         self.faction_list = {}
         with open(os.path.join(self.data_dir, "map", "world", campaign, "faction.csv"),

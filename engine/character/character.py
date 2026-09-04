@@ -600,7 +600,8 @@ class BattleCharacter(Character):
                 sub_battle_character = SubBattleCharacter(
                     self.battle.last_char_game_id, self.character_list[character[0]] |
                                                    {"ID": character[0], "Team": self.team,
-                                                    "POS": self.base_pos, "Anchor POS": (character[1], character[2])}, self)
+                                                    "POS": self.base_pos, "Anchor POS": (character[1], character[2])},
+                    self)
                 sub_battle_character.enter_stage()
                 self.battle.last_char_game_id += 1
 

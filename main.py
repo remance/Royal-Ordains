@@ -4,9 +4,12 @@ import traceback
 
 from engine.game import game
 
+# import faulthandler
+
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 
 if __name__ == "__main__":
+    # faulthandler.enable()
     error_log = open(os.path.join(main_dir + "/error_report.txt"), "w",
                      encoding="utf-8")  # create error log when game start
     python_ver = sys.version.split(" ")[0].split(".")

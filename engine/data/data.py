@@ -7,3 +7,5 @@ class GameData:
         self.font_dir = Game.font_dir
         self.localisation = Game.localisation
         self.screen_scale = Game.screen_scale
+        self.screen_scale_width = Game.screen_scale_width
+        self.screen_scale_height = Game.screen_scale_height

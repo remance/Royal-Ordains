@@ -12,10 +12,10 @@ import psutil
 from pygame.transform import smoothscale, flip
 
 from engine.data.data import GameData
+from engine.utils.common import edit_config
 from engine.utils.data_loading import load_images
 from engine.utils.sprite_caching import load_pickle_with_surfaces, save_pickle_with_surfaces
 from engine.utils.text_making import text_render_with_bg
-from engine.utils.common import edit_config
 
 
 class DataSprite(GameData):
@@ -30,6 +30,7 @@ class DataSprite(GameData):
 
         self.number_text_cache = {}
         self.character_animation_data = {}
+        self.region_sprites = {}
         self.stage_object_animation_pool = {}
         self.grand_object_animation_pool = {}
         self.grand_actor_animation_pool = {}
@@ -52,14 +53,23 @@ class DataSprite(GameData):
                                           subfolder=("ui", "strategy_ui"))
         self.grand_ui_icons = load_images(self.data_dir, screen_scale=self.screen_scale,
                                           subfolder=("ui", "grand_ui"))
+        self.building_portraits = load_images(self.data_dir, screen_scale=self.screen_scale,
+                                              subfolder=("ui", "building_ui"))
+        for file in self.building_portraits:
+            self.building_portraits[file] = {"building_ui": self.building_portraits[file]}
+            big_portrait = smoothscale(
+                self.building_portraits[file]["building_ui"], (300 * self.screen_scale_width,
+                                                               300 * self.screen_scale_height))
+            self.building_portraits[file]["big"] = big_portrait
+
         self.character_portraits = load_images(self.data_dir, screen_scale=self.screen_scale,
                                                subfolder=("ui", "character_ui"))
 
         for file in self.character_portraits:
             self.character_portraits[file] = {"character_ui": self.character_portraits[file]}
             mini_portrait = smoothscale(
-                self.character_portraits[file]["character_ui"], (200 * self.screen_scale[0],
-                                                                 200 * self.screen_scale[1]))
+                self.character_portraits[file]["character_ui"], (200 * self.screen_scale_width,
+                                                                 200 * self.screen_scale_height))
             self.character_portraits[file]["small"] = {"right": mini_portrait,
                                                        "left": flip(mini_portrait, True, False)}
 
@@ -77,19 +87,19 @@ class DataSprite(GameData):
                         number_text = self.number_text_cache[add_number]
                     number_rect = number_text.get_rect(bottomright=mini_portrait.get_size())
                     icon.blit(number_text, number_rect)
-                
+
                 icon.blit(self.game.battle_ui_images["class_" + self.game.character_list[file]["Class"]], (0, 0))
 
             mini_portrait = smoothscale(
-                self.character_portraits[file]["character_ui"], (150 * self.screen_scale[0],
-                                                                 150 * self.screen_scale[1]))
+                self.character_portraits[file]["character_ui"], (150 * self.screen_scale_width,
+                                                                 150 * self.screen_scale_height))
 
             self.character_portraits[file]["tiny"] = {"right": mini_portrait,
                                                       "left": flip(mini_portrait, True, False)}
 
             mini_portrait = smoothscale(
-                self.character_portraits[file]["character_ui"], (100 * self.screen_scale[0],
-                                                                 100 * self.screen_scale[1]))
+                self.character_portraits[file]["character_ui"], (100 * self.screen_scale_width,
+                                                                 100 * self.screen_scale_height))
 
             self.character_portraits[file]["mini"] = {"right": mini_portrait,
                                                       "left": flip(mini_portrait, True, False)}
@@ -99,11 +109,11 @@ class DataSprite(GameData):
         for file in self.culture_coas:
             self.culture_coas[file] = {"culture_ui": self.culture_coas[file]}
             self.culture_coas[file]["small"] = smoothscale(
-                self.culture_coas[file]["culture_ui"], (200 * self.screen_scale[0],
-                                                        200 * self.screen_scale[1]))
+                self.culture_coas[file]["culture_ui"], (200 * self.screen_scale_width,
+                                                        200 * self.screen_scale_height))
             self.culture_coas[file]["tiny"] = smoothscale(
-                self.culture_coas[file]["culture_ui"], (150 * self.screen_scale[0],
-                                                        150 * self.screen_scale[1]))
+                self.culture_coas[file]["culture_ui"], (150 * self.screen_scale_width,
+                                                        150 * self.screen_scale_height))
 
         self.weather_matter_images = {}
         part_folder = Path(join(self.data_dir, "map", "weather", "matter"))
@@ -119,16 +129,9 @@ class DataSprite(GameData):
         #     join(self.data_dir, "animation", "stage_object.xz"),
         #     screen_scale=self.screen_scale, battle_only=True)
 
-    def setup_campaign(self):
-        """Setup animation for campaign, only run once"""
-        if not self.grand_object_animation_pool:
-            self.grand_object_animation_pool = load_pickle_with_surfaces(
-                join(self.data_dir, "animation", "world_object.xz"),
-                screen_scale=self.screen_scale, add_mask=False)
-
-            self.grand_actor_animation_pool = load_pickle_with_surfaces(
-                join(self.data_dir, "animation", "world_actor.xz"),
-                screen_scale=self.screen_scale, add_mask=False)
+    def load_region_sprite(self, campaign: str):
+        self.region_sprites = load_images(self.data_dir, screen_scale=self.screen_scale,
+                                          subfolder=("map", "world", campaign, "region"))
 
     def load_character_animation(self, character_list):
         # only load those not already loaded
@@ -201,6 +204,7 @@ class DataSprite(GameData):
             edit_config("VERSION", "hash", config_animation_hash,
                         game.config_path, game.config)
         else:
+            # use (1, 1) scaling since the cached already got scaled
             new_effect_animation_pool = load_pickle_with_surfaces(
                 join(data_dir, "animation", "cache_effect_animation.xz"),
                 screen_scale=(1, 1), effect_sprite_adjust=True)

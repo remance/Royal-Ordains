@@ -15,8 +15,8 @@ from pygame.transform import smoothscale, rotate, flip as pyflip
 
 from engine.battle.battle import Battle
 from engine.data.datalocalisation import DataLocalisation
-from engine.data.datastat import DataStat
 from engine.data.datasound import DataSound
+from engine.data.datastat import DataStat
 from engine.game.game import Game
 from engine.uibattle.uibattle import UIBattle
 from engine.uimenu.uimenu import UIScroll, MenuCursor, NameList, MenuButton, TextPopup, InputUI, InputBox, ListBox
@@ -40,6 +40,7 @@ class FakeGame:
         self.add_to_ui_menu_updater = None
         self.remove_from_ui_menu_updater = None
         self.button_sound_channel = Channel(3)
+        self.font_text_cache = {}
 
 
 class FakeBattle:

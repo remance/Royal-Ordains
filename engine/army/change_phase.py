@@ -69,13 +69,11 @@ def change_phase(self):
                     travelling["remain_phase_require"][0].pop(0)
 
                 self.travel_remain = sum([sum(value) for value in travelling["remain_phase_require"]])
-                region_colour = tuple(self.grand.grand_map.true_map_image.get_at((int(self.base_pos[0]),
-                                                                                  int(self.base_pos[1]))))[:3]
+                region_colour = tuple(self.base_world_map.get_at((int(self.base_pos[0]),
+                                                                  int(self.base_pos[1]))))[:3]
                 self.current_region = self.grand.region_by_colour_index[region_colour]
                 if not travelling["dot_routes"]:  # no more route left, finish travel
                     self.travelling = {}
-
-            print(self.grand.dots_army_occupation)
     else:
         if (self.supply < self.max_supply and self.base_pos in self.region_by_pos_index and
                 current_campaign_state["region"]["control"][self.region_by_pos_index[self.base_pos]] == self.faction):

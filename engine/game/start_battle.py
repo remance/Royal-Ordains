@@ -3,13 +3,15 @@ import gc
 from pygame.event import clear as clear_event
 
 
-def start_battle(self, grand, campaign, stage, team_state, player_team, battle_name, custom_stage_data=None, ai_retreat=False,
+def start_battle(self, grand, campaign, stage, team_state, player_team, battle_name, custom_stage_data=None,
+                 ai_retreat=False,
                  setup_battle=False):
     # self.error_log.write("\n Map: " + str(self.map_selected) + "\n")
     self.loading_screen("start")
     if setup_battle:
         self.battle.setup_battle_start(campaign, stage, team_state)
-    self.battle.prepare_new_stage(grand, campaign, stage, team_state, player_team, battle_name, custom_stage_data, ai_retreat)
+    self.battle.prepare_new_stage(grand, campaign, stage, team_state, player_team, battle_name, custom_stage_data,
+                                  ai_retreat)
     self.battle.run_battle()  # run battle
     self.battle.exit_battle()  # run exit battle for previous one
 
