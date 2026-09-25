@@ -7,7 +7,7 @@ from pygame import quit as pg_quit
 def state_grand_process(self):
     if self.input_popup:  # currently, have input text pop up on screen, stop everything else until done.
         self.ui_menu_updater.update(self.true_dt)
-        self.camera.update(self.grand_camera_object_drawer)
+        self.camera.update_with_in_camera_check(self.grand_camera_object_drawer)
         self.camera.out_update(self.outer_ui_updater)
         self.camera.out_update(self.ui_menu_drawer)
 
@@ -122,12 +122,12 @@ def state_grand_process(self):
 
         # update ui and add object to camera
         self.grand_camera_ui_updater.update(self.true_dt)
-        self.camera.update(self.grand_camera_region_drawer)
+        self.camera.update_with_in_camera_check(self.grand_camera_region_drawer)
         # add route after map region draw to blit route dots on the map under other sprites.
         self.draw_route()
-        self.camera.update(self.grand_camera_object_drawer)
+        self.camera.update_with_in_camera_check(self.grand_camera_object_drawer)
 
-        self.camera.update(self.grand_camera_ui_drawer)
+        self.camera.update_with_in_camera_check(self.grand_camera_ui_drawer)
         self.outer_ui_updater.update(dt)
-        self.camera.update(self.ui_menu_drawer)
+        self.camera.update_with_in_camera_check(self.ui_menu_drawer)
         self.camera.out_update(self.outer_ui_updater)

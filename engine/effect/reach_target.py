@@ -86,3 +86,4 @@ def showcase_reach_target(self, how=None):
             else:
                 engine.effect.effect.ShowcaseEffect(self.owner_data, stat, from_owner=False)
     self.clean_object()
+    return True

@@ -1,10 +1,9 @@
-# import uuid str(uuid.uuid1())
-
 from engine.army.change_active_commander_actor import change_active_commander_actor
 from engine.army.change_phase import change_phase
+from engine.army.check_can_assemble import check_can_assemble
 from engine.army.issue_move_command import issue_move_command
 from engine.army.remove_army_from_active import remove_army_from_active
-from engine.constants import Retinue_Leadership_Add_Modifier
+from engine.army.reset_stat import reset_stat
 from engine.grand.deploy_army_from_reserve import deploy_army_from_reserve
 
 
@@ -14,23 +13,20 @@ class Army:
 
     change_active_commander_actor = change_active_commander_actor
     change_phase = change_phase
+    check_can_assemble = check_can_assemble
     deploy_from_reserve = deploy_army_from_reserve
     issue_move_command = issue_move_command
     remove_army_from_active = remove_army_from_active
+    reset_stat = reset_stat
 
-    def __init__(self, army_id: str, faction: str, culture: str, commander_char_id: str, leader_group: dict,
-                 ground_group: dict, air_group: dict, retinue: dict, supply: int = 0, max_supply: int = 0,
-                 custom_preset_id=None, current_region=None, travelling: dict = None, travel_how=None,
-                 assembling: dict = None):
+    def __init__(self, army_id: str, faction: str, culture: str, commander_char_id: str, army_followers: dict,
+                 supply: int = 0, max_supply: int = 0, custom_preset_id=None, current_region=None,
+                 travelling: dict = None, travel_how=None,
+                 assembling_followers: dict = None):
         self.game_id = army_id
         self.faction = faction
         self.culture = culture
-        self.leader_group = {key: value for key, value in leader_group.items() if key}  # remove 0 or empty item
-        self.ground_group = {key: value for key, value in ground_group.items() if key}
-        self.air_group = {key: value for key, value in air_group.items() if key}
-        self.retinue = {key: value for key, value in retinue.items() if key}
-        self.full_preset = {"commander": commander_char_id, "leader": self.leader_group,
-                            "ground": self.ground_group, "air": self.air_group}
+        self.army_followers = army_followers
         self.commander_id = commander_char_id
         self.custom_preset_id = custom_preset_id
         self.commander_actor = None
@@ -42,7 +38,8 @@ class Army:
         self.power = 0
         self.total_supply_usage = 0
         self.travel_time_modifier = 1
-        self.assembling = assembling
+        self.assembling_followers = assembling_followers
+        self.can_assemble = False
         self.supply = supply
         self.max_supply = max_supply
 
@@ -68,66 +65,28 @@ class Army:
             self.direct_routing_array = self.grand.current_campaign_state["direct_routing"]
             self.grand.dots_army_occupation[self.base_pos][self.game_id] = self
             self.region_by_pos_index = self.grand.region_by_pos_index
+            self.check_can_assemble()
 
         self.reset_stat(include_culture_influence=include_culture_influence)
-
-    def reset_stat(self, include_culture_influence=True):
-        self.leadership = 0
-        self.cost = 0
-        self.upkeep = 0
-        self.power = 0
-        self.total_number = 0
-        self.total_supply_usage = 0
-
-        for key, group in {"commander": [self.commander_id], "leader": self.leader_group, "ground": self.ground_group,
-                           "air": self.air_group, "retinue": self.retinue}.items():
-            if group:
-                for character in group:
-                    if character:
-                        character_stat = self.character_list[character]
-                        character_culture = character_stat["Culture"]
-                        influence = 0
-                        if include_culture_influence and character_culture != "free":
-                            influence = 2
-                            faction_culture = self.grand.current_campaign_state["faction"][self.faction]["culture"]
-                            if character_culture in faction_culture:
-                                # the lower the culture influence, the higher cost and upkeep
-                                # e.g., 50% culture influence result in double cost, 0 = triple cost
-                                influence = (1 - faction_culture[character_culture]["influence"]) * 2
-                        self.cost += character_stat["Cost"] + (character_stat["Cost"] * influence)
-                        self.upkeep -= character_stat["Upkeep"] + (character_stat["Upkeep"] * influence)
-                        total_can_call = character_stat["Arrive Per Call"] * character_stat["Capacity"]
-
-                        self.power += character_stat["Power Score"] * total_can_call
-                        if key == "commander":
-                            self.leadership += character_stat["Leadership"]
-                            self.total_number += 1  # commander can't be called multiple time so only 1
-                        elif key == "retinue":
-                            self.leadership += character_stat["Leadership"] * Retinue_Leadership_Add_Modifier
-                        else:
-                            self.total_supply_usage += (character_stat["Supply"] * character_stat["Capacity"])
-                            self.total_number += total_can_call
-
-        self.strategy_regen = self.leadership / 100
 
     @property
     def to_dict(self) -> dict:
         return {"ID": self.game_id, "faction": self.faction, "culture": self.culture,
-                "commander": self.commander_id, "leader_group": self.leader_group,
-                "ground_group": self.ground_group, "air_group": self.ground_group,
-                "retinue": self.retinue, "supply": self.supply, "custom_preset_id": self.custom_preset_id,
+                "commander": self.commander_id, "army_followers": self.army_followers,
+                "supply": self.supply, "custom_preset_id": self.custom_preset_id,
                 "base_pos": self.base_pos, "current_region": self.current_region,
-                "travel_route": self.travelling, "travel_how": self.travel_how, "assembling": self.assembling
+                "travel_route": self.travelling, "travel_how": self.travel_how,
+                "assembling": self.assembling_followers
                 }
 
     @property
     def to_preset_dict(self) -> dict:
-        return {"culture": self.culture, "commander": [self.commander_id], "leader": self.leader_group,
-                "troop": self.ground_group, "air": self.ground_group, "retinue": self.retinue,
+        return {"culture": self.culture, "commander": [self.commander_id], "army_followers": self.army_followers,
                 "cost": self.cost, "leadership": self.leadership,
                 "total_number": self.total_number, "upkeep": self.upkeep,
                 "power": self.power, "supply": self.supply, "max_supply": self.max_supply,
                 "strategy": [self.character_list[self.commander_id]["Strategy"]] +
-                            [self.character_list[character]["Strategy"] for character in self.retinue],
+                            [self.character_list[character[0]]["Strategy"] for character in
+                             self.army_followers["retinue"] if character],
                 "total_supply_usage": self.total_supply_usage
                 }

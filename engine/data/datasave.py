@@ -33,7 +33,8 @@ class DataSave(GameData):
         if "custom_army.dat" not in [os.sep.join(os.path.normpath(item).split(os.sep)[-1:]) for
                                      item in sub1_directories]:  # make common game save data
             self.make_save_file(os.path.join(self.main_dir, "save", "custom_army.dat"), {})
-        self.custom_army_preset_save = self.load_save_file(os.path.join(self.main_dir, "save", "custom_army.dat"))
+        self.player_custom_army_preset_save = self.load_save_file(
+            os.path.join(self.main_dir, "save", "custom_army.dat"))
 
     @staticmethod
     def make_save_file(file_name, save_data):

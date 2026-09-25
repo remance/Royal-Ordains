@@ -34,7 +34,8 @@ from engine.game.change_custom_battle_config import change_custom_battle_config
 from engine.game.change_keybind import change_keybind
 from engine.game.change_pause_update import change_pause_update
 from engine.game.change_sound_volume import change_sound_volume
-from engine.game.convert_army_to_custom_deployable import convert_army_to_custom_deployable
+from engine.game.check_custom_team_fund import check_custom_team_fund
+from engine.game.convert_custom_army_to_deployable import convert_custom_army_to_deployable
 from engine.game.create_config import create_config
 from engine.game.get_keybind_button_name import get_keybind_button_name
 from engine.game.load_grand_campaign import load_grand_campaign
@@ -58,7 +59,7 @@ from engine.uimenu.uimenu import (MenuCursor, BoxUI, BrownMenuButton, MenuButton
                                   TextPopup, CustomTeamSetupUI, FactionSelector, PresetArmySetupUI, GrandMiniMap,
                                   GrandFactionDetail, GrandFactionShowCase, CharacterDescriptionShowCase,
                                   CharacterMovesetShowCase, CharacterSelector, CustomPresetTitle, ListUI,
-                                  CustomPresetListAdapter, GenericListAdapter)
+                                  CustomArmyPresetListAdapter, GenericListAdapter)
 from engine.updater.updater import ReversedLayeredUpdates
 from engine.utils.data_loading import load_image, load_images, csv_read
 
@@ -85,7 +86,7 @@ class Game:
     screen_scale_height = screen_scale[1]
     screen_size = ()
 
-    game_version = "0.2.6"
+    game_version = "0.2.7"
 
     # import from game
     activate_input_popup = activate_input_popup
@@ -94,7 +95,8 @@ class Game:
     change_keybind = change_keybind
     change_pause_update = change_pause_update
     change_sound_volume = change_sound_volume
-    convert_army_to_custom_deployable = convert_army_to_custom_deployable
+    check_custom_team_fund = check_custom_team_fund
+    convert_custom_army_to_deployable = convert_custom_army_to_deployable
     create_config = create_config
     change_custom_battle_config = change_custom_battle_config
     get_keybind_button_name = get_keybind_button_name
@@ -216,7 +218,7 @@ class Game:
         self.screen = display.set_mode(self.screen_size, DOUBLEBUF | self.window_style)
 
         # Decorate game icon window
-        icon = load_image(self.main_dir, (1, 1), "icon.png")
+        icon = load_image(self.main_dir, "icon.png")
         display.set_icon(icon)
 
         Game.screen_rect = self.screen.get_rect()
@@ -231,9 +233,9 @@ class Game:
         self.clock = pygame.time.Clock()  # set get clock
 
         self.save_data = DataSave()
-        self.before_save_preset_army_setup = deepcopy(self.save_data.custom_army_preset_save)
+        self.before_save_preset_army_setup = deepcopy(self.save_data.player_custom_army_preset_save)
 
-        self.loading = load_image(self.data_dir, self.screen_scale, "loading.png", ("ui", "mainmenu_ui"))
+        self.loading = load_image(self.data_dir, "loading.png", self.screen_scale, ("ui", "mainmenu_ui"))
         self.loading = pygame.transform.scale(self.loading, self.screen_rect.size)
 
         self.player_key_bind = self.player_key_bind_list
@@ -286,9 +288,9 @@ class Game:
                                                subfolder=("ui", "weather_ui"))
         self.option_menu_images = load_images(self.data_dir, screen_scale=self.screen_scale,
                                               subfolder=("ui", "option_ui"))
-        image = load_image(self.data_dir, self.screen_scale, "drop_normal.png", ("ui", "mainmenu_ui"))
-        image2 = load_image(self.data_dir, self.screen_scale, "drop_hover.png", ("ui", "mainmenu_ui"))
-        image3 = load_image(self.data_dir, self.screen_scale, "drop_click.png", ("ui", "mainmenu_ui"))
+        image = load_image(self.data_dir, "drop_normal.png", self.screen_scale, ("ui", "mainmenu_ui"))
+        image2 = load_image(self.data_dir, "drop_hover.png", self.screen_scale, ("ui", "mainmenu_ui"))
+        image3 = load_image(self.data_dir, "drop_click.png", self.screen_scale, ("ui", "mainmenu_ui"))
         self.drop_button_lists = (image, image2, image3)
 
         image = scale(image, (image.get_width() * 1.15, image.get_height() * 1.25))
@@ -296,9 +298,9 @@ class Game:
         image3 = scale(image3, (image3.get_width() * 1.15, image3.get_height() * 1.25))
         self.drop_big_button_lists = (image, image2, image3)
 
-        text_button_image = load_image(self.data_dir, self.screen_scale, "text_normal.png", ("ui", "mainmenu_ui"))
-        text_button_image2 = load_image(self.data_dir, self.screen_scale, "text_hover.png", ("ui", "mainmenu_ui"))
-        text_button_image3 = load_image(self.data_dir, self.screen_scale, "text_click.png", ("ui", "mainmenu_ui"))
+        text_button_image = load_image(self.data_dir, "text_normal.png", self.screen_scale, ("ui", "mainmenu_ui"))
+        text_button_image2 = load_image(self.data_dir, "text_hover.png", self.screen_scale, ("ui", "mainmenu_ui"))
+        text_button_image3 = load_image(self.data_dir, "text_click.png", self.screen_scale, ("ui", "mainmenu_ui"))
         self.text_button_image_list = (text_button_image, text_button_image2, text_button_image3)
         self.battle_ui_images = load_images(self.data_dir, screen_scale=self.screen_scale,
                                             subfolder=("ui", "battle_ui"))
@@ -406,8 +408,8 @@ class Game:
             self.sprite_data.load_effect_sprites(self)
 
         # Main menu interface
-        BrownMenuButton.button_frame = load_image(self.game.data_dir, (1, 1),
-                                                  "new_button.png", ("ui", "mainmenu_ui"))
+        BrownMenuButton.button_frame = load_image(self.game.data_dir,
+                                                  "new_button.png", subfolder=("ui", "mainmenu_ui"))
         main_menu_buttons_box = BoxUI((0, -8),
                                       (self.screen_width, 200 * self.screen_scale_height), parent=self.screen)
 
@@ -467,8 +469,11 @@ class Game:
 
         # Custom battle select menu button
         self.custom_team_players = {1: "player", 2: "computer"}
-        self.custom_team_army = {index: [Army("", "", "", "", {}, {},
-                                              {}, {}) for _ in range(5)] for index in (1, 2)}
+        self.showcase_army = Army("", "", "", "",
+                                  {"leader": [], "troop": [], "air": [], "retinue": []})
+        self.custom_team_army = {index: [Army("", "", "", "",
+                                              {"leader": [], "troop": [], "air": [], "retinue": []})
+                                         for _ in range(5)] for index in (1, 2)}
 
         self.setup_back_button = BrownMenuButton((.15, 0.5), (0.6, 0),
                                                  key_name="button_back", parent=main_menu_buttons_box)
@@ -528,10 +533,10 @@ class Game:
             self.text_button_image_list, (self.screen_rect.width * 0.85, self.screen_rect.height * 0.1),
             key_name=("info_header_gold_limit", self.team2_gold_limit_custom_battle), font_size=52, layer=151)
 
-        self.player_image = {"player": load_image(self.game.data_dir, self.screen_scale,
-                                                  "player.png", ("ui", "mainmenu_ui")),
-                             "computer": load_image(self.game.data_dir, self.screen_scale,
-                                                    "computer.png", ("ui", "mainmenu_ui"))}
+        self.player_image = {"player": load_image(self.game.data_dir, "player.png",
+                                                  self.screen_scale, ("ui", "mainmenu_ui")),
+                             "computer": load_image(self.game.data_dir, "computer.png",
+                                                    self.screen_scale, ("ui", "mainmenu_ui"))}
         self.custom_battle_team_setup = {
             1: CustomTeamSetupUI(1, (self.screen_width * 0.25, self.screen_height * 0.475)),
             2: CustomTeamSetupUI(2, (self.screen_width * 0.75, self.screen_height * 0.475))}
@@ -599,12 +604,12 @@ class Game:
         self.character_selector_scroll = UIScroll(self.character_selector,
                                                   self.character_selector.rect.topright)
         self.custom_preset_list_box = ListUI(pivot=(-0.9, -0.6), origin=(-1, -1), size=(0.15, 0.5),
-                                             items=CustomPresetListAdapter(),
+                                             items=CustomArmyPresetListAdapter(),
                                              parent=self.screen, item_size=20)
-        self.custom_preset_faction_selector = FactionSelector(3800, (self.screen_width / 2, 0), use_culture=True)
+        self.custom_preset_culture_selector = FactionSelector(3800, (self.screen_width / 2, 0), use_culture=True)
 
         self.custom_preset_menu_uis = (self.preset_back_button, self.preset_save_button, self.custom_preset_list_box,
-                                       self.custom_preset_faction_selector, self.custom_preset_army_setup,
+                                       self.custom_preset_culture_selector, self.custom_preset_army_setup,
                                        self.character_selector, self.character_selector_scroll,
                                        self.custom_preset_army_title)
 
@@ -664,8 +669,8 @@ class Game:
                                                                     self.lorebook_showcase_character_selector.rect.topright)
 
         self.lorebook_showcase_box = StaticImage((self.screen_width * 0.595, self.screen_height * 0.4),
-                                                 load_image(self.game.data_dir, self.screen_scale,
-                                                            "showcase_box.png", ("ui", "mainmenu_ui")), 0)
+                                                 load_image(self.game.data_dir, "showcase_box.png",
+                                                            self.screen_scale, ("ui", "mainmenu_ui")), 0)
         self.remove_from_ui_menu_updater(self.lorebook_showcase_box)
 
         self.sprite_data.load_character_animation((Default_Showcase_Character,))
@@ -858,20 +863,25 @@ class Game:
 
                     elif self.input_popup[1] == "new_preset":
                         if self.input_box.text and "custom_" + self.input_box.text not in self.before_save_preset_army_setup:
-                            if self.custom_preset_army_setup.selected_faction not in self.before_save_preset_army_setup:
-                                self.before_save_preset_army_setup[self.custom_preset_army_setup.selected_faction] = {}
+                            if self.custom_preset_army_setup.selected_culture not in self.before_save_preset_army_setup:
+                                self.before_save_preset_army_setup[self.custom_preset_army_setup.selected_culture] = {}
                             save_preset = deepcopy(self.custom_preset_army_setup.army_preset)
                             save_preset["Name"] = self.input_box.text
-                            self.before_save_preset_army_setup[self.custom_preset_army_setup.selected_faction][
+                            if save_preset["Commander"]:  # change list to str
+                                save_preset["Commander"] = save_preset["Commander"][0]
+                            self.before_save_preset_army_setup[self.custom_preset_army_setup.selected_culture][
                                 "custom_" + self.input_box.text] = save_preset
-                            self.custom_preset_army_setup.army_preset = self.before_save_preset_army_setup[
-                                self.custom_preset_army_setup.selected_faction]["custom_" + self.input_box.text]
+                            save_preset = self.convert_custom_army_to_deployable(
+                                save_preset, self.custom_preset_army_setup.selected_culture)
+                            self.showcase_army.__init__("", save_preset["culture"],
+                                                        save_preset["culture"],
+                                                        save_preset["commander"],
+                                                        save_preset["followers"],
+                                                        custom_preset_id="custom_" + self.input_box.text)
 
+                            self.custom_preset_army_setup.popup(self.input_box.text, self.showcase_army)
                             self.custom_preset_list_box.adapter.__init__()
-                            self.custom_preset_army_title.change_text(self.input_box.text,
-                                                                      self.custom_preset_army_setup.total_gold_cost,
-                                                                      self.custom_preset_army_setup.total_supply_usage,
-                                                                      self.custom_preset_army_setup.total_leadership)
+
                             self.custom_preset_army_setup.change_portrait_selection(None, None)
 
                         else:
@@ -881,13 +891,12 @@ class Game:
                                                       self.game.inform_popup_uis)
 
                     elif "remove_preset" in self.input_popup[1]:
-                        self.before_save_preset_army_setup[self.custom_preset_army_setup.selected_faction].pop(
-                            "custom_" + self.input_popup[1][1])
-                        if self.input_popup[1][1] == self.custom_preset_army_setup.current_preset:
-                            self.custom_preset_army_setup.current_preset = ""
-                            self.custom_preset_army_title.change_text("", self.custom_preset_army_setup.total_gold_cost,
-                                                                      self.custom_preset_army_setup.total_supply_usage,
-                                                                      self.custom_preset_army_setup.total_leadership)
+                        preset_id = "custom_" + self.input_popup[1][1]
+                        self.before_save_preset_army_setup[self.custom_preset_army_setup.selected_culture].pop(
+                            preset_id)
+                        if preset_id == self.custom_preset_army_setup.current_preset_id:
+                            self.custom_preset_army_setup.change_culture_preset(
+                                self.custom_preset_army_setup.selected_culture)
                         self.custom_preset_list_box.adapter.__init__()
 
                     elif self.input_popup[1] == "custom_gold":

@@ -97,15 +97,12 @@ class DataMap(GameData):
                 route_data = self.route_list[row[0]]
                 dot_route = route_data["Dots"]
                 for index, route in enumerate(dot_route):
-                    if route[0] not in self.route_dot_draw_array:
-                        self.route_dot_draw_array[route[0]] = {}
                     if index + 1 != len(dot_route):
-                        self.route_dot_draw_array[route[0]][route[1]] = set_rotate(route, dot_route[index + 1])
+                        self.route_dot_draw_array[route] = set_rotate(route, dot_route[index + 1])
                     else:  # next destination is settlement use settlement pos to calculate angle instead
-                        self.route_dot_draw_array[route[0]][route[1]] = set_rotate(route, self.region_list[row[0][1]][
+                        self.route_dot_draw_array[route] = set_rotate(route, self.region_list[row[0][1]][
                             "Settlement POS"])
-                    self.route_dot_draw_array[route[0]] = dict(sorted(self.route_dot_draw_array[route[0]].items()))
-                    self.dot_route_difficulty[tuple(route)] = Route_Travel_Modifier[route_data["Type"]]
+                    self.dot_route_difficulty[route] = Route_Travel_Modifier[route_data["Type"]]
 
                 # add settlement pos to route after dots draw since dots do not include settlement
                 route_data["Dots"].insert(0, self.region_list[row[0][0]]["Settlement POS"])
@@ -133,8 +130,8 @@ class DataMap(GameData):
                 self.event_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
         edit_file.close()
 
-        self.base_world_map = load_image(self.data_dir, (1, 1), "world.png",
-                                         ("map", "world", campaign), no_alpha=True)  # no scaling for this
+        self.base_world_map = load_image(self.data_dir, "world.png",
+                                         subfolder=("map", "world", campaign), no_alpha=True)  # no scaling for this
 
         self.faction_list = {}
         with open(os.path.join(self.data_dir, "map", "world", campaign, "faction.csv"),

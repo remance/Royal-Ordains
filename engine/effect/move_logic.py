@@ -57,12 +57,13 @@ def move_logic(self, dt, done):
                         self.base_image = self.current_animation[self.show_frame]
                         self.adjust_sprite()
                     self.reach_target("ground")
-                    return
+                    return True
                 else:
                     self.reach_target("border")
-                    return
+                    return True
 
             self.adjust_sprite()
 
     elif done:
         self.reach_target()
+        return True

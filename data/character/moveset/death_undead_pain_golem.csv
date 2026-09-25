@@ -1,4 +1,4 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
 "Attack1","Slam",,,,500,,4,,100,200,10,-700,,"crush",,,,
 "Skill1","Scream",,,,500,2500,30,,,,,,,,,"fear,terror,suppressed",,
-"Skill2","Bile Sprout",,,,1000,,45,,130,1000,50,-100,,"poison",,"poison,vulnerable",,
+"Skill2","Bile Sprout",,,,1000,,45,,20,1000,50,-100,,"poison",,,"poison,vulnerable",

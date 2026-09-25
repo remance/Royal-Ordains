@@ -51,36 +51,59 @@ def convert_palette_sprite(sprite_pic):
 
 
 def apply_sprite_colour(surface, colour=None, white_colour=True, white_only=False):
-    """Colorise body part sprite"""
+    """
+    Colorise body part sprite
+
+    @param surface: Surface to colourise
+    @param colour: Colour to use
+    @param white_colour: Keep white colour as white or input colour
+    @param white_only: Colourise only white/grey scale colour pixel
+    @return:
+    """
     if surface is not None:
         size = surface.get_size()
         data = image.tobytes(surface, "RGBA")  # convert image to string data for filtering effect
         surface = Image.frombytes("RGBA", size, data)  # use PIL to get image data
         alpha = surface.split()[-1]  # save alpha
-        surface = surface.convert("L")  # convert to grey scale for colourise
-        if colour is not None:
-            mid_colour = "white"
-            if white_colour is False:
-                max_colour = 255  # - (colour[0] + colour[1] + colour[2])
-                mid_colour = [int(c - ((max_colour - c) / 2)) for c in colour]
+        if not white_only:  # use pillow colourise for all colour
+            surface = surface.convert("L")  # convert to grey scale for colourise
+            if colour is not None:
+                mid_colour = "white"
+                if not white_colour:
+                    max_colour = 255  # - (colour[0] + colour[1] + colour[2])
+                    mid_colour = [int(c - ((max_colour - c) / 2)) for c in colour]
 
-            surface = ImageOps.colorize(surface, black="black", mid=colour, white=mid_colour).convert("RGB")
-        surface.putalpha(alpha)  # put back alpha
-        if white_only:
-            surface2 = Image.frombytes("RGBA", size, data)
-            for x in range(surface2.width):
-                for y in range(surface2.height):
-                    original_pixel = surface2.getpixel((x, y))
+                surface = ImageOps.colorize(surface, black="black", mid=colour, white=mid_colour)
+
+        else:
+            surface = surface.convert("RGB")
+            for x in range(surface.width):
+                for y in range(surface.height):
+                    original_pixel = surface.getpixel((x, y))
                     mean = sum(original_pixel[0:3]) / 3
-                    if (sum(abs(item - mean) for item in original_pixel) / 3) / mean > 0.1:
-                        # colourise whitish pixel only
-                        surface2.putpixel((x, y), surface.getpixel((x, y)))
+                    if mean:  # skip pure black
+                        if (sum(abs(item - mean) for item in original_pixel) / 3) / mean < 0.02:
+                            # colourise whitish pixel only
+                            intensity = mean / 255
+                            revert_intensity = 1 - intensity
+                            new_colour = tuple(
+                                [int(item * revert_intensity + (colour[index] * intensity)) for index, item in
+                                 enumerate(original_pixel)])
+                            surface.putpixel((x, y), new_colour)
+
+        surface.putalpha(alpha)  # put back alpha
         surface = surface.tobytes()
-        surface = image.frombytes(surface, size, "RGBA")  # convert image back to a pygame surface
+        surface = image.frombytes(surface, size, "RGBA").convert_alpha()  # convert image back to a pygame surface
     return surface
 
 
-def apply_sprite_effect(surface, properties):
+def apply_sprite_effect(surface: Surface, properties: list[str, ...] | tuple[str, ...]) -> Surface:
+    """
+    Apply various filter effect to sprite surface
+    @param surface: pygame Surface object
+    @param properties: Array containing properties for filter effect
+    @return: pygame Surface object
+    """
     for prop in properties:
         if "effect" in prop:
             if "colour" in prop:
@@ -115,13 +138,15 @@ def apply_sprite_effect(surface, properties):
                     surface = Image.blend(surface, empty, alpha=float(prop[prop.rfind("_") + 1:]) / 10)
                 surface.putalpha(alpha)  # put back alpha
                 surface = surface.tobytes()
-                surface = image.frombytes(surface, size, "RGBA")  # convert image back to a pygame surface
+                surface = image.frombytes(surface, size,
+                                          "RGBA").convert_alpha()  # convert image back to a pygame surface
     return surface
 
 
-def sprite_rotate(surface, angle):
+def sprite_rotate(surface: Surface, angle: int | float) -> Surface:
+    """Use pillow for rotation for even smoother result than Pygame rotate and smoothrotate"""
     size = surface.get_size()
-    data = image.tobytes(surface, "RGBA")  # convert image to string data for filtering effect
+    data = image.tobytes(surface, "RGBA")  # convert image to string data for rotation
     surface = Image.frombytes("RGBA", size, data)  # use PIL to get image data
     surface = surface.rotate(angle, expand=True, resample=Image.BICUBIC)
     size = surface.size

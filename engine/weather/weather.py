@@ -15,15 +15,14 @@ class Weather(UIBattle):
     def __init__(self, weather_type, wind_direction, level):
         self._layer = 99999999999999999999
         UIBattle.__init__(self)
-
+        self.new_weather_reset = True
         self.weather_matters = self.battle.weather_matters
         self.weather_spawn_timer = {}
         self.weather_type = weather_type
         if self.weather_type == 0:
             # only random non-random weather and int type id weather
             self.weather_type = choice([weather for weather in self.weather_data if weather != 0 and weather.isdigit()])
-        self.has_stat_effect = False
-        self.has_stat_effect = True
+
         stat = self.weather_data[self.weather_type]
         self.name = stat["Name"]
         self.level = level  # weather level, start from 0
@@ -41,8 +40,13 @@ class Weather(UIBattle):
         self.resource_regen_bonus = stat["Resource Regeneration Bonus"] * cal_level
         self.element = stat["Element"]
         self.status_effect = stat["Status"]
+        self.has_stat_effect = False
+        if (self.offence_modifier or self.defence_modifier or self.speed_modifier or self.air_offence_modifier or
+                self.air_defence_modifier or self.air_speed_modifier or self.health_regen_bonus or
+                self.resource_regen_bonus or self.status_effect):
+            self.has_stat_effect = True
         self.spawn_cooldown = {key: value / cal_level for key, value in
-                               stat["Spawn Cooldown"].items()}  # divide to make spawn increase with strength
+                               stat["Spawn Cooldown"].items()}  # divide to make spawn rate increase with strength
         self.weather_spawn_timer = {key: 0 for key in self.spawn_cooldown}
         self.wind_strength = int(stat["Wind Strength"] * cal_level)
         self.speed = stat["Travel Speed"] * self.wind_strength
@@ -76,12 +80,14 @@ class Weather(UIBattle):
         self.weather_now = str(self.weather_type) + "_" + str(self.level)
 
     def update(self, dt):
-        weather_spawn_timer = self.weather_spawn_timer
-        for key in weather_spawn_timer:
-            weather_spawn_timer[key] += dt
-            if weather_spawn_timer[key] >= self.spawn_cooldown[key]:
-                weather_spawn_timer[key] = 0
-                self.spawn_weather_matter(key)
+        self.new_weather_reset = False
+        if self.spawn_cooldown:
+            weather_spawn_timer = self.weather_spawn_timer
+            for key in weather_spawn_timer:
+                weather_spawn_timer[key] += dt
+                if weather_spawn_timer[key] >= self.spawn_cooldown[key]:
+                    weather_spawn_timer[key] = 0
+                    self.spawn_weather_matter(key)
 
     def spawn_weather_matter(self, matter_name):
         if self.travel_angle not in (0, 180):  # matter travel not from direct straight top to bottom angle

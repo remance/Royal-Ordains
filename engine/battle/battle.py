@@ -14,9 +14,9 @@ from pygame.mixer import Sound, Channel
 from engine.aibattle.battle_commander_ai import BattleCommanderAI
 from engine.battle.activate_retreat import activate_retreat
 from engine.battle.activate_strategy import activate_strategy
-from engine.battle.add_new_army_joining import add_new_army_joining
+from engine.battle.add_new_army_arrive import add_new_army_arrive
+from engine.battle.add_new_army_to_reinforcement import add_new_army_to_reinforcement
 from engine.battle.add_sound_effect_queue import add_sound_effect_queue
-from engine.battle.cal_shake_value import cal_shake_value
 from engine.battle.call_in_air_group import call_in_air_group
 from engine.battle.call_reinforcement import call_reinforcement
 from engine.battle.change_game_state import change_game_state
@@ -29,10 +29,10 @@ from engine.battle.end_cutscene_event import end_cutscene_event
 from engine.battle.event_process import event_process
 from engine.battle.fix_camera import fix_camera
 from engine.battle.make_esc_menu import make_esc_menu
-from engine.battle.new_army_arrive_process import new_army_arrive_process
 from engine.battle.play_sound_effect import play_sound_effect
 from engine.battle.player_input_battle import player_input_battle, battle_no_player_input_battle
 from engine.battle.player_input_cutscene import player_input_cutscene
+from engine.battle.setup_new_army_arrive import setup_new_army_arrive
 from engine.battle.setup_team_characters import setup_team_characters
 from engine.battle.shake_camera import shake_camera
 from engine.battle.state_battle_process import state_battle_process
@@ -80,10 +80,10 @@ class Battle:
     activate_input_popup = activate_input_popup
     activate_strategy = activate_strategy
     activate_retreat = activate_retreat
-    add_new_army_joining = add_new_army_joining
+    add_new_army_arrive = add_new_army_arrive
+    add_new_army_to_reinforcement = add_new_army_to_reinforcement
     add_sound_effect_queue = add_sound_effect_queue
     back_to_battle_state = back_to_battle_state
-    cal_shake_value = cal_shake_value
     call_in_air_group = call_in_air_group
     call_reinforcement = call_reinforcement
     change_game_state = change_game_state
@@ -98,8 +98,8 @@ class Battle:
     fix_camera = fix_camera
     make_esc_menu = make_esc_menu
     player_input_cutscene = player_input_cutscene
-    new_army_arrive_process = new_army_arrive_process
     play_sound_effect = play_sound_effect
+    setup_new_army_arrive = setup_new_army_arrive
     setup_team_characters = setup_team_characters
     state_battle_process = state_battle_process
     state_process = state_battle_process
@@ -420,12 +420,13 @@ class Battle:
         self.current_scene = 1
 
     def setup_battle_start(self, campaign, stage, full_team_state):
+        """setup battle used for both auto and manual"""
         self.map_data.read_map_data(campaign, stage)
         stage_len = len(
             [value for value in self.game.preset_map_data[stage]["data"].values() if "scene" in value["Type"]])
         base_stage_end = stage_len * Default_Screen_Width
 
-        for team_state in full_team_state.values():
+        for team, team_state in full_team_state.items():
             team_state["leader_call_list"] = []
             team_state["troop_call_list"] = []
             team_state["supply_resource"] = 0
@@ -441,23 +442,23 @@ class Battle:
                 team_state["supply_reserve"] = main_army.supply * 0.9
                 team_state["total_supply"] = main_army.supply
                 team_state["leader_call_list"] = [
-                    [item, self.character_list[item]["Capacity"], self.character_list[item]["Supply"]] for item in
-                    main_army.leader_group]
+                    [item[0], self.character_list[item[0]]["Capacity"], self.character_list[item[0]]["Supply"]] for
+                    item in main_army.army_followers["leader"]]
                 team_state["troop_call_list"] = [
-                    [item, self.character_list[item]["Capacity"], self.character_list[item]["Supply"]] for item in
-                    main_army.ground_group]
+                    [item[0], self.character_list[item[0]]["Capacity"], self.character_list[item[0]]["Supply"]] for
+                    item in main_army.army_followers["troop"]]
                 commander_stat = self.character_list[main_army.commander_id]
                 team_state["leadership"] += commander_stat["Leadership"]
                 if commander_stat["Strategy"]:
                     team_state["strategy_cooldown"][len(team_state["strategy"])] = 0
                     team_state["strategy"].append(commander_stat["Strategy"])
-                retinue_list = []
 
-                retinue_list += main_army.retinue
+                retinue_list = [item[0] for item in main_army.army_followers["retinue"] if item[1]]
                 if len(retinue_list) < 3:  # check for retinue in reinforcement armies until can get full 3
                     for army in team_state["reinforcement_army"]:
-                        if army.retinue:
-                            retinue_list += army.retinue[:3 - len(retinue_list)]
+                        if army.army_followers["retinue"]:
+                            retinue_list += [item[0] for item in army.army_followers["retinue"][:3 - len(retinue_list)]
+                                             if item[1]]
                             if len(retinue_list) == 3:
                                 break
 
@@ -473,16 +474,7 @@ class Battle:
 
             for army in team_state["reinforcement_army"]:
                 if army.commander_id:
-                    team_state["supply_reserve"] += army.supply
-                    team_state["total_supply"] += army.supply
-                    team_state["leader_call_list"].append([army.commander_id, 1, self.character_list[army.commander_id][
-                        "Supply"]])  # add reinforcement commander as leader
-                    team_state["leader_call_list"] += [
-                        [item, self.character_list[item]["Capacity"], self.character_list[item]["Supply"]] for item in
-                        army.leader_group]
-                    team_state["troop_call_list"] += [
-                        [item, self.character_list[item]["Capacity"], self.character_list[item]["Supply"]] for item in
-                        army.ground_group]
+                    self.add_new_army_to_reinforcement(team, team_state, army)
 
     def prepare_new_stage(self, attach_grand, campaign, stage, team_state, player_team, battle_name,
                           custom_stage_data, ai_retreat):
@@ -567,8 +559,8 @@ class Battle:
                 if value["Object"] not in loaded_item:  # load image
                     image = self.empty_scene_image
                     if exists(join(self.data_dir, "map", "scene", str(value["Object"] + ".png"))):
-                        image = load_image(self.data_dir, self.screen_scale,
-                                           str(value["Object"]) + ".png", ("map", "scene"))
+                        image = load_image(self.data_dir, str(value["Object"]) + ".png", self.screen_scale,
+                                           ("map", "scene"))
                     self.scene.images[value["Object"]] = image
                     loaded_item.append(value["Object"])
                 self.scene.data[value["POS"]] = value["Object"]
@@ -584,8 +576,8 @@ class Battle:
 
                     if value["Object"] not in images:
                         if exists(join(self.data_dir, "map", "scene", value["Object"] + ".png")):
-                            image = load_image(self.data_dir, self.screen_scale, value["Object"] + ".png",
-                                               ("map", "scene"))  # no scaling yet
+                            image = load_image(self.data_dir, value["Object"] + ".png", self.screen_scale,
+                                               ("map", "scene"))
                         images[value["Object"]] = image
 
         stage_len = len(
@@ -616,14 +608,13 @@ class Battle:
 
             to_check = ([team_value["main_army"]] + team_value["reinforcement_army"])
             to_check = [item for item in to_check if item]
-            for value in to_check:
-                battle_character_list.append(value.commander_id)
-                for air_group in value.air_group:
-                    battle_character_list.append(air_group)
-                for character in value.ground_group:
-                    battle_character_list.append(character)
-                for character in value.leader_group:
-                    battle_character_list.append(character)
+            for army in to_check:
+                battle_character_list.append(army.commander_id)
+                for follower_group in (army.army_followers["leader"], army.army_followers["troop"],
+                                       army.army_followers["air"]):
+                    for follower in follower_group:
+                        if follower[1] and follower[0] not in battle_character_list:
+                            battle_character_list.append(follower[0])
 
         battle_character_list = self.check_battle_character_to_load(battle_character_list)
 
@@ -665,12 +656,6 @@ class Battle:
                         self.later_reinforcement[key][value] = []
                     self.later_reinforcement[key][value].append(item)
                     break
-
-        for team in self.team_state:
-            air_reinforcement = [air_group for army in self.team_state[team]["reinforcement_army"] for air_group in
-                                 army.air_group]
-            if air_reinforcement:
-                self.later_reinforcement["team"][team]["air"] = air_reinforcement
 
         self.setup_team_characters(stage_data)
         self.all_battle_ai_commanders = []
@@ -857,15 +842,14 @@ class Battle:
                     if event.key == K_KP_1:
                         self.drama_text.queue.append((False, "Hello and welcome to showcase video", "Dollhi"))
                         # self.screen_shake_value += 1000
-                        # test_army = Army("test", "castle",
-                        #                  "castle",
-                        #                  "leader_champion",
-                        #                  ["leader_vraesier", "castle_human_leader_jester"],
-                        #                  ["castle_human_militia_spear", "castle_human_militia_bow"],
-                        #                  ["castle_cat_air_rocket_bomb"],
-                        #                  ["castle_human_leader_lord", "castle_human_leader_jester"],
-                        #                  supply=1000, max_supply=1000)
-                        # self.new_army_arrive_process(test_army, 1)
+                        self.game.custom_team_army[1][4].__init__("", "small", "small", "leader_bigta",
+                                                                  {"leader": [["leader_vraesier", True], ],
+                                                                   "troop": [["castle_human_militia_spear", True],
+                                                                             ["castle_human_militia_bow", True]],
+                                                                   "air": [["castle_cat_air_rocket_bomb", True]],
+                                                                   "retinue": [["castle_human_leader_jester", True]]},
+                                                                  supply=1000, max_supply=1000)
+                        self.setup_new_army_arrive(self.game.custom_team_army[1][4], 1)
                     elif event.key == K_KP_2:
                         self.drama_text.queue.append((True, "Show case: Reworked battle system.", None))
                         for enemy in self.all_battle_characters:
@@ -884,6 +868,7 @@ class Battle:
                             False, "They will return when out of resource and require rest to be ready again", None))
                     elif event.key == K_KP_5:
                         self.grand_event_notification.add_event(("bad", "test"))
+                        self.screen_shake_value = 1000
                     elif event.key == K_KP_6:
                         self.grand_event_notification.add_event(("good", "test"))
                     elif event.key == K_KP_7:
@@ -993,6 +978,10 @@ class Battle:
 
         self.sound_effect_queue = {}
 
+        # reset stuffs
+        self.current_weather.__init__(1, 0, 0)
+        self.game_speed = 1
+        self.battle_time = 0.0
         self.drama_timer = 0  # reset drama text popup
         self.ai_battle_speak_timer = 0
         self.outer_ui_updater.remove(self.drama_text)

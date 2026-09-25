@@ -9,7 +9,8 @@ from pathlib import Path
 from threading import Thread
 
 import psutil
-from pygame.transform import smoothscale, flip
+from pygame.mask import from_surface
+from pygame.transform import smoothscale, flip, rotate
 
 from engine.data.data import GameData
 from engine.utils.common import edit_config
@@ -53,23 +54,21 @@ class DataSprite(GameData):
                                           subfolder=("ui", "strategy_ui"))
         self.grand_ui_icons = load_images(self.data_dir, screen_scale=self.screen_scale,
                                           subfolder=("ui", "grand_ui"))
-        self.building_portraits = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                              subfolder=("ui", "building_ui"))
-        for file in self.building_portraits:
-            self.building_portraits[file] = {"building_ui": self.building_portraits[file]}
-            big_portrait = smoothscale(
-                self.building_portraits[file]["building_ui"], (300 * self.screen_scale_width,
-                                                               300 * self.screen_scale_height))
-            self.building_portraits[file]["big"] = big_portrait
+        building_portraits = load_images(self.data_dir, subfolder=("ui", "building_ui"))
+        self.building_portraits = {}
+        for file, image in building_portraits.items():
+            self.building_portraits[file] = {"building_ui": smoothscale(image, (
+                image.get_width() * self.screen_scale_width, image.get_height() * self.screen_scale_height))}
+            self.building_portraits[file]["big"] = smoothscale(image,
+                                                               (300 * self.screen_scale_width,
+                                                                300 * self.screen_scale_height))
 
-        self.character_portraits = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                               subfolder=("ui", "character_ui"))
-
-        for file in self.character_portraits:
-            self.character_portraits[file] = {"character_ui": self.character_portraits[file]}
-            mini_portrait = smoothscale(
-                self.character_portraits[file]["character_ui"], (200 * self.screen_scale_width,
-                                                                 200 * self.screen_scale_height))
+        character_portraits = load_images(self.data_dir, subfolder=("ui", "character_ui"))
+        self.character_portraits = {}
+        for file, image in character_portraits.items():
+            self.character_portraits[file] = {"character_ui": smoothscale(image, (
+                image.get_width() * self.screen_scale_width, image.get_height() * self.screen_scale_height))}
+            mini_portrait = smoothscale(image, (200 * self.screen_scale_width, 200 * self.screen_scale_height))
             self.character_portraits[file]["small"] = {"right": mini_portrait,
                                                        "left": flip(mini_portrait, True, False)}
 
@@ -87,33 +86,25 @@ class DataSprite(GameData):
                         number_text = self.number_text_cache[add_number]
                     number_rect = number_text.get_rect(bottomright=mini_portrait.get_size())
                     icon.blit(number_text, number_rect)
-
                 icon.blit(self.game.battle_ui_images["class_" + self.game.character_list[file]["Class"]], (0, 0))
 
-            mini_portrait = smoothscale(
-                self.character_portraits[file]["character_ui"], (150 * self.screen_scale_width,
-                                                                 150 * self.screen_scale_height))
-
+            mini_portrait = smoothscale(image, (150 * self.screen_scale_width, 150 * self.screen_scale_height))
             self.character_portraits[file]["tiny"] = {"right": mini_portrait,
                                                       "left": flip(mini_portrait, True, False)}
 
-            mini_portrait = smoothscale(
-                self.character_portraits[file]["character_ui"], (100 * self.screen_scale_width,
-                                                                 100 * self.screen_scale_height))
-
+            mini_portrait = smoothscale(image, (100 * self.screen_scale_width, 100 * self.screen_scale_height))
             self.character_portraits[file]["mini"] = {"right": mini_portrait,
                                                       "left": flip(mini_portrait, True, False)}
 
-        self.culture_coas = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                        subfolder=("ui", "culture_ui"))
-        for file in self.culture_coas:
-            self.culture_coas[file] = {"culture_ui": self.culture_coas[file]}
+        culture_coas = load_images(self.data_dir, subfolder=("ui", "culture_ui"))
+        self.culture_coas = {}
+        for file, image in culture_coas.items():
+            self.culture_coas[file] = {"culture_ui": smoothscale(image, (
+                image.get_width() * self.screen_scale_width, image.get_height() * self.screen_scale_height))}
             self.culture_coas[file]["small"] = smoothscale(
-                self.culture_coas[file]["culture_ui"], (200 * self.screen_scale_width,
-                                                        200 * self.screen_scale_height))
+                image, (200 * self.screen_scale_width, 200 * self.screen_scale_height))
             self.culture_coas[file]["tiny"] = smoothscale(
-                self.culture_coas[file]["culture_ui"], (150 * self.screen_scale_width,
-                                                        150 * self.screen_scale_height))
+                image, (150 * self.screen_scale_width, 150 * self.screen_scale_height))
 
         self.weather_matter_images = {}
         part_folder = Path(join(self.data_dir, "map", "weather", "matter"))
@@ -129,9 +120,47 @@ class DataSprite(GameData):
         #     join(self.data_dir, "animation", "stage_object.xz"),
         #     screen_scale=self.screen_scale, battle_only=True)
 
-    def load_region_sprite(self, campaign: str):
+    def load_region_sprite(self, map_data, grand_ui_images, map_shown_to_base_scale_width,
+                           map_shown_to_base_scale_height, campaign: str):
         self.region_sprites = load_images(self.data_dir, screen_scale=self.screen_scale,
                                           subfolder=("map", "world", campaign, "region"))
+
+        # draw route dot on region sprite
+        map_data_route_dot_draw_array = map_data.route_dot_draw_array
+        route_list = map_data.route_list
+        dot_route_difficulty = map_data.dot_route_difficulty
+        region_list = map_data.region_list
+        already_done_dot = []
+        already_cache_region = {}
+        for route, route_data in route_list.items():
+            region_1 = route[0]
+            region_2 = route[1]
+            for region in (region_1, region_2):
+                if region not in already_cache_region:
+                    region_data = region_list[region]
+                    image = self.region_sprites[region]
+                    rect = image.get_rect(center=((region_data["Region POS"][0] * map_shown_to_base_scale_width,
+                                                   region_data["Region POS"][1] * map_shown_to_base_scale_height)))
+                    mask = from_surface(image)
+                    already_cache_region[region] = {"mask": mask, "rect": rect}
+
+            for dot in route_data["Dots"]:
+                if dot not in already_done_dot:
+                    already_done_dot.append(dot)
+                    if dot in dot_route_difficulty:  # skip settlement dot with no difficulty for draw
+                        dot_image = rotate(grand_ui_images["route_dot_" + str(dot_route_difficulty[dot])],
+                                           map_data_route_dot_draw_array[dot])
+                        dot_rect = dot_image.get_rect(center=(dot[0] * map_shown_to_base_scale_width,
+                                                              dot[1] * map_shown_to_base_scale_height))
+                        dot_mask = from_surface(dot_image)
+                        for region in (region_1, region_2):
+                            region_rect = already_cache_region[region]["rect"]
+                            if collide_mask(already_cache_region[region]["mask"], dot_mask,
+                                            region_rect, dot_rect):
+                                blit_dot_rect = dot_image.get_rect(topleft=(dot_rect.x - region_rect.x,
+                                                                            dot_rect.y - region_rect.y))
+                                self.region_sprites[region].blit(dot_image, blit_dot_rect)
+                                break
 
     def load_character_animation(self, character_list):
         # only load those not already loaded
@@ -220,3 +249,8 @@ def load_character_sprite(data_dir, screen_scale, character_animation_data, char
             character_animation_data[file_name] = load_pickle_with_surfaces(
                 join(data_dir, "animation", file_name + ".xz"),
                 screen_scale=screen_scale)
+
+
+def collide_mask(left_mask, right_mask, left_rect, right_rect):
+    """from pygame collide mask but use mask instead"""
+    return left_mask.overlap(right_mask, (right_rect[0] - left_rect[0], right_rect[1] - left_rect[1]))

@@ -1,0 +1,22 @@
+"ID","Faction","Region","Commander","Leader 1","Leader 2","Leader 3","Troop 1","Troop 2","Troop 3","Troop 4","Troop 5","Air 1","Air 2","Air 3","Air 4","Air 5","Retinue 1","Retinue 2","Retinue 3","Supply","Max Supply"
+1,"bigta","up1","leader_bigta",,,,"small_rabbit_spear","small_rabbit_spear","small_rabbit_sling",,,,,,,,,,,500,500
+2,"free","up2","small_rabbit_leader_banner",,,,"small_rabbit_spear","small_rabbit_sling",,,,,,,,,,,,300,300
+3,"free","up3","small_rabbit_leader_shaman",,,,"small_rabbit_spear","small_snail_sword","small_rabbit_sling",,,,,,,,,,,500,500
+4,"amgarn","left1","leader_amgarn",,,,"small_rabbit_spear","small_rabbit_killer","small_rabbit_killer",,,,,,,,,,,500,500
+5,"free","left2","small_rabbit_leader_banner",,,,"small_rabbit_spear","small_rabbit_sling",,,,,,,,,,,,300,300
+6,"free","left3","small_rabbit_leader_shaman",,,,"small_rabbit_spear","small_snail_sword","small_rabbit_sling",,,,,,,,,,,500,500
+7,"kelwy","right1","leader_kelwy",,,,"small_rabbit_spear","small_rabbit_cannon",,,,,,,,,,,,500,500
+8,"free","right2","small_rabbit_leader_banner",,,,"small_rabbit_spear","small_rabbit_sling",,,,,,,,,,,,300,300
+9,"free","right3","small_rabbit_leader_shaman",,,,"small_rabbit_spear","small_snail_sword","small_rabbit_sling",,,,,,,,,,,500,500
+10,"kak","down1","leader_kak",,,,"small_snail_sword","small_snail_old",,,,,,,,,,,,500,500
+11,"free","down2","small_rabbit_leader_banner",,,,"small_rabbit_spear","small_rabbit_sling",,,,,,,,,,,,300,300
+12,"free","down3","small_rabbit_leader_shaman",,,,"small_rabbit_spear","small_snail_sword","small_rabbit_sling",,,,,,,,,,,500,500
+13,"free","center1","small_rabbit_leader_knight","small_rabbit_leader_knight",,,"small_snail_sword","small_snail_sword","small_rabbit_sling","small_rabbit_hound_cav",,"small_eagle_air_stone",,,,,,,,2000,2000
+14,"free","center2","small_rabbit_leader_knight","small_rabbit_leader_shaman",,,"small_rabbit_spear","small_rabbit_spear","small_rabbit_spear","small_rabbit_sling","small_rabbit_sling",,,,,,,,,1200,1200
+15,"free","center3","small_rabbit_leader_knight","small_rabbit_leader_knight",,,"small_snail_sword","small_snail_sword","small_rabbit_sling","small_rabbit_hound_cav",,"small_eagle_air_stone",,,,,,,,2000,2000
+16,"free","center4","small_rabbit_leader_knight","small_rabbit_leader_shaman",,,"small_rabbit_spear","small_rabbit_spear","small_rabbit_spear","small_rabbit_sling","small_rabbit_sling",,,,,,,,,1200,1200
+17,"free","center5","small_rabbit_leader_knight","small_rabbit_leader_knight",,,"small_snail_sword","small_snail_sword","small_rabbit_sling","small_rabbit_hound_cav",,"small_eagle_air_stone",,,,,,,,2000,2000
+18,"free","center6","small_rabbit_leader_knight","small_rabbit_leader_shaman",,,"small_rabbit_spear","small_rabbit_spear","small_rabbit_spear","small_rabbit_sling","small_rabbit_sling",,,,,,,,,1200,1200
+19,"free","center7","small_rabbit_leader_knight","small_rabbit_leader_knight",,,"small_snail_sword","small_snail_sword","small_rabbit_sling","small_rabbit_hound_cav",,"small_eagle_air_stone",,,,,,,,2000,2000
+20,"free","center8","small_rabbit_leader_knight","small_rabbit_leader_shaman",,,"small_rabbit_spear","small_rabbit_spear","small_rabbit_spear","small_rabbit_sling","small_rabbit_sling",,,,,,,,,1200,1200
+21,"free","center9","leader_nadvalin","small_rabbit_leader_knight","small_rabbit_leader_hero","small_rabbit_leader_banner","small_snail_sword","small_rabbit_spear","small_snail_old","small_cat_red_leaf_bandit","small_rabbit_trebuchet","small_eagle_air_stone","small_eagle_air_stone",,,,,,,10000,10000

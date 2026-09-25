@@ -67,7 +67,6 @@ def die(self, retreat=False):
                 add_battle_character.enter_stage()
                 self.battle.last_char_game_id += 1
 
-    self.status_effect = {}
     self.status_duration = {}
 
 

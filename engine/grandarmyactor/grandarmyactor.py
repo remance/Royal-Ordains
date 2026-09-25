@@ -1,9 +1,9 @@
 from math import radians
 
-from engine.grandarmyactor.move_logic import move_logic
 from pygame import Vector2, draw, Surface, SRCALPHA
 from pygame.sprite import Sprite
 
+from engine.grandarmyactor.move_logic import move_logic
 from engine.utils.common import clean_object
 from engine.utils.rotation import set_rotate, rotation_xy
 

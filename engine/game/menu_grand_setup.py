@@ -6,14 +6,14 @@ from engine.constants import Culture_Policy_Integration
 def menu_grand_setup(self):
     if self.setup_back_button.event_press or self.esc_press:  # back to start_set menu
         self.remove_from_ui_menu_updater(self.grand_menu_uis)
-        self.grand_faction_selector.change_faction(self.map_data.default_grand_faction)
+        self.grand_faction_selector.change_culture_preset(self.map_data.default_grand_faction)
         self.back_mainmenu()
 
     elif self.grand_setup_start_button.event_press:
         all_faction_state = {}
         free_faction_state = {}
         alliance_state = {}
-        player_faction = self.grand_faction_selector.selected_faction
+        player_faction = self.grand_faction_selector.selected_culture
         for faction, faction_value in self.map_data.faction_list.items():
             # start faction culture set at max level policy and max integration
             faction_state = all_faction_state
@@ -84,7 +84,7 @@ def menu_grand_setup(self):
 
         # after quit grand campaign
         self.remove_from_ui_menu_updater(self.grand_menu_uis)
-        self.grand_faction_selector.change_faction(self.map_data.default_grand_faction)
+        self.grand_faction_selector.change_culture_preset(self.map_data.default_grand_faction)
         self.back_mainmenu()
 
         self.grand.run_grand()

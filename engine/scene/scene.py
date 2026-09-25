@@ -45,12 +45,13 @@ class Scene(Sprite):
                                                                               self.size_width, self.size_height))
 
     def update(self):
-        if self.camera_left_bound != self.camera.camera_left_bound:
-            self.camera_left_bound = self.camera.camera_left_bound
+        camera = self.camera
+        if self.camera_left_bound != camera.camera_left_bound:
+            self.camera_left_bound = camera.camera_left_bound
             self.current_scene_image = Surface.subsurface(self.full_scene_image, (self.camera_left_bound, 0,
                                                                                   self.size_width, self.size_height))
-        if self.camera_top_bound != self.camera.camera_top_bound:
-            self.camera_top_bound = self.camera.camera_top_bound
+        if self.camera_top_bound != camera.camera_top_bound:
+            self.camera_top_bound = camera.camera_top_bound
             self.rect = self.current_scene_image.get_rect(midtop=(self.current_scene_image.get_width() / 2,
                                                                   self.camera_top_bound))
         self.image.blit(self.current_scene_image, self.rect)

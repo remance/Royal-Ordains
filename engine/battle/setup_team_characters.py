@@ -51,8 +51,9 @@ def setup_team_characters(self, stage_data):
                 self.character_command_indicator.setup(add_battle_char)
 
             self.last_char_game_id += 1
-            for squad in team_state["main_army"].air_group:
-                self.create_air_group(squad, team, commander_char)
+            for squad in team_state["main_army"].army_followers["air"]:
+                if squad[1]:
+                    self.create_air_group(squad[0], team, commander_char)
 
     for data in stage_data["character"]:
         if not data["Arrive Condition"]:  # neutral character with arrive condition got added via check_reinforcement

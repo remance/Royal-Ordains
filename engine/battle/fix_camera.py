@@ -10,3 +10,9 @@ def fix_camera(self):
     self.base_camera_left_bound = self.camera_left_bound / self.screen_scale_width
     self.base_camera_pos = Vector2(self.camera_pos[0] / self.screen_scale_width,
                                    self.camera_pos[1] / self.screen_scale_height)
+
+    self.shown_camera_center_pos = self.camera_pos.copy()
+    self.camera.camera_left_bound = self.shown_camera_center_pos[0] - self.camera_w_center
+    self.camera.camera_top_bound = self.shown_camera_center_pos[1] - self.camera_center_y
+    self.camera.camera_right_bound = self.shown_camera_center_pos[0] + self.camera_w_center
+    self.camera.camera_bottom_bound = self.shown_camera_center_pos[0] + self.camera_center_y

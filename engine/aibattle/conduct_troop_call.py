@@ -81,7 +81,7 @@ def conduct_troop_call(self):
                     list_to_call = [key for key, value in troop_class_available_to_call.items() if
                                     value in class_to_call]
                     if list_to_call:
-                        self.call_reinforcement(self.team, "troop",
+                        self.call_reinforcement(self.team, "ground",
                                                 choice(list_to_call))
 
     # print(self.team_stat)
@@ -124,14 +124,15 @@ def conduct_troop_call(self):
 
                 if air_bomber_active:
                     # consider retreat bomber
-                    send_back = 0.1 * self.defensive
+                    send_back = 0.1
                     if not air_interceptor_active:
-                        send_back += 0.3 * self.defensive
+                        send_back += 0.3
                         if not air_interceptor_available_to_call:
-                            send_back += 0.5 * self.defensive
+                            send_back += 0.5
                     else:  # compare power of own and enemy active interceptors
                         send_back += (current_info["enemy_air_group"][True]["interceptor"]["power"] -
                                       current_info["own_air_group"][True]["interceptor"]["power"])
+                    send_back *= self.defensive
                     if send_back > uniform(0, 10):
                         # call for retreat of bombers
                         for air_group in self.air_group:
@@ -147,5 +148,5 @@ def conduct_troop_call(self):
                         air_interceptor_available_to_call.remove(air_group)
 
             if air_to_call:
-                self.battle.call_in_air_group(self.team, air_to_call, self.team_state["start_pos"])
+                self.call_in_air_group(self.team, air_to_call, self.team_state["start_pos"])
     # print(air_available_to_call)

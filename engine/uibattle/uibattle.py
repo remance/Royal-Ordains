@@ -15,8 +15,7 @@ from engine.utils.common import keyboard_mouse_press_check
 from engine.utils.text_making import text_render_with_bg, text_render_with_texture, \
     make_long_text, change_number, add_comma_number, calculate_long_text_size
 
-team_colour = {0: (50, 190, 50), 1: (100, 110, 150), 2: (190, 50, 50)}
-follower_type_colour = {0: (70, 70, 180), 1: (100, 200, 100)}  # melee, range
+team_colour = {0: (50, 190, 50), 1: (100, 110, 200), 2: (190, 50, 50)}
 
 
 class UIBattle(UIMenu):
@@ -738,7 +737,7 @@ class TacticalMap(UIBattle):
         self._layer = 10
         UIBattle.__init__(self)
         self.tactic_alert_image = tactic_alert_image
-        self.all_team_enemy_check = self.battle.all_team_enemy_check
+        self.all_team_ally = self.battle.all_team_ally
         self.battle_camera_object_drawer = self.battle.battle_camera_object_drawer
         self.battle_camera = self.battle.camera
         self.player_team = 1
@@ -838,16 +837,16 @@ class TacticalMap(UIBattle):
             # Draw character dots
             air_icon_pos_y = self.air_icon_pos_y
             ground_icon_pos_y = self.ground_icon_pos_y
-            for team, character_team in self.all_team_enemy_check.items():
+            for team, character_team in self.all_team_ally.items():
                 dot_image = self.troop_dot_images[team]
                 for character in character_team:
-                    if character in self.battle_camera_object_drawer and not character.invisible:
+                    if not character.invisible:
                         if character.character_type == "air":
-                            scaled_pos = (character.base_pos[0] / map_scale_width, air_icon_pos_y)
-                            image.blit(dot_image, dot_image.get_rect(midbottom=scaled_pos))
+                            image.blit(dot_image, dot_image.get_rect(midbottom=(
+                                character.base_pos[0] / map_scale_width, air_icon_pos_y)))
                         elif not character.is_commander:
-                            scaled_pos = (character.base_pos[0] / map_scale_width, ground_icon_pos_y)
-                            image.blit(dot_image, dot_image.get_rect(midbottom=scaled_pos))
+                            image.blit(dot_image, dot_image.get_rect(midbottom=(
+                                character.base_pos[0] / map_scale_width, ground_icon_pos_y)))
 
             if self.battle.player_selected_strategy:
                 # draw activation line

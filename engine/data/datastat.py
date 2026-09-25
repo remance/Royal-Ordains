@@ -218,7 +218,7 @@ class DataStat(GameData):
                 self.effect_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
         edit_file.close()
 
-        self.preset_list = {}
+        self.custom_army_preset_list = {}
         with open(os.path.join(self.data_dir, "character", "preset.csv"),
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
@@ -227,9 +227,9 @@ class DataStat(GameData):
                 for n, i in enumerate(row):
                     row = stat_convert(row, n, i)
                 if row[0]:  # keep preset using culture as dict key
-                    if row[header.index("Culture")] not in self.preset_list:
-                        self.preset_list[row[header.index("Culture")]] = {}
-                    self.preset_list[row[header.index("Culture")]][row[0]] = {
+                    if row[header.index("Culture")] not in self.custom_army_preset_list:
+                        self.custom_army_preset_list[row[header.index("Culture")]] = {}
+                    self.custom_army_preset_list[row[header.index("Culture")]][row[0]] = {
                         header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
         edit_file.close()
 

@@ -13,6 +13,7 @@ from engine.constants import *
 from engine.constants import Weak_To_Element
 from engine.effect.adjust_sprite import adjust_sprite, damage_effect_adjust_sprite
 from engine.effect.cal_damage import cal_damage
+from engine.effect.check_draw import check_draw
 from engine.effect.find_random_direction import find_random_direction
 from engine.effect.hit_collide_check import hit_collide_check
 from engine.effect.hit_register import hit_register
@@ -40,6 +41,7 @@ class Effect(Sprite):
 
     adjust_sprite = adjust_sprite
     cal_damage = cal_damage
+    check_draw = check_draw
     find_random_direction = find_random_direction
     hit_collide_check = hit_collide_check
     hit_register = hit_register
@@ -84,6 +86,7 @@ class Effect(Sprite):
             if "no_dodge" in moveset_property:
                 self.no_dodge = True
 
+        self.camera = self.battle.camera
         self.battle_camera_drawer = self.battle.battle_camera_object_drawer
         self.battle_camera_drawer.add(self)
         self.last_grid = self.battle.last_grid
@@ -307,7 +310,8 @@ class Effect(Sprite):
 
     def update(self, dt):
         if self.remain_check:  # already reach target and now remain in some way like bouncing off
-            self.remain_logic(dt)
+            if self.remain_logic(dt):
+                return
 
         else:
             if self.sound_effect:
@@ -323,11 +327,14 @@ class Effect(Sprite):
             done, just_start = self.play_animation(self.animation_frame_play_time, dt, False)
 
             if not self.start_move_delay:
-                self.move_logic(dt, done)
+                if self.move_logic(dt, done):
+                    return
             else:
                 self.start_move_delay -= dt
                 if self.start_move_delay < 0:
                     self.start_move_delay = 0
+
+        self.check_draw()
 
     def cutscene_update(self, dt):
         """All type of effect update the same during cutscene"""
@@ -345,7 +352,8 @@ class DamageEffect(Effect):
 
     def update(self, dt):
         if self.remain_check:  # already reach target and now either sticking or bouncing off
-            self.remain_logic(dt)
+            if self.remain_logic(dt):
+                return
         else:
             if self.sound_effect:
                 if self.sound_timer < self.sound_duration:
@@ -376,11 +384,15 @@ class DamageEffect(Effect):
 
                 done, just_start = self.play_animation(self.animation_frame_play_time, dt, False)
                 if not self.start_move_delay:
-                    self.move_logic(dt, done)
+                    if self.move_logic(dt, done):
+                        return
                 else:
                     self.start_move_delay -= dt
                     if self.start_move_delay < 0:
                         self.start_move_delay = 0
+            else:
+                return
+        self.check_draw()
 
 
 class TrapEffect(DamageEffect):
@@ -419,7 +431,7 @@ class TrapEffect(DamageEffect):
                     if enemy.alive and collide_mask(self, enemy):
                         # activate when enemy collide
                         self.activate_trap()
-                        return
+        self.check_draw()
 
     def activate_trap(self):
         # change image to activate
@@ -459,6 +471,9 @@ class StatusEffect(Effect):
 
         if done:  # no duration, kill effect when animation end
             self.clean_object()
+            return
+
+        self.check_draw()
 
 
 class ShowcaseEffect(Effect):

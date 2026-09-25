@@ -6,8 +6,8 @@ def menu_main(self):
         self.menu_state = "custom"
         self.background = self.background_image["empty_background"]
         for index in range(0, 4):
-            self.custom_battle_team_setup[1].change_faction(None, index)
-            self.custom_battle_team_setup[2].change_faction(None, index)
+            self.custom_battle_team_setup[1].change_culture_preset(None, index)
+            self.custom_battle_team_setup[2].change_culture_preset(None, index)
         self.remove_from_ui_menu_updater(self.main_menu_buttons, self.main_menu_actor)
         self.add_to_ui_menu_updater(self.custom_battle_menu_uis)
 
@@ -19,7 +19,7 @@ def menu_main(self):
 
     elif self.lorebook_button.event_press:
         self.menu_state = "beast"
-        self.custom_preset_faction_selector.change_faction(Custom_Default_Culture)
+        self.custom_preset_culture_selector.change_culture_preset(Custom_Default_Culture)
         self.background = self.background_image["empty_background"]
 
         self.sprite_data.load_character_animation((self.lorebook_showcase_character.char_id,))
@@ -35,55 +35,43 @@ def menu_main(self):
         self.lorebook_character_description_showcase.change_character(self.lorebook_showcase_character.char_id)
         self.lorebook_character_moveset_showcase.change_moveset(self.lorebook_showcase_character.char_id, None)
 
-        self.lorebook_showcase_character_selector.add(self.lorebook_faction_selector.selected_faction, None)
+        self.lorebook_showcase_character_selector.add(self.lorebook_faction_selector.selected_culture, None)
         self.remove_from_ui_menu_updater(self.main_menu_buttons, self.main_menu_actor)
         self.add_to_ui_menu_updater(self.lorebook_menu_uis)
 
     elif self.grand_button.event_press:
         self.menu_state = "grand"
         self.load_grand_campaign("main")
-        self.custom_preset_faction_selector.change_faction(self.map_data.default_grand_faction)
+        self.custom_preset_culture_selector.change_culture_preset(self.map_data.default_grand_faction)
         self.background = self.background_image["empty_background"]
         self.remove_from_ui_menu_updater(self.main_menu_buttons, self.main_menu_actor)
         self.add_to_ui_menu_updater(self.grand_menu_uis)
 
     elif self.test_battle_button.event_press:
-        # self.custom_team_army[1][0].__init__("", "small", "small", "leader_bigta",
-        #                                      [],
-        #                                      [],
-        #                                      [],
-        #                                      ["mage_earth", "test", "test2"], supply=1000)
-        # self.custom_team_army[2][0].__init__("", "castle", "castle", "leader_buikuuh",
-        #                                      [],
-        #                                      [],
-        #                                      [],
-        #                                      ["mage_earth", "test2", "test"], supply=1000)
-
         self.custom_team_army[1][0].__init__("", "small", "small", "leader_bigta",
-                                             ["leader_doll_princess", ],
-                                             [],
-                                             [],
-                                             ["small_rabbit_leader_shaman"], supply=10000)
+                                             {"leader": [["leader_doll_princess", True], ],
+                                              "troop": [],
+                                              "air": [],
+                                              "retinue": [["small_rabbit_leader_shaman", True]]}, supply=10000)
         self.custom_team_army[1][1].__init__("", "small", "small", "leader_adaqua",
-                                             ["small_rabbit_leader_knight", "small_rabbit_leader_knight"],
-                                             ["small_rabbit_sling", ],
-                                             ["castle_human_air_flying_monk", "small_eagle_air_stone"],
-                                             ["small_rabbit_leader_shaman"], supply=500)
+                                             {"leader": [["small_rabbit_leader_knight", True],
+                                                         ["small_rabbit_leader_knight", True]],
+                                              "troop": [["small_rabbit_sling", True], ],
+                                              "air": [["castle_human_air_flying_monk", True],
+                                                      ["small_eagle_air_stone", True]],
+                                              "retinue": [["small_rabbit_leader_shaman", True]]}, supply=500)
         self.custom_team_army[2][0].__init__("", "castle", "castle", "leader_buikuuh",
-                                             ["leader_adaqua", ],
-                                             [],
-                                             [],
-                                             ["small_rabbit_leader_shaman"], supply=10000)
+                                             {"leader": [["leader_adaqua", True], ],
+                                              "troop": [],
+                                              "air": [],
+                                              "retinue": [["small_rabbit_leader_shaman", True]]}, supply=10000)
         self.custom_team_army[2][1].__init__("", "castle", "castle", "",
-                                             [],
-                                             [],
-                                             [],
-                                             [], supply=700)
+                                             {"leader": [], "troop": [], "air": [], "retinue": []}, supply=700)
 
         for army in self.custom_team_army[1][2:]:
-            army.__init__("", "", "", None, [], [], [], [])
+            army.__init__("", "", "", None, {"leader": [], "troop": [], "air": [], "retinue": []})
         for army in self.custom_team_army[2][2:]:
-            army.__init__("", "", "", None, [], [], [], [])
+            army.__init__("", "", "", None, {"leader": [], "troop": [], "air": [], "retinue": []})
 
         stage_stat = {}
         team_state = {

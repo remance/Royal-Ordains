@@ -15,7 +15,7 @@ def start_battle_engagement(self, armies, base_pos):
             if not index:
                 team_sub_armies[team].append(army.game_id)
 
-            army.assembling = {}  # cancel assembling
+            army.assembling_followers = {}  # cancel assembling
             if army not in campaign_battle_armies:
                 campaign_battle_armies.append(army)
 

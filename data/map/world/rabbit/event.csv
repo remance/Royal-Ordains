@@ -1,0 +1,3 @@
+"ID","Faction","One Time Event","Condition","Event Scene","Event Actor","Effect","Duration"
+"rabbit_all_story_1","all",,"turn:1",,,,
+"rabbit_leader_join_nadvalin","any","TRUE","control_region:(rabbit_forest1)",,,"leader_unlock:leader_monnirl",

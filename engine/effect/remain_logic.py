@@ -31,6 +31,8 @@ def remain_logic(self, dt):
                 self.x_momentum = 0
                 self.y_momentum = 0
                 self.reach_target("ground")
+                return True
 
         else:  # no longer bouncing, remove effect
             self.reach_target()
+            return True

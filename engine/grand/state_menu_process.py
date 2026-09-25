@@ -8,11 +8,11 @@ from engine.utils.common import edit_config
 
 def state_menu_process(self):
     self.ui_menu_updater.update(self.true_dt)
-    self.camera.update(self.grand_camera_region_drawer)
+    self.camera.update_with_in_camera_check(self.grand_camera_region_drawer)
     # add route after map region draw to blit route dots on the map under other sprites.
     self.draw_route()
 
-    self.camera.update(self.grand_camera_object_drawer)
+    self.camera.update_with_in_camera_check(self.grand_camera_object_drawer)
     self.camera.out_update(self.outer_ui_updater)
     self.camera.out_update(self.ui_menu_drawer)
 

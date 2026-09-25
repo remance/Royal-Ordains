@@ -75,33 +75,33 @@ def change_phase(self):
                 if not travelling["dot_routes"]:  # no more route left, finish travel
                     self.travelling = {}
     else:
-        if (self.supply < self.max_supply and self.base_pos in self.region_by_pos_index and
+        if (self.base_pos in self.region_by_pos_index and
                 current_campaign_state["region"]["control"][self.region_by_pos_index[self.base_pos]] == self.faction):
-            # replenish supply when idle at faction owned settlement
-            faction_state = current_campaign_state["faction"][self.faction]
-            remain_supply = faction_state["supply"]
-            if remain_supply:
-                replenish_supply = self.max_supply - self.supply
-                if replenish_supply > remain_supply:
-                    replenish_supply = remain_supply
-                self.supply += replenish_supply
-                faction_state["supply"] = remain_supply - replenish_supply
+            # idle at faction owned settlement
+            if self.supply < self.max_supply:
+                # replenish supply
+                faction_state = current_campaign_state["faction"][self.faction]
+                remain_supply = faction_state["supply"]
+                if remain_supply:
+                    replenish_supply = self.max_supply - self.supply
+                    if replenish_supply > remain_supply:
+                        replenish_supply = remain_supply
+                    self.supply += replenish_supply
+                    faction_state["supply"] = remain_supply - replenish_supply
 
-        if self.assembling:
-            assembling = self.assembling
-            army_change = False
-            group = {"leader": self.leader_group, "ground": self.ground_group,
-                     "air": self.air_group, "retinue": self.retinue}
-            for character, value in assembling:
-                value["time"] -= 1
-                if not value["time"]:  # finish assembling for this character, add to group
-                    if value["index"] == "new":
-                        group[value["type"]].append(value["character"])
-                    else:
-                        group[value["type"]][value["index"]] = value["character"]
+            if self.assembling_followers:
+                assembling = self.assembling_followers
+                army_change = False
+                for character, value in assembling:
+                    value["time"] -= 1
+                    if not value["time"]:  # finish assembling for this character, add to group
+                        if value["index"] == "new":
+                            group[value["type"]].append(value["character"])
+                        else:
+                            group[value["type"]][value["index"]] = value["character"]
 
-                    assembling.pop(character)
-                    army_change = True
+                        assembling.pop(character)
+                        army_change = True
 
-            if army_change:
-                self.reset_stat()
+                if army_change:
+                    self.reset_stat()

@@ -1,0 +1,5 @@
+"ID","Culture","Ruler","Start Gold","Gold Income","Start Supply","Supply Income","Showcase Leader","Showcase Troop","Faction Relation","Diplomacy State","Colour"
+"bigta","small","leader_bigta",1000,100,1000,100,"small_rabbit_leader_knight,small_rabbit_leader_banner","small_rabbit_spear",,"hostile:[amgarn;kelwy;kak;free]","5e7f85"
+"amgarn","small","leader_amgarn",1000,100,1000,150,"small_rabbit_leader_knight,small_rabbit_leader_banner","small_rabbit_killer",,"hostile:[bigta;kelwy;kak;free]",307627
+"kelwy","small","leader_kelwy",1500,80,1500,80,"small_rabbit_leader_knight,small_rabbit_leader_banner","small_rabbit_cannon",,"hostile:[bigta;amgarn;kak;free]","a3679f"
+"kak","small","leader_kak",1000,150,1000,100,"small_rabbit_leader_knight,small_rabbit_leader_banner","small_snail_sword",,"hostile:[bigta;amgarn;kelwy;free]","52396c"

@@ -36,6 +36,7 @@
 "dark_day",,,,,,,,,
 "dark_energy",,1000,"TRUE",,"dark_energy_explosion",,,,"travel_spin"
 "dark_energy_explosion",,,"TRUE",,,"magic_explosion",1500,3,
+"dark_goo",,,"TRUE",,,,,,
 "doll_knife",,3000,"TRUE","stick",,"bolt",1400,,
 "doll_lander",,2500,"TRUE",,,"stone_big",3000,,"travel_spin,summon:doll_lander,summon_spawn_ground:bottom"
 "ducky",,1000,"TRUE","bounce",,"quack",1300,,"travel_spin"
@@ -133,3 +134,7 @@
 "rotten_flesh",,1600,"TRUE",,,"stone",1800,,"travel_spin"
 "greek_cow",,1800,"TRUE","move","greek_cow_explode","stone_huge",3500,,"travel_spin,reach_effect_spawn_ground:bottom"
 "greek_cow_explode",,,"TRUE",,,"corpse_splash",3000,,
+"garrison_summon_rabbit_tower",,5000,"TRUE","move","landing_huge","stone_huge",5000,5,"summon:small_rabbit_tower,summon_spawn_ground:bottom,reach_effect_spawn_ground:bottom"
+"garrison_summon_human_castle",,5000,"TRUE","move","landing_huge","stone_huge",8000,5,"summon:castle_human_castle,summon_spawn_ground:bottom,reach_effect_spawn_ground:bottom"
+"garrison_summon_human_flower_castle",,5000,"TRUE","move","landing_huge","stone_huge",10000,5,"summon:castle_human_flower_castle,summon_spawn_ground:bottom,reach_effect_spawn_ground:bottom"
+"garrison_summon_death_undead_tower",,5000,"TRUE","move","landing_huge","stone_huge",4000,5,"summon:death_undead_tower,summon_spawn_ground:bottom,reach_effect_spawn_ground:bottom"

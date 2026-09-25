@@ -75,8 +75,8 @@ def issue_move_command(self, target_destination, direct=False):
                         return
                     # print(travelling["dot_routes"][0])
 
-                if self.assembling:  # cancel assembling when move for any reason  TODO add event inform this cancel
-                    self.assembling = {}
+                if self.assembling_followers:  # cancel assembling when move for any reason  TODO add event inform this cancel
+                    self.assembling_followers = {}
 
                 if self.game_id in self.grand.current_campaign_state["battle"]["armies"]:
                     command_type = "retreat"

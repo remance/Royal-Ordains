@@ -16,5 +16,4 @@ def check_battle_character_to_load(self, battle_character_list):
             battle_character_list = list(
                 set([char_id if "+" not in char_id else char_id.split("+")[0] for char_id in
                      battle_character_list]))
-
     return already_check_char

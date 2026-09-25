@@ -1,5 +1,4 @@
 from copy import deepcopy
-from random import choice
 
 from engine.constants import *
 
@@ -10,20 +9,21 @@ def menu_custom_setup(self):
         for index, bar in enumerate(team_bars):
             if bar.mouse_over and bar.hover_index is not None:  # hover over
                 setup_ui = self.custom_battle_team_setup[team]
-                preset_list = self.character_data.preset_list[setup_ui.team_setup[index]["culture"]]
-                if setup_ui.team_setup[index]["culture"] in self.save_data.custom_army_preset_save:
-                    preset_list = {key: value for key, value in self.save_data.custom_army_preset_save[
-                        setup_ui.team_setup[index]["culture"]].items() if
-                                   None not in value["commander"]} | preset_list
-                preset = tuple(preset_list.keys())[bar.hover_index]
-                if self.last_shown_custom_army != preset:
-                    self.last_shown_custom_army = preset
-                    army_preset = self.convert_army_to_custom_deployable(preset_list[preset],
+                preset_list = self.character_data.custom_army_preset_list[setup_ui.team_setup[index]["culture"]]
+                # add player custom army preset list
+                if setup_ui.team_setup[index]["culture"] in self.save_data.player_custom_army_preset_save:
+                    preset_list = {key: value for key, value in self.save_data.player_custom_army_preset_save[
+                        setup_ui.team_setup[index]["culture"]].items() if value["Commander"]} | preset_list
+                hover_preset = tuple(preset_list.keys())[bar.hover_index]
+                if self.last_shown_custom_army != hover_preset:
+                    self.last_shown_custom_army = hover_preset
+                    army_preset = self.convert_custom_army_to_deployable(preset_list[hover_preset],
                                                                          setup_ui.team_setup[index]["culture"])
-                    self.custom_army_title_popup.change_text(preset_list[preset]["Name"],
-                                                             army_preset["cost"], army_preset["supply"],
-                                                             army_preset["leadership"])
-                    self.custom_army_info_popup.popup(army_preset)
+                    self.showcase_army.__init__("", army_preset["culture"],
+                                                army_preset["culture"],
+                                                army_preset["commander"],
+                                                army_preset["followers"])
+                    self.custom_army_info_popup.popup(preset_list[hover_preset]["Name"], self.showcase_army)
                 self.add_to_ui_menu_updater(self.custom_army_info_popup, self.custom_army_title_popup)
                 self.custom_army_info_popup.rect.midright = self.custom_battle_team_setup[
                     Opposite_Team[team]].rect.midright
@@ -31,16 +31,13 @@ def menu_custom_setup(self):
 
                 if self.cursor.select_up and bar.adapter.last_click:
                     if bar.adapter.last_click[0] == "click":
-                        army_preset = self.convert_army_to_custom_deployable(preset_list[preset],
+                        army_preset = self.convert_custom_army_to_deployable(preset_list[hover_preset],
                                                                              setup_ui.team_setup[index][
                                                                                  "culture"])
                         self.custom_team_army[team][index].__init__("", army_preset["culture"],
                                                                     army_preset["culture"],
-                                                                    army_preset["commander"][0],
-                                                                    army_preset["leader"],
-                                                                    army_preset["troop"], army_preset["air"],
-                                                                    army_preset["retinue"],
-                                                                    custom_preset_id=preset)
+                                                                    army_preset["commander"],
+                                                                    army_preset["followers"])
                         setup_ui.change_cost(index, self.custom_team_army[team][index].cost,
                                              self.custom_team_army[team][index].total_supply_usage)
                         self.custom_team_army_buttons[team][index].change_state(
@@ -55,22 +52,22 @@ def menu_custom_setup(self):
         for index, button in enumerate(team_buttons):  # hover over
             if button.mouse_over:
                 setup_ui = self.custom_battle_team_setup[team]
-                preset_list = self.character_data.preset_list[setup_ui.team_setup[index]["culture"]]
-                if setup_ui.team_setup[index]["culture"] in self.save_data.custom_army_preset_save:
-                    preset_list = {key: value for key, value in self.save_data.custom_army_preset_save[
-                        setup_ui.team_setup[index]["culture"]].items() if
-                                   None not in value["commander"]} | preset_list
+                preset_list = self.character_data.custom_army_preset_list[setup_ui.team_setup[index]["culture"]]
+                if setup_ui.team_setup[index]["culture"] in self.save_data.player_custom_army_preset_save:
+                    preset_list = {key: value for key, value in self.save_data.player_custom_army_preset_save[
+                        setup_ui.team_setup[index]["culture"]].items() if value["Commander"]} | preset_list
 
                 if self.custom_team_army[team][index].custom_preset_id:  # has preset selected
-                    preset = preset_list[self.custom_team_army[team][index].custom_preset_id]
-                    if self.last_shown_custom_army != preset:
-                        self.last_shown_custom_army = preset
-                        army_preset = self.convert_army_to_custom_deployable(preset,
+                    selected_preset = preset_list[self.custom_team_army[team][index].custom_preset_id]
+                    if self.last_shown_custom_army != selected_preset:
+                        self.last_shown_custom_army = selected_preset
+                        army_preset = self.convert_custom_army_to_deployable(selected_preset,
                                                                              setup_ui.team_setup[index]["culture"])
-                        self.custom_army_title_popup.change_text(preset["Name"], army_preset["cost"],
-                                                                 army_preset["supply"],
-                                                                 army_preset["leadership"])
-                        self.custom_army_info_popup.popup(army_preset)
+                        self.showcase_army.__init__("", army_preset["culture"],
+                                                    army_preset["culture"],
+                                                    army_preset["commander"],
+                                                    army_preset["followers"])
+                        self.custom_army_info_popup.popup(selected_preset["Name"], self.showcase_army)
                     self.add_to_ui_menu_updater(self.custom_army_info_popup, self.custom_army_title_popup)
                     self.custom_army_info_popup.rect.midright = self.custom_battle_team_setup[
                         Opposite_Team[team]].rect.midright
@@ -124,24 +121,22 @@ def menu_custom_setup(self):
         if self.setup_back_button.event_press or self.esc_press:  # back to start_set menu
             self.remove_from_ui_menu_updater(self.custom_battle_menu_uis_remove)
             for index in range(0, 4):
-                self.custom_battle_team_setup[1].change_faction(None, index)
-                self.custom_battle_team_setup[2].change_faction(None, index)
+                self.custom_battle_team_setup[1].change_culture_preset(None, index)
+                self.custom_battle_team_setup[2].change_culture_preset(None, index)
             self.back_mainmenu()
 
         elif self.custom_battle_preset_button.event_press:
             self.menu_state = "preset"
-            self.before_save_preset_army_setup = deepcopy(self.save_data.custom_army_preset_save)
-            self.custom_preset_faction_selector.change_faction(Custom_Default_Culture)
-            self.custom_preset_army_setup.change_faction(Custom_Default_Culture)
+            self.before_save_preset_army_setup = deepcopy(self.save_data.player_custom_army_preset_save)
+            self.custom_preset_culture_selector.change_culture_preset(Custom_Default_Culture)
+            self.custom_preset_army_setup.change_culture_preset(Custom_Default_Culture)
             self.custom_preset_list_box.adapter.__init__()
-            self.custom_preset_army_title.change_text("", self.custom_preset_army_setup.total_gold_cost,
-                                                      self.custom_preset_army_setup.total_supply_usage,
-                                                      self.custom_preset_army_setup.total_leadership)
+            self.custom_preset_army_title.change_text("", 0, 0, 0)
             self.add_to_ui_menu_updater(self.custom_preset_menu_uis)
             self.remove_from_ui_menu_updater(self.custom_battle_menu_uis_remove)
             for index in range(0, 4):
-                self.custom_battle_team_setup[1].change_faction(None, index)
-                self.custom_battle_team_setup[2].change_faction(None, index)
+                self.custom_battle_team_setup[1].change_culture_preset(None, index)
+                self.custom_battle_team_setup[2].change_culture_preset(None, index)
 
         elif self.custom_battle_reset_button.event_press:
             self.selected_custom_stage_battle = Default_Selected_Stage_Custom_Battle
@@ -229,66 +224,13 @@ def menu_custom_setup(self):
                                           self.grab_text(("ui", "warn_no_army")),
                                           self.inform_popup_uis)
             else:
-                # recreate army with fund cut
-                team_exist = {1: False, 2: False}
-                # remade team army to include only those with at least 1 existing character and or made random one
-                custom_team_army = {team: [] for team in (1, 2)}
-                for team in custom_team_army:
-                    setup_ui = self.custom_battle_team_setup[team]
-                    for index in range(5):
-                        if self.custom_team_army[team][index].commander_id:
-                            custom_team_army[team].append(deepcopy(self.custom_team_army[team][index]))
-                        elif setup_ui.team_setup[index]["culture"] == "random":
-                            culture = choice(
-                                [key for key in self.sprite_data.culture_coas if key not in ("random", "free")])
-                            new_random_army = deepcopy(self.custom_team_army[team][index])
-
-                            preset_list = self.character_data.preset_list[culture]
-                            if culture in self.save_data.custom_army_preset_save:
-                                preset_list = {key: value for key, value in self.save_data.custom_army_preset_save[
-                                    culture].items() if None not in value["commander"]} | preset_list
-
-                            preset = choice(tuple(preset_list.keys()))
-
-                            army_preset = self.convert_army_to_custom_deployable(preset_list[preset], culture)
-                            new_random_army.__init__("", army_preset["culture"], army_preset["culture"],
-                                                     army_preset["commander"][0],
-                                                     army_preset["leader"], army_preset["troop"], army_preset["air"],
-                                                     army_preset["retinue"], custom_preset_id=preset)
-                            custom_team_army[team].append(new_random_army)
-
-                remain_gold = {1: self.team1_gold_limit_custom_battle, 2: self.team2_gold_limit_custom_battle}
-                for team in (1, 2):
-                    for army in tuple(custom_team_army[team]):
-                        if remain_gold[team] >= army.cost:
-                            remain_gold[team] -= army.cost
-                        else:  # cut units
-                            if remain_gold[team] >= army.character_list[army.commander_id]["Cost"]:
-                                remain_gold[team] -= army.character_list[army.commander_id]["Cost"]
-
-                                for index, character in enumerate(army.leader_group.copy()):
-                                    if remain_gold[team] >= army.character_list[character]["Cost"]:
-                                        remain_gold[team] -= army.character_list[character]["Cost"]
-                                    else:
-                                        army.leader_group.remove(character)
-                                for index, character in enumerate(army.ground_group.copy()):
-                                    if remain_gold[team] >= army.character_list[character]["Cost"]:
-                                        remain_gold[team] -= army.character_list[character]["Cost"]
-                                    else:
-                                        army.ground_group.remove(character)
-                                for index, character in enumerate(army.air_group.copy()):
-                                    if remain_gold[team] > army.character_list[character]["Cost"]:
-                                        remain_gold[team] -= army.character_list[character]["Cost"]
-                                    else:
-                                        army.air_group.remove(character)
-                                army.reset_stat(include_culture_influence=False)
-                            else:  # cut entire army if commander cannot be added
-                                custom_team_army[team].remove(army)
+                custom_team_army, _ = self.check_custom_team_fund(create_random=True)
 
                 for team in (1, 2):
-                    for army in custom_team_army[team]:
-                        if army.commander_id:
-                            team_exist[team] = True
+                    if custom_team_army[team]:
+                        team_exist[team] = True
+                    else:
+                        team_exist[team] = False
                 if False in tuple(team_exist.values()):
                     self.activate_input_popup(("confirm_input", "no_army"),
                                               self.grab_text(("ui", "warn_no_army")),

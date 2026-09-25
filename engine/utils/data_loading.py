@@ -14,12 +14,12 @@ from engine.utils.sprite_altering import sprite_rotate
 accept_image_types = ("png", "jpg", "jpeg", "svg", "gif", "bmp")
 
 
-def load_image(directory, screen_scale, file, subfolder=(), no_alpha=False, as_pillow_image=False):
+def load_image(directory, file, screen_scale=(1, 1), subfolder=(), no_alpha=False, as_pillow_image=False):
     """
     loads an image and prepares it for game
     :param directory: Directory folder path
-    :param screen_scale: Resolution scale of game
     :param file: File name
+    :param screen_scale: Resolution scale of game
     :param subfolder: List of sub_folder path
     :param no_alpha: Indicate if surface require alpha or not
     :param as_pillow_image: return surface as Pillow image instead of pygame surface
@@ -75,7 +75,7 @@ def load_images(directory, screen_scale=(1, 1), subfolder=(), no_alpha=False,
             if "." in file_name:  # remove extension from name
                 file_name = file.split(".")[:-1]
                 file_name = "".join(file_name)
-            images[file_name] = load_image(directory, screen_scale, file, subfolder=dir_path, no_alpha=no_alpha,
+            images[file_name] = load_image(directory, file, screen_scale, subfolder=dir_path, no_alpha=no_alpha,
                                            as_pillow_image=as_pillow_image)
 
         return images
@@ -216,9 +216,9 @@ def load_sound(main_dir, file):
 
 
 def load_base_button(data_dir, screen_scale):
-    return (load_image(data_dir, screen_scale, "idle_button.png", ("ui", "mainmenu_ui")),
-            load_image(data_dir, screen_scale, "mouse_button.png", ("ui", "mainmenu_ui")),
-            load_image(data_dir, screen_scale, "click_button.png", ("ui", "mainmenu_ui")))
+    return (load_image(data_dir, "idle_button.png", screen_scale, ("ui", "mainmenu_ui")),
+            load_image(data_dir, "mouse_button.png", screen_scale, ("ui", "mainmenu_ui")),
+            load_image(data_dir, "click_button.png", screen_scale, ("ui", "mainmenu_ui")))
 
 
 def stat_convert(row, n, i, percent_column=(), list_column=(), tuple_column=(), int_column=(),
@@ -251,6 +251,7 @@ def stat_convert(row, n, i, percent_column=(), list_column=(), tuple_column=(), 
                 row[n] = [i, ]
         else:
             row[n] = [item for item in i.split(",")]
+
         row[n] = [item_conversion(k) for k in row[n]]
         if n in tuple_column:
             row[n] = tuple(row[n])
@@ -324,10 +325,15 @@ def item_conversion(i):
         # if i[0] == "{" and i[-1] == "}":  # dict item
         #
         elif (i[0] == "(" and i[-1] == ")") or (i[0] == "[" and i[-1] == "]"):  # tuple/list item
+            tuple_convert = False
+            if i[0] == "(":
+                tuple_convert = True
             i = i[1:-1]
             i = i.split(";")  # item with item1;item2 instead of ","
             for index_c, c in enumerate(i):
                 i[index_c] = item_conversion(c)
+            if tuple_convert:
+                i = tuple(i)
             return i
         elif i.lower() == "none":
             return None

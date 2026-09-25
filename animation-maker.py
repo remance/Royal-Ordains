@@ -1507,7 +1507,7 @@ showroom.showroom_base_point = ((showroom_size[0] / 2) + showroom_camera_pos[0],
                                 (showroom_size[1] * 0.9) + showroom_camera_pos[1])
 ui.add(showroom)
 
-image = smoothscale(load_image(current_data_dir, screen_scale, "film.png", "animation_maker_ui"),
+image = smoothscale(load_image(current_data_dir, "film.png", screen_scale, "animation_maker_ui"),
                     (int(50 * screen_scale[0]), int(50 * screen_scale[1])))
 
 Filmstrip.base_image = image
@@ -1542,9 +1542,7 @@ p_body_helper = BodyHelper(body_helper_size, (body_helper_size[0] / 2,
                                               screen_size[1] - (body_helper_size[1] / 2)), "p1", list(images.values()))
 helper_list = [p_body_helper, effect_helper]
 
-image = load_image(current_data_dir, screen_scale, "button.png", "animation_maker_ui")
-image = smoothscale(image, (int(image.get_width() * screen_scale[1]),
-                            int(image.get_height() * screen_scale[1])))
+image = load_image(current_data_dir, "button.png", screen_scale, "animation_maker_ui")
 
 text_popup = TextPopup(font_size=24)
 animation_character_button = Button("Ani Char", image, (image.get_width() / 2, image.get_height() / 2),
@@ -1765,7 +1763,7 @@ sound_distance_selector = NameBox((250, image.get_height()),
 # lock_button = SwitchButton(["Lock:OFF","Lock:ON"], image, (reset_button.pos[0] + reset_button.image.get_width() * 2,
 #                                            p_body_helper.rect.midtop[1] - (image.get_height() / 1.5)))
 
-input_ui = InputUI(load_image(data_dir, screen_scale, "input_ui.png", ("ui", "mainmenu_ui")),
+input_ui = InputUI(load_image(data_dir, "input_ui.png", screen_scale, ("ui", "mainmenu_ui")),
                    (screen_size[0] / 2, screen_size[1] / 2))  # user text input ui box popup
 
 image_list = load_base_button(data_dir, screen_scale)
@@ -1782,13 +1780,13 @@ input_box = InputBox(input_ui.rect.center, input_ui.image.get_width())  # user t
 
 input_ui_popup = (input_ui, input_box, input_ok_button, input_cancel_button)
 
-confirm_ui = InputUI(load_image(data_dir, screen_scale, "input_ui.png", ("ui", "mainmenu_ui")),
+confirm_ui = InputUI(load_image(data_dir, "input_ui.png", screen_scale, ("ui", "mainmenu_ui")),
                      (screen_size[0] / 2, screen_size[1] / 2))  # user confirm input ui box popup
 confirm_ui_popup = (confirm_ui, input_ok_button, input_cancel_button)
 
-colour_ui = InputUI(load_image(data_dir, screen_scale, "input_ui.png", ("ui", "mainmenu_ui")),
+colour_ui = InputUI(load_image(data_dir, "input_ui.png", screen_scale, ("ui", "mainmenu_ui")),
                     (screen_size[0] / 2, screen_size[1] / 2))  # user text input ui box popup
-colour_wheel = ColourWheel(load_image(current_data_dir, screen_scale, "rgb.png",
+colour_wheel = ColourWheel(load_image(current_data_dir, "rgb.png", screen_scale,
                                       subfolder=("animation", "sprite")),
                            (colour_ui.pos[0], colour_ui.pos[1] / 1.5))
 colour_input_box = InputBox((colour_ui.rect.center[0], colour_ui.rect.center[1] * 1.15),
@@ -1803,8 +1801,8 @@ colour_cancel_button = MenuButton(image_list,
                                   key_name="button_cancel", layer=41)
 colour_ui_popup = (colour_ui, colour_wheel, colour_input_box, colour_ok_button, colour_cancel_button)
 
-box_img = load_image(current_data_dir, screen_scale, "property_box.png", "animation_maker_ui")
-big_box_img = load_image(current_data_dir, screen_scale, "biglistbox.png", "animation_maker_ui")
+box_img = load_image(current_data_dir, "property_box.png", screen_scale, "animation_maker_ui")
+big_box_img = load_image(current_data_dir, "biglistbox.png", screen_scale, "animation_maker_ui")
 
 popup_list_box = ListBox((0, 0), big_box_img, 20)  # popup box need to be in higher layer
 UIScroll(popup_list_box, popup_list_box.rect.topright)  # create scroll for popup list box

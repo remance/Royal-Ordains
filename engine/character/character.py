@@ -164,6 +164,7 @@ class Character(sprite.Sprite):
         self.in_drawer = False
         self.blit_culling_check = self.battle.blit_culling_check
         self.battle_camera_drawer = self.battle.battle_camera_object_drawer
+        self.camera = self.battle.camera
         self.all_team_enemy_check = self.battle.all_team_enemy_check
 
         self.race = stat["Race"]
@@ -209,8 +210,11 @@ class Character(sprite.Sprite):
 
         self.y_momentum = 0
         self.x_momentum = 0
-        self.run_speed = 12 * stat["Speed"]
-        self.walk_speed = 5 * stat["Speed"]
+        self.run_speed = 9 * stat["Speed"]
+        self.walk_speed = 4 * stat["Speed"]
+
+        if self.no_run:
+            self.run_speed = self.walk_speed
 
         self.animation_frame_play_time = self.Base_Animation_Frame_Play_Time
         self.final_animation_frame_play_time = self.animation_frame_play_time
@@ -433,6 +437,7 @@ class BattleCharacter(Character):
         self.is_summon = is_summon
         self.indicator = None
 
+        self.weather = None
         self.current_moveset = None
         self.current_moveset_property = None
         self.nearest_enemy = None
@@ -471,9 +476,9 @@ class BattleCharacter(Character):
         self.original_defence = stat["Defence"]
         self.supply = stat["Supply Drop"]
 
-        self.melee_type = "offence"
-        if self.original_offence < self.original_defence:
-            self.melee_type = "defence"
+        # self.melee_type = "offence"
+        # if self.original_offence < self.original_defence:
+        #     self.melee_type = "defence"
 
         self.base_offence = stat["Offence"]
         self.base_defence = stat["Defence"]
@@ -511,7 +516,9 @@ class BattleCharacter(Character):
         self.defence = self.base_defence
         self.element_resistance = self.base_element_resistance.copy()
         self.speed = self.base_speed
-        self.low_speed = self.speed * 0.75
+        self.dodge_chance = self.speed * 0.75
+        if self.dodge_chance > 90:
+            self.dodge_chance = 90
         self.health_regen = self.base_health_regen
         self.resource_regen = self.base_resource_regen
         self.animation_frame_play_time = self.Base_Animation_Frame_Play_Time
@@ -525,8 +532,8 @@ class BattleCharacter(Character):
         self.health = self.base_health
         self.resource = self.base_resource
 
-        self.run_speed = 7 * self.speed
-        self.walk_speed = 3 * self.speed
+        self.run_speed = 9 * self.speed
+        self.walk_speed = 4 * self.speed
 
         # Variables related to sound
         self.knock_down_sound_distance = self.knock_down_sound_distance + self.body_mass

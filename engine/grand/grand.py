@@ -5,22 +5,18 @@ from random import randint
 from types import MethodType
 
 import pygame
-from engine.grandarmyactor.grandarmyactor import GrandArmyActor
-from pygame import Vector2, display, sprite, Surface, SRCALPHA
+from pygame import Vector2, display, sprite
 from pygame.locals import *
 from pygame.mixer import Channel
-from pygame.transform import rotate
 
 from engine.army.army import Army
 from engine.battle.add_sound_effect_queue import add_sound_effect_queue
 from engine.battle.battle import set_start_load, set_done_load
-from engine.battle.cal_shake_value import cal_shake_value
 from engine.battle.change_game_state import change_game_state
 from engine.battle.drama_process import drama_process
 from engine.battle.play_sound_effect import play_sound_effect
 from engine.battle.shake_camera import shake_camera
 from engine.camera.camera import Camera
-from engine.constants import Route_Difficulty_Colour
 from engine.game.activate_input_popup import activate_input_popup
 from engine.game.change_pause_update import change_pause_update
 from engine.grand.auto_battle_process import auto_battle_process
@@ -40,13 +36,14 @@ from engine.grand.sort_player_army_list import sort_player_army_list
 from engine.grand.start_battle_engagement import start_battle_engagement
 from engine.grand.state_grand_process import state_grand_process
 from engine.grand.state_menu_process import state_menu_process, back_to_grand_state
+from engine.grandarmyactor.grandarmyactor import GrandArmyActor
 from engine.grandobject.grandobject import GrandObject
 from engine.grandregion.grandregion import GrandRegion
 from engine.uibattle.drama import TextDrama
 from engine.uibattle.uibattle import FPSCount
 from engine.uigrand.cosmos import CosmosUI, MiniCosmosUI
 from engine.uigrand.uigrand import (YesNo, PlayerGrandInteract, PlayerFactionResourceBar, PlayerFactionCultureList,
-                                    DotInfoBanner, DotInfoBannerArmy, DotInfoBannerSettlement,
+                                    DotInfoBanner, DotInfoBannerArmy, DotInfoBannerSettlement, DotNameBannerSettlement,
                                     PlayerArmyList, PlayerArmyListSortOption, MapSettingOption,
                                     TimeInfoBar, TimeSettingOption, EventImportantPopup,
                                     MenuBar, RegionManagement, EventNotification, ArmyInfo)
@@ -66,7 +63,6 @@ class Grand:
     cal_faction_culture = cal_faction_culture
     cal_faction_income = cal_faction_income
     cal_region_income = cal_region_income
-    cal_shake_value = cal_shake_value
     change_game_state = change_game_state
     change_pause_update = change_pause_update
     change_phase = change_phase
@@ -240,7 +236,6 @@ class Grand:
         self.esc_menu_mode = "menu"
 
         self.player_selected_army = []
-        self.player_selected_region = None
         self.campaign = None
         self.player_faction = None
         self.player_input = None
@@ -252,11 +247,11 @@ class Grand:
         self.region_by_pos_index = {}
         self.region_list = {}
         self.route_list = {}
-        self.route_dot_draw_array = {}
 
         # Create grand ui
         self.dots_army_info_banners = {}
         self.dots_settlement_info_banners = {}
+        self.dots_settlement_name_banners = {}
         self.travel_dot_images = {1: {}, 2: {}, 3: {}, 4: {}}  # get added during campaign prepare
         self.grand_ui_images = self.game.grand_ui_images
         self.cosmos_ui_images = self.game.cosmos_ui_images
@@ -362,46 +357,28 @@ class Grand:
         self.map_x_end = self.shown_world_map_width - self.screen_width
         self.map_y_end = self.shown_world_map_height - self.screen_height
 
-        self.sprite_data.load_region_sprite(campaign)
-
-        travel_dot_images = {1: None, 2: None, 3: None, 4: None}
-        for key in travel_dot_images:
-            dot_image = Surface((20 * self.screen_scale_width, 30 * self.screen_scale_height), SRCALPHA)
-            dot_image.fill((0, 0, 0))
-            difficulty_part = Surface((10 * self.screen_scale_width, 15 * self.screen_scale_height), SRCALPHA)
-            difficulty_part.fill(Route_Difficulty_Colour[key])
-            dot_image.blit(difficulty_part, difficulty_part.get_rect(center=(dot_image.get_width() / 2,
-                                                                             dot_image.get_height() / 2)))
-            travel_dot_images[key] = dot_image
-
-        route_dot_draw_array = {}
-        map_data_route_dot_draw_array = self.map_data.route_dot_draw_array
-        for x in map_data_route_dot_draw_array:
-            scale_x = x * self.map_shown_to_base_scale_width
-            route_dot_draw_array[scale_x] = {}
-            for y in map_data_route_dot_draw_array[x]:
-                scale_y = y * self.map_shown_to_base_scale_height
-                angle = map_data_route_dot_draw_array[x][y]
-                difficulty = self.map_data.dot_route_difficulty[(x, y)]
-                if angle not in self.travel_dot_images[difficulty]:
-                    self.travel_dot_images[difficulty][angle] = rotate(travel_dot_images[difficulty], angle)
-                route_dot_draw_array[scale_x][scale_y] = self.travel_dot_images[difficulty][angle]
-
-        self.route_dot_draw_array = route_dot_draw_array
+        self.sprite_data.load_region_sprite(self.map_data, self.grand_ui_images, self.map_shown_to_base_scale_width,
+                                            self.map_shown_to_base_scale_height, campaign)
 
         # create map of dots army occupation for battle engage checking
         self.settlement_dots = {value["Settlement POS"]: key for key, value in self.map_data.region_list.items()}
         self.dots_army_occupation = {key: {} for
                                      key in self.settlement_dots}
 
+        settlement_banner_offset = 150 * self.screen_scale_height
         for route_data in self.map_data.route_list.values():
             for dot in route_data["Dots"]:
                 army_dot_y_offset = 20
                 if dot in self.settlement_dots:  # settlement dot
                     army_dot_y_offset = 35
+                    self.dots_settlement_name_banners[dot] = DotNameBannerSettlement(
+                        dot, (dot[0] * self.map_shown_to_base_scale_width,
+                              ((dot[1] * self.map_shown_to_base_scale_height) - settlement_banner_offset)),
+                        self.settlement_dots[dot])
                     self.dots_settlement_info_banners[dot] = DotInfoBannerSettlement(
                         dot, (dot[0] * self.map_shown_to_base_scale_width,
-                              (dot[1] + 20) * self.map_shown_to_base_scale_height), self.settlement_dots[dot])
+                              ((dot[1] * self.map_shown_to_base_scale_height) + settlement_banner_offset)),
+                        self.settlement_dots[dot])
                 self.dots_army_occupation[dot] = {}
                 self.dots_army_info_banners[dot] = DotInfoBannerArmy(
                     dot, (dot[0] * self.map_shown_to_base_scale_width,
@@ -610,7 +587,6 @@ class Grand:
         self.player_army_list_ui.reset()
         self.time_setting_ui.reset()
         self.player_selected_army = []
-        self.player_selected_region = None
         self.campaign = None
         self.player_faction = None
         self.player_input = None
@@ -620,6 +596,9 @@ class Grand:
         for dot in self.dots_army_info_banners:
             self.dots_army_info_banners[dot].kill()
         self.dots_army_info_banners.clear()
+        for dot in self.dots_settlement_name_banners:
+            self.dots_settlement_name_banners[dot].kill()
+        self.dots_settlement_name_banners.clear()
         for dot in self.dots_settlement_info_banners:
             self.dots_settlement_info_banners[dot].kill()
         self.dots_settlement_info_banners.clear()
@@ -627,7 +606,6 @@ class Grand:
         self.region_by_colour_index = {}
         self.region_list = {}
         self.route_list = {}
-        self.route_dot_draw_array = {}
 
         self.ai_process_list = []
 

@@ -1,11 +1,13 @@
 from math import ceil
 
 from pygame import Vector2, Surface, SRCALPHA, Rect, draw, Color
-from pygame.transform import smoothscale
+from pygame.transform import smoothscale, flip
 
 from engine.constants import Culture_Policy_Integration
 from engine.uibattle.uibattle import EventNotification as BattleEventNotification
 from engine.uimenu.uimenu import UIMenu
+from engine.utils.rotation import find_target_point
+from engine.utils.sprite_altering import apply_sprite_colour
 from engine.utils.text_making import add_plus_to_number, add_comma_number, text_render_with_bg, minimise_number_text
 
 
@@ -275,6 +277,7 @@ class RegionInfoBanner(UIGrand):
 
 class DotInfoBanner(UIGrand):
     base_image = Surface((0, 0))
+    banner_team_cache = {}
 
     def __init__(self, base_pos, pos):
         self._layer = 5
@@ -283,41 +286,87 @@ class DotInfoBanner(UIGrand):
         self.base_pos = base_pos
         self.dots_army_occupation = self.grand.dots_army_occupation
         self.grand_camera_ui_drawer = self.grand.grand_camera_ui_drawer
+
+        if not self.banner_team_cache:  # create banner cache
+            end = self.grand.grand_ui_images["region_banner_end"]
+            body = self.grand.grand_ui_images["region_banner_body"]
+            self.banner_team_cache["neutral"] = (end, body, flip(self.grand.grand_ui_images["region_banner_end"],
+                                                                 True, False))
+            coloured_end = apply_sprite_colour(end, (100, 100, 220))
+            self.banner_team_cache["player"] = (coloured_end,
+                                                apply_sprite_colour(body, (100, 100, 220)),
+                                                flip(coloured_end, True, False))
+            coloured_end = apply_sprite_colour(end, (220, 100, 100))
+            self.banner_team_cache["hostile"] = (coloured_end,
+                                                 apply_sprite_colour(body, (220, 100, 100)),
+                                                 flip(coloured_end, True, False))
         self.previous_state_value_list = {}
         self.pos = pos
         self.image = self.base_image
         self.rect = self.image.get_rect(midtop=pos)
 
-    def make_text_image(self, surface_colour, text):
+    def make_text_image(self, team, text):
+        banner = self.banner_team_cache[team]
         text_image = text_render_with_bg(text, self.font)
-        image_size = (int(text_image.get_width() * 1.2), int(text_image.get_height() * 1.2))
-        self.image = Surface(image_size)
-        self.image.fill(surface_colour,
-                        (image_size[0] * 0.05, image_size[1] * 0.1,
-                         image_size[0] * 0.92, image_size[1] * 0.85))
-        self.image.blit(text_image, text_image.get_rect(center=(image_size[0] / 2, image_size[1] / 2)))
+        banner_body = smoothscale(banner[1], (text_image.get_width(), banner[1].get_height()))
+        banner_body_width = banner_body.get_width()
+        banner_body_height = banner_body.get_height()
+        banner_body.blit(text_image, text_image.get_rect(center=(banner_body_width / 2,
+                                                                 banner_body_height / 2)))
+        self.image = Surface(((banner[0].get_width() * 2) + banner_body_width,
+                              banner_body_height), SRCALPHA)
+        self.image.blit(banner[0], banner[0].get_rect(topleft=(0, 0)))
+        self.image.blit(banner_body, banner_body.get_rect(midtop=(self.image.get_width() / 2, 0)))
+        self.image.blit(banner[2], banner[2].get_rect(topright=(self.image.get_width(), 0)))
 
     def update(self, dt):
         pass
 
 
+class DotNameBannerSettlement(DotInfoBanner):
+    def __init__(self, base_pos, pos, region):
+        DotInfoBanner.__init__(self, base_pos, pos)
+        self.previous_income = ()
+        self.region = region
+        self.reset(self.grand.current_campaign_state["region"]["control"][region])
+
+    def reset(self, faction_owner):
+        team = "neutral"
+        if faction_owner == self.grand.player_faction:
+            team = "player"
+        elif self.grand.player_faction and faction_owner in self.grand.current_campaign_state["faction"][
+            self.grand.player_faction]["hostile"]:
+            team = "hostile"
+
+        self.make_text_image(team, self.grab_text(("region", self.region, "name")))
+
+        self.rect = self.image.get_rect(midtop=self.pos)
+
+
 class DotInfoBannerSettlement(DotInfoBanner):
     def __init__(self, base_pos, pos, region):
         DotInfoBanner.__init__(self, base_pos, pos)
+        self.name_image = None
+        self.income_image = None
+        self.previous_owner = ""
+        self.previous_income = ()
         self.region = region
         self.reset(self.grand.current_campaign_state["region"]["control"][region])
 
     def reset(self, faction_owner):
         if faction_owner == self.grand.player_faction:
-            surface_colour = (100, 100, 220)
-        elif self.grand.player_faction and faction_owner in self.grand.current_campaign_state["faction"][
-            self.grand.player_faction]["hostile"]:
-            surface_colour = (220, 100, 100)
-        else:
-            surface_colour = (180, 180, 180)
+            if self not in self.grand_camera_ui_drawer:
+                self.grand_camera_ui_drawer.add(self)
+            income_state = self.grand.current_campaign_state["region"]["income"][self.region]
+            self.make_text_image("player",
+                                 "G:" + minimise_number_text(income_state["gold_income"]) + ", " +
+                                 "S:" + minimise_number_text(income_state["supply_income"]) + ", " +
+                                 "H:" + minimise_number_text(income_state["happiness"]))
 
-        self.make_text_image(surface_colour, self.grab_text(("region", self.region, "name")))
-        self.rect = self.image.get_rect(midtop=self.pos)
+            self.rect = self.image.get_rect(midbottom=self.pos)
+        else:
+            if self in self.grand_camera_ui_drawer:
+                self.grand_camera_ui_drawer.remove(self)
 
 
 class DotInfoBannerArmy(DotInfoBanner):
@@ -327,26 +376,26 @@ class DotInfoBannerArmy(DotInfoBanner):
     def reset(self, state_value_list):
         if "battle" in state_value_list:
             text = " VS "
-            surface_colour = (100, 100, 220)
+            team = "player"
         else:
             if state_value_list["player"][0]:
                 text = (minimise_number_text(state_value_list["player"][0]) + "/" +
                         minimise_number_text(
                             state_value_list["player"][1] / state_value_list["player"][2] * 100) + "%")
-                surface_colour = (100, 100, 220)
+                team = "player"
             elif state_value_list["enemy"][0]:
                 text = (minimise_number_text(state_value_list["enemy"][0]) + "/" +
                         minimise_number_text(
                             state_value_list["enemy"][1] / state_value_list["enemy"][2] * 100) + "%")
-                surface_colour = (220, 100, 100)
+                team = "hostile"
             else:
                 # neutral only shown when no player or enemy army in this dot
                 text = (minimise_number_text(state_value_list["neutral"][0]) + "/" +
                         minimise_number_text(
                             state_value_list["neutral"][1] / state_value_list["neutral"][2] * 100) + "%")
-                surface_colour = (180, 180, 180)
+                team = "neutral"
 
-        self.make_text_image(surface_colour, text)
+        self.make_text_image(team, text)
         self.rect = self.image.get_rect(midtop=self.pos)
 
     def update(self, dt):
@@ -482,11 +531,6 @@ class PlayerArmyList(UIGrand):
         commander_image = self.character_portraits[army.commander_id]["tiny"]["right"]
         card_image.blit(commander_image, commander_image.get_rect(topleft=(0, 0)))
 
-        # for index, leader in enumerate(army.leader_group):
-        #     leader_image = self.character_portraits[leader]["mini"]["left"]
-        #     card_image.blit(leader_image, leader_image.get_rect(
-        #         topleft=(((100 * index) + 150) * self.screen_scale_width, 0)))
-
         supply_text_colour = (255, 255, 255)
         if army.supply / army.max_supply < 0.2:
             supply_text_colour = (150, 20, 20)
@@ -525,7 +569,7 @@ class PlayerArmyList(UIGrand):
             activity = self.grab_text(("ui", "info_text_combat"))
         elif army.travelling:
             activity = ">> " + self.grab_text(("region", army.travelling["destination"], "Name"))
-        elif army.assembling:
+        elif army.assembling_followers:
             activity = self.grab_text(("ui", "info_text_assemble"))
         else:
             activity = self.grab_text(("ui", "info_text_idle"))
@@ -616,9 +660,8 @@ class PlayerArmyList(UIGrand):
                             self.draw_list()
                         elif self.event_alt_press:
                             # open army management ui
-                            army_preset_dict = army.to_preset_dict
-                            self.grand.player_grand_preset_army_setup.popup(army_preset_dict)
-                            self.grand.player_army_info_ui.add_info(army_preset_dict)
+                            self.grand.player_grand_preset_army_setup.popup("", army)
+                            self.grand.player_army_info_ui.add_info(army.to_preset_dict)
                             self.outer_ui_updater.add(self.grand.player_grand_preset_army_setup,
                                                       self.grand.player_army_info_ui)
                         elif self.event_middle_mouse_press:
@@ -868,19 +911,38 @@ class RegionManagement(UIGrand):
         UIGrand.__init__(self)
         self.font = self.game.generic_ui_font
         self.header_font = self.game.large_generic_ui_font
-        self.image = Surface((2200 * self.screen_scale_width, 432 * self.screen_scale_height))
+        self.player_selected_region = None
+        self.selected_building_index = None
+        self.image = Surface((1000 * self.screen_scale_width, 1000 * self.screen_scale_height))
         self.image.fill((200, 50, 50))
         self.base_image = self.image.copy()
-        self.building_slot_rects = {index: (200 * int(index / 5),) for index in range(10)}
-        self.rect = self.image.get_rect(bottomleft=(0, self.screen_height))
+        default_build_image_slot = self.grand.building_portraits["default"]["building_ui"]
+        self.building_slot_rects = [default_build_image_slot.get_rect(
+            center=find_target_point(self.screen_width / 2, self.screen_height / 2,
+                                     400 * self.screen_scale_width, angle)) for angle in [45 * x for x in range(9)]]
+        self.rect = self.image.get_rect(center=(self.screen_width / 2, self.screen_height / 2))
 
     def change_selected_region(self, region):
-        self.grand.player_selected_region = region
+        self.selected_building_index = None
+        self.player_selected_region = region
         if region:
             self.image = self.base_image.copy()
             self.outer_ui_updater.add(self)
         else:
             self.outer_ui_updater.remove(self)
+
+        # self.grand.current_campaign_state["region"]["buildings"][region]
+        # self.building_slot_rects
+        region_name_surface = text_render_with_bg(self.grab_text(("region", region, "name")), self.font)
+        self.image.blit(region_name_surface, region_name_surface.get_rect(midtop=(
+            self.image.get_width() / 2, 0)))
+
+    def change_selected_building(self, building_index):
+        self.selected_building_index = building_index
+        building = self.grand.current_campaign_state["region"]["buildings"][self.player_selected_region][building_index]
+        selected_building_icon = self.grand.building_portraits[building]
+        self.image.blit(selected_building_icon,
+                        selected_building_icon.get_rect(center=self.building_slot_rects[building_index]))
 
     def update(self, dt):
         UIGrand.update(self, dt)
@@ -888,6 +950,19 @@ class RegionManagement(UIGrand):
             inside_mouse_pos = Vector2(
                 (self.cursor.pos[0] - self.rect.topleft[0]),
                 (self.cursor.pos[1] - self.rect.topleft[1]))
+            for building_index, rect in self.building_slot_rects:
+                if rect.collidepoint(inside_mouse_pos):
+                    if self.event_press and building_index != self.selected_building_index:
+                        self.change_selected_building(building_index)
+                    else:
+                        self.text_popup.popup(self.cursor.rect.bottomright,
+                                              self.grab_text(("building",
+                                                              self.grand.current_campaign_state["region"]["buildings"][
+                                                                  self.player_selected_region][building_index],
+                                                              "name")),
+                                              width_text_wrapper=self.max_description_box_width)
+                        self.outer_ui_updater.add(self.text_popup)
+                    break
 
 
 class EventNotification(BattleEventNotification, UIGrand):
@@ -1097,7 +1172,9 @@ class PlayerGrandInteract(UIGrand):
                             (int(self.grand.base_cursor_pos[0]), int(self.grand.base_cursor_pos[1]))))[:3]
                         if region_colour in self.grand.region_by_colour_index:
                             region_id = self.grand.region_by_colour_index[region_colour]
-                            self.grand.region_management_ui.change_selected_region(region_id)
+                            if (self.grand.player_faction and region_id in
+                                    self.grand.current_campaign_state["faction"][self.grand.player_faction]["region"]):
+                                self.grand.region_management_ui.change_selected_region(region_id)
                         else:  # select at water region, remove region management ui
                             self.grand.region_management_ui.change_selected_region(None)
 
@@ -1114,7 +1191,7 @@ class PlayerGrandInteract(UIGrand):
                                     self.grand.player_selected_army]):
                                 # player army in battle, this will cause battle lost and armies retreat from battle,
                                 # ask for confirmation first
-                                if any([army.assembling for army in self.grand.player_selected_army]):
+                                if any([army.assembling_followers for army in self.grand.player_selected_army]):
                                     # there is also army assembling, this will cause assemble to be cancelled,
                                     # ask for confirmation with both warning
                                     self.grand.activate_input_popup(("confirm_input", "assemble",
@@ -1127,7 +1204,7 @@ class PlayerGrandInteract(UIGrand):
                                                                     self.grab_text(
                                                                         ("ui", "warn_input_retreat_assemble")),
                                                                     self.game.confirm_popup_uis)
-                            elif any([army.assembling for army in self.grand.player_selected_army]):
+                            elif any([army.assembling_followers for army in self.grand.player_selected_army]):
                                 # there is army assembling, this will cause assemble to be cancelled,
                                 # ask for confirmation first
                                 self.grand.activate_input_popup(("confirm_input", "assemble",

@@ -28,8 +28,10 @@ class GrandRegion(Sprite):
 
     def change_owner_state(self, faction_owner):
         self.faction_owner = faction_owner
+        # self.image = self.grand.sprite_data.region_sprites[self.region]
         self.image = apply_sprite_colour(self.grand.sprite_data.region_sprites[self.region],
-                                         self.grand.map_data.faction_list[faction_owner]["Colour"])
+                                         self.grand.map_data.faction_list[faction_owner]["Colour"],
+                                         white_only=True)
 
     def update(self, true_dt, dt):
         pass

@@ -21,7 +21,7 @@ class GrandObject(sprite.Sprite):
 
         self._layer = 10 + self.pos[1]
         sprite.Sprite.__init__(self, self.containers)
-        self.sprite_id = "test"
+        self.sprite_id = "default"
         if sprite_id in self.grand.building_portraits:
             self.sprite_id = sprite_id
 

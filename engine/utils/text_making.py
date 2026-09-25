@@ -160,7 +160,7 @@ def text_render_with_texture(text, font, texture, with_bg=None):
         surface.paste(new_texture, box=(0, 0), mask=text_surface)
         size = surface.size
         surface = surface.tobytes()
-        surface = image.frombytes(surface, size, "RGBA")  # convert image back to a pygame surface
+        surface = image.frombytes(surface, size, "RGBA").convert_alpha()  # convert image back to a pygame surface
     else:  # no assigned texture
         surface = text_surface
 

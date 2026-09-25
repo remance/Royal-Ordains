@@ -13,13 +13,16 @@ from pygame.transform import smoothscale, scale
 
 from engine.constants import (Custom_Default_Culture, Default_Showcase_Character_POS,
                               Default_Showcase_Character_air_POS,
-                              Default_Showcase_Character, Opposite_Team,
-                              Retinue_Leadership_Add_Modifier)
+                              Default_Showcase_Character, Opposite_Team)
 from engine.utils.common import keyboard_mouse_press_check
 from engine.utils.data_loading import load_image
 from engine.utils.text_making import text_render_with_bg, make_long_text, add_comma_number, calculate_long_text_size
 
 none_type = type(None)
+
+army_header = ("Commander", "Leader 1", "Leader 2", "Leader 3", "Troop 1", "Troop 2", "Troop 3", "Troop 4",
+               "Troop 5", "Air 1", "Air 2", "Air 3", "Air 4", "Air 5", "Retinue 1", "Retinue 2", "Retinue 3")
+army_leader_header = ("Commander", "Leader 1", "Leader 2", "Leader 3", "Retinue 1", "Retinue 2", "Retinue 3")
 
 
 @lru_cache(maxsize=2 ** 8)
@@ -403,7 +406,8 @@ class FactionSelector(UIMenu):
         self.is_popup = is_popup
         self.use_culture = use_culture
         if use_culture:
-            self.faction_coas = {key: value["small"] for key, value in self.game.sprite_data.culture_coas.items()}
+            self.faction_coas = {key: value["small"] for key, value in self.game.sprite_data.culture_coas.items() if
+                                 key in self.game.character_data.culture_list}
 
             free_coa = self.faction_coas["free"]
             self.faction_coas.pop("free")
@@ -421,20 +425,20 @@ class FactionSelector(UIMenu):
                     self.faction_coas[faction] = self.game.sprite_data.character_portraits[data["Ruler"]]["small"][
                         "right"]
 
-        max_column = int((width_limit * self.screen_scale_width) / (220 * self.screen_scale_width))
-        require_row = int(len(self.faction_coas) / max_column)
+        max_column = int((width_limit * self.screen_scale_width) / (250 * self.screen_scale_width))
+        require_row = ceil(len(self.faction_coas) / max_column)
         rect_per_row = range(1, max_column)
         if not require_row:
             require_row = 1
 
         self.image = Surface((int(width_limit * self.screen_scale_width),
-                              int((300 * require_row) * self.screen_scale_height)), SRCALPHA)
+                              int((250 * require_row) * self.screen_scale_height)), SRCALPHA)
         self.image.fill((100, 100, 100))
         self.base_image = self.image.copy()
         self.faction_coa_rects = {}
         y = 50 * self.screen_scale_height
 
-        rect_placement = [(220 * self.screen_scale_width) * item for item in rect_per_row]
+        rect_placement = [(250 * self.screen_scale_width) * item for item in rect_per_row]
         x_index = 0
         for faction, coa in self.faction_coas.items():
             x = rect_placement[x_index]
@@ -443,20 +447,20 @@ class FactionSelector(UIMenu):
             self.faction_coa_rects[faction] = rect
             x_index += 1
             if x_index == len(rect_placement):
-                y = 220 * self.screen_scale_height
+                y = 250 * self.screen_scale_height
                 x_index = 0
-        self.selected_faction = None
+        self.selected_culture = None
 
         self.rect = self.image.get_rect(midtop=pos)
         if not self.is_popup:
             if use_culture:
-                self.selected_faction = Custom_Default_Culture
-                self.change_faction(Custom_Default_Culture)
+                self.selected_culture = Custom_Default_Culture
+                self.change_culture_preset(Custom_Default_Culture)
             else:
-                self.selected_faction = self.game.map_data.default_grand_faction
-                self.change_faction(self.selected_faction)
+                self.selected_culture = self.game.map_data.default_grand_faction
+                self.change_culture_preset(self.selected_culture)
 
-    def change_faction(self, new_select_faction):
+    def change_culture_preset(self, new_select_faction):
         self.image = self.base_image.copy()
         for faction, rect in self.faction_coa_rects.items():
             if faction == new_select_faction:
@@ -467,7 +471,7 @@ class FactionSelector(UIMenu):
                 self.image.blit(coa, self.faction_coa_rects[faction])
             else:  # unselected old one
                 self.image.blit(self.faction_coas[faction], self.faction_coa_rects[faction])
-        self.selected_faction = new_select_faction
+        self.selected_culture = new_select_faction
         if self.game.menu_state == "grand":
             self.game.grand_setup_mini_map.change_faction(new_select_faction,
                                                           {key: value["Control"] for key, value in
@@ -477,7 +481,7 @@ class FactionSelector(UIMenu):
         elif self.game.menu_state == "beast":
             self.game.lorebook_showcase_character_selector.add(new_select_faction, None)
         elif self.game.menu_state == "preset":
-            self.game.custom_preset_army_setup.change_faction(new_select_faction)
+            self.game.custom_preset_army_setup.change_culture_preset(new_select_faction)
 
     def update(self, dt):
         UIMenu.update(self, dt)
@@ -499,9 +503,9 @@ class FactionSelector(UIMenu):
                         self.button_sound_channel.set_volume(self.game.play_effect_volume)
                         if self.is_popup:  # remove popup ui
                             self.remove_from_ui_menu_updater(self)
-                            self.selected_faction = faction
+                            self.selected_culture = faction
                         else:
-                            self.change_faction(faction)
+                            self.change_culture_preset(faction)
                     break
 
         elif self.cursor.select_up and self.is_popup:  # remove popup ui
@@ -520,7 +524,6 @@ class CharacterSelector(UIMenu):
         self.all_main_exist_characters = self.game.character_data.all_main_exist_characters
         self.image = Surface((int(1300 * self.screen_scale_width), int(1080 * self.screen_scale_height)), SRCALPHA)
         self.image.fill((200, 200, 200))
-        self.selected_faction = None
         self.total_row = 0
         self.scroll_total_row = self.total_row + 1
         self.current_row = 0
@@ -544,7 +547,6 @@ class CharacterSelector(UIMenu):
 
     def add(self, faction, character_type, exist_unique_check=()):
         selector_character_list = ()
-        self.selected_faction = faction
         self.shown_character_type = character_type
         if self.game.menu_state in ("custom", "preset"):
             if character_type in ("commander", "leader", "retinue"):
@@ -629,9 +631,16 @@ class CharacterSelector(UIMenu):
                             self.button_sound_channel.play(choice(self.sound_effect_pool["button"]))
                             self.button_sound_channel.set_volume(self.game.play_effect_volume)
                             if self.game.menu_state == "preset":
-                                self.game.custom_preset_army_setup.change_character(
-                                    self.game.custom_preset_army_setup.selected_portrait_index[0],
-                                    self.game.custom_preset_army_setup.selected_portrait_index[1], character_id)
+                                selected_portrait = self.game.custom_preset_army_setup.selected_portrait_index
+                                if selected_portrait[0] == "commander":
+                                    self.game.custom_preset_army_setup.change_character(
+                                        selected_portrait[0].capitalize(),
+                                        [character_id, True])
+                                else:
+                                    self.game.custom_preset_army_setup.change_character(
+                                        selected_portrait[0].capitalize() + " " +
+                                        str(selected_portrait[1] + 1),
+                                        [character_id, True])
                             elif self.game.menu_state == "beast":
                                 lorebook_showcase_character = self.game.lorebook_showcase_character
                                 if lorebook_showcase_character.char_id != character_id:
@@ -732,6 +741,11 @@ class CustomTeamSetupUI(UIMenu):
         self.font = self.game.preset_name_font
         self.note_font = self.game.note_font
         self.font_width = self.font.size("a")[0]
+        self.total_gold = 0
+        self.total_supply = 0
+        self.team = team
+        self.team_setup = {index: {"culture": None, "army": None} for index in range(5)}
+
         self.image = Surface((int(1800 * self.screen_scale_width), int(1400 * self.screen_scale_height)), SRCALPHA)
         self.image.fill((150, 220, 220))
 
@@ -778,21 +792,16 @@ class CustomTeamSetupUI(UIMenu):
         self.supply_warn_text_box_rect = self.supply_warn_text_box.get_rect(midleft=(0, self.cost_text_rects["warn"]))
 
         self.rect = self.image.get_rect(center=pos)
-        self.total_gold = 0
-        self.total_supply = 0
-        self.team = team
 
         self.player_control_rect = self.circle.get_rect(
             center=((self.image.get_width() / 2), 150 * self.screen_scale_width))
         self.change_player_control()
 
         self.selected_culture_rect = None
-        self.team_setup = {index: {"culture": None, "army": None} for index in range(5)}
 
         self.rect = self.image.get_rect(center=pos)
 
     def check_total_cost(self):
-
         # check and add gold remain
         total_cost = 0
         for army in self.game.custom_team_army[self.team]:
@@ -853,12 +862,23 @@ class CustomTeamSetupUI(UIMenu):
         if check_total:
             self.check_total_cost()
 
+        _, removed_team_army_index = self.game.check_custom_team_fund(specific_team=self.team)
+        for index in range(5):
+            if self.team_setup[index]["culture"]:
+                self.image.blit(self.culture_coas[self.team_setup[index]["culture"]]["small"],
+                                self.culture_coa_rects[index])
+            if index in removed_team_army_index[self.team]:
+                # blacken culture icon to show not enough gold to employ this army
+                self.image.blit(self.culture_coas["no_gold"]["small"],
+                                self.culture_coa_rects[index])
+
     def change_player_control(self):
         self.image.blit(self.circle, self.player_control_rect)
         self.image.blit(self.game.player_image[self.game.custom_team_players[self.team]], self.player_control_rect)
 
-    def change_faction(self, culture, index):
-        self.game.custom_team_army[self.team][index].__init__("", "", "", None, [], [], [], [])
+    def change_culture_preset(self, culture, index):
+        self.game.custom_team_army[self.team][index].__init__("", "", "", None,
+                                                              {"leader": [], "troop": [], "air": [], "retinue": []})
         self.team_setup[index]["culture"] = culture
         self.team_setup[index]["army"] = None
         self.image.blit(self.circle, self.culture_coa_rects[index])
@@ -869,22 +889,23 @@ class CustomTeamSetupUI(UIMenu):
         if self.team_setup[index]["culture"] and self.team_setup[index]["culture"] != "random":
             self.add_to_ui_menu_updater(self.game.custom_team_army_buttons[self.team][index])
 
-        self.game.custom_team_army[self.team][index].__init__("", "", "", None, [], [], [], [])
+        self.game.custom_team_army[self.team][index].__init__("", "", "", None,
+                                                              {"leader": [], "troop": [], "air": [], "retinue": []})
         self.game.custom_team_army_buttons[self.team][index].change_state("")
         self.change_cost(index, 0, 0)
 
     def update(self, dt):
         UIMenu.update(self, dt)
         if self.selected_culture_rect is not None:  # selecd faction with popup
-            if self.game.custom_culture_selector_popup.selected_faction:
+            if self.game.custom_culture_selector_popup.selected_culture:
                 if self.team_setup[self.selected_culture_rect][
-                    "culture"] != self.game.custom_culture_selector_popup.selected_faction:
+                    "culture"] != self.game.custom_culture_selector_popup.selected_culture:
                     # change faction reset army
                     self.team_setup[self.selected_culture_rect]["army"] = None
 
-                self.change_faction(self.game.custom_culture_selector_popup.selected_faction,
-                                    self.selected_culture_rect)
-                self.game.custom_culture_selector_popup.selected_faction = None
+                self.change_culture_preset(self.game.custom_culture_selector_popup.selected_culture,
+                                           self.selected_culture_rect)
+                self.game.custom_culture_selector_popup.selected_culture = None
 
                 self.selected_culture_rect = None
 
@@ -929,7 +950,7 @@ class CustomTeamSetupUI(UIMenu):
                         elif self.event_alt_press:
                             if self.game.custom_culture_selector_popup in self.game.ui_menu_updater:
                                 self.remove_from_ui_menu_updater(self.game.custom_culture_selector_popup)
-                            self.change_faction(None, index)
+                            self.change_culture_preset(None, index)
 
                         self.game.text_popup.popup(
                             (cursor_pos[0], cursor_pos[1] - (100 * self.screen_scale_height)),
@@ -939,12 +960,10 @@ class CustomTeamSetupUI(UIMenu):
 
 
 class PresetArmySetupUI(UIMenu):
-    empty_army_preset = {"Name": None,
-                         "commander": [None],
-                         "retinue": [None, None, None],
-                         "leader": [None, None, None],
-                         "troop": [None, None, None, None, None],
-                         "air": [None, None, None, None, None]}
+    empty_army_preset = {"Name": None, "Commander": None, "Leader 1": None, "Leader 2": None, "Leader 3": None,
+                         "Troop 1": None, "Troop 2": None, "Troop 3": None, "Troop 4": None, "Troop 5": None,
+                         "Air 1": None, "Air 2": None, "Air 3": None, "Air 4": None, "Air 5": None,
+                         "Retinue 1": None, "Retinue 2": None, "Retinue 3": None}
 
     def __init__(self, pos, player_cursor_interact, layer=10):
         """UI for setting up custom preset army,
@@ -955,9 +974,6 @@ class PresetArmySetupUI(UIMenu):
         self.character_list = self.game.character_list
         self.image = Surface((int(1500 * self.screen_scale_width), int(1080 * self.screen_scale_height)), SRCALPHA)
         self.image.fill((180, 100, 180))
-        self.total_gold_cost = 0
-        self.total_supply_usage = 0
-        self.total_leadership = 0
         self.portrait_type_rects = {"commander": [],
                                     "retinue": [],
                                     "leader": [],
@@ -994,103 +1010,105 @@ class PresetArmySetupUI(UIMenu):
             self.portrait_type_rects["air"].append(rect)
 
         self.army_preset = deepcopy(self.empty_army_preset)
-        self.selected_faction = Custom_Default_Culture
-        self.current_preset = ""
+        self.selected_culture = Custom_Default_Culture
+        self.current_preset_id = ""
+        self.current_preset_name = ""
+        self.preset_cost = 0
+        self.preset_supply = 0
+        self.preset_leadership = 0
         self.selected_portrait_index = ()
         self.rect = self.image.get_rect(midtop=pos)
 
-    def change_faction(self, selected_faction):
+    def change_culture_preset(self, selected_culture):
         """Reset army preset when player change faction"""
-        self.current_preset = ""
-        self.total_gold_cost = 0
-        self.total_supply_usage = 0
-        self.total_leadership = 0
+        self.current_preset_id = ""
+        self.current_preset_name = ""
         self.army_preset = deepcopy(self.empty_army_preset)
-        self.selected_faction = selected_faction
+        self.selected_culture = selected_culture
         self.selected_portrait_index = ()
         self.game.character_selector.add(None, "")
-        self.game.custom_preset_army_title.change_text(self.current_preset, self.total_gold_cost,
-                                                       self.total_supply_usage, self.total_leadership)
+        self.game.custom_preset_army_title.change_text(self.current_preset_name, 0, 0, 0)
+        self.game.custom_preset_army_title.change_text(self.current_preset_name, 0, 0, 0)
         self.game.custom_preset_list_box.adapter.__init__()  # reset custom preset list as well
         self.reset()
 
-    def popup(self, army_preset):
+    def popup(self, preset_name, army):
+        self.current_preset_id = army.custom_preset_id
+        self.current_preset_name = preset_name
+        self.preset_cost = army.cost
+        self.preset_supply = army.total_supply_usage
+        self.preset_leadership = army.leadership
         self.army_preset = deepcopy(self.empty_army_preset)
-        for index, commander in enumerate(army_preset["commander"]):
-            self.selected_portrait_index = ("commander", index)
-            self.change_character("commander", index, commander, change_selector=False, reset=False)
-        for index, retinue in enumerate(army_preset["retinue"]):
-            self.selected_portrait_index = ("retinue", index)
-            self.change_character("retinue", index, retinue, change_selector=False, reset=False)
-        for index, leader in enumerate(army_preset["leader"]):
-            self.selected_portrait_index = ("leader", index)
-            self.change_character("leader", index, leader, change_selector=False, reset=False)
-        for index, troop in enumerate(army_preset["troop"]):
-            self.selected_portrait_index = ("troop", index)
-            self.change_character("troop", index, troop, change_selector=False, reset=False)
-        for index, air_group in enumerate(army_preset["air"]):
-            self.selected_portrait_index = ("air", index)
-            self.change_character("air", index, air_group, change_selector=False, reset=False)
+
+        self.change_character("Commander", [army.commander_id, True], change_selector=False, reset=False)
+        for index, retinue in enumerate(army.army_followers["retinue"]):
+            self.change_character("Retinue " + str(index + 1), retinue, change_selector=False, reset=False)
+        for index, leader in enumerate(army.army_followers["leader"]):
+            self.change_character("Leader " + str(index + 1), leader, change_selector=False, reset=False)
+        for index, troop in enumerate(army.army_followers["troop"]):
+            self.change_character("Troop " + str(index + 1), troop, change_selector=False, reset=False)
+        for index, air_group in enumerate(army.army_followers["air"]):
+            self.change_character("Air " + str(index + 1), air_group, change_selector=False, reset=False)
         self.selected_portrait_index = ()
         self.reset()
 
-    def change_character(self, character_type, rect_index, character, change_selector=True, reset=True):
-        self.army_preset[character_type][rect_index] = character
+    def change_character(self, slot, character, change_selector=True, reset=True):
+        self.army_preset[slot] = character
+        before_save = self.game.before_save_preset_army_setup
+        if self.selected_culture in before_save and self.current_preset_id in before_save[self.selected_culture]:
+            before_save[self.selected_culture][self.current_preset_id][slot] = character[0]
         if change_selector:
-            if character_type in ("commander", "leader", "retinue"):
+            if any(ext in slot for ext in ("Commander", "Leader", "Retinue")):
+                # update character selector to exclude unique leader
                 self.game.character_selector.add(
-                    self.selected_faction, character_type,
-                    [value for value in self.army_preset["commander"] + self.army_preset["leader"] +
-                     self.army_preset["retinue"] if value])
+                    self.selected_culture, slot.split(" ")[0].lower(),
+                    [self.army_preset[value][0] for value in army_leader_header if self.army_preset[value]])
             else:
-                self.game.character_selector.add(self.selected_faction, character_type)
-
-        self.image.blit(self.character_portraits[character]["setup_ui"],
-                        self.portrait_type_rects[character_type][rect_index])
+                self.game.character_selector.add(self.selected_culture, slot.split(" ")[0].lower())
         if reset:
             self.reset()
+        else:
+            index = 0
+            if "Commander" not in slot:
+                index = int(slot.split(" ")[1]) - 1
+            if character and character[0]:
+                self.image.blit(self.character_portraits[character[0]]["setup_ui"],
+                                self.portrait_type_rects[slot.split(" ")[0].lower()][index])
 
     def change_portrait_selection(self, character_type, new_index):
         self.selected_portrait_index = (character_type, new_index)
         self.reset()
-        self.game.character_selector.add(self.selected_faction, None)  # reset character selector first
+        self.game.character_selector.add(self.selected_culture, None)  # reset character selector first
         if character_type:
             if character_type in ("commander", "leader", "retinue"):
                 self.game.character_selector.add(
-                    self.selected_faction, character_type,
-                    [value for value in self.army_preset["commander"] + self.army_preset["leader"] +
-                     self.army_preset["retinue"] if value])
+                    self.selected_culture, character_type,
+                    [self.army_preset[value][0] for value in army_leader_header if self.army_preset[value]])
             else:
-                self.game.character_selector.add(self.selected_faction, character_type)
+                self.game.character_selector.add(self.selected_culture, character_type)
 
     def reset(self):
         self.image.fill((180, 100, 180))
 
-        self.total_gold_cost = 0
-        self.total_supply_usage = 0
-        self.total_leadership = 0
+        for header in army_header:
+            character_type = header.split(" ")[0].lower()
+            index = 0
+            if header != "Commander":
+                index = int(header.split(" ")[1]) - 1
+            character = self.army_preset[header]
+            rect = self.portrait_type_rects[character_type][index]
+            self.image.blit(self.circle, self.portrait_type_rects[character_type][index])
 
-        for character_type in ("commander", "retinue", "leader", "troop", "air"):
-            for index, character in enumerate(self.army_preset[character_type]):
-                rect = self.portrait_type_rects[character_type][index]
-                self.image.blit(self.circle, self.portrait_type_rects[character_type][index])
+            if self.selected_portrait_index and self.selected_portrait_index == (character_type, index):
+                self.image.blit(self.selected_circle, rect)
+            if character and character[0]:
+                character = character[0]
+                self.image.blit(self.character_portraits[character]["setup_ui"], rect)
 
-                if self.selected_portrait_index and self.selected_portrait_index == (character_type, index):
-                    self.image.blit(self.selected_circle, rect)
-                if character:
-                    self.image.blit(self.character_portraits[character]["setup_ui"], rect)
-                    if character_type == "commander":
-                        self.total_leadership += self.character_list[character]["Leadership"]
-                    elif character_type == "retinue":
-                        self.total_leadership += self.character_list[character][
-                                                     "Leadership"] * Retinue_Leadership_Add_Modifier
-                    self.total_gold_cost += self.character_list[character]["Cost"]
-                    if character_type not in ("commander", "air", "retinue"):
-                        self.total_supply_usage += self.character_list[character]["Supply"] * \
-                                                   self.character_list[character]["Capacity"]
-
-        self.game.custom_preset_army_title.change_text(self.current_preset, self.total_gold_cost,
-                                                       self.total_supply_usage, self.total_leadership)
+        self.game.custom_army_title_popup.change_text(self.current_preset_name, self.preset_cost,
+                                                      self.preset_supply, self.preset_leadership)
+        self.game.custom_preset_army_title.change_text(self.current_preset_name, self.preset_cost,
+                                                       self.preset_supply, self.preset_leadership)
 
     def update(self, dt):
         UIMenu.update(self, dt)
@@ -1108,12 +1126,19 @@ class PresetArmySetupUI(UIMenu):
                         elif self.event_alt_press:
                             self.button_sound_channel.play(choice(self.sound_effect_pool["button"]))
                             self.button_sound_channel.set_volume(self.game.play_effect_volume)
-                            self.army_preset[character_type][index] = None
+                            if character_type == "commander":
+                                self.army_preset["Commander"] = None
+                            else:
+                                self.army_preset[character_type.capitalize() + " " + str(index + 1)] = None
                             self.change_portrait_selection(character_type, index)
 
-                        character = self.army_preset[character_type][index]
+                        if character_type == "commander":
+                            character = self.army_preset[character_type.capitalize()]
+                        else:
+                            character = self.army_preset[character_type.capitalize() + " " + str(index + 1)]
+
                         if character:
-                            character_name_text = self.grab_text(("character", character, "Name"))
+                            character_name_text = self.grab_text(("character", character[0], "Name"))
                         else:
                             character_name_text = self.grab_text(("ui", "info_text_empty_" + character_type))
                             if character_type == "commander":
@@ -1428,7 +1453,7 @@ class MenuButton(UIMenu):
                 key_name = (key_name,)
             for item in key_name:
                 if type(item) is int or item.isdigit():
-                    self.text += add_comma_number(item)
+                    self.text += add_comma_number(int(item))
                 else:
                     if no_localisation:
                         self.text += item
@@ -1822,7 +1847,7 @@ class GrandFactionDetail(UIMenu):
         self.image = Surface((900 * self.screen_scale_width, 1200 * self.screen_scale_height))
         self.image.fill((255, 255, 255))
         self.original_image = self.image.copy()
-        self.rect = self.image.get_rect(topleft=self.game.custom_preset_faction_selector.rect.bottomleft)
+        self.rect = self.image.get_rect(topleft=self.game.custom_preset_culture_selector.rect.bottomleft)
 
     def change_faction(self, faction):
         self.image = self.original_image.copy()
@@ -1992,7 +2017,7 @@ class GrandFactionShowCase(UIMenu):
         self.culture_rect = self.culture_coas[tuple(self.culture_coas.keys())[0]]["small"].get_rect(center=(
             self.image.get_width() / 2, 600 * self.screen_scale_height))
 
-        self.rect = self.image.get_rect(topright=self.game.custom_preset_faction_selector.rect.bottomright)
+        self.rect = self.image.get_rect(topright=self.game.custom_preset_culture_selector.rect.bottomright)
 
     def change_faction(self, faction):
         self.image = self.original_image.copy()
@@ -2313,16 +2338,16 @@ class GenericListAdapter(ListAdapterHideExpand):
         self.last_click = ("alt_click", self.get_visible_index_actual_index()[item_index])
 
 
-class CustomPresetListAdapter(ListAdapterHideExpand):
+class CustomArmyPresetListAdapter(ListAdapterHideExpand):
     def __init__(self):
         from engine.game.game import Game
         self.game = Game.game
         self.grab_text = self.game.localisation.grab_text
         actual_level_list = [(0, "New Preset",)]
-        if self.game.custom_preset_army_setup.selected_faction in self.game.before_save_preset_army_setup:
+        if self.game.custom_preset_army_setup.selected_culture in self.game.before_save_preset_army_setup:
             actual_level_list += [
                 [0, value["Name"]] for index, value in enumerate(list(self.game.before_save_preset_army_setup[
-                                                                          self.game.custom_preset_army_setup.selected_faction].values()))]
+                                                                          self.game.custom_preset_army_setup.selected_culture].values()))]
         ListAdapterHideExpand.__init__(self, actual_level_list)
 
     # def get_highlighted_index(self):
@@ -2340,10 +2365,18 @@ class CustomPresetListAdapter(ListAdapterHideExpand):
                                            self.grab_text(("ui", "input_new_preset_name")),
                                            self.game.input_popup_uis)
         else:
-            self.game.custom_preset_army_setup.current_preset = item_text
-            self.game.custom_preset_army_setup.army_preset = self.game.before_save_preset_army_setup[
-                self.game.custom_preset_army_setup.selected_faction]["custom_" + item_text]
-            self.game.custom_preset_army_setup.change_portrait_selection(None, None)
+            custom_preset_army_setup = self.game.custom_preset_army_setup
+            army_preset = self.game.convert_custom_army_to_deployable(
+                self.game.before_save_preset_army_setup[
+                    custom_preset_army_setup.selected_culture]["custom_" + item_text],
+                custom_preset_army_setup.selected_culture)
+            self.game.showcase_army.__init__("", army_preset["culture"],
+                                             army_preset["culture"],
+                                             army_preset["commander"],
+                                             army_preset["followers"],
+                                             custom_preset_id="custom_" + item_text)
+            custom_preset_army_setup.popup(item_text, self.game.showcase_army)
+            custom_preset_army_setup.change_portrait_selection(None, None)
 
     def on_alt_select(self, item_index, item_text):
         actual_index = self.get_visible_index_actual_index()[item_index]
@@ -2609,13 +2642,13 @@ class ListUI(UIMenu, Containable):
     def get_frame(self):
         if self._frame is None:
             frame_file = "new_button.png"  # "list_frame.png" # using the button frame to test if it looks good
-            self._frame = load_image(self.data_dir, (1, 1), frame_file, ("ui", "mainmenu_ui"))
+            self._frame = load_image(self.data_dir, frame_file, subfolder=("ui", "mainmenu_ui"))
         return self._frame
 
     def get_scroll_box_frame(self):
         if self._scroll_box_frame is None:
-            self._scroll_box_frame = load_image(self.game.data_dir, (1, 1), "scroll_box_frame.png",
-                                                ("ui", "mainmenu_ui"))
+            self._scroll_box_frame = load_image(self.game.data_dir, "scroll_box_frame.png",
+                                                subfolder=("ui", "mainmenu_ui"))
         return self._scroll_box_frame
 
     @staticmethod

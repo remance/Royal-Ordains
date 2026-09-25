@@ -13,6 +13,17 @@ class Camera:
         self.camera_bottom_bound = None
 
     def update(self, blit_objects):
+        """Update self camera with sprite blit to camera image,
+        assume that object already within camera with their position"""
+        image = self.image
+        camera_left_bound = self.camera_left_bound
+        camera_top_bound = self.camera_top_bound
+        for blit_object in blit_objects:  # Blit sprite to camara image
+            surface_left_x, surface_top_y = blit_object.rect.topleft
+            image.blit(blit_object.image, (surface_left_x - camera_left_bound,
+                                           surface_top_y - camera_top_bound))
+
+    def update_with_in_camera_check(self, blit_objects):
         """Update self camera with sprite blit to camera image"""
         image = self.image
         camera_left_bound = self.camera_left_bound

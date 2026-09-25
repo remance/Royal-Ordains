@@ -3,30 +3,15 @@ from pygame import draw
 
 def draw_route(self):
     camera_left_bound = self.camera.camera_left_bound
-    camera_right_bound = self.camera.camera_right_bound
     camera_top_bound = self.camera.camera_top_bound
-    camera_bottom_bound = self.camera.camera_bottom_bound
     map_shown_to_base_scale_width = self.map_shown_to_base_scale_width
     map_shown_to_base_scale_height = self.map_shown_to_base_scale_height
-
-    if self.show_route:
-        for x in self.route_dot_draw_array:
-            if camera_left_bound < x < camera_right_bound:
-                for y in self.route_dot_draw_array[x]:
-                    if camera_top_bound < y < camera_bottom_bound:
-                        dot_image = self.route_dot_draw_array[x][y]
-                        self.camera.image.blit(dot_image,
-                                               dot_image.get_rect(center=(x - camera_left_bound, y - camera_top_bound)))
-                    elif y > camera_bottom_bound:
-                        break
-            elif x > camera_right_bound:
-                break
 
     lines_to_draws = []
     screen_rect = self.screen_rect
     if self.player_selected_army:
         for army in self.player_selected_army:
-            # draw arrow movement for selected player armies that are travelling
+            # draw line movement for selected player armies that are travelling
             if army.travelling:
                 this_army_line = []
                 for route in army.travelling["dot_routes"]:
