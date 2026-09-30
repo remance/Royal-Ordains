@@ -7,8 +7,9 @@ def cal_region_income(self, region):
     campaign_region_state = self.current_campaign_state["region"]
     owner = campaign_region_state["control"][region]
     faction_culture_state = self.current_campaign_state["faction"][owner]["culture"]
-    for building in campaign_region_state["buildings"][region]:
-        if building and building[1]:  # only count active building (not damaged)
+    for building in campaign_region_state["building"][region]:
+        if building and not building[1] and not building[2]:
+            # building is in active state and not destroyed/constructing state
             building_id = building[0]
             building_stat = self.building_list[building_id]
             integration_state = 1
@@ -31,3 +32,5 @@ def cal_region_income(self, region):
     region_income_state["gold_income"] = total_gold_income * income_mod["gold"]
     region_income_state["supply_income"] = total_supply_income * income_mod["supply"]
     region_income_state["happiness"] = total_happiness * income_mod["happiness"]
+    if owner == self.grand.player_faction:
+        self.dots_settlement_info_banners[campaign_region_state["dot"][region]].reset(owner)

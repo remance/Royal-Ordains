@@ -5,75 +5,76 @@ def change_phase(self):
     campaign_battle_armies = current_campaign_state["battle"]["armies"]
     campaign_faction_state = current_campaign_state["faction"][self.faction]
     dots_army_occupation = self.grand.dots_army_occupation
+    activity = self.activity
     if self.game_id in campaign_battle_armies:  # in battle
         return
 
-    elif self.travelling:
-        travelling = self.travelling
-        travelling["progress"] += 1
-        if travelling["progress"] == travelling["difficulties"][0]:
-            # move to next dot in route
-            next_dot = travelling["dot_routes"][0][1]
-            if (self.travelling["type"] == "retreat" or next_dot not in campaign_battle_dot or
-                    self.faction in campaign_battle_factions[next_dot]):
-                # can only move to that dots if no battle is taking place between other unrelated factions
-                travelling["progress"] = 0  # reset progress
-                dots_army_occupation[self.base_pos].pop(self.game_id)  # remove army from old occupation
-                self.base_pos = travelling["dot_routes"][0][1]
-                if self.game_id not in dots_army_occupation[self.base_pos]:
-                    dots_army_occupation[self.base_pos][self.game_id] = self
-                    dots_army_occupation[self.base_pos] = {k: v for k, v in
-                                                           sorted(dots_army_occupation[self.base_pos].items(),
-                                                                  key=lambda item: item[0])}
-                    # check if army move to new dot will start battle with enemies in the same dot
-                    if self.base_pos not in campaign_battle_dot:
-                        enemy_alliance_fight = []
-                        battle_army_list = {1: self, 2: []}
+    elif activity:
+        if "travel" in activity:
+            activity["progress"] += 1
+            if activity["progress"] == activity["difficulties"][0]:
+                # move to next dot in route
+                next_dot = activity["dot_routes"][0][1]
+                if (self.travelling["type"] == "retreat" or next_dot not in campaign_battle_dot or
+                        self.faction in campaign_battle_factions[next_dot]):
+                    # can only move to that dots if no battle is taking place between other unrelated factions
+                    activity["progress"] = 0  # reset progress
+                    dots_army_occupation[self.base_pos].remove(self)  # remove army from old occupation
+                    self.base_pos = activity["dot_routes"][0][1]
+                    if self.game_id not in dots_army_occupation[self.base_pos]:
+                        dots_army_occupation[self.base_pos].append(self)
+                        # sort army dot position by power
+                        dots_army_occupation[self.base_pos].sort(key=lambda item: item.power)
+                        if self.base_pos not in campaign_battle_dot:  # no ongoing battle on this dot, check if enemy exist
+                            # check if army move to new dot will start battle with enemies in the same dot
+                            enemy_faction_alliance = []
+                            battle_army_list = {1: self, 2: []}
+                            alliance = current_campaign_state["faction"][self.faction]["alliance"]
+                            faction_alliance = (self.faction,)
+                            if alliance:
+                                faction_alliance = current_campaign_state["alliance"][alliance]
 
-                        for army in dots_army_occupation[self.base_pos].values():
-                            if army.faction in campaign_faction_state["hostile"]:
-                                if enemy_alliance_fight and army.faction not in enemy_alliance_fight:
-                                    # only 2 alliances can fight in a battle,
-                                    # other factions will wait while others in battle
-                                    pass
-                                else:  # start new battle
-                                    if not enemy_alliance_fight:
-                                        faction_alliance = current_campaign_state["alliance"][
-                                            current_campaign_state["faction"][army.faction]["alliance"]]
-                                        if faction_alliance:
-                                            enemy_alliance_fight = faction_alliance
-                                        else:  # no alliance just 1 enemy faction
-                                            enemy_alliance_fight = [army.faction]
-                                    if army in enemy_alliance_fight:
+                            for army in dots_army_occupation[self.base_pos]:
+                                if army.faction not in faction_alliance:  # enemy faction
+                                    # get enemy alliance
+                                    if not enemy_faction_alliance:
+                                        enemy_alliance = current_campaign_state["faction"][self.faction]["alliance"]
+                                        enemy_faction_alliance = (self.faction,)
+                                        if enemy_alliance:
+                                            enemy_faction_alliance = current_campaign_state["alliance"][enemy_alliance]
+                                    elif army.faction not in enemy_faction_alliance:
+                                        # only 2 alliances can fight in a battle,
+                                        # other factions will wait while others in battle
+                                        pass
+                                    else:  # enemy army join the battle
                                         battle_army_list[2].append(army)
 
-                        if len(battle_army_list) > 2:
-                            self.grand.start_battle_engagement(battle_army_list, self.base_pos)
+                            if battle_army_list[2]:  # start new battle
+                                self.grand.start_battle_engagement(battle_army_list, self.base_pos)
 
-                    elif (campaign_battle_factions["team"][0] in campaign_faction_state["alliance"] or
-                          campaign_battle_factions["team"][1] in campaign_faction_state["alliance"]):
-                        # ongoing battle belong to this army faction alliance, join in battle
-                        campaign_battle_armies.append(self.game_id)
-                        campaign_battle_factions
-                        if self.faction == self.player_faction:
-                            self.player_army_list_ui.reset_card(self)
+                        elif (campaign_battle_factions["team"][0] in campaign_faction_state["alliance"] or
+                              campaign_battle_factions["team"][1] in campaign_faction_state["alliance"]):
+                            # ongoing battle belong to this army faction alliance, join in battle
+                            campaign_battle_armies.append(self.game_id)
+                            campaign_battle_factions
+                            if self.faction == self.player_faction:
+                                self.player_army_list_ui.reset_card(self)
 
-                travelling["dot_routes"][0].pop(0)  # remove passed dot
+                    activity["dot_routes"][0].pop(0)  # remove passed dot
 
-                if len(travelling["dot_routes"][0]) == 1:  # finish this route
-                    travelling["id_routes"].pop(0)
-                    travelling["dot_routes"].pop(0)
-                    travelling["difficulties"].pop(0)
-                    travelling["remain_phase_require"].pop(0)
-                else:
-                    travelling["remain_phase_require"][0].pop(0)
+                    if len(activity["dot_routes"][0]) == 1:  # finish this route
+                        activity["id_routes"].pop(0)
+                        activity["dot_routes"].pop(0)
+                        activity["difficulties"].pop(0)
+                        activity["remain_phase_require"].pop(0)
+                    else:
+                        activity["remain_phase_require"][0].pop(0)
 
-                self.travel_remain = sum([sum(value) for value in travelling["remain_phase_require"]])
-                region_colour = tuple(self.base_world_map.get_at((int(self.base_pos[0]),
-                                                                  int(self.base_pos[1]))))[:3]
-                self.current_region = self.grand.region_by_colour_index[region_colour]
-                if not travelling["dot_routes"]:  # no more route left, finish travel
-                    self.travelling = {}
+                    region_colour = tuple(self.base_world_map.get_at((int(self.base_pos[0]),
+                                                                      int(self.base_pos[1]))))[:3]
+                    self.current_region = self.grand.region_by_colour_index[region_colour]
+                    if not activity["dot_routes"]:  # no more route left, finish travel
+                        self.travelling = {}
     else:
         if (self.base_pos in self.region_by_pos_index and
                 current_campaign_state["region"]["control"][self.region_by_pos_index[self.base_pos]] == self.faction):
@@ -89,7 +90,7 @@ def change_phase(self):
                     self.supply += replenish_supply
                     faction_state["supply"] = remain_supply - replenish_supply
 
-            if self.assembling_followers:
+            if "assemble" in self.activity:
                 assembling = self.assembling_followers
                 army_change = False
                 for character, value in assembling:

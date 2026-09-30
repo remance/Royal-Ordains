@@ -8,17 +8,17 @@ def add_sound_effect_queue(self, sound_object, sound_pos, sound_distance_power, 
     if volume == "voice":
         use_volume = self.play_voice_volume
 
-    distance = sound_pos.distance_to(self.base_camera_pos)
+    distance = sound_pos.distance_to(self.base_camera_center_pos)
     screen_shake_power = cal_shake_value(distance, shake_power)
     self.screen_shake_value += screen_shake_power
     if use_volume:
         if sound_distance_power > distance:
-            if sound_pos[0] > self.base_camera_pos[0]:  # sound to the right of center camera
-                left_distance = distance + abs(sound_pos[0] - self.base_camera_pos[0])
+            if sound_pos[0] > self.base_camera_center_pos[0]:  # sound to the right of center camera
+                left_distance = distance + abs(sound_pos[0] - self.base_camera_center_pos[0])
                 right_distance = distance
-            elif sound_pos[0] < self.base_camera_pos[0]:  # sound to the left of center camera
+            elif sound_pos[0] < self.base_camera_center_pos[0]:  # sound to the left of center camera
                 left_distance = distance
-                right_distance = distance + abs(sound_pos[0] - self.base_camera_pos[0])
+                right_distance = distance + abs(sound_pos[0] - self.base_camera_center_pos[0])
             else:  # sound at the center camera
                 left_distance = distance
                 right_distance = distance

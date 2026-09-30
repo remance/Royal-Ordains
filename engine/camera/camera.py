@@ -11,6 +11,7 @@ class Camera:
         self.camera_top_bound = None
         self.camera_right_bound = None
         self.camera_bottom_bound = None
+        self.rect = self.image.get_rect(topleft=(0, 0))
 
     def update(self, blit_objects):
         """Update self camera with sprite blit to camera image,
@@ -28,15 +29,12 @@ class Camera:
         image = self.image
         camera_left_bound = self.camera_left_bound
         camera_top_bound = self.camera_top_bound
-        camera_right_bound = self.camera_right_bound
-        camera_bottom_bound = self.camera_bottom_bound
+        rect = self.rect
         for blit_object in blit_objects:  # Blit sprite to camara image
             surface_rect = blit_object.rect
             surface_left_x, surface_top_y = surface_rect.topleft
-            surface_right_x, surface_bottom_y = surface_rect.bottomright
 
-            if (surface_right_x > camera_left_bound and surface_left_x < camera_right_bound and
-                    surface_bottom_y > camera_top_bound and surface_top_y < camera_bottom_bound):
+            if surface_rect.colliderect(rect):
                 # only blit if image in camera at all
                 image.blit(blit_object.image, (surface_left_x - camera_left_bound,
                                                surface_top_y - camera_top_bound))

@@ -362,6 +362,9 @@
 "leader_quivenly","Quivenly","A helping nun. She can help allies nearby with great healing, but cannot fight on her own.","Quivenly was once an eager young one who liked to assist others, and there was no place more filled with those who required help than on a battlefield. Except she turned lazy as she grew up and spent all day in the library. So her convent kicked her out. With a firm vow in her heart, she looked for a place where an easy life could be achieved."
 "leader_quivenly_healer",,,
 "leader_quivenly_sister",,,
+"leader_foxereal","Foxereal",,
+"leader_foxereal_super",,,
+"leader_raasohd_defence",,,
 "leader_remance","Remance","A brave general. He can lead a devastating charge against enemies, with or without supporting cavalry.",
 "leader_remance_malabel",,,
 "leader_rinini","Rinini",,
@@ -553,7 +556,7 @@
 "summon_scorpion","Scorpion","An automated scorpion anti-personnel weapon. Capable of dealing decent damage, but is rather fragile.","Invention of a genius, these Anti-personnel Scorpions require no manual control. These apparatuses can continue shooting at nearby foes until their magazine is empty. Iri the Traveller kept her secret so well that not even the dwarf master tinkerers managed to replicate the function. Some suspected that the technology of these scorpions is the same as that of the Doll Family."
 "summon_skeleton_wall","Skeleton Wall","A skeleton wall. Not exactly the most durable of walls, but is good enough for disrupting weak enemies' attacks.","Walls made of skeletal bones that seem very delicate for what they are. The density of these old bones, however, proves otherwise. They were likely made from the bones of great warriors old. Strong, they truly were."
 "summon_taladamun_mirror","Taladamun's Mirror",,
-"wood_bear","Bear","A large bear. Tough and strong. Its roll can crush and destroy even a knight.","Grown bears are a symbol of the ferocity of nature. Their neck strength and toughness allowed them to roll rather acrobatically, crushing anyone beneath with their weight. Since bears like to sleep most of the time, energetic bear cubs tend to wander out from the lair to play and cause trouble for both their parents and victims. Their favourite foods are mandrake and honey beehive."
+"neutral_bear","Bear","A large bear. Tough and strong. Its roll can crush and destroy even a knight.","Grown bears are a symbol of the ferocity of nature. Their neck strength and toughness allowed them to roll rather acrobatically, crushing anyone beneath with their weight. Since bears like to sleep most of the time, energetic bear cubs tend to wander out from the lair to play and cause trouble for both their parents and victims. Their favourite foods are mandrake and honey beehive."
 "wood_boar","Boar","A speedy boar. The tusks can pierce heavy armour with ease. Beware of its charge.",
 "wood_elf_air_griffin",,,
 "wood_elf_air_pegasus",,,

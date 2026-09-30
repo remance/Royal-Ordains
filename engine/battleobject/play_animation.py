@@ -14,7 +14,7 @@ def play_animation(self, speed, dt, hold_check=False):
         if self.frame_timer >= speed:
             self.frame_timer = 0
             just_start = True
-            if self.show_frame < len(self.current_animation) - 1:  # continue next frame
+            if self.show_frame < self.max_show_frame:  # continue next frame
                 self.show_frame += 1
                 self.base_image = self.current_animation[self.show_frame]
             else:  # reach end frame

@@ -20,9 +20,7 @@ class Army:
     reset_stat = reset_stat
 
     def __init__(self, army_id: str, faction: str, culture: str, commander_char_id: str, army_followers: dict,
-                 supply: int = 0, max_supply: int = 0, custom_preset_id=None, current_region=None,
-                 travelling: dict = None, travel_how=None,
-                 assembling_followers: dict = None):
+                 supply: int = 0, max_supply: int = 0, custom_preset_id=None, grand_state=None):
         self.game_id = army_id
         self.faction = faction
         self.culture = culture
@@ -38,32 +36,35 @@ class Army:
         self.power = 0
         self.total_supply_usage = 0
         self.travel_time_modifier = 1
-        self.assembling_followers = assembling_followers
         self.can_assemble = False
         self.supply = supply
         self.max_supply = max_supply
 
-        self.current_region = current_region  # current region the army is at
-        self.travel_remain = 0
-        self.travelling = travelling
-        self.travel_how = travel_how
+        self.current_region = None  # current region the army is at
+        self.enable_resupply = 2
+        self.enable_assemble = 2
+        self.activity = {}
 
         self.base_pos = None
         include_culture_influence = False
         self.pathfinding_array = {}
         self.direct_routing_array = {}
 
-        if current_region:  # active army in grand campaign exist in region, so can be used as purpose indication
+        if grand_state:  # active army in grand campaign exist in region, so can be used as purpose indication
+            self.enable_resupply = grand_state["enable_resupply"]
+            self.enable_assemble = grand_state["enable_assemble"]
+            self.activity = grand_state["activity"]
+            self.current_region = grand_state["current_region"]  # current region the army is at
+
             self.base_world_map = self.grand.map_data.base_world_map
             include_culture_influence = True
-            if travelling:
-                self.travel_remain = sum(travelling["remain_phase_require"])
-                self.base_pos = travelling[1]
+            if "base_pos" in grand_state:
+                self.base_pos = grand_state["base_pos"]
             else:
-                self.base_pos = self.grand.region_list[current_region]["Settlement POS"]
+                self.base_pos = self.grand.region_list[self.current_region]["Settlement POS"]
             self.pathfinding_array = self.grand.current_campaign_state["pathfinding"]
             self.direct_routing_array = self.grand.current_campaign_state["direct_routing"]
-            self.grand.dots_army_occupation[self.base_pos][self.game_id] = self
+            self.grand.dots_army_occupation[self.base_pos].append(self)
             self.region_by_pos_index = self.grand.region_by_pos_index
             self.check_can_assemble()
 
@@ -74,9 +75,9 @@ class Army:
         return {"ID": self.game_id, "faction": self.faction, "culture": self.culture,
                 "commander": self.commander_id, "army_followers": self.army_followers,
                 "supply": self.supply, "custom_preset_id": self.custom_preset_id,
-                "base_pos": self.base_pos, "current_region": self.current_region,
-                "travel_route": self.travelling, "travel_how": self.travel_how,
-                "assembling": self.assembling_followers
+                "grand_state": {"activity": self.activity, "enable_resupply": self.enable_resupply,
+                                "enable_assemble": self.enable_assemble, "base_pos": self.base_pos,
+                                "current_region": self.current_region, },
                 }
 
     @property

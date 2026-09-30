@@ -42,7 +42,7 @@ def check_event(self):
                 if "sound" in self.event_list[key]:  # play sound
                     for sound_effect in self.event_list[key]["sound"]:
                         self.add_sound_effect_queue(sound_effect[0],
-                                                    self.base_camera_pos, sound_effect[1], sound_effect[2])
+                                                    self.base_camera_center_pos, sound_effect[1], sound_effect[2])
                     self.event_list[key].pop("sound")
                 if "cutscene" in self.event_list[key]:  # cutscene
                     self.cutscene_finish_camera_delay = 1

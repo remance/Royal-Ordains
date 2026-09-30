@@ -4,7 +4,7 @@ def change_strategy(self):
     self.own_strategy_type = {"weather": set(), "ally": set(), "enemy": set(), "summon": set(),
                               "cure": set(), "clarity": set()}
 
-    for strategy in self.team_state["strategy"]:
+    for strategy in self.team_state["strategy_cooldown"]:
         stat = self.strategy_list[strategy]
         if stat["Power"] or stat["Enemy Status"]:  # attack/summon strategy to use at enemy
             self.own_strategy_type["enemy"].add(strategy)
@@ -26,7 +26,7 @@ def change_strategy(self):
         if "weather" in stat["Property"]:
             self.own_strategy_type["weather"].add(strategy)
 
-    self.enemy_strategy = self.battle.team_state[self.enemy_team]["strategy"]
+    self.enemy_strategy = tuple(self.battle.team_state[self.enemy_team]["strategy_cooldown"].keys())
     self.enemy_strategy_type = {"ally": set(), "enemy": set()}
     for strategy in self.enemy_strategy:
         stat = self.strategy_list[strategy]

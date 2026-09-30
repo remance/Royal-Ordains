@@ -54,7 +54,8 @@ from engine.game.menu_option import menu_option
 from engine.game.start_battle import start_battle
 from engine.grand.grand import Grand
 from engine.menuobject.menuobject import MenuActor, MenuRotate, StaticImage
-from engine.uibattle.uibattle import (Profiler, FPSCount, CharacterSpeechBox)
+from engine.uiouterbattle.uiouterbattle import Profiler, FPSCount
+from engine.uibattle.uibattle import CharacterSpeechBox
 from engine.uimenu.uimenu import (MenuCursor, BoxUI, BrownMenuButton, MenuButton, UIScroll,
                                   TextPopup, CustomTeamSetupUI, FactionSelector, PresetArmySetupUI, GrandMiniMap,
                                   GrandFactionDetail, GrandFactionShowCase, CharacterDescriptionShowCase,
@@ -137,7 +138,7 @@ class Game:
         self.error_log = error_log
         self.error_log.write("Game Version: " + self.game_version)
 
-        self.campaign = None
+        self.campaign = "rabbit"
         self.menu_state = "main_menu"
 
         # Read config file

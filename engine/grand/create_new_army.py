@@ -9,6 +9,8 @@ def create_new_army(self, faction_army_value, army, index="new", sort=True, no_a
         index = -1
     army_faction = army["Faction"]
     if no_assemble:  # deploy from starting new campaign data, no assembling required
+        grand_state = {"current_region": army["Region"], "activity": {}, "enable_resupply": True,
+                       "enable_assemble": True}
         army_followers = {"leader": [[], [], []],
                           "troop": [[], [], [],
                                     [], []],
@@ -22,16 +24,14 @@ def create_new_army(self, faction_army_value, army, index="new", sort=True, no_a
             character = army[header]
             if character:
                 army_followers[follower_type][follower_index] = [character, True]
-        assembling = {}
     else:  # deploy from existing army (saved game loading) or reserve (saved preset)
         army_followers = army["army_followers"]
-        assembling = army["assembling"]
+        grand_state = army["grand_state"]
     faction_army_value[index] = Army(army["ID"], army_faction,
                                      self.character_list[army["Commander"]]["Culture"],
                                      army["Commander"], army_followers,
                                      supply=army["Supply"], max_supply=army["Max Supply"],
-                                     current_region=army["Region"], travelling=army["Route"],
-                                     assembling_followers=assembling)
+                                     grand_state=grand_state)
 
     GrandArmyActor(faction_army_value[index], army_faction)
 

@@ -12,11 +12,12 @@ def move_logic(self, dt, done):
     @return: True if sprite reach target and is killed
     """
     if self.travel_distance:  # sprite that can move
+        speed = self.speed
         if self.direct_shot:
-            new_pos = Vector2(self.base_pos[0] - (self.speed * self.sin_angle),
-                              self.base_pos[1] - (self.speed * self.cos_angle))
+            new_pos = Vector2(self.base_pos[0] - (speed * self.sin_angle),
+                              self.base_pos[1] - (speed * self.cos_angle))
         else:
-            move_x = self.travel_distance / (self.speed * dt)
+            move_x = self.travel_distance / (speed * dt)
             x = self.travel_progress + move_x
             y = (x * self.sin_angle - 0.5 * (x ** 2) /
                  (self.velocity ** 2 * self.cos_angle ** 2))
@@ -25,7 +26,7 @@ def move_logic(self, dt, done):
         move = new_pos - self.base_pos
         if move.length():  # sprite move
             move.normalize_ip()
-            move *= self.speed * dt
+            move *= speed * dt
             new_pos = self.base_pos + move
             if not self.travel_spin:
                 self.angle = set_rotate(self.base_pos, new_pos)

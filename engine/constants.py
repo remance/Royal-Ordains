@@ -5,6 +5,7 @@ Default_Battle_Air_Pos = 800
 Default_Battle_Float_Pos = 1300
 Default_Battle_Ground_Pos = 2000
 Character_Gravity = 500
+team_colour = {0: (50, 190, 50), 1: (100, 110, 200), 2: (190, 50, 50)}
 
 """number of collision grids per scene in battle, more grids can improve collision detection performance when 
 battle involve huge number of characters"""
@@ -27,7 +28,7 @@ Turn_To_Phase = 12  # in phase to 1 turn
 Phase_To_Battle_Time = 60  # in second
 
 """culture policy for grand campaign
-ANY CHANGE IN KEYS WILL CAUSE ERRORS from the inconsistency in game code, uigrand and ui sprite asset
+ANY CHANGE IN KEYS WILL CAUSE ERRORS from the inconsistency in game code, uioutergrand and ui sprite asset
 the value indicate maximum integration value that the culture can reach"""
 Culture_Policy_Integration = {"reject": -1, "tolerate": 0.1, "restrict": 0.35, "partial": 0.65, "accept": 1}
 Culture_Policy_Relation = {"reject": -30, "tolerate": 0, "restrict": -15, "partial": -5, "accept": 10}

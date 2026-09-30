@@ -1,9 +1,10 @@
 "ID","Name","Description"
-"castle_arty_1_siege_factory","Siege Workshop",
 "castle_barrack_a1_barrack","Barrack","A barrack to provide formal and standard martial drilling. Even dog soldiers can become better than human militia with the right training regimen."
 "castle_barrack_b1_war_stable","War Stable","A good warhorse requires intensive care and the finest feeding. Unlike farm horses, these war horses are exceptionally sturdy and not so easy to spook. Every good knight requires a good warhorse."
-"castle_faith_1_temple","Temple","A place of worship. What is true happiness but to be in service to the divine?"
-"castle_faith_2_cathedral","Cathedral",
+"castle_barrack_c1_siege_factory","Siege Workshop",
+"castle_faith_1_chapel","Chapel","A place of worship. What is true happiness but to be in service to the divine?"
+"castle_faith_2_church","Church",
+"castle_faith_3_cathedral","Cathedral",
 "castle_food_a1_farm","Grain Field","Grain. One may say it is the first essential component to grow a society. So start a grain field and solve the necessity of sustenance."
 "castle_food_a2_farm","Grain Farm",
 "castle_food_a3_farm","Irrigated Grain Farm",
@@ -20,9 +21,9 @@
 "castle_money_c1_slum","Slum","A slum is a gathering of society's undesirables. A place outside of the reach of the law, and no less savage than the natural world. Despite its prevalent ill effects on civilisation, the underworld can be a useful place for morally questionable transactions away from the eyes of God."
 "castle_money_c2_brothel","Brothel","An establishment for housing the most important profession in the world. Brothels are indeed officially illegal and condemned. By placing them in the slum with a legal front business, they can bring the debauchery of forbidden ecstasy for those with the means to obtain it."
 "castle_settlement_1_motte","Motte-and-bailey ","A motte-and-bailey castle is a small fortification for protecting a small settlement. The defensive and self-sustained design allows it to be a living space for the regional lord. Monsters and raiders will have difficulty taking down these bastions of civilisation."
-"castle_settlement_2_keep","Stronghold","A stronghold is a sizable walled settlement that can house a small army for a long period of time. Even an army will require an effort to penetrate its defence. They also serve as a place of power and ruling in peacetime."
+"castle_settlement_2_keep","Keep","A keep is a sizable walled settlement that can house a small army for a long period of time. Even an army will require an effort to penetrate its defence. They also serve as a place of power and ruling in peacetime."
 "castle_settlement_3_castle","Castle","A castle is the very centre of a region. Civilisations require an epicentre to maintain a semblance of society, and there is no better place than where no external hostilities can reach. A small settlement typically emerges around the castle, and together they become the walled city."
-"castle_settlement_4_fortress","Citadel",
+"castle_settlement_4_fortress","Fortress",
 "castle_settlement_5_flower_castle","Flower Castle",
 "castle_tech_a1_barber","Barber","Barbers are trained in the art of cutting; they know how to cut hair and body parts somewhat safely. So barbers also provide medical services to the community."
 "castle_tech_b1_forestry","Forestry","Civilisation cannot exist without nature. A balance is required to be maintained between order and chaos. So forestry assumes the role in that management."
@@ -38,8 +39,37 @@
 "common_great_dam","Great Dam",
 "common_harbour","Harbour",
 "common_iron_mine","Iron Mine",
-"common_iron_preservary","Iron Preserve",
+"common_iron_preserve","Iron Preserve",
+"common_mercenary_outpost","Mercenary Outpost",
+"common_trade_post","Trade Post",
 "common_watermill","Watermill",
+"death_barrack_a1_graveyard","Graveyard",
+"death_barrack_a2_tomb","Tomb",
+"death_barrack_a3_crypt","Crypt",
+"death_barrack_a4_citadel","Citadel",
+"death_barrack_a5_ziggurat","Ziggurat",
+"death_barrack_b1_haunted_mansion","Haunted Mansion",
+"death_barrack_c1_barrow_mound","Barrow Mound",
+"death_barrack_d1_abandoned_hospital","Abandoned Hospital",
+"death_barrack_e1_ancient_tower","Ancient Tower",
+"death_barrack_f1_mausoleum","Mausoleum",
+"death_food_a1_scavenger","Scavengers' Hut",
+"death_food_a2_exotic_farm","Exotic Farm",
+"death_guard_1_plague_pit","Plague Pit",
+"death_money_a1_old_treasury","Old Treasury",
+"death_money_b1_reliquary","Reliquary",
+"death_money_c1_fossil_fuel","Fossil Fuel Maker",
+"death_money_c2_animated_workshop","Animated Workshop",
+"death_money_c3_eternal_labour","Eternal Labour",
+"death_settlement_1_ruin","Ruin",
+"death_settlement_2_dark_hamlet","Dark Hamlet",
+"death_settlement_3_still_city","Still City",
+"death_settlement_4_waking_city","Waking City",
+"death_settlement_5_necropolis","Necropolis",
+"death_tech_a1_forbidden_library","Forbidden Library",
+"death_tech_b1_medicine_maker","Medicine Maker",
+"death_tech_c1_fungus_collector","Fungus Collector",
+"death_tech_d1_mana_room","Mana Room",
 ,,
 ,,
 ,,
@@ -50,8 +80,12 @@
 ,,
 ,,
 ,,
-"doll_air_1_balloon_maker","Balloon Maker",
-"doll_arty_1_launch_zone","Launch Zone",
+,,
+,,
+,,
+,,
+"doll_barrack_f1_launch_zone","Balloon Maker",
+"doll_barrack_g1_balloon_maker","Launch Zone",
 "doll_barrack_a1_workshop","Workshop",
 "doll_barrack_a2_manufacture","Manufacture",
 "doll_barrack_b1_castle","Toy Castle",
@@ -64,7 +98,7 @@
 "doll_food_3_automated_sawmill","Automated Sawmill",
 "doll_fun_a1_theatre","Theatre",
 "doll_fun_a2_circus","Circus",
-"doll_settlement_1_house_comfy","Comfy Doll House","A very comfy doll house. Modest and warm, this house provides a good memory."
+"doll_settlement_1_house_comfy","Comfy Doll House","A very comfortable doll house. Modest and warm, this house provides a good memory."
 "doll_settlement_2_house_rich","Rich Doll House",
 "doll_settlement_3_mansion","Doll Mansion",
 "doll_settlement_4_mansion_glorious","Glorious Doll Mansion",
@@ -74,19 +108,20 @@
 "doll_tech_b1_reinforce_smith","Reinforce Smith",
 "doll_tech_c1_wax_maker","Wax Maker",
 "doll_tech_d1_magic_tower","Magic Tower",
-,,
-"free_big_river","Free River Space",
+"free_big_river","Free River Space","An available river space that can accommodate a large river structure."
+"free_build","Free Build Space","An available space to build a structure."
+"free_crossroad","Free Crossroad","An available space at a crossroads that is suitable for a structure to accommodate travellers."
 "free_gem","Free Gem Deposit","An available gold deposit that can make any person rich."
 "free_gold","Free Gold Deposit","An available gem deposit that can make any person prosperous."
 "free_iron","Free Iron Deposit","An available iron deposit that is indispensable for developing a civilised economy."
-"free_port","Free Port Space","Free available space for establishing a sea port that can yield supplies and gold."
-"free_settlement","Free Settlement Space","Free available space for starting a settlement. A faction cannot acquire the region without an established settlement."
+"free_port","Free Port Space","An available space for establishing a sea port that can yield supplies and gold."
+"free_settlement","Free Settlement Space","An available space for starting a settlement. A faction cannot acquire the region without an established settlement."
 ,,
 ,,
-"small_air_1_bird_house","Bird House","A bird house for the eagles. They do not require much, just basic necessities, and a good sturdy roof is enough to satisfy them."
-"small_air_2_mew","Mew","A bird mansion for the eagles. Superb comfort, superb caretakers. The eagles live like royalty in this mew."
-"small_arty_1_siege_guild","Siege Guild","A siege guild housing smart rabbit engineers. Sacrificing the simple happiness of nature for the capability of civilised warfare, the vertkins will be ready for true wars."
-"small_arty_2_gunnery_guild","Gunnery Guild",
+"small_barrack_f1_siege_guild","Bird House","A siege guild housing smart rabbit engineers. Sacrificing the simple happiness of nature for the capability of civilised warfare, the vertkins will be ready for true wars."
+"small_barrack_f2_gunnery_guild","Mew",
+"small_barrack_g1_bird_house","Siege Guild","A bird house for the eagles. They do not require much, just basic necessities, and a good sturdy roof is enough to satisfy them."
+"small_barrack_g2_mew","Gunnery Guild","A bird mansion for the eagles. Superb comfort, superb caretakers. The eagles live like royalty in this mew at the others' expense."
 "small_barrack_a1_warrior_warren","Warrior Warren","A warren for housing rabbit warriors. If the rabbits are to go to war, they will require special training and respite."
 "small_barrack_a2_noble_warren","Noble Warren","Only proven rabbit warriors can become a noble. And with that comes a great privilege to rest in an extra nice noble warren."
 "small_barrack_b1_arena","Arena",
@@ -96,12 +131,12 @@
 "small_faith_1_shrine","Shrine","A little shrine to offer gratitude to the spirit of the place. Not particularly grandiose, but it provides little joy to anyone who visits it. The place also features a small exchange where visitors can trade souvenirs and trinkets for gold."
 "small_food_1_garden","Garden","A food garden. Not as efficient as a farm, but rabbits do not require as much subsistence compared to larger people."
 "small_food_2.1_carrot_farm","Carrot Farm","A primitive carrot farm. Since carrots are easy to grow, a simple farm like this one is enough to provide for a small community of rabbits."
-"small_food_2.2_flower_garden","Flower Garden","Beautiful and delicious snacks, flower gardens are a favourite of rabbits."
+"small_food_2.2_flower_garden","Flower Garden","Beautiful and delicious snacks, flower gardens are a favourite of rabbits to relax."
 "small_fun_1_water_spring","Water Spring","A water spring provides entertainment for most vertkins. It occasionally serves as a communal space for frolicking activities."
 "small_guard_1_tower","Rabbit Tower","A rabbit tower to overlook the warren. Not the most durable of structures, but it provides a nice deterrent against small-time predators."
 "small_guard_2.1_tower","Rabbit Guard Tower",
 "small_guard_2.2_music_tower","Music Tower","Not everything created for war has to be only about war. Rabbits also find joy in life through music, so they tend to adapt the tower into a music tower in peacetime."
-"small_money_a1_clay_maker","Clay Maker",
+"small_money_a1_clay_maker","Clay Maker","Pottery is one of the most popular recreations among rabbits. Extra earthenware can also fetch good money in other communities."
 "small_money_b1_trader","Trader","A trader's lodge. Nature exists to be used, so perhaps a little bit of taking should be fine."
 "small_money_b2_hunting_log","Hunting Log","A hunter's lodge. All other lives exist to be used, so perhaps a little bit of taking should be fine."
 "small_settlement_1_warren_tiny","Tiny Warren","A tiny warren that can house no more than a hundred rabbits. A good start."

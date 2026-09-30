@@ -18,7 +18,7 @@ from engine.data.datalocalisation import DataLocalisation
 from engine.data.datasound import DataSound
 from engine.data.datastat import DataStat
 from engine.game.game import Game
-from engine.uibattle.uibattle import UIBattle
+from engine.uiouterbattle.uiouterbattle import UIOuterBattle
 from engine.uimenu.uimenu import UIScroll, MenuCursor, NameList, MenuButton, TextPopup, InputUI, InputBox, ListBox
 from engine.utils.data_loading import csv_read, load_image, load_images, load_base_button, recursive_image_load
 from engine.utils.rotation import rotation_xy
@@ -99,7 +99,7 @@ cursor = MenuCursor(cursor_images)
 ui.add(cursor)
 Game.cursor = cursor
 Battle.battle_cursor = cursor
-UIBattle.cursor = cursor
+UIOuterBattle.cursor = cursor
 
 max_person = 4
 max_frame = 30

@@ -44,10 +44,11 @@
 "earth_rune",,1000,,,"earth_rune_explosion","stone",1300,,"travel_spin"
 "earth_rune_explosion",,,"TRUE",,,"goo",2500,,
 "earth_spike",,,"TRUE",,,"earth_spike",3500,5,
-"earth_wall",,-3000,"TRUE",,,"earth_spike",7000,700,"summon:summon_earth_wall,summon_spawn_ground:bottom"
+"earth_wall",,3000,"TRUE",,,"earth_spike",7000,700,"summon:summon_earth_wall,summon_spawn_ground:bottom"
 "explosion_big",,,"TRUE",,,"explosion_big",9000,50,
 "explosion_small",,,"TRUE",,,"explosion",5000,30,
 "fire_barrel",,1500,"TRUE",,"fire_small","stone",2400,,"reach_effect_spawn_ground:bottom"
+"fire_bolt",,4000,"TRUE",,,"fireball",1000,,
 "fire_small",10,,"TRUE",,,,1300,,
 "fireball",,4000,"TRUE",,"explosion_small","fireball",2200,,
 "firecracker",,1500,,,"firework_explosion",,,,"travel_spin"
@@ -65,7 +66,7 @@
 "harpoon",,4000,"TRUE","stick",,"bolt",2700,,
 "ice_branch",,,"TRUE",,,,,,
 "ice_orb",,3000,"TRUE","move",,"stone_big",1400,,"reach_effect_spawn_ground:bottom"
-"ice_pillar",,-3000,"TRUE",,,"ice_pillar",4200,10,"summon:summon_ice_pillar,summon_spawn_ground:bottom"
+"ice_pillar",,3000,"TRUE",,,"ice_pillar",4200,10,"summon:summon_ice_pillar,summon_spawn_ground:bottom"
 "ice_shard",,2000,"TRUE",,,,,,
 "landing_huge",,,,,,"landing_huge",6500,300,
 "landing_medium",,,,,,"landing_huge",2800,100,

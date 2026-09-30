@@ -73,8 +73,8 @@ def gather_info_basic(self):  # clever 1
     """Gather basic information of their own commander
     Shuffle strategy list so available strategies are given random priority to be used"""
     start_pos = self.commander.start_pos
-    strategy_list = [(index, strategy) for index, strategy in enumerate(self.own_strategy) if
-                     not self.team_state["strategy_cooldown"][index] and
+    strategy_list = [strategy for strategy in self.own_strategy if
+                     not min(self.team_state["strategy_cooldown"][strategy]) and
                      self.strategy_list[strategy]["Resource Cost"] <= self.team_state["strategy_resource"]]
     info = {"commander_health": self.commander.health / self.commander.base_health,
             "available_strategy": sample(strategy_list, len(strategy_list)),
@@ -176,8 +176,8 @@ def gather_info_weather(self):  # clever 8
 
 
 def gather_info_enemy_strategy(self):  # clever 9
-    return {"available_enemy_strategy": [strategy for index, strategy in enumerate(self.enemy_strategy) if
-                                         not self.enemy_team_state["strategy_cooldown"][index] and
+    return {"available_enemy_strategy": [strategy for strategy in self.enemy_strategy if
+                                         not min(self.enemy_team_state["strategy_cooldown"][strategy]) and
                                          self.strategy_list[strategy]["Resource Cost"] <=
                                          self.enemy_team_state["strategy_resource"]]}
 

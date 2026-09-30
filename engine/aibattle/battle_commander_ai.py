@@ -46,7 +46,7 @@ class BattleCommanderAI:
         self.strategy_list = self.battle.strategy_list
         self.last_grid = self.battle.last_grid
         self.air_group = self.team_state["air_group"]
-        self.own_strategy = self.team_state["strategy"]
+        self.own_strategy = tuple(self.team_state["strategy_cooldown"].keys())
         self.own_strategy_type = {"weather": set(), "ally": set(), "enemy": set(), "summon": set(),
                                   "cure": set(), "clarity": set()}
         self.has_cure_strategy = False

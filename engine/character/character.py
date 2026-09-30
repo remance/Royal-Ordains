@@ -790,6 +790,7 @@ class AirBattleCharacter(BattleCharacter):
         self.active = False
         self.enter_delay = 0
         BattleCharacter.__init__(self, game_id, stat, leader=leader)
+        self.all_team_enemy_collision_grids = self.battle.all_team_air_enemy_collision_grids
         self.character_type = "air"
         if self.ai_behaviour == "interceptor":
             self.ai_prepare = MethodType(interceptor_ai_prepare, self)
@@ -839,7 +840,7 @@ class CommanderBattleCharacter(BattleCharacter):
         self.max_followers_len_check = 0
         BattleCharacter.__init__(self, game_id, stat, is_commander=True, additional_layer=100000000)
         self.max_ai_commander_range = self.ai_max_attack_range
-        for strategy in self.battle.team_state[self.team]["strategy"]:
+        for strategy in self.battle.team_state[self.team]["strategy_cooldown"]:
             strategy_stat = self.battle.strategy_list[strategy]
             if strategy_stat["Activate Range"] > self.max_ai_commander_range:
                 self.max_ai_commander_range = strategy_stat["Activate Range"]

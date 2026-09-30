@@ -9,15 +9,16 @@ from engine.utils.rotation import find_target_point
 grid_width = Default_Screen_Width / Collision_Grid_X_Per_Battle_Scene
 
 
-def activate_strategy(self, team, strategy, strategy_index, base_pos_x):
+def activate_strategy(self, team, strategy, base_pos_x):
     stat = self.strategy_list[strategy]
     range_check = stat["Range"]
     stat_property = stat["Property"]
     commander = self.team_commander[team]
-    if (self.team_state[team]["strategy_resource"] > stat["Resource Cost"] and (
+    this_team_state = self.team_state[team]
+    if (this_team_state["strategy_resource"] > stat["Resource Cost"] and (
             not commander or not stat["Activate Range"] or
             abs(commander.base_pos[0] - base_pos_x) < stat["Activate Range"])):
-        self.team_state[team]["strategy_resource"] -= stat["Resource Cost"]
+        this_team_state["strategy_resource"] -= stat["Resource Cost"]
 
         if team == self.player_team:
             self.drama_text.queue.append((False, self.grab_text(("strategy", strategy, "Ally")), None))
@@ -27,7 +28,11 @@ def activate_strategy(self, team, strategy, strategy_index, base_pos_x):
 
         StrategyIcon(strategy, base_pos_x)
 
-        self.team_state[team]["strategy_cooldown"][strategy_index] = stat["Cooldown"]
+        this_strategy_cooldown = this_team_state["strategy_cooldown"][strategy]
+        for index, value in enumerate(this_strategy_cooldown):
+            if not value:  # replace cooldown 0 with strategy cooldown
+                this_strategy_cooldown[index] = stat["Cooldown"]
+                break
         if stat_property:
             if "weather" in stat_property:  # strategy that change weather
                 self.current_weather.__init__(stat_property["weather"], randint(120, 250),
@@ -49,20 +54,19 @@ def activate_strategy(self, team, strategy, strategy_index, base_pos_x):
 
         if stat["Damage Effects"]:
             for effect_stat in stat["Damage Effects"]:
-                if not self.team_state[team]["start_pos"]:  # assume that the data is based on right side origin
-                    # effect come from left side
-                    direction = "left"
-                    angle = 180 - effect_stat[4]
-                    start_x = (base_pos_x - effect_stat[2]) * self.screen_scale_width
-                else:
-                    # effect come from right side
+                if not this_team_state["start_pos"]:  # assume that the data is based on right side origin
+                    # effect come from left side to right
                     direction = "right"
                     angle = effect_stat[4]
-                    start_x = (base_pos_x + effect_stat[2]) * self.screen_scale_width
+                    new_start_x = (base_pos_x - effect_stat[2])
+                else:
+                    # effect come from right side to left side
+                    direction = "left"
+                    angle = -effect_stat[4]
+                    new_start_x = (base_pos_x + effect_stat[2])
+                start_x = new_start_x * self.screen_scale_width
                 start_y = effect_stat[3] * self.screen_scale_height
-                base_target_pos = find_target_point(start_x / self.screen_scale_width,
-                                                    start_y / self.screen_scale_height,
-                                                    100000, angle)
+                base_target_pos = find_target_point(new_start_x, effect_stat[3], 100000, angle)
                 DamageEffect(stat["owner data"] | {"team": team, "direction": direction},
                              (effect_stat[0], effect_stat[1], start_x, start_y, angle,
                               effect_stat[5], effect_stat[6], effect_stat[7], effect_stat[8]),

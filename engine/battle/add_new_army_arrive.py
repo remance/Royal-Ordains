@@ -21,8 +21,7 @@ def add_new_army_arrive(self):
                             strategy_change = True
                             team_state["leadership"] += (self.character_list[retinue]["Leadership"] *
                                                          Retinue_Leadership_Add_Modifier)
-                            team_state["strategy_cooldown"][len(team_state["strategy"])] = 0
-                            team_state["strategy"].append(self.character_list[retinue]["Strategy"])
+                            self.add_strategy_to_team_state(team_state, self.character_list[retinue]["Strategy"])
                             team_state["active_retinue"].append(retinue)
                             if len(team_state["active_retinue"]) == 3:
                                 break

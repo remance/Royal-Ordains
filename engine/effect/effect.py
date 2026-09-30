@@ -134,6 +134,8 @@ class Effect(Sprite):
         self.current_animation = self.animation_pool[self.part_name][self.sprite_flip][self.width_scale][
             self.height_scale]
 
+        self.max_show_frame = len(self.current_animation) - 1
+
         self.base_image = self.current_animation[self.show_frame]
         self.image = None
 
@@ -317,7 +319,7 @@ class Effect(Sprite):
             if self.sound_effect:
                 if self.sound_timer < self.sound_duration:
                     self.sound_timer += dt
-                elif self.sound_distance > self.base_pos.distance_to(self.battle.base_camera_pos):  # play sound
+                elif self.sound_distance > self.base_pos.distance_to(self.battle.base_camera_center_pos):  # play sound
                     self.battle.add_sound_effect_queue(self.sound_effect, self.base_pos,
                                                        self.sound_distance, self.shake_value)
                     if self.travel:  # remove sound for moving effect
@@ -358,7 +360,7 @@ class DamageEffect(Effect):
             if self.sound_effect:
                 if self.sound_timer < self.sound_duration:
                     self.sound_timer += dt
-                elif self.sound_distance > self.base_pos.distance_to(self.battle.base_camera_pos):  # play sound
+                elif self.sound_distance > self.base_pos.distance_to(self.battle.base_camera_center_pos):  # play sound
 
                     self.battle.add_sound_effect_queue(self.sound_effect, self.base_pos,
                                                        self.sound_distance, self.shake_value)
@@ -412,7 +414,7 @@ class TrapEffect(DamageEffect):
         done, just_start = self.play_animation(self.animation_frame_play_time, dt)
 
         if self.activate and done:
-            if self.sound_effect and self.sound_distance > self.base_pos.distance_to(self.battle.base_camera_pos):
+            if self.sound_effect and self.sound_distance > self.base_pos.distance_to(self.battle.base_camera_center_pos):
                 # play sound, check for distance here to avoid timer reset when not on screen
                 self.battle.add_sound_effect_queue(self.sound_effect, self.base_pos,
                                                    self.sound_distance, 0)
@@ -462,7 +464,7 @@ class StatusEffect(Effect):
             self.sound_timer += dt
 
         if (self.sound_effect and self.sound_timer >= self.sound_duration and
-                self.sound_distance > self.base_pos.distance_to(self.battle.base_camera_pos)):
+                self.sound_distance > self.base_pos.distance_to(self.battle.base_camera_center_pos)):
             # play sound, check for distance here to avoid timer reset when not on screen
             self.battle.add_sound_effect_queue(self.sound_effect, self.base_pos,
                                                self.sound_distance, 0)

@@ -20,7 +20,7 @@ from engine.utils.text_making import text_render_with_bg
 
 
 class DataSprite(GameData):
-    def __init__(self, character_list):
+    def __init__(self, character_list, initial_load_data=True):
         """
         Containing data related to sprite and animation
         """
@@ -41,84 +41,85 @@ class DataSprite(GameData):
         self.effect_animation_pool = {}
         self.animation_pickle_hash = {}
 
-        try:
-            with lzma.open(join(self.data_dir, "animation", "animation_pickle_hash.xz"), "rb") as read_file:
-                self.animation_pickle_hash = pickle.load(read_file)
-            read_file.close()
-        except Exception:
-            pass
+        if initial_load_data:
+            try:
+                with lzma.open(join(self.data_dir, "animation", "animation_pickle_hash.xz"), "rb") as read_file:
+                    self.animation_pickle_hash = pickle.load(read_file)
+                read_file.close()
+            except Exception:
+                pass
 
-        self.config_animation_hash = ast.literal_eval(self.game.config["VERSION"]["hash"])
+            self.config_animation_hash = ast.literal_eval(self.game.config["VERSION"]["hash"])
 
-        self.strategy_icons = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                          subfolder=("ui", "strategy_ui"))
-        self.grand_ui_icons = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                          subfolder=("ui", "grand_ui"))
-        building_portraits = load_images(self.data_dir, subfolder=("ui", "building_ui"))
-        self.building_portraits = {}
-        for file, image in building_portraits.items():
-            self.building_portraits[file] = {"building_ui": smoothscale(image, (
-                image.get_width() * self.screen_scale_width, image.get_height() * self.screen_scale_height))}
-            self.building_portraits[file]["big"] = smoothscale(image,
-                                                               (300 * self.screen_scale_width,
-                                                                300 * self.screen_scale_height))
+            self.strategy_icons = load_images(self.data_dir, screen_scale=self.screen_scale,
+                                              subfolder=("ui", "strategy_ui"))
+            self.grand_ui_icons = load_images(self.data_dir, screen_scale=self.screen_scale,
+                                              subfolder=("ui", "grand_ui"))
+            building_portraits = load_images(self.data_dir, subfolder=("ui", "building_ui"))
+            self.building_portraits = {}
+            for file, image in building_portraits.items():
+                self.building_portraits[file] = {"building_ui": smoothscale(image, (
+                    image.get_width() * self.screen_scale_width, image.get_height() * self.screen_scale_height))}
+                self.building_portraits[file]["big"] = smoothscale(image,
+                                                                   (300 * self.screen_scale_width,
+                                                                    300 * self.screen_scale_height))
 
-        character_portraits = load_images(self.data_dir, subfolder=("ui", "character_ui"))
-        self.character_portraits = {}
-        for file, image in character_portraits.items():
-            self.character_portraits[file] = {"character_ui": smoothscale(image, (
-                image.get_width() * self.screen_scale_width, image.get_height() * self.screen_scale_height))}
-            mini_portrait = smoothscale(image, (200 * self.screen_scale_width, 200 * self.screen_scale_height))
-            self.character_portraits[file]["small"] = {"right": mini_portrait,
-                                                       "left": flip(mini_portrait, True, False)}
+            character_portraits = load_images(self.data_dir, subfolder=("ui", "character_ui"))
+            self.character_portraits = {}
+            for file, image in character_portraits.items():
+                self.character_portraits[file] = {"character_ui": smoothscale(image, (
+                    image.get_width() * self.screen_scale_width, image.get_height() * self.screen_scale_height))}
+                mini_portrait = smoothscale(image, (200 * self.screen_scale_width, 200 * self.screen_scale_height))
+                self.character_portraits[file]["small"] = {"right": mini_portrait,
+                                                           "left": flip(mini_portrait, True, False)}
 
-            number_font = self.game.character_number_font
-            # icon for setup like purchase unit or custom preset army setup
-            self.character_portraits[file]["setup_ui"] = mini_portrait.copy()
-            if file in character_list:
-                icon = self.character_portraits[file]["setup_ui"]
-                add_number = character_list[file]["Capacity"]
-                if add_number:
-                    if add_number not in self.number_text_cache:
-                        number_text = text_render_with_bg(str(add_number), number_font, o_colour=(200, 200, 100))
-                        self.number_text_cache[add_number] = number_text
-                    else:
-                        number_text = self.number_text_cache[add_number]
-                    number_rect = number_text.get_rect(bottomright=mini_portrait.get_size())
-                    icon.blit(number_text, number_rect)
-                icon.blit(self.game.battle_ui_images["class_" + self.game.character_list[file]["Class"]], (0, 0))
+                number_font = self.game.character_number_font
+                # icon for setup like purchase unit or custom preset army setup
+                self.character_portraits[file]["setup_ui"] = mini_portrait.copy()
+                if file in character_list:
+                    icon = self.character_portraits[file]["setup_ui"]
+                    add_number = character_list[file]["Capacity"]
+                    if add_number:
+                        if add_number not in self.number_text_cache:
+                            number_text = text_render_with_bg(str(add_number), number_font, o_colour=(200, 200, 100))
+                            self.number_text_cache[add_number] = number_text
+                        else:
+                            number_text = self.number_text_cache[add_number]
+                        number_rect = number_text.get_rect(bottomright=mini_portrait.get_size())
+                        icon.blit(number_text, number_rect)
+                    icon.blit(self.game.battle_ui_images["class_" + self.game.character_list[file]["Class"]], (0, 0))
 
-            mini_portrait = smoothscale(image, (150 * self.screen_scale_width, 150 * self.screen_scale_height))
-            self.character_portraits[file]["tiny"] = {"right": mini_portrait,
-                                                      "left": flip(mini_portrait, True, False)}
+                mini_portrait = smoothscale(image, (150 * self.screen_scale_width, 150 * self.screen_scale_height))
+                self.character_portraits[file]["tiny"] = {"right": mini_portrait,
+                                                          "left": flip(mini_portrait, True, False)}
 
-            mini_portrait = smoothscale(image, (100 * self.screen_scale_width, 100 * self.screen_scale_height))
-            self.character_portraits[file]["mini"] = {"right": mini_portrait,
-                                                      "left": flip(mini_portrait, True, False)}
+                mini_portrait = smoothscale(image, (100 * self.screen_scale_width, 100 * self.screen_scale_height))
+                self.character_portraits[file]["mini"] = {"right": mini_portrait,
+                                                          "left": flip(mini_portrait, True, False)}
 
-        culture_coas = load_images(self.data_dir, subfolder=("ui", "culture_ui"))
-        self.culture_coas = {}
-        for file, image in culture_coas.items():
-            self.culture_coas[file] = {"culture_ui": smoothscale(image, (
-                image.get_width() * self.screen_scale_width, image.get_height() * self.screen_scale_height))}
-            self.culture_coas[file]["small"] = smoothscale(
-                image, (200 * self.screen_scale_width, 200 * self.screen_scale_height))
-            self.culture_coas[file]["tiny"] = smoothscale(
-                image, (150 * self.screen_scale_width, 150 * self.screen_scale_height))
+            culture_coas = load_images(self.data_dir, subfolder=("ui", "culture_ui"))
+            self.culture_coas = {}
+            for file, image in culture_coas.items():
+                self.culture_coas[file] = {"culture_ui": smoothscale(image, (
+                    image.get_width() * self.screen_scale_width, image.get_height() * self.screen_scale_height))}
+                self.culture_coas[file]["small"] = smoothscale(
+                    image, (200 * self.screen_scale_width, 200 * self.screen_scale_height))
+                self.culture_coas[file]["tiny"] = smoothscale(
+                    image, (150 * self.screen_scale_width, 150 * self.screen_scale_height))
 
-        self.weather_matter_images = {}
-        part_folder = Path(join(self.data_dir, "map", "weather", "matter"))
-        subdirectories = [split(sep.join(normpath(x).split(sep))) for x
-                          in part_folder.iterdir() if x.is_dir()]
-        for folder in subdirectories:
-            folder_data_name = folder[-1]
-            self.weather_matter_images[folder_data_name] = tuple(load_images(
-                self.data_dir, screen_scale=self.screen_scale,
-                subfolder=("map", "weather", "matter", folder_data_name)).values())
+            self.weather_matter_images = {}
+            part_folder = Path(join(self.data_dir, "map", "weather", "matter"))
+            subdirectories = [split(sep.join(normpath(x).split(sep))) for x
+                              in part_folder.iterdir() if x.is_dir()]
+            for folder in subdirectories:
+                folder_data_name = folder[-1]
+                self.weather_matter_images[folder_data_name] = tuple(load_images(
+                    self.data_dir, screen_scale=self.screen_scale,
+                    subfolder=("map", "weather", "matter", folder_data_name)).values())
 
-        # self.stage_object_animation_pool = load_pickle_with_surfaces(
-        #     join(self.data_dir, "animation", "stage_object.xz"),
-        #     screen_scale=self.screen_scale, battle_only=True)
+            # self.stage_object_animation_pool = load_pickle_with_surfaces(
+            #     join(self.data_dir, "animation", "stage_object.xz"),
+            #     screen_scale=self.screen_scale)
 
     def load_region_sprite(self, map_data, grand_ui_images, map_shown_to_base_scale_width,
                            map_shown_to_base_scale_height, campaign: str):

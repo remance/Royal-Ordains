@@ -3,16 +3,16 @@ from random import choice
 
 from pygame import Surface, SRCALPHA
 
-from engine.uibattle.uibattle import UIBattle
+from engine.uiouterbattle.uiouterbattle import UIOuterBattle
 from engine.utils.text_making import text_render_with_bg
 
 
-class TextDrama(UIBattle):
+class TextDrama(UIOuterBattle):
     images = []
 
     def __init__(self, battle):
         self._layer = 17
-        UIBattle.__init__(self, player_cursor_interact=False)
+        UIOuterBattle.__init__(self, player_cursor_interact=False)
         self.body = {False: self.images["body"], True: self.images["body_bad"]}
         self.left_corner = {False: self.images["start"], True: self.images["start_bad"]}
         self.right_corner = {False: self.images["end"], True: self.images["end_bad"]}
@@ -54,7 +54,7 @@ class TextDrama(UIBattle):
         self.text_input = input_item[1]
         if input_item[2] in self.battle.sound_effect_pool:  # play sound effect
             self.battle.add_sound_effect_queue(choice(self.battle.sound_effect_pool[input_item[2]]),
-                                               self.battle.base_camera_pos, 2000, 0)
+                                               self.battle.base_camera_center_pos, 2000, 0)
         self.text_surface = text_render_with_bg(self.text_input, self.font, gf_colour=(225, 225, 225),
                                                 o_colour=(20, 20, 20))
         self.image = Surface((self.text_surface.get_width() + int(self.showing_left_corner.get_width() * 4),

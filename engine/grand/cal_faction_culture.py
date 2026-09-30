@@ -19,9 +19,11 @@ def cal_faction_culture(self, faction):
     """Calculate each culture influence in the faction based on weight and integration percentage level"""
     culture_weight = {}
     faction_campaign_state = self.current_campaign_state["faction"][faction]
+
     for region in faction_campaign_state["region"]:
-        for building in self.current_campaign_state["region"]["buildings"][region]:
-            if building and building[1]:  # building is in active state and not destroyed state
+        for building in self.current_campaign_state["region"]["building"][region]:
+            if building and not building[1] and not building[2]:
+                # building is in active state and not destroyed/constructing state
                 building_id = building[0]
                 culture = self.building_list[building_id]["Culture"]
                 if culture != "all":  # building belong to a specific culture
@@ -37,4 +39,7 @@ def cal_faction_culture(self, faction):
     # culture is removed from faction because it no longer exist in the game
 
     for culture in faction_campaign_state["culture"].values():
-        culture["influence"] = culture["weight"] / total_diversity_weight
+        if total_diversity_weight:
+            culture["influence"] = culture["weight"] / total_diversity_weight
+        else:
+            culture["influence"] = 0

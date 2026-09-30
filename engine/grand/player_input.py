@@ -18,22 +18,22 @@ def player_input_grand(self):
 
 
 def camera_go_left(self):
-    self.camera_pos[0] -= (2000 * self.true_dt)
+    self.camera_topleft_pos[0] -= (2000 * self.true_dt)
     self.fix_camera()
 
 
 def camera_go_right(self):
-    self.camera_pos[0] += (2000 * self.true_dt)
+    self.camera_topleft_pos[0] += (2000 * self.true_dt)
     self.fix_camera()
 
 
 def camera_go_up(self):
-    self.camera_pos[1] -= (2000 * self.true_dt)
+    self.camera_topleft_pos[1] -= (2000 * self.true_dt)
     self.fix_camera()
 
 
 def camera_go_down(self):
-    self.camera_pos[1] += (2000 * self.true_dt)
+    self.camera_topleft_pos[1] += (2000 * self.true_dt)
     self.fix_camera()
 
 

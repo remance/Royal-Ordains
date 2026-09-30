@@ -41,7 +41,7 @@ def menu_main(self):
 
     elif self.grand_button.event_press:
         self.menu_state = "grand"
-        self.load_grand_campaign("main")
+        self.load_grand_campaign(self.campaign)
         self.custom_preset_culture_selector.change_culture_preset(self.map_data.default_grand_faction)
         self.background = self.background_image["empty_background"]
         self.remove_from_ui_menu_updater(self.main_menu_buttons, self.main_menu_actor)
@@ -52,7 +52,9 @@ def menu_main(self):
                                              {"leader": [["leader_doll_princess", True], ],
                                               "troop": [],
                                               "air": [],
-                                              "retinue": [["small_rabbit_leader_shaman", True]]}, supply=10000)
+                                              "retinue": [["small_rabbit_leader_shaman", True],
+                                                          ["1_test_strategy", True],
+                                                          ["1_test_strategy_2", True]]}, supply=10000)
         self.custom_team_army[1][1].__init__("", "small", "small", "leader_adaqua",
                                              {"leader": [["small_rabbit_leader_knight", True],
                                                          ["small_rabbit_leader_knight", True]],

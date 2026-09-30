@@ -3,14 +3,14 @@ from math import cos, sin, atan2, degrees, radians
 from pygame import Vector2
 
 
-def find_target_point(start_x, start_y, distance, angle_degrees):
+def find_target_point(start_x, start_y, distance, degree_angle):
     """
     Find target point from start by a given distance at a specified angle.
     """
     # Convert angle from degrees to radians
-    angle_radians = radians(convert_projectile_degree_angle(angle_degrees))
+    angle_radians = radians(convert_degree_angle(degree_angle))
 
-    return start_x + (distance * cos(angle_radians)), start_y + (distance * sin(angle_radians))
+    return round(start_x + (distance * cos(angle_radians)), 2), round(start_y + (distance * sin(angle_radians)), 2)
 
 
 def rotation_xy(origin, point, angle):
@@ -59,20 +59,23 @@ def convert_degree_angle(angle):
 
 def convert_projectile_degree_angle(angle):
     # """upper left"""
-    if -90 <= angle < 0:
-        return 90 + angle
+    if angle:
+        if -90 <= angle < 0:
+            return 90 + angle
 
-    # """upper right"""
-    elif 0 <= angle < 90:
-        return angle - 90
+        # """upper right"""
+        elif 0 <= angle < 90:
+            return angle - 90
 
-    # """lower right"""
-    elif -180 <= angle < -90:
-        return angle + 270
+        # """lower right"""
+        elif -180 <= angle < -90:
+            return angle + 450
 
-    # """lower left"""
+        # """lower left"""
+        else:
+            return angle - 450
     else:
-        return angle - 270
+        return angle
 
 
 def convert_degree_to_360(angle):

@@ -4,17 +4,17 @@ from random import choice, uniform
 from pygame import transform, Vector2
 from pygame.mixer import Sound
 
-from engine.uibattle.uibattle import UIBattle
+from engine.uiouterbattle.uiouterbattle import UIOuterBattle
 from engine.utils.rotation import set_rotate
 
 
-class Weather(UIBattle):
+class Weather(UIOuterBattle):
     weather_matter_images = None
     weather_data = None
 
     def __init__(self, weather_type, wind_direction, level):
         self._layer = 99999999999999999999
-        UIBattle.__init__(self)
+        UIOuterBattle.__init__(self)
         self.new_weather_reset = True
         self.weather_matters = self.battle.weather_matters
         self.weather_spawn_timer = {}
@@ -104,11 +104,11 @@ class Weather(UIBattle):
                                               self.random_sprite_angle))
 
 
-class MatterSprite(UIBattle):
+class MatterSprite(UIOuterBattle):
 
     def __init__(self, start_pos, target, speed, image, random_sprite_angle):
         self._layer = 1
-        UIBattle.__init__(self, has_containers=True)
+        UIOuterBattle.__init__(self, has_containers=True)
         self.speed = speed
         self.base_pos = Vector2(start_pos)  # should be at the end corner of screen
         self.target = Vector2(target)  # should be at another end corner of screen

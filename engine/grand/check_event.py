@@ -10,7 +10,7 @@ def check_faction_region_number(self, value, faction):
 def check_faction_building_build(self, value, faction):
     building_check = {key: value2 for key, value2 in value.items()}
     for region in self.current_campaign_state["faction"][faction]["region"]:  # check owned region
-        for build_slot in self.current_campaign_state["region"][region]["buildings"]:  # check each building slot
+        for build_slot in self.current_campaign_state["region"][region]["building"]:  # check each building slot
             for building in tuple(building_check.keys()):
                 # this slot has match building
                 if building in build_slot and build_slot[1]:  # found active building

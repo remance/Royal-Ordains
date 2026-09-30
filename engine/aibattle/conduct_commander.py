@@ -13,7 +13,7 @@ def conduct_commander(self):
     victory_chance = self.team_state["supply_resource"]
     if current_info and current_info["available_strategy"] and self.clever > uniform(0, 120 - self.team_state[
         "strategy_resource"]):
-        for strategy_index, strategy in current_info["available_strategy"]:
+        for strategy in current_info["available_strategy"]:
             # shuffle strategy list so that
             strategy_stat = self.strategy_list[strategy]
             character_in_range = []
@@ -66,7 +66,7 @@ def conduct_commander(self):
             if len(character_in_range) >= strategy_range / uniform(50, 200):
                 # consider using strategy if possible number of characters is worth using based on range
                 if strategy in self.own_strategy_type["summon"]:
-                    self.activate_strategy(self.team, strategy, strategy_index, commander_base_posx)
+                    self.activate_strategy(self.team, strategy, commander_base_posx)
                 else:
                     character_in_range = sorted(character_in_range)
                     activate_range = strategy_stat["Activate Range"]
@@ -94,7 +94,7 @@ def conduct_commander(self):
                                     best_number = cover_number
                                     best_pos = this_target
                     if best_pos:
-                        self.activate_strategy(self.team, strategy, strategy_index, best_pos)
+                        self.activate_strategy(self.team, strategy, best_pos)
                         break
 
             if "weather" in strategy_stat["Property"]:  # weather changing strategy
@@ -102,12 +102,12 @@ def conduct_commander(self):
                     if (strategy_stat["Property"]["weather"] != self.current_weather.weather_type and
                             uniform(0, 100) > 80):
                         # no waste using strategy for weather that already the same
-                        self.activate_strategy(self.team, strategy, strategy_index, commander_base_posx)
+                        self.activate_strategy(self.team, strategy, commander_base_posx)
                         break
                 else:
                     if uniform(0, 100) > 98:
                         # randomly use weather strategy
-                        self.activate_strategy(self.team, strategy, strategy_index, commander_base_posx)
+                        self.activate_strategy(self.team, strategy, commander_base_posx)
                         break
 
     safety_first = 10

@@ -18,15 +18,15 @@ def event_process(self):
                 camera_speed = 400
                 if "speed" in event_property:
                     camera_speed = event_property["speed"]
-                if self.camera_pos[0] != camera_pos_target:
-                    if self.camera_pos[0] < camera_pos_target:
-                        self.camera_pos[0] += camera_speed * self.true_dt
-                        if self.camera_pos[0] > camera_pos_target:
-                            self.camera_pos[0] = camera_pos_target
+                if self.camera_center_pos[0] != camera_pos_target:
+                    if self.camera_center_pos[0] < camera_pos_target:
+                        self.camera_center_pos[0] += camera_speed * self.true_dt
+                        if self.camera_center_pos[0] > camera_pos_target:
+                            self.camera_center_pos[0] = camera_pos_target
                     else:
-                        self.camera_pos[0] -= camera_speed * self.true_dt
-                        if self.camera_pos[0] < camera_pos_target:
-                            self.camera_pos[0] = camera_pos_target
+                        self.camera_center_pos[0] -= camera_speed * self.true_dt
+                        if self.camera_center_pos[0] < camera_pos_target:
+                            self.camera_center_pos[0] = camera_pos_target
                 else:  # reach target
                     self.cutscene_playing.remove(child_event)
             elif child_event["Type"] == "cutscene":
@@ -156,7 +156,7 @@ def event_process(self):
 
         elif child_event["Type"] == "sound":  # play sound
             self.add_sound_effect_queue(choice(self.sound_effect_pool[str(child_event["Object"])]),
-                                        self.base_camera_pos, child_event["Property"]["sound distance"],
+                                        self.base_camera_center_pos, child_event["Property"]["sound distance"],
                                         child_event["Property"]["shake value"])
             self.cutscene_playing.remove(child_event)
 

@@ -1,11 +1,9 @@
 def check_draw(self, dt):
     if not self.invisible:
-        camera = self.camera
+        camera_rect = self.camera.rect
         surface_rect = self.rect
-        surface_left_x, surface_top_y = surface_rect.topleft
-        surface_right_x, surface_bottom_y = surface_rect.bottomright
-        if (surface_right_x > camera.camera_left_bound and surface_left_x < camera.camera_right_bound and
-                surface_bottom_y > camera.camera_top_bound and surface_top_y < camera.camera_bottom_bound):
+
+        if surface_rect.colliderect(camera_rect):
             blit_check = (self.char_id, int(self.pos[0]), int(self.pos[1]), self.direction, self.animation_name)
             if blit_check not in self.blit_culling_check:
                 if self.not_show_delay:

@@ -75,7 +75,6 @@ def state_grand_process(self):
         # Update game time
         dt = self.true_dt * self.game_speed
         self.dt = dt  # apply dt with game_speed for calculation
-        self.shown_camera_topleft_pos = self.camera_pos.copy()
 
         self.player_input()
 
@@ -115,8 +114,8 @@ def state_grand_process(self):
         #     self.battle.grand_event_notification
 
         # update camera
-        self.camera.camera_left_bound = self.shown_camera_topleft_pos[0]
-        self.camera.camera_top_bound = self.shown_camera_topleft_pos[1]
+        self.camera.camera_left_bound = self.camera_topleft_pos[0]
+        self.camera.camera_top_bound = self.camera_topleft_pos[1]
         self.camera.camera_right_bound = self.camera.camera_left_bound + self.screen_width
         self.camera.camera_bottom_bound = self.camera.camera_top_bound + self.screen_height
 
@@ -127,7 +126,7 @@ def state_grand_process(self):
         self.draw_route()
         self.camera.update_with_in_camera_check(self.grand_camera_object_drawer)
 
-        self.camera.update_with_in_camera_check(self.grand_camera_ui_drawer)
+        self.camera.update(self.grand_camera_ui_drawer)
         self.outer_ui_updater.update(dt)
-        self.camera.update_with_in_camera_check(self.ui_menu_drawer)
+        self.camera.update(self.ui_menu_drawer)
         self.camera.out_update(self.outer_ui_updater)

@@ -19,15 +19,13 @@ def menu_grand_setup(self):
             faction_state = all_faction_state
             if faction == "free":
                 faction_state = free_faction_state
-            faction_alliance = faction_value["Diplomacy State"]["alliance"]
+            faction_alliance = faction_value["Alliance"]
             if faction_alliance:
                 if faction_alliance not in alliance_state:
                     alliance_state[faction_alliance] = [faction]
                 else:
                     alliance_state[faction_alliance].append(faction)
-            faction_state[faction] = {"alliance": faction_value["Diplomacy State"]["alliance"],
-                                      "hostile": faction_value["Diplomacy State"]["hostile"], "army": [], "reserve": [],
-                                      "plan": {},
+            faction_state[faction] = {"alliance": faction_value["Alliance"], "army": [], "reserve": [], "plan": {},
                                       "region": [key for key, value in self.map_data.region_list.items() if
                                                  value["Control"] == faction],
                                       "culture": {
@@ -61,13 +59,15 @@ def menu_grand_setup(self):
 
         campaign_state = {"player_camera_pos": None, "player_faction": None,
                           "alliance": alliance_state,
-                          "region": {"control": {key: value["Control"] for key, value in
+                          "region": {"dot": {key: value["Settlement POS"] for key, value in
+                                             self.map_data.region_list.items()},
+                                     "control": {key: value["Control"] for key, value in
                                                  self.map_data.region_list.items()},
-                                     "buildings": {key: [value["Build Slot " + str(index)] for index in range(1, 10) if
+                                     "building": {key: [value["Build Slot " + str(index)] for index in range(1, 10) if
                                                          value["Build Slot " + str(index)]] for key, value in
                                                    self.map_data.region_list.items()},
-                                     "objects": {key: value["Object"] for key, value in
-                                                 self.map_data.region_list.items()},
+                                     "object": {key: value["Object"] for key, value in
+                                                self.map_data.region_list.items()},
                                      "income": {key: {"gold_income": 0, "supply_income": 0, "happiness": 0} for key in
                                                 self.map_data.region_list}
                                      },
@@ -80,7 +80,7 @@ def menu_grand_setup(self):
                           "cosmic_time": 0, "cosmic_event": [],
                           "turn": 1, "phase": 1}
 
-        self.grand.prepare_new_campaign("main", player_faction, campaign_state)
+        self.grand.prepare_new_campaign(self.campaign, player_faction, campaign_state)
 
         # after quit grand campaign
         self.remove_from_ui_menu_updater(self.grand_menu_uis)

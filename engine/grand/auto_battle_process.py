@@ -6,7 +6,7 @@ def auto_battle_process(self, battle_state):
     # update supply, strategy
     full_team_state = battle_state["team"]
     for team, team_state in full_team_state.items():
-        team_state["strategy_cooldown"] = {key: value - Phase_To_Battle_Time if value > Phase_To_Battle_Time else 0 for
+        team_state["strategy_cooldown"] = {key: [cooldown - Phase_To_Battle_Time if cooldown > Phase_To_Battle_Time else 0 for cooldown in value] for
                                            key, value in team_state["strategy_cooldown"].items()}
         team_commander = self.team_commander[team]
         if team_commander and team_commander.alive and team_state["strategy_resource"] < 200:

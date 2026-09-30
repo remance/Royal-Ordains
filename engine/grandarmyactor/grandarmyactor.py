@@ -11,7 +11,7 @@ same_dot_placement_pos_offset = []
 
 for y in range(1, 10):
     if y == 1:
-        x_list = (0, -1, 1)
+        x_list = (0,)
     else:
         x_list = (0, -1, 1, -2, 2)
     for x in x_list:
@@ -38,7 +38,7 @@ class GrandArmyActor(Sprite):
         self.previous_army_pos = self.army_pos
         self.pos = Vector2((self.army_pos[0] * self.map_shown_to_base_scale_width,
                             self.army_pos[1] * self.map_shown_to_base_scale_height))
-        self._layer = 100 + self.pos[1]
+        self._layer = 100 + self.pos[1] + army.power  # layer base on pos_y and power
         Sprite.__init__(self, self.containers)
         self.dots_army_occupation = self.grand.dots_army_occupation
         self.drawer = self.grand.grand_camera_object_drawer
@@ -57,7 +57,7 @@ class GrandArmyActor(Sprite):
         self.image = None
         self.change_team_state()
 
-        slot = tuple(self.dots_army_occupation[army.base_pos].keys()).index(self.army_id)
+        slot = self.dots_army_occupation[army.base_pos].index(self.army)
         # change pos to based on slot
         target_pos = rotation_xy(self.army_pos, self.army_pos + same_dot_placement_pos_offset[slot],
                                  radians(-set_rotate(self.previous_army_pos, self.army_pos)))
@@ -77,9 +77,9 @@ class GrandArmyActor(Sprite):
             team = "neutral"
             if player_faction:
                 player_alliance = current_campaign_state["faction"][player_faction]["alliance"]
-                if player_alliance and current_campaign_state["alliance"][player_alliance]:
+                if player_alliance and army_faction in current_campaign_state["alliance"][player_alliance]:
                     team = "ally"
-                elif army_faction in current_campaign_state["faction"][player_faction]["hostile"]:
+                elif army_faction == "free":
                     team = "enemy"
         if actor_image not in self.actor_circle_cache:
             self.actor_circle_cache[actor_image] = {}
@@ -119,7 +119,7 @@ class GrandArmyActor(Sprite):
                 self.current_selected = False
             self.image = self.circle_not_selected_image
 
-        slot = tuple(self.dots_army_occupation[army.base_pos].keys()).index(self.army_id)
+        slot = self.dots_army_occupation[army.base_pos].index(self.army)
         if slot != self.current_slot or army.base_pos != self.army_pos:
             if army.base_pos != self.army_pos:  # moving to new dot point
                 self.previous_army_pos = self.army_pos
@@ -137,6 +137,6 @@ class GrandArmyActor(Sprite):
 
         if layer_change:
             if self.current_selected:
-                self.drawer.change_layer(self, 10000 + self.pos[1])
+                self.drawer.change_layer(self, 100000000 + self.pos[1] + army.power)
             else:
-                self.drawer.change_layer(self, 100 + self.pos[1])
+                self.drawer.change_layer(self, 100 + self.pos[1] + army.power)

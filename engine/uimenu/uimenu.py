@@ -2186,19 +2186,19 @@ class GrandMiniMap(UIMenu):
                 inside_mouse_pos = Vector2(
                     (self.cursor.pos[0] - self.rect.topleft[0]),
                     (self.cursor.pos[1] - self.rect.topleft[1]))
-                self.grand.camera_pos = Vector2((inside_mouse_pos[0] * self.map_scale_width) - self.half_screen_width,
-                                                (inside_mouse_pos[1] * self.map_scale_height) - self.half_screen_height)
+                self.grand.camera_topleft_pos = Vector2((inside_mouse_pos[0] * self.map_scale_width) - self.half_screen_width,
+                                                        (inside_mouse_pos[1] * self.map_scale_height) - self.half_screen_height)
                 self.grand.fix_camera()
 
-            if self.camera_pos != self.grand.camera_pos:
+            if self.camera_pos != self.grand.camera_topleft_pos:
                 self.image = self.before_camera_image.copy()
 
                 # Draw camera border
                 self.image.blit(self.camera_border_image,
                                 self.camera_border_image.get_rect(topleft=(
-                                    self.grand.camera_pos[0] / self.map_scale_width,
-                                    self.grand.camera_pos[1] / self.map_scale_height)))
-                self.camera_pos = self.grand.camera_pos.copy()
+                                    self.grand.camera_topleft_pos[0] / self.map_scale_width,
+                                    self.grand.camera_topleft_pos[1] / self.map_scale_height)))
+                self.camera_pos = self.grand.camera_topleft_pos.copy()
 
 
 class ListAdapter:

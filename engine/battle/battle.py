@@ -17,6 +17,7 @@ from engine.battle.activate_strategy import activate_strategy
 from engine.battle.add_new_army_arrive import add_new_army_arrive
 from engine.battle.add_new_army_to_reinforcement import add_new_army_to_reinforcement
 from engine.battle.add_sound_effect_queue import add_sound_effect_queue
+from engine.battle.add_strategy_to_team_state import add_strategy_to_team_state
 from engine.battle.call_in_air_group import call_in_air_group
 from engine.battle.call_reinforcement import call_reinforcement
 from engine.battle.change_game_state import change_game_state
@@ -46,12 +47,12 @@ from engine.effect.effect import DamageEffect, Effect
 from engine.game.activate_input_popup import activate_input_popup
 from engine.game.change_pause_update import change_pause_update
 from engine.scene.scene import Scene
-from engine.uibattle.drama import TextDrama
-from engine.uibattle.uibattle import (FPSCount, BattleHelper, BattleScale, BattleCursor, CharacterSpeechBox,
-                                      CharacterCommandIndicator, DamageNumber, EventNotification,
-                                      PlayerBattleInteract, CharacterInteractPrompt,
-                                      Command, TacticalMap, StrategyIcon, StrategySelect,
-                                      ScreenFade, BattleResult)
+from engine.uiouterbattle.drama import TextDrama
+from engine.uiouterbattle.uiouterbattle import (FPSCount, BattleHelper, BattleScale, BattleCursor, EventNotification,
+                                                PlayerBattleInteract, Command, TacticalMap, StrategySelect,
+                                                ScreenFade, BattleResult)
+from engine.uibattle.uibattle import (CharacterSpeechBox, CharacterCommandIndicator, DamageNumber,
+                                      CharacterInteractPrompt, StrategyIcon)
 from engine.uimenu.uimenu import TextPopup, BrownMenuButton
 from engine.updater.updater import ReversedLayeredUpdates
 from engine.utils.common import clean_group_object, cutscene_update
@@ -83,6 +84,7 @@ class Battle:
     add_new_army_arrive = add_new_army_arrive
     add_new_army_to_reinforcement = add_new_army_to_reinforcement
     add_sound_effect_queue = add_sound_effect_queue
+    add_strategy_to_team_state = add_strategy_to_team_state
     back_to_battle_state = back_to_battle_state
     call_in_air_group = call_in_air_group
     call_reinforcement = call_reinforcement
@@ -264,7 +266,7 @@ class Battle:
         self.team_state = {team: {"faction": None, "culture": None, "strategy_resource": 0, "supply_resource": 0,
                                   "supply_reserve": 0, "total_supply": 0, "leadership": 0, "start_pos": 0,
                                   "leader_call_list": [], "troop_call_list": [],
-                                  "air_group": [], "strategy": {}} for
+                                  "air_group": [], "strategy_cooldown": {}} for
                            team in team_list}
         self.team_commander = {team: None for team in team_list}
         self.team_deployed = {team: 0 for team in team_list}
@@ -298,18 +300,17 @@ class Battle:
         self.screen = self.game.screen
 
         # Create the game camera
-        self.camera_pos = Vector2(500, 500)  # camera pos on scene
-        self.camera_left_bound = (self.camera_pos[0] - self.camera_center_x)
+        self.camera_center_pos = Vector2(500, 500)  # camera centre pos on scene
+        self.camera_left_bound = (self.camera_center_pos[0] - self.camera_center_x)
 
-        self.base_camera_left_bound = (self.camera_pos[0] - self.camera_center_x) / self.screen_scale_width
-        self.base_camera_pos = Vector2(self.camera_pos[0] / self.screen_scale_width,
-                                       self.camera_pos[1] / self.screen_scale_height)
-        self.shown_camera_center_pos = self.camera_pos  # pos of camera shown to player, in case of screen shaking or other effects
+        self.base_camera_left_bound = (self.camera_center_pos[0] - self.camera_center_x) / self.screen_scale_width
+        self.base_camera_center_pos = Vector2(self.camera_center_pos[0] / self.screen_scale_width,
+                                              self.camera_center_pos[1] / self.screen_scale_height)
+        self.shown_camera_center_pos = self.camera_center_pos  # pos of camera shown to player, in case of screen shaking or other effects
 
         self.camera = Camera(self.screen, (self.camera_width, self.camera_height))
         self.camera_w_center = self.camera.camera_w_center
         self.camera_h_center = self.camera.camera_h_center
-        self.camera_x_shift = self.shown_camera_center_pos[0] - self.camera_w_center
 
         # Assign battle variable to some classes
         Character.collision_grid_width = self.screen_width / Collision_Grid_X_Per_Battle_Scene  # collision grid size based on screen scale
@@ -450,8 +451,7 @@ class Battle:
                 commander_stat = self.character_list[main_army.commander_id]
                 team_state["leadership"] += commander_stat["Leadership"]
                 if commander_stat["Strategy"]:
-                    team_state["strategy_cooldown"][len(team_state["strategy"])] = 0
-                    team_state["strategy"].append(commander_stat["Strategy"])
+                    self.add_strategy_to_team_state(team_state, commander_stat["Strategy"])
 
                 retinue_list = [item[0] for item in main_army.army_followers["retinue"] if item[1]]
                 if len(retinue_list) < 3:  # check for retinue in reinforcement armies until can get full 3
@@ -465,8 +465,7 @@ class Battle:
                 for retinue in retinue_list:
                     team_state["leadership"] += (self.character_list[retinue]["Leadership"] *
                                                  Retinue_Leadership_Add_Modifier)
-                    team_state["strategy_cooldown"][len(team_state["strategy"])] = 0
-                    team_state["strategy"].append(self.character_list[retinue]["Strategy"])
+                    self.add_strategy_to_team_state(team_state, self.character_list[retinue]["Strategy"])
 
                 team_state["active_retinue"] = retinue_list
             team_state["strategy_resource"] = team_state["leadership"]
@@ -598,7 +597,7 @@ class Battle:
                 battle_character_list.append(effect["Property"]["summon"])  # add all summon for all effects
 
         for team_value in self.team_state.values():
-            for strategy in team_value["strategy"]:
+            for strategy in team_value["strategy_cooldown"]:
                 if self.strategy_list[strategy]["Summon"]:
                     battle_character_list += list(self.strategy_list[strategy]["Summon"].keys())
             if "unit" in team_value and team_value["unit"]:
@@ -725,11 +724,11 @@ class Battle:
                                                  custom_stage_data["weather"][1])
 
         if self.player_team:
-            self.camera_pos = Vector2(self.team_state[self.player_team]["start_pos"] * self.screen_scale_width,
-                                      self.camera_center_y)
+            self.camera_center_pos = Vector2(self.team_state[self.player_team]["start_pos"] * self.screen_scale_width,
+                                             self.camera_center_y)
         else:  # no player, camera at center
-            self.camera_pos = Vector2((self.base_stage_end / 2) * self.screen_scale_width,
-                                      self.camera_center_y)
+            self.camera_center_pos = Vector2((self.base_stage_end / 2) * self.screen_scale_width,
+                                             self.camera_center_y)
 
         # start with default music, will play other music based on event later
         self.music_channel.set_volume(self.play_music_volume)
@@ -737,7 +736,7 @@ class Battle:
 
         self.fix_camera()
 
-        self.shown_camera_center_pos = self.camera_pos
+        self.shown_camera_center_pos = self.camera_center_pos
         self.scene.setup()
         self.tactical_map_ui.setup()  # setup tactical map ui to scale with stage size
         self.command_ui.setup()

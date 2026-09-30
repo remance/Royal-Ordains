@@ -18,12 +18,12 @@ def player_input_battle(self):
 
 
 def camera_go_left(self):
-    self.camera_pos[0] -= (2000 * self.true_dt)
+    self.camera_center_pos[0] -= (2000 * self.true_dt)
     self.fix_camera()
 
 
 def camera_go_right(self):
-    self.camera_pos[0] += (2000 * self.true_dt)
+    self.camera_center_pos[0] += (2000 * self.true_dt)
     self.fix_camera()
 
 
@@ -96,11 +96,12 @@ def key_call_air_5(self):
 
 def key_select_strategy(self, index):
     player_team_state = self.team_state[self.player_team]
-    if player_team_state["strategy"] and index < len(player_team_state["strategy"]):
-        this_strategy = player_team_state["strategy"][index]
-        if not player_team_state["strategy_cooldown"][index]:
+    player_team_state_strategy = player_team_state["strategy_cooldown"]
+    if player_team_state_strategy and index < len(player_team_state_strategy):
+        this_strategy = tuple(player_team_state_strategy.keys())[index]
+        if not min(player_team_state_strategy[this_strategy]):
             # strategy exist and not in cooldown
-            self.player_selected_strategy = (this_strategy, index)
+            self.player_selected_strategy = this_strategy
             strategy_stat = self.strategy_list[this_strategy]
             self.player_interact.current_strategy_base_range = strategy_stat["Range"]
             self.player_interact.current_strategy_base_activate_range = strategy_stat["Activate Range"]

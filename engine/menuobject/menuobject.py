@@ -44,6 +44,7 @@ class MenuActor(UIMenu):
         self._layer = layer
         UIMenu.__init__(self, has_containers=True)
         self.current_animation = images
+        self.max_show_frame = len(self.current_animation) - 1
         self.pos = pos
         self.frame_timer = 0
         self.animation_frame_play_time = animation_frame_play_time
@@ -59,7 +60,7 @@ class MenuActor(UIMenu):
             self.frame_timer += dt
             if self.frame_timer >= self.animation_frame_play_time:
                 self.frame_timer = 0
-                if self.show_frame < len(self.current_animation) - 1:
+                if self.show_frame < self.max_show_frame:
                     self.show_frame += 1
                     self.image = self.current_animation[self.show_frame]
                 else:

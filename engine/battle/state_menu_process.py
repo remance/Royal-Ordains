@@ -13,7 +13,7 @@ def state_menu_process(self):
     self.scene.update()
     self.camera.update(self.battle_camera_object_drawer)
 
-    self.camera.update_with_in_camera_check(self.battle_camera_ui_drawer)
+    self.camera.update(self.battle_camera_ui_drawer)
     self.camera.out_update(self.outer_ui_updater)
     self.ui_menu_drawer.draw(self.screen)  # draw the UI
 

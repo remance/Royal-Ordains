@@ -4,7 +4,7 @@ from pygame import Vector2, draw, Surface
 from pygame.transform import rotate
 
 from engine.constants import Turn_To_Phase
-from engine.uigrand.uigrand import UIGrand
+from engine.uioutergrand.uioutergrand import UIOuterGrand
 from engine.utils.rotation import set_rotate
 
 
@@ -33,10 +33,10 @@ def ellipse_orbit(center, radius, angle, orbit_angle):
     return x, y
 
 
-class MiniCosmosUI(UIGrand):
+class MiniCosmosUI(UIOuterGrand):
     def __init__(self, images, cosmic_ui):
-        self._layer = 4
-        UIGrand.__init__(self)
+        self._layer = 6
+        UIOuterGrand.__init__(self)
         self.line_width = int(4 * self.screen_scale_width)
         if self.line_width < 1:
             self.line_width = 1
@@ -46,7 +46,7 @@ class MiniCosmosUI(UIGrand):
         self.cosmic_ui = cosmic_ui
         self.size_scale_width = self.image.get_width() / self.cosmic_ui.image.get_width()
         self.size_scale_height = self.image.get_height() / self.cosmic_ui.image.get_height()
-        self.rect = self.image.get_rect(topright=(self.screen_width, 0))
+        self.rect = self.image.get_rect(topright=(self.screen_width, self.grand.menu_bar_ui.rect.bottomright[1]))
 
     def reset(self):
         if self.grand.current_campaign_state["cosmic_event"]:
@@ -71,7 +71,7 @@ class MiniCosmosUI(UIGrand):
                         planet.dot_size)
 
     def update(self, dt):
-        UIGrand.update(self, dt)
+        UIOuterGrand.update(self, dt)
         if self.mouse_over:
             text = [self.grab_text(("ui", "info_header_current_cosmic_events")), ]
             cosmic_event_list = self.grand.current_campaign_state["cosmic_event"]
@@ -90,10 +90,10 @@ class MiniCosmosUI(UIGrand):
                     self.outer_ui_updater.remove(self.cosmic_ui)
 
 
-class CosmosUI(UIGrand):
+class CosmosUI(UIOuterGrand):
     def __init__(self):
-        self._layer = 100
-        UIGrand.__init__(self)
+        self._layer = 10
+        UIOuterGrand.__init__(self)
         self.show_text = False
         self.must_update_image = False
         self.font = self.game.large_generic_ui_font
@@ -154,6 +154,7 @@ class CosmosUI(UIGrand):
             planet.reset(cosmos_time)
 
     def update(self, dt):
+        UIOuterGrand.update(self, dt)
         if self.must_update_image:
             self.update_image()
         if self.mouse_over:
@@ -162,6 +163,11 @@ class CosmosUI(UIGrand):
                 (self.cursor.pos[1] - self.rect.topleft[1]))
             for planet in self.planets.values():
                 if planet.rect.collidepoint(inside_mouse_pos):
+                    self.text_popup.popup(self.cursor.rect,
+                                          (self.grab_text(("cosmos", planet.cosmic_id, "Name")),
+                                           self.grab_text(("cosmos", planet.cosmic_id, "Description"))),
+                                          width_text_wrapper=self.max_description_box_width)
+                    self.outer_ui_updater.add(self.text_popup)
                     break
 
     def update_image(self):
@@ -256,13 +262,13 @@ class CosmosUI(UIGrand):
             self.apply_cosmic_event("great_comet")
 
 
-class CosmicEntity(UIGrand):
+class CosmicEntity(UIOuterGrand):
     rotate_cache = {}
     image = Surface((0, 0))
 
     def __init__(self, dot_size, start_angle, colour, cosmic_id, orbit=None, epicycle=None, specific_base_pos=(),
                  movement_angle=False):
-        UIGrand.__init__(self)
+        UIOuterGrand.__init__(self)
         self.cosmic_event_list = self.grand.character_data.cosmic_event_list
         self.cosmos_ui_images = self.grand.cosmos_ui_images
         self.dot_size = dot_size * self.screen_scale_width
