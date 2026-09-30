@@ -64,27 +64,13 @@ class Effect(Sprite):
         Sprite.__init__(self, self.containers)
 
         self.current_moveset = moveset
-        moveset_property = {}
-        if moveset:
-            moveset_property = moveset["Property"]
-        self.current_moveset_property = moveset_property
+
         self.enemy_status_effect = ()
         self.power = 0
         self.element = None
         self.penetrate = 0
         self.no_defence = False
         self.no_dodge = False
-
-        if moveset:
-            self.power = moveset["Power"]
-            self.element = moveset["Element"]
-            self.penetrate = moveset["Penetrate"]
-
-            self.enemy_status_effect = moveset["Effect Enemy Status"]
-            if "no_defence" in moveset_property:
-                self.no_defence = True
-            if "no_dodge" in moveset_property:
-                self.no_dodge = True
 
         self.camera = self.battle.camera
         self.battle_camera_drawer = self.battle.battle_camera_object_drawer
@@ -205,8 +191,23 @@ class Effect(Sprite):
         self.start_pos = Vector2(self.base_pos)
 
         moveset_property = {}
+
         if moveset:
             moveset_property = moveset["Property"]
+
+            self.power = moveset["Power"]
+            self.element = moveset["Element"]
+            self.penetrate = moveset["Penetrate"]
+
+            self.enemy_status_effect = moveset["Effect Enemy Status"]
+            if "no_defence" in moveset_property:
+                self.no_defence = True
+            if "no_dodge" in moveset_property:
+                self.no_dodge = True
+            if "reverse_animation" in moveset_property:
+                self.reverse_animation = True
+                self.show_frame = self.max_show_frame
+
             if "effect_target_placement" in moveset:
                 # effect moveset that place effect at target right away
                 self.pos = Vector2(self.base_target_pos[0] * self.screen_scale_width,
@@ -248,6 +249,8 @@ class Effect(Sprite):
                     moveset["AI Condition"]["enemy"]["target_type"] == "air"):
                 # effect intend to hit air enemy only
                 self.enemy_collision_grids = self.battle.all_team_air_enemy_collision_grids[self.team]
+
+        self.current_moveset_property = moveset_property
 
         if self.base_target_pos and "no_travel" not in effect_stat_property and effect_stat["Travel Speed"]:
             if "direct" in moveset_property:  # direct shot, not use projectile movement with velocity
@@ -531,6 +534,7 @@ class ShowcaseEffect(Effect):
         self.travel_progress = 0
         self.travel = False
         self.direct_shot = False  # determine what method to use for sprite movement
+        self.reverse_animation = False
         self.sound_effect = None
         self.sound_timer = 0
         self.sound_duration = 0
@@ -567,7 +571,6 @@ class ShowcaseEffect(Effect):
                 self.sound_timer = self.sound_duration / 0.5
         if "travel_spin" in effect_stat_property:
             self.travel_spin = True
-
         if self.base_target_pos and "no_travel" not in effect_stat_property and effect_stat["Travel Speed"]:
             target_distance = self.base_target_pos[0] - self.base_pos[0]
             self.travel_distance = target_distance

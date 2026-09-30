@@ -110,6 +110,7 @@
 "spikeball",,1000,"TRUE","bounce",,"toy",1200,,"travel_spin"
 "stink_cloud",3,,,,,,,,
 "stinktrap",30,,,,"stink_cloud","smoke_puff",1000,,"trap,reach_effect_spawn_ground"
+"strategy_buff",,,,,,,,,
 "stone",,2200,"TRUE","bounce",,"stone",2200,,
 "stone_big",,3000,"TRUE","bounce",,"stone_big",3400,,
 "stone_huge",,1000,"TRUE","move","landing_huge","stone_huge",5800,6,"reach_effect_spawn_ground:bottom"

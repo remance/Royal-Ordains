@@ -14,18 +14,31 @@ def play_animation(self, speed, dt, hold_check=False):
         if self.frame_timer >= speed:
             self.frame_timer = 0
             just_start = True
-            if self.show_frame < self.max_show_frame:  # continue next frame
-                self.show_frame += 1
-                self.base_image = self.current_animation[self.show_frame]
-                self.renew_sprite = True
-                self.adjust_sprite()
-            else:  # reach end frame
-                if self.repeat_animation:
-                    self.show_frame = 0
+            if not self.reverse_animation:
+                if self.show_frame < self.max_show_frame:  # continue next frame
+                    self.show_frame += 1
                     self.base_image = self.current_animation[self.show_frame]
                     self.renew_sprite = True
                     self.adjust_sprite()
-                else:
-                    done = True
+                else:  # reach end frame
+                    if self.repeat_animation:
+                        self.show_frame = 0
+                        self.base_image = self.current_animation[self.show_frame]
+                        self.renew_sprite = True
+                        self.adjust_sprite()
+                    else:
+                        done = True
+            else:
+                if self.show_frame:  # continue next frame
+                    self.show_frame -= 1
+                else:  # reach end frame
+                    if self.repeat_animation:  # not loop
+                        self.show_frame = self.max_show_frame
+                        self.base_image = self.current_animation[self.show_frame]
+                        self.renew_sprite = True
+                        self.adjust_sprite()
+                    else:
+                        done = True
+
         # self.rect already reset in adjust_sprite()
     return done, just_start
