@@ -39,7 +39,7 @@ class GrandObject(Sprite):
     def change_state(self, new_state):
         self.active_state = new_state
         self.image = self.building_portraits[self.sprite_id]["building_ui"]
-        if self.active_state:
+        if not self.active_state:
             self.image = self.image.copy()
             self.image.blit(self.building_portraits["unique_damaged"]["building_ui"], (0, 0))
 
@@ -72,15 +72,15 @@ class SettlementObject(GrandObject):
         icon = self.building_portraits[self.sprite_id]["building_ui"]
         icon_rect = icon.get_rect(center=self.base_image_center)
         self.image.blit(icon, icon_rect)
-        if new_state[0]:  # damaged building
+        if not new_state[0]:  # damaged building
             self.image.blit(self.building_portraits["damaged"]["building_ui"], icon_rect)
         if new_state[1]:  # constructing building
             self.image.blit(self.building_portraits["progress"]["building_ui"], icon_rect)
 
-    def change_building_state(self, building_index, building_type, damaged_state, constructing_state):
+    def change_building_state(self, building_index, building_type, ready_state, constructing_state):
         slot_rect = self.slot_rects[building_index]
         self.base_image.blit(self.grand_ui_images["slot_" + building_type], slot_rect)
-        if damaged_state:
+        if not ready_state:
             self.image.blit(self.grand_ui_images["slot_damaged"], slot_rect)
         if constructing_state:
             self.image.blit(self.grand_ui_images["slot_progress"], slot_rect)

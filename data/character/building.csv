@@ -281,8 +281,8 @@
 "small_barrack_c1_snail_house","free_build","small_settlement_3_warren_moderate",56,240,,,"small_snail_sword",,,"small_snail_old,small_snail_sword",,,,,2,1,,"small","barrack",
 "small_barrack_d1_hound","free_build","small_settlement_3_warren_moderate",78,280,,,"small_rabbit_hound_cav",,,"small_rabbit_hound_cav","small_hound_bone",,,,-5,,,"small","barrack",
 "small_barrack_e1_dark_hole","free_build","small_settlement_4_warren_nice",180,40,,,"small_rabbit_killer",,,"small_rabbit_killer",,,,,-4,-5,,"small","barrack","done"
-"small_barrack_f1_siege_guild","free_build","small_settlement_4_warren_nice",95,,,,,,,"small_rabbit_trebuchet",,,,50,-6,-3,,"small","barrack",
-"small_barrack_f2_gunnery_guild","small_barrack_f1_siege_guild",,148,,,,,,,"small_rabbit_trebuchet,small_rabbit_cannon",,,,100,-10,-8,,"small","barrack",
+"small_barrack_f1_siege_guild","free_build","small_settlement_4_warren_nice",95,650,,,,,,"small_rabbit_trebuchet",,,,50,-6,-3,,"small","barrack",
+"small_barrack_f2_gunnery_guild","small_barrack_f1_siege_guild","small_tech_b1_weapon_smith,small_barrack_a2_noble_warren",148,1000,,,,,,"small_rabbit_trebuchet,small_rabbit_cannon,small_rabbit_rifle",,,,100,-10,-8,,"small","barrack",
 "small_barrack_g1_bird_house","free_build","small_settlement_3_warren_moderate",25,500,,,,,,"small_eagle_air_stone",,,,,3,1,,"small","barrack","done"
 "small_barrack_g2_mew","small_barrack_g1_bird_house",,37,700,,,,"small_eagle_air_stone",,"small_eagle_air_stone","small_eagle_nutrient,small_eagle_hooding",,,,-5,2,,"small","barrack",
 "small_faith_1_shrine","free_build","small_settlement_2_warren_small",26,25,,,,,"small_rabbit_leader_shaman",,,,,20,6,15,,"small","faith","done"
@@ -302,7 +302,7 @@
 "small_settlement_4_warren_nice","small_settlement_3_warren_moderate",,232,,,"small_rabbit_leader_knight","small_rabbit_spear,small_rabbit_sling",,,,,,25,90,6,12,,"small","settlement",
 "small_settlement_5_warren_great","small_settlement_4_warren_nice",,378,,,"small_rabbit_leader_knight","small_rabbit_spear,small_rabbit_spear,small_rabbit_sling",,,,,,50,150,9,15,,"small","settlement",
 "small_tech_a1_fur_hardener","free_build","small_settlement_3_warren_moderate",32,,,,,,,,"small_rabbit_fur_oil,small_rabbit_cleaner,small_rabbit_foodpad,small_global_capacity",,,20,-6,,,"small","tech",
-"small_tech_b1_weapon_smith","free_build","small_settlement_4_warren_nice",46,,,,,,,,"small_rabbit_better_spear,small_rabbit_better_shield",,,40,-8,,,"small","tech",
+"small_tech_b1_weapon_smith","free_build","small_settlement_4_warren_nice",46,,,,,,,,"small_rabbit_better_spear,small_rabbit_better_shield,small_super_metal",,,40,-8,,,"small","tech",
 "unique_ancient_great_sword",,,,,,,,,,,,,,,,,"gold:0.1,supply:0.1,happiness:0.1","all","unique",
 "unique_black_palace","unique_black_palace_ruin",,60,9000,,,,,,,,,,,,,"happiness:0.4","all","unique",
 "unique_black_palace_ruin",,,4,,,,,,,,,,,,,,,,,

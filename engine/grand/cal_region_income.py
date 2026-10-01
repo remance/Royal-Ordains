@@ -8,7 +8,7 @@ def cal_region_income(self, region):
     owner = campaign_region_state["control"][region]
     faction_culture_state = self.current_campaign_state["faction"][owner]["culture"]
     for building in campaign_region_state["building"][region]:
-        if building and not building[1] and not building[2]:
+        if building and building[1] and not building[2]:
             # building is in active state and not destroyed/constructing state
             building_id = building[0]
             building_stat = self.building_list[building_id]

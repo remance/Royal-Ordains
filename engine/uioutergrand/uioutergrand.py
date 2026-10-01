@@ -420,7 +420,7 @@ class PlayerArmyListSortOption(UIOuterGrand):
                     break
 
 
-class PlayerArmyList(UIOuterGrand):  # TODO add auto assemble/resupply button on card
+class PlayerArmyList(UIOuterGrand):
     def __init__(self):
         self._layer = 5
         UIOuterGrand.__init__(self)
@@ -435,17 +435,20 @@ class PlayerArmyList(UIOuterGrand):  # TODO add auto assemble/resupply button on
         self.empty_card_image = Surface((950 * self.screen_scale_width, 150 * self.screen_scale_height), SRCALPHA)
         self.empty_card_image.fill((200, 130, 130, 150))
 
-        self.empty_selected_base_image = Surface((900 * self.screen_scale_width, 150 * self.screen_scale_height))
+        self.empty_selected_base_image = Surface((950 * self.screen_scale_width, 150 * self.screen_scale_height))
         self.empty_selected_base_image.fill((200, 100, 100))
 
-        self.empty_card_image.blit(self.grand_ui_icons["supply"], (145 * self.screen_scale_width,
+        self.empty_card_image.blit(self.grand_ui_icons["supply"], (210 * self.screen_scale_width,
                                                                    10 * self.screen_scale_height))
 
-        self.empty_card_image.blit(self.grand_ui_icons["number"], (145 * self.screen_scale_width,
+        self.empty_card_image.blit(self.grand_ui_icons["number"], (210 * self.screen_scale_width,
                                                                    80 * self.screen_scale_height))
 
-        self.card_icon_rects = {"assemble": self.grand_ui_images["army_resupply_disable"].get_rect(topleft=(0, 0)),
-                                "supply": self.grand_ui_images["army_resupply_disable"].get_rect(bottomleft=(0, self.empty_card_image.get_height()))}
+        self.card_icon_rects = {"resupply": self.grand_ui_images["army_resupply_disable"].get_rect(topleft=(
+                                    10 * self.screen_scale_width, 10 * self.screen_scale_height)),
+                                "assemble": self.grand_ui_images["army_resupply_disable"].get_rect(bottomleft=(
+                                    10 * self.screen_scale_width,
+                                    self.empty_card_image.get_height() - 10 * self.screen_scale_height))}
         self.current_row = 0
         self.total_row = 0
         self.max_row_show = 1  # trick the scroller to use additional row instead of total
@@ -455,15 +458,29 @@ class PlayerArmyList(UIOuterGrand):  # TODO add auto assemble/resupply button on
         self.army_rects = [self.empty_card_image.get_rect(
             topleft=(0, self.empty_card_image.get_height() * index)) for index in range(8)]
 
+    def add_assemble_resupply_to_card(self, army, which):
+        rect = self.card_icon_rects[which]
+        if which == "assemble":
+            check = army.enable_assemble
+        else:
+            check = army.enable_resupply
+
+        if check:
+            check = "_enable"
+        else:
+            check = "_disable"
+
+        image = self.grand_ui_images["army_" + which + check]
+        self.army_card_list[army][0].blit(image, rect)
+        self.army_card_list[army][1].blit(image, rect)
+
     def draw_army_card(self, army):
         card_image = self.empty_card_image.copy()
 
-        # if self.card_icon_rects
-        # army.enable_assemble
-        # army.enable_resupply
-
         commander_image = self.character_portraits[army.commander_id]["tiny"]["right"]
-        card_image.blit(commander_image, commander_image.get_rect(topleft=(0, 0)))
+        commander_image_rect = commander_image.get_rect(topleft=(self.card_icon_rects["assemble"].topright[0],
+                                                                 -10 * self.screen_scale_height))
+        card_image.blit(commander_image, commander_image_rect)
 
         supply_text_colour = (255, 255, 255)
         if army.supply / army.max_supply < 0.2:
@@ -476,17 +493,18 @@ class PlayerArmyList(UIOuterGrand):  # TODO add auto assemble/resupply button on
             self.value_text_font_cache[supply_text] = text_surface
         else:
             text_surface = self.value_text_font_cache[supply_text]
-        card_image.blit(text_surface, text_surface.get_rect(topleft=((240 * self.screen_scale_width),
+        card_image.blit(text_surface, text_surface.get_rect(topleft=((305 * self.screen_scale_width),
                                                                      10 * self.screen_scale_height)))
 
-        total_number_text = add_comma_number(army.total_number)
+        total_number_text = (add_comma_number(army.total_number) + " (" +
+                             str(int(army.assemble_percent[1] / sum(army.assemble_percent) * 100)) + "%)")
         if total_number_text not in self.value_text_font_cache:
             text_surface = text_render_with_bg(total_number_text,
                                                self.font, (0, 0, 0), (255, 255, 255))
             self.value_text_font_cache[total_number_text] = text_surface
         else:
             text_surface = self.value_text_font_cache[total_number_text]
-        card_image.blit(text_surface, text_surface.get_rect(topleft=((240 * self.screen_scale_width),
+        card_image.blit(text_surface, text_surface.get_rect(topleft=((305 * self.screen_scale_width),
                                                                      80 * self.screen_scale_height)))
 
         if army.current_region not in self.value_text_font_cache:
@@ -501,9 +519,9 @@ class PlayerArmyList(UIOuterGrand):  # TODO add auto assemble/resupply button on
 
         if army.game_id in self.grand.current_campaign_state["battle"]["armies"]:
             activity = self.grab_text(("ui", "info_text_combat"))
-        elif army.travelling:
-            activity = ">> " + self.grab_text(("region", army.travelling["destination"], "Name"))
-        elif army.assembling_followers:
+        elif "travel" in army.activity:
+            activity = ">> " + self.grab_text(("region", army.activity["destination"], "Name"))
+        elif "assemble" in army.activity:
             activity = self.grab_text(("ui", "info_text_assemble"))
         else:
             activity = self.grab_text(("ui", "info_text_idle"))
@@ -518,14 +536,14 @@ class PlayerArmyList(UIOuterGrand):  # TODO add auto assemble/resupply button on
         draw.rect(selected_card_image, (0, 0, 0),
                   (0, 0, selected_card_image.get_width(), selected_card_image.get_height()),
                   width=int(8 * self.screen_scale_width))
-        return card_image, selected_card_image
 
-    def change_card_icon(self, army, icon, icon_state):
-        card = self.army_card_list[army]
+        return card_image, selected_card_image
 
     def reset_card(self, army):
         """Reset only specific card based on input index"""
         self.army_card_list[army] = self.draw_army_card(army)
+        self.add_assemble_resupply_to_card(army, "assemble")
+        self.add_assemble_resupply_to_card(army, "resupply")
         if self.grand.current_campaign_state["faction"][self.grand.player_faction]["army"].index(
                 army) >= self.current_row:
             # redraw list if card is being shown in ui
@@ -548,6 +566,8 @@ class PlayerArmyList(UIOuterGrand):  # TODO add auto assemble/resupply button on
         self.scroll_total_row = self.total_row + 1
         for army in current_army_list:
             self.army_card_list[army] = self.draw_army_card(army)
+            self.add_assemble_resupply_to_card(army, "assemble")
+            self.add_assemble_resupply_to_card(army, "resupply")
         self.draw_list()
 
     def draw_list(self):
@@ -585,6 +605,37 @@ class PlayerArmyList(UIOuterGrand):  # TODO add auto assemble/resupply button on
                     if rect.collidepoint(inside_mouse_pos) and self.current_row + index < len(self.army_card_list):
                         army = self.grand.current_campaign_state["faction"][self.grand.player_faction][
                             "army"][self.current_row + index]
+                        for which, icon_rect in self.card_icon_rects.items():
+                            inside_card_mouse_pos = Vector2(
+                                (inside_mouse_pos[0] - rect.topleft[0]),
+                                (inside_mouse_pos[1] - rect.topleft[1]))
+                            if icon_rect.collidepoint(inside_card_mouse_pos):  # mouse at icon rather than card itself
+                                print(which)
+                                if self.event_press:  # change enable/disable
+                                    if which == "assemble":
+                                        if army.enable_assemble:
+                                            army.enable_assemble = False
+                                        else:
+                                            army.enable_assemble = True
+                                    else:
+                                        if army.enable_resupply:
+                                            army.enable_resupply = False
+                                        else:
+                                            army.enable_resupply = True
+                                    self.add_assemble_resupply_to_card(army, which)
+                                    self.draw_list()
+
+                                else:
+                                    if which == "assemble":
+                                        value = army.enable_assemble
+                                    else:
+                                        value = army.enable_resupply
+                                    text = (self.grab_text(("ui", "info_header_" + which)) +
+                                            self.grab_text(("ui", "info_text_" + str(value))))
+                                    self.text_popup.popup(self.cursor.rect, text)
+                                    self.outer_ui_updater.add(self.text_popup)
+                                return
+
                         if self.event_press:
                             if self.grand.shift_press:
                                 if army not in self.grand.player_selected_army:
@@ -595,12 +646,12 @@ class PlayerArmyList(UIOuterGrand):  # TODO add auto assemble/resupply button on
                             else:
                                 self.grand.player_selected_army = [army]
                             self.draw_list()
-                        elif self.event_alt_press:
-                            # open army management ui
-                            self.grand.player_grand_preset_army_setup.popup("", army)
-                            self.grand.player_army_info_ui.add_info(army.to_preset_dict)
-                            self.outer_ui_updater.add(self.grand.player_grand_preset_army_setup,
-                                                      self.grand.player_army_info_ui)
+                        # elif self.event_alt_press:
+                        #     # open army management ui
+                        #     self.grand.player_grand_preset_army_setup.popup("", army)
+                        #     self.grand.player_army_info_ui.add_info(army.to_preset_dict)
+                        #     self.outer_ui_updater.add(self.grand.player_grand_preset_army_setup,
+                        #                               self.grand.player_army_info_ui)
                         elif self.event_middle_mouse_press:
                             self.grand.camera_topleft_pos = Vector2(
                                 (army.base_pos[
@@ -754,7 +805,7 @@ class RegionManagement(UIOuterGrand):
             building_icon = self.building_portraits["default"]["building_ui"]
 
         self.image.blit(building_icon, self.building_slot_rects[index])
-        if building[1]:  # damaged building
+        if not building[1]:  # damaged building
             self.image.blit(self.building_portraits["damaged"],
                             building_icon.get_rect(center=self.building_slot_rects[index]))
         if building[2]:  # constructing building
@@ -1094,7 +1145,7 @@ class PlayerGrandInteract(UIOuterGrand):
                                     self.grand.player_selected_army]):
                                 # player army in battle, this will cause battle lost and armies retreat from battle,
                                 # ask for confirmation first
-                                if any([army.assembling_followers for army in self.grand.player_selected_army]):
+                                if any([army.can_assemble for army in self.grand.player_selected_army]):
                                     # there is also army assembling, this will cause assemble to be cancelled,
                                     # ask for confirmation with both warning
                                     self.grand.activate_input_popup(("confirm_input", "assemble",
@@ -1107,7 +1158,7 @@ class PlayerGrandInteract(UIOuterGrand):
                                                                     self.grab_text(
                                                                         ("ui", "warn_input_retreat_assemble")),
                                                                     self.game.confirm_popup_uis)
-                            elif any([army.assembling_followers for army in self.grand.player_selected_army]):
+                            elif any([army.can_assemble for army in self.grand.player_selected_army]):
                                 # there is army assembling, this will cause assemble to be cancelled,
                                 # ask for confirmation first
                                 self.grand.activate_input_popup(("confirm_input", "assemble",

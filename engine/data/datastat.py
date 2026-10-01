@@ -234,6 +234,7 @@ class DataStat(GameData):
         edit_file.close()
 
         self.building_list = {}
+        self.character_hire_building_list = {}
         with open(os.path.join(self.data_dir, "character", "building.csv"),
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
@@ -252,6 +253,8 @@ class DataStat(GameData):
                 self.building_list[row[0]]["Repair Time"] = int(self.building_list[row[0]]["Build Time"] / 2)
                 if not self.building_list[row[0]]["Repair Time"]:
                     self.building_list[row[0]]["Repair Time"] = 1
+                for character in self.building_list[row[0]]["Leader Recruit"] + self.building_list[row[0]]["Unit Recruit"]:
+                    self.character_hire_building_list[character] = [row[0], True, 0]  # ready state of building
         edit_file.close()
 
         self.cosmic_event_list = {}

@@ -57,7 +57,6 @@ class Effect(Sprite):
                  part_stat: (list, tuple), moveset=None, base_target_pos=None, from_owner=True):
         """Effect sprite that does not affect character on its own but can travel and
         create other Effect when reach target"""
-        # TODO add end effect animation before removal
 
         self._layer = 999999999999999999999997
 
@@ -87,6 +86,7 @@ class Effect(Sprite):
         self.one_hit_per_enemy = False
         self.travel_spin = False
         self.ignore_ground = False
+        self.reverse_animation = False
         self.travel_distance = 0
         self.travel_progress = 0
         self.travel = False

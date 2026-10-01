@@ -15,7 +15,7 @@ def change_phase(self):
             if activity["progress"] == activity["difficulties"][0]:
                 # move to next dot in route
                 next_dot = activity["dot_routes"][0][1]
-                if (self.travelling["type"] == "retreat" or next_dot not in campaign_battle_dot or
+                if (self.activity["travel"] == "retreat" or next_dot not in campaign_battle_dot or
                         self.faction in campaign_battle_factions[next_dot]):
                     # can only move to that dots if no battle is taking place between other unrelated factions
                     activity["progress"] = 0  # reset progress
@@ -74,12 +74,12 @@ def change_phase(self):
                                                                       int(self.base_pos[1]))))[:3]
                     self.current_region = self.grand.region_by_colour_index[region_colour]
                     if not activity["dot_routes"]:  # no more route left, finish travel
-                        self.travelling = {}
-    else:
+                        self.activity = {}
+    else:  # idle
         if (self.base_pos in self.region_by_pos_index and
                 current_campaign_state["region"]["control"][self.region_by_pos_index[self.base_pos]] == self.faction):
             # idle at faction owned settlement
-            if self.supply < self.max_supply:
+            if self.supply < self.max_supply and self.enable_resupply:
                 # replenish supply
                 faction_state = current_campaign_state["faction"][self.faction]
                 remain_supply = faction_state["supply"]
@@ -90,18 +90,23 @@ def change_phase(self):
                     self.supply += replenish_supply
                     faction_state["supply"] = remain_supply - replenish_supply
 
-            if "assemble" in self.activity:
-                assembling = self.assembling_followers
-                army_change = False
-                for character, value in assembling:
-                    value["time"] -= 1
-                    if not value["time"]:  # finish assembling for this character, add to group
-                        if value["index"] == "new":
-                            group[value["type"]].append(value["character"])
-                        else:
-                            group[value["type"]][value["index"]] = value["character"]
+            if self.enable_assemble:
+                if self.assemble_percent[0] and not self.can_assemble:
+                    # has follower that not yet assemble and not already assembling
+                    self.check_assemble()
 
-                        assembling.pop(character)
+                if "assemble" not in self.activity:
+                    self.activity = {"assemble": True}
+
+                can_assemble = self.can_assemble
+                army_change = False
+                for follower, value in can_assemble.items():
+                    can_assemble[follower] -= 1
+                    if not can_assemble[follower]:  # finish assembling for this follower, enable it
+                        self.army_followers[follower[0]][follower[1]][1] = True
+                        can_assemble.pop(follower)
+                        if not can_assemble:  # finish all assemble
+                            self.activity = {}
                         army_change = True
 
                 if army_change:

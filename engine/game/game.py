@@ -377,6 +377,7 @@ class Game:
 
         if self.show_dmg_number:
             BattleCharacter.show_dmg_number = True
+        Army.character_hire_building_list = self.character_data.character_hire_building_list
         Army.character_list = self.character_list
         Character.character_data = self.character_data
         Character.character_list = self.character_list

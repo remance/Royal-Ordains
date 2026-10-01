@@ -34,12 +34,19 @@
 "castle_human_leader_ranger","Ranger","A ranger equipped with a bow and fast feet. Can use a healing kit to heal self and nearby allies.","For a civilisation to thrive, balance with the wilderness is necessary. These rangers were protectors and caretakers against trespassers of the vert and venison. The Royal Law of the Central Realms dictated that all verts within the boundary of divine mandate belong to the King and lords. As such, with expertise in archery, they could hunt dangerous animals and criminals alike."
 "castle_human_militia_bow","Bow Militia","A drafted hunter and the like. Can use the bow to some effects. Useful for a mass long-range barrage.","In the Central Realms culture, archery was a primary subject of learning for both lowborns and nobles alike. Having already attained the fundamental, their acceptable performance transferred well enough when deployed en masse against a large quantity of enemies. These militias were more likely to survive long enough to return home as veterans compared to those levied as spear militias."
 "castle_human_militia_spear","Militia","A lowly drafted peasant with inferior equipment. Weak overall, but good enough to protect the countryside from minor raids.","Matters of great import, such as food supply, were administered only by humans in the Central Realm culture. These militias were comprised of farm owners and workers who took up arms in times of emergency or were drafted by the lords to bolster the army. Since they were not regularly or formally trained, they were but the lowest of soldiers a realm could deploy."
+"dark_moonelf_air_wyvern","Cave Wyvern Raider",,
+"dark_moonelf_bladed_shield","Shield Duelist","A moonelf carrying a bladed shield duelist. A perfect balance of offence and defence. Very effective, fast frontline troop, even if this moonelf lacks the high health of other dwarf fighters.",
+"dark_moonelf_blowdart_cav",,,
+"dark_moonelf_dualcrossbows","Crossbows Hunter","A moonelf twin gunbow hunter. Sacrifice penetrating power for rate of fire, this hunter can quickly eliminate light-armoured targets.",
+"dark_moonelf_gladiator","Gladiator","A moonelf gladiator. Speed in both movement and attacks makes up for the lack of defence.",
+"dark_moonelf_leader_blood_sage","Blood Sage",,
+"dark_moonelf_warscythe","Depth Guard","A moon elf guard. Equipped with a long warscythe that can slice through flesh with ease. Very useful against light-armoured troops.",
+"dark_moonelf_whip","Dark Whipper","A moon elf slavemaster. Wield a sharp whip that can disarm enemies and inflict bleeding.",
 "death_bat_air","Dark Bat","A flying bat. Can be a real nuisance to air enemies. Its bite is infected with poison.","Bats are believed by many to be corrupted featherless birds. They are servants of dark magicians that spread unholiness throughout the world. Their dark blood is exotic medicine to cure bad blood disease."
 "death_cat_necromancer","Black Cat","A black cat necromancer. Can raise a skeleton to do its bidding. Unable to fight on its own.","Suffering from a lifetime of superstitious discrimination in the Central Realms, most black cats were exiled to the Death Land in the east. Vindictive of such injustice, they decided to become real harbingers of death."
 "death_gargoyle_air","Flying Gargoyle","A flying gargoyle. Strong and sturdy with its stone body.",
 "death_rat_tower_disease_thrower","Disease Thrower","A ratman with disease rot bags. Does not deal much direct damage, but the disease will greatly impede living enemies.",
 "death_undead_banshee","Banshee","Wailing banshee. This ghost can inflict extremely powerful debuffs on enemy but can do only little damage to anyone, including fellow ghosts.","Banshees are sorrowful maiden spirits who were killed before finding love. Unable to pass on, necromancers like to lure them into enemies' ranks, whereas these banshees will scream bloody in frustration at all who suffer the misfortune of facing them."
-"death_undead_skeleton_golem","Bone Golem","A huge troll skeleton golem. Tougher than it should be. Powerhouse of the death frontline.","The great strength and resilience of trolls remain long after their death. Only remaining as a skeleton, they do not possess regenerative blood but also no longer suffer from the weakness of poison. Only the most skilled necromancers are capable of controlling such frightening beings."
 "death_undead_corpse_thrower","Corpse Catapult","A corpse catapult. Can hurl a diseased corpse from afar to crush the unfortunate victim and also explode into a plague mist.",
 "death_undead_ghoul","Ghoul","A speedy ghoul. Can swiftly sneak through the battlefield and hit enemies where it hurts with plague.","Ghouls are among the most dangerous undead creatures that necromancers and raise. They are agile and filled to the brim with deadly plague that only the strong can survive. Wild ghouls are the main reason why the Death Land remain untouched by every living civilisation."
 "death_undead_grave_knight","Grave Knight","A grave knight. Heavily armoured and armed with a spear and shield, serve well as a slow-moving but indomitable force.",
@@ -50,6 +57,7 @@
 "death_undead_leader_vampire_lord","Vampire Lord","A bloodsucking vampire lord. Ancient and grievous, a bite from this creature will leave those unfortunate drained of energy and heal it in turn.",
 "death_undead_pain_golem","Eternal Pain Golem","A living golem. Unleash destruction and terror on all foes in their path.","A nightmare made real."
 "death_undead_skeleton_bone","Bone Juggler","A boney skeleton. Likes to throw bones at people.","These skeletons were remnants of people long past. Animated by necromancers, they no longer have free will to act on their own. With an absolute order to attack on sight, they use their tough bones as simple yet effective weapons."
+"death_undead_skeleton_golem","Bone Golem","A huge troll skeleton golem. Tougher than it should be. Powerhouse of the death frontline.","The great strength and resilience of trolls remain long after their death. Only remaining as a skeleton, they do not possess regenerative blood but also no longer suffer from the weakness of poison. Only the most skilled necromancers are capable of controlling such frightening beings."
 "death_undead_tower","Disease Tower","A tower made of corpses. The rat above throws a diseased blob of flesh at unfortunate living creatures nearby.",
 "death_undead_zombie","Zombie","A zombie. Tough, slow, and mindless. Makes for a great meat wave and shield.","Zombies are made from the corpses of people who died not too long ago. Still having meat attached to their cadaver, they can only move slowly toward their targets. But once they close in, their rotten bites are very dangerous to all living creatures. Their resilience allows them to accomplish such deeds, even more so if they are raised within the enemies' formation."
 "demon_creeper_claw","Demonic Creeper",,
@@ -121,16 +129,16 @@
 "highland_human_rock_kick","Footballer","A football highlander. Can kick a stone that deals heavy damage and fight in melee, albeit with somewhat slower attacks and shorter range compared to lighter ranged characters.",
 "highland_sheep_leader_shaman","Sheep Shaman","An earth shasheapman. Proficient in mud spells that deal minor earth damage and slow enemies.",
 "highland_sheep_pike","Sheep Protector","A pikesheapman. Carry a very long pike that can stab most melee enemies from a safe distance.",
-"holy_sheep_fanatic","Fanatic of the Faith",,
-"holy_human_light_bringer","Light Bringer","Red Flame-bladed sword",
-"holy_human_loyal_knight","Loyal Knight","Blue knight",
-"holy_human_harmony_guard","Harmony Guard","green halberd",
+"holy_cow_paladin","Paladin for the Faith",,
+"holy_goat_zealot","Zealot to the Faith",,
 "holy_human_empathy_archer","Empathy Archer","pink archer",
+"holy_human_harmony_guard","Harmony Guard","green halberd",
 "holy_human_leader_inquisitor","Black Inquisitor",,
 "holy_human_leader_nun","Grey Nun",,
 "holy_human_leader_priest","Gold Priest",,
-"holy_cow_paladin","Paladin for the Faith",,
-"holy_goat_zealot","Zealot to the Faith",,
+"holy_human_light_bringer","Light Bringer","Red Flame-bladed sword",
+"holy_human_loyal_knight","Loyal Knight","Blue knight",
+"holy_sheep_fanatic","Fanatic of the Faith",,
 "leader_abubaba","Abubaba","A swift swordman. Learnt in exotic swordmanship that few can imitate. Can attack enemies with great speed.",
 "leader_abubaba_duel","Abubaba the Duelist",,
 "leader_abubaba_warrior","Abubaba the Warrior",,
@@ -183,6 +191,8 @@
 "leader_cheermaker_fanfare","Cheermaster",,
 "leader_dashisi","Dashisi","A strangely well-dressed pixie. Quite strong for a small size and wields an executioner sword that can cleave through many foes.","Why does this pixie hail from? A question many asked but found no answer to. In fact, it was very rare for pixies to leave their kingdom in the deep forest due to their rampant but justified xenophobia. Dashisi's combat skills protected him from poachers and kidnappers. An executioner's sword that he wielded surely lopped off many wrongdoers' heads."
 "leader_dashisi_known",,,
+"leader_demoness","Demoness",,
+"leader_demoness_merged","Merged Demoness",,
 "leader_diezralvir","Diezralvir",,
 "leader_dimwa","Dimwa",,
 "leader_dimwa_awaken",,,
@@ -230,6 +240,8 @@
 "leader_forgotten","The Forgotten",,
 "leader_forgotten_horror","Real Life Horror",,
 "leader_forgotten_legend","Remembrance of Legend",,
+"leader_foxereal","Foxereal",,
+"leader_foxereal_super",,,
 "leader_gajik","Gajik",,
 "leader_gajik_herb",,,
 "leader_gajik_mushroom",,,
@@ -362,9 +374,6 @@
 "leader_quivenly","Quivenly","A helping nun. She can help allies nearby with great healing, but cannot fight on her own.","Quivenly was once an eager young one who liked to assist others, and there was no place more filled with those who required help than on a battlefield. Except she turned lazy as she grew up and spent all day in the library. So her convent kicked her out. With a firm vow in her heart, she looked for a place where an easy life could be achieved."
 "leader_quivenly_healer",,,
 "leader_quivenly_sister",,,
-"leader_foxereal","Foxereal",,
-"leader_foxereal_super",,,
-"leader_raasohd_defence",,,
 "leader_remance","Remance","A brave general. He can lead a devastating charge against enemies, with or without supporting cavalry.",
 "leader_remance_malabel",,,
 "leader_rinini","Rinini",,
@@ -421,8 +430,6 @@
 "leader_vok_furier",,,
 "leader_vok_fury",,,
 "leader_vraesier","Vraesier","Skilled fighter in melee combat, can bleed enemies and fight a long battle on her own.","This bandit had one thing really going, and that was her skills in battle. Her rough manner and appearance did not help to avoid being held in contempt by most in the civilised world. Still, this so-called ""knave"" could easily take down even the most skilled knight with ease. Not really a social person, and the stoic appearance kept many at a distance."
-"leader_demoness","Demoness",,
-"leader_demoness_merged","Merged Demoness",,
 "leader_vraesier_lady","Lady Justice",,
 "leader_vurus","Vurus","Accomplished commander and strategist. Can provide support to his troops with numerous buffs, but is rather unkeen on direct combat.","Grand Marshall, Chief Strategist Advisor, and Flower Knight Overseer of the Kingdom of Masendor. Vurus was absolutely brilliant in warfare. Fought in countless battles for the Kingdom, defeat was rarely conceivable with him as the commander in battle."
 "leader_vurus_old","Vurus the Old",,
@@ -459,14 +466,7 @@
 "mountain_dwarf_leader_true_beard","True Beard","A great beard dwarf. Champion among champions. Extraordinarily capable in melee combat.",
 "mountain_dwarf_rune_balista","Rune Ballista","A runic ballista. Great artillery for both anti-troop and building.",
 "mountain_dwarf_rune_catapult","Rune Catapult","A runic catapult. Can topple almost every building in a short amount of time.",
-"dark_moonelf_air_wyvern","Cave Wyvern Raider",,
-"dark_moonelf_bladed_shield","Shield Duelist","A moonelf carrying a bladed shield duelist. A perfect balance of offence and defence. Very effective, fast frontline troop, even if this moonelf lacks the high health of other dwarf fighters.",
-"dark_moonelf_blowdart_cav",,,
-"dark_moonelf_dualcrossbows","Crossbows Hunter","A moonelf twin gunbow hunter. Sacrifice penetrating power for rate of fire, this hunter can quickly eliminate light-armoured targets.",
-"dark_moonelf_gladiator","Gladiator","A moonelf gladiator. Speed in both movement and attacks makes up for the lack of defence.",
-"dark_moonelf_leader_blood_sage","Blood Sage",,
-"dark_moonelf_warscythe","Depth Guard","A moon elf guard. Equipped with a long warscythe that can slice through flesh with ease. Very useful against light-armoured troops.",
-"dark_moonelf_whip","Dark Whipper","A moon elf slavemaster. Wield a sharp whip that can disarm enemies and inflict bleeding.",
+"neutral_bear","Bear","A large bear. Tough and strong. Its roll can crush and destroy even a knight.","Grown bears are a symbol of the ferocity of nature. Their neck strength and toughness allowed them to roll rather acrobatically, crushing anyone beneath with their weight. Since bears like to sleep most of the time, energetic bear cubs tend to wander out from the lair to play and cause trouble for both their parents and victims. Their favourite foods are mandrake and honey beehive."
 "neutral_centaur_leader_cloud_shaman","Cloud Shaman",,
 "neutral_cockatrice","Cockatrice",,
 "neutral_djinn_leader_mage_fire","Djinn Magus",,
@@ -485,6 +485,7 @@
 "neutral_medium_barricade","Medium Barricade","A medium barricade. It can withstand a decent amount of force.","Medium-sized barricades like these were created with moderate efforts. They could adequately deter approaching enemies and may even hold them long enough to dispatch them with arrows. Many strategists tended to deploy them in great numbers at choke points."
 "neutral_minotaur","Minotaur","A great minotaur. This half-bull is as strong as a troll in melee combat.",
 "neutral_monkey_leader_fog_shaman","Fog Shaman",,
+"neutral_order_knightess",,,
 "neutral_phoenix","Young Phoenix","A young phoenix. Can resurrect from death and deal strong fire damage.","Young phoenixes that were reborn from their previous death not too long ago and still live on the ground. They are immortal, so no matter how many times they die, they will come back from the ashes. One day they will grow and fly to the sun for a family visit. It is widely believed that ingesting the blood of an old phoenix can make one live forever."
 "neutral_raptor","Raptor",,
 "neutral_rat_club","Clubratman",,
@@ -530,33 +531,34 @@
 "sea_dwarf_cannon",,,
 "sea_dwarf_nawharl_cav",,,
 "sea_dwarf_sea_pirate",,,
+"small_cat_red_leaf_bandit","Red Leaf Bandit","A cat bandit. Excels at ambush and skirmish tactics. Can hide from enemies when injured.",
 "small_eagle_air_stone","Eagle","An eagle eager for prays. Fast and cheap air fighter with great versatility.","When eagles grow to adulthood, they will fly to the Sun and witness the truth of heaven. Nevermore then, they rise to such a height again. Perhaps for their visit, they ask God for a boon to grant them eyesight to see prey even from the vast sky. Never to be without repasts ever again. When eagles grow old, they lose their valuable feathers and can no longer fly. So they instead take one last flight to migrate down to the ocean and then become aquatic creatures."
 "small_rabbit_cannon","Rabbit Revenge","A cheap small cannon for many purposes. Rabbits can be innovative with good guidance.","Jar cannons are among the innovative renditions of cannon artillery. Light but durable, these cannons can be pushed around even by small rabbits. As the world found out, manure of rabbits makes for potent explosive powder that eclipses humans' piss. With assistance in innovative progression, the once small nation took the first step to the forefront of history."
 "small_rabbit_hole","Rabbit Role","A rabbit in a hole waiting to stab a passerby in the rear.","Rabbit holes are a labyrinth that not even the wisest of sages know the end of. Some even estimated that rabbits truthfully control a subterranean empire that spans the entire continent. Not even with a flood of water, smoking with fire, burning with oil, or burying with stones can stop the ever-expanding rabbits' network. Once, a great seer prophesied that the fur beings of long ears will inherit the earth."
-"small_rabbit_home","Rabbit Rarren Ratcher","A warren guard. No home means no purpose.","No warren exists without protectors. Using the most treacherous tools of their predators against them, these rabbits could let loose arrows from complete safety."
+"small_rabbit_home","Rabbit Ratcher","A warren guard. No home means no purpose.","No warren exists without protectors. Using the most treacherous tools of their predators against them, these rabbits could let loose arrows from complete safety."
 "small_rabbit_hound_cav","Rabbit Ruddy","A rabbit hound cavalry. Light enough to quickly run through the enemy line.","Rabbits and hounds might be established adversaries in civilised society, but such a relationship can be altered. Through training and pairing with a kitman, the hound puppy form a lasting bond and develop loyalty to its partner. Rabbit Ruddies become a formidable, speedy pair that can slip away from any hunter."
 "small_rabbit_killer","Rabbit Roney","A rabbit of death. Fast and deadly. Can jump into the enemy group and quickly wreck havoc.","The deep, dark holes are a broody place. Even the most cheerful of rabbits return a broody rabbit after a prolonged period of stay. Cultivating the dark aura, these Rabbit Roneies turned themselves into the embodiment of darkness. The way of the knives once belonged only to the hunters, so those who were once prey embraced the new role with glee."
 "small_rabbit_leader_banner","Rabbit Rannermate","A rabbit banner bearer. Bringer of field menaces. Can raise banner to encourage nearby friends but cannot attack anyone.","Banners were a novel luxury for Rabbit's armies. Despite the low-quality cloth attached to a stick, most still adored having these new amazements. War banners fluttered against the wind as the Alliance of the Small marched into battles."
 "small_rabbit_leader_hero","Rabbit Rero","A rabbit hero. As good as a rabbit can be. Very fast and can debuff nearby enemies.","Rabbit Reroes and their hound partner were the first to ride against the enemies. They were the bravest of all rabbits, as courageous as a rabbit can be. The new world will be filled with the descendants of these warriors."
 "small_rabbit_leader_knight","Rabbit Rnight","A rabbit knight. Not so bad as a frontline leader but expect no grand performance. Somewhat strong in defence but very slow.","Rabbits are not strong enough to wear armour. Even an unadorned helmet weighs enough to make them unable to stand tall. These ""knights"" were not nobles like the civilised equivalent, but rather, simply stronger fighters of the warren. For rabbits who dedicated themselves too much to the pursuit of war, there was no return to a joyful life ever again."
 "small_rabbit_leader_shaman","Rabbit Rruid","A rabbit druid. Attuned to the power of nature, can drench enemies with magical water spray and attack with pebble spray.","Some rabbits are gifted with the alignment to nature itself. Though due to the lack of inherent mana, they were unable to perform miraculous spells even after years of training. Instead, they performed minor spells with great efficiency using their little drum as a conductor."
+"small_rabbit_rifle","Rabbit Rusketeer","A rabbit musketeer. Ultimate soldiers of war. Numerous and dangerous. Can unleash deadly fire and stab enemies with a bayonet.","A new invention, a lightweight musket that even rabbits can use with acceptable precision. And so rabbit musketeers march to war with a weapon that equalises the mighty and the meek."
 "small_rabbit_sling","Rabbit Rooligan","A rabbit slinger. Decent skirmisher in its own right and can dig the ground to lay trap against approaching enemies.","Stones exist in abundance, even in forests. So it is no surprise that rabbits chose the sling as their ranged weapon of choice. No need to carry too much ammunition, and the sling is light to wield. These Rabbit Rooligans also brought a shovel to dig for more slingshots and made a rabbit hole for setting up a trap against invaders. These shovels later on became the symbol of nation-building for both the rabbit nations and outsiders."
-"small_rabbit_snail_cav","Rabbit Rhell Rompanion","A rabbit snail cavalry. Slow but tough.","Rabbit on a snail, a combination of two ends of attributes that creates paradoxical strength. With the swiftness of rabbits and toughness of snails, Rabbit Rhell Rompanions excel at neither of the two. Conceivably, this amalgamation would divulge its unrecognised advantages that put knights and their horses to shame."
+"small_rabbit_snail_cav","Rabbit Rompanion","A rabbit snail cavalry. Slow but tough.","Rabbit on a snail, a combination of two ends of attributes that creates paradoxical strength. With the swiftness of rabbits and toughness of snails, Rabbit Rhell Rompanions excel at neither of the two. Conceivably, this amalgamation would divulge its unrecognised advantages that put knights and their horses to shame."
 "small_rabbit_spear","Rabbit Raider","A footsoldier rabbit spearman. Weak but strong in number. Can inflict slow and charge enemies.","The life of Rabbits usually involved no fighting. Like their bunny cousins, they tended to flee from predators and could only bite with their meagre teeth at best. The first weapon they picked up was the easiest to learn, the spear. There was joy to be found when the prey could fight back in numbers, reversing the natural order of things. Many believe that such an occurrence was one of the punishments the gods invoked on the civilised chosen for their endless misdeeds against nature."
 "small_rabbit_tower","Rabbit Rower","A small stone tower with a lone stone thrower rabbit. Solid but not by much. When earth fail, stone will prevail.","Rabbits were no strangers to civilised innovations. As their countries grew, so too did the requirement to protect their territory. And surely, as any sedentary society with self-preservation, towers were erected all over to guard the homeland. Thus, the verts and the houses are no different from the others."
 "small_rabbit_tower_thrower","Rabbit Rower Rhrower",,
 "small_rabbit_trebuchet","Rabbit Roulder","A flimsy cheap trebuchet good for small siege. Very slow but deals good damage to buildings.","Rabbits were not so well-versed in the art of craftsmanship. These trebuchets were a miracle in themselves, as they did not break down after a single use. With the help of Iri the Traveller, the Alliance managed to mass-produce these little trebuchets cheaply against the formidable stronghold of civilisations. Quantity over quality, and so began the Vertkin conquest of the world."
 "small_snail_old","Toxic Mollusk","A bitter old snail that retains only disdain for other creatures after living for so long. Will throw his toxic beard at anyone he deems annoying.","Snails are actually wise creatures, as is quite apparent in their sagely old man face. Their favourite motto was ""To know everything one must first know nothing"". Boiling their beards and dropping the infused essence into the eyes of elderly people can cure senility."
 "small_snail_sword","Snail Defender","A young snail armed with a sword and shield. An eternal enemy to all knights. Deals poison damage.","Tortoise worms that always carry around two shields at all times, one to live in and one to protect itself. When rain comes, snails will raise their heads toward heaven and contemplate. Since they like to eat delicious plant leaves of all sorts, every gardener loathes them."
-"small_cat_red_leaf_bandit","Red Leaf Bandit","A cat bandit. Excels at ambush and skirmish tactics. Can hide from enemies when injured.",
 "summon_ballista","Ballista",,
+"summon_chaos_creature","Forbidden Creature","Beware of the unknown. It may have the making of an innocuous look, but trust not in its deception.","The depth of truth. Uncovered within history. Kill the lies; bury them. And then be blessed with the creation of reality."
 "summon_earth_wall","Earth Wall","An earth wall. Huge, durable, and tall enough that it can firmly block almost anything.","Those who can command the land are given a first glimpse of prosperity. To lay bare the secret of the buried treasures of the Origin Mother is the ambition of all earthen wizards."
 "summon_hound","Hound","A hound. Very fast and fierce. Will bite only enemies.","Hounds are honest and loyal creatures. No matter the commands, they will obey without fail. They will never stop and return until their given mission is completed. When hounds are given a bone, they will bury it instead."
 "summon_ice_pillar","Ice Pillar","An ice pillar. Large but somewhat fragile. Will explode when destroyed.","Scholars spoke of the unseen beneath the earth, that beyond the great fire lay the darkest cold, which can freeze even the dragonic fire. Many formulated that these ice pillars can be infused with such an element that they will be the strongest material for fortification construction, unbreakable by any means."
 "summon_scorpion","Scorpion","An automated scorpion anti-personnel weapon. Capable of dealing decent damage, but is rather fragile.","Invention of a genius, these Anti-personnel Scorpions require no manual control. These apparatuses can continue shooting at nearby foes until their magazine is empty. Iri the Traveller kept her secret so well that not even the dwarf master tinkerers managed to replicate the function. Some suspected that the technology of these scorpions is the same as that of the Doll Family."
 "summon_skeleton_wall","Skeleton Wall","A skeleton wall. Not exactly the most durable of walls, but is good enough for disrupting weak enemies' attacks.","Walls made of skeletal bones that seem very delicate for what they are. The density of these old bones, however, proves otherwise. They were likely made from the bones of great warriors old. Strong, they truly were."
 "summon_taladamun_mirror","Taladamun's Mirror",,
-"neutral_bear","Bear","A large bear. Tough and strong. Its roll can crush and destroy even a knight.","Grown bears are a symbol of the ferocity of nature. Their neck strength and toughness allowed them to roll rather acrobatically, crushing anyone beneath with their weight. Since bears like to sleep most of the time, energetic bear cubs tend to wander out from the lair to play and cause trouble for both their parents and victims. Their favourite foods are mandrake and honey beehive."
 "wood_boar","Boar","A speedy boar. The tusks can pierce heavy armour with ease. Beware of its charge.",
 "wood_elf_air_griffin",,,
 "wood_elf_air_pegasus",,,
@@ -573,5 +575,3 @@
 "wood_tree","Forest Will",,
 "wood_turtle","Turtle",,
 "wood_werewolf","Werewolf",,
-"neutral_order_knightess",,,
-"summon_chaos_creature","Forbidden Creature","Beware of the unknown. It may have the making of an innocuous look, but trust not in its deception.","The depth of truth. Uncovered within history. Kill the lies; bury them. And then be blessed with the creation of reality."

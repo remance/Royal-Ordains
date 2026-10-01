@@ -4,7 +4,7 @@ from engine.constants import Route_Travel_Modifier
 def issue_move_command(self, target_destination, direct=False):
     activity = self.activity
     already_travel = "travel" in activity
-    if not already_travel or activity["travel_type"] != "retreat":
+    if not already_travel or activity["travel"] != "retreat":
         # cannot issue new move command while in retreat
         old_destination = None
         if already_travel:
@@ -16,8 +16,9 @@ def issue_move_command(self, target_destination, direct=False):
             new_travel_route_id = []
             command_type = "move"
 
-            if "assemble" in activity:  # cancel assembling when move for any reason  TODO add event inform this cancel
-                self.assembling_followers = {}
+            if "assemble" in activity:  # cancel assembling when move for any reason
+                self.can_assemble = {}
+                activity = {}
 
             if already_travel:
                 # check if army still at settlement pos, which mean it has not yet start travelling

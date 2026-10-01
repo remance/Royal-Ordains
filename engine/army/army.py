@@ -1,6 +1,6 @@
 from engine.army.change_active_commander_actor import change_active_commander_actor
 from engine.army.change_phase import change_phase
-from engine.army.check_can_assemble import check_can_assemble
+from engine.army.check_assemble import check_assemble
 from engine.army.issue_move_command import issue_move_command
 from engine.army.remove_army_from_active import remove_army_from_active
 from engine.army.reset_stat import reset_stat
@@ -8,12 +8,13 @@ from engine.grand.deploy_army_from_reserve import deploy_army_from_reserve
 
 
 class Army:
+    character_hire_building_list = None
     character_list = None
     grand = None
 
     change_active_commander_actor = change_active_commander_actor
     change_phase = change_phase
-    check_can_assemble = check_can_assemble
+    check_assemble = check_assemble
     deploy_from_reserve = deploy_army_from_reserve
     issue_move_command = issue_move_command
     remove_army_from_active = remove_army_from_active
@@ -36,11 +37,12 @@ class Army:
         self.power = 0
         self.total_supply_usage = 0
         self.travel_time_modifier = 1
-        self.can_assemble = False
+        self.can_assemble = {}
         self.supply = supply
         self.max_supply = max_supply
 
         self.current_region = None  # current region the army is at
+        self.assemble_percent = [0, 0]
         self.enable_resupply = 2
         self.enable_assemble = 2
         self.activity = {}
@@ -66,7 +68,7 @@ class Army:
             self.direct_routing_array = self.grand.current_campaign_state["direct_routing"]
             self.grand.dots_army_occupation[self.base_pos].append(self)
             self.region_by_pos_index = self.grand.region_by_pos_index
-            self.check_can_assemble()
+            self.check_assemble()
 
         self.reset_stat(include_culture_influence=include_culture_influence)
 

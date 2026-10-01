@@ -12,9 +12,9 @@ def draw_route(self):
     if self.player_selected_army:
         for army in self.player_selected_army:
             # draw line movement for selected player armies that are travelling
-            if army.travelling:
+            if "travel" in army.activity:
                 this_army_line = []
-                for route in army.travelling["dot_routes"]:
+                for route in army.activity["dot_routes"]:
                     for index, dot in enumerate(route[:-1]):
                         # skip drawing for line that are not in screen
                         start_dot = ((dot[0] * map_shown_to_base_scale_width) - camera_left_bound,

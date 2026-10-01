@@ -22,7 +22,7 @@ def cal_faction_culture(self, faction):
 
     for region in faction_campaign_state["region"]:
         for building in self.current_campaign_state["region"]["building"][region]:
-            if building and not building[1] and not building[2]:
+            if building and building[1] and not building[2]:
                 # building is in active state and not destroyed/constructing state
                 building_id = building[0]
                 culture = self.building_list[building_id]["Culture"]

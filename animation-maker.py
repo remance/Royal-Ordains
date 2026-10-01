@@ -2828,12 +2828,12 @@ while True:
 
             elif text_input_popup[1] == "compile_animation":
                 compile.compile_data(animation_dir, data_dir, animation_pool_data, body_sprite_pool, effect_sprite_pool,
-                                     character_data.effect_list,
+                                     character_data.effect_list, character_data.strategy_list,
                                      compile_specific=animation_character)
 
             elif text_input_popup[1] == "compile_all_animation":
                 compile.compile_data(animation_dir, data_dir, animation_pool_data, body_sprite_pool, effect_sprite_pool,
-                                     character_data.effect_list)
+                                     character_data.effect_list, character_data.strategy_list)
 
             elif text_input_popup[1] == "save_first":
                 anim_save_pool(current_dir, current_pool[animation_character], animation_character, anim_column_header)
