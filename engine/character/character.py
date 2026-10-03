@@ -70,7 +70,7 @@ drop speed = assign value of dropping speed for air animation, higher value mean
 
 class Character(sprite.Sprite):
     battle = None
-    character_data: dict = None
+    stat_data: dict = None
     character_list: dict = None
     containers = None
     effect_list: dict = None
@@ -199,6 +199,18 @@ class Character(sprite.Sprite):
         self.interrupt_animation = False
         self.animation_name = None
 
+        self.blind = False
+        self.false_order = False  # check whether character is given false order by status effect
+        self.shield = False  # check whether character is shielded for defence bonus against frontal attack
+        self.no_forced_move = False  # check whether character can be forcefully move via knockback/die, will also prevent knockback from occurring
+        self.active_without_sub_character = True  # check whether character remain active after all subs die
+        self.no_spirit = False
+        self.no_corpse = False
+        self.no_weak_side = False
+        self.immune_weather = False  # check whether character is immune to weather effect
+        self.hit_resource_regen = False
+        self.sprite_deal_damage = False
+        self.no_clip = False
         self.invisible = False  # can not be seen nor detected, will not be drawn on camera
         self.no_move = False
         self.no_run = False
@@ -422,18 +434,6 @@ class BattleCharacter(Character):
         self.sub_characters = []
         self.leader = leader
 
-        self.blind = False
-        self.false_order = False  # check whether character is given false order by status effect
-        self.shield = False  # check whether character is shielded for defence bonus against frontal attack
-        self.no_forced_move = False  # check whether character can be forcefully move via knockback/die, will also prevent knockback from occurring
-        self.active_without_sub_character = True  # check whether character remain active after all subs die
-        self.no_spirit = False
-        self.no_corpse = False
-        self.no_weak_side = False
-        self.immune_weather = False  # check whether character is immune to weather effect
-        self.hit_resource_regen = False
-        self.sprite_deal_damage = False
-        self.no_clip = False
         self.is_summon = is_summon
         self.indicator = None
 
@@ -503,11 +503,6 @@ class BattleCharacter(Character):
         self.body_mass = stat["Mass"]
         self.damaged_mass = self.body_mass * 2
         self.knockdown_mass = self.body_mass * 4
-
-        if "no_spirit" in stat["Property"]:
-            self.no_spirit = True
-        if "no_corpse" in stat["Property"]:
-            self.no_corpse = True
 
         # Final stat after receiving stat effect from various sources, reset every time status is updated
         self.critical_chance = self.base_critical_chance

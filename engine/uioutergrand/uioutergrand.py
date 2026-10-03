@@ -1,4 +1,4 @@
-from math import ceil
+from math import ceil, floor
 
 from pygame import Vector2, Surface, SRCALPHA, Rect, draw, Color
 from pygame.transform import smoothscale
@@ -298,12 +298,15 @@ class PlayerFactionCultureList(UIOuterGrand):
 
     def culture_change(self):
         culture_value = {}
-        faction_culture_state = self.grand.current_campaign_state["faction"][self.grand.player_faction]["culture"]
+        player_faction_state = self.grand.current_campaign_state["faction"][self.grand.player_faction]
+        faction_culture_state = player_faction_state["culture"]
 
         for index, culture in enumerate(faction_culture_state):
             culture_state = faction_culture_state[culture]
-            culture_value[culture] = {"integration": str(culture_state["integration"] * 100) + "%",
-                                      "influence": str(culture_state["influence"] * 100) + "%"}
+            culture_value[culture] = {"integration": str(int(culture_state["integration"] * 100)) + "%",
+                                      "influence": str(int(culture_state["influence"] * 100)) + "%",
+                                      "weight": " (" + str(culture_state["weight"]) + "/" +
+                                                str(player_faction_state["total_culture_weight"]) + ")"}
 
         if self.culture_value != culture_value:
             if len(faction_culture_state) > 8:
@@ -317,12 +320,9 @@ class PlayerFactionCultureList(UIOuterGrand):
                 self.image.fill((255, 255, 255))
 
             self.culture_coa_rects = {}
-            self.culture_value = {}
+            self.culture_value = culture_value
 
             for index, culture in enumerate(faction_culture_state):
-                culture_state = faction_culture_state[culture]
-                self.culture_value[culture] = {"integration": str(int(culture_state["integration"] * 100)) + "%",
-                                               "influence": str(int(culture_state["influence"] * 100)) + "%"}
                 culture_image = self.culture_coas[culture]["tiny"]
                 culture_rect = culture_image.get_rect(topleft=(250 * self.screen_scale_width * index,
                                                                25 * self.screen_scale_height))
@@ -363,7 +363,8 @@ class PlayerFactionCultureList(UIOuterGrand):
                             ("ui", "culture_" + culture_state["policy"])),
                         self.grab_text(("ui", "info_header_integration")) + self.culture_value[culture][
                             "integration"],
-                        self.grab_text(("ui", "info_header_influence")) + self.culture_value[culture]["influence"])
+                        self.grab_text(("ui", "info_header_influence")) + self.culture_value[culture]["influence"] +
+                        self.culture_value[culture]["weight"])
                     self.text_popup.popup(self.cursor.rect.bottomright, text,
                                           width_text_wrapper=self.max_description_box_width)
                     self.outer_ui_updater.add(self.text_popup)
@@ -374,7 +375,7 @@ class PlayerArmyListSortOption(UIOuterGrand):
     def __init__(self):
         self._layer = 5
         UIOuterGrand.__init__(self)
-        self.image = Surface((900 * self.screen_scale_width, 100 * self.screen_scale_height))
+        self.image = Surface((950 * self.screen_scale_width, 100 * self.screen_scale_height))
         self.rect = self.image.get_rect(topright=self.grand.mini_cosmic_ui.rect.bottomright)
         button_width = self.grand_ui_icons["sort_number"].get_width()
         self.option_rects = {"commander": self.grand_ui_icons["sort_supply"].get_rect(topleft=(0, 0)),
@@ -610,7 +611,6 @@ class PlayerArmyList(UIOuterGrand):
                                 (inside_mouse_pos[0] - rect.topleft[0]),
                                 (inside_mouse_pos[1] - rect.topleft[1]))
                             if icon_rect.collidepoint(inside_card_mouse_pos):  # mouse at icon rather than card itself
-                                print(which)
                                 if self.event_press:  # change enable/disable
                                     if which == "assemble":
                                         if army.enable_assemble:
@@ -776,27 +776,46 @@ class RegionManagement(UIOuterGrand):
     def __init__(self):
         self._layer = 5
         UIOuterGrand.__init__(self)
-        self.font = self.game.generic_ui_font
+        self.culture_coas = self.grand.sprite_data.culture_coas
+        self.font = self.game.medium_generic_ui_font
         self.header_font = self.game.large_generic_ui_font
         self.player_selected_region = None
         self.selected_building_index = None
-        self.image = Surface((1000 * self.screen_scale_width, 1000 * self.screen_scale_height))
+        self.image = Surface((1500 * self.screen_scale_width, 1000 * self.screen_scale_height))
         self.image.fill((150, 150, 150))
-        self.base_image = self.image.copy()
         default_build_image_slot = self.building_portraits["default"]["building_ui"]
-        self.building_slot_rects = ([default_build_image_slot.get_rect(center=(self.image.get_width() / 2, self.image.get_height() / 2))] +
+        self.building_slot_rects = ([default_build_image_slot.get_rect(center=(1000 * self.screen_scale_width, 500 * self.screen_scale_height))] +
                                     [default_build_image_slot.get_rect(center=(pos[0] * self.screen_scale_width,
                                                                                pos[1] * self.screen_scale_height))
-                                     for pos in ((200, 200), (500, 200), (800, 200),
-                                                 (200, 500), (800, 500),
-                                                 (200, 800), (500, 800), (800, 800))])
-        self.rect = self.image.get_rect(center=(self.screen_width * 0.25, self.screen_height / 2))
+                                     for pos in ((700, 200), (1000, 200), (1300, 200),
+                                                 (700, 500), (1300, 500),
+                                                 (700, 800), (1000, 800), (1300, 800))])
 
+        self.resource_text_pos = {"gold_income": (150 * self.screen_scale_width, 130 * self.screen_scale_height),
+                                  "supply_income": (150 * self.screen_scale_width, 230 * self.screen_scale_height),
+                                  "happiness": (150 * self.screen_scale_width, 330 * self.screen_scale_height)}
+        for key, pos in self.resource_text_pos.items():
+            icon = self.grand_ui_images[key.replace("_income", "")]
+            self.image.blit(icon, icon.get_rect(center=(50 * self.screen_scale_width, pos[1])))
+
+        region_influence_surface = text_render_with_bg(self.grab_text(("ui", "info_header_influence_region")),
+                                                       self.header_font)
+        self.image.blit(region_influence_surface, region_influence_surface.get_rect(center=(
+            250 * self.screen_scale_width, 400 * self.screen_scale_height)))
+
+        culture_coa = self.culture_coas["default"]["tiny"]
+        self.culture_coa_rects = [culture_coa.get_rect(topleft=(
+            (30 + (50 * row)) * self.screen_scale_width, (450 + (50 * col)) * self.screen_scale_height)) for
+            col in range(3) for row in range(3)]
+
+        self.rect = self.image.get_rect(center=(self.screen_width * 0.25, self.screen_height / 2))
 
         self.repair_button = self.grand_ui_images["building_repair"]
         self.raze_button_rect = self.grand_ui_images["building_raze"]
 
         self.repair_button_rect = self.repair_button.get_rect()
+
+        self.base_image = self.image.copy()
 
     def add_building_icon(self, index, building):
         if building[0] in self.building_portraits:
@@ -816,21 +835,34 @@ class RegionManagement(UIOuterGrand):
 
     def change_selected_region(self, region):
         self.selected_building_index = None
+        self.outer_ui_updater.remove(self.grand.building_management_ui)
+        self.player_selected_region = region
         if region:
             self.image = self.base_image.copy()
-            print(self.grand.current_campaign_state["region"]["building"][region])
             for index, building in enumerate(self.grand.current_campaign_state["region"]["building"][region]):
                 self.add_building_icon(index, building)
 
-            # self.building_slot_rects
             region_name_surface = text_render_with_bg(self.grab_text(("region", region, "Name")), self.header_font)
             self.image.blit(region_name_surface, region_name_surface.get_rect(midtop=(
-                self.image.get_width() / 2, 0)))
-
+                250 * self.screen_scale_width, 10 * self.screen_scale_height)))
+            self.update_leftbar()
             self.outer_ui_updater.add(self)
         else:
             self.outer_ui_updater.remove(self)
-        self.player_selected_region = region
+
+    def update_leftbar(self):
+        region = self.player_selected_region
+        campaign_region_state = self.grand.current_campaign_state["region"]
+        resource = campaign_region_state["income"][region]
+        culture = campaign_region_state["culture"][region]
+        for key, pos in self.resource_text_pos.items():
+            text_surface = text_render_with_bg(add_plus_to_number(int(resource[key])), self.font)
+            self.image.blit(text_surface, text_surface.get_rect(midleft=pos))
+
+        for index, culture_id in enumerate(culture):
+            self.image.blit(self.culture_coas[culture_id]["tiny"], self.culture_coa_rects[index])
+            text_surface = text_render_with_bg(add_plus_to_number(int(culture[culture_id])), self.font)
+            self.image.blit(text_surface, text_surface.get_rect(bottomright=self.culture_coa_rects[index].bottomright))
 
     def change_selected_building(self, building_index):
         if self.selected_building_index != building_index:
@@ -842,6 +874,9 @@ class RegionManagement(UIOuterGrand):
             selected_icon = self.building_portraits["selected"]["building_ui"]
             self.image.blit(selected_icon, self.building_slot_rects[building_index])
             self.selected_building_index = building_index
+            self.grand.building_management_ui.player_selected_region = self.player_selected_region
+            self.grand.building_management_ui.change_selected_building(building_index)
+            self.outer_ui_updater.add(self.grand.building_management_ui)
 
             # self.grand.building_manage
 
@@ -867,32 +902,90 @@ class RegionManagement(UIOuterGrand):
 
 
 class BuildingManagement(UIOuterGrand):
+    building_type_bar_colouring = {"barrack": (255, 100, 100), "faith": (0, 100, 255), "food": (0, 127, 40),
+                                   "fun": (255, 100, 255), "guard": (0, 152, 122), "money": (180, 169, 0),
+                                   "tech": (0, 255, 255), "unique": (200, 0, 255), "settlement": (255, 127, 40)}
+
     def __init__(self):
         self._layer = 5
         UIOuterGrand.__init__(self)
         self.font = self.game.generic_ui_font
         self.header_font = self.game.large_generic_ui_font
+        self.culture_coas = self.grand.sprite_data.culture_coas
         self.building_portraits = self.grand.building_portraits
+        self.building_upgrade_list = self.grand.stat_data.building_upgrade_list
+        self.building_list = self.grand.stat_data.building_list
         self.player_selected_region = None
-        self.selected_building_index = None
-        self.image = Surface((1000 * self.screen_scale_width, 1000 * self.screen_scale_height))
-        self.image.fill((150, 150, 150))
-        self.base_image = self.image.copy()
-        default_build_image_slot = self.building_portraits["default"]["building_ui"]
-        self.building_slot_rects = ([default_build_image_slot.get_rect(center=(self.image.get_width() / 2, self.image.get_height() / 2))] +
-                                    [default_build_image_slot.get_rect(center=(pos[0] * self.screen_scale_width,
-                                                                               pos[1] * self.screen_scale_height))
-                                     for pos in ((200, 100), (500, 100), (800, 100),
-                                                 (200, 500), (800, 500),
-                                                 (200, 800), (500, 800), (800, 800))])
+        self.available_building_upgrade = {}
+        self.unavailable_building_icon = self.building_portraits["unavailable"]["building_ui"]
+        self.image = Surface((0, 0))
+        self.building_slot_rects = []
         self.rect = self.image.get_rect(center=(self.screen_width / 2, self.screen_height / 2))
 
     def change_selected_building(self, building_index):
-        self.selected_building_index = building_index
-        building = self.grand.current_campaign_state["region"]["building"][self.player_selected_region][building_index][0]
-        selected_building_icon = self.building_portraits[building]
-        self.image.blit(selected_building_icon,
-                        selected_building_icon.get_rect(center=self.building_slot_rects[building_index]))
+        self.building_slot_rects = []
+        building_list = self.building_list
+        region_building = self.grand.current_campaign_state["region"]["building"][self.player_selected_region]
+        region_active_building = [item[0] for item in region_building if item[1] and not item[2]]
+        faction_culture = self.grand.current_campaign_state["faction"][self.grand.player_faction]["culture"]
+        exist_building_upgrade = self.building_upgrade_list[region_building[building_index][0]]
+
+        available_building_upgrade = {}
+        player_faction_gold = self.grand.current_campaign_state["faction"][self.grand.player_faction]["gold"]
+        for building, requirement in exist_building_upgrade.items():
+            this_building_stat = building_list[building]
+            building_type = this_building_stat["Type"]
+            if this_building_stat["Culture"] in faction_culture and faction_culture[this_building_stat["Culture"]]["policy"] != "reject":
+                no_build = False
+                for require_building in requirement:
+                    if require_building not in region_active_building:  # required building condition not met
+                        no_build = True
+                        break
+                if not no_build:
+                    if building_type not in available_building_upgrade:
+                        available_building_upgrade[building_type] = {}
+                    if this_building_stat["Cost"] > player_faction_gold:
+                        available_building_upgrade[building_type][building] = False
+                    else:
+                        available_building_upgrade[building_type][building] = True
+
+        self.image = Surface((1200 * self.screen_scale_width, sum([
+            ceil(len(available_building_list) / 5) for available_building_list in
+            available_building_upgrade.values()]) * 240 * self.screen_scale_height))
+        self.rect = self.image.get_rect(midleft=self.grand.region_management_ui.rect.midright)
+        image_width = self.image.get_width()
+        prev_bar_rect = None
+        for building_type, available_building_list in available_building_upgrade.items():
+            building_bar_image = Surface((image_width, ceil(len(available_building_list) / 5) * 200 * self.screen_scale_height))
+            building_bar_image.fill(self.building_type_bar_colouring[building_type])
+            slot_rects = {}
+            for building_index, building in enumerate(available_building_list):
+                if building in self.building_portraits:
+                    building_icon = self.building_portraits[building]["building_ui"]
+                else:
+                    building_icon = self.building_portraits["default"]["building_ui"]
+                col = floor(building_index / 5)
+                row = building_index - (5 * col)
+                rect = building_icon.get_rect(topleft=((20 + (150 * row)) * self.screen_scale_width,
+                                                       (20 + (150 * col)) * self.screen_scale_height))
+                slot_rects[building] = rect
+                building_bar_image.blit(building_icon, rect)
+                if not available_building_upgrade[building_type][building]:
+                    building_bar_image.blit(self.unavailable_building_icon, rect)
+                if building_list[building]["Culture"] in self.culture_coas:
+                    culture_coa = self.culture_coas[building_list[building]["Culture"]]["mini"]
+                else:
+                    culture_coa = self.culture_coas["default"]["mini"]
+                building_bar_image.blit(culture_coa, culture_coa.get_rect(topleft=rect.topleft))
+            if not prev_bar_rect:
+                new_bar_rect = building_bar_image.get_rect(topleft=(0, 0))
+            else:
+                new_bar_rect = building_bar_image.get_rect(topleft=(0, prev_bar_rect.bottomleft[1]))
+            self.image.blit(building_bar_image, new_bar_rect)
+            self.building_slot_rects.append((new_bar_rect, slot_rects))
+            prev_bar_rect = new_bar_rect
+
+        self.available_building_upgrade = available_building_upgrade
 
     def update(self, dt):
         UIOuterGrand.update(self, dt)
@@ -900,18 +993,24 @@ class BuildingManagement(UIOuterGrand):
             inside_mouse_pos = Vector2(
                 (self.cursor.pos[0] - self.rect.topleft[0]),
                 (self.cursor.pos[1] - self.rect.topleft[1]))
-            region_buildings = self.grand.current_campaign_state["region"]["building"][self.player_selected_region]
-            for building_index, rect in enumerate(self.building_slot_rects):
-                if rect.collidepoint(inside_mouse_pos) and building_index < len(region_buildings):
-                    if self.event_press and building_index != self.selected_building_index:
-                        self.change_selected_building(building_index)
-                    else:
-                        self.text_popup.popup(self.cursor.rect.bottomright,
-                                              self.grab_text(("building",
-                                                              region_buildings[building_index][0],
-                                                              "Name")),
-                                              width_text_wrapper=self.max_description_box_width)
-                        self.outer_ui_updater.add(self.text_popup)
+
+            for bar_rect, building_slot_list in self.building_slot_rects:
+                if bar_rect.collidepoint(inside_mouse_pos):
+                    bar_inside_mouse_pos = Vector2((inside_mouse_pos[0] - bar_rect.topleft[0]),
+                                                   (inside_mouse_pos[1] - bar_rect.topleft[1]))
+                    for building, rect in building_slot_list.items():
+                        if rect.collidepoint(bar_inside_mouse_pos):
+                            if self.event_press:
+                                region_buildings = self.grand.current_campaign_state["region"]["building"][
+                                    self.player_selected_region]
+                            else:
+                                self.text_popup.popup(self.cursor.rect.bottomright,
+                                                      self.grab_text(("building",
+                                                                      building,
+                                                                      "Name")),
+                                                      width_text_wrapper=self.max_description_box_width)
+                                self.outer_ui_updater.add(self.text_popup)
+                            break
                     break
 
 

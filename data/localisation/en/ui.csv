@@ -52,6 +52,7 @@
 "info_header_region_income","Owned Regions: "
 "info_header_event_effect","Event Effect: "
 "info_header_influence_effect","Culture Representation: "
+"info_header_influence_region","Region Influence"
 "info_header_start_income","Ruler's Estate: "
 "info_header_happiness_mod","Happiness Modifier: "
 "info_header_activate_range","Activate Range: "

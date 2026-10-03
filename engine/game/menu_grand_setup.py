@@ -10,21 +10,10 @@ def menu_grand_setup(self):
         self.back_mainmenu()
 
     elif self.grand_setup_start_button.event_press:
-        all_faction_state = {}
-        free_faction_state = {}
-        alliance_state = {}
+        faction_state = {}
         player_faction = self.grand_faction_selector.selected_culture
         for faction, faction_value in self.map_data.faction_list.items():
             # start faction culture set at max level policy and max integration
-            faction_state = all_faction_state
-            if faction == "free":
-                faction_state = free_faction_state
-            faction_alliance = faction_value["Alliance"]
-            if faction_alliance:
-                if faction_alliance not in alliance_state:
-                    alliance_state[faction_alliance] = [faction]
-                else:
-                    alliance_state[faction_alliance].append(faction)
             faction_state[faction] = {"alliance": faction_value["Alliance"], "army": [], "reserve": [], "plan": {},
                                       "region": [key for key, value in self.map_data.region_list.items() if
                                                  value["Control"] == faction],
@@ -32,6 +21,7 @@ def menu_grand_setup(self):
                                           faction_value["Culture"]: {
                                               "policy": tuple(Culture_Policy_Integration.keys())[-1],
                                               "influence": 1, "weight": 1, "integration": 1}},
+                                      "total_culture_weight": 1,
                                       "character": {},
                                       "gold": faction_value["Start Gold"], "supply": faction_value["Start Supply"],
                                       "gold_income": faction_value["Gold Income"],
@@ -47,9 +37,6 @@ def menu_grand_setup(self):
                                       "event": {}, "relation": faction_value["Faction Relation"]}
 
         for army_id, army in self.map_data.start_army_list.items():
-            faction_state = all_faction_state
-            if army["Faction"] == "free":
-                faction_state = free_faction_state
             faction_state[army["Faction"]]["army"].append(army)
             for character in (army["Commander"], army["Leader 1"], army["Leader 2"], army["Leader 3"],
                               army["Retinue 1"], army["Retinue 2"], army["Retinue 3"]):
@@ -58,25 +45,24 @@ def menu_grand_setup(self):
                     faction_state[army["Faction"]]["character"][character] = army_id
 
         campaign_state = {"player_camera_pos": None, "player_faction": None,
-                          "alliance": alliance_state,
                           "region": {"dot": {key: value["Settlement POS"] for key, value in
                                              self.map_data.region_list.items()},
                                      "control": {key: value["Control"] for key, value in
                                                  self.map_data.region_list.items()},
                                      "building": {key: [value["Build Slot " + str(index)] for index in range(1, 10) if
                                                          value["Build Slot " + str(index)]] for key, value in
-                                                   self.map_data.region_list.items()},
+                                                  self.map_data.region_list.items()},
                                      "object": {key: value["Object"] for key, value in
                                                 self.map_data.region_list.items()},
                                      "income": {key: {"gold_income": 0, "supply_income": 0, "happiness": 0} for key in
-                                                self.map_data.region_list}
+                                                self.map_data.region_list},
+                                     "culture": {key: {} for key in self.map_data.region_list}
                                      },
                           "free_leader": {},
                           "battle": {"armies": [], "dot": [], "factions": [], "auto": {}, "manual": None},
                           "pathfinding": {}, "direct_routing": {},
                           "possible_events": deepcopy(self.map_data.event_list),
-                          "faction": all_faction_state,
-                          "free_faction": free_faction_state["free"], "eventlog": [],
+                          "faction": faction_state, "eventlog": [],
                           "cosmic_time": 0, "cosmic_event": [],
                           "turn": 1, "phase": 1}
 

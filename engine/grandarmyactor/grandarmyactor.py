@@ -17,8 +17,8 @@ for y in range(1, 10):
     for x in x_list:
         same_dot_placement_pos_offset.append(Vector2(x * 5, y * 10))
 
-circle_colour = {"player": (50, 50, 200), "ally": (50, 200, 50), "enemy": (200, 50, 50),
-                 "neutral": (50, 50, 50)}
+circle_colour = {"player": (100, 100, 200), "ally": (100, 200, 100), "enemy": (200, 100, 100),
+                 "neutral": (200, 200, 200)}
 
 
 class GrandArmyActor(Sprite):
@@ -76,10 +76,9 @@ class GrandArmyActor(Sprite):
         if army_faction != self.grand.player_faction:
             team = "neutral"
             if player_faction:
-                player_alliance = current_campaign_state["faction"][player_faction]["alliance"]
-                if player_alliance and army_faction in current_campaign_state["alliance"][player_alliance]:
+                if army_faction in current_campaign_state["faction"][player_faction]["alliance"]:
                     team = "ally"
-                elif army_faction == "free":
+                elif army_faction != "free":
                     team = "enemy"
         if actor_image not in self.actor_circle_cache:
             self.actor_circle_cache[actor_image] = {}

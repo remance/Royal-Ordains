@@ -9,7 +9,7 @@ def menu_custom_setup(self):
         for index, bar in enumerate(team_bars):
             if bar.mouse_over and bar.hover_index is not None:  # hover over
                 setup_ui = self.custom_battle_team_setup[team]
-                preset_list = self.character_data.custom_army_preset_list[setup_ui.team_setup[index]["culture"]]
+                preset_list = self.stat_data.custom_army_preset_list[setup_ui.team_setup[index]["culture"]]
                 # add player custom army preset list
                 if setup_ui.team_setup[index]["culture"] in self.save_data.player_custom_army_preset_save:
                     preset_list = {key: value for key, value in self.save_data.player_custom_army_preset_save[
@@ -52,7 +52,7 @@ def menu_custom_setup(self):
         for index, button in enumerate(team_buttons):  # hover over
             if button.mouse_over:
                 setup_ui = self.custom_battle_team_setup[team]
-                preset_list = self.character_data.custom_army_preset_list[setup_ui.team_setup[index]["culture"]]
+                preset_list = self.stat_data.custom_army_preset_list[setup_ui.team_setup[index]["culture"]]
                 if setup_ui.team_setup[index]["culture"] in self.save_data.player_custom_army_preset_save:
                     preset_list = {key: value for key, value in self.save_data.player_custom_army_preset_save[
                         setup_ui.team_setup[index]["culture"]].items() if value["Commander"]} | preset_list

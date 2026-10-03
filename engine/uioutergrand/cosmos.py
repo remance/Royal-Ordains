@@ -269,7 +269,7 @@ class CosmicEntity(UIOuterGrand):
     def __init__(self, dot_size, start_angle, colour, cosmic_id, orbit=None, epicycle=None, specific_base_pos=(),
                  movement_angle=False):
         UIOuterGrand.__init__(self)
-        self.cosmic_event_list = self.grand.character_data.cosmic_event_list
+        self.cosmic_event_list = self.grand.stat_data.cosmic_event_list
         self.cosmos_ui_images = self.grand.cosmos_ui_images
         self.dot_size = dot_size * self.screen_scale_width
         self.colour = colour

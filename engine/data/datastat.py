@@ -149,20 +149,21 @@ class DataStat(GameData):
 
                         # Find max and min range for AI
                         for move in moveset_dict.values():
-                            if "no_ai_range_check_setup" not in move["Property"]:
+                            if "no_ai_range_check_setup" not in move["Property"] and move["AI Range"]:
+                                # skip moveset with no AI Range value
                                 if self.character_list[row[0]]["ai_min_attack_range"] > move["AI Range"]:
                                     self.character_list[row[0]]["ai_min_attack_range"] = move["AI Range"]
                                 if self.character_list[row[0]]["ai_max_attack_range"] < move["AI Range"]:
                                     self.character_list[row[0]]["ai_max_attack_range"] = move["AI Range"]
-                                if self.character_list[row[0]]["ai_min_effect_range"] > move["Range"] and (
-                                        move["Status"] or move["Enemy Status"]):
-                                    self.character_list[row[0]]["ai_min_effect_range"] = move["Range"]
-                                if self.character_list[row[0]]["ai_ally_max_effect_range"] < move["Range"] and move[
-                                    "Status"]:
-                                    self.character_list[row[0]]["ai_ally_max_effect_range"] = move["Range"]
-                                if self.character_list[row[0]]["ai_enemy_max_effect_range"] < move["Range"] and move[
-                                    "Enemy Status"]:
-                                    self.character_list[row[0]]["ai_enemy_max_effect_range"] = move["Range"]
+                            if self.character_list[row[0]]["ai_min_effect_range"] > move["Range"] and (
+                                    move["Status"] or move["Enemy Status"]):
+                                self.character_list[row[0]]["ai_min_effect_range"] = move["Range"]
+                            if self.character_list[row[0]]["ai_ally_max_effect_range"] < move["Range"] and move[
+                                "Status"]:
+                                self.character_list[row[0]]["ai_ally_max_effect_range"] = move["Range"]
+                            if self.character_list[row[0]]["ai_enemy_max_effect_range"] < move["Range"] and move[
+                                "Enemy Status"]:
+                                self.character_list[row[0]]["ai_enemy_max_effect_range"] = move["Range"]
                             if self.character_list[row[0]]["min_resource_move"] > move["Resource Cost"]:
                                 self.character_list[row[0]]["min_resource_move"] = move["Resource Cost"]
                         self.character_list[row[0]]["max_enemy_range_check"] = self.character_list[row[0]][
@@ -234,13 +235,15 @@ class DataStat(GameData):
         edit_file.close()
 
         self.building_list = {}
+        self.building_upgrade_list = {}
         self.character_hire_building_list = {}
         with open(os.path.join(self.data_dir, "character", "building.csv"),
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
             tuple_column = ("Garrison Strategy", "Leader Reinforcement", "Troop Reinforcement",
-                            "Air Reinforcement", "Leader Recruit", "Unit Recruit", "Technology")
+                            "Air Reinforcement", "Leader Recruit", "Unit Recruit", "Technology",
+                            "Requirement")
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
             dict_column = ("Income Boost",)
             dict_column = [index for index, item in enumerate(header) if item in dict_column]
@@ -255,6 +258,12 @@ class DataStat(GameData):
                     self.building_list[row[0]]["Repair Time"] = 1
                 for character in self.building_list[row[0]]["Leader Recruit"] + self.building_list[row[0]]["Unit Recruit"]:
                     self.character_hire_building_list[character] = [row[0], True, 0]  # ready state of building
+
+            for building in self.building_list:
+                self.building_upgrade_list[building] = {}
+                for building2, building_data2 in self.building_list.items():
+                    if building_data2["Precede"] == building:  # found upgrade
+                        self.building_upgrade_list[building][building2] = building_data2["Requirement"]
         edit_file.close()
 
         self.cosmic_event_list = {}

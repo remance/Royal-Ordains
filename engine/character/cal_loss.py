@@ -34,42 +34,46 @@ def cal_loss(self, attacker, final_damage, impact, hit_angle, critical):
             # TODO Killer effect function
             pass
 
-        if impact_check > self.body_mass:
-            if impact_check > self.knockdown_mass:
-                if not self.main_character and not self.no_forced_move:
-                    # only main characters, and characters that can be forced move can play knockdown animation
-                    if hit_angle == 90:  # hit from right side
-                        self.x_momentum = -impact[0] + self.knockdown_mass
-                    else:
-                        self.x_momentum = impact[0] - self.knockdown_mass
-                    self.y_momentum = 0
-                    if impact[1] > 0:
-                        self.y_momentum = impact[1] - self.knockdown_mass
-                        if self.y_momentum > 10000:  # maximum y up momentum to prevent too high knock
-                            self.y_momentum = 10000
+        if impact_check > self.damaged_mass:
+            if impact_check > self.knockdown_mass and not self.main_character and not self.no_forced_move:
+                # only main characters (has no main character)
+                # and characters that can be forced move can play knockdown animation
+                if hit_angle == 90:  # hit from right side
+                    self.x_momentum = -impact[0] + self.knockdown_mass
+                else:
+                    self.x_momentum = impact[0] - self.knockdown_mass
+                self.y_momentum = 0
+                if impact[1] > 0:
+                    self.y_momentum = impact[1] - self.knockdown_mass
+                    if self.y_momentum > 10000:  # maximum y up momentum to prevent too high knock
+                        self.y_momentum = 10000
 
-                    if "knockdown" not in self.current_action:  # not already in knock down state
-                        self.interrupt_animation = True
-                        self.command_action = self.knockdown_command_action
-                        engine.effect.effect.Effect(None, ("damaged", "base", self.rect.center[0],
-                                                           self.rect.center[1],
-                                                           uniform(0, 360), 0, 0, 1, 1),
-                                                    from_owner=False)
-                        self.battle.add_sound_effect_queue(self.sound_effect_pool["knock_down"][0], self.base_pos,
-                                                           self.knock_down_sound_distance,
-                                                           self.knock_down_screen_shake,
-                                                           volume_mod=self.hit_volume_mod)  # larger size play louder sound
-            elif "damaged" not in self.current_action:  # not already in damaged state
-                if not self.main_character and not self.no_forced_move and impact_check > self.damaged_mass:
+                if "knockdown" not in self.current_action:  # not already in knock down state
+                    self.interrupt_animation = True
+                    self.command_action = self.knockdown_command_action
+                    engine.effect.effect.Effect(None, ("damaged", "base", self.rect.center[0],
+                                                       self.rect.center[1],
+                                                       uniform(0, 360), 0, 0, 1, 1),
+                                                from_owner=False)
+                    self.battle.add_sound_effect_queue(self.sound_effect_pool["knock_down"][0], self.base_pos,
+                                                       self.knock_down_sound_distance,
+                                                       self.knock_down_screen_shake,
+                                                       volume_mod=self.hit_volume_mod)  # larger size play louder sound
+            elif "damaged" not in self.current_action:
+                # not already in damaged state
+                if not self.main_character and not self.no_forced_move:
                     if hit_angle == 90:  # hit from right side
                         self.x_momentum = -impact[0] + self.damaged_mass
                     else:
                         self.x_momentum = impact[0] - self.damaged_mass
-                    self.y_momentum = 0
+
                     if impact[1] > 0:
                         self.y_momentum = impact[1] - self.damaged_mass
                         if self.y_momentum > 10000:  # maximum y up momentum to prevent too high knock
                             self.y_momentum = 10000
+                else:
+                    self.x_momentum = 0
+                    self.y_momentum = 0
 
                 self.interrupt_animation = True
                 self.command_action = self.damaged_command_action

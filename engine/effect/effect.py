@@ -79,7 +79,7 @@ class Effect(Sprite):
         self.frame_timer = 0
         self.renew_sprite = True
         self.repeat_animation = False
-        self.effect_base_stage_start = -20000
+        self.effect_base_stage_start = -10000
         self.effect_base_stage_end = self.battle.effect_base_stage_end
         self.is_effect_type = True
         self.remain_check = False
@@ -293,6 +293,9 @@ class Effect(Sprite):
                 self.travel_distance = uniform(self.travel_distance - offence_mistake,
                                                self.travel_distance + offence_mistake)
 
+        if not self.angle:  # somehow angle 0 doesn't seem to work correctly?
+            self.angle = 360
+
         self.sin_angle = sin(radians(self.angle))
         self.cos_angle = cos(radians(self.angle))
         self.velocity = 0
@@ -301,7 +304,6 @@ class Effect(Sprite):
             self.velocity = calculate_projectile_velocity(abs(self.angle),
                                                           compensate_distance(self.velocity, self.cos_angle,
                                                                               abs(self.travel_distance)))
-
         if not self.speed:  # reset travel distance for effect with no speed
             self.travel_distance = 0
 

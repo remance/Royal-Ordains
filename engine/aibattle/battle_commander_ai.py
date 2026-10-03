@@ -100,8 +100,8 @@ class BattleCommanderAI:
             self.think_time = uniform(self.lower_think_time, self.higher_think_time)
             self.think_timer = self.think_time
         if self.swift:  # 0 swiftness will do nothing
-            self.lower_act_time = 10 / self.swift
-            self.higher_act_time = 50 / self.swift
+            self.lower_act_time = 1 / self.swift
+            self.higher_act_time = 30 / self.swift
             self.act_time = uniform(self.lower_act_time, self.higher_act_time)
         self.start_pos = self.battle.team_state[self.team]["start_pos"]
 

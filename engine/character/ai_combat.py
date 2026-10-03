@@ -111,16 +111,16 @@ def find_move_to_attack(self):
     # blind cause random direction melee attack but will not allow ranged attack
     resource = self.resource
     furthest_enemy_distance = self.furthest_enemy_distance
-
     possible_attacks = [value for move, value in self.movesets.items() if
                         move not in self.move_cooldown and value["Resource Cost"] <= resource and
-                        ((not self.blind and (
-                                ("far_target" not in value["Property"] and value[
-                                    "AI Range"] >= self.nearest_enemy_distance) or
-                                ("far_target" in value["Property"] and furthest_enemy_distance and
-                                 value["AI Range"] >= furthest_enemy_distance))) or
+                        ((not self.blind and (not value["AI Range"] or
+                                              ("far_target" not in value["Property"] and
+                                               value["AI Range"] >= self.nearest_enemy_distance) or
+                                              ("far_target" in value["Property"] and furthest_enemy_distance and
+                                               value["AI Range"] >= furthest_enemy_distance))) or
                          (self.blind and not value["Range"])) and
                         (not value["AI Condition"] or self.check_ai_condition(value["AI Condition"]))]
+
     if possible_attacks:
         self.current_moveset = choice(possible_attacks)  # randomly select move to attack
         self.current_moveset_property = self.current_moveset["Property"]
@@ -183,6 +183,6 @@ def air_ai(self):
         self.ai_timer = 0.5
 
 
-ai_combat_dict = {"default": no_ai, "melee": common_ai, "range": common_ai, "flank": common_ai, "nice": common_ai,
-                  "curious": common_ai, "territorial": common_ai,
+ai_combat_dict = {"default": no_ai, "melee": common_ai, "range": common_ai, "mix": common_ai,
+                  "flank": common_ai, "nice": common_ai, "curious": common_ai, "territorial": common_ai,
                   "trap": common_ai, "leader": common_ai, "interceptor": air_ai, "fighter": air_ai, "bomber": air_ai}

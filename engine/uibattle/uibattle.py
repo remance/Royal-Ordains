@@ -1,7 +1,7 @@
 from datetime import datetime
 from random import choice
 
-from pygame import Surface, SRCALPHA
+from pygame import Surface, SRCALPHA, Vector2
 from pygame.font import Font
 from pygame.transform import smoothscale, flip
 
@@ -310,7 +310,10 @@ class StrategyIcon(UIBattle):
         self._layer = 9999999999999999996
         UIBattle.__init__(self, has_containers=True)
         self.timer = 5
-        self.image = self.strategy_icons[icon]
+        if icon in self.strategy_icons:
+            self.image = self.strategy_icons[icon]
+        else:
+            self.image = self.strategy_icons["default"]
 
         self.rect = self.image.get_rect(center=(base_pos_x * self.screen_scale_width,
                                                 800 * self.screen_scale_height))
@@ -325,10 +328,9 @@ class StrategyIcon(UIBattle):
 class DamageNumber(UIBattle):
     image_cache = {team: {True: {}, False: {}} for team in team_colour}
 
-    def __init__(self, value, pos, critical, team, move=True):
+    def __init__(self, value, pos, critical, team):
         self._layer = 9999999999999999997
         UIBattle.__init__(self, has_containers=True)
-        self.move = move
         self.timer = 0.5
         if type(value) is str:
             self.timer = 1
@@ -349,8 +351,9 @@ class DamageNumber(UIBattle):
     def update(self, dt):
         self.check_draw()
         self.timer -= dt
-        if self.move:
-            self.rect.center = (self.rect.center[0], self.rect.center[1] - (dt * 200))
+
+        self.rect.y -= 200 * dt
+
         if self.timer <= 0:
             self.kill()
 

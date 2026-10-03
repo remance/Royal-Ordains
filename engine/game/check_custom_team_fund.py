@@ -22,7 +22,7 @@ def check_custom_team_fund(self, create_random=False, specific_team=None):
                         [key for key in self.sprite_data.culture_coas if key not in ("random", "free")])
                     new_random_army = self.custom_team_army[team][index]
 
-                    preset_list = self.character_data.custom_army_preset_list[culture]
+                    preset_list = self.stat_data.custom_army_preset_list[culture]
                     if culture in self.save_data.player_custom_army_preset_save:
                         preset_list = {key: value for key, value in self.save_data.player_custom_army_preset_save[
                             culture].items() if None not in value["commander"]} | preset_list

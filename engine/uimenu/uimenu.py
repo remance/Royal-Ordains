@@ -407,7 +407,7 @@ class FactionSelector(UIMenu):
         self.use_culture = use_culture
         if use_culture:
             self.faction_coas = {key: value["small"] for key, value in self.game.sprite_data.culture_coas.items() if
-                                 key in self.game.character_data.culture_list}
+                                 key in self.game.stat_data.culture_list}
 
             free_coa = self.faction_coas["free"]
             self.faction_coas.pop("free")
@@ -520,8 +520,8 @@ class CharacterSelector(UIMenu):
         self.scroll = None  # got added later during scroll object __init__
         self.character_portraits = self.game.sprite_data.character_portraits
         self.character_list = self.game.character_list
-        self.custom_character_setup = self.game.character_data.custom_character_setup
-        self.all_main_exist_characters = self.game.character_data.all_main_exist_characters
+        self.custom_character_setup = self.game.stat_data.custom_character_setup
+        self.all_main_exist_characters = self.game.stat_data.all_main_exist_characters
         self.image = Surface((int(1300 * self.screen_scale_width), int(1080 * self.screen_scale_height)), SRCALPHA)
         self.image.fill((200, 200, 200))
         self.total_row = 0
@@ -1900,7 +1900,7 @@ class CharacterMovesetShowCase(UIMenu):
         self._layer = layer
         UIMenu.__init__(self)
         self.character_list = self.game.character_list
-        self.effect_list = self.game.character_data.effect_list
+        self.effect_list = self.game.stat_data.effect_list
         self.header_font = self.game.battle_timer_font
         self.font = self.game.large_generic_ui_font
         self.font_space_size = self.font.size(" ")

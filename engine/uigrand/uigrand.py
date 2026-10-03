@@ -51,6 +51,10 @@ class DotInfoBanner(UIGrand):
             self.banner_team_cache["enemy"] = (coloured_end,
                                                  apply_sprite_colour(body, (220, 100, 100)),
                                                  flip(coloured_end, True, False))
+            coloured_end = apply_sprite_colour(end, (100, 220, 100))
+            self.banner_team_cache["ally"] = (coloured_end,
+                                              apply_sprite_colour(body, (220, 100, 100)),
+                                              flip(coloured_end, True, False))
         self.previous_state_value_list = {}
         self.pos = pos
         self.image = self.base_image
@@ -85,8 +89,11 @@ class DotNameBannerSettlement(DotInfoBanner):
         team = "neutral"
         if faction_owner == self.grand.player_faction:
             team = "player"
-        elif self.grand.player_faction and faction_owner != "free":
-            team = "enemy"
+        elif self.grand.player_faction:
+            if faction_owner in self.grand.current_campaign_state["faction"][self.grand.player_faction]["alliance"]:
+                team = "ally"
+            elif faction_owner != "free":
+                team = "enemy"
 
         self.make_text_image(team, self.grab_text(("region", self.region, "Name")))
         self.rect = self.image.get_rect(midtop=self.pos)
@@ -124,69 +131,55 @@ class DotInfoBannerSettlement(DotInfoBanner):
             self.rect = self.image.get_rect(midbottom=self.pos)
 
 
-
 class DotInfoBannerArmy(DotInfoBanner):
     def __init__(self, base_pos, pos):
         DotInfoBanner.__init__(self, base_pos, pos)
 
     def reset(self, state_value_list):
         if "battle" in state_value_list:
-            text = " VS "
-            team = "player"
+            text = (minimise_number_text(state_value_list[0][0]) + "/" +
+                    minimise_number_text(
+                        state_value_list[0][1] / state_value_list[0][2] * 100) + "%") + " VS " + (
+                    minimise_number_text(state_value_list[1][0]) + "/" +
+                    minimise_number_text(
+                        state_value_list[1][1] / state_value_list[1][2] * 100) + "%")
+            team = state_value_list[2]
         else:
-            if state_value_list["player"][0]:
-                text = (minimise_number_text(state_value_list["player"][0]) + "/" +
-                        minimise_number_text(
-                            state_value_list["player"][1] / state_value_list["player"][2] * 100) + "%")
-                team = "player"
-            elif state_value_list["enemy"][0]:
-                text = (minimise_number_text(state_value_list["enemy"][0]) + "/" +
-                        minimise_number_text(
-                            state_value_list["enemy"][1] / state_value_list["enemy"][2] * 100) + "%")
-                team = "enemy"
-            else:
-                # neutral only shown when no player or enemy army in this dot
-                text = (minimise_number_text(state_value_list["neutral"][0]) + "/" +
-                        minimise_number_text(
-                            state_value_list["neutral"][1] / state_value_list["neutral"][2] * 100) + "%")
-                team = "neutral"
-
+            team = state_value_list[3]
+            text = (minimise_number_text(state_value_list[0]) + "/" +
+                    minimise_number_text(
+                        state_value_list[1] / state_value_list[2] * 100) + "%")
         self.make_text_image(team, text)
         self.rect = self.image.get_rect(midtop=self.pos)
 
     def check_draw(self, active):
         grand_camera_ui_drawer = self.grand_camera_ui_drawer
         if active and self.rect.colliderect(self.camera.rect):
+            player_faction = self.grand.player_faction
             if self.base_pos in self.grand.current_campaign_state["battle"]["dot"]:  # battle going on
-                state_value_list = ([0, 0, 0], [0, 0, 0])
-                for army in self.grand.current_campaign_state["battle"]["auto"][self.base_pos][""].values():
-                    if army.faction == self.grand.player_faction:
-                        state_value_list[0][0] += army.total_number
-                        state_value_list["player"][1] += army.max_supply
-                        state_value_list["player"][2] += army.total_supply_usage
-                    elif self.grand.player_faction and army.faction != "free":
-                        state_value_list["enemy"][0] += army.total_number
-                        state_value_list["enemy"][1] += army.max_supply
-                        state_value_list["enemy"][2] += army.total_supply_usage
-                    else:
-                        state_value_list["neutral"][0] += army.total_number
-                        state_value_list["neutral"][1] += army.max_supply
-                        state_value_list["neutral"][2] += army.total_supply_usage
+                state_value_list = [[0, 0, 0], [0, 0, 0], "neutral", "battle"]
+                for team, team_value in self.grand.current_campaign_state["battle"]["auto"][self.base_pos].items():
+                    for army in team_value.values():
+                        if army.faction == self.grand.player_faction:
+                            state_value_list[3] = "player"
+                        state_value_list[team - 1][0] += army.total_number
+                        state_value_list[team - 1][1] += army.max_supply
+                        state_value_list[team - 1][2] += army.total_supply_usage
+
             else:
-                state_value_list = {"player": [0, 0, 0], "enemy": [0, 0, 0], "neutral": [0, 0, 0]}
+                state_value_list = [0, 0, 0, "neutral"]
                 for army in self.dots_army_occupation[self.base_pos]:
-                    if army.faction == self.grand.player_faction:
-                        state_value_list["player"][0] += army.total_number
-                        state_value_list["player"][1] += army.max_supply
-                        state_value_list["player"][2] += army.total_supply_usage
-                    elif self.grand.player_faction and army.faction != "free":
-                        state_value_list["enemy"][0] += army.total_number
-                        state_value_list["enemy"][1] += army.max_supply
-                        state_value_list["enemy"][2] += army.total_supply_usage
-                    else:
-                        state_value_list["neutral"][0] += army.total_number
-                        state_value_list["neutral"][1] += army.max_supply
-                        state_value_list["neutral"][2] += army.total_supply_usage
+                    state_value_list[0] += army.total_number
+                    state_value_list[1] += army.max_supply
+                    state_value_list[2] += army.total_supply_usage
+                    if player_faction and state_value_list[3] == "neutral":
+                        if army.faction == self.grand.player_faction:
+                            state_value_list[3] = "player"
+                        elif army.faction in self.grand.current_campaign_state["faction"][player_faction]["alliance"]:
+                            state_value_list[3] = "ally"
+                        else:
+                            state_value_list[3] = "enemy"
+
                 if state_value_list != self.previous_state_value_list:
                     self.previous_state_value_list = state_value_list
                     self.reset(state_value_list)

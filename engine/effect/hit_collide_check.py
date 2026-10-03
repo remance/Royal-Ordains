@@ -34,9 +34,9 @@ def hit_collide_check(self):
                                             sprite_bounce(self)
                                     elif len(self.current_animation) == 1:
                                         self.reach_target()
-                                        return
+                                        return True
                                 else:
-                                    return
+                                    return True
 
 
 # def melee_impact_crash_check(self, enemy):

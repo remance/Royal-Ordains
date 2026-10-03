@@ -4,4 +4,4 @@
 "Skill3","Decelerate Time",,,,6000,10000,60,23,,,,,,"magic",,"slow",,
 "Skill4","Magic Bombardment",,,,8000,10000,15,13,23,150,60,110,,"magic",,,,"arc:high"
 "Skill5","Teleport","name:Skill5Ready",,"self:{no_engage=10000;no_stay}",20000,,20,13,,,,,,"magic",,,,"movable,x_momentum:3000,repeat,speed:100000"
-"Skill6","Mana Recharge",,,"self:{resource<=30}",10000,,60,3,,,,,,"magic","resource_generation,resource_kit",,,"no_ai_range_check_setup"
+"Skill6","Mana Recharge",,,"self:{resource<=30}",,,60,3,,,,,,"magic","resource_generation,resource_kit",,,

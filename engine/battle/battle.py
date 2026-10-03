@@ -227,11 +227,11 @@ class Battle:
 
         self.weather_screen_adjust = self.screen_width / self.screen_height  # for weather sprite spawn position
 
-        self.character_data = self.game.character_data
-        self.character_list = self.character_data.character_list
-        self.strategy_list = self.character_data.strategy_list
-        self.can_cure_status_list = self.character_data.can_cure_status_list
-        self.can_clarity_status_list = self.character_data.can_clarity_status_list
+        self.stat_data = self.game.stat_data
+        self.character_list = self.stat_data.character_list
+        self.strategy_list = self.stat_data.strategy_list
+        self.can_cure_status_list = self.stat_data.can_cure_status_list
+        self.can_clarity_status_list = self.stat_data.can_clarity_status_list
         self.sprite_data = self.game.sprite_data
         self.map_data = self.game.map_data
         self.weather_data = self.map_data.weather_data
@@ -592,7 +592,7 @@ class Battle:
 
         yield set_start_load(self, "animation setup")
         battle_character_list = [character["ID"] for character in stage_data["character"]]
-        for effect in self.character_data.effect_list.values():
+        for effect in self.stat_data.effect_list.values():
             if "summon" in effect["Property"]:
                 battle_character_list.append(effect["Property"]["summon"])  # add all summon for all effects
 
@@ -852,11 +852,12 @@ class Battle:
                     elif event.key == K_KP_2:
                         self.drama_text.queue.append((True, "Show case: Reworked battle system.", None))
                         for enemy in self.all_battle_characters:
-                            enemy.health = 0
+                            enemy.cal_loss(None, 1, (100, 100), 90, False)
                     elif event.key == K_KP_3:
                         self.drama_text.queue.append((
                             False, "In some maps, neutral animals may appear based on specific condition", None))
-                        self.team_commander[1].health = 0
+                        for enemy in self.all_battle_characters:
+                            enemy.cal_loss(None, 1, (1000, 1000), 90, False)
                     elif event.key == K_KP_4:
                         self.drama_text.queue.append((
                             False, "Each can have a different behaviour, some just move around doing nothing", None))

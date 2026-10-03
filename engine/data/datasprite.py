@@ -106,6 +106,8 @@ class DataSprite(GameData):
                     image, (200 * self.screen_scale_width, 200 * self.screen_scale_height))
                 self.culture_coas[file]["tiny"] = smoothscale(
                     image, (150 * self.screen_scale_width, 150 * self.screen_scale_height))
+                self.culture_coas[file]["mini"] = smoothscale(
+                    image, (100 * self.screen_scale_width, 100 * self.screen_scale_height))
 
             self.weather_matter_images = {}
             part_folder = Path(join(self.data_dir, "map", "weather", "matter"))

@@ -45,7 +45,8 @@ from engine.uioutergrand.cosmos import CosmosUI, MiniCosmosUI
 from engine.uioutergrand.uioutergrand import (YesNo, PlayerGrandInteract, PlayerTopBar, PlayerFactionCultureList,
                                               PlayerArmyList, PlayerArmyListSortOption, MapSettingOption,
                                               TimeSettingOption, EventImportantPopup,
-                                              MenuBar, RegionManagement, EventNotification, ArmyInfo)
+                                              MenuBar, RegionManagement, BuildingManagement,
+                                              EventNotification, ArmyInfo)
 from engine.uigrand.uigrand import (DotInfoBanner, DotInfoBannerArmy, DotInfoBannerSettlement, DotNameBannerSettlement)
 from engine.uimenu.uimenu import TextPopup, GrandMiniMap, UIScroll, PresetArmySetupUI, CharacterSelector
 from engine.updater.updater import ReversedLayeredUpdates
@@ -168,13 +169,13 @@ class Grand:
 
         self.weather_screen_adjust = self.screen_width / self.screen_height  # for weather sprite spawn position
 
-        self.character_data = self.game.character_data
+        self.stat_data = self.game.stat_data
         self.character_list = self.game.character_list
         self.map_data = self.game.map_data
         self.weather_data = self.map_data.weather_data
         self.faction_list = self.map_data.faction_list
-        self.building_list = self.character_data.building_list
-        self.culture_list = self.character_data.culture_list
+        self.building_list = self.stat_data.building_list
+        self.culture_list = self.stat_data.culture_list
 
         self.sprite_data = self.game.sprite_data
         self.grand_ui_icons = self.sprite_data.grand_ui_icons
@@ -281,6 +282,7 @@ class Grand:
         self.player_army_list_scroll = UIScroll(self.player_army_list_ui,
                                                 self.player_army_list_ui.rect.topright)
         self.region_management_ui = RegionManagement()
+        self.building_management_ui = BuildingManagement()
         self.event_notification_ui = EventNotification()
 
         self.fps_count = FPSCount(self)  # FPS number counter

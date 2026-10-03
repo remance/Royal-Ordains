@@ -1,5 +1,5 @@
 def change_strategy(self):
-    effect_list = self.battle.character_data.effect_list
+    effect_list = self.battle.stat_data.effect_list
 
     self.own_strategy_type = {"weather": set(), "ally": set(), "enemy": set(), "summon": set(),
                               "cure": set(), "clarity": set()}

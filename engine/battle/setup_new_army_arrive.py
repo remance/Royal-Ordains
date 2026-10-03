@@ -6,7 +6,7 @@ def setup_new_army_arrive(self, army, team):
     if len(team_state["active_retinue"]) < 3:
         if army.army_followers["retinue"]:
             for retinue in [item[0] for item in army.army_followers["retinue"] if item[1]]:
-                strategy = self.character_data.character_list[retinue]["Strategy"]
+                strategy = self.stat_data.character_list[retinue]["Strategy"]
                 if self.strategy_list[strategy]["Summon"]:
                     battle_character_list += list(self.strategy_list[strategy]["Summon"].keys())
 

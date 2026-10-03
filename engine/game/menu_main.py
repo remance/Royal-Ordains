@@ -49,26 +49,26 @@ def menu_main(self):
 
     elif self.test_battle_button.event_press:
         self.custom_team_army[1][0].__init__("", "small", "small", "leader_bigta",
-                                             {"leader": [["leader_doll_princess", True], ],
-                                              "troop": [],
+                                             {"leader": [["leader_doll_princess", True], ["small_rabbit_leader_banner", True],],
+                                              "troop": [["small_rabbit_rifle", True], ["small_rabbit_rifle", True], ["small_rabbit_cannon", True],],
                                               "air": [],
                                               "retinue": [["small_rabbit_leader_shaman", True],
                                                           ["1_test_strategy", True],
                                                           ["1_test_strategy_2", True]]}, supply=10000)
-        self.custom_team_army[1][1].__init__("", "small", "small", "leader_adaqua",
+        self.custom_team_army[1][1].__init__("", "small", "small", "leader_kelwy",
                                              {"leader": [["small_rabbit_leader_knight", True],
                                                          ["small_rabbit_leader_knight", True]],
-                                              "troop": [["small_rabbit_sling", True], ],
+                                              "troop": [["small_rabbit_sling", True], ["small_rabbit_spear", True], ["small_rabbit_spear", True],],
                                               "air": [["castle_human_air_flying_monk", True],
                                                       ["small_eagle_air_stone", True]],
                                               "retinue": [["small_rabbit_leader_shaman", True]]}, supply=500)
         self.custom_team_army[2][0].__init__("", "castle", "castle", "leader_buikuuh",
                                              {"leader": [["leader_adaqua", True], ],
-                                              "troop": [],
+                                              "troop": [["small_rabbit_rifle", True],["small_rabbit_rifle", True],["small_rabbit_cannon", True]],
                                               "air": [],
                                               "retinue": [["small_rabbit_leader_shaman", True]]}, supply=10000)
         self.custom_team_army[2][1].__init__("", "castle", "castle", "",
-                                             {"leader": [], "troop": [], "air": [], "retinue": []}, supply=700)
+                                             {"leader": [], "troop": [["small_rabbit_sling", True], ["small_rabbit_spear", True], ["small_rabbit_spear", True],["small_rabbit_sling", True], ["small_rabbit_spear", True]], "air": [], "retinue": []}, supply=700)
 
         for army in self.custom_team_army[1][2:]:
             army.__init__("", "", "", None, {"leader": [], "troop": [], "air": [], "retinue": []})

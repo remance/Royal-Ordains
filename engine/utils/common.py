@@ -161,10 +161,10 @@ def calculate_projectile_target(velocity, angle):
 def calculate_projectile_velocity(angle, distance):
     """Velocity required for object to reach give distance and angle"""
     if angle:
-        if angle > 90:
+        if angle in (0, -90, 90, -180, 180, -360, 360):
+            return distance / 10
+        elif angle > 90:
             return (distance / (sin(2 * radians(-angle)))) ** 0.5
-        elif angle in (-90, 90, -180, 180, -360, 360):
-            return distance / 100
         else:
             return (distance / (sin(2 * radians(angle)))) ** 0.5
     else:

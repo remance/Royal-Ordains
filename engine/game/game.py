@@ -369,24 +369,24 @@ class Game:
         self.add_to_ui_menu_updater(self.cursor)
 
         # Battle related data
-        self.character_data = DataStat()
-        self.character_list = self.character_data.character_list
+        self.stat_data = DataStat()
+        self.character_list = self.stat_data.character_list
         self.map_data = DataMap()
 
         self.preset_map_data = self.map_data.preset_map_data
 
         if self.show_dmg_number:
             BattleCharacter.show_dmg_number = True
-        Army.character_hire_building_list = self.character_data.character_hire_building_list
+        Army.character_hire_building_list = self.stat_data.character_hire_building_list
         Army.character_list = self.character_list
-        Character.character_data = self.character_data
+        Character.stat_data = self.stat_data
         Character.character_list = self.character_list
-        Character.status_list = self.character_data.status_list
-        Character.status_apply_funcs = self.character_data.status_apply_funcs
-        Character.effect_list = self.character_data.effect_list
+        Character.status_list = self.stat_data.status_list
+        Character.status_apply_funcs = self.stat_data.status_apply_funcs
+        Character.effect_list = self.stat_data.effect_list
 
         Effect.character_list = self.character_list
-        Effect.effect_list = self.character_data.effect_list
+        Effect.effect_list = self.stat_data.effect_list
 
         self.sprite_data = DataSprite(self.character_list)
         self.character_animation_data = self.sprite_data.character_animation_data  # character animation data pool

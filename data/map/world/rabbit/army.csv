@@ -5,12 +5,12 @@
 4,"amgarn","left1","leader_amgarn",,,,"small_rabbit_spear","small_rabbit_killer","small_rabbit_killer",,,,,,,,,,,500,500
 5,"free","left2","small_rabbit_leader_banner",,,,"small_rabbit_spear","small_rabbit_sling",,,,,,,,,,,,300,300
 6,"free","left3","small_rabbit_leader_shaman",,,,"small_rabbit_spear","small_snail_sword","small_rabbit_sling",,,,,,,,,,,500,500
-7,"kelwy","right1","leader_kelwy",,,,"small_rabbit_spear","small_rabbit_cannon",,,,,,,,,,,,500,500
+7,"free","right1","small_rabbit_leader_shaman",,,,"small_rabbit_spear","small_snail_sword","small_rabbit_sling",,,,,,,,,,,500,500
 8,"free","right2","small_rabbit_leader_banner",,,,"small_rabbit_spear","small_rabbit_sling",,,,,,,,,,,,300,300
-9,"free","right3","small_rabbit_leader_shaman",,,,"small_rabbit_spear","small_snail_sword","small_rabbit_sling",,,,,,,,,,,500,500
-10,"kak","down1","leader_kak",,,,"small_snail_sword","small_snail_old",,,,,,,,,,,,500,500
+9,"kelwy","right3","leader_kelwy",,,,"small_rabbit_spear","small_rabbit_cannon",,,,,,,,,,,,500,500
+10,"free","down1","small_rabbit_leader_shaman",,,,"small_rabbit_spear","small_snail_sword","small_rabbit_sling",,,,,,,,,,,500,500
 11,"free","down2","small_rabbit_leader_banner",,,,"small_rabbit_spear","small_rabbit_sling",,,,,,,,,,,,300,300
-12,"free","down3","small_rabbit_leader_shaman",,,,"small_rabbit_spear","small_snail_sword","small_rabbit_sling",,,,,,,,,,,500,500
+12,"kak","down3","leader_kak",,,,"small_snail_sword","small_snail_old",,,,,,,,,,,,500,500
 13,"free","center1","small_rabbit_leader_knight","small_rabbit_leader_knight",,,"small_snail_sword","small_snail_sword","small_rabbit_sling","small_rabbit_hound_cav",,"small_eagle_air_stone",,,,,,,,2000,2000
 14,"free","center2","small_rabbit_leader_knight","small_rabbit_leader_shaman",,,"small_rabbit_spear","small_rabbit_spear","small_rabbit_spear","small_rabbit_sling","small_rabbit_sling",,,,,,,,,1200,1200
 15,"free","center3","small_rabbit_leader_knight","small_rabbit_leader_knight",,,"small_snail_sword","small_snail_sword","small_rabbit_sling","small_rabbit_hound_cav",,"small_eagle_air_stone",,,,,,,,2000,2000

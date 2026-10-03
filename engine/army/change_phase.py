@@ -27,22 +27,16 @@ def change_phase(self):
                         dots_army_occupation[self.base_pos].sort(key=lambda item: item.power)
                         if self.base_pos not in campaign_battle_dot:  # no ongoing battle on this dot, check if enemy exist
                             # check if army move to new dot will start battle with enemies in the same dot
-                            enemy_faction_alliance = []
+                            enemy_alliance = []
                             battle_army_list = {1: self, 2: []}
                             alliance = current_campaign_state["faction"][self.faction]["alliance"]
-                            faction_alliance = (self.faction,)
-                            if alliance:
-                                faction_alliance = current_campaign_state["alliance"][alliance]
 
                             for army in dots_army_occupation[self.base_pos]:
-                                if army.faction not in faction_alliance:  # enemy faction
+                                if army.faction not in alliance:  # enemy faction
                                     # get enemy alliance
-                                    if not enemy_faction_alliance:
+                                    if not enemy_alliance:
                                         enemy_alliance = current_campaign_state["faction"][self.faction]["alliance"]
-                                        enemy_faction_alliance = (self.faction,)
-                                        if enemy_alliance:
-                                            enemy_faction_alliance = current_campaign_state["alliance"][enemy_alliance]
-                                    elif army.faction not in enemy_faction_alliance:
+                                    elif army.faction not in enemy_alliance:
                                         # only 2 alliances can fight in a battle,
                                         # other factions will wait while others in battle
                                         pass
