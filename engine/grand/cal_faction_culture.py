@@ -23,10 +23,10 @@ def cal_faction_culture(self, faction):
     for region in faction_campaign_state["region"]:
         region_culture_campaign_state = self.current_campaign_state["region"]["culture"][region]
         region_culture_campaign_state.clear()
-        for building in self.current_campaign_state["region"]["building"][region]:
-            if building and building[1] and not building[2]:
+        for building_state in self.current_campaign_state["region"]["building"][region]:
+            if building_state and building_state[1] is True and not building_state[2]:
                 # building is in active state and not destroyed/constructing state
-                building_id = building[0]
+                building_id = building_state[0]
                 culture = self.building_list[building_id]["Culture"]
                 if culture != "all":  # building belong to a specific culture
                     if culture not in culture_weight:
@@ -52,4 +52,3 @@ def cal_faction_culture(self, faction):
             culture_value["influence"] = culture_value["weight"] / total_diversity_weight
         else:
             culture_value["influence"] = 0
-    print(faction, total_diversity_weight, faction_culture_campaign_state)

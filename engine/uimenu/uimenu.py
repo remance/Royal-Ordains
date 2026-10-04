@@ -436,7 +436,7 @@ class FactionSelector(UIMenu):
         self.image.fill((100, 100, 100))
         self.base_image = self.image.copy()
         self.faction_coa_rects = {}
-        y = 50 * self.screen_scale_height
+        y = 30 * self.screen_scale_height
 
         rect_placement = [(250 * self.screen_scale_width) * item for item in rect_per_row]
         x_index = 0

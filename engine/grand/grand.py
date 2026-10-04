@@ -34,6 +34,8 @@ from engine.grand.make_esc_menu import make_esc_menu
 from engine.grand.player_input import player_input_grand, battle_no_player_input_grand
 from engine.grand.sort_player_army_list import sort_player_army_list
 from engine.grand.start_battle_engagement import start_battle_engagement
+from engine.grand.start_building_construction_or_repair import start_building_construction_or_repair
+from engine.grand.start_building_raze_or_pillage import start_building_raze_or_pillage
 from engine.grand.state_grand_process import state_grand_process
 from engine.grand.state_menu_process import state_menu_process, back_to_grand_state
 from engine.grandarmyactor.grandarmyactor import GrandArmyActor
@@ -79,6 +81,8 @@ class Grand:
     shake_camera = shake_camera
     sort_player_army_list = sort_player_army_list
     start_battle_engagement = start_battle_engagement
+    start_building_construction_or_repair = start_building_construction_or_repair
+    start_building_raze_or_pillage = start_building_raze_or_pillage
     state_process = state_grand_process
     state_grand_process = state_grand_process
     state_menu_process = state_menu_process

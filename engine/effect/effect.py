@@ -595,6 +595,7 @@ class ShowcaseEffect(Effect):
         self.animation_pool = self.effect_animation_pool[self.effect_name]
         self.current_animation = self.animation_pool[self.part_name][self.sprite_flip][self.width_scale][
             self.height_scale]
+        self.max_show_frame = len(self.current_animation) - 1
         self.animation_frame_play_time = self.Base_Animation_Frame_Play_Time
         if len(self.current_animation) == 1:  # effect with no animation play a bit longer
             self.animation_frame_play_time = 0.2

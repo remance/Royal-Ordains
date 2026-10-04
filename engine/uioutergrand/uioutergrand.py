@@ -777,10 +777,14 @@ class RegionManagement(UIOuterGrand):
         self._layer = 5
         UIOuterGrand.__init__(self)
         self.culture_coas = self.grand.sprite_data.culture_coas
+        self.building_list = self.grand.stat_data.building_list
         self.font = self.game.medium_generic_ui_font
         self.header_font = self.game.large_generic_ui_font
         self.player_selected_region = None
         self.selected_building_index = None
+        self.appear_repair_button = False
+        self.appear_raze_button = False
+        self.appear_pillage_button = False
         self.image = Surface((1500 * self.screen_scale_width, 1000 * self.screen_scale_height))
         self.image.fill((150, 150, 150))
         default_build_image_slot = self.building_portraits["default"]["building_ui"]
@@ -808,6 +812,8 @@ class RegionManagement(UIOuterGrand):
             (30 + (50 * row)) * self.screen_scale_width, (450 + (50 * col)) * self.screen_scale_height)) for
             col in range(3) for row in range(3)]
 
+        self.building_button_rects = {}
+
         self.rect = self.image.get_rect(center=(self.screen_width * 0.25, self.screen_height / 2))
 
         self.repair_button = self.grand_ui_images["building_repair"]
@@ -824,17 +830,32 @@ class RegionManagement(UIOuterGrand):
             building_icon = self.building_portraits["default"]["building_ui"]
 
         self.image.blit(building_icon, self.building_slot_rects[index])
-        if not building[1]:  # damaged building
-            self.image.blit(self.building_portraits["damaged"],
-                            building_icon.get_rect(center=self.building_slot_rects[index]))
-        if building[2]:  # constructing building
-            self.image.blit(self.building_portraits["progress"],
-                            building_icon.get_rect(center=self.building_slot_rects[index]))
-            turn_left = self.font.render(building[2], True, (255, 255, 255))
-            self.image.blit(turn_left, turn_left.get_rect(center=self.building_slot_rects[index]))
+        if building[1] is not True:
+            if not building[1]:  # damaged building
+                self.image.blit(self.building_portraits["damaged"],
+                                self.building_slot_rects[index])
+            else:  # building on progress with something
+                self.image.blit(self.building_portraits["progress"],
+                                self.building_slot_rects[index])
+                if building[1] == "raze":
+                    self.image.blit(self.building_portraits["unavailable_raze"],
+                                    self.building_slot_rects[index])
+                elif building[1] == "pillage":
+                    self.image.blit(self.building_portraits["unavailable_pillage"],
+                                    self.building_slot_rects[index])
+                else:  # repair
+                    self.image.blit(self.building_portraits["unavailable_repair"],
+                                    self.building_slot_rects[index])
+
+                turn_left = self.font.render(building[2], True, (255, 255, 255))
+                self.image.blit(turn_left, turn_left.get_rect(midtop=self.building_slot_rects[index].midbottom))
 
     def change_selected_region(self, region):
+        self.building_button_rects = {}
         self.selected_building_index = None
+        self.appear_repair_button = False
+        self.appear_raze_button = False
+        self.appear_pillage_button = False
         self.outer_ui_updater.remove(self.grand.building_management_ui)
         self.player_selected_region = region
         if region:
@@ -865,20 +886,48 @@ class RegionManagement(UIOuterGrand):
             self.image.blit(text_surface, text_surface.get_rect(bottomright=self.culture_coa_rects[index].bottomright))
 
     def change_selected_building(self, building_index):
-        if self.selected_building_index != building_index:
-            if self.selected_building_index is not None:
-                # reset previous selected building icon
-                building = self.grand.current_campaign_state["region"]["building"][self.player_selected_region][self.selected_building_index][0]
-                prev_selected_building_icon = self.building_portraits[building]["building_ui"]
-                self.image.blit(prev_selected_building_icon, self.building_slot_rects[self.selected_building_index])
-            selected_icon = self.building_portraits["selected"]["building_ui"]
-            self.image.blit(selected_icon, self.building_slot_rects[building_index])
-            self.selected_building_index = building_index
+        self.building_button_rects = {}
+        self.appear_repair_button = False
+        self.appear_raze_button = False
+        self.appear_pillage_button = False
+        if self.selected_building_index is not None:
+            # reset previous selected building icon
+            prev_building_state = self.grand.current_campaign_state["region"]["building"][self.player_selected_region][self.selected_building_index]
+            building = prev_building_state[0]
+            prev_selected_building_icon = self.building_portraits[building]["building_ui"]
+            self.image.blit(prev_selected_building_icon, self.building_slot_rects[self.selected_building_index])
+
+        building_state = self.grand.current_campaign_state["region"]["building"][self.player_selected_region][
+            building_index]
+        if building_state[1] is True and not building_state[2]:
+            building = building_state[0]
+            building_stat = self.building_list[building]
             self.grand.building_management_ui.player_selected_region = self.player_selected_region
             self.grand.building_management_ui.change_selected_building(building_index)
-            self.outer_ui_updater.add(self.grand.building_management_ui)
+            if building_stat["Cost"]:
+                # building has cost, add pillage button
+                self.building_button_rects["pillage"] = self.grand_ui_images["building_repair"].get_rect(
+                    midbottom=self.building_slot_rects[building_index].midtop)
+                self.image.blit(self.grand_ui_images["building_pillage"], self.building_button_rects["pillage"])
+                self.appear_pillage_button = True
 
-            # self.grand.building_manage
+            if building_stat["Precede"]:
+                # add raze button if building can be downgrade
+                self.building_button_rects["raze"] = self.grand_ui_images["building_repair"].get_rect(
+                    midbottom=self.building_slot_rects[building_index].topright)
+                self.image.blit(self.grand_ui_images["building_raze"], self.building_button_rects["raze"])
+                self.appear_raze_button = True
+        else:
+            if not building_state[1]:  # add repair button
+                self.building_button_rects["repair"] = self.grand_ui_images["building_repair"].get_rect(
+                    midbottom=self.building_slot_rects[building_index].topleft)
+                self.image.blit(self.grand_ui_images["building_repair"], self.building_button_rects["repair"])
+                self.appear_repair_button = True
+
+        selected_icon = self.building_portraits["selected"]["building_ui"]
+        self.image.blit(selected_icon, self.building_slot_rects[building_index])
+
+        self.selected_building_index = building_index
 
     def update(self, dt):
         UIOuterGrand.update(self, dt)
@@ -886,10 +935,21 @@ class RegionManagement(UIOuterGrand):
             inside_mouse_pos = Vector2(
                 (self.cursor.pos[0] - self.rect.topleft[0]),
                 (self.cursor.pos[1] - self.rect.topleft[1]))
+            if self.appear_repair_button and self.building_button_rects["repair"].collidepoint(inside_mouse_pos):
+                self.grand.start_building_construction_or_repair(self.grand.player_faction, self.player_selected_region,
+                                                                 self.selected_building_index,
+                                                                 self.grand.current_campaign_state["region"]["building"][self.player_selected_region][self.selected_building_index][0])
+                return
+            elif self.appear_raze_button and self.building_button_rects["raze"].collidepoint(inside_mouse_pos):
+
+                return
+            elif self.appear_pillage_button and self.building_button_rects["pillage"].collidepoint(inside_mouse_pos):
+                return
+
             region_buildings = self.grand.current_campaign_state["region"]["building"][self.player_selected_region]
             for building_index, rect in enumerate(self.building_slot_rects):
                 if rect.collidepoint(inside_mouse_pos) and building_index < len(region_buildings):
-                    if self.event_press and building_index != self.selected_building_index:
+                    if self.event_press:
                         self.change_selected_building(building_index)
                     else:
                         self.text_popup.popup(self.cursor.rect.bottomright,
@@ -925,10 +985,13 @@ class BuildingManagement(UIOuterGrand):
     def change_selected_building(self, building_index):
         self.building_slot_rects = []
         building_list = self.building_list
-        region_building = self.grand.current_campaign_state["region"]["building"][self.player_selected_region]
-        region_active_building = [item[0] for item in region_building if item[1] and not item[2]]
+        region_buildings = self.grand.current_campaign_state["region"]["building"][self.player_selected_region]
+        region_active_building = [item[0] for item in region_buildings if item[1] and not item[2]]
         faction_culture = self.grand.current_campaign_state["faction"][self.grand.player_faction]["culture"]
-        exist_building_upgrade = self.building_upgrade_list[region_building[building_index][0]]
+        selected_building_state = region_buildings[building_index]
+
+        # show building management for active building
+        exist_building_upgrade = self.building_upgrade_list[selected_building_state[0]]
 
         available_building_upgrade = {}
         player_faction_gold = self.grand.current_campaign_state["faction"][self.grand.player_faction]["gold"]
@@ -949,43 +1012,49 @@ class BuildingManagement(UIOuterGrand):
                     else:
                         available_building_upgrade[building_type][building] = True
 
-        self.image = Surface((1200 * self.screen_scale_width, sum([
-            ceil(len(available_building_list) / 5) for available_building_list in
-            available_building_upgrade.values()]) * 240 * self.screen_scale_height))
-        self.rect = self.image.get_rect(midleft=self.grand.region_management_ui.rect.midright)
-        image_width = self.image.get_width()
-        prev_bar_rect = None
-        for building_type, available_building_list in available_building_upgrade.items():
-            building_bar_image = Surface((image_width, ceil(len(available_building_list) / 5) * 200 * self.screen_scale_height))
-            building_bar_image.fill(self.building_type_bar_colouring[building_type])
-            slot_rects = {}
-            for building_index, building in enumerate(available_building_list):
-                if building in self.building_portraits:
-                    building_icon = self.building_portraits[building]["building_ui"]
-                else:
-                    building_icon = self.building_portraits["default"]["building_ui"]
-                col = floor(building_index / 5)
-                row = building_index - (5 * col)
-                rect = building_icon.get_rect(topleft=((20 + (150 * row)) * self.screen_scale_width,
-                                                       (20 + (150 * col)) * self.screen_scale_height))
-                slot_rects[building] = rect
-                building_bar_image.blit(building_icon, rect)
-                if not available_building_upgrade[building_type][building]:
-                    building_bar_image.blit(self.unavailable_building_icon, rect)
-                if building_list[building]["Culture"] in self.culture_coas:
-                    culture_coa = self.culture_coas[building_list[building]["Culture"]]["mini"]
-                else:
-                    culture_coa = self.culture_coas["default"]["mini"]
-                building_bar_image.blit(culture_coa, culture_coa.get_rect(topleft=rect.topleft))
-            if not prev_bar_rect:
-                new_bar_rect = building_bar_image.get_rect(topleft=(0, 0))
-            else:
-                new_bar_rect = building_bar_image.get_rect(topleft=(0, prev_bar_rect.bottomleft[1]))
-            self.image.blit(building_bar_image, new_bar_rect)
-            self.building_slot_rects.append((new_bar_rect, slot_rects))
-            prev_bar_rect = new_bar_rect
+        if available_building_upgrade:
+            # show building management ui only for active building
+            self.outer_ui_updater.add(self)
 
-        self.available_building_upgrade = available_building_upgrade
+            self.image = Surface((1200 * self.screen_scale_width, sum([
+                ceil(len(available_building_list) / 5) for available_building_list in
+                available_building_upgrade.values()]) * 240 * self.screen_scale_height))
+            self.rect = self.image.get_rect(midleft=self.grand.region_management_ui.rect.midright)
+            image_width = self.image.get_width()
+            prev_bar_rect = None
+            for building_type, available_building_list in available_building_upgrade.items():
+                building_bar_image = Surface((image_width, ceil(len(available_building_list) / 5) * 200 * self.screen_scale_height))
+                building_bar_image.fill(self.building_type_bar_colouring[building_type])
+                slot_rects = {}
+                for building_index, building in enumerate(available_building_list):
+                    if building in self.building_portraits:
+                        building_icon = self.building_portraits[building]["building_ui"]
+                    else:
+                        building_icon = self.building_portraits["default"]["building_ui"]
+                    col = floor(building_index / 5)
+                    row = building_index - (5 * col)
+                    rect = building_icon.get_rect(topleft=((20 + (150 * row)) * self.screen_scale_width,
+                                                           (20 + (150 * col)) * self.screen_scale_height))
+                    slot_rects[building] = rect
+                    building_bar_image.blit(building_icon, rect)
+                    if not available_building_upgrade[building_type][building]:
+                        building_bar_image.blit(self.unavailable_building_icon, rect)
+                    if building_list[building]["Culture"] in self.culture_coas:
+                        culture_coa = self.culture_coas[building_list[building]["Culture"]]["mini"]
+                    else:
+                        culture_coa = self.culture_coas["default"]["mini"]
+                    building_bar_image.blit(culture_coa, culture_coa.get_rect(topleft=rect.topleft))
+                if not prev_bar_rect:
+                    new_bar_rect = building_bar_image.get_rect(topleft=(0, 0))
+                else:
+                    new_bar_rect = building_bar_image.get_rect(topleft=(0, prev_bar_rect.bottomleft[1]))
+                self.image.blit(building_bar_image, new_bar_rect)
+                self.building_slot_rects.append((new_bar_rect, slot_rects))
+                prev_bar_rect = new_bar_rect
+
+            self.available_building_upgrade = available_building_upgrade
+            return
+        self.outer_ui_updater.remove(self)
 
     def update(self, dt):
         UIOuterGrand.update(self, dt)
@@ -1001,8 +1070,10 @@ class BuildingManagement(UIOuterGrand):
                     for building, rect in building_slot_list.items():
                         if rect.collidepoint(bar_inside_mouse_pos):
                             if self.event_press:
-                                region_buildings = self.grand.current_campaign_state["region"]["building"][
-                                    self.player_selected_region]
+                                if self.building_list[building]["cost"] > self.grand.current_campaign_state["faction"][self.grand.player_faction]["gold"]:
+                                    self.grand.start_building_construction_or_repair(self.grand.player_faction, self.player_selected_region,
+                                                                                     self.grand.region_management_ui.selected_building_index,
+                                                                                     building)
                             else:
                                 self.text_popup.popup(self.cursor.rect.bottomright,
                                                       self.grab_text(("building",
