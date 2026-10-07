@@ -47,13 +47,10 @@ def state_battle_process(self):
     current_frame = self.camera_center_pos[0] / self.screen_width
     if current_frame == 0.5:  # at center of first scene
         self.current_scene = 1
-        self.reach_scene = 1
     elif abs(current_frame - int(current_frame)) >= 0.5:  # at right half of scene
         self.current_scene = int(current_frame) + 1
-        self.reach_scene = self.current_scene + 1
     else:
         self.current_scene = int(current_frame)  # at left half of scene
-        self.reach_scene = self.current_scene
     if dt:
         if self.screen_shake_value:
             # Screen shaking
@@ -95,8 +92,8 @@ def state_battle_process(self):
             team_commander = self.team_commander[team]
             if team_commander and team_commander.alive and team_state["strategy_resource"] < 200:
                 team_state["strategy_resource"] += dt * team_state["strategy_regen"]
-                if team_state["strategy_resource"] > 100:
-                    team_state["strategy_resource"] = 100
+                if team_state["strategy_resource"] > 200:
+                    team_state["strategy_resource"] = 200
 
             if team_state["supply_reserve"]:
                 if team_state["supply_reserve"] > 0:
@@ -253,7 +250,7 @@ def state_battle_process(self):
             # instead of 1 second in campaign at normal game speed
             self.grand.grand_process(dt / Phase_To_Battle_Time)
 
-    else:
+    else:  # game speed pause
         for character in self.battle_character_updater:
             character.check_draw(0)
         for effect in self.battle_effect_updater:

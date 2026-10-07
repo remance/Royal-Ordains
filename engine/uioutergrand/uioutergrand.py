@@ -17,9 +17,6 @@ class UIOuterGrand(UIMenu):
         from engine.grand.grand import Grand
         UIMenu.__init__(self, player_cursor_interact=player_cursor_interact, has_containers=has_containers)
         self.grand = Grand.grand
-        self.grand_ui_icons = self.grand.grand_ui_icons
-        self.grand_ui_images = self.grand.grand_ui_images
-        self.building_portraits = self.grand.building_portraits
         self.text_popup = self.grand.text_popup
         self.outer_ui_updater = self.grand.outer_ui_updater
         self.max_description_box_width = int(1000 * self.screen_scale_width)
@@ -117,13 +114,13 @@ class PlayerTopBar(UIOuterGrand):
         self.max_description_box_width = int(1500 * self.screen_scale_width)
         self.image = Surface((2600 * self.screen_scale_width, 80 * self.screen_scale_height))
         self.image.fill((80, 200, 255))
-        self.image.blit(self.grand_ui_icons["gold"], (50 * self.screen_scale_width,
+        self.image.blit(self.grand_ui_images["gold"], (50 * self.screen_scale_width,
                                                       10 * self.screen_scale_height))
-        self.image.blit(self.grand_ui_icons["supply"], (850 * self.screen_scale_width,
+        self.image.blit(self.grand_ui_images["supply"], (850 * self.screen_scale_width,
                                                         10 * self.screen_scale_height))
-        self.image.blit(self.grand_ui_icons["happiness"], (1550 * self.screen_scale_width,
+        self.image.blit(self.grand_ui_images["happiness"], (1550 * self.screen_scale_width,
                                                            10 * self.screen_scale_height))
-        self.image.blit(self.grand_ui_icons["turn"], (1950 * self.screen_scale_width,
+        self.image.blit(self.grand_ui_images["turn"], (1950 * self.screen_scale_width,
                                                       10 * self.screen_scale_height))
 
         self.base_image = self.image.copy()
@@ -194,7 +191,7 @@ class MenuBar(UIOuterGrand):
     def __init__(self):
         self._layer = 4
         UIOuterGrand.__init__(self)
-        button_images = self.grand.grand_ui_icons
+        button_images = self.grand.grand_ui_images
         self.image = Surface((800 * self.screen_scale_width, 80 * self.screen_scale_height), SRCALPHA)
         self.image.fill((50, 50, 200))
         self.button_rects = {"character": button_images["character"].get_rect(topleft=(0, 0)),
@@ -377,16 +374,16 @@ class PlayerArmyListSortOption(UIOuterGrand):
         UIOuterGrand.__init__(self)
         self.image = Surface((950 * self.screen_scale_width, 100 * self.screen_scale_height))
         self.rect = self.image.get_rect(topright=self.grand.mini_cosmic_ui.rect.bottomright)
-        button_width = self.grand_ui_icons["sort_number"].get_width()
-        self.option_rects = {"commander": self.grand_ui_icons["sort_supply"].get_rect(topleft=(0, 0)),
-                             "supply": self.grand_ui_icons["sort_number"].get_rect(topleft=(button_width, 0)),
-                             "number": self.grand_ui_icons["sort_commander"].get_rect(topleft=(button_width * 2, 0)),
-                             "region": self.grand_ui_icons["sort_region"].get_rect(topleft=(button_width * 3, 0))}
+        button_width = self.grand_ui_images["sort_number"].get_width()
+        self.option_rects = {"commander": self.grand_ui_images["sort_supply"].get_rect(topleft=(0, 0)),
+                             "supply": self.grand_ui_images["sort_number"].get_rect(topleft=(button_width, 0)),
+                             "number": self.grand_ui_images["sort_commander"].get_rect(topleft=(button_width * 2, 0)),
+                             "region": self.grand_ui_images["sort_region"].get_rect(topleft=(button_width * 3, 0))}
         self.option = ("region", "descend")
         for option, rect in self.option_rects.items():
-            self.image.blit(self.grand_ui_icons["sort_" + option], rect)
+            self.image.blit(self.grand_ui_images["sort_" + option], rect)
 
-        self.image.blit(self.grand_ui_icons["sort_" + self.option[0] + "_" + self.option[1]],
+        self.image.blit(self.grand_ui_images["sort_" + self.option[0] + "_" + self.option[1]],
                         self.option_rects[self.option[0]])
 
     def update(self, dt):
@@ -414,9 +411,9 @@ class PlayerArmyListSortOption(UIOuterGrand):
 
                     # re-blit all buttons to reset
                     for option, rect in self.option_rects.items():
-                        self.image.blit(self.grand_ui_icons["sort_" + option], rect)
+                        self.image.blit(self.grand_ui_images["sort_" + option], rect)
 
-                    self.image.blit(self.grand_ui_icons["sort_" + self.option[0] + "_" + self.option[1]],
+                    self.image.blit(self.grand_ui_images["sort_" + self.option[0] + "_" + self.option[1]],
                                     self.option_rects[self.option[0]])
                     break
 
@@ -439,10 +436,10 @@ class PlayerArmyList(UIOuterGrand):
         self.empty_selected_base_image = Surface((950 * self.screen_scale_width, 150 * self.screen_scale_height))
         self.empty_selected_base_image.fill((200, 100, 100))
 
-        self.empty_card_image.blit(self.grand_ui_icons["supply"], (210 * self.screen_scale_width,
+        self.empty_card_image.blit(self.grand_ui_images["supply"], (210 * self.screen_scale_width,
                                                                    10 * self.screen_scale_height))
 
-        self.empty_card_image.blit(self.grand_ui_icons["number"], (210 * self.screen_scale_width,
+        self.empty_card_image.blit(self.grand_ui_images["number"], (210 * self.screen_scale_width,
                                                                    80 * self.screen_scale_height))
 
         self.card_icon_rects = {"resupply": self.grand_ui_images["army_resupply_disable"].get_rect(topleft=(
@@ -822,6 +819,7 @@ class RegionManagement(UIOuterGrand):
         self.repair_button_rect = self.repair_button.get_rect()
 
         self.base_image = self.image.copy()
+        self.before_selected_image = self.base_image.copy()
 
     def add_building_icon(self, index, building):
         if building[0] in self.building_portraits:
@@ -866,12 +864,14 @@ class RegionManagement(UIOuterGrand):
             region_name_surface = text_render_with_bg(self.grab_text(("region", region, "Name")), self.header_font)
             self.image.blit(region_name_surface, region_name_surface.get_rect(midtop=(
                 250 * self.screen_scale_width, 10 * self.screen_scale_height)))
-            self.update_leftbar()
+
+            self.before_selected_image = self.image.copy()
+            self.update_region_stat()
             self.outer_ui_updater.add(self)
         else:
             self.outer_ui_updater.remove(self)
 
-    def update_leftbar(self):
+    def update_region_stat(self):
         region = self.player_selected_region
         campaign_region_state = self.grand.current_campaign_state["region"]
         resource = campaign_region_state["income"][region]
@@ -886,6 +886,8 @@ class RegionManagement(UIOuterGrand):
             self.image.blit(text_surface, text_surface.get_rect(bottomright=self.culture_coa_rects[index].bottomright))
 
     def change_selected_building(self, building_index):
+        self.image = self.before_selected_image.copy()
+        self.update_region_stat()
         self.building_button_rects = {}
         self.appear_repair_button = False
         self.appear_raze_button = False
@@ -929,6 +931,67 @@ class RegionManagement(UIOuterGrand):
 
         self.selected_building_index = building_index
 
+    def popup_building_info(self, building):
+        building_stat = self.building_list[building]
+        if self.event_press:
+            if (building_stat["Cost"] >
+                    self.grand.current_campaign_state["faction"][self.grand.player_faction]["gold"]):
+                self.grand.start_building_construction_or_repair(self.grand.player_faction, self.player_selected_region,
+                                                                 self.grand.region_management_ui.selected_building_index,
+                                                                 building)
+        else:
+            text = [self.grab_text(("building", building, "Name")), "",
+                    (self.grab_text(("ui", "info_header_cost")) + str(building_stat["Cost"]), self.grand_ui_images["gold"]),
+                    (self.grab_text(("ui", "info_header_build_time")) + str(building_stat["Build Time"]), self.grand_ui_images["turn"])]
+
+            if building_stat["Precede"]:
+                text.append(self.grab_text(("ui", "info_header_precede")) +
+                            self.grab_text(("building", building_stat["Precede"], "Name")))
+
+            if building_stat["Requirement"]:
+                text.append(self.grab_text(("ui", "info_header_requirement")) + str([
+                    self.grab_text(("building", require_building, "Name"))for require_building in building_stat["Requirement"]]))
+
+            garrison = False
+            garrison_text = self.grab_text(("ui", "info_header_garrison"))
+            for garrison_stat in ("Leader Reinforcement", "Troop Reinforcement", "Air Reinforcement"):
+                for item in building_stat[garrison_stat]:
+                    garrison = True
+                    garrison_text += self.grab_text(("character", item, "Name")) + ", "
+            if building_stat["Garrison Strategy"]:
+                garrison_text += building_stat["Garrison Strategy"] + ", "
+                garrison = True
+            if garrison:
+                text.append(garrison_text[:-2])
+
+            recruit = False
+            recruit_text = self.grab_text(("ui", "info_header_recruit"))
+            for recruit_stat in ("Leader Recruit", "Unit Recruit"):
+                for item in building_stat[recruit_stat]:
+                    recruit_text += item + ", "
+                    recruit = True
+            if recruit:
+                text.append(recruit_text[:-2])
+
+            for other_stat in ("Gold Income", "Supply Income", "Happiness"):
+                if building_stat[other_stat]:
+                    text.append((self.grab_text(("ui", "info_header_" + other_stat.lower().replace(" ", "_"))) +
+                                 add_plus_to_number(str(building_stat[other_stat])),
+                                 self.grand_ui_images[other_stat.lower().split(" ")[0]]))
+
+            # if building_stat["Income Boost"]:
+            #     text.append(self.grab_text(("ui", "info_header_influence")) + self.grab_text(
+            #         ("culture", building_stat["Culture"], "Name")) + " " + add_plus_to_number(
+            #         str(building_stat["Income Boost"])))
+
+            if building_stat["Influence"]:
+                text.append((self.grab_text(("ui", "info_header_influence")) +
+                             add_plus_to_number(str(building_stat["Influence"])),
+                             self.culture_coas[building_stat["Culture"]]["text"]))
+            self.text_popup.popup(self.cursor.rect, text,
+                                  width_text_wrapper=self.max_description_box_width)
+            self.outer_ui_updater.add(self.text_popup)
+
     def update(self, dt):
         UIOuterGrand.update(self, dt)
         if self.mouse_over:
@@ -936,14 +999,48 @@ class RegionManagement(UIOuterGrand):
                 (self.cursor.pos[0] - self.rect.topleft[0]),
                 (self.cursor.pos[1] - self.rect.topleft[1]))
             if self.appear_repair_button and self.building_button_rects["repair"].collidepoint(inside_mouse_pos):
-                self.grand.start_building_construction_or_repair(self.grand.player_faction, self.player_selected_region,
-                                                                 self.selected_building_index,
-                                                                 self.grand.current_campaign_state["region"]["building"][self.player_selected_region][self.selected_building_index][0])
+                if self.event_press:
+                    self.grand.start_building_construction_or_repair(self.grand.player_faction,
+                                                                     self.player_selected_region,
+                                                                     self.selected_building_index,
+                                                                     self.grand.current_campaign_state["region"][
+                                                                         "building"][self.player_selected_region][
+                                                                         self.selected_building_index][0])
+                else:
+                    self.text_popup.popup(self.cursor.rect.bottomright,
+                                          (self.grab_text(("ui", "info_text_repair")), self.grab_text(("ui", "info_text_repair_description"))),
+                                          width_text_wrapper=self.max_description_box_width)
+                    self.outer_ui_updater.add(self.text_popup)
                 return
             elif self.appear_raze_button and self.building_button_rects["raze"].collidepoint(inside_mouse_pos):
-
+                if self.event_press:
+                    self.grand.start_building_raze_or_pillage(self.grand.player_faction,
+                                                                     self.player_selected_region,
+                                                                     self.selected_building_index,
+                                                                     self.grand.current_campaign_state["region"][
+                                                                         "building"][self.player_selected_region][
+                                                                         self.selected_building_index][0])
+                else:
+                    self.text_popup.popup(self.cursor.rect.bottomright,
+                                          (self.grab_text(("ui", "info_text_raze")),
+                                           self.grab_text(("ui", "info_text_raze_description"))),
+                                          width_text_wrapper=self.max_description_box_width)
+                    self.outer_ui_updater.add(self.text_popup)
                 return
             elif self.appear_pillage_button and self.building_button_rects["pillage"].collidepoint(inside_mouse_pos):
+                if self.event_press:
+                    self.grand.start_building_raze_or_pillage(self.grand.player_faction, self.player_selected_region,
+                                                              self.selected_building_index,
+                                                              self.grand.current_campaign_state["region"][
+                                                                  "building"][self.player_selected_region][
+                                                                  self.selected_building_index][0],
+                                                              pillage=True)
+                else:
+                    self.text_popup.popup(self.cursor.rect.bottomright,
+                                          (self.grab_text(("ui", "info_text_pillage")),
+                                           self.grab_text(("ui", "info_text_pillage_description"))),
+                                          width_text_wrapper=self.max_description_box_width)
+                    self.outer_ui_updater.add(self.text_popup)
                 return
 
             region_buildings = self.grand.current_campaign_state["region"]["building"][self.player_selected_region]
@@ -952,11 +1049,7 @@ class RegionManagement(UIOuterGrand):
                     if self.event_press:
                         self.change_selected_building(building_index)
                     else:
-                        self.text_popup.popup(self.cursor.rect.bottomright,
-                                              self.grab_text(("building",
-                                                              region_buildings[building_index][0],
-                                                              "Name")),
-                                              width_text_wrapper=self.max_description_box_width)
+                        self.popup_building_info(region_buildings[building_index][0])
                         self.outer_ui_updater.add(self.text_popup)
                     break
 
@@ -1023,7 +1116,7 @@ class BuildingManagement(UIOuterGrand):
             image_width = self.image.get_width()
             prev_bar_rect = None
             for building_type, available_building_list in available_building_upgrade.items():
-                building_bar_image = Surface((image_width, ceil(len(available_building_list) / 5) * 200 * self.screen_scale_height))
+                building_bar_image = Surface((image_width, ceil(len(available_building_list) / 5) * 240 * self.screen_scale_height))
                 building_bar_image.fill(self.building_type_bar_colouring[building_type])
                 slot_rects = {}
                 for building_index, building in enumerate(available_building_list):
@@ -1069,18 +1162,7 @@ class BuildingManagement(UIOuterGrand):
                                                    (inside_mouse_pos[1] - bar_rect.topleft[1]))
                     for building, rect in building_slot_list.items():
                         if rect.collidepoint(bar_inside_mouse_pos):
-                            if self.event_press:
-                                if self.building_list[building]["cost"] > self.grand.current_campaign_state["faction"][self.grand.player_faction]["gold"]:
-                                    self.grand.start_building_construction_or_repair(self.grand.player_faction, self.player_selected_region,
-                                                                                     self.grand.region_management_ui.selected_building_index,
-                                                                                     building)
-                            else:
-                                self.text_popup.popup(self.cursor.rect.bottomright,
-                                                      self.grab_text(("building",
-                                                                      building,
-                                                                      "Name")),
-                                                      width_text_wrapper=self.max_description_box_width)
-                                self.outer_ui_updater.add(self.text_popup)
+                            self.grand.region_management_ui.popup_building_info(building)
                             break
                     break
 

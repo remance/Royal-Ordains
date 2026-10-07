@@ -16,7 +16,7 @@ from engine.constants import (Custom_Default_Culture, Default_Showcase_Character
                               Default_Showcase_Character, Opposite_Team)
 from engine.utils.common import keyboard_mouse_press_check
 from engine.utils.data_loading import load_image
-from engine.utils.text_making import text_render_with_bg, make_long_text, add_comma_number, calculate_long_text_size
+from engine.utils.text_making import text_render_with_bg, make_long_text, add_comma_number
 
 none_type = type(None)
 
@@ -119,7 +119,28 @@ def make_image_by_frame(frame: Surface, final_size):
 
 
 class UIMenu(Sprite):
+    add_to_ui_menu_updater = None
+    battle_ui_images = None
+    building_portraits = None
+    button_sound_channel = None
     containers = None
+    cursor = None
+    data_dir = None
+    font_texture = None
+    font_text_cache = None
+    game = None
+    grand_ui_images = None
+    remove_from_ui_menu_updater = None
+    screen_height = None
+    screen_rect = None
+    screen_scale_width = None
+    screen_scale_height = None
+    screen_size = None
+    screen_width = None
+    sound_effect_pool = None
+    localisation = None
+    ui_font = None
+    updater = None
 
     def __init__(self, player_cursor_interact=True, has_containers=False, play_sound_when_click=False):
         """
@@ -128,28 +149,11 @@ class UIMenu(Sprite):
         :param player_cursor_interact: Player can interact (click) with UI in some way
         :param has_containers: Object has group containers to assign
         """
-        from engine.game.game import Game
-        self.game = Game.game
-        self.font_text_cache = self.game.font_text_cache
-        self.add_to_ui_menu_updater = self.game.add_to_ui_menu_updater
-        self.remove_from_ui_menu_updater = self.game.remove_from_ui_menu_updater
-        self.button_sound_channel = self.game.button_sound_channel
-        self.sound_effect_pool = self.game.sound_effect_pool
-        self.screen_scale_width = Game.screen_scale_width
-        self.screen_scale_height = Game.screen_scale_height
-        self.data_dir = Game.data_dir
-        self.ui_font = Game.ui_font
-        self.font_texture = Game.font_texture
-        self.screen_rect = Game.screen_rect
-        self.screen_size = Game.screen_size
-        self.screen_width = self.screen_size[0]
-        self.screen_height = self.screen_size[1]
+
         self.half_screen_width = self.screen_size[0] / 2
         self.half_screen_height = self.screen_size[1] / 2
-        self.localisation = Game.localisation
+
         self.grab_text = self.localisation.grab_text
-        self.cursor = Game.cursor
-        self.updater = Game.ui_menu_updater
         self.player_interact = player_cursor_interact
         self.play_sound_when_click = play_sound_when_click
         if has_containers:
@@ -627,108 +631,113 @@ class CharacterSelector(UIMenu):
                     shown_index = index + start_index
                     if shown_index < len(self.selector_character_list):
                         character_id = self.selector_character_list[shown_index]
+                        grab_text = self.grab_text
+                        character_data = self.character_list[character_id]
+                        game = self.game
                         if self.event_press:
                             self.button_sound_channel.play(choice(self.sound_effect_pool["button"]))
-                            self.button_sound_channel.set_volume(self.game.play_effect_volume)
-                            if self.game.menu_state == "preset":
-                                selected_portrait = self.game.custom_preset_army_setup.selected_portrait_index
+                            self.button_sound_channel.set_volume(game.play_effect_volume)
+                            if game.menu_state == "preset":
+                                selected_portrait = game.custom_preset_army_setup.selected_portrait_index
                                 if selected_portrait[0] == "commander":
-                                    self.game.custom_preset_army_setup.change_character(
+                                    game.custom_preset_army_setup.change_character(
                                         selected_portrait[0].capitalize(),
                                         [character_id, True])
                                 else:
-                                    self.game.custom_preset_army_setup.change_character(
+                                    game.custom_preset_army_setup.change_character(
                                         selected_portrait[0].capitalize() + " " +
                                         str(selected_portrait[1] + 1),
                                         [character_id, True])
-                            elif self.game.menu_state == "beast":
-                                lorebook_showcase_character = self.game.lorebook_showcase_character
+                            elif game.menu_state == "beast":
+                                lorebook_showcase_character = game.lorebook_showcase_character
                                 if lorebook_showcase_character.char_id != character_id:
-                                    self.game.all_showcase_characters.remove(lorebook_showcase_character.sub_characters)
-                                    self.game.all_showcase_characters.remove(lorebook_showcase_character)
+                                    game.all_showcase_characters.remove(lorebook_showcase_character.sub_characters)
+                                    game.all_showcase_characters.remove(lorebook_showcase_character)
                                     self.remove_from_ui_menu_updater(
                                         (lorebook_showcase_character.sub_characters, lorebook_showcase_character))
                                     for character in lorebook_showcase_character.sub_characters:
                                         character.erase()
-                                    self.game.sprite_data.load_character_animation(
+                                    game.sprite_data.load_character_animation(
                                         set([character_id] + [
-                                            item[0] for item in self.character_list[character_id]["Sub Characters"]]))
+                                            item[0] for item in character_data["Sub Characters"]]))
                                     pos = Default_Showcase_Character_POS
-                                    if self.character_list[character_id]["Type"] == "air":
+                                    if character_data["Type"] == "air":
                                         pos = Default_Showcase_Character_air_POS
                                     lorebook_showcase_character.__init__(
                                         0, {"ID": character_id, "POS": pos,
-                                            "direction": "right"} | self.character_list[character_id])
+                                            "direction": "right"} | character_data)
                                     self.add_to_ui_menu_updater(lorebook_showcase_character,
                                                                 lorebook_showcase_character.sub_characters)
                                     animation_list = list(
-                                        self.game.sprite_data.character_animation_data[character_id].keys())
-                                    for character in self.character_list[character_id]["Sub Characters"]:
-                                        for anim in self.game.sprite_data.character_animation_data[character[0]]:
+                                        game.sprite_data.character_animation_data[character_id].keys())
+                                    for character in character_data["Sub Characters"]:
+                                        for anim in game.sprite_data.character_animation_data[character[0]]:
                                             if anim not in animation_list:
                                                 animation_list.append(anim)
                                     animation_list = sorted(animation_list)
-                                    self.game.lorebook_showcase_animation_list_box.adapter.__init__(
+                                    game.lorebook_showcase_animation_list_box.adapter.__init__(
                                         [[0, key] for key in animation_list if key != "Default"])
-                                    self.game.lorebook_character_description_showcase.change_character(character_id)
-                                    self.game.lorebook_character_moveset_showcase.change_moveset(character_id, None)
+                                    game.lorebook_character_description_showcase.change_character(character_id)
+                                    game.lorebook_character_moveset_showcase.change_moveset(character_id, None)
                             return
-                        character_data = self.character_list[character_id]
                         if self.shown_character_type != "retinue":
-                            char_stat = [self.grab_text(("ui", "info_header_name")) + self.grab_text(
-                                ("character", character_id, "Name")) + " (" + str(character_data["Arrive Per Call"]) +
+                            char_stat = [grab_text(("character", character_id, "Name")) + " (" +
+                                         str(character_data["Arrive Per Call"]) + "" +
                                          "x" + str(character_data["Capacity"]) + ")",
-                                         self.grab_text(("character", character_id, "Description")),
-                                         self.grab_text(("ui", "info_header_class")) + self.grab_text(
+                                         grab_text(("character", character_id, "Description")),
+                                         grab_text(("ui", "info_header_class")) + grab_text(
                                              ("ui", "class_" + character_data["Class"])),
-                                         self.grab_text(("ui", "info_header_health")) + add_comma_number(
+                                         grab_text(("ui", "info_header_health")) + add_comma_number(
                                              character_data["Health"]),
-                                         self.grab_text(("ui", "info_header_offence")) + str(character_data["Offence"]),
-                                         self.grab_text(("ui", "info_header_defence")) + str(character_data["Defence"]),
-                                         self.grab_text(("ui", "info_header_speed")) + str(character_data["Speed"]),
-                                         self.grab_text(("ui", "info_header_cost")) + add_comma_number(
-                                             character_data["Cost"])]
+                                         grab_text(("ui", "info_header_offence")) + str(character_data["Offence"]),
+                                         grab_text(("ui", "info_header_defence")) + str(character_data["Defence"]),
+                                         grab_text(("ui", "info_header_speed")) + str(character_data["Speed"]),
+                                         (grab_text(("ui", "info_header_cost")) + add_comma_number(
+                                             character_data["Cost"]), self.grand_ui_images["gold"])]
 
                             if character_data["Leadership"]:
-                                char_stat.append(self.grab_text(("ui", "info_header_leadership")) + str(
+                                char_stat.append(grab_text(("ui", "info_header_leadership")) + str(
                                     character_data["Leadership"]))
                             if character_data["Strategy"]:
                                 char_stat.append(
-                                    self.grab_text(("ui", "info_header_strategy")) + self.grab_text(
+                                    grab_text(("ui", "info_header_strategy")) + grab_text(
                                         ("strategy", character_data["Strategy"], "Name")))
                             if character_data["Supply"]:
                                 char_stat.append(
-                                    self.grab_text(("ui", "info_header_supply_cost")) + str(character_data["Supply"]))
+                                    (grab_text(("ui", "info_header_supply_cost")) + str(character_data["Supply"]),
+                                     self.grand_ui_images["supply"]))
 
+                            resistance_text = [grab_text(("ui", "info_header_resistance"))]
+                            has_resistance = False
                             for resistance in (
                                     "Slash", "Crush", "Stab", "Fire", "Water", "Air", "Earth", "Magic", "Poison"):
                                 if character_data[resistance + " Resistance"]:
-                                    char_stat.append(
-                                        self.grab_text(
-                                            ("ui", "info_header_" + resistance.lower() + "_resistance")) + str(
-                                            int(100 * character_data[resistance + " Resistance"])) + "%")
+                                    has_resistance = True
+                                    resistance_text += [str(int(100 * character_data[resistance + " Resistance"])) + "%",
+                                                        self.battle_ui_images["element_" + resistance.lower()], " "]
+                            if has_resistance:
+                                char_stat.append(resistance_text)
                             tag_text = ""
                             for prop in character_data["Property"]:
-                                prop_text = self.grab_text(("ui", "property_" + prop))
+                                prop_text = grab_text(("ui", "property_" + prop))
                                 if "(" not in prop_text:  # mean tag has no localisation, likely intentional
                                     tag_text += prop_text + ", "
                             if tag_text:
-                                tag_text = self.grab_text(("ui", "info_header_property")) + tag_text
+                                tag_text = grab_text(("ui", "info_header_property")) + tag_text
                                 tag_text = tag_text[:-2]  # remove additional comma
                                 char_stat.append(tag_text)
                         else:
-                            char_stat = [self.grab_text(("ui", "info_header_name")) + self.grab_text(
-                                ("character", character_id, "Name")),
-                                         self.grab_text(("character", character_id, "Description")),
-                                         self.grab_text(("ui", "info_header_strategy")) + self.grab_text(
+                            char_stat = [grab_text(("character", character_id, "Name")), "",
+                                         grab_text(("character", character_id, "Description")),
+                                         grab_text(("ui", "info_header_strategy")) + grab_text(
                                              ("strategy", character_data["Strategy"], "Name")),
-                                         self.grab_text(("ui", "info_header_leadership")) + add_comma_number(
+                                         grab_text(("ui", "info_header_leadership")) + add_comma_number(
                                              character_data["Leadership"]),
-                                         self.grab_text(("ui", "info_header_cost")) + add_comma_number(
-                                             character_data["Cost"])]
-                        self.game.text_popup.popup(self.cursor.rect, char_stat,
-                                                   width_text_wrapper=int(1400 * self.screen_scale_width))
-                        self.add_to_ui_menu_updater(self.game.text_popup)
+                                         (grab_text(("ui", "info_header_cost")) + add_comma_number(
+                                             character_data["Cost"]), self.grand_ui_images["gold"])]
+                        game.text_popup.popup(self.cursor.rect, char_stat,
+                                              width_text_wrapper=int(1400 * self.screen_scale_width))
+                        self.add_to_ui_menu_updater(game.text_popup)
                     break
 
 
@@ -749,12 +758,12 @@ class CustomTeamSetupUI(UIMenu):
         self.image = Surface((int(1800 * self.screen_scale_width), int(1400 * self.screen_scale_height)), SRCALPHA)
         self.image.fill((150, 220, 220))
 
-        self.image.blit(self.game.grand_ui_images["gold"],
-                        self.game.grand_ui_images["gold"].get_rect(
+        self.image.blit(self.grand_ui_images["gold"],
+                        self.grand_ui_images["gold"].get_rect(
                             topright=(self.image.get_width() - 50 * self.screen_scale_width,
                                       50 * self.screen_scale_height)))
-        self.image.blit(self.game.grand_ui_images["supply"],
-                        self.game.grand_ui_images["supply"].get_rect(topleft=(
+        self.image.blit(self.grand_ui_images["supply"],
+                        self.grand_ui_images["supply"].get_rect(topleft=(
                             50 * self.screen_scale_width, 50 * self.screen_scale_height)))
 
         self.circle = Surface((200 * self.screen_scale_width, 200 * self.screen_scale_height), SRCALPHA)
@@ -1614,55 +1623,6 @@ class OptionMenuText(UIMenu):
         self.rect = self.image.get_rect(center=(self.pos[0] - (self.image.get_width() / 2), self.pos[1]))
 
 
-# class RewardInterface(UIMenu):
-#     def __init__(self, pos, base_image):
-#         self.header_font = Font(self.ui_font["main_button"], int(36 * self.screen_scale_height))
-#         self.font = Font(self.ui_font["main_button"], int(22 * self.screen_scale_height))
-#         self.small_font = Font(self.ui_font["main_button"], int(18 * self.screen_scale_height))
-#         self.reward_list = {}
-#         self.shown_reward_list = []
-#         self.base_image = base_image
-#
-#     def add_reward_list(self):
-#         self.image = self.base_image.copy()
-#         self.shown_reward_list = []
-#
-#         index = 0
-#         row_index = 0
-#         for item in self.reward_list:
-#             if (index >= self.current_row or self.len_reward_list < 9) and row_index < 9:
-#                 if index == 0:  # first item in list
-#                     draw.rect(self.image, (150, 150, 150),
-#                               (0, (row_index * 100) * self.screen_scale_height, 400 * self.screen_scale_width,
-#                                100 * self.screen_scale_height),
-#                               width=int(3 * self.screen_scale_width))
-#
-#                 if index == self.len_reward_list - 1:  # last item in list
-#                     draw.rect(self.image, (150, 50, 50),
-#                               (0, (row_index * 100) * self.screen_scale_height, 400 * self.screen_scale_width,
-#                                100 * self.screen_scale_height),
-#                               width=int(3 * self.screen_scale_width))
-#
-#                 if item in self.game.character_data.character_list:  # follower reward
-#                     character_ui = self.game.animation_data.character_portraits[item]
-#                     rect = character_ui.get_rect(topleft=(0, row_index * 100 * self.screen_scale_height))
-#                     self.image.blit(character_ui, rect)
-#                     make_long_text(self.image, self.grab_text(("character", item, "Name")),
-#                                    (110 * self.screen_scale_width,
-#                                     row_index * 100 * self.screen_scale_height), self.font, color=(30, 30, 30),
-#                                    specific_width=self.image.get_width() - (50 * self.screen_scale_width))
-#
-#                     item_image = self.item_sprite_pool["Normal"][item_id]
-#                     rect = item_image.get_rect(topleft=(0, row_index * 100 * self.screen_scale_height))
-#                     self.image.blit(item_image, rect)
-#
-#                 self.shown_reward_list.append((reward_type, item))
-#
-#                 row_index += 1
-#
-#             index += 1
-
-
 class KeybindIcon(UIMenu):
     def __init__(self, pos, text_size, key):
         self._layer = 100
@@ -1846,20 +1806,21 @@ class GrandFactionDetail(UIMenu):
         self.font_size = self.font.size(" ")[1]
         self.image = Surface((900 * self.screen_scale_width, 1200 * self.screen_scale_height))
         self.image.fill((255, 255, 255))
-        self.original_image = self.image.copy()
+        self.base_image = self.image.copy()
         self.rect = self.image.get_rect(topleft=self.game.custom_preset_culture_selector.rect.bottomleft)
 
     def change_faction(self, faction):
-        self.image = self.original_image.copy()
+        self.image = self.base_image.copy()
 
         faction_name_text = self.header_font.render(self.grab_text(("faction", faction, "Name")),
                                                     True, (30, 30, 30))
         self.image.blit(faction_name_text, faction_name_text.get_rect(center=(self.image.get_width() / 2,
                                                                               self.font_size)))
 
-        make_long_text(self.image, (self.grab_text(("faction", faction, "Description"))),
-                       (self.font_size / 2, self.font_size * 3), self.font,
-                       color=(30, 30, 30), specific_width=(self.image.get_width() * 0.95))
+        text_surface = make_long_text(self.grab_text(("faction", faction, "Description")),
+                                      (self.font_size / 2, self.font_size * 3), self.font,
+                                      color=(30, 30, 30), specific_width=(self.image.get_width() * 0.95))
+        self.image.blit(text_surface, (0, 0))
 
 
 class CharacterDescriptionShowCase(UIMenu):
@@ -1875,13 +1836,13 @@ class CharacterDescriptionShowCase(UIMenu):
         self.image.fill((200, 200, 200))
         self.description_box = Surface((1500 * self.screen_scale_width, 450 * self.screen_scale_height))
         self.description_box.fill((200, 200, 200))
-        self.original_image = self.image.copy()
+        self.base_image = self.image.copy()
 
         self.rect = self.image.get_rect(topleft=self.game.lorebook_showcase_character_selector.rect.bottomleft)
 
     def change_character(self, character):
         if character != self.showing_character:
-            self.image = self.original_image.copy()
+            self.image = self.base_image.copy()
             portrait = self.character_portraits[character]["character_ui"]
             portrait_rect = portrait.get_rect(topleft=(0, 0))
             self.image.blit(portrait, portrait_rect)
@@ -1890,8 +1851,9 @@ class CharacterDescriptionShowCase(UIMenu):
             character_name_rect = character_name.get_rect(topleft=portrait_rect.topright)
             self.image.blit(character_name, character_name_rect)
             self.description_box.fill((200, 200, 200))
-            make_long_text(self.description_box, (self.grab_text(("character", character, "Lore"))),
-                           (0, 0), self.font)
+            text_surface = make_long_text(self.grab_text(("character", character, "Lore")),
+                                          (0, 0), self.font, specific_width=self.description_box.get_width())
+            self.description_box.blit(text_surface, (0, 0))
             self.image.blit(self.description_box, self.description_box.get_rect(topleft=character_name_rect.bottomleft))
 
 
@@ -1908,7 +1870,7 @@ class CharacterMovesetShowCase(UIMenu):
         self.showing_moveset = None
         self.image = Surface((1640 * self.screen_scale_width, 550 * self.screen_scale_height))
         self.image.fill((200, 200, 200))
-        self.original_image = self.image.copy()
+        self.base_image = self.image.copy()
 
         self.rect = self.image.get_rect(topright=self.game.lorebook_showcase_animation_list_box.rect.bottomright)
 
@@ -1916,80 +1878,83 @@ class CharacterMovesetShowCase(UIMenu):
         if character != self.showing_character or moveset != self.showing_moveset:
             self.showing_character = character
             self.showing_moveset = moveset
-            self.image = self.original_image.copy()
+            self.image = self.base_image.copy()
             if moveset:
+                grab_text = self.grab_text
                 this_moveset = deepcopy(self.character_list[character]["Move"][moveset])
 
                 char_stat = []
                 range_use = ""
                 if this_moveset["AI Range"]:
-                    range_use += self.grab_text(("ui", "info_header_activate_range")) + add_comma_number(
+                    range_use += grab_text(("ui", "info_header_activate_range")) + add_comma_number(
                         this_moveset["AI Range"])
                 if this_moveset["Range"]:
                     if range_use:
                         range_use += "/"
-                    range_use += self.grab_text(("ui", "info_header_range")) + add_comma_number(this_moveset["Range"])
+                    range_use += grab_text(("ui", "info_header_range")) + add_comma_number(this_moveset["Range"])
                 if range_use:
-                    char_stat.append(range_use)
+                    char_stat.append((range_use, ))
                 if this_moveset["Resource Cost"]:
-                    char_stat.append(
-                        self.grab_text(("ui", "info_header_resource")) + str(this_moveset["Resource Cost"]))
+                    char_stat.append((
+                        grab_text(("ui", "info_header_resource")) + str(this_moveset["Resource Cost"]), ))
                 if this_moveset["Cooldown"]:
-                    char_stat.append(self.grab_text(("ui", "info_header_cooldown")) + str(this_moveset["Cooldown"]))
+                    char_stat.append((grab_text(("ui", "info_header_cooldown")) + str(this_moveset["Cooldown"]), ))
                 if this_moveset["Power"]:
-                    char_stat.append(self.grab_text(("ui", "info_header_power")) + str(this_moveset["Power"]))
+                    char_stat.append((grab_text(("ui", "info_header_power")) + str(this_moveset["Power"]),))
                 if this_moveset["Penetrate"]:
-                    char_stat.append(self.grab_text(("ui", "info_header_penetrate")) + str(this_moveset["Penetrate"]))
+                    char_stat.append((grab_text(("ui", "info_header_penetrate")) + str(this_moveset["Penetrate"]),))
                 if this_moveset["Impact X"] or this_moveset["Impact Y"]:
-                    char_stat.append(self.grab_text(("ui", "info_header_impact")) +
-                                     add_comma_number(abs(this_moveset["Impact X"]) + abs(this_moveset["Impact Y"])))
+                    char_stat.append((grab_text(("ui", "info_header_impact")) +
+                                     add_comma_number(abs(this_moveset["Impact X"]) + abs(this_moveset["Impact Y"])),))
                 if this_moveset["Critical Chance Bonus"]:
-                    char_stat.append(self.grab_text(("ui", "info_header_critical_bonus")) +
-                                     str(this_moveset["Critical Chance Bonus"]))
+                    char_stat.append((grab_text(("ui", "info_header_critical_bonus")) +
+                                     str(this_moveset["Critical Chance Bonus"]),))
                 if this_moveset["Element"]:
-                    char_stat.append(self.grab_text(("ui", "info_header_element")) +
-                                     self.grab_text(("ui", "element_" + str(this_moveset["Element"]))))
+                    char_stat.append((grab_text(("ui", "info_header_element")),
+                                     self.battle_ui_images["element_" + this_moveset["Element"]],))
                 if this_moveset["Status"]:
                     tag_text = ""
                     ally_status_list = this_moveset["Status"]
                     ally_status_list = set(ally_status_list)
                     for prop in ally_status_list:
-                        prop_text = self.grab_text(("status", prop, "Name"))
+                        prop_text = grab_text(("status", prop, "Name"))
                         if "(" not in prop_text:  # mean prop has no localisation, likely intentional
                             tag_text += prop_text + ", "
                     if tag_text:
-                        tag_text = self.grab_text(("ui", "info_header_status")) + tag_text
+                        tag_text = grab_text(("ui", "info_header_status")) + tag_text
                         tag_text = tag_text[:-2]  # remove additional comma
-                        char_stat.append(tag_text)
+                        char_stat.append((tag_text,))
                 if this_moveset["Enemy Status"] or this_moveset["Effect Enemy Status"]:
                     tag_text = ""
                     enemy_status_list = this_moveset["Enemy Status"] + this_moveset["Effect Enemy Status"]
                     enemy_status_list = set(enemy_status_list)
                     for prop in enemy_status_list:
-                        prop_text = self.grab_text(("status", prop, "Name"))
+                        prop_text = grab_text(("status", prop, "Name"))
                         if "(" not in prop_text:  # mean prop has no localisation, likely intentional
                             tag_text += prop_text + ", "
                     if tag_text:
-                        tag_text = self.grab_text(("ui", "info_header_enemy_status")) + tag_text
+                        tag_text = grab_text(("ui", "info_header_enemy_status")) + tag_text
                         tag_text = tag_text[:-2]  # remove additional comma
-                        char_stat.append(tag_text)
+                        char_stat.append((tag_text,))
                 if this_moveset["Property"]:
                     tag_text = ""
                     moveset_property = this_moveset["Property"]
                     for prop in moveset_property:
-                        prop_text = self.grab_text(("ui", "property_" + prop))
+                        prop_text = grab_text(("ui", "property_" + prop))
                         if prop == "summon":
-                            prop_text = prop_text + self.grab_text(
+                            prop_text = prop_text + grab_text(
                                 ("character", moveset_property[prop], "Name"))
                         elif prop == "x_momentum":
                             prop_text = prop_text + str(moveset_property[prop])
                         if "(" not in prop_text:  # mean prop has no localisation, likely intentional
                             tag_text += prop_text + ", "
                     if tag_text:
-                        tag_text = self.grab_text(("ui", "info_header_property")) + tag_text
+                        tag_text = grab_text(("ui", "info_header_property")) + tag_text
                         tag_text = tag_text[:-2]  # remove additional comma
-                        char_stat.append(tag_text)
-                make_long_text(self.image, char_stat, self.font_space_size, self.font)
+                        char_stat.append((tag_text,))
+                text_surface = make_long_text(char_stat, (0, 0), self.font, specific_width=self.image.get_width())
+                print('h,m', text_surface)
+                self.image.blit(text_surface, (0, 0))
 
 
 class GrandFactionShowCase(UIMenu):
@@ -2003,7 +1968,7 @@ class GrandFactionShowCase(UIMenu):
         self.culture_coas = self.game.sprite_data.culture_coas
         self.image = Surface((900 * self.screen_scale_width, 1200 * self.screen_scale_height))
         self.image.fill((255, 255, 255))
-        self.original_image = self.image.copy()
+        self.base_image = self.image.copy()
 
         self.showcase = {"ruler": [None], "leader": [], "troop": []}
         self.showcase_rect = {"ruler": [self.character_portraits[Default_Showcase_Character]["character_ui"].get_rect(
@@ -2020,7 +1985,7 @@ class GrandFactionShowCase(UIMenu):
         self.rect = self.image.get_rect(topright=self.game.custom_preset_culture_selector.rect.bottomright)
 
     def change_faction(self, faction):
-        self.image = self.original_image.copy()
+        self.image = self.base_image.copy()
         faction_data = self.game.map_data.faction_list[faction]
         ruler = faction_data["Ruler"]
         ruler_portrait = self.character_portraits[ruler]["character_ui"]
@@ -2459,92 +2424,89 @@ class TextPopup(UIMenu):
 
     def popup(self, popup_rect, text_input, width_text_wrapper=None, custom_screen_size=None,
               bg_colour=(220, 220, 220), font_colour=(30, 30, 30)):
-        """Pop out text box with input text list in multiple line, one item equal to one paragraph"""
-        if self.popup_rect != popup_rect or self.text_input != text_input:
-            if self.text_input != text_input:
-                self.text_input = text_input
-                if type(text_input) == str:
-                    self.text_input = [text_input]
-                text_surface = []
-                if width_text_wrapper:  # has specific popup width size
-                    max_height = 0
-                    max_width = width_text_wrapper
-                    for text in self.text_input:
-                        image_height = int((self.font.size(text)[0] + self.font_size) / width_text_wrapper)
+        """Pop out text box with input text list in multiple line"""
+        if self.text_input != text_input:  # only recreate image surface for new text input
+            font = self.font
+            font_size = self.font_size
+            if type(text_input) is str:
+                text_input = [text_input]
+            text_surfaces = []
+            if width_text_wrapper:  # has specific popup width size
+                max_height = 0
+                max_width = width_text_wrapper
+                for text in text_input:
+                    if type(text) in (list, tuple):
+                        text_image = make_long_text(text, (font_size, 0), font,
+                                                    color=font_colour, specific_width=width_text_wrapper)
+                        text_surfaces.append(text_image)
+                        max_height += text_image.get_height()
+                    else:
+                        image_height = int((font.size(text)[0] + font_size) / width_text_wrapper)
                         if not image_height:  # only one line
                             text_image = Surface((width_text_wrapper,
-                                                  self.font_size + 3))  # increase size a bit to prevent letter bottom cut
-                            text_image.fill(bg_colour)
-                            surface = self.font.render(text, True, font_colour)
-                            text_image.blit(surface, (self.font_size, 0))
-                            text_surface.append(text_image)  # text input font surface
-                            max_height += surface.get_height() + 3
+                                                  font_size), SRCALPHA)
+                            surface = font.render(text, True, font_colour)
+                            text_image.blit(surface, (font_size, 0))
                         else:
-                            text_image = Surface((width_text_wrapper,
-                                                  calculate_long_text_size(text, self.font,
-                                                                           self.font_size, width_text_wrapper,
-                                                                           start_pos=(
-                                                                               self.font_size, self.font_size + 1))[1]))
-                            text_image.fill(bg_colour)
-                            make_long_text(text_image, text, (self.font_size, self.font_size), self.font,
-                                           color=font_colour, specific_width=width_text_wrapper)
-                            text_surface.append(text_image)
-                            max_height += text_image.get_height() + 3
-                else:
-                    max_width = 0
-                    max_height = 0
-                    for text in self.text_input:
-                        surface = self.font.render(text, True, font_colour)
-                        text_surface.append(surface)  # text input font surface
-                        text_rect = surface.get_rect(
-                            topleft=(self.font_size, self.font_size))  # text input position at (1,1) on white box image
-                        if text_rect.width > max_width:
-                            max_width = text_rect.width
-                        max_height += self.font_size + int(self.font_size / 5)
+                            text_image = make_long_text(text, (font_size, 0), font,
+                                                        color=font_colour, specific_width=width_text_wrapper)
+                        text_surfaces.append(text_image)
+                        max_height += text_image.get_height()
+            else:
+                max_width = 0
+                max_height = 0
+                for text in text_input:
+                    surface = self.font.render(text, True, font_colour)
+                    text_surfaces.append(surface)  # text input font surface
+                    text_rect = surface.get_rect(
+                        topleft=(self.font_size, self.font_size))  # text input position at (1, 1) on white box image
+                    if text_rect.width > max_width:
+                        max_width = text_rect.width
+                    max_height += self.font_size
 
-                self.image = Surface((max_width + self.black_border_size_x4,
-                                      max_height + self.black_border_size_x4))  # white Box
-                self.image.fill((0, 0, 0))  # black border
-                self.image.fill(bg_colour, (self.black_border_size,
-                                            self.black_border_size,
-                                            self.image.get_width() - self.black_border_size_x2,
-                                            self.image.get_height() - self.black_border_size_x2
-                                            ))
+            self.image = Surface((max_width + self.black_border_size_x4,
+                                  max_height + self.black_border_size_x4))  # white Box
+            self.image.fill(bg_colour, (self.black_border_size,
+                                        self.black_border_size,
+                                        self.image.get_width() - self.black_border_size_x2,
+                                        self.image.get_height() - self.black_border_size_x2))
 
-                height = self.black_border_size
-                for surface in text_surface:
-                    text_rect = surface.get_rect(topleft=(self.black_border_size_x2, height))
-                    self.image.blit(surface, text_rect)  # blit text
-                    height += surface.get_height()
+            height = self.black_border_size
+            for surface in text_surfaces:
+                text_rect = surface.get_rect(topleft=(self.black_border_size_x2, height))
+                self.image.blit(surface, text_rect)  # blit text
+                height += surface.get_height()
 
-            if hasattr(popup_rect, "bottomright"):  # popup_rect is rect
-                self.rect = self.image.get_rect(bottomleft=popup_rect.bottomright)
+            self.text_input = text_input
 
-                screen_size = self.screen_size
-                if custom_screen_size:
-                    screen_size = custom_screen_size
-                exceed_right = False
-                if popup_rect.bottomright[0] + self.image.get_width() > screen_size[0]:  # exceed right screen
+        if hasattr(popup_rect, "bottomright"):  # popup_rect is rect
+            self.rect = self.image.get_rect(bottomleft=popup_rect.bottomright)
+
+            screen_size = self.screen_size
+            if custom_screen_size:
+                screen_size = custom_screen_size
+            exceed_right = False
+            if popup_rect.bottomright[0] + self.image.get_width() > screen_size[0]:  # exceed right screen
+                self.rect = self.image.get_rect(topright=popup_rect.bottomleft)
+                exceed_right = True
+            elif popup_rect.bottomleft[0] - self.image.get_width() < 0:  # exceed left side screen
+                self.rect = self.image.get_rect(topleft=popup_rect.bottomright)
+
+            if popup_rect.bottomright[1] + self.image.get_height() > screen_size[1]:  # exceed bottom screen
+                self.rect = self.image.get_rect(bottomleft=popup_rect.topright)
+                if exceed_right:
+                    self.rect = self.image.get_rect(bottomright=popup_rect.topleft)
+            elif popup_rect.bottomright[1] - self.image.get_height() < 0:  # exceed top screen
+                self.rect = self.image.get_rect(topleft=popup_rect.bottomright)
+                if exceed_right:
                     self.rect = self.image.get_rect(topright=popup_rect.bottomleft)
-                    exceed_right = True
-                elif popup_rect.bottomleft[0] - self.image.get_width() < 0:  # exceed left side screen
-                    self.rect = self.image.get_rect(topleft=popup_rect.bottomright)
-
-                if popup_rect.bottomright[1] + self.image.get_height() > screen_size[1]:  # exceed bottom screen
-                    self.rect = self.image.get_rect(bottomleft=popup_rect.topright)
-                    if exceed_right:
-                        self.rect = self.image.get_rect(bottomright=popup_rect.topleft)
-                elif popup_rect.bottomright[1] - self.image.get_height() < 0:  # exceed top screen
-                    self.rect = self.image.get_rect(topleft=popup_rect.bottomright)
-                    if exceed_right:
-                        self.rect = self.image.get_rect(topright=popup_rect.bottomleft)
-            else:  # popup_rect is pos
-                if type(popup_rect) is tuple:
-                    if type(popup_rect[0]) is str:
-                        exec(f"self.rect = self.image.get_rect({popup_rect[0]}=popup_rect[1])")
-                    else:
-                        self.rect = self.image.get_rect(topleft=popup_rect)
-            self.popup_rect = popup_rect
+        else:  # popup_rect is pos
+            if type(popup_rect) is tuple:
+                if type(popup_rect[0]) is str:
+                    exec(f"self.rect = self.image.get_rect({popup_rect[0]}=popup_rect[1])")
+                else:
+                    self.rect = self.image.get_rect(topleft=popup_rect)
+        self.popup_rect = popup_rect
 
 
 class BoxUI(UIMenu, Containable, Container):
@@ -2560,9 +2522,6 @@ class BoxUI(UIMenu, Containable, Container):
         self.pos = pos
         self.rect = self.get_adjusted_rect_to_be_inside_container(self.parent)
         self.image = Surface(self.rect[2:])
-        self.text_surface = Surface((self.image.get_width() - self.black_border_size_x2, self.image.get_height() * 0.4))
-        self.text_surface.fill((200, 180, 150))
-        self.text_rect = self.text_surface.get_rect(center=(self.image.get_width() / 2, self.image.get_height() / 4))
         self.image.fill((0, 0, 0))
         self.image.fill((200, 180, 150), (self.black_border_size,
                                           self.black_border_size,
@@ -2577,11 +2536,10 @@ class BoxUI(UIMenu, Containable, Container):
                                           self.image.get_width() - self.black_border_size_x2,
                                           self.image.get_height() - self.black_border_size_x2
                                           ))
-        self.text_surface.fill((200, 180, 150))
-        make_long_text(self.text_surface, text, (0, 0), self.font,
-                       with_texture=(None, (Color("black"), (255, 255, 255), 2)), alignment="center")
-
-        self.image.blit(self.text_surface, self.text_rect)
+        text_surface = make_long_text(text, (0, 0), self.font,
+                                      with_texture=(None, (Color("black"), (255, 255, 255), 2)), alignment="center")
+        text_rect = text_surface.get_rect(center=(self.image.get_width() / 2, self.image.get_height() / 4))
+        self.image.blit(text_surface, text_rect)
 
     def get_relative_size_inside_container(self):
         return self.size[0] / self.parent.get_width(), self.size[1] / self.parent.get_height()
@@ -2641,8 +2599,7 @@ class ListUI(UIMenu, Containable):
 
     def get_frame(self):
         if self._frame is None:
-            frame_file = "new_button.png"  # "list_frame.png" # using the button frame to test if it looks good
-            self._frame = load_image(self.data_dir, frame_file, subfolder=("ui", "mainmenu_ui"))
+            self._frame = load_image(self.data_dir, "new_button.png", subfolder=("ui", "mainmenu_ui"))
         return self._frame
 
     def get_scroll_box_frame(self):

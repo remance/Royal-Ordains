@@ -19,7 +19,7 @@ from engine.data.datasound import DataSound
 from engine.data.datastat import DataStat
 from engine.game.game import Game
 from engine.uiouterbattle.uiouterbattle import UIOuterBattle
-from engine.uimenu.uimenu import UIScroll, MenuCursor, NameList, MenuButton, TextPopup, InputUI, InputBox, ListBox
+from engine.uimenu.uimenu import UIMenu, UIScroll, MenuCursor, NameList, MenuButton, TextPopup, InputUI, InputBox, ListBox
 from engine.utils.data_loading import csv_read, load_image, load_images, load_base_button, recursive_image_load
 from engine.utils.rotation import rotation_xy
 from engine.utils.sprite_altering import sprite_rotate, apply_sprite_effect, apply_sprite_colour
@@ -94,10 +94,26 @@ Game.localisation = localisation
 for item in Game.ui_font:  # add ttf file extension for font data reading.
     Game.ui_font[item] = join(Game.font_dir, Game.ui_font[item]["Font"] + ".ttf")
 
+UIMenu.add_to_ui_menu_updater = Game.game.add_to_ui_menu_updater
+UIMenu.button_sound_channel = Game.game.button_sound_channel
+UIMenu.data_dir = data_dir
+UIMenu.font_text_cache = Game.game.font_text_cache
+UIMenu.game = Game.game
+UIMenu.localisation = localisation
+UIMenu.remove_from_ui_menu_updater = Game.game.remove_from_ui_menu_updater
+UIMenu.screen_height = screen_size[1]
+UIMenu.screen_scale_height = 1
+UIMenu.screen_scale_width = 1
+UIMenu.screen_size = screen_size
+UIMenu.screen_width = screen_size[1]
+UIMenu.sound_effect_pool = Game.game.sound_effect_pool
+UIMenu.ui_font = Game.ui_font
+
 cursor_images = load_images(data_dir, subfolder=("ui", "cursor_menu"))  # no need to scale cursor
 cursor = MenuCursor(cursor_images)
 ui.add(cursor)
 Game.cursor = cursor
+UIMenu.cursor = cursor
 Battle.battle_cursor = cursor
 UIOuterBattle.cursor = cursor
 
@@ -477,50 +493,39 @@ class BodyHelper(pygame.sprite.Sprite):
     def change_p_type(self, new_type, player_change=False):
         """For helper that can change person"""
         self.ui_type = new_type
-        if "effect" not in self.ui_type:
-            self.rect_part_list = {self.ui_type + "_head": None, self.ui_type + "_neck": None,
-                                   self.ui_type + "_body": None, self.ui_type + "_r_arm_up": None,
-                                   self.ui_type + "_r_arm_low": None, self.ui_type + "_r_hand": None,
-                                   self.ui_type + "_l_arm_up": None, self.ui_type + "_l_arm_low": None,
-                                   self.ui_type + "_l_hand": None,
-                                   self.ui_type + "_r_leg_up": None, self.ui_type + "_r_leg_low": None,
-                                   self.ui_type + "_r_foot": None,
-                                   self.ui_type + "_l_leg_up": None, self.ui_type + "_l_leg_low": None,
-                                   self.ui_type + "_l_foot": None, self.ui_type + "_main_weapon": None,
-                                   self.ui_type + "_sub_weapon": None}
-            self.part_pos = {self.ui_type + "_head": (self.image.get_width() / 2, 70),
-                             self.ui_type + "_neck": (self.image.get_width() / 2, 100),
-                             self.ui_type + "_body": (self.image.get_width() / 2, 140),
-                             self.ui_type + "_r_arm_up": (self.image.get_width() / 2 -
-                                                          (self.image.get_width() / 20), 105),
-                             self.ui_type + "_r_arm_low": (self.image.get_width() / 2 -
-                                                           (self.image.get_width() / 20), 135),
-                             self.ui_type + "_r_hand": (self.image.get_width() / 2 -
-                                                        (self.image.get_width() / 20), 165),
-                             self.ui_type + "_l_arm_up": (self.image.get_width() / 2 +
-                                                          (self.image.get_width() / 20), 105),
-                             self.ui_type + "_l_arm_low": (self.image.get_width() / 2 +
-                                                           (self.image.get_width() / 20), 135),
-                             self.ui_type + "_l_hand": (self.image.get_width() / 2 +
-                                                        (self.image.get_width() / 20), 165),
-                             self.ui_type + "_r_leg_up": (self.image.get_width() / 2 -
-                                                          (self.image.get_width() / 40), 195),
-                             self.ui_type + "_r_leg_low": (self.image.get_width() / 2 -
-                                                           (self.image.get_width() / 40), 226),
-                             self.ui_type + "_r_foot": (self.image.get_width() / 2 -
-                                                        (self.image.get_width() / 40), 256),
-                             self.ui_type + "_l_leg_up": (self.image.get_width() / 2 +
-                                                          (self.image.get_width() / 40), 195),
-                             self.ui_type + "_l_leg_low": (self.image.get_width() / 2 +
-                                                           (self.image.get_width() / 40), 226),
-                             self.ui_type + "_l_foot": (self.image.get_width() / 2 +
-                                                        (self.image.get_width() / 40), 256),
-                             self.ui_type + "_main_weapon": (self.image.get_width() / 2 -
-                                                             (self.image.get_width() / 20), 25),
-                             self.ui_type + "_sub_weapon": (self.image.get_width() / 2 +
-                                                            (self.image.get_width() / 20), 25)}
+        if "effect" not in new_type:
+            image_center = self.image.get_width() / 2
+            image_sub_20 = self.image.get_width() / 20
+            image_sub_40 = self.image.get_width() / 40
+            self.rect_part_list = {new_type + "_head": None, new_type + "_neck": None,
+                                   new_type + "_body": None, new_type + "_r_arm_up": None,
+                                   new_type + "_r_arm_low": None, new_type + "_r_hand": None,
+                                   new_type + "_l_arm_up": None, new_type + "_l_arm_low": None,
+                                   new_type + "_l_hand": None,
+                                   new_type + "_r_leg_up": None, new_type + "_r_leg_low": None,
+                                   new_type + "_r_foot": None,
+                                   new_type + "_l_leg_up": None, new_type + "_l_leg_low": None,
+                                   new_type + "_l_foot": None, new_type + "_main_weapon": None,
+                                   new_type + "_sub_weapon": None}
+            self.part_pos = {new_type + "_head": (image_center, 70),
+                             new_type + "_neck": (image_center, 100),
+                             new_type + "_body": (image_center, 140),
+                             new_type + "_r_arm_up": (image_center - image_sub_20, 105),
+                             new_type + "_r_arm_low": (image_center - image_sub_20, 135),
+                             new_type + "_r_hand": (image_center - image_sub_20, 165),
+                             new_type + "_l_arm_up": (image_center + image_sub_20, 105),
+                             new_type + "_l_arm_low": (image_center + image_sub_20, 135),
+                             new_type + "_l_hand": (image_center + image_sub_20, 165),
+                             new_type + "_r_leg_up": (image_center - image_sub_40, 195),
+                             new_type + "_r_leg_low": (image_center - image_sub_40, 226),
+                             new_type + "_r_foot": (image_center - image_sub_40, 256),
+                             new_type + "_l_leg_up": (image_center + image_sub_40, 195),
+                             new_type + "_l_leg_low": (image_center + image_sub_40, 226),
+                             new_type + "_l_foot": (image_center + image_sub_40, 256),
+                             new_type + "_main_weapon": (image_center - image_sub_20, 25),
+                             new_type + "_sub_weapon": (image_center + image_sub_20, 25)}
         else:
-            p_type = self.ui_type[:2]
+            p_type = new_type[:2]
             self.rect_part_list = {p_type + "_special_1": None, p_type + "_special_2": None,
                                    p_type + "_special_3": None,
                                    p_type + "_special_4": None, p_type + "_special_5": None,
@@ -708,7 +713,7 @@ class NameBox(pygame.sprite.Sprite):
 
     def update(self, *args):
         if "ON" in help_button.text:  # enable help description
-            if self.rect.collidepoint(mouse_pos) and self.description is not None and not mouse_left_up:
+            if self.rect.collidepoint(mouse_pos) and self.description and not mouse_left_up:
                 text_popup.popup(cursor.rect, self.description)
                 ui.add(text_popup)
 
@@ -811,7 +816,8 @@ class Model:
         except IndexError:  # empty animation file
             self.read_animation(None)
 
-    def make_layer_list(self, sprite_part, prop_list=None):
+    @staticmethod
+    def make_layer_list(sprite_part, prop_list=None):
         pose_layer_list = {k: v[5] for k, v in sprite_part.items() if v is not None and v != []}
         if prop_list:
             for frame_property in prop_list:
@@ -828,7 +834,7 @@ class Model:
         self.animation_list = [self.create_animation_sprite(None, current_frame, empty=True)] * max_frame
         self.bodypart_list = [{key: value for key, value in self.all_part_list.items()}] * max_frame
         self.part_name_list = [{key: None for key in self.mask_part_list}] * max_frame
-        for key, value in self.mask_part_list.items():  # reset rect list
+        for key in self.mask_part_list:  # reset rect list
             self.mask_part_list[key] = None
 
         if name is not None:
@@ -2180,7 +2186,6 @@ while True:
                     else:
                         play_animation_button.change_option(0)  # stop animation
                         play_animation = False
-                        # model.edit_part(None, "change")
 
                 elif grid_button.rect.collidepoint(mouse_pos):
                     if grid_button.current_option == 0:  # remove grid

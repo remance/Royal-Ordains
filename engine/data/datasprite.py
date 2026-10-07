@@ -37,7 +37,7 @@ class DataSprite(GameData):
         self.grand_actor_animation_pool = {}
         self.character_portraits = {}
         self.strategy_icons = {}
-        self.grand_ui_icons = {}
+        self.grand_ui_images = {}
         self.effect_animation_pool = {}
         self.animation_pickle_hash = {}
 
@@ -53,8 +53,27 @@ class DataSprite(GameData):
 
             self.strategy_icons = load_images(self.data_dir, screen_scale=self.screen_scale,
                                               subfolder=("ui", "strategy_ui"))
-            self.grand_ui_icons = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                              subfolder=("ui", "grand_ui"))
+            self.grand_ui_images = load_images(self.data_dir, screen_scale=self.screen_scale,
+                                               subfolder=("ui", "grand_ui"))
+            self.battle_ui_images = load_images(self.data_dir, screen_scale=self.screen_scale,
+                                                subfolder=("ui", "battle_ui"))
+            self.cosmos_ui_images = load_images(self.data_dir, screen_scale=self.screen_scale,
+                                                subfolder=("ui", "cosmos_ui"))
+            self.weather_icon_images = load_images(self.data_dir, screen_scale=self.screen_scale,
+                                                   subfolder=("ui", "weather_ui"))
+            self.option_menu_images = load_images(self.data_dir, screen_scale=self.screen_scale,
+                                                  subfolder=("ui", "option_ui"))
+
+            self.battle_helper_images = {}
+            part_folder = Path(join(self.data_dir, "ui", "battle_ui", "helper"))
+            subdirectories = [split(sep.join(normpath(x).split(sep))) for x
+                              in part_folder.iterdir() if x.is_dir()]
+            for folder in subdirectories:
+                folder_data_name = folder[-1]
+                self.battle_helper_images[folder_data_name] = load_images(self.data_dir, screen_scale=self.screen_scale,
+                                                                          subfolder=(
+                                                                       "ui", "battle_ui", "helper", folder_data_name))
+
             building_portraits = load_images(self.data_dir, subfolder=("ui", "building_ui"))
             self.building_portraits = {}
             for file, image in building_portraits.items():
@@ -87,7 +106,7 @@ class DataSprite(GameData):
                             number_text = self.number_text_cache[add_number]
                         number_rect = number_text.get_rect(bottomright=mini_portrait.get_size())
                         icon.blit(number_text, number_rect)
-                    icon.blit(self.game.battle_ui_images["class_" + self.game.character_list[file]["Class"]], (0, 0))
+                    icon.blit(self.battle_ui_images["class_" + self.game.character_list[file]["Class"]], (0, 0))
 
                 mini_portrait = smoothscale(image, (150 * self.screen_scale_width, 150 * self.screen_scale_height))
                 self.character_portraits[file]["tiny"] = {"right": mini_portrait,
@@ -108,6 +127,8 @@ class DataSprite(GameData):
                     image, (150 * self.screen_scale_width, 150 * self.screen_scale_height))
                 self.culture_coas[file]["mini"] = smoothscale(
                     image, (100 * self.screen_scale_width, 100 * self.screen_scale_height))
+                self.culture_coas[file]["text"] = smoothscale(
+                    image, (70 * self.screen_scale_width, 70 * self.screen_scale_height))
 
             self.weather_matter_images = {}
             part_folder = Path(join(self.data_dir, "map", "weather", "matter"))

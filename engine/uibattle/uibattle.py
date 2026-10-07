@@ -1,13 +1,13 @@
 from datetime import datetime
 from random import choice
 
-from pygame import Surface, SRCALPHA, Vector2
+from pygame import Surface, SRCALPHA
 from pygame.font import Font
 from pygame.transform import smoothscale, flip
 
 from engine.constants import *
 from engine.uimenu.uimenu import UIMenu
-from engine.utils.text_making import text_render_with_bg, make_long_text, calculate_long_text_size
+from engine.utils.text_making import text_render_with_bg, make_long_text
 
 
 class UIBattle(UIMenu):
@@ -145,27 +145,25 @@ class CharacterSpeechBox(UIBattle):
         self.font = Font(self.ui_font[font], self.font_size)
         max_text_width *= self.screen_scale_width
 
-        self.text_surface = Surface(calculate_long_text_size(text, self.font, self.font_size, max_text_width), SRCALPHA)
-        self.text_surface.fill((224, 224, 224))
-        make_long_text(self.text_surface, text, (0, 0), self.font)
+        text_surface = make_long_text(text, (0, 0), self.font)
 
         start_top = self.images["speech_start_top"]
         start_mid = smoothscale(self.images["speech_start_mid"], (self.images["speech_start_mid"].get_width(),
-                                                                  self.text_surface.get_height()))
+                                                                  text_surface.get_height()))
         start_bottom = self.images["speech_start_bottom"]
 
         end_top = self.images["speech_end_top"]
         end_mid = smoothscale(self.images["speech_end_mid"], (self.images["speech_end_mid"].get_width(),
-                                                              self.text_surface.get_height()))
+                                                              text_surface.get_height()))
         end_bottom = self.images["speech_end_bottom"]
 
-        body_top = smoothscale(self.images["speech_body_top"], (self.text_surface.get_width(),
+        body_top = smoothscale(self.images["speech_body_top"], (text_surface.get_width(),
                                                                 self.images["speech_body_top"].get_height()))
-        body_bottom = smoothscale(self.images["speech_body_bottom"], (self.text_surface.get_width(),
+        body_bottom = smoothscale(self.images["speech_body_bottom"], (text_surface.get_width(),
                                                                       self.images["speech_body_bottom"].get_height()))
 
-        self.base_image = Surface((self.text_surface.get_width() + start_top.get_width() + end_top.get_width(),
-                                   self.text_surface.get_height() + start_top.get_height() + start_bottom.get_height()),
+        self.base_image = Surface((text_surface.get_width() + start_top.get_width() + end_top.get_width(),
+                                   text_surface.get_height() + start_top.get_height() + start_bottom.get_height()),
                                   SRCALPHA)
 
         start_top_rect = start_top.get_rect(topleft=(0, 0))
@@ -195,12 +193,12 @@ class CharacterSpeechBox(UIBattle):
         self.right_image = self.base_image
         self.left_image = flip(self.base_image, 1, 0)
 
-        text_rect = self.text_surface.get_rect(topleft=start_mid_rect.topright)
-        self.right_image.blit(self.text_surface, text_rect)
+        text_rect = text_surface.get_rect(topleft=start_mid_rect.topright)
+        self.right_image.blit(text_surface, text_rect)
 
-        text_rect = self.text_surface.get_rect(topright=(self.base_image.get_width() - start_mid_rect.topright[0],
+        text_rect = text_surface.get_rect(topright=(self.base_image.get_width() - start_mid_rect.topright[0],
                                                          start_mid_rect.topright[1]))
-        self.left_image.blit(self.text_surface, text_rect)
+        self.left_image.blit(text_surface, text_rect)
 
         if player_input_indicator:  # add player weak button indicate for closing speech in cutscene
             self.left_image.blit(self.images["button_weak"],

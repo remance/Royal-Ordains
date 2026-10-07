@@ -85,10 +85,11 @@ class Character(sprite.Sprite):
     rect = image.get_rect(topleft=(0, 0))
     collision_grid_width = 0
 
-    ai_speak = ai_speak
     ai_logic = ai_logic
     ai_prepare = ai_prepare
+    ai_speak = ai_speak
     apply_status = apply_status
+    cal_damage = cal_damage
     cal_loss = cal_loss
     character_event_process = character_event_process
     check_ai_condition = check_ai_condition
@@ -97,24 +98,22 @@ class Character(sprite.Sprite):
     die = die
     enter_stage = enter_stage
     erase = erase
+    finish_animation = finish_animation
     get_damage = get_damage
     get_near_enemy = get_near_enemy
-    finish_animation = finish_animation
     health_resource_logic = health_resource_logic
+    hit_collide_check = hit_collide_check
+    hit_register = hit_register
     issue_commander_order = issue_commander_order
-    reset_commander_variables = reset_commander_variables
     move_logic = move_logic
     pick_animation = pick_animation
     pick_cutscene_animation = pick_cutscene_animation
     play_battle_animation = play_battle_animation
     play_cutscene = play_cutscene_animation
+    reset_commander_variables = reset_commander_variables
     reset_sprite = reset_sprite
     rotate_logic = rotate_logic
     status_update = status_update
-
-    cal_damage = cal_damage
-    hit_collide_check = hit_collide_check
-    hit_register = hit_register
 
     clean_object = clean_object
     set_rotate = set_rotate

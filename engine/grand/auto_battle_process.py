@@ -11,8 +11,8 @@ def auto_battle_process(self, battle_state):
         team_commander = self.team_commander[team]
         if team_commander and team_commander.alive and team_state["strategy_resource"] < 200:
             team_state["strategy_resource"] += Phase_To_Battle_Time * team_state["strategy_regen"]
-            if team_state["strategy_resource"] > 100:
-                team_state["strategy_resource"] = 100
+            if team_state["strategy_resource"] > 200:
+                team_state["strategy_resource"] = 200
 
         if team_state["supply_reserve"]:
             if team_state["supply_reserve"] > 0:

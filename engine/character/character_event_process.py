@@ -35,9 +35,6 @@ def character_event_process(self, event, event_property):
         if "POS" in event_property:  # move to position
             if type(event_property["POS"]) is str:
                 target_scene = self.battle.current_scene
-                if "reach_" in event_property["POS"]:
-                    target_scene = self.battle.reach_scene
-
                 if "start" in event_property["POS"]:
                     self.cutscene_target_pos = Vector2((Default_Screen_Width * target_scene) + 100, 1000)
                 elif "middle" in event_property["POS"]:

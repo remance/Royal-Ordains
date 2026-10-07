@@ -56,7 +56,7 @@ from engine.grand.grand import Grand
 from engine.menuobject.menuobject import MenuActor, MenuRotate, StaticImage
 from engine.uiouterbattle.uiouterbattle import Profiler, FPSCount
 from engine.uibattle.uibattle import CharacterSpeechBox
-from engine.uimenu.uimenu import (MenuCursor, BoxUI, BrownMenuButton, MenuButton, UIScroll,
+from engine.uimenu.uimenu import (UIMenu, MenuCursor, BoxUI, BrownMenuButton, MenuButton, UIScroll,
                                   TextPopup, CustomTeamSetupUI, FactionSelector, PresetArmySetupUI, GrandMiniMap,
                                   GrandFactionDetail, GrandFactionShowCase, CharacterDescriptionShowCase,
                                   CharacterMovesetShowCase, CharacterSelector, CustomPresetTitle, ListUI,
@@ -93,13 +93,13 @@ class Game:
     activate_input_popup = activate_input_popup
     assign_key = assign_key
     back_mainmenu = back_mainmenu
+    change_custom_battle_config = change_custom_battle_config
     change_keybind = change_keybind
     change_pause_update = change_pause_update
     change_sound_volume = change_sound_volume
     check_custom_team_fund = check_custom_team_fund
     convert_custom_army_to_deployable = convert_custom_army_to_deployable
     create_config = create_config
-    change_custom_battle_config = change_custom_battle_config
     get_keybind_button_name = get_keybind_button_name
     load_grand_campaign = load_grand_campaign
     loading_screen = loading_screen
@@ -108,11 +108,11 @@ class Game:
     menu_custom_preset = menu_custom_preset
     menu_custom_setup = menu_custom_setup
     menu_grand_setup = menu_grand_setup
+    menu_keybind = menu_keybind
     menu_lorebook = menu_lorebook
     menu_lorebook_beast = menu_lorebook_beast
-    menu_mission_setup = menu_mission_setup
-    menu_keybind = menu_keybind
     menu_main = menu_main
+    menu_mission_setup = menu_mission_setup
     menu_option = menu_option
     start_battle = start_battle
 
@@ -285,10 +285,6 @@ class Game:
                                 self.list_font1: {}, self.list_font2: {}, self.list_font3: {}}
 
         # Load UI images
-        self.weather_icon_images = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                               subfolder=("ui", "weather_ui"))
-        self.option_menu_images = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                              subfolder=("ui", "option_ui"))
         image = load_image(self.data_dir, "drop_normal.png", self.screen_scale, ("ui", "mainmenu_ui"))
         image2 = load_image(self.data_dir, "drop_hover.png", self.screen_scale, ("ui", "mainmenu_ui"))
         image3 = load_image(self.data_dir, "drop_click.png", self.screen_scale, ("ui", "mainmenu_ui"))
@@ -303,22 +299,6 @@ class Game:
         text_button_image2 = load_image(self.data_dir, "text_hover.png", self.screen_scale, ("ui", "mainmenu_ui"))
         text_button_image3 = load_image(self.data_dir, "text_click.png", self.screen_scale, ("ui", "mainmenu_ui"))
         self.text_button_image_list = (text_button_image, text_button_image2, text_button_image3)
-        self.battle_ui_images = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                            subfolder=("ui", "battle_ui"))
-        self.grand_ui_images = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                           subfolder=("ui", "grand_ui"))
-        self.cosmos_ui_images = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                            subfolder=("ui", "cosmos_ui"))
-
-        self.helper_images = {}
-        part_folder = Path(join(self.data_dir, "ui", "battle_ui", "helper"))
-        subdirectories = [split(sep.join(normpath(x).split(sep))) for x
-                          in part_folder.iterdir() if x.is_dir()]
-        for folder in subdirectories:
-            folder_data_name = folder[-1]
-            self.helper_images[folder_data_name] = load_images(self.data_dir, screen_scale=self.screen_scale,
-                                                               subfolder=(
-                                                                   "ui", "battle_ui", "helper", folder_data_name))
 
         # Initialise groups
         Game.ui_menu_updater = ReversedLayeredUpdates()  # main drawer for ui in main menu
@@ -364,16 +344,37 @@ class Game:
         self.grab_text = self.localisation.grab_text
         Game.localisation = self.localisation
 
-        # Create game cursor, make sure it is the first object in ui to be created, so it is always update first
-        Game.cursor = MenuCursor(load_images(self.data_dir, subfolder=("ui", "cursor_menu")))  # no need to scale cursor
-        self.add_to_ui_menu_updater(self.cursor)
-
         # Battle related data
         self.stat_data = DataStat()
         self.character_list = self.stat_data.character_list
         self.map_data = DataMap()
 
         self.preset_map_data = self.map_data.preset_map_data
+
+        # sprite data
+        self.sprite_data = DataSprite(self.character_list)
+        self.character_animation_data = self.sprite_data.character_animation_data  # character animation data pool
+        self.character_portraits = self.sprite_data.character_portraits
+        self.stage_object_animation_pool = self.sprite_data.stage_object_animation_pool
+        self.grand_object_animation_pool = self.sprite_data.grand_object_animation_pool
+        self.effect_animation_pool = self.sprite_data.effect_animation_pool  # effect sprite animation pool
+        self.grand_ui_images = self.sprite_data.grand_ui_images
+        self.battle_ui_images = self.sprite_data.battle_ui_images
+        self.cosmos_ui_images = self.sprite_data.cosmos_ui_images
+        self.battle_helper_images = self.sprite_data.battle_helper_images
+        self.building_portraits = self.sprite_data.building_portraits
+        self.weather_icon_images = self.sprite_data.weather_icon_images
+        self.option_menu_images = self.sprite_data.option_menu_images
+
+        self.load_sprite_background_threads = []
+
+        if cpu_count() - 1 > 0:
+            thread = Thread(target=self.sprite_data.load_effect_sprites,
+                            args=(self,), daemon=True)
+            self.load_sprite_background_threads.append(thread)
+            thread.start()
+        else:
+            self.sprite_data.load_effect_sprites(self)
 
         if self.show_dmg_number:
             BattleCharacter.show_dmg_number = True
@@ -388,28 +389,38 @@ class Game:
         Effect.character_list = self.character_list
         Effect.effect_list = self.stat_data.effect_list
 
-        self.sprite_data = DataSprite(self.character_list)
-        self.character_animation_data = self.sprite_data.character_animation_data  # character animation data pool
-        self.character_portraits = self.sprite_data.character_portraits
-        self.stage_object_animation_pool = self.sprite_data.stage_object_animation_pool
-        self.grand_object_animation_pool = self.sprite_data.grand_object_animation_pool
-        self.effect_animation_pool = self.sprite_data.effect_animation_pool  # effect sprite animation pool
-
         Effect.effect_animation_pool = self.effect_animation_pool
         ShowcaseEffect.effect_animation_pool = self.effect_animation_pool
         StageObject.stage_object_animation_pool = self.stage_object_animation_pool
 
-        self.load_sprite_background_threads = []
+        UIMenu.add_to_ui_menu_updater = self.add_to_ui_menu_updater
+        UIMenu.battle_ui_images = self.battle_ui_images
+        UIMenu.building_portraits = self.building_portraits
+        UIMenu.button_sound_channel = self.button_sound_channel
+        UIMenu.data_dir = self.data_dir
+        UIMenu.font_text_cache = self.font_text_cache
+        UIMenu.font_texture = self.font_texture
+        UIMenu.game = self
+        UIMenu.grand_ui_images = self.grand_ui_images
+        UIMenu.localisation = self.localisation
+        UIMenu.remove_from_ui_menu_updater = self.remove_from_ui_menu_updater
+        UIMenu.screen_height = self.screen_height
+        UIMenu.screen_rect = self.screen_rect
+        UIMenu.screen_scale_height = self.screen_scale_height
+        UIMenu.screen_scale_width = self.screen_scale_width
+        UIMenu.screen_size = self.screen_size
+        UIMenu.screen_width = self.screen_width
+        UIMenu.sound_effect_pool = self.sound_effect_pool
+        UIMenu.ui_font = self.ui_font
+        UIMenu.updater = self.ui_menu_updater
 
-        if cpu_count() - 1 > 0:
-            thread = Thread(target=self.sprite_data.load_effect_sprites,
-                            args=(self,), daemon=True)
-            self.load_sprite_background_threads.append(thread)
-            thread.start()
-        else:
-            self.sprite_data.load_effect_sprites(self)
+        # Create main menu interface
 
-        # Main menu interface
+        # Create game cursor, make sure it is the first object in ui to be created, so it is always update first
+        Game.cursor = MenuCursor(load_images(self.data_dir, subfolder=("ui", "cursor_menu")))  # no need to scale cursor
+        UIMenu.cursor = self.cursor
+        self.add_to_ui_menu_updater(self.cursor)
+
         BrownMenuButton.button_frame = load_image(self.game.data_dir,
                                                   "new_button.png", subfolder=("ui", "mainmenu_ui"))
         main_menu_buttons_box = BoxUI((0, -8),
@@ -436,7 +447,7 @@ class Game:
                                   self.custom_battle_button, self.lorebook_button,
                                   self.option_button, self.quit_button)
 
-        self.text_popup = TextPopup(font_size=50, layer=10000)
+        self.text_popup = TextPopup(font_size=56, layer=10000)
         self.loading_lore_text_popup = TextPopup(font_size=70)
         self.loading_lore_text = ""
 

@@ -13,7 +13,7 @@ from engine.constants import *
 from engine.uimenu.uimenu import UIMenu, MenuCursor, BoxUI
 from engine.utils.common import keyboard_mouse_press_check
 from engine.utils.text_making import text_render_with_bg, text_render_with_texture, \
-    make_long_text, change_number, add_comma_number, calculate_long_text_size
+    make_long_text, shorten_number, add_comma_number
 
 
 class UIOuterBattle(UIMenu):
@@ -142,14 +142,9 @@ class ScreenFade(UIOuterBattle):
                 self.text_surface = text_render_with_texture(self.text, self.font,
                                                              self.font_texture[self.use_font_texture])
             else:
-                self.text_surface = Surface((self.max_text_width,
-                                             calculate_long_text_size(text, self.font, font_size, self.max_text_width,
-                                                                      start_pos=(font_size, font_size + 1))[1]),
-                                            SRCALPHA)
-                self.text_surface.fill((0, 0, 0, 0))
-                make_long_text(self.text_surface, text, (font_size, font_size), self.font,
-                               with_texture=(self.font_texture[self.use_font_texture], None),
-                               specific_width=self.max_text_width, alignment="center")
+                self.text_surface = make_long_text(text, (font_size, font_size), self.font,
+                                                   with_texture=(self.font_texture[self.use_font_texture], None),
+                                                   specific_width=self.max_text_width, alignment="center")
 
             self.text_rect = self.text_surface.get_rect(center=self.image.get_rect().center)
             if not text_fade_in:
@@ -213,7 +208,11 @@ class Command(UIOuterBattle):
         self.call_count_image = call_count_image
         self.air_count_image = air_count_image
         self.broken_icon = Surface((100 * self.screen_scale_width, 100 * self.screen_scale_height), SRCALPHA)
-        self.supply_text_bg = Surface((120 * self.screen_scale_width, 120 * self.screen_scale_height))
+        self.supply_text_bg = Surface((240 * self.screen_scale_width, 120 * self.screen_scale_height))
+        self.supply_text_bg.blit(self.grand_ui_images["supply"], (0, 0))
+        self.supply_text_bg.blit(self.grand_ui_images["supply_reserve"],
+                                 self.grand_ui_images["supply_reserve"].get_rect(
+                                     bottomleft=(0, self.supply_text_bg.get_height())))
         self.supply_text_bg_rect = self.supply_text_bg.get_rect(topright=(self.image.get_width(), 0))
         draw.rect(self.broken_icon, (0, 0, 0),
                   (30 * self.screen_scale_width, 30 * self.screen_scale_height,
@@ -259,9 +258,9 @@ class Command(UIOuterBattle):
 
         self.base_image = self.image.copy()
 
-        scaled_pos = 200 * self.screen_scale_width
+        scaled_pos = 150 * self.screen_scale_width
         self.leader_portrait_rect = {index: self.broken_icon.get_rect(center=(scaled_pos + (
-                index * 170 * self.screen_scale_width), 50 * self.screen_scale_height)) for index in range(3)}
+                index * 140 * self.screen_scale_width), 50 * self.screen_scale_height)) for index in range(3)}
         scaled_pos = 100 * self.screen_scale_width
         self.ground_portrait_rect = {index: self.broken_icon.get_rect(center=(scaled_pos + (
                 index * 140 * self.screen_scale_width), 180 * self.screen_scale_height)) for index in range(5)}
@@ -306,8 +305,8 @@ class Command(UIOuterBattle):
                     self.supply_status = ()
 
                 image = self.image
-                new_supply_status = (change_number(int(self.player_team_stat["supply_resource"])),
-                                     change_number(int(self.player_team_stat["supply_reserve"])))
+                new_supply_status = (shorten_number(int(self.player_team_stat["supply_resource"])),
+                                     shorten_number(int(self.player_team_stat["supply_reserve"])))
                 if self.supply_status != new_supply_status:
                     self.supply_status = new_supply_status
                     image.blit(self.supply_text_bg, self.supply_text_bg_rect)

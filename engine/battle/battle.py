@@ -323,7 +323,7 @@ class Battle:
         # Create battle ui
         Battle.battle_cursor = BattleCursor(load_images(self.data_dir,
                                                         subfolder=("ui", "cursor_battle")))  # no need to scale cursor
-        EventNotification.event_icons = self.sprite_data.grand_ui_icons
+        EventNotification.event_icons = self.sprite_data.grand_ui_images
 
         battle_ui_images = self.game.battle_ui_images
         self.battle_ui_images = battle_ui_images
@@ -337,7 +337,7 @@ class Battle:
         self.battle_helper_ui = BattleHelper(self.game.weather_icon_images,
                                              battle_ui_images["helperui"],
                                              battle_ui_images["helperui_base"],
-                                             self.game.helper_images,
+                                             self.game.battle_helper_images,
                                              (battle_ui_images["time_pause"],
                                               battle_ui_images["time_slow"],
                                               battle_ui_images["time_normal"],
@@ -528,9 +528,6 @@ class Battle:
         self.current_ambient = None
 
         print("Start loading", self.stage)
-        self.game.loading_lore_text = self.grab_text(
-            ("load", randint(0, len(self.localisation.text[self.language]["load"]) - 1), "Text"))
-
         yield set_start_load(self, "stage setup")
 
         stage_data = self.game.preset_map_data[stage]

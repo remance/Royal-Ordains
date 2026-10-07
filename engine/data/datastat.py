@@ -251,11 +251,8 @@ class DataStat(GameData):
                 for n, i in enumerate(row):
                     row = stat_convert(row, n, i, tuple_column=tuple_column, dict_column=dict_column)
                 self.building_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
-                self.building_list[row[0]]["Build Time"] *= Turn_To_Phase  # convert build time to phase
-                # add repair time, which is half the build time, minimum is 1 phase
-                self.building_list[row[0]]["Repair Time"] = int(self.building_list[row[0]]["Build Time"] / 2)
-                if not self.building_list[row[0]]["Repair Time"]:
-                    self.building_list[row[0]]["Repair Time"] = 1
+                self.building_list[row[0]]["Real Build Time"] = self.building_list[row[0]]["Build Time"] * Turn_To_Phase  # convert build time to phase
+
                 for character in self.building_list[row[0]]["Leader Recruit"] + self.building_list[row[0]]["Unit Recruit"]:
                     self.character_hire_building_list[character] = [row[0], True, 0]  # ready state of building
 

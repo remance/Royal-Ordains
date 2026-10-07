@@ -182,7 +182,6 @@ class Grand:
         self.culture_list = self.stat_data.culture_list
 
         self.sprite_data = self.game.sprite_data
-        self.grand_ui_icons = self.sprite_data.grand_ui_icons
         self.building_portraits = self.sprite_data.building_portraits
         self.character_animation_data = self.sprite_data.character_animation_data
         self.character_portraits = self.sprite_data.character_portraits
@@ -337,9 +336,6 @@ class Grand:
             self.outer_ui_updater.add(self.fps_count)
         else:
             self.outer_ui_updater.remove(self.fps_count)
-
-        self.game.loading_lore_text = self.grab_text(
-            ("load", randint(0, len(self.localisation.text[self.language]["load"]) - 1), "Text"))
 
         grand_config = configparser.ConfigParser()  # initiate config reader
         grand_config.read_file(open(join(self.data_dir, "map", "world", campaign, "grand.ini")))  # read config file

@@ -1,4 +1,5 @@
 import pygame
+from random import randint
 
 
 def loading_screen(self, state):
@@ -11,7 +12,8 @@ def loading_screen(self, state):
         text_surface = self.loading_screen_lore_font.render(state, True, (255, 255, 255))
         text_rect = text_surface.get_rect(bottomleft=(0, self.screen.get_height()))
         loading.blit(text_surface, text_rect)
-
+        self.loading_lore_text = self.grab_text(
+            ("load", randint(0, len(self.localisation.text[self.language]["load"]) - 1), "Text"))
         self.loading_lore_text_popup.popup(("bottomleft", (text_rect.topleft[0],
                                                            text_rect.topleft[1] - (40 * self.screen_scale[1]))),
                                            self.loading_lore_text, width_text_wrapper=1600 * self.screen_scale[0],
