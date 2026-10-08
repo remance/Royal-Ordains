@@ -48,8 +48,8 @@ class CharacterCommandIndicator(UIBattle):
     def setup(self, leader=None):
         if leader:
             self.leader = leader
-            self.move_image.blit(self.leader.icon["right"], self.leader.icon["right"].get_rect(topleft=(0, 0)))
-            self.attack_image.blit(self.leader.icon["right"], self.leader.icon["right"].get_rect(topleft=(0, 0)))
+            self.move_image.blit(leader.icon["right"], leader.icon["right"].get_rect(topleft=(0, 0)))
+            self.attack_image.blit(leader.icon["right"], leader.icon["right"].get_rect(topleft=(0, 0)))
             self.battle_effect_updater.add(self)
         else:
             self.battle_effect_updater.remove(self)
@@ -144,8 +144,10 @@ class CharacterSpeechBox(UIBattle):
         self.font_size = int(font_size * self.screen_scale_height)
         self.font = Font(self.ui_font[font], self.font_size)
         max_text_width *= self.screen_scale_width
-
-        text_surface = make_long_text(text, (0, 0), self.font)
+        long_text_surface = make_long_text(text, (0, 0), self.font)
+        text_surface = Surface(long_text_surface.get_size())
+        text_surface.fill((224, 224, 224))
+        text_surface.blit(long_text_surface, (0, 0))
 
         start_top = self.images["speech_start_top"]
         start_mid = smoothscale(self.images["speech_start_mid"], (self.images["speech_start_mid"].get_width(),
@@ -197,7 +199,7 @@ class CharacterSpeechBox(UIBattle):
         self.right_image.blit(text_surface, text_rect)
 
         text_rect = text_surface.get_rect(topright=(self.base_image.get_width() - start_mid_rect.topright[0],
-                                                         start_mid_rect.topright[1]))
+                                                    start_mid_rect.topright[1]))
         self.left_image.blit(text_surface, text_rect)
 
         if player_input_indicator:  # add player weak button indicate for closing speech in cutscene
@@ -209,10 +211,10 @@ class CharacterSpeechBox(UIBattle):
                                                                                 text_rect.height * 1.2)))
 
         self.character = character
-        self.character.speech = self
+        character.speech = self
         self.player_input_indicator = player_input_indicator
         self.cutscene_event = cutscene_event
-        self.base_pos = self.character.base_pos.copy()
+        self.base_pos = character.base_pos.copy()
         self.finish_unfolding = False
         self.direction_left = False
         self.current_length = start_top.get_width()
@@ -220,15 +222,15 @@ class CharacterSpeechBox(UIBattle):
         self.max_length = self.base_image.get_width()
 
         self.image = self.base_image.subsurface((0, 0, self.current_length, self.base_image.get_height()))
-        self.rect = self.image.get_rect(midleft=self.character.rect.center)
+        self.rect = self.image.get_rect(midleft=character.rect.center)
 
         if voice:
             self.battle.add_sound_effect_queue(choice(self.battle.sound_effect_pool[voice[0]]),
-                                               self.character.base_pos, voice[1],
+                                               character.base_pos, voice[1],
                                                voice[2], volume="voice")
         elif voice is False:  # None will play no sound
             self.battle.add_sound_effect_queue(choice(self.battle.sound_effect_pool["parchment_write"]),
-                                               self.character.base_pos, 1000,
+                                               character.base_pos, 1000,
                                                0, volume="voice")
 
         if specific_timer:
@@ -240,22 +242,23 @@ class CharacterSpeechBox(UIBattle):
 
         self.battle.save_data.save_profile["battle log"].append(
             ("(" + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + ") At " + self.battle.stage + ", " +
-             self.character.name + ": ", text))
+             character.name + ": ", text))
         if len(self.battle.save_data.save_profile["battle log"]) > 500:
             self.battle.save_data.save_profile["battle log"] = self.battle.save_data.save_profile["battle log"][
                                                                1:]
 
     def update(self, dt):
         """Play unfold animation and blit text at the end"""
-        if self.character.alive:  # update head position
+        character = self.character
+        if character.alive:  # update head position
             self.direction_left = False
             # always use p1 head to place speak
             head_rect = (
-                (self.character.pos[0] + (
-                        self.character.current_animation_direction["head"][0] * self.screen_scale_width)),
-                (self.character.pos[1] + (
-                        self.character.current_animation_direction["head"][1] * self.screen_scale_height)))
-            if self.character.direction == "left":  # left direction facing
+                (character.pos[0] + (
+                        character.current_animation_direction["head"][0] * self.screen_scale_width)),
+                (character.pos[1] + (
+                        character.current_animation_direction["head"][1] * self.screen_scale_height)))
+            if character.direction == "left":  # left direction facing
                 if head_rect[0] - (
                         self.battle.shown_camera_center_pos[0] - self.battle.camera.camera_w_center) < self.max_length:
                     self.base_image = self.right_image
@@ -294,7 +297,7 @@ class CharacterSpeechBox(UIBattle):
             self.image = self.base_image
             self.timer -= dt
             if self.timer <= 0:
-                self.character.speech = None
+                character.speech = None
                 self.kill()
                 return
 
@@ -354,4 +357,3 @@ class DamageNumber(UIBattle):
 
         if self.timer <= 0:
             self.kill()
-

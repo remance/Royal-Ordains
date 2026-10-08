@@ -89,6 +89,9 @@ def pick_animation(self):
             y_momentum = uniform(current_action["y_momentum"][0], current_action["y_momentum"][1])
         self.y_momentum = y_momentum
 
+    if "sprite_deal_damage" in self.current_animation_frame["property"] and self.current_moveset:
+        self.sprite_deal_damage = True
+
     if animation_name in self.animation_pool:
         self.current_animation = self.animation_pool[animation_name]
     else:  # animation not found, use default  # TODO remove this in stable

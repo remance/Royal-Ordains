@@ -12,7 +12,8 @@ def change_turn(self, turn_change=True):
         if faction != "free":
             if turn_change:
                 # event duration is based on turn rather than phase
-                faction_state["event"] = {event: value - 1 for event, value in faction_state["event"].items() if value > 1}
+                faction_state["event"] = {event: value - 1 for event, value in faction_state["event"].items() if
+                                          value > 1}
 
                 # faction_region_control = self.current_campaign_state["region"]["control"][faction]
                 for faction_culture in faction_state["culture"].values():

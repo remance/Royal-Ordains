@@ -10,11 +10,11 @@ from threading import Thread
 
 import psutil
 from pygame.mask import from_surface
-from pygame.transform import smoothscale, flip, rotate
+from pygame.transform import smoothscale, flip, rotate, scale
 
 from engine.data.data import GameData
 from engine.utils.common import edit_config
-from engine.utils.data_loading import load_images
+from engine.utils.data_loading import load_image, load_images
 from engine.utils.sprite_caching import load_pickle_with_surfaces, save_pickle_with_surfaces
 from engine.utils.text_making import text_render_with_bg
 
@@ -49,6 +49,21 @@ class DataSprite(GameData):
             except Exception:
                 pass
 
+            image = load_image(self.data_dir, "drop_normal.png", self.screen_scale, ("ui", "mainmenu_ui"))
+            image2 = load_image(self.data_dir, "drop_hover.png", self.screen_scale, ("ui", "mainmenu_ui"))
+            image3 = load_image(self.data_dir, "drop_click.png", self.screen_scale, ("ui", "mainmenu_ui"))
+            self.drop_button_list = (image, image2, image3)
+
+            image = scale(image, (image.get_width() * 1.15, image.get_height() * 1.25))
+            image2 = scale(image2, (image2.get_width() * 1.15, image2.get_height() * 1.25))
+            image3 = scale(image3, (image3.get_width() * 1.15, image3.get_height() * 1.25))
+            self.drop_big_button_list = (image, image2, image3)
+
+            text_button_image = load_image(self.data_dir, "text_normal.png", self.screen_scale, ("ui", "mainmenu_ui"))
+            text_button_image2 = load_image(self.data_dir, "text_hover.png", self.screen_scale, ("ui", "mainmenu_ui"))
+            text_button_image3 = load_image(self.data_dir, "text_click.png", self.screen_scale, ("ui", "mainmenu_ui"))
+            self.text_button_image_list = (text_button_image, text_button_image2, text_button_image3)
+
             self.config_animation_hash = ast.literal_eval(self.game.config["VERSION"]["hash"])
 
             self.strategy_icons = load_images(self.data_dir, screen_scale=self.screen_scale,
@@ -72,7 +87,8 @@ class DataSprite(GameData):
                 folder_data_name = folder[-1]
                 self.battle_helper_images[folder_data_name] = load_images(self.data_dir, screen_scale=self.screen_scale,
                                                                           subfolder=(
-                                                                       "ui", "battle_ui", "helper", folder_data_name))
+                                                                              "ui", "battle_ui", "helper",
+                                                                              folder_data_name))
 
             building_portraits = load_images(self.data_dir, subfolder=("ui", "building_ui"))
             self.building_portraits = {}
@@ -228,8 +244,7 @@ class DataSprite(GameData):
         else:
             load_character_sprite(self.data_dir, self.screen_scale, self.character_animation_data, character_list)
 
-    @staticmethod
-    def load_effect_sprites(game):
+    def load_effect_sprites(self, game):
         config_animation_hash = game.sprite_data.config_animation_hash
         data_dir = game.data_dir
         effect_animation_pool = game.effect_animation_pool
@@ -258,9 +273,17 @@ class DataSprite(GameData):
                         game.config_path, game.config)
         else:
             # use (1, 1) scaling since the cached already got scaled
-            new_effect_animation_pool = load_pickle_with_surfaces(
-                join(data_dir, "animation", "cache_effect_animation.xz"),
-                screen_scale=(1, 1), effect_sprite_adjust=True)
+            try:
+                new_effect_animation_pool = load_pickle_with_surfaces(
+                    join(data_dir, "animation", "cache_effect_animation.xz"),
+                    screen_scale=(1, 1), effect_sprite_adjust=True)
+            except lzma.LZMAError:
+                # file corrupt, recreate the cache
+                config_animation_hash["effect"] = ""
+                edit_config("VERSION", "hash", config_animation_hash,
+                            game.config_path, game.config)
+                self.load_effect_sprites(game)
+                return
 
         for key, value in new_effect_animation_pool.items():
             effect_animation_pool[key] = value

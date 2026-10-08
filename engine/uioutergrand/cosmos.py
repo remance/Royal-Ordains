@@ -71,23 +71,24 @@ class MiniCosmosUI(UIOuterGrand):
                         planet.dot_size)
 
     def update(self, dt):
-        UIOuterGrand.update(self, dt)
-        if self.mouse_over:
-            text = [self.grab_text(("ui", "info_header_current_cosmic_events")), ]
+        if UIOuterGrand.update(self, dt):
+            grab_text = self.grab_text
+            outer_ui_updater = self.outer_ui_updater
+            text = [grab_text(("ui", "info_header_current_cosmic_events")), ]
             cosmic_event_list = self.grand.current_campaign_state["cosmic_event"]
             if cosmic_event_list:
                 for event in cosmic_event_list:
-                    text.append("- " + self.grab_text(("ui", "cosmos_" + event)))
+                    text.append("- " + grab_text(("ui", "cosmos_" + event)))
             else:
-                text.append(self.grab_text(("ui", "info_text_none")))
+                text.append(grab_text(("ui", "info_text_none")))
             self.text_popup.popup(("topright", self.cursor.rect.bottomleft), text)
-            self.outer_ui_updater.add(self.text_popup)
+            outer_ui_updater.add(self.text_popup)
             if self.event_press:
-                if self.cosmic_ui not in self.outer_ui_updater:
-                    self.outer_ui_updater.add(self.cosmic_ui)
+                if self.cosmic_ui not in outer_ui_updater:
+                    outer_ui_updater.add(self.cosmic_ui)
                     self.cosmic_ui.update_image()
                 else:
-                    self.outer_ui_updater.remove(self.cosmic_ui)
+                    outer_ui_updater.remove(self.cosmic_ui)
 
 
 class CosmosUI(UIOuterGrand):
@@ -154,10 +155,10 @@ class CosmosUI(UIOuterGrand):
             planet.reset(cosmos_time)
 
     def update(self, dt):
-        UIOuterGrand.update(self, dt)
         if self.must_update_image:
             self.update_image()
-        if self.mouse_over:
+
+        if UIOuterGrand.update(self, dt):
             inside_mouse_pos = Vector2(
                 (self.cursor.pos[0] - self.rect.topleft[0]),
                 (self.cursor.pos[1] - self.rect.topleft[1]))

@@ -3,8 +3,7 @@ import configparser
 import sys
 from copy import deepcopy
 from multiprocessing import cpu_count
-from os.path import join, sep, normpath, split
-from pathlib import Path
+from os.path import join
 from threading import Thread
 
 import pygame
@@ -13,7 +12,6 @@ from pygame.event import get as get_event, clear as clear_event
 from pygame.font import Font
 from pygame.locals import *
 from pygame.mixer import Sound, Channel
-from pygame.transform import scale
 
 from engine.army.army import Army
 from engine.battle.battle import Battle
@@ -54,13 +52,13 @@ from engine.game.menu_option import menu_option
 from engine.game.start_battle import start_battle
 from engine.grand.grand import Grand
 from engine.menuobject.menuobject import MenuActor, MenuRotate, StaticImage
-from engine.uiouterbattle.uiouterbattle import Profiler, FPSCount
 from engine.uibattle.uibattle import CharacterSpeechBox
 from engine.uimenu.uimenu import (UIMenu, MenuCursor, BoxUI, BrownMenuButton, MenuButton, UIScroll,
                                   TextPopup, CustomTeamSetupUI, FactionSelector, PresetArmySetupUI, GrandMiniMap,
                                   GrandFactionDetail, GrandFactionShowCase, CharacterDescriptionShowCase,
                                   CharacterMovesetShowCase, CharacterSelector, CustomPresetTitle, ListUI,
                                   CustomArmyPresetListAdapter, GenericListAdapter)
+from engine.uiouterbattle.uiouterbattle import Profiler, FPSCount
 from engine.updater.updater import ReversedLayeredUpdates
 from engine.utils.data_loading import load_image, load_images, csv_read
 
@@ -150,57 +148,57 @@ class Game:
 
         try:
             self.config = config
-            self.show_fps = int(self.config["USER"]["fps"])
-            self.use_simple_text = int(self.config["USER"]["easy_text"])
-            self.show_dmg_number = int(self.config["USER"]["show_dmg_number"])
-            self.screen_width = int(self.config["USER"]["screen_width"])
-            self.screen_height = int(self.config["USER"]["screen_height"])
-            self.full_screen = int(self.config["USER"]["full_screen"])
-            self.master_volume = float(self.config["USER"]["master_volume"])
-            self.music_volume = float(self.config["USER"]["music_volume"])
+            self.show_fps = int(config["USER"]["fps"])
+            self.use_simple_text = int(config["USER"]["easy_text"])
+            self.show_dmg_number = int(config["USER"]["show_dmg_number"])
+            self.screen_width = int(config["USER"]["screen_width"])
+            self.screen_height = int(config["USER"]["screen_height"])
+            self.full_screen = int(config["USER"]["full_screen"])
+            self.master_volume = float(config["USER"]["master_volume"])
+            self.music_volume = float(config["USER"]["music_volume"])
             self.play_music_volume = self.master_volume * self.music_volume / 10000  # convert volume into percentage
-            self.effect_volume = float(self.config["USER"]["effect_volume"])
+            self.effect_volume = float(config["USER"]["effect_volume"])
             self.play_effect_volume = self.master_volume * self.effect_volume / 10000
-            self.voice_volume = float(self.config["USER"]["voice_volume"])
+            self.voice_volume = float(config["USER"]["voice_volume"])
             self.play_voice_volume = self.master_volume * self.voice_volume / 10000
-            self.language = str(self.config["USER"]["language"])
-            self.player_key_bind_list = ast.literal_eval(self.config["USER"]["keybind"])
-            self.selected_custom_stage_battle = self.config["USER"]["selected_custom_stage_battle"]
-            self.team1_supply_limit_custom_battle = int(self.config["USER"]["team1_supply_limit_custom_battle"])
-            self.team2_supply_limit_custom_battle = int(self.config["USER"]["team2_supply_limit_custom_battle"])
-            self.team1_gold_limit_custom_battle = int(self.config["USER"]["team1_gold_limit_custom_battle"])
-            self.team2_gold_limit_custom_battle = int(self.config["USER"]["team2_gold_limit_custom_battle"])
-            self.selected_weather_custom_battle = int(self.config["USER"]["selected_weather_custom_battle"])
-            self.selected_weather_strength_custom_battle = int(self.config["USER"][
+            self.language = str(config["USER"]["language"])
+            self.player_key_bind_list = ast.literal_eval(config["USER"]["keybind"])
+            self.selected_custom_stage_battle = config["USER"]["selected_custom_stage_battle"]
+            self.team1_supply_limit_custom_battle = int(config["USER"]["team1_supply_limit_custom_battle"])
+            self.team2_supply_limit_custom_battle = int(config["USER"]["team2_supply_limit_custom_battle"])
+            self.team1_gold_limit_custom_battle = int(config["USER"]["team1_gold_limit_custom_battle"])
+            self.team2_gold_limit_custom_battle = int(config["USER"]["team2_gold_limit_custom_battle"])
+            self.selected_weather_custom_battle = int(config["USER"]["selected_weather_custom_battle"])
+            self.selected_weather_strength_custom_battle = int(config["USER"][
                                                                    "selected_weather_strength_custom_battle"])
-            if self.game_version != self.config["VERSION"]["ver"]:  # remake config as game version change
+            if self.game_version != config["VERSION"]["ver"]:  # remake config as game version change
                 raise KeyError  # cause KeyError to reset config file
         except (KeyError, TypeError, NameError) as b:  # config error will make the game recreate config with default
             self.error_log.write(str(b))
             config = self.create_config()
             self.config = config
-            self.show_fps = int(self.config["USER"]["fps"])
-            self.use_simple_text = int(self.config["USER"]["easy_text"])
-            self.show_dmg_number = int(self.config["USER"]["show_dmg_number"])
-            self.screen_width = int(self.config["USER"]["screen_width"])
-            self.screen_height = int(self.config["USER"]["screen_height"])
-            self.full_screen = int(self.config["USER"]["full_screen"])
-            self.master_volume = float(self.config["USER"]["master_volume"])
-            self.music_volume = float(self.config["USER"]["music_volume"])
+            self.show_fps = int(config["USER"]["fps"])
+            self.use_simple_text = int(config["USER"]["easy_text"])
+            self.show_dmg_number = int(config["USER"]["show_dmg_number"])
+            self.screen_width = int(config["USER"]["screen_width"])
+            self.screen_height = int(config["USER"]["screen_height"])
+            self.full_screen = int(config["USER"]["full_screen"])
+            self.master_volume = float(config["USER"]["master_volume"])
+            self.music_volume = float(config["USER"]["music_volume"])
             self.play_music_volume = self.master_volume * self.music_volume / 10000
-            self.effect_volume = float(self.config["USER"]["effect_volume"])
+            self.effect_volume = float(config["USER"]["effect_volume"])
             self.play_effect_volume = self.master_volume * self.effect_volume / 10000
-            self.voice_volume = float(self.config["USER"]["voice_volume"])
+            self.voice_volume = float(config["USER"]["voice_volume"])
             self.play_voice_volume = self.master_volume * self.voice_volume / 10000
-            self.language = str(self.config["USER"]["language"])
-            self.player_key_bind_list = ast.literal_eval(self.config["USER"]["keybind"])
-            self.selected_custom_stage_battle = self.config["USER"]["selected_custom_stage_battle"]
-            self.team1_supply_limit_custom_battle = int(self.config["USER"]["team1_supply_limit_custom_battle"])
-            self.team2_supply_limit_custom_battle = int(self.config["USER"]["team2_supply_limit_custom_battle"])
-            self.team1_gold_limit_custom_battle = int(self.config["USER"]["team1_gold_limit_custom_battle"])
-            self.team2_gold_limit_custom_battle = int(self.config["USER"]["team2_gold_limit_custom_battle"])
-            self.selected_weather_custom_battle = int(self.config["USER"]["selected_weather_custom_battle"])
-            self.selected_weather_strength_custom_battle = int(self.config["USER"][
+            self.language = str(config["USER"]["language"])
+            self.player_key_bind_list = ast.literal_eval(config["USER"]["keybind"])
+            self.selected_custom_stage_battle = config["USER"]["selected_custom_stage_battle"]
+            self.team1_supply_limit_custom_battle = int(config["USER"]["team1_supply_limit_custom_battle"])
+            self.team2_supply_limit_custom_battle = int(config["USER"]["team2_supply_limit_custom_battle"])
+            self.team1_gold_limit_custom_battle = int(config["USER"]["team1_gold_limit_custom_battle"])
+            self.team2_gold_limit_custom_battle = int(config["USER"]["team2_gold_limit_custom_battle"])
+            self.selected_weather_custom_battle = int(config["USER"]["selected_weather_custom_battle"])
+            self.selected_weather_strength_custom_battle = int(config["USER"][
                                                                    "selected_weather_strength_custom_battle"])
 
         Game.language = self.language
@@ -216,7 +214,7 @@ class Game:
         if self.full_screen == 1:
             self.window_style = pygame.FULLSCREEN | SCALED
 
-        self.screen = display.set_mode(self.screen_size, DOUBLEBUF | self.window_style)
+        self.screen = display.set_mode(self.screen_size, HWSURFACE | DOUBLEBUF | self.window_style)
 
         # Decorate game icon window
         icon = load_image(self.main_dir, "icon.png")
@@ -283,22 +281,6 @@ class Game:
                                 self.damage_number_font: {}, self.character_number_font: {},
                                 self.critical_damage_number_font: {}, self.drama_font: {}, self.screen_fade_font: {},
                                 self.list_font1: {}, self.list_font2: {}, self.list_font3: {}}
-
-        # Load UI images
-        image = load_image(self.data_dir, "drop_normal.png", self.screen_scale, ("ui", "mainmenu_ui"))
-        image2 = load_image(self.data_dir, "drop_hover.png", self.screen_scale, ("ui", "mainmenu_ui"))
-        image3 = load_image(self.data_dir, "drop_click.png", self.screen_scale, ("ui", "mainmenu_ui"))
-        self.drop_button_lists = (image, image2, image3)
-
-        image = scale(image, (image.get_width() * 1.15, image.get_height() * 1.25))
-        image2 = scale(image2, (image2.get_width() * 1.15, image2.get_height() * 1.25))
-        image3 = scale(image3, (image3.get_width() * 1.15, image3.get_height() * 1.25))
-        self.drop_big_button_lists = (image, image2, image3)
-
-        text_button_image = load_image(self.data_dir, "text_normal.png", self.screen_scale, ("ui", "mainmenu_ui"))
-        text_button_image2 = load_image(self.data_dir, "text_hover.png", self.screen_scale, ("ui", "mainmenu_ui"))
-        text_button_image3 = load_image(self.data_dir, "text_click.png", self.screen_scale, ("ui", "mainmenu_ui"))
-        self.text_button_image_list = (text_button_image, text_button_image2, text_button_image3)
 
         # Initialise groups
         Game.ui_menu_updater = ReversedLayeredUpdates()  # main drawer for ui in main menu
@@ -503,7 +485,7 @@ class Game:
                                                         parent=self.screen, item_size=10, layer=10000)
 
         self.custom_battle_stage_button = MenuButton(
-            self.drop_button_lists, (self.screen_rect.width * 0.3, self.screen_rect.height * 0.05),
+            self.sprite_data.drop_button_list, (self.screen_rect.width * 0.3, self.screen_rect.height * 0.05),
             key_name=self.selected_custom_stage_battle, font_size=52, layer=151)
         self.custom_stage_list = ("stage_custom1", "stage_custom2", "stage_custom3", "stage_custom4", "stage_custom5")
         self.custom_stage_bar = ListUI(pivot=(-0.55, -0.85), origin=(-1, -1), size=(0.15, 0.25),
@@ -513,7 +495,7 @@ class Game:
                                        parent=self.screen, item_size=8, layer=10000)
 
         self.custom_battle_weather_strength_button = MenuButton(
-            self.drop_button_lists, (self.screen_rect.width * 0.5, self.screen_rect.height * 0.05),
+            self.sprite_data.drop_button_list, (self.screen_rect.width * 0.5, self.screen_rect.height * 0.05),
             key_name="weather_strength_" + str(self.selected_weather_strength_custom_battle), font_size=52, layer=151)
         self.custom_weather_strength_list = ("weather_strength_0", "weather_strength_1", "weather_strength_2")
         self.custom_weather_strength_bar = ListUI(pivot=(-0.15, -0.85), origin=(-1, -1), size=(0.15, 0.25),
@@ -523,7 +505,7 @@ class Game:
                                                   parent=self.screen, item_size=8, layer=10000)
 
         self.custom_battle_weather_type_button = MenuButton(
-            self.drop_button_lists, (self.screen_rect.width * 0.7, self.screen_rect.height * 0.05),
+            self.sprite_data.drop_button_list, (self.screen_rect.width * 0.7, self.screen_rect.height * 0.05),
             key_name="weather_" + str(self.selected_weather_custom_battle), font_size=52, layer=151)
         self.custom_weather_list = tuple(self.map_data.weather_data.keys())
         self.custom_weather_bar = ListUI(pivot=(0.25, -0.85), origin=(-1, -1), size=(0.15, 0.25),
@@ -533,17 +515,17 @@ class Game:
                                          parent=self.screen, item_size=8, layer=10000)
 
         self.custom_battle_team1_supply_button = MenuButton(
-            self.text_button_image_list, (self.screen_rect.width * 0.15, self.screen_rect.height * 0.1),
+            self.sprite_data.text_button_image_list, (self.screen_rect.width * 0.15, self.screen_rect.height * 0.1),
             key_name=("info_header_supply_limit", self.team1_supply_limit_custom_battle), font_size=52, layer=151)
         self.custom_battle_team2_supply_button = MenuButton(
-            self.text_button_image_list, (self.screen_rect.width * 0.65, self.screen_rect.height * 0.1),
+            self.sprite_data.text_button_image_list, (self.screen_rect.width * 0.65, self.screen_rect.height * 0.1),
             key_name=("info_header_supply_limit", self.team2_supply_limit_custom_battle), font_size=52, layer=151)
 
         self.custom_battle_team1_gold_button = MenuButton(
-            self.text_button_image_list, (self.screen_rect.width * 0.35, self.screen_rect.height * 0.1),
+            self.sprite_data.text_button_image_list, (self.screen_rect.width * 0.35, self.screen_rect.height * 0.1),
             key_name=("info_header_gold_limit", self.team1_gold_limit_custom_battle), font_size=52, layer=151)
         self.custom_battle_team2_gold_button = MenuButton(
-            self.text_button_image_list, (self.screen_rect.width * 0.85, self.screen_rect.height * 0.1),
+            self.sprite_data.text_button_image_list, (self.screen_rect.width * 0.85, self.screen_rect.height * 0.1),
             key_name=("info_header_gold_limit", self.team2_gold_limit_custom_battle), font_size=52, layer=151)
 
         self.player_image = {"player": load_image(self.game.data_dir, "player.png",
@@ -564,7 +546,8 @@ class Game:
         for team in (1, 2):
             for index in range(0, 5):
                 self.custom_team_army_buttons[team].append(MenuButton(
-                    self.drop_big_button_lists, (team_x_pos[team], self.screen_rect.height * y_pos[index]),
+                    self.sprite_data.drop_big_button_list,
+                    (team_x_pos[team], self.screen_rect.height * y_pos[index]),
                     font_size=52, layer=9000))
                 self.custom_team_army_button_bars[team].append(
                     ListUI(pivot=(team_y_pivot[team], drop_bar_y_pivot[index]),
@@ -864,17 +847,18 @@ class Game:
             self.screen.blit(self.background, (0, 0))  # blit background over instead of clear() to reset screen
 
             if self.input_popup:  # currently, have input text pop up on screen, stop everything else until done
+                input_popup = self.input_popup
                 if self.input_ok_button.event_press or key_press[pygame.K_RETURN] or key_press[pygame.K_KP_ENTER]:
                     done = True
-                    if "replace key" in self.input_popup[1]:  # swap between 2 keys
-                        old_key = self.player_key_bind[self.input_popup[1][1]]
+                    if "replace key" in input_popup[1]:  # swap between 2 keys
+                        old_key = self.player_key_bind[input_popup[1][1]]
 
-                        self.player_key_bind[self.input_popup[1][1]] = self.player_key_bind[self.input_popup[1][2]]
-                        self.player_key_bind[self.input_popup[1][2]] = old_key
+                        self.player_key_bind[input_popup[1][1]] = self.player_key_bind[input_popup[1][2]]
+                        self.player_key_bind[input_popup[1][2]] = old_key
                         self.config["USER"]["keybind"] = str(self.player_key_bind_list)
                         self.change_keybind()
 
-                    elif self.input_popup[1] == "new_preset":
+                    elif input_popup[1] == "new_preset":
                         if self.input_box.text and "custom_" + self.input_box.text not in self.before_save_preset_army_setup:
                             if self.custom_preset_army_setup.selected_culture not in self.before_save_preset_army_setup:
                                 self.before_save_preset_army_setup[self.custom_preset_army_setup.selected_culture] = {}
@@ -903,8 +887,8 @@ class Game:
                                                       self.grab_text(("ui", "warn_name_in_use")),
                                                       self.game.inform_popup_uis)
 
-                    elif "remove_preset" in self.input_popup[1]:
-                        preset_id = "custom_" + self.input_popup[1][1]
+                    elif "remove_preset" in input_popup[1]:
+                        preset_id = "custom_" + input_popup[1][1]
                         self.before_save_preset_army_setup[self.custom_preset_army_setup.selected_culture].pop(
                             preset_id)
                         if preset_id == self.custom_preset_army_setup.current_preset_id:
@@ -912,9 +896,9 @@ class Game:
                                 self.custom_preset_army_setup.selected_culture)
                         self.custom_preset_list_box.adapter.__init__()
 
-                    elif self.input_popup[1] == "custom_gold":
+                    elif input_popup[1] == "custom_gold":
                         if self.input_box.text.isdigit():
-                            if self.input_popup[2] == 1:
+                            if input_popup[2] == 1:
                                 self.team1_gold_limit_custom_battle = int(self.input_box.text)
                                 self.custom_battle_team1_gold_button.change_state(
                                     ("info_header_gold_limit", self.team1_gold_limit_custom_battle))
@@ -929,9 +913,9 @@ class Game:
                                                                              self.custom_team_army[2][
                                                                                  0].total_supply_usage)
 
-                    elif self.input_popup[1] == "custom_supply":
+                    elif input_popup[1] == "custom_supply":
                         if self.input_box.text.isdigit():
-                            if self.input_popup[2] == 1:
+                            if input_popup[2] == 1:
                                 self.team1_supply_limit_custom_battle = int(self.input_box.text)
                                 self.custom_battle_team1_supply_button.change_state(
                                     ("info_header_supply_limit", self.team1_supply_limit_custom_battle))
@@ -946,7 +930,7 @@ class Game:
                                                                              self.custom_team_army[2][
                                                                                  0].total_supply_usage)
 
-                    elif self.input_popup[1] == "quit":
+                    elif input_popup[1] == "quit":
                         pygame.time.wait(1000)
                         pygame.quit()
                         sys.exit()
@@ -963,7 +947,7 @@ class Game:
                     self.input_popup = None
                     self.remove_from_ui_menu_updater(self.all_input_popup_uis)
 
-                elif self.input_popup[0] == "text_input":
+                elif input_popup[0] == "text_input":
                     if not self.text_delay:
                         if key_press[self.input_box.hold_key]:
                             self.input_box.player_input(None, key_press)

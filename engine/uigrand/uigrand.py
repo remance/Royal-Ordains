@@ -49,8 +49,8 @@ class DotInfoBanner(UIGrand):
                                                 flip(coloured_end, True, False))
             coloured_end = apply_sprite_colour(end, (220, 100, 100))
             self.banner_team_cache["enemy"] = (coloured_end,
-                                                 apply_sprite_colour(body, (220, 100, 100)),
-                                                 flip(coloured_end, True, False))
+                                               apply_sprite_colour(body, (220, 100, 100)),
+                                               flip(coloured_end, True, False))
             coloured_end = apply_sprite_colour(end, (100, 220, 100))
             self.banner_team_cache["ally"] = (coloured_end,
                                               apply_sprite_colour(body, (220, 100, 100)),
@@ -140,9 +140,9 @@ class DotInfoBannerArmy(DotInfoBanner):
             text = (minimise_number_text(state_value_list[0][0]) + "/" +
                     minimise_number_text(
                         state_value_list[0][1] / state_value_list[0][2] * 100) + "%") + " VS " + (
-                    minimise_number_text(state_value_list[1][0]) + "/" +
-                    minimise_number_text(
-                        state_value_list[1][1] / state_value_list[1][2] * 100) + "%")
+                           minimise_number_text(state_value_list[1][0]) + "/" +
+                           minimise_number_text(
+                               state_value_list[1][1] / state_value_list[1][2] * 100) + "%")
             team = state_value_list[2]
         else:
             team = state_value_list[3]
@@ -194,5 +194,5 @@ class DotInfoBannerArmy(DotInfoBanner):
         if (self.base_pos in self.grand.current_campaign_state["battle"]["dot"] or
                 self.dots_army_occupation[self.base_pos]):
             active = True
-        
+
         self.check_draw(active)

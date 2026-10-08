@@ -47,13 +47,13 @@ from engine.effect.effect import DamageEffect, Effect
 from engine.game.activate_input_popup import activate_input_popup
 from engine.game.change_pause_update import change_pause_update
 from engine.scene.scene import Scene
+from engine.uibattle.uibattle import (CharacterSpeechBox, CharacterCommandIndicator, DamageNumber,
+                                      CharacterInteractPrompt, StrategyIcon)
+from engine.uimenu.uimenu import TextPopup, BrownMenuButton
 from engine.uiouterbattle.drama import TextDrama
 from engine.uiouterbattle.uiouterbattle import (FPSCount, BattleHelper, BattleScale, BattleCursor, EventNotification,
                                                 PlayerBattleInteract, Command, TacticalMap, StrategySelect,
                                                 ScreenFade, BattleResult)
-from engine.uibattle.uibattle import (CharacterSpeechBox, CharacterCommandIndicator, DamageNumber,
-                                      CharacterInteractPrompt, StrategyIcon)
-from engine.uimenu.uimenu import TextPopup, BrownMenuButton
 from engine.updater.updater import ReversedLayeredUpdates
 from engine.utils.common import clean_group_object, cutscene_update
 from engine.utils.data_loading import load_image, load_images
@@ -201,7 +201,6 @@ class Battle:
         self.ambient_channel = self.game.ambient_channel
         self.weather_ambient_channel = self.game.weather_ambient_channel
         self.button_sound_channel = self.game.button_sound_channel
-        self.SONG_END = pygame.USEREVENT + 1
 
         self.effect_sound_channels = tuple([Channel(ch_num) for ch_num in range(4, 1000)])
 
@@ -222,7 +221,7 @@ class Battle:
         self.ambient_pool = game.ambient_pool
         self.weather_ambient_pool = game.weather_ambient_pool
         self.sound_effect_queue = {}
-        self.default_battle_music_pool = [Sound(self.music_pool[str(index)]) for index in range(1, 10)]
+        self.default_battle_music_pool = [self.music_pool[str(index)] for index in range(1, 10)]
         self.stage_music_pool = {}  # pool for music already converted to pygame Sound
 
         self.weather_screen_adjust = self.screen_width / self.screen_height  # for weather sprite spawn position
@@ -666,7 +665,7 @@ class Battle:
         self.all_battle_ai_commanders = tuple(self.all_battle_ai_commanders)
 
         if stage_event_data:
-            self.stage_music_pool = {key: Sound(self.music_pool[key]) for key in stage_event_data["music"] if
+            self.stage_music_pool = {key: self.music_pool[key] for key in stage_event_data["music"] if
                                      key.lower() not in ("none", "resume", "pause")}
             for trigger, value in stage_event_data.items():
                 if "char" in trigger:  # trigger depend on character
@@ -729,7 +728,7 @@ class Battle:
 
         # start with default music, will play other music based on event later
         self.music_channel.set_volume(self.play_music_volume)
-        self.music_channel.play(choice(self.default_battle_music_pool), fade_ms=100)
+        self.music_channel.play(Sound(choice(self.default_battle_music_pool)), fade_ms=100)
 
         self.fix_camera()
 
@@ -813,15 +812,13 @@ class Battle:
                 (self.battle_cursor.pos[1] / self.screen_scale_height))  # mouse pos on the map based on camera position
             self.cursor_pos = Vector2(self.battle_cursor.pos[0] + self.camera_left_bound,
                                       self.battle_cursor.pos[1])
+
             for event in get_event():  # get event that happen
                 if event.type == pygame.MOUSEBUTTONUP:
                     if event.button == 4:  # Mouse scroll down
                         self.cursor.scroll_up = True
                     elif event.button == 5:  # Mouse scroll up
                         self.cursor.scroll_down = True
-                elif event.type == self.SONG_END:  # whatever music end, pick random from default battle music
-                    self.music_channel.set_volume(self.play_music_volume)
-                    self.music_channel.play(choice(self.default_battle_music_pool), fade_ms=100)
 
                 elif event.type == QUIT:  # quit game
                     pygame.quit()

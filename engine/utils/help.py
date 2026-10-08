@@ -1,14 +1,13 @@
 # import numpy as np
 # from PIL import Image
-import pygame
-from engine.game.game import Game
-from engine.data.data import GameData
-from engine.data.datasprite import DataSprite
-from engine.data.datamap import DataMap
-
-from engine.utils.data_loading import load_images
-
 from os.path import join, split, abspath
+
+import pygame
+
+from engine.data.datamap import DataMap
+from engine.data.datasprite import DataSprite
+from engine.game.game import Game
+from engine.utils.data_loading import load_images
 
 
 class FakeGame:
@@ -20,7 +19,9 @@ class FakeGame:
         self.remove_from_ui_menu_updater = None
         self.button_sound_channel = None
         self.font_text_cache = {}
-        self.config = {"VERSION": {"hash": "{'screen_resolution': (1360, 768), 'character': {}, 'effect': 'f14932053866e17234c8c76bbf184e1495ce5ddf8907bea346ed47a10d48fa4f'}"}}
+        self.config = {"VERSION": {
+            "hash": "{'screen_resolution': (1360, 768), 'character': {}, 'effect': 'f14932053866e17234c8c76bbf184e1495ce5ddf8907bea346ed47a10d48fa4f'}"}}
+
 
 pygame.init()
 pen = pygame.display.set_mode((1, 1))
@@ -44,6 +45,8 @@ map_shown_to_base_scale_width = 5
 map_shown_to_base_scale_height = 5
 sprite_data.load_region_sprite(map_data, grand_ui_images, map_shown_to_base_scale_width,
                                map_shown_to_base_scale_height, campaign)
+
+
 def make_image(specific=()):
     for region, image in sprite_data.region_sprites.items():
         if not specific or region in specific:
@@ -60,7 +63,6 @@ def make_image(specific=()):
             image.blit(settle_icon, blit_dot_rect)
 
             for region_object in region_data["Object"].values():
-
                 pos = (region_object[1], region_object[2])
 
                 settle_icon = building_portraits["unique_rabbit_first_warren"]
@@ -76,7 +78,7 @@ def make_image(specific=()):
 
 make_image(specific=("center9",))
 
-    #
+#
 # color_list = []
 # im = Image.open("world.png")
 # rgb_im = np.array(im)

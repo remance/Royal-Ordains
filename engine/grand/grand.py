@@ -1,7 +1,6 @@
 import configparser
 import sys
 from os.path import join
-from random import randint
 from types import MethodType
 
 import pygame
@@ -41,6 +40,8 @@ from engine.grand.state_menu_process import state_menu_process, back_to_grand_st
 from engine.grandarmyactor.grandarmyactor import GrandArmyActor
 from engine.grandobject.grandobject import GrandObject, SettlementObject
 from engine.grandregion.grandregion import GrandRegion
+from engine.uigrand.uigrand import (DotInfoBanner, DotInfoBannerArmy, DotInfoBannerSettlement, DotNameBannerSettlement)
+from engine.uimenu.uimenu import TextPopup, GrandMiniMap, UIScroll, PresetArmySetupUI, CharacterSelector
 from engine.uiouterbattle.drama import TextDrama
 from engine.uiouterbattle.uiouterbattle import FPSCount
 from engine.uioutergrand.cosmos import CosmosUI, MiniCosmosUI
@@ -49,8 +50,6 @@ from engine.uioutergrand.uioutergrand import (YesNo, PlayerGrandInteract, Player
                                               TimeSettingOption, EventImportantPopup,
                                               MenuBar, RegionManagement, BuildingManagement,
                                               EventNotification, ArmyInfo)
-from engine.uigrand.uigrand import (DotInfoBanner, DotInfoBannerArmy, DotInfoBannerSettlement, DotNameBannerSettlement)
-from engine.uimenu.uimenu import TextPopup, GrandMiniMap, UIScroll, PresetArmySetupUI, CharacterSelector
 from engine.updater.updater import ReversedLayeredUpdates
 from engine.utils.common import clean_group_object
 
@@ -423,7 +422,7 @@ class Grand:
                         self.camera_topleft_pos = Vector2((region["Settlement POS"][0] *
                                                            self.map_shown_to_base_scale_width) - self.camera_center_x,
                                                           (region["Settlement POS"][1] *
-                                                   self.map_shown_to_base_scale_height) - self.camera_center_y)
+                                                           self.map_shown_to_base_scale_height) - self.camera_center_y)
                         break
             else:  # no player faction, camera at center of grand map
                 self.camera_topleft_pos = Vector2((self.shown_world_map_width / 2) - self.camera_center_x,

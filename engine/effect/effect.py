@@ -419,7 +419,8 @@ class TrapEffect(DamageEffect):
         done, just_start = self.play_animation(self.animation_frame_play_time, dt)
 
         if self.activate and done:
-            if self.sound_effect and self.sound_distance > self.base_pos.distance_to(self.battle.base_camera_center_pos):
+            if self.sound_effect and self.sound_distance > self.base_pos.distance_to(
+                    self.battle.base_camera_center_pos):
                 # play sound, check for distance here to avoid timer reset when not on screen
                 self.battle.add_sound_effect_queue(self.sound_effect, self.base_pos,
                                                    self.sound_distance, 0)

@@ -50,6 +50,7 @@
 "fire_barrel",,1500,"TRUE",,"fire_small","stone",2400,,"reach_effect_spawn_ground:bottom"
 "fire_bolt",,4000,"TRUE",,,"fireball",1000,,
 "fire_small",10,,"TRUE",,,,1300,,
+"fire_medium",15,,"TRUE",,,,,,
 "fireball",,4000,"TRUE",,"explosion_small","fireball",2200,,
 "firecracker",,1500,,,"firework_explosion",,,,"travel_spin"
 "firecracker_explosion",,,"TRUE",,,"firecracker",3800,20,

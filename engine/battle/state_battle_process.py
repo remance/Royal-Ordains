@@ -1,3 +1,7 @@
+from random import choice
+
+from pygame.mixer import Sound
+
 from engine.constants import Opposite_Team, Phase_To_Battle_Time
 
 
@@ -51,6 +55,11 @@ def state_battle_process(self):
         self.current_scene = int(current_frame) + 1
     else:
         self.current_scene = int(current_frame)  # at left half of scene
+
+    if not self.music_channel.get_busy():  # whatever music end, pick random from default battle music
+        self.music_channel.set_volume(self.play_music_volume)
+        self.music_channel.play(Sound(choice(self.default_battle_music_pool)), fade_ms=100)
+
     if dt:
         if self.screen_shake_value:
             # Screen shaking
@@ -141,8 +150,9 @@ def state_battle_process(self):
         self.current_weather.update(dt)
 
         if self.sound_effect_queue:
+            play_sound_effect = self.play_sound_effect
             for key, value in self.sound_effect_queue.items():  # play each sound effect initiate in this loop
-                self.play_sound_effect(key, value)
+                play_sound_effect(key, value)
             self.sound_effect_queue = {}
 
         self.drama_process()

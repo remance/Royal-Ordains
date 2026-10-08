@@ -41,6 +41,8 @@ def finish_animation(self, done):
                 (not current_moveset or "no auto next" not in self.current_moveset_property):
             # play next action from current set first instead of next command if not finish by interruption
             self.current_action = current_action["next action"]
+            if self.char_id == "death_cat_necromancer":
+                print("next", self.char_id, self.current_action, current_moveset)
         else:
             self.current_action = command_action  # continue next command action when animation set finish
             self.command_action = {}

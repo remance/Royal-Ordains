@@ -177,33 +177,35 @@ class UIMenu(Sprite):
         self.event_alt_hold = False
         self.event_middle_mouse_press = False
         self.mouse_over = False
-        if self.player_interact and not self.pause:
-            if self.rect.collidepoint(self.cursor.pos):
+        cursor = self.cursor
+        if self.player_interact and not self.pause and not cursor.mouse_over:
+            if self.rect.collidepoint(cursor.pos):
                 self.mouse_over = True
-                self.cursor.mouse_over = True
-                if self.cursor.is_select_just_up:
+                cursor.mouse_over = True
+                if cursor.is_select_just_up:
                     if self.play_sound_when_click:
                         self.button_sound_channel.play(choice(self.sound_effect_pool["button"]))
                         self.button_sound_channel.set_volume(self.game.play_effect_volume)
                     self.event = True
                     self.event_press = True
-                    self.cursor.is_select_just_up = False  # reset select button to prevent overlap interaction
-                elif self.cursor.is_select_down:
+                    cursor.is_select_just_up = False  # reset select button to prevent overlap interaction
+                elif cursor.is_select_down:
                     self.event = True
                     self.event_hold = True
                     self.cursor.is_select_just_down = False  # reset select button to prevent overlap interaction
-                elif self.cursor.is_alt_select_just_up:
+                elif cursor.is_alt_select_just_up:
                     self.event = True
                     self.event_alt_press = True
-                    self.cursor.is_alt_select_just_up = False  # reset select button to prevent overlap interaction
-                elif self.cursor.is_alt_select_down:
+                    cursor.is_alt_select_just_up = False  # reset select button to prevent overlap interaction
+                elif cursor.is_alt_select_down:
                     self.event = True
                     self.event_alt_hold = True
-                    self.cursor.is_alt_select_just_down = False  # reset select button to prevent overlap interaction
-                elif self.cursor.is_middle_mouse_select_just_up:
+                    cursor.is_alt_select_just_down = False  # reset select button to prevent overlap interaction
+                elif cursor.is_middle_mouse_select_just_up:
                     self.event = True
                     self.event_middle_mouse_press = True
-                    self.cursor.is_middle_mouse_select_just_up = False  # reset select button to prevent overlap interaction
+                    cursor.is_middle_mouse_select_just_up = False  # reset select button to prevent overlap interaction
+                return True
 
 
 class UIScroll(UIMenu):
@@ -253,8 +255,7 @@ class UIScroll(UIMenu):
 
     def update(self, dt):
         """Player input update via click or scrolling"""
-        UIMenu.update(self, dt)
-        if self.mouse_over and (self.event_hold or self.event_press):
+        if UIMenu.update(self, dt) and (self.event_hold or self.event_press):
             mouse_value = (self.cursor.pos[1] - self.pos[
                 1]) * 100 / self.ui_height  # find what percentage of mouse_pos at the scroll bar (0 = top, 100 = bottom)
             if mouse_value > 100:
@@ -488,8 +489,7 @@ class FactionSelector(UIMenu):
             self.game.custom_preset_army_setup.change_culture_preset(new_select_faction)
 
     def update(self, dt):
-        UIMenu.update(self, dt)
-        if self.mouse_over:
+        if UIMenu.update(self, dt):
             inside_mouse_pos = Vector2(
                 (self.cursor.pos[0] - self.rect.topleft[0]),
                 (self.cursor.pos[1] - self.rect.topleft[1]))
@@ -609,8 +609,7 @@ class CharacterSelector(UIMenu):
                     break
 
     def update(self, dt):
-        UIMenu.update(self, dt)
-        if self.mouse_over:
+        if UIMenu.update(self, dt):
             if self.cursor.scroll_up:
                 if self.current_row > 0:
                     self.current_row -= 1
@@ -713,8 +712,9 @@ class CharacterSelector(UIMenu):
                                     "Slash", "Crush", "Stab", "Fire", "Water", "Air", "Earth", "Magic", "Poison"):
                                 if character_data[resistance + " Resistance"]:
                                     has_resistance = True
-                                    resistance_text += [str(int(100 * character_data[resistance + " Resistance"])) + "%",
-                                                        self.battle_ui_images["element_" + resistance.lower()], " "]
+                                    resistance_text += [
+                                        str(int(100 * character_data[resistance + " Resistance"])) + "%",
+                                        self.battle_ui_images["element_" + resistance.lower()], " "]
                             if has_resistance:
                                 char_stat.append(resistance_text)
                             tag_text = ""
@@ -904,8 +904,7 @@ class CustomTeamSetupUI(UIMenu):
         self.change_cost(index, 0, 0)
 
     def update(self, dt):
-        UIMenu.update(self, dt)
-        if self.selected_culture_rect is not None:  # selecd faction with popup
+        if self.selected_culture_rect is not None:  # selected faction with popup
             if self.game.custom_culture_selector_popup.selected_culture:
                 if self.team_setup[self.selected_culture_rect][
                     "culture"] != self.game.custom_culture_selector_popup.selected_culture:
@@ -918,7 +917,7 @@ class CustomTeamSetupUI(UIMenu):
 
                 self.selected_culture_rect = None
 
-        if self.mouse_over:
+        if UIMenu.update(self, dt):
             cursor_pos = self.cursor.pos
             inside_mouse_pos = Vector2(
                 (cursor_pos[0] - self.rect.topleft[0]),
@@ -1120,8 +1119,7 @@ class PresetArmySetupUI(UIMenu):
                                                        self.preset_supply, self.preset_leadership)
 
     def update(self, dt):
-        UIMenu.update(self, dt)
-        if self.mouse_over:
+        if UIMenu.update(self, dt):
             inside_mouse_pos = Vector2(
                 (self.cursor.pos[0] - self.rect.topleft[0]),
                 (self.cursor.pos[1] - self.rect.topleft[1]))
@@ -1893,25 +1891,25 @@ class CharacterMovesetShowCase(UIMenu):
                         range_use += "/"
                     range_use += grab_text(("ui", "info_header_range")) + add_comma_number(this_moveset["Range"])
                 if range_use:
-                    char_stat.append((range_use, ))
+                    char_stat.append((range_use,))
                 if this_moveset["Resource Cost"]:
                     char_stat.append((
-                        grab_text(("ui", "info_header_resource")) + str(this_moveset["Resource Cost"]), ))
+                        grab_text(("ui", "info_header_resource")) + str(this_moveset["Resource Cost"]),))
                 if this_moveset["Cooldown"]:
-                    char_stat.append((grab_text(("ui", "info_header_cooldown")) + str(this_moveset["Cooldown"]), ))
+                    char_stat.append((grab_text(("ui", "info_header_cooldown")) + str(this_moveset["Cooldown"]),))
                 if this_moveset["Power"]:
                     char_stat.append((grab_text(("ui", "info_header_power")) + str(this_moveset["Power"]),))
                 if this_moveset["Penetrate"]:
                     char_stat.append((grab_text(("ui", "info_header_penetrate")) + str(this_moveset["Penetrate"]),))
                 if this_moveset["Impact X"] or this_moveset["Impact Y"]:
                     char_stat.append((grab_text(("ui", "info_header_impact")) +
-                                     add_comma_number(abs(this_moveset["Impact X"]) + abs(this_moveset["Impact Y"])),))
+                                      add_comma_number(abs(this_moveset["Impact X"]) + abs(this_moveset["Impact Y"])),))
                 if this_moveset["Critical Chance Bonus"]:
                     char_stat.append((grab_text(("ui", "info_header_critical_bonus")) +
-                                     str(this_moveset["Critical Chance Bonus"]),))
+                                      str(this_moveset["Critical Chance Bonus"]),))
                 if this_moveset["Element"]:
                     char_stat.append((grab_text(("ui", "info_header_element")),
-                                     self.battle_ui_images["element_" + this_moveset["Element"]],))
+                                      self.battle_ui_images["element_" + this_moveset["Element"]],))
                 if this_moveset["Status"]:
                     tag_text = ""
                     ally_status_list = this_moveset["Status"]
@@ -1953,7 +1951,6 @@ class CharacterMovesetShowCase(UIMenu):
                         tag_text = tag_text[:-2]  # remove additional comma
                         char_stat.append((tag_text,))
                 text_surface = make_long_text(char_stat, (0, 0), self.font, specific_width=self.image.get_width())
-                print('h,m', text_surface)
                 self.image.blit(text_surface, (0, 0))
 
 
@@ -2007,20 +2004,20 @@ class GrandFactionShowCase(UIMenu):
             self.image.blit(character_portrait, self.showcase_rect["troop"][index])
 
     def update(self, dt):
-        UIMenu.update(self, dt)
-        if self.rect.collidepoint(self.cursor.pos):
+        if UIMenu.update(self, dt):
+            grab_text = self.grab_text
             inside_mouse_pos = Vector2(
                 (self.cursor.pos[0] - self.rect.topleft[0]),
                 (self.cursor.pos[1] - self.rect.topleft[1]))
             if self.culture_rect.collidepoint(inside_mouse_pos):
-                culture_stat = [self.grab_text(("ui", "info_header_culture")) + self.grab_text(
+                culture_stat = [grab_text(("ui", "info_header_culture")) + grab_text(
                     ("culture", self.culture, "Name")),
-                                self.grab_text(("culture", self.culture, "Description")),
+                                grab_text(("culture", self.culture, "Description")),
                                 "",
-                                self.grab_text(("ui", "info_header_strengths")) + self.grab_text(
+                                grab_text(("ui", "info_header_strengths")) + grab_text(
                                     ("culture", self.culture, "Strengths")),
                                 "",
-                                self.grab_text(("ui", "info_header_weaknesses")) + self.grab_text(
+                                grab_text(("ui", "info_header_weaknesses")) + grab_text(
                                     ("culture", self.culture, "Weaknesses"))
                                 ]
                 self.game.text_popup.popup(self.cursor.rect, culture_stat,
@@ -2145,15 +2142,16 @@ class GrandMiniMap(UIMenu):
 
     def update(self, dt):
         """update map"""
-        if self.player_interact:
-            UIMenu.update(self, dt)
+        if UIMenu.update(self, dt):
+            grand = self.grand
             if self.event_press:
                 inside_mouse_pos = Vector2(
                     (self.cursor.pos[0] - self.rect.topleft[0]),
                     (self.cursor.pos[1] - self.rect.topleft[1]))
-                self.grand.camera_topleft_pos = Vector2((inside_mouse_pos[0] * self.map_scale_width) - self.half_screen_width,
-                                                        (inside_mouse_pos[1] * self.map_scale_height) - self.half_screen_height)
-                self.grand.fix_camera()
+                grand.camera_topleft_pos = Vector2(
+                    (inside_mouse_pos[0] * self.map_scale_width) - self.half_screen_width,
+                    (inside_mouse_pos[1] * self.map_scale_height) - self.half_screen_height)
+                grand.fix_camera()
 
             if self.camera_pos != self.grand.camera_topleft_pos:
                 self.image = self.before_camera_image.copy()
@@ -2161,9 +2159,9 @@ class GrandMiniMap(UIMenu):
                 # Draw camera border
                 self.image.blit(self.camera_border_image,
                                 self.camera_border_image.get_rect(topleft=(
-                                    self.grand.camera_topleft_pos[0] / self.map_scale_width,
-                                    self.grand.camera_topleft_pos[1] / self.map_scale_height)))
-                self.camera_pos = self.grand.camera_topleft_pos.copy()
+                                    grand.camera_topleft_pos[0] / self.map_scale_width,
+                                    grand.camera_topleft_pos[1] / self.map_scale_height)))
+                self.camera_pos = grand.camera_topleft_pos.copy()
 
 
 class ListAdapter:

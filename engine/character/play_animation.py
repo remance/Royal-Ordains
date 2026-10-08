@@ -4,6 +4,9 @@ from pygame.mixer import find_channel
 
 
 def change_animation_frame(self):
+    """
+    @return: animation end
+    """
     self.frame_timer = 0
     if "reverse" not in self.current_action:
         if self.show_frame != self.max_show_frame:  # continue next frame
@@ -25,13 +28,16 @@ def change_animation_frame(self):
 
 
 def next_animation_frame(self):
-    """Add to sound queue for playing sound in battle"""
-    if change_animation_frame(self):
-        return True
+    """
+    Add to sound queue for playing sound in battle and check for animation ending
+    @return: animation end
+    """
     if self.current_animation_frame["sound_effect"]:  # play sound from animation
         sound = self.current_animation_frame["sound_effect"]
         self.battle.add_sound_effect_queue(self.sound_effect_pool[sound[0]][0],
                                            self.base_pos, sound[1], sound[2])
+    if change_animation_frame(self):
+        return True
 
 
 def showcase_next_animation_frame(self):
@@ -87,13 +93,7 @@ def play_battle_animation(self, dt, hold_check):
     if not hold_check:
         self.frame_timer += dt
         if self.frame_timer >= self.final_animation_frame_play_time:  # start next frame or end animation
-            if next_animation_frame(self):
-                return True
-
-            self.final_animation_frame_play_time = self.animation_frame_play_time
-            if "play_time_mod" in self.current_animation_frame:
-                self.final_animation_frame_play_time *= self.current_animation_frame["play_time_mod"]
-
+            # play independent effect when end animation frame
             self.sprite_deal_damage = False
             current_moveset = self.current_moveset
             if "no_moveset" in self.current_action:
@@ -118,11 +118,14 @@ def play_battle_animation(self, dt, hold_check):
                             Effect(self, part_data, current_moveset, base_target_pos=target)
                         else:
                             Effect(self, part_data)
-            if "sprite_deal_damage" in self.current_animation_frame["property"] and current_moveset:
-                self.sprite_deal_damage = True
 
             self.update_sprite = True
 
+            if next_animation_frame(self):
+                return True
+
+            if "sprite_deal_damage" in self.current_animation_frame["property"] and current_moveset:
+                self.sprite_deal_damage = True
     return False
 
 

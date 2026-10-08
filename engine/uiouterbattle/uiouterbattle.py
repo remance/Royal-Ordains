@@ -6,7 +6,7 @@ import pygame
 from pygame import Vector2, Surface, SRCALPHA, Color, Rect, draw, mouse
 from pygame.font import Font
 from pygame.key import name as pygame_key_name
-from pygame.transform import smoothscale, flip
+from pygame.transform import flip
 
 from engine.battle.player_input_battle import key_select_strategy
 from engine.constants import *
@@ -433,8 +433,7 @@ class Command(UIOuterBattle):
                                                              self.air_bar_width * resource_bar_percentage[0],
                                                              self.air_bar_height))
 
-            UIMenu.update(self, dt)
-            if self.mouse_over:
+            if UIMenu.update(self, dt):
                 inside_mouse_pos = Vector2(
                     (self.cursor.pos[0] - self.rect.topleft[0]),
                     (self.cursor.pos[1] - self.rect.topleft[1]))
@@ -481,23 +480,23 @@ class Command(UIOuterBattle):
 
     def popup_description(self, call_shortcut_name, call_remain, character):
         if character not in self.stat_cache:
+            grab_text = self.grab_text
             character_data = self.character_list[character]
-            char_stat = [self.grab_text(("ui", "info_header_name")) + self.grab_text(
-                ("character", character, "Name")),
-                         self.grab_text(("ui", "info_header_call_keybind")) +
+            char_stat = [grab_text(("ui", "info_header_name")) + grab_text(("character", character, "Name")),
+                         grab_text(("ui", "info_header_call_keybind")) +
                          pygame_key_name(self.battle.player_key_bind[call_shortcut_name]),
-                         self.grab_text(("character", character, "Description")),
-                         self.grab_text(("ui", "info_header_class")) + self.grab_text(
+                         grab_text(("character", character, "Description")),
+                         grab_text(("ui", "info_header_class")) + grab_text(
                              ("ui", "class_" + character_data["Class"])),
-                         self.grab_text(("ui", "info_header_supply_cost")) + add_comma_number(
+                         grab_text(("ui", "info_header_supply_cost")) + add_comma_number(
                              character_data["Supply"]),
-                         self.grab_text(("ui", "info_header_call_cooldown")) + str(character_data["Reinforce Time"]),
-                         self.grab_text(("ui", "info_header_call_response")) + str(
+                         grab_text(("ui", "info_header_call_cooldown")) + str(character_data["Reinforce Time"]),
+                         grab_text(("ui", "info_header_call_response")) + str(
                              character_data["Respond Time"])]
         else:
             char_stat = self.stat_cache[character]
         if call_remain:
-            char_stat.append(self.grab_text(("ui", "info_header_call_remain")) + str(call_remain))
+            char_stat.append(grab_text(("ui", "info_header_call_remain")) + str(call_remain))
         self.text_popup.popup(self.rect.bottomleft, char_stat, width_text_wrapper=self.max_description_box_width)
         self.outer_ui_updater.add(self.text_popup)
 
@@ -685,18 +684,18 @@ class BattleHelper(UIOuterBattle):
         must_reset_image = False
         reset_inside_helper_image = False
 
-        if self.weather != self.battle.current_weather.weather_now:
-            self.weather = self.battle.current_weather.weather_now
+        current_weather = self.battle.current_weather.weather_now
+        if self.weather != current_weather:
+            grab_text = self.grab_text
+            self.weather = current_weather
             self.battle_info_text = (self.battle_name,
                                      "",
-                                     self.grab_text(("ui", "info_header_weather")) +
-                                     self.grab_text(("ui", "weather_strength_" + self.weather.split("_")[1])) +
-                                     self.grab_text(("ui", "weather_" + self.weather.split("_")[0])))
+                                     grab_text(("ui", "info_header_weather")) +
+                                     grab_text(("ui", "weather_strength_" + current_weather.split("_")[1])) +
+                                     grab_text(("ui", "weather_" + current_weather.split("_")[0])))
             must_reset_image = True
 
-        UIMenu.update(self, dt)
-
-        if self.rect.collidepoint(self.cursor.pos):
+        if UIMenu.update(self, dt):
             inside_mouse_pos = Vector2(
                 (self.cursor.pos[0] - self.rect.topleft[0]),
                 (self.cursor.pos[1] - self.rect.topleft[1]))
@@ -802,17 +801,18 @@ class TacticalMap(UIOuterBattle):
 
     def update(self, dt):
         """update map"""
-        self.update_timer += self.battle.true_dt
+        battle = self.battle
+        self.update_timer += battle.true_dt
         if self.update_timer > 0.05:
             self.image = self.base_image.copy()
             image = self.image
             map_scale_width = self.map_scale_width
             # Draw camera border
             image.blit(self.camera_border_image, self.camera_border_image.get_rect(
-                topleft=(self.battle.base_camera_left_bound / map_scale_width, 0)))
+                topleft=(battle.base_camera_left_bound / map_scale_width, 0)))
 
             # draw commander
-            team_commander = self.battle.team_commander
+            team_commander = battle.team_commander
             for team, character in team_commander.items():
                 if character and not character.invisible:
                     scaled_pos = (character.base_pos[0] / map_scale_width, self.ground_commander_icon_pos_y)
@@ -843,7 +843,7 @@ class TacticalMap(UIOuterBattle):
                             image.blit(dot_image, dot_image.get_rect(midbottom=(
                                 character.base_pos[0] / map_scale_width, ground_icon_pos_y)))
 
-            if self.battle.player_selected_strategy:
+            if battle.player_selected_strategy:
                 # draw activation line
                 line_start = ((team_commander[self.player_team].base_pos[
                                    0] - self.current_strategy_base_activate_range) /
@@ -863,11 +863,11 @@ class TacticalMap(UIOuterBattle):
                           (line_end, 0),
                           (line_end, self.image_height), width=self.strategy_line_width)
 
-                if self.battle.player_interact.show_strategy_activate_line:
+                if battle.player_interact.show_strategy_activate_line:
                     # draw strategy range if player cursor is within activation range, mean strategy can be used
-                    line_start = (self.battle.base_cursor_pos[
+                    line_start = (battle.base_cursor_pos[
                                       0] - self.current_strategy_base_range) / map_scale_width
-                    line_end = (self.battle.base_cursor_pos[
+                    line_end = (battle.base_cursor_pos[
                                     0] + self.current_strategy_base_range) / map_scale_width
                     if line_start < 0:
                         line_start = 0
@@ -893,12 +893,11 @@ class TacticalMap(UIOuterBattle):
                         self.strategy_status.remove(status)
 
             self.update_timer -= 0.1
-        UIMenu.update(self, dt)
-
-        if self.event_press or self.event_alt_press:
-            self.battle.camera_center_pos[0] = ((self.cursor.pos[0] - self.rect.topleft[0]) * self.map_scale_width *
-                                                self.screen_scale_width)
-            self.battle.fix_camera()
+        if UIMenu.update(self, dt):
+            if self.event_press or self.event_alt_press:
+                battle.camera_center_pos[0] = ((self.cursor.pos[0] - self.rect.topleft[0]) * self.map_scale_width *
+                                               self.screen_scale_width)
+                battle.fix_camera()
 
 
 class StrategySelect(UIOuterBattle):
@@ -1001,8 +1000,7 @@ class StrategySelect(UIOuterBattle):
                             image.blit(self.selected_strategy_icon, self.strategy_rect[index])
                 self.update_timer -= 0.1
 
-            UIMenu.update(self, dt)
-            if self.mouse_over:
+            if UIMenu.update(self, dt):
                 inside_mouse_pos = Vector2(
                     (self.cursor.pos[0] - self.rect.topleft[0]),
                     (self.cursor.pos[1] - self.rect.topleft[1]))
@@ -1010,14 +1008,15 @@ class StrategySelect(UIOuterBattle):
                     if rect.collidepoint(inside_mouse_pos):
                         this_strategy = tuple(self.player_team_stat["strategy_cooldown"].keys())[index]
                         if this_strategy not in self.strategy_text_list_cache:
+                            grab_text = self.grab_text
                             strategy_stat = self.strategy_list[this_strategy]
-                            text = (self.grab_text(("strategy", this_strategy, "Name")),
-                                    self.grab_text(("strategy", this_strategy, "Description")),
-                                    self.grab_text(("ui", "info_header_strategy_cost")) +
+                            text = (grab_text(("strategy", this_strategy, "Name")),
+                                    grab_text(("strategy", this_strategy, "Description")),
+                                    grab_text(("ui", "info_header_strategy_cost")) +
                                     str(strategy_stat["Resource Cost"]),
-                                    self.grab_text(("ui", "info_header_activate_range")) +
+                                    grab_text(("ui", "info_header_activate_range")) +
                                     str(strategy_stat["Activate Range"]),
-                                    self.grab_text(("ui", "info_header_strategy_range")) +
+                                    grab_text(("ui", "info_header_strategy_range")) +
                                     str(strategy_stat["Range"])
                                     )
                             self.strategy_text_list_cache[this_strategy] = text
@@ -1068,31 +1067,33 @@ class PlayerBattleInteract(UIOuterBattle):
         self.event_alt_press = False
         self.event_alt_hold = True
         self.show_strategy_activate_line = False
-        if self.battle.player_team:
-            if not self.cursor.mouse_over:
-                if self.cursor.is_alt_select_just_up:  # put alt (right) click first to prioritise it
+        battle = self.battle
+        if battle.player_team:
+            cursor = self.cursor
+            if not cursor.mouse_over:
+                if cursor.is_alt_select_just_up:  # put alt (right) click first to prioritise it
                     self.event_alt_press = True
-                    self.cursor.is_alt_select_just_up = False  # reset select button to prevent overlap interaction
-                elif self.cursor.is_alt_select_down:
+                    cursor.is_alt_select_just_up = False  # reset select button to prevent overlap interaction
+                elif cursor.is_alt_select_down:
                     self.event_alt_hold = True
-                    self.cursor.is_alt_select_just_down = False  # reset select button to prevent overlap interaction
-                elif self.cursor.is_select_just_up:
+                    cursor.is_alt_select_just_down = False  # reset select button to prevent overlap interaction
+                elif cursor.is_select_just_up:
                     self.event_press = True
-                    self.cursor.is_select_just_up = False  # reset select button to prevent overlap interaction
-                elif self.cursor.is_select_down:
+                    cursor.is_select_just_up = False  # reset select button to prevent overlap interaction
+                elif cursor.is_select_down:
                     self.event_hold = True
-                    self.cursor.is_select_just_down = False  # reset select button to prevent overlap interaction
+                    cursor.is_select_just_down = False  # reset select button to prevent overlap interaction
                 else:  # no mouse activity
-                    if self.battle.player_selected_strategy:
+                    if battle.player_selected_strategy:
                         camera_image = self.battle_camera_image
 
                         # draw activation line
-                        commander = self.battle.team_commander[self.battle.player_team]
+                        commander = battle.team_commander[battle.player_team]
                         if commander:
                             line_start = (commander.pos[0] - self.current_strategy_activate_range) - (
-                                    self.battle.shown_camera_center_pos[0] - self.battle_camera.camera_w_center)
+                                    battle.shown_camera_center_pos[0] - self.battle_camera.camera_w_center)
                             line_end = (commander.pos[0] + self.current_strategy_activate_range) - (
-                                    self.battle.shown_camera_center_pos[0] - self.battle_camera.camera_w_center)
+                                    battle.shown_camera_center_pos[0] - self.battle_camera.camera_w_center)
                             if line_start > 0:
                                 draw.line(camera_image, (80, 120, 200),
                                           (line_start, self.strategy_line_top),
@@ -1109,7 +1110,7 @@ class PlayerBattleInteract(UIOuterBattle):
                                           (line_end, self.strategy_line_bottom), width=self.strategy_line_inner_width)
 
                             if not self.current_strategy_base_activate_range or \
-                                    (abs(commander.base_pos[0] - self.battle.base_cursor_pos[0]) <
+                                    (abs(commander.base_pos[0] - battle.base_cursor_pos[0]) <
                                      self.current_strategy_base_activate_range):
                                 self.show_strategy_activate_line = True
 
@@ -1118,11 +1119,11 @@ class PlayerBattleInteract(UIOuterBattle):
                                 if not self.current_strategy_base_activate_range:
                                     pos_to_use = commander.pos[0]
                                 else:
-                                    pos_to_use = self.battle.cursor_pos[0]
+                                    pos_to_use = battle.cursor_pos[0]
                                 line_start = (pos_to_use - self.current_strategy_range) - (
-                                        self.battle.shown_camera_center_pos[0] - self.battle_camera.camera_w_center)
+                                        battle.shown_camera_center_pos[0] - self.battle_camera.camera_w_center)
                                 line_end = (pos_to_use + self.current_strategy_range) - (
-                                        self.battle.shown_camera_center_pos[0] - self.battle_camera.camera_w_center)
+                                        battle.shown_camera_center_pos[0] - self.battle_camera.camera_w_center)
 
                                 if line_start > 0:
                                     draw.line(camera_image, (120, 180, 80),
@@ -1146,23 +1147,23 @@ class PlayerBattleInteract(UIOuterBattle):
                                               width=self.strategy_line_inner_width)
 
             if self.event_press:
-                if self.battle.player_selected_strategy:
+                if battle.player_selected_strategy:
                     # deactivate strategy when there is one selected
-                    self.battle.player_selected_strategy = None
-                elif self.battle.player_commander:
+                    battle.player_selected_strategy = None
+                elif battle.player_commander:
                     # order to move to area, no attack at all until reach
-                    self.battle.player_commander.issue_commander_order(("move", self.battle.base_cursor_pos[0]))
+                    battle.player_commander.issue_commander_order(("move", battle.base_cursor_pos[0]))
 
             elif self.event_alt_press:  # right click order selected leader to do something
-                if self.battle.player_selected_strategy:
+                if battle.player_selected_strategy:
                     # has strategy selected, prioritise activate strategy for this input
-                    if self.battle.activate_strategy(self.battle.player_team, self.battle.player_selected_strategy,
-                                                     self.battle.base_cursor_pos[0]):
+                    if battle.activate_strategy(battle.player_team, battle.player_selected_strategy,
+                                                battle.base_cursor_pos[0]):
                         # successfully activate strategy
-                        self.battle.player_selected_strategy = None
-                elif self.battle.player_commander:
+                        battle.player_selected_strategy = None
+                elif battle.player_commander:
                     # order to move and attack enemy in range along the way
-                    self.battle.player_commander.issue_commander_order(("attack", self.battle.base_cursor_pos[0]))
+                    battle.player_commander.issue_commander_order(("attack", battle.base_cursor_pos[0]))
 
 
 class BattleResult(UIOuterBattle, BoxUI):

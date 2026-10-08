@@ -130,7 +130,7 @@ def event_process(self):
                 self.music_channel.set_volume(self.play_music_volume)
                 self.music_channel.unpause()
             else:
-                self.current_music = self.stage_music_pool[str(child_event["Object"])]
+                self.current_music = Sound(self.stage_music_pool[str(child_event["Object"])])
                 self.music_channel.set_volume(self.play_music_volume)
                 self.music_channel.play(self.current_music, loops=-1, fade_ms=100)
             self.cutscene_playing.remove(child_event)

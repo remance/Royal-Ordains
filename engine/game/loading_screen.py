@@ -1,5 +1,6 @@
-import pygame
 from random import randint
+
+import pygame
 
 
 def loading_screen(self, state):

@@ -75,7 +75,8 @@ def make_option_menu(self, main_menu_buttons_box):
 
     # Resolution changing bar that fold out the list when clicked
 
-    resolution_drop = MenuButton(self.drop_button_lists, (self.screen_rect.width / 2, self.screen_rect.height / 1.8),
+    resolution_drop = MenuButton(self.sprite_data.drop_button_list,
+                                 (self.screen_rect.width / 2, self.screen_rect.height / 1.8),
                                  key_name=str(self.screen_rect.width) + " x " + str(self.screen_rect.height), layer=151)
 
     resolution_bar = ListUI(pivot=(-0.15, 0.14), origin=(-1, -1), size=(0.15, 0.25),

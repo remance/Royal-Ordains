@@ -1,6 +1,6 @@
-"ID","Culture","Ruler","Start Gold","Gold Income","Start Supply","Supply Income","Showcase Leader","Showcase Troop","Faction Relation","Alliance","Colour"
-"bigta","small","leader_bigta",1000,100,1000,100,"small_rabbit_leader_knight,small_rabbit_leader_banner","small_rabbit_spear","amgarn:(always_broken_alliance;-100000),kelwy:(always_broken_alliance;-100000),kak:(always_broken_alliance;-100000)",,"5e7f85"
-"amgarn","small","leader_amgarn",1000,100,1000,150,"small_rabbit_leader_knight,small_rabbit_leader_banner","small_rabbit_killer","bigta:(always_broken_alliance;-100000),kelwy:(always_broken_alliance;-100000),kak:(always_broken_alliance;-100000)",,307627
-"kelwy","small","leader_kelwy",1500,80,1500,80,"small_rabbit_leader_knight,small_rabbit_leader_banner","small_rabbit_cannon","bigta:(always_broken_alliance;-100000),amgarn:(always_broken_alliance;-100000),kak:(always_broken_alliance;-100000)",,"a3679f"
-"kak","small","leader_kak",1000,150,1000,100,"small_rabbit_leader_knight,small_rabbit_leader_banner","small_snail_sword","bigta:(always_broken_alliance;-100000),amgarn:(always_broken_alliance;-100000),kelwy:(always_broken_alliance;-100000)",,"52396c"
-"free","free",,100000,10000,100000,10000,,,,,646464
+"ID","Culture","Ruler","Start Gold","Gold Income","Start Supply","Supply Income","Showcase Leader","Showcase Troop","Faction Relation","Alliance","Colour","AI Aggressive","AI Friendliness","AI Forgiveness","AI Prepareness"
+"bigta","small","leader_bigta",1000,100,1000,100,"small_rabbit_leader_knight,small_rabbit_leader_banner","small_rabbit_spear","amgarn:(always_broken_alliance;-100000),kelwy:(always_broken_alliance;-100000),kak:(always_broken_alliance;-100000)",,"5e7f85",6,3,2,2
+"amgarn","small","leader_amgarn",1000,100,1000,150,"small_rabbit_leader_knight,small_rabbit_leader_banner","small_rabbit_killer","bigta:(always_broken_alliance;-100000),kelwy:(always_broken_alliance;-100000),kak:(always_broken_alliance;-100000)",,307627,8,6,7,3
+"kelwy","small","leader_kelwy",1500,80,1500,80,"small_rabbit_leader_knight,small_rabbit_leader_banner","small_rabbit_cannon","bigta:(always_broken_alliance;-100000),amgarn:(always_broken_alliance;-100000),kak:(always_broken_alliance;-100000)",,"a3679f",5,4,5,7
+"kak","small","leader_kak",1000,150,1000,100,"small_rabbit_leader_knight,small_rabbit_leader_banner","small_snail_sword","bigta:(always_broken_alliance;-100000),amgarn:(always_broken_alliance;-100000),kelwy:(always_broken_alliance;-100000)",,"52396c",3,9,4,6
+"free","free",,100000,10000,100000,10000,,,,,646464,,,,

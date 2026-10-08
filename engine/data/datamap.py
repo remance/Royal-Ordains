@@ -136,7 +136,7 @@ class DataMap(GameData):
             header = rd[0]
             hex2colour_column = ("Colour",)
             hex2colour_column = [index for index, item in enumerate(header) if item in hex2colour_column]
-            list_column = ("Alliance", )
+            list_column = ("Alliance",)
             list_column = [index for index, item in enumerate(header) if item in list_column]
             dict_column = ("Faction Relation",)
             dict_column = [index for index, item in enumerate(header) if item in dict_column]

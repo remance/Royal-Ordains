@@ -3,6 +3,7 @@ from pygame.sprite import Sprite
 
 from engine.utils.common import clean_object
 
+
 # TODO add ongoing building/repair effect
 
 
@@ -59,11 +60,14 @@ class SettlementObject(GrandObject):
             icon = self.grand.building_portraits[sprite_id]["building_ui"]
             icon_rect = icon.get_rect(center=self.base_image_center)
             slot = self.grand_ui_images["slot_damaged"]
-            self.slot_rects += [slot.get_rect(center=icon_rect.topleft), slot.get_rect(center=icon_rect.midtop), slot.get_rect(center=icon_rect.topright),
+            self.slot_rects += [slot.get_rect(center=icon_rect.topleft), slot.get_rect(center=icon_rect.midtop),
+                                slot.get_rect(center=icon_rect.topright),
                                 slot.get_rect(center=icon_rect.midleft), slot.get_rect(center=icon_rect.midright),
-                                slot.get_rect(center=icon_rect.bottomleft), slot.get_rect(center=icon_rect.midbottom), slot.get_rect(center=icon_rect.bottomright),]
+                                slot.get_rect(center=icon_rect.bottomleft), slot.get_rect(center=icon_rect.midbottom),
+                                slot.get_rect(center=icon_rect.bottomright), ]
         for building_index, building in enumerate(self.grand.current_campaign_state["region"]["building"][region][1:]):
-            self.change_building_state(building_index, self.building_list[building[0]]["Type"], building[1], building[2])
+            self.change_building_state(building_index, self.building_list[building[0]]["Type"], building[1],
+                                       building[2])
         GrandObject.__init__(self, sprite_id, base_pos, active_state)
 
     def change_state(self, new_state):

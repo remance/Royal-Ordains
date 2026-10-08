@@ -4,7 +4,8 @@ def check_draw(self, dt):
         surface_rect = self.rect
 
         if surface_rect.colliderect(camera_rect):
-            blit_check = (self.char_id, int(self.pos[0]), int(self.pos[1]), self.direction, self.animation_name)
+            blit_check = (self.char_id, int(self.pos[0]), int(self.pos[1]), self.direction, self.animation_name,
+                          self.show_frame)
             if blit_check not in self.blit_culling_check:
                 if self.not_show_delay:
                     self.not_show_delay -= dt

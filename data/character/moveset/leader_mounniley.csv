@@ -1,0 +1,10 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
+"Attack1","Slash Down",,,,300,,,,50,45,20,-150,,"slash",,,,
+"Attack2","Slash",,,,350,,,,50,65,60,50,0.2,"slash",,,,
+"Attack3","Slash Up",,,,350,,,,50,45,20,150,,"slash",,,,
+"Attack4","Light Cut",,,,400,,,,30,100,10,,,"slash",,,,
+"Skill1","Sword of Lord",,,,1500,3000,60,30,,,,,,"crush","charge,hope","terror,resource_drain",,
+"Skill2","Planar Exemplar",,,,1000,5000,60,30,45,14,25,20,,,"bless","pin_down",,
+"Skill3","Killing Blow",,,,350,,20,,200,5,,,1,"slash",,"vulnerable",,
+"Skill4","Energised Overflow",,,"self:{health<=50}",,2000,90,,,,,,,,"second_wind,resource_generation",,,
+"Skill5","Dash Slash",,,"self:{no_stay}",500,,7,,,,40,,,"slash",,,"movable,x_momentum:700,repeat,,speed:3000",

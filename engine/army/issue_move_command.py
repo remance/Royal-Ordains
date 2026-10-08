@@ -9,7 +9,8 @@ def issue_move_command(self, target_destination, direct=False):
         old_destination = None
         if already_travel:
             old_destination = activity["destination"]
-        if (old_destination != target_destination or (not already_travel and self.current_region != target_destination) or
+        if (old_destination != target_destination or (
+                not already_travel and self.current_region != target_destination) or
                 activity["travel_how"] != direct):
             # issue new move command to move to different target region or use different mean
             route_list = self.grand.route_list

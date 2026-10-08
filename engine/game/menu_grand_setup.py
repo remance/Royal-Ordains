@@ -50,7 +50,7 @@ def menu_grand_setup(self):
                                      "control": {key: value["Control"] for key, value in
                                                  self.map_data.region_list.items()},
                                      "building": {key: [value["Build Slot " + str(index)] for index in range(1, 10) if
-                                                         value["Build Slot " + str(index)]] for key, value in
+                                                        value["Build Slot " + str(index)]] for key, value in
                                                   self.map_data.region_list.items()},
                                      "object": {key: value["Object"] for key, value in
                                                 self.map_data.region_list.items()},
