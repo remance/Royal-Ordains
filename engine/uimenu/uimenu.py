@@ -1816,9 +1816,9 @@ class GrandFactionDetail(UIMenu):
                                                                               self.font_size)))
 
         text_surface = make_long_text(self.grab_text(("faction", faction, "Description")),
-                                      (self.font_size / 2, self.font_size * 3), self.font,
-                                      color=(30, 30, 30), specific_width=(self.image.get_width() * 0.95))
-        self.image.blit(text_surface, (0, 0))
+                                      (0, 0), self.font,
+                                      color=(30, 30, 30), specific_width=self.image.get_width())
+        self.image.blit(text_surface, (self.font_size / 2, self.font_size * 3))
 
 
 class CharacterDescriptionShowCase(UIMenu):
@@ -2010,8 +2010,8 @@ class GrandFactionShowCase(UIMenu):
                 (self.cursor.pos[0] - self.rect.topleft[0]),
                 (self.cursor.pos[1] - self.rect.topleft[1]))
             if self.culture_rect.collidepoint(inside_mouse_pos):
-                culture_stat = [grab_text(("ui", "info_header_culture")) + grab_text(
-                    ("culture", self.culture, "Name")),
+                culture_stat = [grab_text(("ui", "info_header_culture")) +
+                                grab_text(("culture", self.culture, "Name")), "",
                                 grab_text(("culture", self.culture, "Description")),
                                 "",
                                 grab_text(("ui", "info_header_strengths")) + grab_text(
@@ -2027,14 +2027,14 @@ class GrandFactionShowCase(UIMenu):
                 for rect_type, rect_list in self.showcase_rect.items():
                     for index, rect in enumerate(rect_list):
                         if rect.collidepoint(inside_mouse_pos):
-                            character_id = self.showcase[rect_type][index]
-                            char_stat = [self.grab_text(("ui", "info_header_name")) + self.grab_text(
-                                ("character", character_id, "Name")),
-                                         self.grab_text(("character", character_id, "Description"))]
+                            if index < len(self.showcase[rect_type]):
+                                character_id = self.showcase[rect_type][index]
+                                char_stat = [self.grab_text(("character", character_id, "Name")), "",
+                                             self.grab_text(("character", character_id, "Description"))]
 
-                            self.game.text_popup.popup(self.cursor.rect, char_stat,
-                                                       width_text_wrapper=int(1200 * self.screen_scale_width))
-                            self.add_to_ui_menu_updater(self.game.text_popup)
+                                self.game.text_popup.popup(self.cursor.rect, char_stat,
+                                                           width_text_wrapper=int(1200 * self.screen_scale_width))
+                                self.add_to_ui_menu_updater(self.game.text_popup)
                             return
 
 
@@ -2142,8 +2142,8 @@ class GrandMiniMap(UIMenu):
 
     def update(self, dt):
         """update map"""
+        grand = self.grand
         if UIMenu.update(self, dt):
-            grand = self.grand
             if self.event_press:
                 inside_mouse_pos = Vector2(
                     (self.cursor.pos[0] - self.rect.topleft[0]),
@@ -2153,15 +2153,15 @@ class GrandMiniMap(UIMenu):
                     (inside_mouse_pos[1] * self.map_scale_height) - self.half_screen_height)
                 grand.fix_camera()
 
-            if self.camera_pos != self.grand.camera_topleft_pos:
-                self.image = self.before_camera_image.copy()
+        if self.camera_pos != grand.camera_topleft_pos:
+            self.image = self.before_camera_image.copy()
 
-                # Draw camera border
-                self.image.blit(self.camera_border_image,
-                                self.camera_border_image.get_rect(topleft=(
-                                    grand.camera_topleft_pos[0] / self.map_scale_width,
-                                    grand.camera_topleft_pos[1] / self.map_scale_height)))
-                self.camera_pos = grand.camera_topleft_pos.copy()
+            # Draw camera border
+            self.image.blit(self.camera_border_image,
+                            self.camera_border_image.get_rect(topleft=(
+                                grand.camera_topleft_pos[0] / self.map_scale_width,
+                                grand.camera_topleft_pos[1] / self.map_scale_height)))
+            self.camera_pos = grand.camera_topleft_pos.copy()
 
 
 class ListAdapter:
@@ -2209,7 +2209,7 @@ class ListAdapterHideExpand(ListAdapter):
     def __init__(self, _list, _self=None, replace_on_select=None, replace_on_alt_select=None,
                  replace_on_mouse_over=None):
         self.actual_list = actual_list = [c[1] for c in _list]
-        self.actual_list_open_index = [False for element in actual_list]
+        self.actual_list_open_index = [False for _ in actual_list]
         self.actual_list_level = [element[0] for element in _list]
         if replace_on_select:
             self.on_select = types.MethodType(replace_on_select, self)

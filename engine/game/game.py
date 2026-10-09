@@ -60,6 +60,7 @@ from engine.uimenu.uimenu import (UIMenu, MenuCursor, BoxUI, BrownMenuButton, Me
                                   CustomArmyPresetListAdapter, GenericListAdapter)
 from engine.uiouterbattle.uiouterbattle import Profiler, FPSCount
 from engine.updater.updater import ReversedLayeredUpdates
+from engine.utils.common import empty_method
 from engine.utils.data_loading import load_image, load_images, csv_read
 
 game_name = "Royal Ordains"  # Game name that will appear as game name at the windows bar
@@ -619,6 +620,7 @@ class Game:
                                                         parent=main_menu_buttons_box)
         self.grand_faction_selector = FactionSelector(3800, (self.screen_width / 2, 0))
         self.grand_setup_mini_map = GrandMiniMap(self.grand_faction_selector.rect.midbottom, (2000, 1200), "setup")
+        self.grand_setup_mini_map.update = empty_method  # replace update function since not used
         self.grand_faction_detail = GrandFactionDetail()
 
         self.grand_faction_showcase = GrandFactionShowCase()

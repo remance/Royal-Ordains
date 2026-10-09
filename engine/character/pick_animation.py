@@ -89,9 +89,6 @@ def pick_animation(self):
             y_momentum = uniform(current_action["y_momentum"][0], current_action["y_momentum"][1])
         self.y_momentum = y_momentum
 
-    if "sprite_deal_damage" in self.current_animation_frame["property"] and self.current_moveset:
-        self.sprite_deal_damage = True
-
     if animation_name in self.animation_pool:
         self.current_animation = self.animation_pool[animation_name]
     else:  # animation not found, use default  # TODO remove this in stable
@@ -106,6 +103,9 @@ def pick_animation(self):
 
     self.current_animation_frame = self.current_animation[self.show_frame]
     self.current_animation_direction = self.current_animation_frame[self.direction]
+
+    if "sprite_deal_damage" in self.current_animation_frame["property"] and self.current_moveset:
+        self.sprite_deal_damage = True
 
     self.final_animation_frame_play_time = self.animation_frame_play_time  # get new play speed
     if "fixed play speed" in current_action:  # moveset does not allow animation speed modifier effect

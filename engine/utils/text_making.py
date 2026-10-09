@@ -20,6 +20,10 @@ def add_comma_number(number):
     return "{:,}".format(number)
 
 
+def convert_modifier_number_to_percent_text(number):
+    return str(int(number * 100))
+
+
 def add_plus_to_number(number):
     number_text = number
     if type(number_text) is str and "," in number_text:

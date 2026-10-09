@@ -5,8 +5,8 @@ from pygame.transform import smoothscale
 
 from engine.constants import Culture_Policy_Integration
 from engine.uimenu.uimenu import UIMenu
-from engine.uiouterbattle.uiouterbattle import EventNotification as BattleEventNotification
-from engine.utils.text_making import add_plus_to_number, add_comma_number, text_render_with_bg
+from engine.utils.text_making import (add_plus_to_number, add_comma_number, text_render_with_bg,
+                                      convert_modifier_number_to_percent_text, make_long_text)
 
 
 class UIOuterGrand(UIMenu):
@@ -814,41 +814,48 @@ class RegionManagement(UIOuterGrand):
         self.base_image = self.image.copy()
         self.before_selected_image = self.base_image.copy()
 
-    def add_building_icon(self, index, building):
-        if building[0] in self.building_portraits:
-            building_icon = self.building_portraits[building[0]]["building_ui"]
+    def add_building_icon(self, index, building_state):
+        if building_state[0] in self.building_portraits:
+            building_icon = self.building_portraits[building_state[0]]["building_ui"]
         else:
             building_icon = self.building_portraits["default"]["building_ui"]
 
         self.image.blit(building_icon, self.building_slot_rects[index])
-        if building[1] is not True:
-            if not building[1]:  # damaged building
-                self.image.blit(self.building_portraits["damaged"],
+        additional_building_type_file_head = ""
+        if self.building_list[building_state[0]]["Type"] == "unique":
+            additional_building_type_file_head = "unique_"
+        if building_state[1] is not True or building_state[2]:
+            if not building_state[1]:  # damaged building
+                self.image.blit(self.building_portraits[additional_building_type_file_head + "damaged"]["building_ui"],
                                 self.building_slot_rects[index])
-            else:  # building on progress with something
-                self.image.blit(self.building_portraits["progress"],
+
+            if building_state[2]:  # building on progress with something
+                self.image.blit(self.building_portraits[additional_building_type_file_head + "progress"]["building_ui"],
                                 self.building_slot_rects[index])
-                if building[1] == "raze":
-                    self.image.blit(self.building_portraits["unavailable_raze"],
+                if building_state[1] == "raze":
+                    self.image.blit(self.building_portraits["unavailable_raze"]["building_ui"],
                                     self.building_slot_rects[index])
-                elif building[1] == "pillage":
-                    self.image.blit(self.building_portraits["unavailable_pillage"],
+                elif building_state[1] == "pillage":
+                    self.image.blit(self.building_portraits["unavailable_pillage"]["building_ui"],
                                     self.building_slot_rects[index])
                 else:  # repair
-                    self.image.blit(self.building_portraits["unavailable_repair"],
+                    self.image.blit(self.building_portraits["unavailable_repair"]["building_ui"],
                                     self.building_slot_rects[index])
 
-                turn_left = self.font.render(building[2], True, (255, 255, 255))
-                self.image.blit(turn_left, turn_left.get_rect(midtop=self.building_slot_rects[index].midbottom))
+                turn_left = self.header_font.render(str(building_state[2]), True, (255, 255, 255))
+                self.image.blit(turn_left, turn_left.get_rect(midbottom=self.building_slot_rects[index].midbottom))
 
     def change_selected_region(self, region):
+        if self.player_selected_region != region:
+            self.selected_building_index = None
+            self.player_selected_region = region
+            self.outer_ui_updater.remove(self.grand.building_management_ui)
+
         self.building_button_rects = {}
-        self.selected_building_index = None
         self.appear_repair_button = False
         self.appear_raze_button = False
         self.appear_pillage_button = False
-        self.outer_ui_updater.remove(self.grand.building_management_ui)
-        self.player_selected_region = region
+
         if region:
             self.image = self.base_image.copy()
             for index, building in enumerate(self.grand.current_campaign_state["region"]["building"][region]):
@@ -860,6 +867,8 @@ class RegionManagement(UIOuterGrand):
 
             self.before_selected_image = self.image.copy()
             self.update_region_stat()
+            if self.selected_building_index is not None:
+                self.change_selected_building(self.selected_building_index)
             self.outer_ui_updater.add(self)
         else:
             self.outer_ui_updater.remove(self)
@@ -887,14 +896,13 @@ class RegionManagement(UIOuterGrand):
         self.appear_pillage_button = False
         if self.selected_building_index is not None:
             # reset previous selected building icon
-            prev_building_state = self.grand.current_campaign_state["region"]["building"][self.player_selected_region][
-                self.selected_building_index]
-            building = prev_building_state[0]
-            prev_selected_building_icon = self.building_portraits[building]["building_ui"]
-            self.image.blit(prev_selected_building_icon, self.building_slot_rects[self.selected_building_index])
-
+            self.add_building_icon(self.selected_building_index,
+                                   self.grand.current_campaign_state["region"]["building"][self.player_selected_region][
+                                       self.selected_building_index])
+        self.outer_ui_updater.remove(self.grand.building_management_ui)
         building_state = self.grand.current_campaign_state["region"]["building"][self.player_selected_region][
             building_index]
+
         if building_state[1] is True and not building_state[2]:
             building = building_state[0]
             building_stat = self.building_list[building]
@@ -934,27 +942,28 @@ class RegionManagement(UIOuterGrand):
                                                                  self.grand.region_management_ui.selected_building_index,
                                                                  building)
         else:
-            text = [self.grab_text(("building", building, "Name")), "",
-                    (self.grab_text(("ui", "info_header_cost")) + str(building_stat["Cost"]),
+            grab_text = self.grab_text
+            text = [grab_text(("building", building, "Name")), "",
+                    (grab_text(("ui", "info_header_cost")) + str(building_stat["Cost"]),
                      self.grand_ui_images["gold"]),
-                    (self.grab_text(("ui", "info_header_build_time")) + str(building_stat["Build Time"]),
+                    (grab_text(("ui", "info_header_build_time")) + str(building_stat["Build Time"]),
                      self.grand_ui_images["turn"])]
 
             if building_stat["Precede"]:
-                text.append(self.grab_text(("ui", "info_header_precede")) +
-                            self.grab_text(("building", building_stat["Precede"], "Name")))
+                text.append(grab_text(("ui", "info_header_precede")) +
+                            grab_text(("building", building_stat["Precede"], "Name")))
 
             if building_stat["Requirement"]:
-                text.append(self.grab_text(("ui", "info_header_requirement")) + str([
-                    self.grab_text(("building", require_building, "Name")) for require_building in
-                    building_stat["Requirement"]]))
+                text.append(grab_text(("ui", "info_header_requirement")) + str([
+                    grab_text(("building", require_building, "Name")) for require_building in
+                    building_stat["Requirement"]]).replace("'", ""))
 
             garrison = False
-            garrison_text = self.grab_text(("ui", "info_header_garrison"))
+            garrison_text = grab_text(("ui", "info_header_garrison"))
             for garrison_stat in ("Leader Reinforcement", "Troop Reinforcement", "Air Reinforcement"):
                 for item in building_stat[garrison_stat]:
                     garrison = True
-                    garrison_text += self.grab_text(("character", item, "Name")) + ", "
+                    garrison_text += grab_text(("character", item, "Name")) + ", "
             if building_stat["Garrison Strategy"]:
                 garrison_text += building_stat["Garrison Strategy"] + ", "
                 garrison = True
@@ -962,7 +971,7 @@ class RegionManagement(UIOuterGrand):
                 text.append(garrison_text[:-2])
 
             recruit = False
-            recruit_text = self.grab_text(("ui", "info_header_recruit"))
+            recruit_text = grab_text(("ui", "info_header_recruit"))
             for recruit_stat in ("Leader Recruit", "Unit Recruit"):
                 for item in building_stat[recruit_stat]:
                     recruit_text += item + ", "
@@ -972,17 +981,20 @@ class RegionManagement(UIOuterGrand):
 
             for other_stat in ("Gold Income", "Supply Income", "Happiness"):
                 if building_stat[other_stat]:
-                    text.append((self.grab_text(("ui", "info_header_" + other_stat.lower().replace(" ", "_"))) +
+                    text.append((grab_text(("ui", "info_header_" + other_stat.lower().replace(" ", "_"))) +
                                  add_plus_to_number(str(building_stat[other_stat])),
                                  self.grand_ui_images[other_stat.lower().split(" ")[0]]))
 
-            # if building_stat["Income Boost"]:
-            #     text.append(self.grab_text(("ui", "info_header_influence")) + self.grab_text(
-            #         ("culture", building_stat["Culture"], "Name")) + " " + add_plus_to_number(
-            #         str(building_stat["Income Boost"])))
+            if building_stat["Income Boost"]:
+                boost_text = [grab_text(("ui", "info_header_income_boost"))]
+                for boost_stat, value in building_stat["Income Boost"].items():
+                    boost_text.append((add_plus_to_number(convert_modifier_number_to_percent_text(value))) + "%")
+                    boost_text.append(self.grand_ui_images[boost_stat])
+                    boost_text.append(" ")
+                text.append(boost_text)
 
             if building_stat["Influence"]:
-                text.append((self.grab_text(("ui", "info_header_influence")) +
+                text.append((grab_text(("ui", "info_header_influence")) +
                              add_plus_to_number(str(building_stat["Influence"])),
                              self.culture_coas[building_stat["Culture"]]["text"]))
             self.text_popup.popup(self.cursor.rect, text,
@@ -1004,7 +1016,7 @@ class RegionManagement(UIOuterGrand):
                                                                          self.selected_building_index][0])
                 else:
                     self.text_popup.popup(self.cursor.rect.bottomright,
-                                          (self.grab_text(("ui", "info_text_repair")),
+                                          (self.grab_text(("ui", "info_text_repair")), "",
                                            self.grab_text(("ui", "info_text_repair_description"))),
                                           width_text_wrapper=self.max_description_box_width)
                     self.outer_ui_updater.add(self.text_popup)
@@ -1019,7 +1031,7 @@ class RegionManagement(UIOuterGrand):
                                                                   self.selected_building_index][0])
                 else:
                     self.text_popup.popup(self.cursor.rect.bottomright,
-                                          (self.grab_text(("ui", "info_text_raze")),
+                                          (self.grab_text(("ui", "info_text_raze")), "",
                                            self.grab_text(("ui", "info_text_raze_description"))),
                                           width_text_wrapper=self.max_description_box_width)
                     self.outer_ui_updater.add(self.text_popup)
@@ -1034,7 +1046,7 @@ class RegionManagement(UIOuterGrand):
                                                               pillage=True)
                 else:
                     self.text_popup.popup(self.cursor.rect.bottomright,
-                                          (self.grab_text(("ui", "info_text_pillage")),
+                                          (self.grab_text(("ui", "info_text_pillage")), "",
                                            self.grab_text(("ui", "info_text_pillage_description"))),
                                           width_text_wrapper=self.max_description_box_width)
                     self.outer_ui_updater.add(self.text_popup)
@@ -1044,6 +1056,19 @@ class RegionManagement(UIOuterGrand):
             for building_index, rect in enumerate(self.building_slot_rects):
                 if rect.collidepoint(inside_mouse_pos) and building_index < len(region_buildings):
                     if self.event_press:
+                        self.change_selected_building(building_index)
+                    elif self.event_alt_press:
+                        region_building_state = region_buildings[building_index]
+                        if region_building_state[1] is False or (region_building_state[1] is True and region_building_state[2]):
+                            # stop construction or repair on damaged building
+                            self.grand.cancel_building_construction_or_repair(self.grand.player_faction,
+                                                                              self.player_selected_region,
+                                                                              building_index,
+                                                                              region_building_state[0])
+                        elif region_building_state[1] is not True:  # stop pillaging or razing
+                            self.grand.cancel_building_raze_or_pillage(self.grand.player_faction,
+                                                                       self.player_selected_region, building_index,
+                                                                       region_building_state[0])
                         self.change_selected_building(building_index)
                     else:
                         self.popup_building_info(region_buildings[building_index][0])
@@ -1090,12 +1115,13 @@ class BuildingManagement(UIOuterGrand):
             building_type = this_building_stat["Type"]
             if this_building_stat["Culture"] in faction_culture and faction_culture[this_building_stat["Culture"]][
                 "policy"] != "reject":
-                no_build = False
-                for require_building in requirement:
-                    if require_building not in region_active_building:  # required building condition not met
-                        no_build = True
+                can_build = True
+                for require_buildings in requirement:
+                    if all([require_building not in region_active_building for require_building in require_buildings]):
+                        # required building condition not met
+                        can_build = False
                         break
-                if not no_build:
+                if can_build:
                     if building_type not in available_building_upgrade:
                         available_building_upgrade[building_type] = {}
                     if this_building_stat["Cost"] > player_faction_gold:
@@ -1107,7 +1133,7 @@ class BuildingManagement(UIOuterGrand):
             # show building management ui only for active building
             self.outer_ui_updater.add(self)
 
-            self.image = Surface((1200 * self.screen_scale_width, sum([
+            self.image = Surface((1400 * self.screen_scale_width, sum([
                 ceil(len(available_building_list) / 5) for available_building_list in
                 available_building_upgrade.values()]) * 240 * self.screen_scale_height))
             self.rect = self.image.get_rect(midleft=self.grand.region_management_ui.rect.midright)
@@ -1125,7 +1151,7 @@ class BuildingManagement(UIOuterGrand):
                         building_icon = self.building_portraits["default"]["building_ui"]
                     col = floor(building_index / 5)
                     row = building_index - (5 * col)
-                    rect = building_icon.get_rect(topleft=((20 + (150 * row)) * self.screen_scale_width,
+                    rect = building_icon.get_rect(topleft=((20 + (220 * row)) * self.screen_scale_width,
                                                            (20 + (150 * col)) * self.screen_scale_height))
                     slot_rects[building] = rect
                     building_bar_image.blit(building_icon, rect)
@@ -1146,6 +1172,7 @@ class BuildingManagement(UIOuterGrand):
 
             self.available_building_upgrade = available_building_upgrade
             return
+
         self.outer_ui_updater.remove(self)
 
     def update(self, dt):
@@ -1160,64 +1187,101 @@ class BuildingManagement(UIOuterGrand):
                                                    (inside_mouse_pos[1] - bar_rect.topleft[1]))
                     for building, rect in building_slot_list.items():
                         if rect.collidepoint(bar_inside_mouse_pos):
-                            self.grand.region_management_ui.popup_building_info(building)
+                            if self.event_press:
+                                self.grand.start_building_construction_or_repair(
+                                    self.grand.player_faction, self.player_selected_region,
+                                    self.grand.region_management_ui.selected_building_index, building)
+                                self.grand.region_management_ui.change_selected_region(self.player_selected_region)
+                            else:
+                                self.grand.region_management_ui.popup_building_info(building)
                             break
                     break
 
 
-class EventNotification(BattleEventNotification, UIOuterGrand):
-    event_icons = {}
+class EventNotification(UIOuterGrand):
 
     def __init__(self):
         self._layer = 5
-        BattleEventNotification.__init__(self, (0, 0))
         UIOuterGrand.__init__(self)
-        self.all_event_rects = [Rect(0, index * 100 * self.screen_scale_height,
-                                     800 * self.screen_scale_width, self.event_item_height) for index in range(10)]
-        self.active_event_rects = []
-        self.rect = self.image.get_rect(bottomleft=(0, self.grand.region_management_ui.rect.topleft[1]))
+
+        self.event_item_height = 120 * self.screen_scale_height
+        self.event_item_height_center = self.event_item_height / 2
+        self.font = self.game.large_generic_ui_font
+        self.image = Surface((1000 * self.screen_scale_width, 1100 * self.screen_scale_height), SRCALPHA)
+        self.base_image = self.image.copy()
+        self.before_hover_image = self.image
+        self.event_card_rects = [Rect(0, index * self.event_item_height,
+                                      1000 * self.screen_scale_width, self.event_item_height) for index in range(10)]
+        self.event_cards = {}
+        self.current_hover_index = None
+        self.rect = self.image.get_rect(midleft=(0, self.half_screen_height))
 
     def update_image(self):
-        event_list = self.grand.current_campaign_state["eventlog"]
-        self.image = Surface((800 * self.screen_scale_width, len(event_list[:10]) * self.event_item_height))
-        self.image.fill((0, 200, 50))
-        for index, event in enumerate(event_list[:10]):  # show only max 10 items
-            event_icon = self.event_icons[event[0]]
-            self.image.blit(event_icon, event_icon.get_rect(topleft=(0, index * self.event_item_height)))
+        self.current_hover_index = None
+        self.image = self.base_image.copy()
+        to_show_events = self.grand.current_campaign_state["eventlog"][-10:]  # show only last 10 items
 
-            event_text = self.font.render(event[1], True, (0, 0, 0))
-            self.image.blit(event_text, event_text.get_rect(topleft=(100 * self.screen_scale_width,
-                                                                     index * self.event_item_height)))
+        for index, event in enumerate(to_show_events):
+            if event not in self.event_cards:  # create new card
+                card_image = Surface((1000 * self.screen_scale_width, self.event_item_height), SRCALPHA)
+                hover_card_image = card_image.copy()
+                hover_card_image.fill((200, 200, 200))
+                event_icon = self.grand_ui_images[event[0]]
+                for card in (card_image, hover_card_image):
 
-            self.active_event_rects.append(Rect((0, index * 100) * self.screen_scale_height,
-                                                800 * self.screen_scale_width, self.event_item_height))
-        self.active_event_rects = self.all_event_rects[:len(event_list[:10])]
-        self.rect = self.image.get_rect(bottomleft=(0, self.grand.region_management_ui.rect.topleft[1]))
+                    card.blit(event_icon, event_icon.get_rect(midleft=(0, self.event_item_height_center)))
 
-    def event_list_update(self):
-        pass
+                    event_text = make_long_text((self.grand_ui_images["turn"], ":" + event[2], event[1]), (0, 0),
+                                                self.font, specific_width=700 * self.screen_scale_width)
+                    card.blit(event_text, event_text.get_rect(topleft=(100 * self.screen_scale_width, 0)))
+                self.event_cards[event] = (card_image, hover_card_image)
+            self.image.blit(self.event_cards[event][0],
+                            self.event_cards[event][0].get_rect(topleft=(0, index * self.event_item_height)))
+        self.before_hover_image = self.image.copy()
+
+    def hover_over_card(self, index):
+        if self.current_hover_index != index:
+            self.image = self.before_hover_image.copy()
+            showing_events = self.grand.current_campaign_state["eventlog"][-10:]
+            if index < len(showing_events):
+                event = self.grand.current_campaign_state["eventlog"][-10:][index]
+                self.image.blit(self.event_cards[event][1],
+                                self.event_cards[event][0].get_rect(topleft=(0, index * self.event_item_height)))
+            self.current_hover_index = index
+
+    def add_new_event(self, event):
+        self.grand.current_campaign_state["eventlog"].append(event)
+        if len(self.grand.current_campaign_state["eventlog"]) > 100:
+            self.grand.current_campaign_state["eventlog"] = self.grand.current_campaign_state["eventlog"][1:]
+        self.update_image()
+
+    def remove_event(self, event):
+        self.grand.current_campaign_state["eventlog"].remove(event)
+        self.event_cards.pop(event)
+        self.update_image()
 
     def update(self, dt):
-        if UIOuterGrand.update(self, dt):
+        if self.event_cards and UIOuterGrand.update(self, dt):
             inside_mouse_pos = Vector2(
                 (self.cursor.pos[0] - self.rect.topleft[0]),
                 (self.cursor.pos[1] - self.rect.topleft[1]))
-            for index, rect in enumerate(self.active_event_rects):
+            for index, rect in enumerate(self.event_card_rects):
                 if rect.collidepoint(inside_mouse_pos):
-                    if self.event_press:  # open event popup
-                        self.grand.event_important_popup.event_popup(
-                            self.grand.current_campaign_state["eventlog"][index])
-                        self.grand.current_campaign_state["eventlog"].pop(index)
-                        self.event_list_update()
-                    elif self.event_middle_mouse_press:  # go to event location
-                        event = self.grand.current_campaign_state["eventlog"][index]
-                        self.grand.camera_topleft_pos = Vector2(
-                            (event[2][0] * self.grand.map_shown_to_base_scale_width) - self.half_screen_width,
-                            (event[2][1] * self.grand.map_shown_to_base_scale_height) - self.half_screen_height)
-                        self.grand.fix_camera()
+                    if self.event_press:  # go to event
+                        showing_events = self.grand.current_campaign_state["eventlog"][-10:]
+                        if index < len(showing_events):
+                            event = showing_events[index]
+                            if event[3]:
+                                self.grand.camera_topleft_pos = Vector2(
+                                    (event[3][0] * self.grand.map_shown_to_base_scale_width) - self.half_screen_width,
+                                    (event[3][1] * self.grand.map_shown_to_base_scale_height) - self.half_screen_height)
+                                self.grand.fix_camera()
                     elif self.event_alt_press:  # remove event
-                        self.grand.current_campaign_state["eventlog"].pop(index)
-                        self.event_list_update()
+                        showing_events = self.grand.current_campaign_state["eventlog"][-10:]
+                        if index < len(showing_events):
+                            self.remove_event(showing_events[index])
+                    else:
+                        self.hover_over_card(index)
                     break
 
 
@@ -1284,7 +1348,7 @@ class RegionInfoBar(UIOuterGrand):
         pass
 
 
-class EventImportantPopup(UIOuterGrand):
+class EventDetailPopup(UIOuterGrand):
     def __init__(self):
         self._layer = 6
         UIOuterGrand.__init__(self)

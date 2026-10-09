@@ -22,6 +22,8 @@ from engine.grand.auto_battle_process import auto_battle_process
 from engine.grand.cal_faction_culture import cal_faction_culture
 from engine.grand.cal_faction_income import cal_faction_income
 from engine.grand.cal_region_income import cal_region_income
+from engine.grand.cancel_building_construction_or_repair import cancel_building_construction_or_repair
+from engine.grand.cancel_building_raze_or_pillage import cancel_building_raze_or_pillage
 from engine.grand.change_phase import change_phase
 from engine.grand.change_turn import change_turn
 from engine.grand.create_campaign_route_pathfinding import create_campaign_route_pathfinding
@@ -47,7 +49,7 @@ from engine.uiouterbattle.uiouterbattle import FPSCount
 from engine.uioutergrand.cosmos import CosmosUI, MiniCosmosUI
 from engine.uioutergrand.uioutergrand import (YesNo, PlayerGrandInteract, PlayerTopBar, PlayerFactionCultureList,
                                               PlayerArmyList, PlayerArmyListSortOption, MapSettingOption,
-                                              TimeSettingOption, EventImportantPopup,
+                                              TimeSettingOption, EventDetailPopup,
                                               MenuBar, RegionManagement, BuildingManagement,
                                               EventNotification, ArmyInfo)
 from engine.updater.updater import ReversedLayeredUpdates
@@ -67,6 +69,8 @@ class Grand:
     cal_region_income = cal_region_income
     change_game_state = change_game_state
     change_pause_update = change_pause_update
+    cancel_building_construction_or_repair = cancel_building_construction_or_repair
+    cancel_building_raze_or_pillage = cancel_building_raze_or_pillage
     change_phase = change_phase
     change_turn = change_turn
     create_campaign_route_pathfinding = create_campaign_route_pathfinding
@@ -151,7 +155,7 @@ class Grand:
 
         self.effect_sound_channels = tuple([Channel(ch_num) for ch_num in range(4, 1000)])
 
-        self.text_popup = TextPopup()
+        self.text_popup = TextPopup(font_size=56)
 
         self.input_box = game.input_box
         self.input_ui = game.input_ui
@@ -262,7 +266,7 @@ class Grand:
                                       self.screen_height - (432 * self.screen_scale_height)),
                                      (796, 432), "grand")
         self.map_setting_option_ui = MapSettingOption()
-        self.event_important_popup = EventImportantPopup()
+        self.event_detail_popup = EventDetailPopup()
 
         self.drama_text = TextDrama(self)  # message at the top of screen that show up for important event
         self.player_interact = PlayerGrandInteract()
@@ -299,11 +303,11 @@ class Grand:
         self.esc_option_text = esc_menu_dict["volume_texts"]
 
         self.always_ui = (self.player_interact, self.mini_map, self.map_setting_option_ui,
-                          self.mini_cosmic_ui, self.time_setting_ui, self.menu_bar_ui, self.event_notification_ui)
+                          self.mini_cosmic_ui, self.time_setting_ui, self.menu_bar_ui)
 
         self.only_player_ui = (self.player_top_bar_ui, self.player_faction_culture_list_ui,
                                self.player_army_list_sort_option_ui, self.player_army_list_ui,
-                               self.player_army_list_scroll)
+                               self.player_army_list_scroll, self.event_notification_ui)
 
         self.outer_ui_updater.add(self.always_ui)
 

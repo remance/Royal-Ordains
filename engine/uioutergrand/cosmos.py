@@ -213,9 +213,21 @@ class CosmosUI(UIOuterGrand):
 
         self.image = image
 
-    def apply_cosmic_event(self, event):
-        if event not in self.grand.current_campaign_state["cosmic_event"]:
-            self.grand.current_campaign_state["cosmic_event"].append(event)
+    def apply_cosmic_event(self, events):
+        grand = self.grand
+        current_campaign_state = grand.current_campaign_state
+        # remove cosmic events that not longer active
+        current_campaign_state["cosmic_event"] = [event for event in current_campaign_state["cosmic_event"] if event
+                                                  in events]
+        current_cosmic_events = current_campaign_state["cosmic_event"]
+        for event in events:
+            if event not in current_cosmic_events:
+                if grand.player_faction:
+                    grand.event_notification_ui.add_new_event((
+                        "event_cosmos", self.grab_text(("ui", "cosmos_" + event)),
+                        str(current_campaign_state["turn"]) + "." + str(current_campaign_state["phase"]), ()))
+
+                current_cosmic_events.append(event)
 
     def phase_change(self):
         self.must_update_image = True
@@ -223,44 +235,46 @@ class CosmosUI(UIOuterGrand):
             planet.update(self.one_phase_dt)
 
         # check cosmic event, hardcode check so it is more efficient
-        self.grand.current_campaign_state["cosmic_event"] = []  # reset all cosmic events
-        pale_moon = self.pale_moon
-        sun = self.sun
+        pale_moon_clipline = self.pale_moon.rect.clipline
+        sun_pos = self.sun.pos
         red_planet = self.red_planet
-        terra_base_pos = self.terra.pos
-        moon_alignment = pale_moon.rect.clipline(terra_base_pos, self.dark_moon.pos)
+        terra_pos = self.terra.pos
+        moon_alignment = pale_moon_clipline(terra_pos, self.dark_moon.pos)
+        current_events = []
         if moon_alignment:
-            eclipse_alignment = all((moon_alignment, pale_moon.rect.clipline(terra_base_pos, sun.pos)))
-            red_moon_alignment = all((moon_alignment, pale_moon.rect.clipline(terra_base_pos, red_planet.pos)))
+            eclipse_alignment = all((moon_alignment, pale_moon_clipline(terra_pos, sun_pos)))
+            red_moon_alignment = all((moon_alignment, pale_moon_clipline(terra_pos, red_planet.pos)))
             purple_moon_alignment = all(
-                (moon_alignment, pale_moon.rect.clipline(terra_base_pos, self.purple_planet.pos)))
+                (moon_alignment, pale_moon_clipline(terra_pos, self.purple_planet.pos)))
             green_moon_alignment = all(
-                (moon_alignment, pale_moon.rect.clipline(terra_base_pos, self.green_planet.pos)))
-            trio_alignment = all((red_planet.rect.clipline(terra_base_pos, self.purple_planet.pos),
-                                  (red_planet.rect.clipline(terra_base_pos, self.green_planet.pos))))
-            diamond_sun_alignment = all((trio_alignment, red_planet.rect.clipline(terra_base_pos, sun.pos)))
+                (moon_alignment, pale_moon_clipline(terra_pos, self.green_planet.pos)))
+            trio_alignment = all((red_planet.rect.clipline(terra_pos, self.purple_planet.pos),
+                                  (red_planet.rect.clipline(terra_pos, self.green_planet.pos))))
+            diamond_sun_alignment = all((trio_alignment, red_planet.rect.clipline(terra_pos, sun_pos)))
             full_alignment = all((moon_alignment, eclipse_alignment, red_moon_alignment, purple_moon_alignment,
                                   green_moon_alignment))
 
             if full_alignment:
-                self.apply_cosmic_event("full_alignment")
+                current_events.append("full_alignment")
             elif eclipse_alignment:
-                self.apply_cosmic_event("radiant_eclipse")
+                current_events.append("radiant_eclipse")
             elif diamond_sun_alignment:
-                self.apply_cosmic_event("diamond_sun")
+                current_events.append("diamond_sun")
             else:
                 if red_moon_alignment:
-                    self.apply_cosmic_event("blood_moon")
+                    current_events.append("blood_moon")
                 elif purple_moon_alignment:
-                    self.apply_cosmic_event("royal_moon")
+                    current_events.append("royal_moon")
                 elif green_moon_alignment:
-                    self.apply_cosmic_event("vert_moon")
+                    current_events.append("vert_moon")
                 elif trio_alignment:
-                    self.apply_cosmic_event("trio_conjunction")
+                    current_events.append("trio_conjunction")
         if self.red_planet.base_pos.distance_to(self.terra.base_pos) <= 175:
-            self.apply_cosmic_event("red_visit")
+            current_events.append("red_visit")
         if self.comet.base_pos.distance_to(self.terra.base_pos) <= 350:
-            self.apply_cosmic_event("great_comet")
+            current_events.append("great_comet")
+
+        self.apply_cosmic_event(current_events)
 
 
 class CosmicEntity(UIOuterGrand):

@@ -322,7 +322,6 @@ class Battle:
         # Create battle ui
         Battle.battle_cursor = BattleCursor(load_images(self.data_dir,
                                                         subfolder=("ui", "cursor_battle")))  # no need to scale cursor
-        EventNotification.event_icons = self.sprite_data.grand_ui_images
 
         battle_ui_images = self.game.battle_ui_images
         self.battle_ui_images = battle_ui_images
@@ -861,10 +860,10 @@ class Battle:
                         self.drama_text.queue.append((
                             False, "They will return when out of resource and require rest to be ready again", None))
                     elif event.key == K_KP_5:
-                        self.grand_event_notification.add_event(("bad", "test"))
+                        self.grand_event_notification.add_event(("event_bad", "test"))
                         self.screen_shake_value = 1000
                     elif event.key == K_KP_6:
-                        self.grand_event_notification.add_event(("good", "test"))
+                        self.grand_event_notification.add_event(("event_good", "test"))
                     elif event.key == K_KP_7:
                         self.activate_strategy(2, "Spell_huge_stone", 1000)
                     elif event.key == K_KP_8:  # clear profiler

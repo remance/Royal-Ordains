@@ -1,7 +1,7 @@
 from math import ceil
 
 
-def start_building_construction_or_repair(self, faction, region, slot, building):
+def cancel_building_construction_or_repair(self, faction, region, slot, building):
     building_state = self.current_campaign_state["region"]["building"][region][slot]
     building_state[2] = 0
     if not building_state[1]:  # cancel repair
