@@ -235,9 +235,6 @@ class Game:
         self.save_data = DataSave()
         self.before_save_preset_army_setup = deepcopy(self.save_data.player_custom_army_preset_save)
 
-        self.loading = load_image(self.data_dir, "loading.png", self.screen_scale, ("ui", "mainmenu_ui"))
-        self.loading = pygame.transform.scale(self.loading, self.screen_rect.size)
-
         self.player_key_bind = self.player_key_bind_list
         self.player_key_bind_name = {value: key for key, value in self.player_key_bind.items()}
         self.player_key_press = {key: False for key in self.player_key_bind}
@@ -320,12 +317,14 @@ class Game:
         self.button_sound_channel = Channel(1000)
         self.button_sound_channel.set_volume(self.play_effect_volume)
 
-        self.game_intro(False)  # run intro
-
         # Load game localisation data
         self.localisation = DataLocalisation()
         self.grab_text = self.localisation.grab_text
         Game.localisation = self.localisation
+
+        self.loading_text = self.screen_fade_font.render(self.grab_text(("ui", "info_text_loading")), True, (255, 255, 255))
+
+        self.game_intro(False)  # run intro
 
         # Battle related data
         self.stat_data = DataStat()
@@ -350,14 +349,6 @@ class Game:
         self.option_menu_images = self.sprite_data.option_menu_images
 
         self.load_sprite_background_threads = []
-
-        if cpu_count() - 1 > 0:
-            thread = Thread(target=self.sprite_data.load_effect_sprites,
-                            args=(self,), daemon=True)
-            self.load_sprite_background_threads.append(thread)
-            thread.start()
-        else:
-            self.sprite_data.load_effect_sprites(self)
 
         if self.show_dmg_number:
             BattleCharacter.show_dmg_number = True
@@ -432,7 +423,6 @@ class Game:
 
         self.text_popup = TextPopup(font_size=56, layer=10000)
         self.loading_lore_text_popup = TextPopup(font_size=70)
-        self.loading_lore_text = ""
 
         # Option menu button
         option_menu_dict = self.make_option_menu(main_menu_buttons_box)

@@ -66,7 +66,9 @@ def menu_main(self):
                                               "retinue": []}, supply=888888)
         self.custom_team_army[2][0].__init__("", "castle", "castle", "death_undead_leader_lich",
                                              {"leader": [["leader_adaqua", True], ],
-                                              "troop": [["death_cat_necromancer", True], ],
+                                              "troop": [["death_cat_necromancer", True], ["death_undead_zombie", True],
+                                                        ["death_undead_ghoul", True],["death_undead_grave_knight", True],
+                                                        ["death_undead_banshee", True],],
                                               "air": [],
                                               "retinue": [["death_undead_leader_vampire_lord", True]]}, supply=10000)
         self.custom_team_army[2][1].__init__("", "castle", "castle", "death_undead_leader_lich",

@@ -10,7 +10,7 @@ from engine.utils.sprite_altering import sprite_rotate, apply_sprite_effect, cro
 from engine.utils.sprite_caching import save_pickle_with_surfaces, load_pickle_with_surfaces, CompilableSurface
 
 
-def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_pool, effect_animation_pool,
+def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_pool, effect_animation_pool, character_list,
                  effect_list, strategy_list, compile_specific=None):
     part_sprite_adjust = {}
     effect_sprite_adjust = {}
@@ -22,10 +22,10 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
     except Exception:
         pass
 
-    animation_pickle_hash = {}
+    animation_load_index = {"effect": {}, "character_load_index": {}}
     try:
-        with open(join(data_dir, "animation", "animation_pickle_hash.xz"), "rb") as read_file:
-            animation_pickle_hash = pickle.load(read_file)
+        with open(join(data_dir, "animation", "animation_load_index.xz"), "rb") as read_file:
+            animation_load_index = pickle.load(read_file)
         read_file.close()
     except Exception:
         pass
@@ -254,12 +254,15 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
 
             character_hash = save_pickle_with_surfaces(join(data_dir, "animation", character + ".xz"),
                                                        character_animation_pool)
-            animation_pickle_hash[character] = character_hash
+            animation_load_index[character] = character_hash
 
     save_pickle_with_surfaces(join(data_dir, "animation", "event_actor.xz"), event_actor_sprite_pool)
 
-    print("effect")
-    effect_animation_pool_save = {}
+    for character in character_list:  # TODO maybe add check for effect difference so no need to resave every effect that are not changed every time
+        # create list of effect that must be loaded along with character
+        animation_load_index["character_load_index"][character] = []
+
+    # create effect sprite animation pool
     for character in animation_pool:  # recheck for independent effect
         for animation_name, animation_frame in animation_pool[character].items():
             if "EXCLUDE_" not in animation_name and "EVENT_" not in animation_name:
@@ -268,18 +271,26 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                         if "effect" in part_header and len(part) > 5 and part[
                             9] and "property" not in part_header:
                             add_ind_effect_adjust_sprite(effect_sprite_adjust, part)
+                            if part[0] not in animation_load_index["character_load_index"][character]:
+                                animation_load_index["character_load_index"][character].append(part[0])
                             if part[0] in effect_list and effect_list[part[0]]["After Reach Effect"]:
                                 add_ind_effect_adjust_sprite(effect_sprite_adjust,
                                                              [effect_list[part[0]]["After Reach Effect"],
                                                               "base", 0, 0, 0, 0, 0, part[7], part[8]])
+                                if effect_list[part[0]]["After Reach Effect"] not in animation_load_index["character_load_index"][character]:
+                                    animation_load_index["character_load_index"][character].append(effect_list[part[0]]["After Reach Effect"])
 
-    for strategy_data in strategy_list.values():
+    for strategy, strategy_data in strategy_list.items():
         # add from strategy with effects
         for effect_list in ("Effects", "Damage Effects"):
             for effect in strategy_data[effect_list]:
                 add_ind_effect_adjust_sprite(effect_sprite_adjust, effect)
+                for character, character_data in character_list.items():
+                    if character_data["Strategy"] == strategy and effect not in animation_load_index["character_load_index"][character]:
+                        animation_load_index["character_load_index"][character].append(effect[0])
 
     for effect_type, data in effect_animation_pool.items():
+        effect_animation_pool_save = {}
         if effect_type not in effect_animation_pool_save:
             effect_animation_pool_save[effect_type] = {}
         for effect_name, frame_list in data.items():
@@ -312,16 +323,17 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                                     height_scale][frame_index] = {
                                     "sprite": {0: CompilableSurface(image)},
                                     "offset": crop_offset}
-    recursive_remove_mask(effect_animation_pool_save)
-    animation_pickle_hash["effect"] = save_pickle_with_surfaces(join(data_dir, "animation", "effect_animation.xz"),
-                                                                effect_animation_pool_save)
-
-    with lzma.open(join(data_dir, "animation", "animation_pickle_hash.xz"), "wb") as handle:
-        pickle.dump(animation_pickle_hash, handle)
+        recursive_remove_mask(effect_animation_pool_save)
+        animation_load_index["effect"][effect_type] = \
+            save_pickle_with_surfaces(join(data_dir, "animation", "effect", effect_type + ".xz"),
+                                      effect_animation_pool_save)
+    with lzma.open(join(data_dir, "animation", "animation_load_index.xz"), "wb") as handle:
+        pickle.dump(animation_load_index, handle)
     print("done")
 
 
 def add_ind_effect_adjust_sprite(effect_sprite_adjust, part):
+    """Ignore angle for caching, only save flip and width/height scale"""
     if part[0] not in effect_sprite_adjust:
         effect_sprite_adjust[part[0]] = {}
     adjust_now_at = effect_sprite_adjust[part[0]]

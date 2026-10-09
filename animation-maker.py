@@ -20,6 +20,7 @@ from engine.data.datastat import DataStat
 from engine.game.game import Game
 from engine.uiouterbattle.uiouterbattle import UIOuterBattle
 from engine.uimenu.uimenu import UIMenu, UIScroll, MenuCursor, NameList, MenuButton, TextPopup, InputUI, InputBox, ListBox
+from engine.updater.updater import ReversedLayeredUpdates
 from engine.utils.data_loading import csv_read, load_image, load_images, load_base_button, recursive_image_load
 from engine.utils.rotation import rotation_xy
 from engine.utils.sprite_altering import sprite_rotate, apply_sprite_effect, apply_sprite_colour
@@ -73,7 +74,8 @@ language = "en"
 
 default_sprite_size = (700, 500)
 
-ui = pygame.sprite.LayeredUpdates()
+ui_drawer = pygame.sprite.LayeredUpdates()
+ui_updater = ReversedLayeredUpdates()
 fake_group = pygame.sprite.LayeredUpdates()  # just fake group to add for container and not get auto update
 
 Game.main_dir = main_dir
@@ -83,7 +85,7 @@ Game.screen_scale = screen_scale
 Game.language = language
 Game.ui_font = csv_read(data_dir, "ui_font.csv", ("ui",), header_key=True)
 Game.font_dir = join(data_dir, "font")
-Game.ui_menu_updater = ui
+Game.ui_menu_updater = ui_updater
 sound_effect_pool = DataSound().sound_effect_pool
 Game.game = FakeGame(sound_effect_pool)
 Battle.battle = FakeBattle()
@@ -111,7 +113,7 @@ UIMenu.ui_font = Game.ui_font
 
 cursor_images = load_images(data_dir, subfolder=("ui", "cursor_menu"))  # no need to scale cursor
 cursor = MenuCursor(cursor_images)
-ui.add(cursor)
+
 Game.cursor = cursor
 UIMenu.cursor = cursor
 Battle.battle_cursor = cursor
@@ -151,6 +153,16 @@ effect_grey: Put greyscale effect on entire frame
 effect_colour_: Colourise entire frame based on the input value
 exclude_p*: Exclude body parts of p* from export and compile
 """
+
+
+def add_to_ui_menu_updater(*args):
+    ui_drawer.add(*args)
+    ui_updater.add(*args)
+
+
+def remove_from_ui_menu_updater(*args):
+    ui_drawer.remove(*args)
+    ui_updater.remove(*args)
 
 
 def reload_animation(animation, char, specific_frame=None):
@@ -271,7 +283,7 @@ def change_animation(new_name):
     if not activate_list[current_frame]:
         current_frame = 0
         setup_list(NameList, current_frame_row, frame_prop_list_box.namelist[current_frame], frame_prop_namegroup,
-                   frame_prop_list_box, ui, screen_scale, layer=9,
+                   frame_prop_list_box, ui_updater, ui_drawer, screen_scale, layer=9,
                    old_list=frame_property_select[current_frame])  # change frame property list
     anim.show_frame = current_frame
     animation_name = new_name
@@ -301,7 +313,7 @@ def change_frame_process():
         sound_distance_selector.change_name("")
     current_frame_row = 0
     setup_list(NameList, current_frame_row, frame_prop_list_box.namelist[current_frame], frame_prop_namegroup,
-               frame_prop_list_box, ui, screen_scale, layer=9,
+               frame_prop_list_box, ui_updater, ui_drawer, screen_scale, layer=9,
                old_list=frame_property_select[current_frame])  # change frame property list
 
 
@@ -418,7 +430,7 @@ class Button(pygame.sprite.Sprite):
         if "ON" in help_button.text:  # enable help description
             if self.rect.collidepoint(mouse_pos) and self.description is not None and not mouse_left_up:
                 text_popup.popup(cursor.rect, self.description)
-                ui.add(text_popup)
+                add_to_ui_menu_updater(text_popup)
 
 
 class SwitchButton(Button):
@@ -715,7 +727,7 @@ class NameBox(pygame.sprite.Sprite):
         if "ON" in help_button.text:  # enable help description
             if self.rect.collidepoint(mouse_pos) and self.description and not mouse_left_up:
                 text_popup.popup(cursor.rect, self.description)
-                ui.add(text_popup)
+                add_to_ui_menu_updater(text_popup)
 
 
 class ColourWheel(pygame.sprite.Sprite):
@@ -903,9 +915,9 @@ class Model:
                                                    item not in frame_property_select[frame]]
 
         setup_list(NameList, current_anim_row, anim_prop_list_box.namelist, anim_prop_namegroup,
-                   anim_prop_list_box, ui, screen_scale, layer=9, old_list=anim_property_select)
+                   anim_prop_list_box, ui_updater, ui_drawer, screen_scale, layer=9, old_list=anim_property_select)
         setup_list(NameList, current_frame_row, frame_prop_list_box.namelist[current_frame], frame_prop_namegroup,
-                   frame_prop_list_box, ui, screen_scale, layer=9, old_list=frame_property_select[current_frame])
+                   frame_prop_list_box, ui_updater, ui_drawer, screen_scale, layer=9, old_list=frame_property_select[current_frame])
 
     def create_animation_sprite(self, pose_layer_list, frame, empty=False):
         image = pygame.Surface((default_sprite_size[0], default_sprite_size[1]),
@@ -1007,7 +1019,7 @@ class Model:
                 frame_property_select[edit_frame] = []
                 self.frame_list[edit_frame]["frame_property"] = frame_property_select[edit_frame].copy()
                 setup_list(NameList, current_frame_row, frame_prop_list_box.namelist[edit_frame], frame_prop_namegroup,
-                           frame_prop_list_box, ui, screen_scale, layer=9,
+                           frame_prop_list_box, ui_updater, ui_drawer, screen_scale, layer=9,
                            old_list=frame_property_select[edit_frame])  # change frame property list
 
             elif edit_type == "paste":  # paste copy part
@@ -1476,10 +1488,10 @@ class Animation:
                     sound_selector.change_name("None")
                     sound_distance_selector.change_name("")
                 setup_list(NameList, current_anim_row, anim_prop_list_box.namelist, anim_prop_namegroup,
-                           anim_prop_list_box, ui, screen_scale, layer=9, old_list=anim_property_select)
+                           anim_prop_list_box, ui_updater, ui_drawer, screen_scale, layer=9, old_list=anim_property_select)
                 setup_list(NameList, current_frame_row, frame_prop_list_box.namelist[self.show_frame],
                            frame_prop_namegroup,
-                           frame_prop_list_box, ui, screen_scale, layer=9,
+                           frame_prop_list_box, ui_updater, ui_drawer, screen_scale, layer=9,
                            old_list=frame_property_select[self.show_frame])
 
         surface.blit(self.frames[int(self.show_frame)], position)
@@ -1503,6 +1515,8 @@ edit_delay = 0
 text_input_popup = (None, None)
 current_pool = animation_pool_data
 
+add_to_ui_menu_updater(cursor)
+
 showroom_size = default_sprite_size
 showroom_camera_pos = [0, 0]
 showroom_scale_mul = (default_sprite_size[0] / showroom_size[0], default_sprite_size[1] / showroom_size[1])
@@ -1511,7 +1525,7 @@ showroom_base_point = ((default_sprite_size[0] / 2) + showroom_camera_pos[0],
                        (default_sprite_size[1] * 0.9) + showroom_camera_pos[1])
 showroom.showroom_base_point = ((showroom_size[0] / 2) + showroom_camera_pos[0],
                                 (showroom_size[1] * 0.9) + showroom_camera_pos[1])
-ui.add(showroom)
+add_to_ui_menu_updater(showroom)
 
 image = smoothscale(load_image(current_data_dir, "film.png", screen_scale, "animation_maker_ui"),
                     (int(50 * screen_scale[0]), int(50 * screen_scale[1])))
@@ -1519,13 +1533,13 @@ image = smoothscale(load_image(current_data_dir, "film.png", screen_scale, "anim
 Filmstrip.base_image = image
 filmstrips = pygame.sprite.Group()
 
-Button.containers = ui
-SwitchButton.containers = ui
-BodyHelper.containers = ui
-Filmstrip.containers = ui, filmstrips
-NameBox.containers = ui
+Button.containers = ui_updater, ui_drawer
+SwitchButton.containers = ui_updater, ui_drawer
+BodyHelper.containers = ui_updater, ui_drawer
+Filmstrip.containers = ui_updater, ui_drawer, filmstrips
+NameBox.containers = ui_updater, ui_drawer
 MenuButton.containers = fake_group
-NameList.containers = ui
+NameList.containers = ui_updater, ui_drawer
 popup_namegroup = pygame.sprite.Group()
 anim_prop_namegroup = pygame.sprite.Group()
 frame_prop_namegroup = pygame.sprite.Group()
@@ -1826,7 +1840,7 @@ frame_property_select = [[] for _ in range(max_frame)]
 anim_property_select = []
 anim_prop_list_box.scroll.change_image(new_row=0, row_size=len(anim_prop_list_box.namelist))
 frame_prop_list_box.scroll.change_image(new_row=0, row_size=len(frame_prop_list_box.namelist[current_frame]))
-ui.add(anim_prop_list_box, frame_prop_list_box, anim_prop_list_box.scroll, frame_prop_list_box.scroll)
+add_to_ui_menu_updater(anim_prop_list_box, frame_prop_list_box, anim_prop_list_box.scroll, frame_prop_list_box.scroll)
 
 animation_selector = NameBox((600, image.get_height()), (screen_size[0] / 2, 0))
 part_selector = NameBox((300, image.get_height()), (reset_button.image.get_width() * 3.5,
@@ -1914,9 +1928,9 @@ while True:
 
         elif event.type == pygame.KEYDOWN:
             if text_input_popup[0] == "text_input":
-                if input_box in ui:
+                if input_box in ui_updater:
                     input_box.player_input(event, key_press)
-                elif colour_input_box in ui:
+                elif colour_input_box in ui_updater:
                     colour_input_box.player_input(event, key_press)
                 text_delay = 0.15
 
@@ -1924,9 +1938,9 @@ while True:
                 input_esc = True
 
     if text_input_popup[0] == "text_input" and text_delay == 0 and key_press[input_box.hold_key]:
-        if input_box in ui:
+        if input_box in ui_updater:
             input_box.player_input(None, key_press)
-        elif colour_input_box in ui:
+        elif colour_input_box in ui_updater:
             colour_input_box.player_input(None, key_press)
         text_delay = 0.1
 
@@ -1937,14 +1951,14 @@ while True:
     elif pygame.mouse.get_pressed()[2]:  # Hold left click
         mouse_right_down = True
 
-    ui.remove(text_popup)
+    remove_from_ui_menu_updater(text_popup)
 
     if text_delay > 0:
         text_delay -= ui_dt
         if text_delay < 0:
             text_delay = 0
 
-    if input_ui not in ui and colour_ui not in ui:
+    if input_ui not in ui_updater and colour_ui not in ui_updater:
         if key_press is not None and keypress_delay < 0.1:
             if key_press[pygame.K_LSHIFT] or key_press[pygame.K_RSHIFT]:
                 shift_press = True
@@ -2065,24 +2079,26 @@ while True:
                     change_frame_process()
 
             if mouse_scroll_up or mouse_scroll_down:
-                if popup_list_box in ui and (
+                if popup_list_box in ui_updater and (
                         popup_list_box.rect.collidepoint(mouse_pos) or popup_list_box.scroll.rect.collidepoint(
                     mouse_pos)):
                     popup_list_box.scroll.current_row = list_scroll(mouse_scroll_up, mouse_scroll_down,
                                                                     popup_list_box, popup_list_box.scroll.current_row,
                                                                     popup_list_box.namelist,
-                                                                    popup_namegroup, ui, screen_scale, layer=21)
+                                                                    popup_namegroup, ui_updater, ui_drawer,
+                                                                    screen_scale, layer=21)
                 elif anim_prop_list_box.rect.collidepoint(mouse_pos) or anim_prop_list_box.scroll.rect.collidepoint(
                         mouse_pos):
                     current_anim_row = list_scroll(mouse_scroll_up, mouse_scroll_down,
                                                    anim_prop_list_box, current_anim_row, anim_prop_list_box.namelist,
-                                                   anim_prop_namegroup, ui, screen_scale, old_list=anim_property_select)
+                                                   anim_prop_namegroup, ui_updater, ui_drawer,
+                                                   screen_scale, old_list=anim_property_select)
                 elif frame_prop_list_box.rect.collidepoint(mouse_pos) or frame_prop_list_box.scroll.rect.collidepoint(
                         mouse_pos):
                     current_frame_row = list_scroll(mouse_scroll_up, mouse_scroll_down,
                                                     frame_prop_list_box, current_frame_row,
                                                     frame_prop_list_box.namelist[current_frame], frame_prop_namegroup,
-                                                    ui, screen_scale, old_list=frame_property_select[current_frame])
+                                                    ui_updater, ui_drawer, screen_scale, old_list=frame_property_select[current_frame])
                 elif model.part_selected != [] and showroom.rect.collidepoint(mouse_pos):
                     if mouse_scroll_up:  # Mouse scroll up
                         if ctrl_press:  # width scale only
@@ -2113,23 +2129,23 @@ while True:
             popup_click = True
             if popup_list_box.scroll.current_row is not None:
                 setup_list(NameList, popup_list_box.scroll.current_row, popup_list_box.namelist, popup_namegroup,
-                           popup_list_box, ui, screen_scale, layer=21)
+                           popup_list_box, ui_updater, ui_drawer, screen_scale, layer=21)
 
         elif anim_prop_list_box.scroll.event:  # scrolling on list
             if anim_prop_list_box.scroll.current_row is not None:
                 setup_list(NameList, anim_prop_list_box.scroll.current_row, anim_prop_list_box.namelist,
                            anim_prop_namegroup,
-                           anim_prop_list_box, ui, screen_scale, layer=9, old_list=anim_property_select)
+                           anim_prop_list_box, ui_updater, ui_drawer, screen_scale, layer=9, old_list=anim_property_select)
 
         elif frame_prop_list_box.scroll.event:  # scrolling on list
             if frame_prop_list_box.scroll.current_row is not None:
                 setup_list(NameList, frame_prop_list_box.scroll.current_row,
                            frame_prop_list_box.namelist[current_frame],
-                           frame_prop_namegroup, frame_prop_list_box, ui, screen_scale, layer=9,
+                           frame_prop_namegroup, frame_prop_list_box, ui_updater, ui_drawer, screen_scale, layer=9,
                            old_list=frame_property_select[current_frame])
 
         if mouse_left_up:
-            if popup_list_box in ui:
+            if popup_list_box in ui_updater:
                 if popup_list_box.rect.collidepoint(mouse_pos):
                     popup_click = True
                     for index, name in enumerate(popup_namegroup):  # click on popup list
@@ -2158,25 +2174,25 @@ while True:
                                     text_input_popup = ("text_input", "new_character")
                                     input_ui.change_instruction("Enter Name:")
                                     input_box.render_text("")
-                                    ui.add(input_ui_popup)
+                                    add_to_ui_menu_updater(input_ui_popup)
                                 elif animation_character != name.name:
                                     text_input_popup = ("confirm_input", "save_first", name.name)
                                     input_ui.change_instruction("Save Data First?")
-                                    ui.add(input_ui_popup)
+                                    add_to_ui_menu_updater(input_ui_popup)
                             elif popup_list_box.action == "animation_select":
                                 if animation_name != name.name:
                                     change_animation(name.name)
                             for this_name in popup_namegroup:  # remove name list
                                 this_name.kill()
                                 del this_name
-                            ui.remove(popup_list_box, popup_list_box.scroll)
+                            remove_from_ui_menu_updater(popup_list_box, popup_list_box.scroll)
                             popup_list_box.scroll.current_row = 0  # reset row
 
                 elif not popup_list_box.scroll.rect.collidepoint(mouse_pos):  # click other stuffs
                     for this_name in popup_namegroup:  # remove name list
                         this_name.kill()
                         del this_name
-                    ui.remove(popup_list_box, popup_list_box.scroll)
+                    remove_from_ui_menu_updater(popup_list_box, popup_list_box.scroll)
 
             if not popup_click:  # button that can be clicked even when animation playing
                 if play_animation_button.rect.collidepoint(mouse_pos):
@@ -2203,7 +2219,7 @@ while True:
 
                 elif showroom_colour_button.rect.collidepoint(mouse_pos):
                     text_input_popup = ("text_input", "showroom_colour_")
-                    ui.add(colour_ui_popup)
+                    add_to_ui_menu_updater(colour_ui_popup)
 
                 elif anim_prop_list_box.rect.collidepoint(mouse_pos) or frame_prop_list_box.rect.collidepoint(
                         mouse_pos):
@@ -2221,7 +2237,7 @@ while True:
                             naming = "frame"
 
                         for index, name in enumerate(namegroup):
-                            if name.rect.collidepoint(mouse_pos) and name in ui:
+                            if name.rect.collidepoint(mouse_pos) and name in ui_updater:
                                 if name.selected:  # unselect
                                     name.select()
                                     select_list.remove(name.name)
@@ -2233,18 +2249,18 @@ while True:
                                     if name.name == "Custom":
                                         text_input_popup = ("text_input", "new_anim_prop")
                                         input_ui.change_instruction("Custom Property:")
-                                        ui.add(input_ui_popup)
+                                        add_to_ui_menu_updater(input_ui_popup)
                                     elif name.name[-1] == "_" or re.search("[a-zA-Z]",
                                                                            name.name.split("_")[-1]) is None:
                                         # property that need number value
                                         if not name.selected:
                                             if "colour" in name.name:
                                                 text_input_popup = ("text_input", naming + "_prop_colour_" + name.name)
-                                                ui.add(colour_ui_popup)
+                                                add_to_ui_menu_updater(colour_ui_popup)
                                             else:
                                                 text_input_popup = ("text_input", naming + "_prop_num_" + name.name)
                                                 input_ui.change_instruction("Input Number Value:")
-                                                ui.add(input_ui_popup)
+                                                add_to_ui_menu_updater(input_ui_popup)
                                     else:
                                         name.select()
                                         select_list.append(name.name)
@@ -2269,7 +2285,7 @@ while True:
                     elif speed_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("text_input", "change_speed")
                         input_ui.change_instruction("Input Time Value:")
-                        ui.add(input_ui_popup)
+                        add_to_ui_menu_updater(input_ui_popup)
 
                     elif all_copy_button.rect.collidepoint(mouse_pos):
                         copy_list = []
@@ -2489,7 +2505,7 @@ while True:
                         text_input_popup = ("text_input", "new_name")
                         input_ui.change_instruction("Rename Animation:")
                         input_box.render_text(animation_name)
-                        ui.add(input_ui_popup)
+                        add_to_ui_menu_updater(input_ui_popup)
 
                     elif duplicate_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("text_input", "duplicate_animation")
@@ -2503,7 +2519,7 @@ while True:
                             last_char = str(int(animation_name[-2]) + 1)
                         input_box.render_text(animation_name + "(copy" + last_char + ")")
 
-                        ui.add(input_ui_popup)
+                        add_to_ui_menu_updater(input_ui_popup)
 
                     elif filter_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("text_input", "filter")
@@ -2513,17 +2529,17 @@ while True:
                             input_filter = input_filter.replace(character, "")
                         input_filter = input_filter.replace(", ", ",")
                         input_box.render_text(input_filter)
-                        ui.add(input_ui_popup)
+                        add_to_ui_menu_updater(input_ui_popup)
 
                     elif export_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("confirm_input", "export_animation")
                         input_ui.change_instruction("Export to PNGs?")
-                        ui.add(input_ui_popup)
+                        add_to_ui_menu_updater(input_ui_popup)
 
                     elif export_full_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("confirm_input", "export_full_animation")
                         input_ui.change_instruction("Export to a Full PNGs?")
-                        ui.add(input_ui_popup)
+                        add_to_ui_menu_updater(input_ui_popup)
 
                     elif flip_hori_button.rect.collidepoint(mouse_pos):
                         model.edit_part(mouse_pos, "flip1", specific_frame=current_frame)
@@ -2534,12 +2550,12 @@ while True:
                     elif zoom_d_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("text_input", "change_d_zoom")
                         input_ui.change_instruction("Input new selected parts' zoom value")
-                        ui.add(input_ui_popup)
+                        add_to_ui_menu_updater(input_ui_popup)
 
                     elif zoom_dplus_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("text_input", "change_dplus_zoom")
                         input_ui.change_instruction("Input change to selected parts' zoom value")
-                        ui.add(input_ui_popup)
+                        add_to_ui_menu_updater(input_ui_popup)
 
                     # elif flip_vert_button.rect.collidepoint(mouse_pos):
                     #     model.edit_part(mouse_pos, "flip2", specific_frame=current_frame)
@@ -2574,11 +2590,11 @@ while True:
                             except KeyError:  # part not exist
                                 print("not exist", current_part)
                                 part_list = []
-                            popup_list_open(popup_list_box, popup_namegroup, ui, "part_select",
+                            popup_list_open(popup_list_box, popup_namegroup, ui_updater, ui_drawer, "part_select",
                                             part_selector.rect.topleft, part_list, "bottom", screen_scale)
 
                     elif p_selector.rect.collidepoint(mouse_pos):
-                        popup_list_open(popup_list_box, popup_namegroup, ui, "person_select",
+                        popup_list_open(popup_list_box, popup_namegroup, ui_updater, ui_drawer, "person_select",
                                         p_selector.rect.topleft, p_list, "bottom", screen_scale)
                     # elif sprite_ver_selector.rect.collidepoint(mouse_pos):
                     #     part_list = []
@@ -2588,7 +2604,7 @@ while True:
                     #                     sprite_ver_selector.rect.topleft, part_list, "bottom", screen_scale)
 
                     elif sound_selector.rect.collidepoint(mouse_pos):
-                        popup_list_open(popup_list_box, popup_namegroup, ui, "sound_select",
+                        popup_list_open(popup_list_box, popup_namegroup, ui_updater, ui_drawer, "sound_select",
                                         (sound_selector.rect.topleft[0] - 400, sound_selector.rect.topleft[1]),
                                         ["None"] + list(sound_effect_pool.keys()), "bottom", screen_scale)
 
@@ -2596,7 +2612,7 @@ while True:
                         if sound_selector.text != "None":
                             text_input_popup = ("text_input", "change_sound_distance")
                             input_ui.change_instruction("Input sound distance value:")
-                            ui.add(input_ui_popup)
+                            add_to_ui_menu_updater(input_ui_popup)
 
                     elif character_part_button.rect.collidepoint(mouse_pos):
                         if model.part_selected:
@@ -2605,12 +2621,12 @@ while True:
                                 part_list = list(effect_sprite_pool)
                             else:
                                 part_list = list(body_sprite_pool.keys())
-                            popup_list_open(popup_list_box, popup_namegroup, ui, "character_select",
+                            popup_list_open(popup_list_box, popup_namegroup, ui_updater, ui_drawer, "character_select",
                                             character_part_button.rect.topleft, part_list, "bottom", screen_scale)
 
                     elif animation_character_button.rect.collidepoint(mouse_pos):
                         popup_list_box.scroll.current_row = 0  # move current selected animation to top if not in filtered list
-                        popup_list_open(popup_list_box, popup_namegroup, ui, "animation_character_select",
+                        popup_list_open(popup_list_box, popup_namegroup, ui_updater, ui_drawer, "animation_character_select",
                                         (animation_character_button.rect.bottomleft[0],
                                          animation_character_button.rect.bottomleft[1]),
                                         ["New Character"] + [key for key in current_pool if key != "Template"],
@@ -2620,33 +2636,33 @@ while True:
                         text_input_popup = ("text_input", "new_animation")
                         input_ui.change_instruction("New Animation Name:")
                         input_box.render_text("")
-                        ui.add(input_ui_popup)
+                        add_to_ui_menu_updater(input_ui_popup)
 
                     elif save_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("confirm_input", "save_animation")
                         input_ui.change_instruction("Save Data?")
-                        ui.add(input_ui_popup)
+                        add_to_ui_menu_updater(input_ui_popup)
 
                     elif compile_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("confirm_input", "compile_animation")
                         input_ui.change_instruction("Compile This Char Anim?")
-                        ui.add(input_ui_popup)
+                        add_to_ui_menu_updater(input_ui_popup)
 
                     elif compile_all_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("confirm_input", "compile_all_animation")
                         input_ui.change_instruction("Compile All Anim?")
-                        ui.add(input_ui_popup)
+                        add_to_ui_menu_updater(input_ui_popup)
 
                     elif delete_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("confirm_input", "del_animation")
                         input_ui.change_instruction("Delete This Animation?")
-                        ui.add(input_ui_popup)
+                        add_to_ui_menu_updater(input_ui_popup)
 
                     elif size_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("text_input", "change_size")
                         input_ui.change_instruction("Input Size Number:")
                         input_box.render_text("")
-                        ui.add(input_ui_popup)
+                        add_to_ui_menu_updater(input_ui_popup)
 
                     elif animation_selector.rect.collidepoint(mouse_pos):
                         animation_list = list(current_pool[animation_character].keys())
@@ -2660,7 +2676,7 @@ while True:
                         popup_list_box.scroll.current_row = 0  # move current selected animation to top if not in filtered list
                         if animation_name in animation_list:
                             popup_list_box.scroll.current_row = animation_list.index(animation_name)
-                        popup_list_open(popup_list_box, popup_namegroup, ui, "animation_select",
+                        popup_list_open(popup_list_box, popup_namegroup, ui_updater, ui_drawer, "animation_select",
                                         (animation_selector.rect.bottomleft[0],
                                          animation_selector.rect.bottomleft[1]),
                                         animation_list, "top", screen_scale,
@@ -2803,7 +2819,7 @@ while True:
                 part_selector.change_name("")
     else:  # input box function
         dt = 0
-        if (input_ok_button in ui and input_ok_button.event) or (colour_ok_button in ui and colour_ok_button.event) or \
+        if (input_ok_button in ui_updater and input_ok_button.event) or (colour_ok_button in ui_updater and colour_ok_button.event) or \
                 key_press[pygame.K_RETURN] or key_press[pygame.K_KP_ENTER]:
             input_ok_button.event = False
             colour_ok_button.event = False
@@ -2833,12 +2849,12 @@ while True:
 
             elif text_input_popup[1] == "compile_animation":
                 compile.compile_data(animation_dir, data_dir, animation_pool_data, body_sprite_pool, effect_sprite_pool,
-                                     stat_data.effect_list, stat_data.strategy_list,
+                                     stat_data.character_list, stat_data.effect_list, stat_data.strategy_list,
                                      compile_specific=animation_character)
 
             elif text_input_popup[1] == "compile_all_animation":
                 compile.compile_data(animation_dir, data_dir, animation_pool_data, body_sprite_pool, effect_sprite_pool,
-                                     stat_data.effect_list, stat_data.strategy_list)
+                                     stat_data.character_list, stat_data.effect_list, stat_data.strategy_list)
 
             elif text_input_popup[1] == "save_first":
                 anim_save_pool(current_dir, current_pool[animation_character], animation_character, anim_column_header)
@@ -2966,7 +2982,7 @@ while True:
                 if input_box.text not in anim_property_select:
                     anim_property_select.append(input_box.text)
                 setup_list(NameList, current_anim_row, anim_prop_list_box.namelist, anim_prop_namegroup,
-                           anim_prop_list_box, ui, screen_scale, layer=9, old_list=anim_property_select)
+                           anim_prop_list_box, ui_updater, ui_drawer, screen_scale, layer=9, old_list=anim_property_select)
                 select_list = anim_property_select
                 property_to_pool_data("anim")
 
@@ -2977,7 +2993,7 @@ while True:
                     frame_property_select[current_frame].append(input_box.text)
                 setup_list(NameList, current_frame_row, frame_prop_list_box.namelist[current_frame],
                            frame_prop_namegroup,
-                           frame_prop_list_box, ui, screen_scale, layer=9,
+                           frame_prop_list_box, ui_updater, ui_drawer, screen_scale, layer=9,
                            old_list=frame_property_select[current_frame])
                 select_list = frame_property_select[current_frame]
                 property_to_pool_data("frame")
@@ -3003,7 +3019,7 @@ while True:
                         namelist[index] = name[0:name.rfind("_") + 1] + input_box.text
                         select_list.append(name[0:name.rfind("_") + 1] + input_box.text)
                         setup_list(NameList, current_frame_row, namelist, namegroup,
-                                   list_box, ui, screen_scale, layer=9, old_list=select_list)
+                                   list_box, ui_updater, ui_drawer, screen_scale, layer=9, old_list=select_list)
                         specific_frame = None
                         if naming == "frame":
                             specific_frame = current_frame
@@ -3042,8 +3058,8 @@ while True:
 
                         name_list[index] = name[0:name.rfind("_") + 1] + colour
                         select_list.append(name[0:name.rfind("_") + 1] + colour)
-                        setup_list(NameList, current_frame_row, name_list, namegroup, list_box, ui, screen_scale,
-                                   layer=9, old_list=select_list)
+                        setup_list(NameList, current_frame_row, name_list, namegroup, list_box, ui_updater, ui_drawer,
+                                   screen_scale, layer=9, old_list=select_list)
                         specific_frame = None
                         if naming == "frame":
                             specific_frame = current_frame
@@ -3068,24 +3084,24 @@ while True:
 
             input_box.render_text("")
             text_input_popup = (None, None)
-            ui.remove(*input_ui_popup, *colour_ui_popup)
+            remove_from_ui_menu_updater(*input_ui_popup, *colour_ui_popup)
 
-        elif colour_wheel in ui and mouse_left_up and colour_wheel.rect.collidepoint(mouse_pos):
+        elif colour_wheel in ui_updater and mouse_left_up and colour_wheel.rect.collidepoint(mouse_pos):
             colour = str(colour_wheel.get_colour())
             colour = colour[1:-1]  # remove bracket ()
             colour_input_box.render_text(colour[:colour.rfind(",")])  # keep only 3 first colour value not transparent
 
-        elif (input_cancel_button in ui and input_cancel_button.event) or (
-                colour_cancel_button in ui and colour_cancel_button.event) or input_esc:
+        elif (input_cancel_button in ui_updater and input_cancel_button.event) or (
+                colour_cancel_button in ui_updater and colour_cancel_button.event) or input_esc:
             if text_input_popup[1] == "save_first":
                 change_animation_character(text_input_popup[2])
             input_cancel_button.event = False
             colour_cancel_button.event = False
             input_box.render_text("")
             text_input_popup = (None, None)
-            ui.remove(*input_ui_popup, *confirm_ui_popup, *colour_ui_popup)
+            remove_from_ui_menu_updater(*input_ui_popup, *confirm_ui_popup, *colour_ui_popup)
 
-    ui.update(dt)
+    ui_updater.update(dt)
     anim.play(showroom.image, (0, 0), activate_list)
     current_frame = anim.show_frame
     for strip_index, strip in enumerate(filmstrips):
@@ -3093,7 +3109,7 @@ while True:
             strip.selected(True)
             break
     pen.fill((150, 150, 150))
-    ui.draw(pen)
+    ui_drawer.draw(pen)
 
     pygame.display.update()
     clock.tick(60)

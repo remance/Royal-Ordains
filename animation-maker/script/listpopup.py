@@ -1,7 +1,7 @@
 from engine.uimenu.uimenu import NameList
 
 
-def setup_list(item_class, current_row, show_list, item_group, box, ui_class,
+def setup_list(item_class, current_row, show_list, item_group, box, ui_updater, ui_drawer,
                screen_scale, layer=1, remove_old=True, old_list=None):
     """generate list of list item"""
     width_adjust = screen_scale[0]
@@ -26,7 +26,8 @@ def setup_list(item_class, current_row, show_list, item_group, box, ui_class,
             if add_row > box.max_row_show:
                 break  # will not generate more than space allowed
 
-        ui_class.add(*item_group)
+        ui_updater.add(*item_group)
+        ui_drawer.add(*item_group)
     if old_list is not None:
         for item in item_group:
             if item.name in old_list:
@@ -34,7 +35,7 @@ def setup_list(item_class, current_row, show_list, item_group, box, ui_class,
 
 
 def list_scroll(mouse_scroll_up, mouse_scroll_down, listbox, current_row, name_list, name_group,
-                ui_object, screen_scale, layer=19, old_list=None):
+                ui_object, ui_drawer, screen_scale, layer=19, old_list=None):
     if mouse_scroll_up:
         current_row -= 1
     elif mouse_scroll_down:
@@ -45,14 +46,14 @@ def list_scroll(mouse_scroll_up, mouse_scroll_down, listbox, current_row, name_l
     elif current_row + listbox.max_row_show - 1 >= len(name_list):
         current_row -= 1
     else:
-        setup_list(NameList, current_row, name_list, name_group, listbox, ui_object, screen_scale, layer=layer,
+        setup_list(NameList, current_row, name_list, name_group, listbox, ui_object, ui_drawer, screen_scale, layer=layer,
                    old_list=old_list)
         listbox.scroll.change_image(new_row=current_row, row_size=len(name_list))
 
     return current_row
 
 
-def popup_list_open(popup_listbox, popup_namegroup, ui_class,
+def popup_list_open(popup_listbox, popup_namegroup, ui_updater, ui_drawer,
                     action, new_rect, new_list, ui_type, screen_scale, current_row=0):
     """Move popup_listbox and scroll sprite to new location and create new name list based on type"""
 
@@ -63,11 +64,12 @@ def popup_list_open(popup_listbox, popup_namegroup, ui_class,
     popup_listbox.namelist = new_list
     popup_listbox.action = action
     setup_list(NameList, current_row, new_list, popup_namegroup,
-               popup_listbox, ui_class, screen_scale, layer=21)
+               popup_listbox, ui_updater, ui_drawer, screen_scale, layer=21)
 
     popup_listbox.scroll.pos = popup_listbox.rect.topright  # change position variable
     popup_listbox.scroll.rect = popup_listbox.scroll.image.get_rect(topleft=popup_listbox.rect.topright)
     popup_listbox.scroll.change_image(new_row=current_row, row_size=len(new_list))
-    ui_class.add(popup_listbox, *popup_namegroup, popup_listbox.scroll)
+    ui_updater.add(popup_listbox, *popup_namegroup, popup_listbox.scroll)
+    ui_drawer.add(popup_listbox, *popup_namegroup, popup_listbox.scroll)
 
     popup_listbox.type = ui_type

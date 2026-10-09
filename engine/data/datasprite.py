@@ -39,12 +39,12 @@ class DataSprite(GameData):
         self.strategy_icons = {}
         self.grand_ui_images = {}
         self.effect_animation_pool = {}
-        self.animation_pickle_hash = {}
+        self.animation_load_index = {}
 
         if initial_load_data:
             try:
-                with lzma.open(join(self.data_dir, "animation", "animation_pickle_hash.xz"), "rb") as read_file:
-                    self.animation_pickle_hash = pickle.load(read_file)
+                with lzma.open(join(self.data_dir, "animation", "animation_load_index.xz"), "rb") as read_file:
+                    self.animation_load_index = pickle.load(read_file)
                 read_file.close()
             except Exception:
                 pass
@@ -64,7 +64,13 @@ class DataSprite(GameData):
             text_button_image3 = load_image(self.data_dir, "text_click.png", self.screen_scale, ("ui", "mainmenu_ui"))
             self.text_button_image_list = (text_button_image, text_button_image2, text_button_image3)
 
-            self.config_animation_hash = ast.literal_eval(self.game.config["VERSION"]["hash"])
+            self.cache_animation_hash = {"effect": {}}
+            try:
+                with lzma.open(join(self.data_dir, "animation", "cache_animation_hash.xz"), "rb") as read_file:
+                    self.cache_animation_hash = pickle.load(read_file)
+                read_file.close()
+            except Exception:
+                pass
 
             self.strategy_icons = load_images(self.data_dir, screen_scale=self.screen_scale,
                                               subfolder=("ui", "strategy_ui"))
@@ -95,9 +101,9 @@ class DataSprite(GameData):
             for file, image in building_portraits.items():
                 self.building_portraits[file] = {"building_ui": smoothscale(image, (
                     image.get_width() * self.screen_scale_width, image.get_height() * self.screen_scale_height))}
-                self.building_portraits[file]["big"] = smoothscale(image,
-                                                                   (300 * self.screen_scale_width,
-                                                                    300 * self.screen_scale_height))
+                # self.building_portraits[file]["big"] = smoothscale(image,
+                #                                                    (300 * self.screen_scale_width,
+                #                                                     300 * self.screen_scale_height))
 
             character_portraits = load_images(self.data_dir, subfolder=("ui", "character_ui"))
             self.character_portraits = {}
@@ -226,13 +232,32 @@ class DataSprite(GameData):
         self.inner_load_character_animation(character_list, wait_to_finish=True)
 
     def inner_load_character_animation(self, character_list, wait_to_finish=False):
-        if len(character_list) > 1 and self.load_threads > 1:
-            chunk = ceil(len(character_list) / self.load_threads)
+        effect_to_load = []
+        for character in character_list:
+            effect_to_load += [effect for effect in self.animation_load_index["character_load_index"][character] if effect
+                            not in self.effect_animation_pool]  # get effect not yet loaded
+        effect_to_load = set(effect_to_load)
+
+        if len(character_list) > 1 and self.load_threads > 2:
+            chunk = ceil(len(character_list) / self.load_threads - 1)  # keep 1 for effect load
             chunks = [tuple(character_list)[i:i + chunk] for i in range(0, len(character_list), chunk)]
             threads = []
+
+            thread = Thread(target=load_effect_sprites, args=(effect_to_load, self.cache_animation_hash, self.data_dir,
+                                                              self.effect_animation_pool, self.animation_load_index,
+                                                              self.screen_scale),
+                            daemon=True)
+            threads.append(thread)
+            thread.start()
+            if wait_to_finish:
+                for thread in threads:
+                    thread.join()
+            else:  # add to load sprite background threads
+                self.game.load_sprite_background_threads += threads
+
             for index, character_todo in enumerate(chunks):
-                thread = Thread(target=load_character_sprite, args=(self.data_dir, self.screen_scale,
-                                                                    self.character_animation_data, character_todo),
+                thread = Thread(target=load_character_sprite, args=(character_todo, self.data_dir, self.screen_scale,
+                                                                    self.character_animation_data, ),
                                 daemon=True)
                 threads.append(thread)
                 thread.start()
@@ -242,55 +267,51 @@ class DataSprite(GameData):
             else:  # add to load sprite background threads
                 self.game.load_sprite_background_threads += threads
         else:
-            load_character_sprite(self.data_dir, self.screen_scale, self.character_animation_data, character_list)
+            load_character_sprite(character_list, self.data_dir, self.screen_scale, self.character_animation_data)
+            load_effect_sprites(effect_to_load, self.cache_animation_hash, self.data_dir, self.effect_animation_pool,
+                                self.animation_load_index, self.screen_scale)
 
-    def load_effect_sprites(self, game):
-        config_animation_hash = game.sprite_data.config_animation_hash
-        data_dir = game.data_dir
-        effect_animation_pool = game.effect_animation_pool
-        animation_pickle_hash = game.sprite_data.animation_pickle_hash
-        screen_size = game.screen_size
-        screen_scale = game.screen_scale
-        if (not Path(join(data_dir, "animation", "cache_effect_animation.xz")).exists() or
-                (screen_scale != (1, 1) and (screen_size != config_animation_hash["screen_resolution"] or
-                                             "effect" not in animation_pickle_hash or not config_animation_hash[
-                            "effect"] or animation_pickle_hash["effect"] != config_animation_hash["effect"]))):
-            # effect sprite or screen resolution got changed, load and scale
 
-            new_effect_animation_pool = load_pickle_with_surfaces(
-                join(data_dir, "animation", "effect_animation.xz"),
+def load_effect_sprites(effect_to_load, cache_animation_hash, data_dir, effect_animation_pool,
+                        animation_load_index, screen_scale):
+    for effect in tuple(effect_to_load):
+        if (not Path(join(data_dir, "animation", "effect", "cache_" + effect + ".xz")).exists() or
+                (screen_scale != (1, 1) and (cache_animation_hash and (screen_scale != cache_animation_hash["effect"][effect]["screen_scale"] or
+                                             animation_load_index["effect"][effect] != cache_animation_hash["effect"][effect]["hash"])))):
+            # effect sprite or screen resolution got changed, load and scale for new cache
+            loaded_effect_animation = load_pickle_with_surfaces(
+                join(data_dir, "animation", "effect", effect + ".xz"),
                 screen_scale=screen_scale, effect_sprite_adjust=True)
 
-            # below need to be redone if character sprite need caching as well
-            # save the above pool to cache for future use
-            save_pickle_with_surfaces(join(data_dir, "animation", "cache_effect_animation.xz"),
-                                      new_effect_animation_pool)
+            # save sprite cache, and screen resolution size in hash cache for later game launch sprite scale check
+            save_pickle_with_surfaces(join(
+                data_dir, "animation", "effect", "cache_" + effect + ".xz"), loaded_effect_animation)
+            cache_animation_hash["effect"][effect] = {"hash": animation_load_index["effect"][effect],
+                                                      "screen_scale": screen_scale}
 
-            # save screen resolution size in config for later game launch sprite scale check
-            config_animation_hash["effect"] = animation_pickle_hash["effect"]
-            config_animation_hash["screen_resolution"] = game.screen_size
-            edit_config("VERSION", "hash", config_animation_hash,
-                        game.config_path, game.config)
         else:
             # use (1, 1) scaling since the cached already got scaled
             try:
-                new_effect_animation_pool = load_pickle_with_surfaces(
-                    join(data_dir, "animation", "cache_effect_animation.xz"),
+                loaded_effect_animation = load_pickle_with_surfaces(
+                    join(data_dir, "animation", "effect", "cache_" + effect + ".xz"),
                     screen_scale=(1, 1), effect_sprite_adjust=True)
             except lzma.LZMAError:
                 # file corrupt, recreate the cache
-                config_animation_hash["effect"] = ""
-                edit_config("VERSION", "hash", config_animation_hash,
-                            game.config_path, game.config)
-                self.load_effect_sprites(game)
+                cache_animation_hash["effect"][effect] = ""  # reset old hash if any
+                load_effect_sprites(effect_to_load, cache_animation_hash, data_dir,
+                                    effect_animation_pool, animation_load_index, screen_scale)
                 return
 
-        for key, value in new_effect_animation_pool.items():
-            effect_animation_pool[key] = value
+        effect_animation_pool[effect] = loaded_effect_animation[effect]
+        effect_to_load.remove(effect)
+
+    with lzma.open(join(data_dir, "animation", "cache_animation_hash.xz"), "wb") as handle:
+        pickle.dump(cache_animation_hash, handle)
+    handle.close()
 
 
-def load_character_sprite(data_dir, screen_scale, character_animation_data, character_list):
-    for file_name in character_list:
+def load_character_sprite(character_to_load, data_dir, screen_scale, character_animation_data):
+    for file_name in character_to_load:
         if file_name not in character_animation_data:
             # get animation for each character that is not yet loaded
             character_animation_data[file_name] = load_pickle_with_surfaces(

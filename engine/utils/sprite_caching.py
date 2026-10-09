@@ -118,12 +118,15 @@ def recursive_cast_pickleable_surface_to_surface(data, screen_scale, already_don
                     data[k] = surface_screen_scale(v.surface, screen_scale)
                     if (k == "sprite" or parent_key == "sprite") and add_mask:  # add mask
                         if effect_sprite_adjust:
+                            # create mask on different major angle for use that include near angle
                             if parent_key == "sprite":
                                 parent_data["mask"] = {angle: from_surface(rotate(data[k], angle)) for angle in
-                                                       (90, 120, 45, 0, -90, -45, -120, 180, -180)}
+                                                       (90, 120, 45, 0, -90, -45, -120, 180)}
+                                parent_data["mask"][-180] = parent_data["mask"][180]
                             else:
                                 data["mask"] = {angle: from_surface(rotate(data[k], angle)) for angle in
-                                                (90, 120, 45, 0, -90, -45, -120, 180, -180)}
+                                                (90, 120, 45, 0, -90, -45, -120, 180)}
+                                data["mask"][-180] = data["mask"][180]
                         else:
                             data["mask"] = from_surface(data[k])
 
