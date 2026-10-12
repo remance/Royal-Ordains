@@ -1094,6 +1094,7 @@ class PlayerBattleInteract(UIOuterBattle):
                                     battle.shown_camera_center_pos[0] - self.battle_camera.camera_w_center)
                             line_end = (commander.pos[0] + self.current_strategy_activate_range) - (
                                     battle.shown_camera_center_pos[0] - self.battle_camera.camera_w_center)
+
                             if line_start > 0:
                                 draw.line(camera_image, (80, 120, 200),
                                           (line_start, self.strategy_line_top),
@@ -1125,8 +1126,16 @@ class PlayerBattleInteract(UIOuterBattle):
                                 line_end = (pos_to_use + self.current_strategy_range) - (
                                         battle.shown_camera_center_pos[0] - self.battle_camera.camera_w_center)
 
+                                if battle.team_state[battle.player_team]["strategy_resource"] > \
+                                        battle.strategy_list[battle.player_selected_strategy]["Resource Cost"]:
+                                    # green line when enough resource to use
+                                    colour = (120, 180, 80)
+                                else:
+                                    # red line otherwise
+                                    colour = (180, 80, 80)
+
                                 if line_start > 0:
-                                    draw.line(camera_image, (120, 180, 80),
+                                    draw.line(camera_image, colour,
                                               (line_start, self.strategy_line_top),
                                               (line_start, self.strategy_line_bottom), width=self.strategy_line_width)
                                     draw.line(camera_image, (70, 20, 50),
@@ -1134,11 +1143,11 @@ class PlayerBattleInteract(UIOuterBattle):
                                               (line_start, self.strategy_line_bottom),
                                               width=self.strategy_line_inner_width)
                                 if line_end > 0:
-                                    draw.line(camera_image, (120, 180, 80),
+                                    draw.line(camera_image, colour,
                                               (line_start, self.strategy_line_center),
                                               (line_end, self.strategy_line_center), width=self.strategy_line_width)
 
-                                    draw.line(camera_image, (120, 180, 80),
+                                    draw.line(camera_image, colour,
                                               (line_end, self.strategy_line_top),
                                               (line_end, self.strategy_line_bottom), width=self.strategy_line_width)
                                     draw.line(camera_image, (70, 20, 50),

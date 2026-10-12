@@ -66,7 +66,7 @@
 "great_fireball",,2000,"TRUE",,"explosion_big","fireball_big",3000,,
 "harpoon",,4000,"TRUE","stick",,"bolt",2700,,
 "ice_branch",,,"TRUE",,,,,,
-"ice_orb",,3000,"TRUE","move",,"stone_big",1400,,"reach_effect_spawn_ground:bottom"
+"ice_orb",,3000,"TRUE","move",,"stone_big",1400,,
 "ice_pillar",,3000,"TRUE",,,"ice_pillar",4200,10,"summon:summon_ice_pillar,summon_spawn_ground:bottom"
 "ice_shard",,2000,"TRUE",,,,,,
 "landing_huge",,,,,,"landing_huge",6500,300,

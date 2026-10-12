@@ -276,7 +276,6 @@ class MenuCursor(UIMenu):
         UIMenu.__init__(self, player_cursor_interact=False)
         self.images = images
         self.image = images["normal"]
-        self.current_image = "normal"
         self.pos = (0, 0)
         self.is_select_just_down = False
         self.is_select_down = False
@@ -319,16 +318,16 @@ class MenuCursor(UIMenu):
         self.middle_mouse_select_up = self.is_middle_mouse_select_just_up
 
         if self.is_select_down or self.is_alt_select_down:
-            self.image = self.images["click"]
+            self.change_image("click")
         else:
-            self.image = self.images[self.current_image]
+            self.change_image("normal")
 
         if self.shown:
             self.rect.topleft = self.pos
 
     def change_image(self, image_name):
         """Change cursor image to whatever input name"""
-        self.current_image = image_name
+        self.image = self.images[image_name]
 
 
 class SliderMenu(UIMenu):
@@ -685,6 +684,8 @@ class CharacterSelector(UIMenu):
                                          "x" + str(character_data["Capacity"]) + ")",
                                          grab_text(("character", character_id, "Description")),
                                          grab_text(("ui", "info_header_class")) + grab_text(
+                                             ("ui", "grade_" + character_data["Grade"])) + " " + grab_text(
+                                             ("ui", "behaviour_" + character_data["AI Behaviour"])) + " " + grab_text(
                                              ("ui", "class_" + character_data["Class"])),
                                          grab_text(("ui", "info_header_health")) + add_comma_number(
                                              character_data["Health"]),

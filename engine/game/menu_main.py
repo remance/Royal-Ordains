@@ -22,19 +22,6 @@ def menu_main(self):
         self.custom_preset_culture_selector.change_culture_preset(Custom_Default_Culture)
         self.background = self.background_image["empty_background"]
 
-        self.sprite_data.load_character_animation((self.lorebook_showcase_character.char_id,))
-        animation_list = list(
-            self.sprite_data.character_animation_data[self.lorebook_showcase_character.char_id].keys())
-        for character in self.character_list[self.lorebook_showcase_character.char_id]["Sub Characters"]:
-            for anim in self.game.sprite_data.character_animation_data[character[0]]:
-                if anim not in animation_list:
-                    animation_list.append(anim)
-        animation_list = sorted(animation_list)
-        self.lorebook_showcase_animation_list_box.adapter.__init__(
-            [[0, key] for key in animation_list if key != "Default"])
-        self.lorebook_character_description_showcase.change_character(self.lorebook_showcase_character.char_id)
-        self.lorebook_character_moveset_showcase.change_moveset(self.lorebook_showcase_character.char_id, None)
-
         self.lorebook_showcase_character_selector.add(self.lorebook_faction_selector.selected_culture, None)
         self.remove_from_ui_menu_updater(self.main_menu_buttons, self.main_menu_actor)
         self.add_to_ui_menu_updater(self.lorebook_menu_uis)
@@ -48,13 +35,14 @@ def menu_main(self):
         self.add_to_ui_menu_updater(self.grand_menu_uis)
 
     elif self.test_battle_button.event_press:
-        self.custom_team_army[1][0].__init__("", "small", "small", "leader_bigta",
+        self.custom_team_army[1][0].__init__("", "small", "small", "leader_noxbox_201",
                                              {"leader": [["doll_leader_maker", True],
                                                          ["small_rabbit_leader_banner", True], ],
                                               "troop": [["small_rabbit_sling", True], ["small_snail_sword", True],
                                                         ["small_rabbit_cannon", True], ],
                                               "air": [],
                                               "retinue": [["small_rabbit_leader_shaman", True],
+                                                          ["1_test_strategy", True],
                                                           ["1_test_strategy_2", True]]}, supply=888888)
         self.custom_team_army[1][1].__init__("", "small", "small", "leader_amgarn",
                                              {"leader": [["small_rabbit_leader_knight", True],

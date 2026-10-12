@@ -128,7 +128,12 @@ class DataSprite(GameData):
                             number_text = self.number_text_cache[add_number]
                         number_rect = number_text.get_rect(bottomright=mini_portrait.get_size())
                         icon.blit(number_text, number_rect)
-                    icon.blit(self.battle_ui_images["class_" + self.game.character_list[file]["Class"]], (0, 0))
+
+                    icon.blit(self.battle_ui_images["behaviour_" + self.game.character_list[file]["AI Behaviour"]],
+                              (0, 0))
+                    class_image = self.battle_ui_images["class_" + self.game.character_list[file]["Grade"] + "_" +
+                                                        self.game.character_list[file]["Class"]]
+                    icon.blit(class_image, class_image.get_rect(bottomleft=(0, icon.get_height())))
 
                 mini_portrait = smoothscale(image, (150 * self.screen_scale_width, 150 * self.screen_scale_height))
                 self.character_portraits[file]["tiny"] = {"right": mini_portrait,
@@ -232,15 +237,17 @@ class DataSprite(GameData):
         self.inner_load_character_animation(character_list, wait_to_finish=True)
 
     def inner_load_character_animation(self, character_list, wait_to_finish=False):
+
+        self.game.cursor.change_image("loading")
         effect_to_load = []
         for character in character_list:
             effect_to_load += [effect for effect in self.animation_load_index["character_load_index"][character] if effect
-                            not in self.effect_animation_pool]  # get effect not yet loaded
+                               not in self.effect_animation_pool]  # get effect not yet loaded
         effect_to_load = set(effect_to_load)
 
         if len(character_list) > 1 and self.load_threads > 2:
-            chunk = ceil(len(character_list) / self.load_threads - 1)  # keep 1 for effect load
-            chunks = [tuple(character_list)[i:i + chunk] for i in range(0, len(character_list), chunk)]
+            per_chunk = ceil(len(character_list) / self.load_threads - 1)  # keep 1 for effect load
+            chunks = [tuple(character_list)[i:i + per_chunk] for i in range(0, len(character_list), per_chunk)]
             threads = []
 
             thread = Thread(target=load_effect_sprites, args=(effect_to_load, self.cache_animation_hash, self.data_dir,
@@ -270,6 +277,8 @@ class DataSprite(GameData):
             load_character_sprite(character_list, self.data_dir, self.screen_scale, self.character_animation_data)
             load_effect_sprites(effect_to_load, self.cache_animation_hash, self.data_dir, self.effect_animation_pool,
                                 self.animation_load_index, self.screen_scale)
+
+        self.game.cursor.change_image("normal")
 
 
 def load_effect_sprites(effect_to_load, cache_animation_hash, data_dir, effect_animation_pool,

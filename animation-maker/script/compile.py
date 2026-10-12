@@ -4,7 +4,9 @@ from os.path import join
 
 import pygame
 from pygame import Surface, SRCALPHA, Vector2
+from pygame.image import tobytes
 from pygame.transform import smoothscale, flip
+from hashlib import sha256
 
 from engine.utils.sprite_altering import sprite_rotate, apply_sprite_effect, crop_sprite
 from engine.utils.sprite_caching import save_pickle_with_surfaces, load_pickle_with_surfaces, CompilableSurface
@@ -258,7 +260,7 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
 
     save_pickle_with_surfaces(join(data_dir, "animation", "event_actor.xz"), event_actor_sprite_pool)
 
-    for character in character_list:  # TODO maybe add check for effect difference so no need to resave every effect that are not changed every time
+    for character in character_list:
         # create list of effect that must be loaded along with character
         animation_load_index["character_load_index"][character] = []
 
@@ -289,29 +291,31 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                     if character_data["Strategy"] == strategy and effect not in animation_load_index["character_load_index"][character]:
                         animation_load_index["character_load_index"][character].append(effect[0])
 
-    for effect_type, data in effect_animation_pool.items():
+    print("effect")
+    for effect_name, data in effect_animation_pool.items():
         effect_animation_pool_save = {}
-        if effect_type not in effect_animation_pool_save:
-            effect_animation_pool_save[effect_type] = {}
-        for effect_name, frame_list in data.items():
-            if effect_name not in effect_animation_pool_save[effect_type]:
-                effect_animation_pool_save[effect_type][effect_name] = {0: {1: {1: {}}}}
+        if effect_name not in effect_animation_pool_save:
+            effect_animation_pool_save[effect_name] = {}
+
+        for effect_part, frame_list in data.items():
+            if effect_part not in effect_animation_pool_save[effect_name]:
+                effect_animation_pool_save[effect_name][effect_part] = {0: {1: {1: {}}}}
                 for frame_index, surface in enumerate(frame_list):
                     image, crop_offset = crop_sprite(surface, character_offset=False)
-                    effect_animation_pool_save[effect_type][effect_name][0][1][1][frame_index] = {
+                    effect_animation_pool_save[effect_name][effect_part][0][1][1][frame_index] = {
                         "sprite": {0: CompilableSurface(image)},
                         "offset": crop_offset}
-            if effect_type in effect_sprite_adjust:
-                for flip_value in effect_sprite_adjust[effect_type]:
-                    if flip_value not in effect_animation_pool_save[effect_type][effect_name]:
-                        effect_animation_pool_save[effect_type][effect_name][flip_value] = {}
-                    for width_scale in effect_sprite_adjust[effect_type][flip_value]:
-                        if width_scale not in effect_animation_pool_save[effect_type][effect_name][flip_value]:
-                            effect_animation_pool_save[effect_type][effect_name][flip_value][width_scale] = {}
-                        for height_scale in effect_sprite_adjust[effect_type][flip_value][width_scale]:
-                            if height_scale not in effect_animation_pool_save[effect_type][effect_name][flip_value][
+            if effect_name in effect_sprite_adjust:
+                for flip_value in effect_sprite_adjust[effect_name]:
+                    if flip_value not in effect_animation_pool_save[effect_name][effect_part]:
+                        effect_animation_pool_save[effect_name][effect_part][flip_value] = {}
+                    for width_scale in effect_sprite_adjust[effect_name][flip_value]:
+                        if width_scale not in effect_animation_pool_save[effect_name][effect_part][flip_value]:
+                            effect_animation_pool_save[effect_name][effect_part][flip_value][width_scale] = {}
+                        for height_scale in effect_sprite_adjust[effect_name][flip_value][width_scale]:
+                            if height_scale not in effect_animation_pool_save[effect_name][effect_part][flip_value][
                                 width_scale]:
-                                effect_animation_pool_save[effect_type][effect_name][flip_value][width_scale][
+                                effect_animation_pool_save[effect_name][effect_part][flip_value][width_scale][
                                     height_scale] = {}
                             for frame_index, frame in enumerate(frame_list):
                                 image, crop_offset = crop_sprite(adjust_effect_sprite(frame_list[frame_index],
@@ -319,14 +323,15 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                                                                                       height_scale),
                                                                  character_offset=False)
 
-                                effect_animation_pool_save[effect_type][effect_name][flip_value][width_scale][
+                                effect_animation_pool_save[effect_name][effect_part][flip_value][width_scale][
                                     height_scale][frame_index] = {
                                     "sprite": {0: CompilableSurface(image)},
                                     "offset": crop_offset}
         recursive_remove_mask(effect_animation_pool_save)
-        animation_load_index["effect"][effect_type] = \
-            save_pickle_with_surfaces(join(data_dir, "animation", "effect", effect_type + ".xz"),
+        animation_load_index["effect"][effect_name] = \
+            save_pickle_with_surfaces(join(data_dir, "animation", "effect", effect_name + ".xz"),
                                       effect_animation_pool_save)
+
     with lzma.open(join(data_dir, "animation", "animation_load_index.xz"), "wb") as handle:
         pickle.dump(animation_load_index, handle)
     print("done")
