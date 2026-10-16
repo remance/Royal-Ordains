@@ -15,15 +15,16 @@ def change_turn(self, turn_change=True):
                 faction_state["event"] = {event: value - 1 for event, value in faction_state["event"].items() if
                                           value > 1}
                 for diplomacy_value in faction_state["diplomacy"].values():
-                    for history in tuple(diplomacy_value["history"]):
-                        if history[1] < 0:
-                            history[1] += 10
-                            if history[1] >= 0:
-                                diplomacy_value["history"].remove(history)
+                    for key in tuple(diplomacy_value["history"]):
+                        history = diplomacy_value["history"][key]
+                        if history < 0:
+                            diplomacy_value["history"][key] += 10
+                            if diplomacy_value["history"][key] >= 0:
+                                diplomacy_value["history"].remove(key)
                         else:
-                            history[1] -= 10
-                            if history[1] <= 0:
-                                diplomacy_value["history"].remove(history)
+                            diplomacy_value["history"][key] -= 10
+                            if diplomacy_value["history"][key] <= 0:
+                                diplomacy_value["history"].remove(key)
 
                 # faction_region_control = self.current_campaign_state["region"]["control"][faction]
                 for faction_culture in faction_state["culture"].values():

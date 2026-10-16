@@ -6,7 +6,7 @@ import pygame
 from pygame import Surface, SRCALPHA, Vector2
 from pygame.image import tobytes
 from pygame.transform import smoothscale, flip
-from hashlib import sha256
+from hashlib import md5
 
 from engine.utils.sprite_altering import sprite_rotate, apply_sprite_effect, crop_sprite
 from engine.utils.sprite_caching import save_pickle_with_surfaces, load_pickle_with_surfaces, CompilableSurface
@@ -26,7 +26,7 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
 
     animation_load_index = {"effect": {}, "character_load_index": {}}
     try:
-        with open(join(data_dir, "animation", "animation_load_index.xz"), "rb") as read_file:
+        with lzma.open(join(data_dir, "animation", "animation_load_index.xz"), "rb") as read_file:
             animation_load_index = pickle.load(read_file)
         read_file.close()
     except Exception:
@@ -254,9 +254,9 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                     # remove EVENT and DIPLOMACY from battle animation pool save
                     character_animation_pool.pop(animation_name)
 
-            character_hash = save_pickle_with_surfaces(join(data_dir, "animation", character + ".xz"),
+            save_pickle_with_surfaces(join(data_dir, "animation", character + ".xz"),
                                                        character_animation_pool)
-            animation_load_index[character] = character_hash
+            # animation_load_index[character] = character_hash
 
     save_pickle_with_surfaces(join(data_dir, "animation", "event_actor.xz"), event_actor_sprite_pool)
 
@@ -294,46 +294,54 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
     print("effect")
     for effect_name, data in effect_animation_pool.items():
         effect_animation_pool_save = {}
+        effect_raw_data_hash = md5()
         if effect_name not in effect_animation_pool_save:
             effect_animation_pool_save[effect_name] = {}
-
+        if effect_name in effect_sprite_adjust:
+            effect_raw_data_hash.update(str(effect_sprite_adjust[effect_name]).encode())
         for effect_part, frame_list in data.items():
-            if effect_part not in effect_animation_pool_save[effect_name]:
-                effect_animation_pool_save[effect_name][effect_part] = {0: {1: {1: {}}}}
-                for frame_index, surface in enumerate(frame_list):
-                    image, crop_offset = crop_sprite(surface, character_offset=False)
-                    effect_animation_pool_save[effect_name][effect_part][0][1][1][frame_index] = {
-                        "sprite": {0: CompilableSurface(image)},
-                        "offset": crop_offset}
-            if effect_name in effect_sprite_adjust:
-                for flip_value in effect_sprite_adjust[effect_name]:
-                    if flip_value not in effect_animation_pool_save[effect_name][effect_part]:
-                        effect_animation_pool_save[effect_name][effect_part][flip_value] = {}
-                    for width_scale in effect_sprite_adjust[effect_name][flip_value]:
-                        if width_scale not in effect_animation_pool_save[effect_name][effect_part][flip_value]:
-                            effect_animation_pool_save[effect_name][effect_part][flip_value][width_scale] = {}
-                        for height_scale in effect_sprite_adjust[effect_name][flip_value][width_scale]:
-                            if height_scale not in effect_animation_pool_save[effect_name][effect_part][flip_value][
-                                width_scale]:
-                                effect_animation_pool_save[effect_name][effect_part][flip_value][width_scale][
-                                    height_scale] = {}
-                            for frame_index, frame in enumerate(frame_list):
-                                image, crop_offset = crop_sprite(adjust_effect_sprite(frame_list[frame_index],
-                                                                                      flip_value, width_scale,
-                                                                                      height_scale),
-                                                                 character_offset=False)
+            for surface in frame_list:
+                effect_raw_data_hash.update(tobytes(surface, "RGBA"))
+        effect_raw_data_hash = effect_raw_data_hash.hexdigest()
+        if effect_name not in animation_load_index["effect"] or effect_raw_data_hash != animation_load_index["effect"][effect_name]:
+            for effect_part, frame_list in data.items():
+                if effect_part not in effect_animation_pool_save[effect_name]:
+                    effect_animation_pool_save[effect_name][effect_part] = {0: {1: {1: {}}}}
+                    for frame_index, surface in enumerate(frame_list):
+                        image, crop_offset = crop_sprite(surface, character_offset=False)
+                        effect_animation_pool_save[effect_name][effect_part][0][1][1][frame_index] = {
+                            "sprite": {0: CompilableSurface(image)},
+                            "offset": crop_offset}
+                if effect_name in effect_sprite_adjust:
+                    for flip_value in effect_sprite_adjust[effect_name]:
+                        if flip_value not in effect_animation_pool_save[effect_name][effect_part]:
+                            effect_animation_pool_save[effect_name][effect_part][flip_value] = {}
+                        for width_scale in effect_sprite_adjust[effect_name][flip_value]:
+                            if width_scale not in effect_animation_pool_save[effect_name][effect_part][flip_value]:
+                                effect_animation_pool_save[effect_name][effect_part][flip_value][width_scale] = {}
+                            for height_scale in effect_sprite_adjust[effect_name][flip_value][width_scale]:
+                                if height_scale not in effect_animation_pool_save[effect_name][effect_part][flip_value][
+                                    width_scale]:
+                                    effect_animation_pool_save[effect_name][effect_part][flip_value][width_scale][
+                                        height_scale] = {}
+                                for frame_index, frame in enumerate(frame_list):
+                                    image, crop_offset = crop_sprite(adjust_effect_sprite(frame_list[frame_index],
+                                                                                          flip_value, width_scale,
+                                                                                          height_scale),
+                                                                     character_offset=False)
 
-                                effect_animation_pool_save[effect_name][effect_part][flip_value][width_scale][
-                                    height_scale][frame_index] = {
-                                    "sprite": {0: CompilableSurface(image)},
-                                    "offset": crop_offset}
-        recursive_remove_mask(effect_animation_pool_save)
-        animation_load_index["effect"][effect_name] = \
+                                    effect_animation_pool_save[effect_name][effect_part][flip_value][width_scale][
+                                        height_scale][frame_index] = {
+                                        "sprite": {0: CompilableSurface(image)},
+                                        "offset": crop_offset}
+            recursive_remove_mask(effect_animation_pool_save)
             save_pickle_with_surfaces(join(data_dir, "animation", "effect", effect_name + ".xz"),
                                       effect_animation_pool_save)
+            animation_load_index["effect"][effect_name] = effect_raw_data_hash
 
     with lzma.open(join(data_dir, "animation", "animation_load_index.xz"), "wb") as handle:
         pickle.dump(animation_load_index, handle)
+    handle.close()
     print("done")
 
 

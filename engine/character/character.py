@@ -450,6 +450,7 @@ class BattleCharacter(Character):
         self.nearest_ally_distance = None
 
         self.character_type = stat["Type"]
+        self.character_grade = stat["Grade"]
         self.character_class = stat["Class"]
         self.team = stat["Team"]
         self.enemy_team = 1

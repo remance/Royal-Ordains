@@ -151,10 +151,11 @@ def mix_ai(self):
 def flank_ai(self):
     if not self.command_action:
         if self.all_team_enemy_check[self.team]:
+            nearest_enemy = self.nearest_enemy
             if "idle" not in self.commander_order:
-                if self.nearest_enemy and self.nearest_enemy.alive and self.nearest_enemy.character_class not in (
-                        "medium_melee", "heavy_melee", "medium_cavalry", "heavy_cavalry"):
-                    # flanker will focus on light troop to fight, switch command to attack
+                if nearest_enemy and nearest_enemy.alive and (nearest_enemy.ai_behaviour != "melee" or
+                                                              nearest_enemy.character_grade == "common"):
+                    # flanker will focus on nearby non-melee or low class melee troop to fight, switch command to attack
                     self.issue_commander_order(("attack", self.nearest_enemy_pos[0]))
                 elif self.enemy_commander and self.enemy_commander.alive:
                     # aim at enemy commander

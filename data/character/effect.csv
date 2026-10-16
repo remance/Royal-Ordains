@@ -11,6 +11,8 @@
 "bless",,,,,,,,,
 "blight_bag",,,,,"blight_explode","stone",1500,,
 "blight_explode",,,"TRUE",,,"splash",2500,,
+"blood_ball",,1500,"TRUE",,"blood_burst",,,,"travel_spin"
+"blood_burst",,,"TRUE",,,"blood_splash",2500,,
 "blood_pull",,,"TRUE",,,,,,
 "bolt",,3400,"TRUE","stick",,"bolt",1800,,
 "bomb",,1000,,,"explosion_big","bomb_drop",1900,,
@@ -141,3 +143,6 @@
 "garrison_summon_human_castle",,5000,"TRUE","move","landing_huge","stone_huge",8000,5,"summon:castle_human_castle,summon_spawn_ground:bottom,reach_effect_spawn_ground:bottom"
 "garrison_summon_human_flower_castle",,5000,"TRUE","move","landing_huge","stone_huge",10000,5,"summon:castle_human_flower_castle,summon_spawn_ground:bottom,reach_effect_spawn_ground:bottom"
 "garrison_summon_death_undead_tower",,5000,"TRUE","move","landing_huge","stone_huge",4000,5,"summon:death_undead_tower,summon_spawn_ground:bottom,reach_effect_spawn_ground:bottom"
+"neutral_small_barricade",,4000,"TRUE","move",,"stone_big",1000,,"summon:neutral_small_barricade,summon_spawn_ground:bottom,reach_effect_spawn_ground:bottom"
+"neutral_medium_barricade",,4000,"TRUE","move",,"stone_big",2000,,"summon:neutral_medium_barricade,summon_spawn_ground:bottom,reach_effect_spawn_ground:bottom"
+"neutral_large_barricade",,4000,"TRUE","move",,"stone_big",3000,,"summon:neutral_large_barricade,summon_spawn_ground:bottom,reach_effect_spawn_ground:bottom"

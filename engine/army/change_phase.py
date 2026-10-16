@@ -65,7 +65,7 @@ def change_phase(self):
                         activity["remain_phase_require"][0].pop(0)
 
                     region_colour = tuple(self.base_world_map.get_at((int(self.base_pos[0]),
-                                                                      int(self.base_pos[1]))))[:3]
+                                                                      int(self.base_pos[1]))).rgb)
                     self.current_region = self.grand.region_by_colour_index[region_colour]
                     if not activity["dot_routes"]:  # no more route left, finish travel
                         self.activity = {}

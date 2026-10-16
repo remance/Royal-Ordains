@@ -740,7 +740,7 @@ class ColourWheel(pygame.sprite.Sprite):
 
     def get_colour(self):
         pos = mouse_pos[0] - self.rect.topleft[0], mouse_pos[1] - self.rect.topleft[1]
-        colour = self.image.get_at(pos)  # get colour at pos
+        colour = self.image.get_at(pos).rgb  # get colour at pos
         return colour
 
 
@@ -3089,7 +3089,7 @@ while True:
         elif colour_wheel in ui_updater and mouse_left_up and colour_wheel.rect.collidepoint(mouse_pos):
             colour = str(colour_wheel.get_colour())
             colour = colour[1:-1]  # remove bracket ()
-            colour_input_box.render_text(colour[:colour.rfind(",")])  # keep only 3 first colour value not transparent
+            colour_input_box.render_text(colour)
 
         elif (input_cancel_button in ui_updater and input_cancel_button.event) or (
                 colour_cancel_button in ui_updater and colour_cancel_button.event) or input_esc:

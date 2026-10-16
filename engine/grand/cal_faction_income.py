@@ -91,7 +91,6 @@ def cal_faction_income(self, faction):
         total_gold_income += army.upkeep
         list_of_gold_income_effect["army_upkeep"].append((army.game_id, army.upkeep))
 
-    print(faction, total_happiness)
     faction_data["gold_income"] = total_gold_income
     faction_data["supply_income"] = total_supply_income
     faction_data["happiness"] = total_happiness

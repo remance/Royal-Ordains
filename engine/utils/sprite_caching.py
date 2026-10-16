@@ -2,7 +2,6 @@ import hashlib
 import lzma
 import pickle
 
-from hashlib import sha256
 from PIL import Image
 
 from pygame import Surface
@@ -62,10 +61,8 @@ def save_pickle_with_surfaces(file_path, data):
 
     recursive_cast_surface_to_pickleable_surface(new_data)
     with lzma.open(file_path, "wb") as handle:
-        serial_data = pickle.dumps(new_data)
         pickle.dump(new_data, handle)
     handle.close()
-    return hashlib.sha256(serial_data).hexdigest()
 
 
 def load_pickle_with_surfaces(file_path, screen_scale, effect_sprite_adjust=False, add_mask=True):

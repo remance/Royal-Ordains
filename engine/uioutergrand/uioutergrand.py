@@ -1728,7 +1728,6 @@ class DiplomacyManagementUI(UIOuterGrand):
                                                               width_text_wrapper=self.max_description_box_width)
                                         self.add_to_outer_ui_menu_updater(self.text_popup)
                                     elif button_key == "portrait":
-                                        print(index, self.current_row, self.faction_cards)
                                         self.text_popup.popup(self.cursor.rect,
                                                               self.grab_text(("faction",
                                                                               tuple(self.faction_cards.keys())[index],
@@ -1759,8 +1758,8 @@ class PresetArmyReserveSetupUI(PresetArmySetupUI, UIOuterGrand):
     def __init__(self, pos, layer=10):
         """UI for setting up reserve preset army setup"""
         self._layer = layer
-        PresetArmySetupUI.__init__(self, pos, True)
         UIOuterGrand.__init__(self)
+        PresetArmySetupUI.__init__(self, pos, True)
 
     def change_culture_preset(self, selected_culture):
         """Reset army preset when player change faction"""
@@ -1940,7 +1939,7 @@ class PlayerGrandInteract(UIOuterGrand):
                 elif self.event_alt_press:  # right click order selected leader to do something
                     if grand.player_selected_army:  # order selected army to move to region at mouse pos
                         region_colour = tuple(grand.base_world_map.get_at(
-                            (int(grand.base_cursor_pos[0]), int(grand.base_cursor_pos[1]))))[:3]
+                            (int(grand.base_cursor_pos[0]), int(grand.base_cursor_pos[1]))).rgb)
                         if region_colour in grand.region_by_colour_index:
                             region_id = grand.region_by_colour_index[region_colour]
                             if any([army.game_id in grand.current_campaign_state["battle"]["armies"] for army in

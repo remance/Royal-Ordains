@@ -2128,7 +2128,7 @@ class GrandMiniMap(UIMenu):
         faction_list = self.map_data.faction_list
         for row_pos in range(image.get_width()):
             for col_pos in range(image.get_height()):
-                colour = tuple(image.get_at((row_pos, col_pos)))[:3]
+                colour = tuple(image.get_at((row_pos, col_pos)).rgb)
                 if colour != (0, 0, 0):
                     region_id = self.map_data.region_by_colour_index[colour]
                     if region_id not in region_draw_dict:
