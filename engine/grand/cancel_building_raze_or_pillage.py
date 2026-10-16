@@ -5,3 +5,5 @@ def cancel_building_raze_or_pillage(self, faction, region, slot):
 
     if faction == self.player_faction and region == self.region_management_ui.player_selected_region:
         self.region_management_ui.change_selected_region(region)
+
+    self.settlement_object_list[region].change_building_state(slot, building_state, also_change_state=True)

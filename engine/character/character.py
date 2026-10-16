@@ -483,7 +483,7 @@ class BattleCharacter(Character):
         self.base_defence = stat["Defence"]
         self.base_speed = stat["Speed"]
 
-        # add leadership from all active retinues (retinue reduce leadership by half)
+        # add leadership from 3 active leaders (leader reduce leadership by half)
         self.status_immunity = stat["Status Immunity"]
 
         self.base_health = stat["Health"]  # max health of character

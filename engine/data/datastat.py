@@ -238,13 +238,13 @@ class DataStat(GameData):
         self.building_upgrade_list = {}
         self.building_higher_upgrade_path = {}
         self.building_requirement_check_list = {}
-        self.character_hire_building_list = {}
+        self.character_recruit_building_list = {}
         with open(os.path.join(self.data_dir, "character", "building.csv"),
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
-            tuple_column = ("Garrison Strategy", "Leader Reinforcement", "Troop Reinforcement",
-                            "Air Reinforcement", "Leader Recruit", "Unit Recruit", "Technology",
+            tuple_column = ("Leader Reinforcement", "Troop Reinforcement",
+                            "Air Reinforcement", "Leader Recruit", "Troop Recruit", "Air Recruit", "Technology",
                             "Requirement")
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
             dict_column = ("Income Boost",)
@@ -257,8 +257,9 @@ class DataStat(GameData):
                                                                     "Build Time"] * Turn_To_Phase  # convert build time to phase
 
                 for character in self.building_list[row[0]]["Leader Recruit"] + self.building_list[row[0]][
-                    "Unit Recruit"]:
-                    self.character_hire_building_list[character] = [row[0], True, 0]  # ready state of building
+                    "Troop Recruit"] + self.building_list[row[0]]["Air Recruit"]:
+                    # ready state of building, (building_id, active_state, progress_value, requirement_state)
+                    self.character_recruit_building_list[character] = [row[0], True, 0, True]
 
             requirement_check = {}
             for building, building_data in self.building_list.items():

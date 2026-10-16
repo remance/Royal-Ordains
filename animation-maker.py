@@ -1825,15 +1825,15 @@ box_img = load_image(current_data_dir, "property_box.png", screen_scale, "animat
 big_box_img = load_image(current_data_dir, "biglistbox.png", screen_scale, "animation_maker_ui")
 
 popup_list_box = ListBox((0, 0), big_box_img, 20)  # popup box need to be in higher layer
-UIScroll(popup_list_box, popup_list_box.rect.topright)  # create scroll for popup list box
+popup_list_box.scroll = UIScroll(popup_list_box, popup_list_box.rect.topright)  # create scroll for popup list box
 anim_prop_list_box = ListBox((0, filmstrip_list[0].rect.midbottom[1] +
                               (reset_button.image.get_height() * 1.5)), box_img, 8)
 anim_prop_list_box.namelist = anim_property_list + ["Custom"]
 frame_prop_list_box = ListBox((screen_size[0] - box_img.get_width(), filmstrip_list[0].rect.midbottom[1] +
                                (reset_button.image.get_height() * 1.5)), box_img, 8)
 frame_prop_list_box.namelist = [frame_property_list + ["Custom"] for _ in range(max_frame)]
-UIScroll(anim_prop_list_box, anim_prop_list_box.rect.topright)  # create scroll for animation prop box
-UIScroll(frame_prop_list_box, frame_prop_list_box.rect.topright)  # create scroll for frame prop box
+anim_prop_list_box.scroll = UIScroll(anim_prop_list_box, anim_prop_list_box.rect.topright)  # create scroll for animation prop box
+frame_prop_list_box.scroll = UIScroll(frame_prop_list_box, frame_prop_list_box.rect.topright)  # create scroll for frame prop box
 current_anim_row = 0
 current_frame_row = 0
 frame_property_select = [[] for _ in range(max_frame)]

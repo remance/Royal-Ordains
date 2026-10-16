@@ -29,35 +29,41 @@ class GrandObject(Sprite):
         if sprite_id in self.building_portraits:
             self.sprite_id = sprite_id
 
-        self.active_state = active_state
+        self.building_state = active_state
         self.image = self.building_portraits[self.sprite_id]["building_ui"]
-        self.change_state(self.active_state)
+        self.change_state(self.building_state)
         self.rect = self.image.get_rect(center=self.pos)
 
     def update(self, true_dt, dt):
         pass
 
     def change_state(self, new_state):
-        self.active_state = new_state
+        if self.building_state != new_state:
+            self.building_state = new_state
         self.image = self.building_portraits[self.sprite_id]["building_ui"]
-        if not self.active_state:
+        if not self.building_state:
             self.image = self.image.copy()
-            self.image.blit(self.building_portraits["unique_damaged"]["building_ui"], (0, 0))
+            if not new_state[1]:  # damaged building
+                self.image.blit(self.building_portraits["unique_damaged"]["building_ui"], (0, 0))
+            if new_state[2]:  # constructing building
+                self.image.blit(self.building_portraits["unique_progress"]["building_ui"], (0, 0))
 
 
 class SettlementObject(GrandObject):
     slot_rects = []
 
-    def __init__(self, region, sprite_id, base_pos, active_state):
+    def __init__(self, region, base_pos, building_state):
         """Object for settlement on grand map, the sprite also has building slots around the settlement icon"""
         self.grand_ui_images = self.grand.grand_ui_images
         self.building_list = self.grand.building_list
         self.base_image = Surface((300 * self.grand.screen_scale_width, 300 * self.grand.screen_scale_height),
                                   SRCALPHA)
         self.base_image_center = (self.base_image.get_width() / 2, self.base_image.get_height() / 2)
+        self.building_states = {}
+        self.building_state = building_state
         self.region = region
         if not self.slot_rects:
-            icon = self.grand.building_portraits[sprite_id]["building_ui"]
+            icon = self.grand.building_portraits[building_state[0]]["building_ui"]
             icon_rect = icon.get_rect(center=self.base_image_center)
             slot = self.grand_ui_images["slot_damaged"]
             self.slot_rects += [slot.get_rect(center=icon_rect.topleft), slot.get_rect(center=icon_rect.midtop),
@@ -65,26 +71,49 @@ class SettlementObject(GrandObject):
                                 slot.get_rect(center=icon_rect.midleft), slot.get_rect(center=icon_rect.midright),
                                 slot.get_rect(center=icon_rect.bottomleft), slot.get_rect(center=icon_rect.midbottom),
                                 slot.get_rect(center=icon_rect.bottomright), ]
-        for building_index, building in enumerate(self.grand.current_campaign_state["region"]["building"][region][1:]):
-            self.change_building_state(building_index, self.building_list[building[0]]["Type"], building[1],
-                                       building[2])
-        GrandObject.__init__(self, sprite_id, base_pos, active_state)
+
+        GrandObject.__init__(self, building_state[0], base_pos, building_state)
+
+        for building_index, building in enumerate(self.grand.current_campaign_state["region"]["building"][region]):
+            self.building_states[building_index] = ()
+            self.change_building_state(building_index, building)
+        self.change_state(building_state)
 
     def change_state(self, new_state):
-        self.active_state = new_state
+        self.building_state = new_state
         self.image = self.base_image.copy()
-        icon = self.building_portraits[self.sprite_id]["building_ui"]
+        self.sprite_id = new_state[0]
+        if self.sprite_id in self.building_portraits:
+            icon = self.building_portraits[self.sprite_id]["building_ui"]
+        else:
+            icon = self.building_portraits["default"]["building_ui"]
         icon_rect = icon.get_rect(center=self.base_image_center)
         self.image.blit(icon, icon_rect)
-        if not new_state[0]:  # damaged building
+
+        if not new_state[1]:  # damaged building
             self.image.blit(self.building_portraits["damaged"]["building_ui"], icon_rect)
-        if new_state[1]:  # constructing building
+        if new_state[2]:  # constructing building
             self.image.blit(self.building_portraits["progress"]["building_ui"], icon_rect)
 
-    def change_building_state(self, building_index, building_type, ready_state, constructing_state):
-        slot_rect = self.slot_rects[building_index]
-        self.base_image.blit(self.grand_ui_images["slot_" + building_type], slot_rect)
-        if not ready_state:
-            self.image.blit(self.grand_ui_images["slot_damaged"], slot_rect)
-        if constructing_state:
-            self.image.blit(self.grand_ui_images["slot_progress"], slot_rect)
+    def change_building_state(self, building_index, new_state, also_change_state=False):
+        if building_index:
+            non_settlement_index = building_index - 1
+            if self.building_states[non_settlement_index] != new_state:
+                slot_rect = self.slot_rects[non_settlement_index]
+                self.base_image.blit(self.grand_ui_images["slot_" + self.building_list[new_state[0]]["Type"]], slot_rect)
+                if not new_state[1]:
+                    self.base_image.blit(self.grand_ui_images["slot_damaged"], slot_rect)
+                if new_state[2]:
+                    self.base_image.blit(self.grand_ui_images["slot_progress"], slot_rect)
+                if not new_state[3]:
+                    self.base_image.blit(self.grand_ui_images["slot_unavailable"], slot_rect)
+                self.building_states[non_settlement_index] = new_state.copy()
+
+            if also_change_state:
+                self.change_state(self.building_state)
+
+            if building_index in self.grand.region_list[self.region]["Object"]:
+                #  this building is wonder on map, also update it too
+                self.grand.wonder_object_list[(self.region, building_index)].change_state(new_state)
+        elif also_change_state:
+            self.change_state(new_state)

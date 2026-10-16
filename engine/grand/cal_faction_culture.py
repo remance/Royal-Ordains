@@ -45,7 +45,10 @@ def cal_faction_culture(self, faction):
     faction_campaign_state["total_culture_weight"] = total_diversity_weight
 
     for culture, culture_value in faction_culture_campaign_state.items():
-        culture_value["weight"] = culture_weight[culture]
+        if culture in culture_weight:
+            culture_value["weight"] = culture_weight[culture]
+        else:
+            culture_value["weight"] = 0
         if total_diversity_weight:
             culture_value["influence"] = culture_value["weight"] / total_diversity_weight
         else:

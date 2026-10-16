@@ -73,7 +73,6 @@ class MiniCosmosUI(UIOuterGrand):
     def update(self, dt):
         if UIOuterGrand.update(self, dt):
             grab_text = self.grab_text
-            outer_ui_updater = self.outer_ui_updater
             text = [grab_text(("ui", "info_header_current_cosmic_events")), ]
             cosmic_event_list = self.grand.current_campaign_state["cosmic_event"]
             if cosmic_event_list:
@@ -82,19 +81,20 @@ class MiniCosmosUI(UIOuterGrand):
             else:
                 text.append(grab_text(("ui", "info_text_none")))
             self.text_popup.popup(("topright", self.cursor.rect.bottomleft), text)
-            outer_ui_updater.add(self.text_popup)
+            self.add_to_outer_ui_menu_updater(self.text_popup)
             if self.event_press:
-                if self.cosmic_ui not in outer_ui_updater:
-                    outer_ui_updater.add(self.cosmic_ui)
+                if self.cosmic_ui not in self.grand.outer_ui_updater:
+                    self.add_to_outer_ui_menu_updater(self.cosmic_ui)
                     self.cosmic_ui.update_image()
                 else:
-                    outer_ui_updater.remove(self.cosmic_ui)
+                    self.remove_from_outer_ui_menu_updater(self.cosmic_ui)
 
 
 class CosmosUI(UIOuterGrand):
     def __init__(self):
         self._layer = 10
         UIOuterGrand.__init__(self)
+        self.cosmic_event_list = self.grand.cosmic_event_list
         self.show_text = False
         self.must_update_image = False
         self.font = self.game.large_generic_ui_font
@@ -168,7 +168,7 @@ class CosmosUI(UIOuterGrand):
                                           (self.grab_text(("cosmos", planet.cosmic_id, "Name")),
                                            self.grab_text(("cosmos", planet.cosmic_id, "Description"))),
                                           width_text_wrapper=self.max_description_box_width)
-                    self.outer_ui_updater.add(self.text_popup)
+                    self.add_to_outer_ui_menu_updater(self.text_popup)
                     break
 
     def update_image(self):
@@ -213,21 +213,20 @@ class CosmosUI(UIOuterGrand):
 
         self.image = image
 
-    def apply_cosmic_event(self, events):
+    def apply_cosmic_event(self, events):  # TODO add its effect for battle
         grand = self.grand
         current_campaign_state = grand.current_campaign_state
         # remove cosmic events that not longer active
-        current_campaign_state["cosmic_event"] = [event for event in current_campaign_state["cosmic_event"] if event
-                                                  in events]
+
         current_cosmic_events = current_campaign_state["cosmic_event"]
         for event in events:
-            if event not in current_cosmic_events:
+            if event not in current_cosmic_events:  # play event notification for new cosmic event
                 if grand.player_faction:
                     grand.event_notification_ui.add_new_event((
                         "event_cosmos", self.grab_text(("ui", "cosmos_" + event)),
                         str(current_campaign_state["turn"]) + "." + str(current_campaign_state["phase"]), ()))
 
-                current_cosmic_events.append(event)
+            current_campaign_state["cosmic_event"][event] = Turn_To_Phase * self.cosmic_event_list[event]["Duration"]
 
     def phase_change(self):
         self.must_update_image = True

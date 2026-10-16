@@ -1,4 +1,4 @@
-from engine.constants import Retinue_Leadership_Add_Modifier
+from engine.constants import Leadership_Add_Modifier
 
 
 def add_new_army_arrive(self):
@@ -15,19 +15,24 @@ def add_new_army_arrive(self):
             for army in army_list:
                 team_state = self.team_state[team]
                 commander_id = army.commander_id
-                if len(team_state["active_retinue"]) < 3:
-                    # add retinue until reach 3
-                    if army.army_followers["retinue"]:
-                        for retinue in [item[0] for item in army.army_followers["retinue"] if item[1]]:
-                            strategy_change = True
-                            team_state["leadership"] += (self.character_list[retinue]["Leadership"] *
-                                                         Retinue_Leadership_Add_Modifier)
-                            self.add_strategy_to_team_state(team_state, self.character_list[retinue]["Strategy"])
-                            team_state["active_retinue"].append(retinue)
-                            if len(team_state["active_retinue"]) == 3:
-                                break
-                        if team == player_team:
-                            self.strategy_select_ui.setup()
+                if team_state["active_leader"] < 3:
+                    strategy_change = True
+                    team_state["leadership"] += (self.character_list[commander_id]["Leadership"] *
+                                                 Leadership_Add_Modifier)
+                    self.add_strategy_to_team_state(team_state, self.character_list[commander_id]["Strategy"])
+                    team_state["active_leader"] += 1
+                    if team_state["active_leader"] < 3:
+                        # add new army leader until reach 3
+                        if army.army_followers["leader"]:
+                            for leader in [item[0] for item in army.army_followers["leader"] if item[1]]:
+                                team_state["leadership"] += (self.character_list[leader]["Leadership"] *
+                                                             Leadership_Add_Modifier)
+                                self.add_strategy_to_team_state(team_state, self.character_list[leader]["Strategy"])
+                                team_state["active_leader"] += 1
+                                if team_state["active_leader"] == 3:
+                                    break
+                    if team == player_team:
+                        self.strategy_select_ui.setup()
 
                 team_state["reinforcement_army"].append(army)
 

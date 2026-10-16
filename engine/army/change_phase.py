@@ -104,4 +104,4 @@ def change_phase(self):
                         army_change = True
 
                 if army_change:
-                    self.reset_stat()
+                    self.reset_stat(reset_player_army_card=True)

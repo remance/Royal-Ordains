@@ -1,7 +1,7 @@
-from engine.constants import Retinue_Leadership_Add_Modifier
+from engine.constants import Leadership_Add_Modifier
 
 
-def reset_stat(self, include_culture_influence=True):
+def reset_stat(self, include_culture_influence=True, reset_player_army_card=False):
     self.leadership = 0
     self.cost = 0
     self.upkeep = 0
@@ -30,9 +30,13 @@ def reset_stat(self, include_culture_influence=True):
                 if key == "commander":
                     self.leadership += character_stat["Leadership"]
                     self.total_number += 1  # commander can't be called multiple time so only 1
-                elif key == "retinue":
-                    self.leadership += character_stat["Leadership"] * Retinue_Leadership_Add_Modifier
+                elif key == "leader":
+                    self.leadership += character_stat["Leadership"] * Leadership_Add_Modifier
+                    self.total_number += total_can_call
                 else:
                     self.total_supply_usage += (character_stat["Supply"] * character_stat["Capacity"])
                     self.total_number += total_can_call
     self.strategy_regen = self.leadership / 100
+
+    if reset_player_army_card and self.faction == self.grand.player_faction:
+        self.grand.player_army_list_ui.reset_card(self)

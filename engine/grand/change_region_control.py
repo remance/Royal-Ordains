@@ -1,4 +1,5 @@
 def change_region_control(self, region, new_faction):
+    grand = self.grand
     campaign_region_state = self.current_campaign_state["region"]
 
     new_faction_owner_campaign_state = self.current_campaign_state["faction"][new_faction]
@@ -16,3 +17,8 @@ def change_region_control(self, region, new_faction):
     if new_faction == self.player_faction and "culture" not in new_faction_owner_campaign_state:
         # if new_faction == self.player_faction:
         pass
+
+    if region == grand.region_management_ui.change_selected_region:
+        # collapse region management ui if player lose control while opening it
+        grand.region_management_ui.change_selected_region(None)
+    grand.mini_map.change_grand_faction(self.current_campaign_state["region"]["control"])

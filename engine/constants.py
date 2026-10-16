@@ -21,7 +21,7 @@ Default_Supply_limit_Custom_Battle = 5000
 Default_Gold_limit_Custom_Battle = 5000
 Default_Weather_Custom_Battle = 1
 Default_Weather_Strength_Custom_Battle = 0
-Retinue_Leadership_Add_Modifier = 0.3
+Leadership_Add_Modifier = 0.3
 
 Phase_To_Game_Time = 1  # in second to 1 phase
 Turn_To_Phase = 12  # in phase to 1 turn
@@ -30,7 +30,7 @@ Phase_To_Battle_Time = 60  # in second
 """culture policy for grand campaign
 ANY CHANGE IN KEYS WILL CAUSE ERRORS from the inconsistency in game code, uioutergrand and ui sprite asset
 the value indicate maximum integration value that the culture can reach"""
-Culture_Policy_Integration = {"reject": -1, "tolerate": 0.1, "restrict": 0.35, "partial": 0.65, "accept": 1}
+Culture_Policy_Integration = {"reject": -1, "tolerate": 0.1, "restrict": 0.35, "partial": 0.7, "accept": 1}
 Culture_Policy_Relation = {"reject": -30, "tolerate": 0, "restrict": -15, "partial": -5, "accept": 10}
 
 """Route type travel modifier for army in grand campaign"""

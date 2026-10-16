@@ -7,8 +7,13 @@ from pygame import quit as pg_quit
 def state_grand_process(self):
     if self.input_popup:  # currently, have input text pop up on screen, stop everything else until done.
         self.ui_menu_updater.update(self.true_dt)
+        self.camera.update_with_in_camera_check(self.grand_camera_region_drawer)
+        # add route after map region draw to blit route dots on the map under other sprites.
+        self.draw_route()
+
         self.camera.update_with_in_camera_check(self.grand_camera_object_drawer)
-        self.camera.out_update(self.outer_ui_updater)
+        self.camera.update(self.grand_camera_ui_drawer)
+        self.camera.out_update(self.outer_ui_drawer)
         self.camera.out_update(self.ui_menu_drawer)
 
         if self.input_ok_button.event_press:
@@ -27,9 +32,10 @@ def state_grand_process(self):
                 # for army in self.player_selected_army:
 
                 pass
-            elif self.input_popup[1] == "assemble":
-                for army in self.player_selected_army:
-                    army.issue_move_command(self.input_popup[2][0], direct=self.input_popup[2][1])
+            elif self.input_popup[1] == "dismiss":
+                character = self.input_popup[2]
+                self.dismiss_faction_character(self.player_faction, character)
+                self.court_management_ui.court_reset()
 
             elif self.input_popup[1] == "quit":
                 pygame.time.wait(1000)
@@ -41,6 +47,8 @@ def state_grand_process(self):
                 self.input_box.render_text("")
                 self.input_popup = None
                 self.remove_from_ui_menu_updater(self.all_input_popup_uis)
+                self.add_to_outer_ui_menu_updater(self.cursor)
+                self.remove_from_ui_menu_updater(self.cursor)
 
         elif self.input_cancel_button.event_press or self.input_close_button.event_press or self.esc_press:
             self.change_pause_update(False)
@@ -48,30 +56,7 @@ def state_grand_process(self):
             self.input_popup = None
             self.remove_from_ui_menu_updater(self.all_input_popup_uis)
 
-        # elif self.input_popup[0] == "text_input":
-        #     if not self.text_delay:
-        #         if key_press[self.input_box.hold_key]:
-        #             self.input_box.player_input(None, key_press)
-        #             self.text_delay = 0.15
-        #     else:
-        #         self.text_delay -= self.dt
-        #         if self.text_delay < 0:
-        #             self.text_delay = 0.
     else:
-        if self.esc_press or self.menu_bar_ui.option_selected == "menu":  # pause game and open menu
-            self.music_channel.set_volume(0)
-            self.ambient_channel.set_volume(0)
-
-            for sound_ch in self.effect_sound_channels:
-                if sound_ch.get_busy():  # pause all sound playing
-                    sound_ch.set_volume(0)
-
-            self.menu_bar_ui.option_selected = None
-            self.change_game_state("menu")  # open menu
-            self.outer_ui_updater.remove(self.cursor)
-            self.add_to_ui_menu_updater(self.cursor)
-            self.add_to_ui_menu_updater(self.grand_menu_button.values())  # add menu and its buttons to drawer
-
         # Update game time
         dt = self.true_dt * self.game_speed
         self.dt = dt  # apply dt with game_speed for calculation
@@ -119,14 +104,32 @@ def state_grand_process(self):
         self.camera.camera_right_bound = self.camera.camera_left_bound + self.screen_width
         self.camera.camera_bottom_bound = self.camera.camera_top_bound + self.screen_height
 
-        # update ui and add object to camera
-        self.grand_camera_ui_updater.update(self.true_dt)
+        # draw object to camera
         self.camera.update_with_in_camera_check(self.grand_camera_region_drawer)
         # add route after map region draw to blit route dots on the map under other sprites.
         self.draw_route()
-        self.camera.update_with_in_camera_check(self.grand_camera_object_drawer)
 
-        self.camera.update(self.grand_camera_ui_drawer)
+        # update ui
+        self.grand_camera_ui_updater.update(self.true_dt)
         self.outer_ui_updater.update(dt)
-        self.camera.update(self.ui_menu_drawer)
-        self.camera.out_update(self.outer_ui_updater)
+
+        # draw ui
+        self.camera.update_with_in_camera_check(self.grand_camera_object_drawer)
+        self.camera.update(self.grand_camera_ui_drawer)
+        self.camera.out_update(self.outer_ui_drawer)
+        self.camera.out_update(self.ui_menu_drawer)
+
+        if self.esc_press:  # pause game and open menu
+            self.music_channel.set_volume(0)
+            self.ambient_channel.set_volume(0)
+
+            for sound_ch in self.effect_sound_channels:
+                if sound_ch.get_busy():  # pause all sound playing
+                    sound_ch.set_volume(0)
+
+            self.menu_bar_ui.option_selected = None
+            self.change_game_state("menu")  # open menu
+            self.remove_from_outer_ui_menu_updater(self.cursor)
+            self.add_to_ui_menu_updater(self.cursor)
+            self.add_to_ui_menu_updater(self.grand_menu_button.values())  # add menu and its buttons to drawer
+

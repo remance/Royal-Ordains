@@ -352,7 +352,7 @@ class Game:
 
         if self.show_dmg_number:
             BattleCharacter.show_dmg_number = True
-        Army.character_hire_building_list = self.stat_data.character_hire_building_list
+        Army.character_recruit_building_list = self.stat_data.character_recruit_building_list
         Army.character_list = self.character_list
         Character.stat_data = self.stat_data
         Character.character_list = self.character_list
@@ -378,6 +378,7 @@ class Game:
         UIMenu.grand_ui_images = self.grand_ui_images
         UIMenu.localisation = self.localisation
         UIMenu.remove_from_ui_menu_updater = self.remove_from_ui_menu_updater
+        UIMenu.screen_center = (self.screen_width / 2, self.screen_height / 2)
         UIMenu.screen_height = self.screen_height
         UIMenu.screen_rect = self.screen_rect
         UIMenu.screen_scale_height = self.screen_scale_height
@@ -456,9 +457,9 @@ class Game:
         # Custom battle select menu button
         self.custom_team_players = {1: "player", 2: "computer"}
         self.showcase_army = Army("", "", "", "",
-                                  {"leader": [], "troop": [], "air": [], "retinue": []})
+                                  {"leader": [], "troop": [], "air": []})
         self.custom_team_army = {index: [Army("", "", "", "",
-                                              {"leader": [], "troop": [], "air": [], "retinue": []})
+                                              {"leader": [], "troop": [], "air": []})
                                          for _ in range(5)] for index in (1, 2)}
 
         self.setup_back_button = BrownMenuButton((.15, 0.5), (0.6, 0),
@@ -552,7 +553,7 @@ class Game:
         self.custom_army_info_popup = PresetArmySetupUI((self.screen_width * 0.5, self.screen_height * 0.5),
                                                         False, layer=100000)
         self.custom_army_title_popup = CustomPresetTitle((self.custom_army_info_popup.image.get_width(),
-                                                          80 * self.screen_scale_height),
+                                                          120 * self.screen_scale_height),
                                                          (self.screen_rect.width / 2,
                                                           self.custom_army_info_popup.rect.midtop[1]))
         self.custom_battle_menu_uis = (self.setup_back_button, self.custom_battle_preset_button,
@@ -588,8 +589,6 @@ class Game:
                                                           (self.screen_rect.width / 2,
                                                            self.custom_preset_army_setup.rect.midtop[1]))
         self.character_selector = CharacterSelector((self.screen_width * 0.78, self.screen_height * 0.2))
-        self.character_selector_scroll = UIScroll(self.character_selector,
-                                                  self.character_selector.rect.topright)
         self.custom_preset_list_box = ListUI(pivot=(-0.9, -0.6), origin=(-1, -1), size=(0.15, 0.5),
                                              items=CustomArmyPresetListAdapter(),
                                              parent=self.screen, item_size=20)
@@ -597,7 +596,7 @@ class Game:
 
         self.custom_preset_menu_uis = (self.preset_back_button, self.preset_save_button, self.custom_preset_list_box,
                                        self.custom_preset_culture_selector, self.custom_preset_army_setup,
-                                       self.character_selector, self.character_selector_scroll,
+                                       self.character_selector, self.character_selector.scroll,
                                        self.custom_preset_army_title)
 
         # mission select menu button
@@ -653,8 +652,6 @@ class Game:
                                                          include_free=True, use_culture=True)
         self.lorebook_showcase_character_selector = CharacterSelector(
             (self.screen_width * 0.17, self.screen_height * 0.15))
-        self.lorebook_showcase_character_selector_scroll = UIScroll(self.lorebook_showcase_character_selector,
-                                                                    self.lorebook_showcase_character_selector.rect.topright)
 
         self.lorebook_showcase_box = StaticImage((self.screen_width * 0.595, self.screen_height * 0.4),
                                                  load_image(self.game.data_dir, "showcase_box.png",
@@ -681,7 +678,7 @@ class Game:
         self.lorebook_character_moveset_showcase = CharacterMovesetShowCase()
         self.lorebook_character_description_showcase.change_character(Default_Showcase_Character)
         self.lorebook_menu_uis = (self.lorebook_showcase_character_selector,
-                                  self.lorebook_showcase_character_selector_scroll, self.lorebook_showcase_box,
+                                  self.lorebook_showcase_character_selector.scroll, self.lorebook_showcase_box,
                                   self.lorebook_showcase_animation_list_box, self.lorebook_back_button,
                                   self.lorebook_faction_selector, self.lorebook_character_description_showcase,
                                   self.lorebook_character_moveset_showcase,
@@ -718,8 +715,8 @@ class Game:
         self.d8_back = StaticImage((1670 * self.screen_scale_width, 1040 * self.screen_scale_height),
                                    self.background_image["d8_1_back"], 0)
 
-        self.main_menu_actor = (self.o2, self.d8, self.d8_back, self.o2_actor, self.y3_actor,
-                                self.l5_actor, self.d8_actor)
+        self.main_menu_actors = (self.o2, self.d8, self.d8_back, self.o2_actor, self.y3_actor,
+                                 self.l5_actor, self.d8_actor)
         self.dt = 0
         self.input_delay = 0
         self.text_delay = 0
@@ -767,7 +764,7 @@ class Game:
 
     def setup_profiler(self):
         self.profiler.enable()
-        self.battle.outer_ui_updater.add(self.profiler)
+        self.battle.add_to_outer_ui_menu_updater(self.profiler)
 
     def update(self):
         clear_event()

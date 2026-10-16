@@ -14,7 +14,7 @@ def state_menu_process(self):
     self.camera.update(self.battle_camera_object_drawer)
 
     self.camera.update(self.battle_camera_ui_drawer)
-    self.camera.out_update(self.outer_ui_updater)
+    self.camera.out_update(self.outer_ui_drawer)
     self.ui_menu_drawer.draw(self.screen)  # draw the UI
 
     if self.input_popup:  # currently, have input pop up on screen, stop everything else until done
@@ -112,7 +112,7 @@ def back_to_battle_state(self):
                                      self.esc_slider_menu.values(),
                                      self.esc_value_boxes.values(), self.esc_option_text.values(), self.cursor,
                                      self.scene_translation_text_popup)
-    self.outer_ui_updater.add(self.battle_cursor)
+    self.add_to_outer_ui_menu_updater(self.battle_cursor)
 
     self.music_channel.set_volume(self.play_music_volume)
     self.music_channel.unpause()

@@ -8,13 +8,13 @@ from engine.uiouterbattle.uiouterbattle import UIOuterBattle
 from engine.utils.rotation import set_rotate
 
 
-class Weather(UIOuterBattle):
+class Weather:
+    battle = None
     weather_matter_images = None
     weather_data = None
 
     def __init__(self, weather_type, wind_direction, level):
         self._layer = 99999999999999999999
-        UIOuterBattle.__init__(self)
         self.new_weather_reset = True
         self.weather_matters = self.battle.weather_matters
         self.weather_spawn_timer = {}

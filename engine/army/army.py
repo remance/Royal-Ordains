@@ -1,4 +1,4 @@
-from engine.army.change_active_commander_actor import change_active_commander_actor
+from engine.army.change_commander import change_commander
 from engine.army.change_phase import change_phase
 from engine.army.check_assemble import check_assemble
 from engine.army.issue_move_command import issue_move_command
@@ -8,11 +8,11 @@ from engine.grand.deploy_army_from_reserve import deploy_army_from_reserve
 
 
 class Army:
-    character_hire_building_list = None
+    character_recruit_building_list = None
     character_list = None
     grand = None
 
-    change_active_commander_actor = change_active_commander_actor
+    change_commander = change_commander
     change_phase = change_phase
     check_assemble = check_assemble
     deploy_from_reserve = deploy_army_from_reserve
@@ -90,6 +90,6 @@ class Army:
                 "power": self.power, "supply": self.supply, "max_supply": self.max_supply,
                 "strategy": [self.character_list[self.commander_id]["Strategy"]] +
                             [self.character_list[character[0]]["Strategy"] for character in
-                             self.army_followers["retinue"] if character],
+                             self.army_followers["leader"] if character],
                 "total_supply_usage": self.total_supply_usage
                 }

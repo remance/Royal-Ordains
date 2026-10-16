@@ -13,7 +13,8 @@ def state_menu_process(self):
     self.draw_route()
 
     self.camera.update_with_in_camera_check(self.grand_camera_object_drawer)
-    self.camera.out_update(self.outer_ui_updater)
+    self.camera.update(self.grand_camera_ui_drawer)
+    self.camera.out_update(self.outer_ui_drawer)
     self.camera.out_update(self.ui_menu_drawer)
 
     if self.input_popup:  # currently, have input text pop up on screen, stop everything else until done.
@@ -99,7 +100,7 @@ def back_to_grand_state(self):
     self.remove_from_ui_menu_updater(self.grand_menu_button.values(), self.esc_option_menu_button,
                                      self.esc_slider_menu.values(), self.cursor,
                                      self.esc_value_boxes.values(), self.esc_option_text.values())
-    self.outer_ui_updater.add(self.cursor)
+    self.add_to_outer_ui_menu_updater(self.cursor)
     self.music_channel.set_volume(self.play_music_volume)
     self.music_channel.unpause()
     self.ambient_channel.set_volume(self.play_effect_volume)

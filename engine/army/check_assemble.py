@@ -15,7 +15,7 @@ def check_assemble(self, specific=None):
     can_assemble = self.can_assemble
     assemble_time_check_cache = {}
 
-    character_hire_building_list = self.character_hire_building_list
+    character_recruit_building_list = self.character_recruit_building_list
     character_list = self.character_list
     owned_region_list = self.grand.current_campaign_state["faction"][self.faction]["region"]
     region_building_list = self.grand.current_campaign_state["region"]["building"]
@@ -32,7 +32,7 @@ def check_assemble(self, specific=None):
                             if character in assemble_time_check_cache:  # already has nearest check for same character
                                 can_assemble[(key, index)] = assemble_time_check_cache[character]
                             else:
-                                building_to_check = character_hire_building_list[character]  # already in [id, True, 0]
+                                building_to_check = character_recruit_building_list[character]  # already in [id, True, 0]
                                 for region in owned_region_list:
                                     if building_to_check in region_building_list[region]:
                                         if self.current_region == region:  # same region use 1 turn, no need to check further

@@ -1,5 +1,7 @@
 def remove_army_from_active(self, destroyed=False):
     """remove army and put it in reserved instead"""
+    self.current_region = None
+
     grand = self.grand
     if destroyed:  # destroyed army get supply removed
         self.supply = 0  # remove supply

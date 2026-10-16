@@ -14,6 +14,16 @@ def change_turn(self, turn_change=True):
                 # event duration is based on turn rather than phase
                 faction_state["event"] = {event: value - 1 for event, value in faction_state["event"].items() if
                                           value > 1}
+                for diplomacy_value in faction_state["diplomacy"].values():
+                    for history in tuple(diplomacy_value["history"]):
+                        if history[1] < 0:
+                            history[1] += 10
+                            if history[1] >= 0:
+                                diplomacy_value["history"].remove(history)
+                        else:
+                            history[1] -= 10
+                            if history[1] <= 0:
+                                diplomacy_value["history"].remove(history)
 
                 # faction_region_control = self.current_campaign_state["region"]["control"][faction]
                 for faction_culture in faction_state["culture"].values():
@@ -34,10 +44,10 @@ def change_turn(self, turn_change=True):
             self.cal_faction_culture(faction)
 
             for region in faction_state["region"]:
-                self.cal_region_income(region)
+                self.cal_region_income_recruit(faction, region)
 
             for army in faction_state["army"]:
-                army.reset_stat()
+                army.reset_stat(reset_player_army_card=True)
 
             self.cal_faction_income(faction)
 

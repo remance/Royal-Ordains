@@ -7,8 +7,7 @@ from engine.constants import Opposite_Team, Phase_To_Battle_Time
 
 def state_battle_process(self):
     camera = self.camera
-    outer_ui_updater = self.outer_ui_updater
-    outer_ui_updater.remove(self.text_popup)
+    self.remove_from_outer_ui_menu_updater(self.text_popup)
     self.player_input()
 
     if self.esc_press:  # pause game and open menu
@@ -28,17 +27,7 @@ def state_battle_process(self):
             width_text_wrapper=self.screen_width)
         self.add_to_ui_menu_updater(self.cursor, self.battle_menu_button.values(),
                                     self.scene_translation_text_popup)  # add menu and its buttons to drawer
-        outer_ui_updater.remove(self.battle_cursor)
-    # elif not self.cutscene_playing:
-    #     if self.player_key_press["Inventory Menu"]:
-    #         # open court book
-    #         self.court_book.add_portraits(self.main_story_profile["interface event queue"]["courtbook"])
-    #         self.add_ui_updater(self.cursor, self.court_book)
-    #         self.change_game_state("court")
-    #     elif self.player_key_press["Special"]:
-    #         # open city map
-    #         self.add_ui_updater(self.cursor, self.city_map)
-    #         self.change_game_state("map")
+        self.remove_from_outer_ui_menu_updater(self.battle_cursor)
 
     # Update game time
     dt = self.true_dt * self.game_speed
@@ -244,10 +233,10 @@ def state_battle_process(self):
             else:
                 self.end_delay += dt
                 if self.end_delay >= 5:  # show result
-                    outer_ui_updater.remove(self.command_ui, self.strategy_select_ui, self.player_interact,
+                    self.remove_from_outer_ui_menu_updater(self.command_ui, self.strategy_select_ui, self.player_interact,
                                             self.battle_scale_ui, self.tactical_map_ui,
                                             self.battle_helper_ui, self.battle_cursor)
-                    outer_ui_updater.add(self.battle_result_ui, self.out_of_battle_result_button)
+                    self.add_to_outer_ui_menu_updater(self.battle_result_ui, self.out_of_battle_result_button)
 
                     self.add_to_ui_menu_updater(self.cursor)
 
@@ -272,9 +261,8 @@ def state_battle_process(self):
     camera.camera_right_bound = self.shown_camera_center_pos[0] + self.camera_w_center
     camera.camera_bottom_bound = self.shown_camera_center_pos[0] + self.camera_center_y
     self.scene.update()
+    self.outer_ui_updater.update(dt)
     camera.update(self.battle_camera_object_drawer)
     camera.update(self.battle_camera_ui_drawer)
-    outer_ui_updater.update(dt)
-
-    camera.out_update(outer_ui_updater)
+    camera.out_update(self.outer_ui_drawer)
     self.blit_culling_check.clear()

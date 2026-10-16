@@ -11,22 +11,24 @@ from pygame.transform import flip
 from engine.battle.player_input_battle import key_select_strategy
 from engine.constants import *
 from engine.uimenu.uimenu import UIMenu, MenuCursor, BoxUI
+from engine.uibattle.uibattle import UIBattle
 from engine.utils.common import keyboard_mouse_press_check
 from engine.utils.text_making import text_render_with_bg, text_render_with_texture, \
     make_long_text, shorten_number, add_comma_number
 
 
-class UIOuterBattle(UIMenu):
+class UIOuterBattle(UIBattle):
+    cursor = None
+    text_popup = None
+    add_to_outer_ui_menu_updater = None
+    remove_from_outer_ui_menu_updater = None
+
     def __init__(self, player_cursor_interact=True, has_containers=False):
         """
         Parent class for all battle menu user interface that exist outside of battle camera
         """
-        from engine.battle.battle import Battle
-        UIMenu.__init__(self, player_cursor_interact=player_cursor_interact, has_containers=has_containers)
-        self.battle = Battle.battle
-        self.cursor = Battle.battle_cursor  # use battle cursor for battle ui
-        self.outer_ui_updater = self.battle.outer_ui_updater
-        self.text_popup = self.battle.text_popup
+        UIBattle.__init__(self, player_cursor_interact=player_cursor_interact, has_containers=has_containers)
+
         self.max_description_box_width = int(1000 * self.screen_scale_width)
 
 
@@ -47,11 +49,12 @@ class ButtonUI(UIOuterBattle):
 class BattleCursor(UIOuterBattle, MenuCursor):
     def __init__(self, images):
         """Game battle cursor"""
-        self._layer = 999999999999  # as high as possible, always blit last
+        self._layer = 9999999999999999999999999999999999999999  # as high as possible, always blit last
         MenuCursor.__init__(self, images)
         UIOuterBattle.__init__(self)
 
     def update(self, dt):
+        self.event = False
         self.is_select_just_down, self.is_select_down, self.is_select_just_up = keyboard_mouse_press_check(
             mouse, 0, self.is_select_just_down, self.is_select_down, self.is_select_just_up)
 
@@ -498,7 +501,7 @@ class Command(UIOuterBattle):
         if call_remain:
             char_stat.append(grab_text(("ui", "info_header_call_remain")) + str(call_remain))
         self.text_popup.popup(self.rect.bottomleft, char_stat, width_text_wrapper=self.max_description_box_width)
-        self.outer_ui_updater.add(self.text_popup)
+        self.add_to_outer_ui_menu_updater(self.text_popup)
 
     def reset(self):
         self.image = self.base_image.copy()
@@ -712,7 +715,7 @@ class BattleHelper(UIOuterBattle):
             if not helper_mouse_over:
                 self.text_popup.popup(("topright", self.rect.bottomright), self.battle_info_text,
                                       width_text_wrapper=self.max_description_box_width)
-                self.outer_ui_updater.add(self.text_popup)
+                self.add_to_outer_ui_menu_updater(self.text_popup)
         if must_reset_image:
             self.reset_image()
 
@@ -1024,7 +1027,7 @@ class StrategySelect(UIOuterBattle):
                             text = self.strategy_text_list_cache[this_strategy]
                         self.text_popup.popup(self.rect.bottomleft, text,
                                               width_text_wrapper=self.max_description_box_width)
-                        self.outer_ui_updater.add(self.text_popup)
+                        self.add_to_outer_ui_menu_updater(self.text_popup)
                         if self.event_press:
                             if not min(tuple(self.player_team_stat["strategy_cooldown"].values())[index]):
                                 key_select_strategy(self.battle, index)
@@ -1033,7 +1036,7 @@ class StrategySelect(UIOuterBattle):
 
 class PlayerBattleInteract(UIOuterBattle):
     def __init__(self):
-        self._layer = 9999999999999999999
+        self._layer = 1
         UIOuterBattle.__init__(self, player_cursor_interact=False)
         self.battle_camera = self.battle.camera
         self.battle_camera_image = self.battle_camera.image

@@ -57,12 +57,12 @@ def menu_option(self):
         if not self.fps_box.tick:
             self.fps_box.change_tick(True)
             self.show_fps = 1
-            self.battle.outer_ui_updater.add(self.battle.fps_count)
+            self.battle.add_to_outer_ui_menu_updater(self.battle.fps_count)
             self.add_to_ui_menu_updater(self.fps_count)
         else:
             self.fps_box.change_tick(False)
             self.show_fps = 0
-            self.battle.outer_ui_updater.remove(self.battle.fps_count)
+            self.battle.remove_from_outer_ui_menu_updater(self.battle.fps_count)
             self.remove_from_ui_menu_updater(self.fps_count)
         edit_config("USER", "fps", self.show_fps, self.config_path,
                     self.config)

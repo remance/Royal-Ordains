@@ -110,6 +110,11 @@ class DataSprite(GameData):
             for file, image in character_portraits.items():
                 self.character_portraits[file] = {"character_ui": smoothscale(image, (
                     image.get_width() * self.screen_scale_width, image.get_height() * self.screen_scale_height))}
+
+                mini_portrait = smoothscale(image, (250 * self.screen_scale_width, 250 * self.screen_scale_height))
+                self.character_portraits[file]["medium"] = {"right": mini_portrait,
+                                                            "left": flip(mini_portrait, True, False)}
+
                 mini_portrait = smoothscale(image, (200 * self.screen_scale_width, 200 * self.screen_scale_height))
                 self.character_portraits[file]["small"] = {"right": mini_portrait,
                                                            "left": flip(mini_portrait, True, False)}

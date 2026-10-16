@@ -20,10 +20,6 @@ from engine.utils.text_making import text_render_with_bg, make_long_text, add_co
 
 none_type = type(None)
 
-army_header = ("Commander", "Leader 1", "Leader 2", "Leader 3", "Troop 1", "Troop 2", "Troop 3", "Troop 4",
-               "Troop 5", "Air 1", "Air 2", "Air 3", "Air 4", "Air 5", "Retinue 1", "Retinue 2", "Retinue 3")
-army_leader_header = ("Commander", "Leader 1", "Leader 2", "Leader 3", "Retinue 1", "Retinue 2", "Retinue 3")
-
 
 @lru_cache(maxsize=2 ** 8)
 def draw_text(text, font, color, ellipsis_length=None):
@@ -131,6 +127,7 @@ class UIMenu(Sprite):
     game = None
     grand_ui_images = None
     remove_from_ui_menu_updater = None
+    screen_center = None
     screen_height = None
     screen_rect = None
     screen_scale_width = None
@@ -220,11 +217,10 @@ class UIScroll(UIMenu):
         self._layer = self.ui.layer + 2  # always 2 layer higher than the ui
         UIMenu.__init__(self)
 
-        self.ui.scroll = self
         self.ui_height = self.ui.image.get_height()
         self.max_row_show = self.ui.max_row_show
         self.pos = pos
-        self.image = Surface((10, self.ui_height))
+        self.image = Surface((40 * self.screen_scale_width, self.ui_height))
         self.image.fill((255, 255, 255))
         self.base_image = self.image.copy()
         self.button_colour = (100, 100, 100)
@@ -255,7 +251,7 @@ class UIScroll(UIMenu):
 
     def update(self, dt):
         """Player input update via click or scrolling"""
-        if UIMenu.update(self, dt) and (self.event_hold or self.event_press):
+        if UIMenu.update(self, dt) and self.event:
             mouse_value = (self.cursor.pos[1] - self.pos[
                 1]) * 100 / self.ui_height  # find what percentage of mouse_pos at the scroll bar (0 = top, 100 = bottom)
             if mouse_value > 100:
@@ -277,6 +273,7 @@ class MenuCursor(UIMenu):
         self.images = images
         self.image = images["normal"]
         self.pos = (0, 0)
+        self.event = False
         self.is_select_just_down = False
         self.is_select_down = False
         self.is_select_just_up = False
@@ -301,6 +298,7 @@ class MenuCursor(UIMenu):
         """Update cursor position based on mouse position and mouse button click"""
         self.pos = mouse.get_pos()
         self.rect.topleft = self.pos
+        self.event = False
         self.mouse_over = False
         self.is_select_just_down, self.is_select_down, self.is_select_just_up = keyboard_mouse_press_check(
             mouse, 0, self.is_select_just_down, self.is_select_down, self.is_select_just_up)
@@ -316,6 +314,9 @@ class MenuCursor(UIMenu):
             mouse, 1, self.is_middle_mouse_select_just_down, self.is_middle_mouse_select_down,
             self.is_middle_mouse_select_just_up)
         self.middle_mouse_select_up = self.is_middle_mouse_select_just_up
+
+        if any((self.is_select_just_down, self.is_alt_select_just_down, self.is_middle_mouse_select_just_down)):
+            self.event = True
 
         if self.is_select_down or self.is_alt_select_down:
             self.change_image("click")
@@ -520,7 +521,6 @@ class CharacterSelector(UIMenu):
         """UI for selecting character for army setup"""
         self._layer = 11
         UIMenu.__init__(self)
-        self.scroll = None  # got added later during scroll object __init__
         self.character_portraits = self.game.sprite_data.character_portraits
         self.character_list = self.game.character_list
         self.custom_character_setup = self.game.stat_data.custom_character_setup
@@ -548,27 +548,30 @@ class CharacterSelector(UIMenu):
 
         self.rect = self.image.get_rect(midtop=pos)
 
-    def add(self, faction, character_type, exist_unique_check=()):
+        self.scroll = UIScroll(self, self.rect.topright)
+
+    def add(self, faction=None, character_type=None, exist_unique_check=()):
         selector_character_list = ()
         self.shown_character_type = character_type
-        if self.game.menu_state in ("custom", "preset"):
-            if character_type in ("commander", "leader", "retinue"):
-                selector_character_list = [value for value in
-                                           self.custom_character_setup[faction]["ground"]["leader"]["unique"] if value
-                                           not in exist_unique_check]
-                selector_character_list += [value for value in
-                                            self.custom_character_setup["free"]["ground"]["leader"]["unique"] if value
-                                            not in exist_unique_check]
-                if character_type == "commander":  # exclude leader that cannot be commander
-                    selector_character_list = [value for value in selector_character_list
-                                               if not self.character_list[value]["No Commander"]]
-                selector_character_list += self.custom_character_setup[faction]["ground"]["leader"]["generic"]
-            elif character_type == "troop":
-                selector_character_list = self.custom_character_setup[faction]["ground"]["troop"]
-            elif character_type == "air":
-                selector_character_list = self.custom_character_setup[faction]["air"]
-        else:
-            selector_character_list = self.all_main_exist_characters[faction]
+        if faction:
+            if self.game.menu_state in ("custom", "preset"):
+                if character_type in ("commander", "leader"):
+                    selector_character_list = [value for value in
+                                               self.custom_character_setup[faction]["ground"]["leader"]["unique"] if value
+                                               not in exist_unique_check]
+                    selector_character_list += [value for value in
+                                                self.custom_character_setup["free"]["ground"]["leader"]["unique"] if value
+                                                not in exist_unique_check]
+                    if character_type == "commander":  # exclude leader that cannot be commander
+                        selector_character_list = [value for value in selector_character_list
+                                                   if not self.character_list[value]["No Commander"]]
+                    selector_character_list += self.custom_character_setup[faction]["ground"]["leader"]["generic"]
+                elif character_type == "troop":
+                    selector_character_list = self.custom_character_setup[faction]["ground"]["troop"]
+                elif character_type == "air":
+                    selector_character_list = self.custom_character_setup[faction]["air"]
+            else:
+                selector_character_list = self.all_main_exist_characters[faction]
         # sort characters, based on unique leader, common leader, ground troop, air troop
         true_selector_character_list = [item for item in selector_character_list if
                                         self.character_list[item]["Is Leader"] and self.character_list[item][
@@ -678,64 +681,56 @@ class CharacterSelector(UIMenu):
                                     game.lorebook_character_description_showcase.change_character(character_id)
                                     game.lorebook_character_moveset_showcase.change_moveset(character_id, None)
                             return
-                        if self.shown_character_type != "retinue":
-                            char_stat = [grab_text(("character", character_id, "Name")) + " (" +
-                                         str(character_data["Arrive Per Call"]) + "" +
-                                         "x" + str(character_data["Capacity"]) + ")",
-                                         grab_text(("character", character_id, "Description")),
-                                         grab_text(("ui", "info_header_class")) + grab_text(
-                                             ("ui", "grade_" + character_data["Grade"])) + " " + grab_text(
-                                             ("ui", "behaviour_" + character_data["AI Behaviour"])) + " " + grab_text(
-                                             ("ui", "class_" + character_data["Class"])),
-                                         grab_text(("ui", "info_header_health")) + add_comma_number(
-                                             character_data["Health"]),
-                                         grab_text(("ui", "info_header_offence")) + str(character_data["Offence"]),
-                                         grab_text(("ui", "info_header_defence")) + str(character_data["Defence"]),
-                                         grab_text(("ui", "info_header_speed")) + str(character_data["Speed"]),
-                                         (grab_text(("ui", "info_header_cost")) + add_comma_number(
-                                             character_data["Cost"]), self.grand_ui_images["gold"])]
 
-                            if character_data["Leadership"]:
-                                char_stat.append(grab_text(("ui", "info_header_leadership")) + str(
-                                    character_data["Leadership"]))
-                            if character_data["Strategy"]:
-                                char_stat.append(
-                                    grab_text(("ui", "info_header_strategy")) + grab_text(
-                                        ("strategy", character_data["Strategy"], "Name")))
-                            if character_data["Supply"]:
-                                char_stat.append(
-                                    (grab_text(("ui", "info_header_supply_cost")) + str(character_data["Supply"]),
-                                     self.grand_ui_images["supply"]))
+                        char_stat = [grab_text(("character", character_id, "Name")) + " (" +
+                                     str(character_data["Arrive Per Call"]) + "" +
+                                     "x" + str(character_data["Capacity"]) + ")",
+                                     grab_text(("character", character_id, "Description")),
+                                     grab_text(("ui", "info_header_class")) + grab_text(
+                                         ("ui", "grade_" + character_data["Grade"])) + " " + grab_text(
+                                         ("ui", "behaviour_" + character_data["AI Behaviour"])) + " " + grab_text(
+                                         ("ui", "class_" + character_data["Class"])),
+                                     grab_text(("ui", "info_header_health")) + add_comma_number(
+                                         character_data["Health"]),
+                                     grab_text(("ui", "info_header_offence")) + str(character_data["Offence"]),
+                                     grab_text(("ui", "info_header_defence")) + str(character_data["Defence"]),
+                                     grab_text(("ui", "info_header_speed")) + str(character_data["Speed"]),
+                                     (grab_text(("ui", "info_header_cost")) + add_comma_number(
+                                         character_data["Cost"]), self.grand_ui_images["gold"])]
 
-                            resistance_text = [grab_text(("ui", "info_header_resistance"))]
-                            has_resistance = False
-                            for resistance in (
-                                    "Slash", "Crush", "Stab", "Fire", "Water", "Air", "Earth", "Magic", "Poison"):
-                                if character_data[resistance + " Resistance"]:
-                                    has_resistance = True
-                                    resistance_text += [
-                                        str(int(100 * character_data[resistance + " Resistance"])) + "%",
-                                        self.battle_ui_images["element_" + resistance.lower()], " "]
-                            if has_resistance:
-                                char_stat.append(resistance_text)
-                            tag_text = ""
-                            for prop in character_data["Property"]:
-                                prop_text = grab_text(("ui", "property_" + prop))
-                                if "(" not in prop_text:  # mean tag has no localisation, likely intentional
-                                    tag_text += prop_text + ", "
-                            if tag_text:
-                                tag_text = grab_text(("ui", "info_header_property")) + tag_text
-                                tag_text = tag_text[:-2]  # remove additional comma
-                                char_stat.append(tag_text)
-                        else:
-                            char_stat = [grab_text(("character", character_id, "Name")), "",
-                                         grab_text(("character", character_id, "Description")),
-                                         grab_text(("ui", "info_header_strategy")) + grab_text(
-                                             ("strategy", character_data["Strategy"], "Name")),
-                                         grab_text(("ui", "info_header_leadership")) + add_comma_number(
-                                             character_data["Leadership"]),
-                                         (grab_text(("ui", "info_header_cost")) + add_comma_number(
-                                             character_data["Cost"]), self.grand_ui_images["gold"])]
+                        if character_data["Leadership"]:
+                            char_stat.append(grab_text(("ui", "info_header_leadership")) + str(
+                                character_data["Leadership"]))
+                        if character_data["Strategy"]:
+                            char_stat.append(
+                                grab_text(("ui", "info_header_strategy")) + grab_text(
+                                    ("strategy", character_data["Strategy"], "Name")))
+                        if character_data["Supply"]:
+                            char_stat.append(
+                                (grab_text(("ui", "info_header_supply_cost")) + str(character_data["Supply"]),
+                                 self.grand_ui_images["supply"]))
+
+                        resistance_text = [grab_text(("ui", "info_header_resistance"))]
+                        has_resistance = False
+                        for resistance in (
+                                "Slash", "Crush", "Stab", "Fire", "Water", "Air", "Earth", "Magic", "Poison"):
+                            if character_data[resistance + " Resistance"]:
+                                has_resistance = True
+                                resistance_text += [
+                                    str(int(100 * character_data[resistance + " Resistance"])) + "%",
+                                    self.battle_ui_images["element_" + resistance.lower()], " "]
+                        if has_resistance:
+                            char_stat.append(resistance_text)
+                        tag_text = ""
+                        for prop in character_data["Property"]:
+                            prop_text = grab_text(("ui", "property_" + prop))
+                            if "(" not in prop_text:  # mean tag has no localisation, likely intentional
+                                tag_text += prop_text + ", "
+                        if tag_text:
+                            tag_text = grab_text(("ui", "info_header_property")) + tag_text
+                            tag_text = tag_text[:-2]  # remove additional comma
+                            char_stat.append(tag_text)
+
                         game.text_popup.popup(self.cursor.rect, char_stat,
                                               width_text_wrapper=int(1400 * self.screen_scale_width))
                         self.add_to_ui_menu_updater(game.text_popup)
@@ -888,7 +883,7 @@ class CustomTeamSetupUI(UIMenu):
 
     def change_culture_preset(self, culture, index):
         self.game.custom_team_army[self.team][index].__init__("", "", "", None,
-                                                              {"leader": [], "troop": [], "air": [], "retinue": []})
+                                                              {"leader": [], "troop": [], "air": []})
         self.team_setup[index]["culture"] = culture
         self.team_setup[index]["army"] = None
         self.image.blit(self.circle, self.culture_coa_rects[index])
@@ -900,7 +895,7 @@ class CustomTeamSetupUI(UIMenu):
             self.add_to_ui_menu_updater(self.game.custom_team_army_buttons[self.team][index])
 
         self.game.custom_team_army[self.team][index].__init__("", "", "", None,
-                                                              {"leader": [], "troop": [], "air": [], "retinue": []})
+                                                              {"leader": [], "troop": [], "air": []})
         self.game.custom_team_army_buttons[self.team][index].change_state("")
         self.change_cost(index, 0, 0)
 
@@ -971,20 +966,26 @@ class CustomTeamSetupUI(UIMenu):
 class PresetArmySetupUI(UIMenu):
     empty_army_preset = {"Name": None, "Commander": None, "Leader 1": None, "Leader 2": None, "Leader 3": None,
                          "Troop 1": None, "Troop 2": None, "Troop 3": None, "Troop 4": None, "Troop 5": None,
-                         "Air 1": None, "Air 2": None, "Air 3": None, "Air 4": None, "Air 5": None,
-                         "Retinue 1": None, "Retinue 2": None, "Retinue 3": None}
+                         "Air 1": None, "Air 2": None, "Air 3": None, "Air 4": None, "Air 5": None}
+
+    custom_army_character_type_list = ("commander", "leader", "troop", "air",)
+    custom_army_character_type_max_index = {"commander": 0, "leader": 2, "troop": 4, "air": 4}  # len - 1
+
+    army_header = ("Commander", "Leader 1", "Leader 2", "Leader 3", "Troop 1", "Troop 2", "Troop 3", "Troop 4",
+                   "Troop 5", "Air 1", "Air 2", "Air 3", "Air 4", "Air 5")
+    army_leader_header = ("Commander", "Leader 1", "Leader 2", "Leader 3")
 
     def __init__(self, pos, player_cursor_interact, layer=10):
         """UI for setting up custom preset army,
         can also be used to show finished preset for selection in custom battle setup."""
         self._layer = layer
         UIMenu.__init__(self, player_cursor_interact)
+        self.key_hold_method = {"Up": self.go_up, "Down": self.go_down, "Left": self.go_left, "Right": self.go_right}
         self.character_portraits = self.game.sprite_data.character_portraits
         self.character_list = self.game.character_list
-        self.image = Surface((int(1500 * self.screen_scale_width), int(1080 * self.screen_scale_height)), SRCALPHA)
-        self.image.fill((180, 100, 180))
+        self.image = Surface((int(1300 * self.screen_scale_width), int(1080 * self.screen_scale_height)), SRCALPHA)
+        self.image.fill((100, 100, 100))
         self.portrait_type_rects = {"commander": [],
-                                    "retinue": [],
                                     "leader": [],
                                     "troop": [],
                                     "air": []}
@@ -999,14 +1000,10 @@ class PresetArmySetupUI(UIMenu):
                     (self.selected_circle.get_width() / 2, self.selected_circle.get_height() / 2),
                     (self.selected_circle.get_width() / 2), width=int(20 * self.screen_scale_width))
 
-        rect = self.circle.get_rect(center=(150 * self.screen_scale_width, 150 * self.screen_scale_height))
+        rect = self.circle.get_rect(center=(650 * self.screen_scale_width, 150 * self.screen_scale_height))
         self.portrait_type_rects["commander"].append(rect)
 
-        for index in (850, 1100, 1350):
-            rect = self.circle.get_rect(center=(index * self.screen_scale_width, 150 * self.screen_scale_height))
-            self.portrait_type_rects["retinue"].append(rect)
-
-        for index in (150, 400, 650):
+        for index in (400, 650, 900):
             rect = self.circle.get_rect(center=(index * self.screen_scale_width, 400 * self.screen_scale_height))
             self.portrait_type_rects["leader"].append(rect)
 
@@ -1022,6 +1019,7 @@ class PresetArmySetupUI(UIMenu):
         self.selected_culture = Custom_Default_Culture
         self.current_preset_id = ""
         self.current_preset_name = ""
+        self.input_delay = 0
         self.preset_cost = 0
         self.preset_supply = 0
         self.preset_leadership = 0
@@ -1050,8 +1048,6 @@ class PresetArmySetupUI(UIMenu):
         self.army_preset = deepcopy(self.empty_army_preset)
 
         self.change_character("Commander", [army.commander_id, True], change_selector=False, reset=False)
-        for index, retinue in enumerate(army.army_followers["retinue"]):
-            self.change_character("Retinue " + str(index + 1), retinue, change_selector=False, reset=False)
         for index, leader in enumerate(army.army_followers["leader"]):
             self.change_character("Leader " + str(index + 1), leader, change_selector=False, reset=False)
         for index, troop in enumerate(army.army_followers["troop"]):
@@ -1067,11 +1063,11 @@ class PresetArmySetupUI(UIMenu):
         if self.selected_culture in before_save and self.current_preset_id in before_save[self.selected_culture]:
             before_save[self.selected_culture][self.current_preset_id][slot] = character[0]
         if change_selector:
-            if any(ext in slot for ext in ("Commander", "Leader", "Retinue")):
+            if any(ext in slot for ext in ("Commander", "Leader")):
                 # update character selector to exclude unique leader
                 self.game.character_selector.add(
                     self.selected_culture, slot.split(" ")[0].lower(),
-                    [self.army_preset[value][0] for value in army_leader_header if self.army_preset[value]])
+                    [self.army_preset[value][0] for value in self.army_leader_header if self.army_preset[value]])
             else:
                 self.game.character_selector.add(self.selected_culture, slot.split(" ")[0].lower())
         if reset:
@@ -1089,17 +1085,17 @@ class PresetArmySetupUI(UIMenu):
         self.reset()
         self.game.character_selector.add(self.selected_culture, None)  # reset character selector first
         if character_type:
-            if character_type in ("commander", "leader", "retinue"):
+            if character_type in ("commander", "leader"):
                 self.game.character_selector.add(
                     self.selected_culture, character_type,
-                    [self.army_preset[value][0] for value in army_leader_header if self.army_preset[value]])
+                    [self.army_preset[value][0] for value in self.army_leader_header if self.army_preset[value]])
             else:
                 self.game.character_selector.add(self.selected_culture, character_type)
 
     def reset(self):
-        self.image.fill((180, 100, 180))
+        self.image.fill((100, 100, 100))
 
-        for header in army_header:
+        for header in self.army_header:
             character_type = header.split(" ")[0].lower()
             index = 0
             if header != "Commander":
@@ -1119,12 +1115,72 @@ class PresetArmySetupUI(UIMenu):
         self.game.custom_preset_army_title.change_text(self.current_preset_name, self.preset_cost,
                                                        self.preset_supply, self.preset_leadership)
 
+    def go_up(self):
+        selected_portrait_index = self.selected_portrait_index
+        if not selected_portrait_index:
+            self.change_portrait_selection("commander", 0)
+        else:
+            current_selected_type = selected_portrait_index[0]
+            current_index = self.custom_army_character_type_list.index(current_selected_type)
+            if current_index:
+                new_type = self.custom_army_character_type_list[current_index - 1]
+                new_index = selected_portrait_index[1]
+                if self.custom_army_character_type_max_index[new_type] < new_index:
+                    new_index = self.custom_army_character_type_max_index[new_type]
+                self.change_portrait_selection(new_type, new_index)
+
+    def go_down(self):
+        selected_portrait_index = self.selected_portrait_index
+        if not selected_portrait_index:
+            self.change_portrait_selection("commander", 0)
+        else:
+            current_selected_type = selected_portrait_index[0]
+            current_index = self.custom_army_character_type_list.index(current_selected_type)
+            if current_index < len(self.custom_army_character_type_list) - 1:
+                new_type = self.custom_army_character_type_list[current_index + 1]
+                new_index = selected_portrait_index[1]
+                if self.custom_army_character_type_max_index[new_type] < new_index:
+                    new_index = self.custom_army_character_type_max_index[new_type]
+                self.change_portrait_selection(new_type, new_index)
+
+    def go_left(self):
+        selected_portrait_index = self.selected_portrait_index
+        if not selected_portrait_index:
+            self.change_portrait_selection("commander", 0)
+        else:
+            current_selected_type = selected_portrait_index[0]
+            new_index = selected_portrait_index[1] - 1
+            if new_index < 0:
+                new_index = self.custom_army_character_type_max_index[current_selected_type]
+            self.change_portrait_selection(current_selected_type, new_index)
+
+    def go_right(self):
+        selected_portrait_index = self.selected_portrait_index
+        if not selected_portrait_index:
+            self.change_portrait_selection("commander", 0)
+        else:
+            current_selected_type = selected_portrait_index[0]
+            new_index = selected_portrait_index[1] + 1
+            if new_index > self.custom_army_character_type_max_index[current_selected_type]:
+                new_index = 0
+            self.change_portrait_selection(current_selected_type, new_index)
+
     def update(self, dt):
+        if not self.input_delay:
+            for key, pressed in self.game.player_key_hold.items():
+                if pressed and key in self.key_hold_method:
+                    self.key_hold_method[key]()
+                    self.input_delay = 0.15
+        else:
+            self.input_delay -= dt
+            if self.input_delay < 0:
+                self.input_delay = 0
+
         if UIMenu.update(self, dt):
             inside_mouse_pos = Vector2(
                 (self.cursor.pos[0] - self.rect.topleft[0]),
                 (self.cursor.pos[1] - self.rect.topleft[1]))
-            for character_type in ("commander", "retinue", "leader", "troop", "air"):
+            for character_type in ("commander", "leader", "troop", "air"):
                 for index, rect in enumerate(self.portrait_type_rects[character_type]):
                     if rect.collidepoint(inside_mouse_pos):
                         if self.event_press:
@@ -1152,9 +1208,6 @@ class PresetArmySetupUI(UIMenu):
                             if character_type == "commander":
                                 character_name_text = (character_name_text,
                                                        self.grab_text(("ui", "warn_no_commander")))
-                            elif character_type == "retinue":
-                                character_name_text = (character_name_text,
-                                                       self.grab_text(("ui", "warn_no_retinue")))
                             else:
                                 character_name_text = (character_name_text,
                                                        self.grab_text(("ui", "warn_empty_slot")))
@@ -2823,7 +2876,7 @@ class ListUI(UIMenu, Containable):
 
         # handle select and mouse over logic
         if self.hover_index is not None:
-            self.cursor.mouse_over_something = True
+            self.cursor.mouse_over = True
             self.items.on_mouse_over(self.hover_index, self.items[self.hover_index])
             if self.cursor.is_select_just_up:
                 self.items.on_select(self.hover_index, self.items[self.hover_index])

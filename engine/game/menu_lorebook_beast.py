@@ -6,10 +6,10 @@ def menu_lorebook_beast(self):
         self.remove_from_ui_menu_updater(self.lorebook_menu_uis)
         self.back_mainmenu()
 
-    elif self.lorebook_showcase_character_selector_scroll.event:
-        if self.lorebook_showcase_character_selector_scroll.current_row is not None:
+    elif self.lorebook_showcase_character_selector.scroll.event:
+        if self.lorebook_showcase_character_selector.scroll.current_row is not None:
             self.lorebook_showcase_character_selector.current_row = (
-                self.lorebook_showcase_character_selector_scroll.current_row)
+                self.lorebook_showcase_character_selector.scroll.current_row)
             self.lorebook_showcase_character_selector.add_character()
 
     elif self.lorebook_showcase_animation_list_box.adapter.last_click:

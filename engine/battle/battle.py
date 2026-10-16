@@ -47,11 +47,12 @@ from engine.effect.effect import DamageEffect, Effect
 from engine.game.activate_input_popup import activate_input_popup
 from engine.game.change_pause_update import change_pause_update
 from engine.scene.scene import Scene
-from engine.uibattle.uibattle import (CharacterSpeechBox, CharacterCommandIndicator, DamageNumber,
+from engine.uibattle.uibattle import (UIBattle, CharacterSpeechBox, CharacterCommandIndicator, DamageNumber,
                                       CharacterInteractPrompt, StrategyIcon)
 from engine.uimenu.uimenu import TextPopup, BrownMenuButton
 from engine.uiouterbattle.drama import TextDrama
-from engine.uiouterbattle.uiouterbattle import (FPSCount, BattleHelper, BattleScale, BattleCursor, EventNotification,
+from engine.uiouterbattle.uiouterbattle import (UIOuterBattle, FPSCount, BattleHelper, BattleScale, BattleCursor,
+                                                EventNotification,
                                                 PlayerBattleInteract, Command, TacticalMap, StrategySelect,
                                                 ScreenFade, BattleResult)
 from engine.updater.updater import ReversedLayeredUpdates
@@ -167,7 +168,8 @@ class Battle:
         self.battle_character_updater.cutscene_update = MethodType(cutscene_update, self.battle_character_updater)
         # for battle UI stuff that need to be updated in real time like drama and weather objects, also used as drawer
         # all image pos should be based on the screen
-        self.outer_ui_updater = sprite.LayeredUpdates()
+        self.outer_ui_updater = ReversedLayeredUpdates()
+        self.outer_ui_drawer = sprite.LayeredUpdates()
         self.battle_effect_updater = sprite.Group()  # updater for effect objects (e.g. range attack sprite)
         self.battle_effect_updater.cutscene_update = MethodType(cutscene_update, self.battle_effect_updater)
 
@@ -226,6 +228,7 @@ class Battle:
 
         self.weather_screen_adjust = self.screen_width / self.screen_height  # for weather sprite spawn position
 
+        self.screen = self.game.screen
         self.stat_data = self.game.stat_data
         self.character_list = self.stat_data.character_list
         self.strategy_list = self.stat_data.strategy_list
@@ -243,7 +246,41 @@ class Battle:
         self.localisation = self.game.localisation
         self.grab_text = self.localisation.grab_text
         self.save_data = game.save_data
-        self.main_story_profile = self.game.save_data.save_profile
+        self.campaign = self.game.campaign
+
+        # Create the game camera
+        self.camera_center_pos = Vector2(500, 500)  # camera centre pos on scene
+        self.camera_left_bound = (self.camera_center_pos[0] - self.camera_center_x)
+
+        self.base_camera_left_bound = (self.camera_center_pos[0] - self.camera_center_x) / self.screen_scale_width
+        self.base_camera_center_pos = Vector2(self.camera_center_pos[0] / self.screen_scale_width,
+                                              self.camera_center_pos[1] / self.screen_scale_height)
+        self.shown_camera_center_pos = self.camera_center_pos  # pos of camera shown to player, in case of screen shaking or other effects
+
+        self.camera = Camera(self.screen, (self.camera_width, self.camera_height))
+        self.camera_w_center = self.camera.camera_w_center
+        self.camera_h_center = self.camera.camera_h_center
+
+        Battle.battle_cursor = BattleCursor(load_images(self.data_dir,
+                                                        subfolder=("ui", "cursor_battle")))  # no need to scale cursor
+
+        # Assign battle variable to some classes
+        BattleCommanderAI.battle = self
+        UIBattle.battle = self
+        UIBattle.camera = self.camera
+        UIBattle.battle_camera_ui_drawer = self.battle_camera_ui_drawer
+        UIBattle.battle_effect_updater = self.battle_effect_updater
+        UIOuterBattle.cursor = self.battle_cursor  # use battle cursor for battle ui
+        UIOuterBattle.text_popup = self.text_popup
+        UIOuterBattle.add_to_outer_ui_menu_updater = self.add_to_outer_ui_menu_updater
+        UIOuterBattle.remove_from_outer_ui_menu_updater = self.remove_from_outer_ui_menu_updater
+        Character.collision_grid_width = self.screen_width / Collision_Grid_X_Per_Battle_Scene  # collision grid size based on screen scale
+        Character.collision_grid_height = self.screen_height / Collision_Grid_Y_Per_Battle_Scene
+        Character.sound_effect_pool = self.sound_effect_pool
+        DamageEffect.collision_grid_width = self.screen_width / Collision_Grid_X_Per_Battle_Scene
+        DamageEffect.collision_grid_height = self.screen_height / Collision_Grid_Y_Per_Battle_Scene
+        Effect.sound_effect_pool = self.sound_effect_pool
+        Weather.battle = self
 
         self.game_speed = 1
         self.all_team_ally = {index: sprite.Group() for index in team_list}
@@ -262,6 +299,8 @@ class Battle:
         self.battle_scale = []
         self.battle_time = 0.0
 
+        self.current_weather = Weather(1, 0, 0)
+
         self.team_state = {team: {"faction": None, "culture": None, "strategy_resource": 0, "supply_resource": 0,
                                   "supply_reserve": 0, "total_supply": 0, "leadership": 0, "start_pos": 0,
                                   "leader_call_list": [], "troop_call_list": [],
@@ -274,8 +313,6 @@ class Battle:
         self.player_culture = None
         self.player_selected_strategy = None
 
-        self.current_weather = Weather(1, 0, 0)
-
         self.later_reinforcement = {"weather": {}, "time": {},
                                     "team": {team: {"air": [], "ground": []} for team in team_list}}
         self.team1_call_leader_cooldown_reinforcement = {}
@@ -283,7 +320,6 @@ class Battle:
         self.team2_call_leader_cooldown_reinforcement = {}
         self.team2_call_troop_cooldown_reinforcement = {}
         self.awaiting_armies = {}
-        BattleCommanderAI.battle = self
         self.battle_ai_commander1 = BattleCommanderAI(1)
         self.battle_ai_commander2 = BattleCommanderAI(2)
         self.all_battle_ai_commanders = []
@@ -292,37 +328,10 @@ class Battle:
         self.esc_menu_mode = "menu"
 
         self.grand = None
-        self.campaign = self.game.campaign
         self.stage = None
         self.battle_name = ""
 
-        self.screen = self.game.screen
-
-        # Create the game camera
-        self.camera_center_pos = Vector2(500, 500)  # camera centre pos on scene
-        self.camera_left_bound = (self.camera_center_pos[0] - self.camera_center_x)
-
-        self.base_camera_left_bound = (self.camera_center_pos[0] - self.camera_center_x) / self.screen_scale_width
-        self.base_camera_center_pos = Vector2(self.camera_center_pos[0] / self.screen_scale_width,
-                                              self.camera_center_pos[1] / self.screen_scale_height)
-        self.shown_camera_center_pos = self.camera_center_pos  # pos of camera shown to player, in case of screen shaking or other effects
-
-        self.camera = Camera(self.screen, (self.camera_width, self.camera_height))
-        self.camera_w_center = self.camera.camera_w_center
-        self.camera_h_center = self.camera.camera_h_center
-
-        # Assign battle variable to some classes
-        Character.collision_grid_width = self.screen_width / Collision_Grid_X_Per_Battle_Scene  # collision grid size based on screen scale
-        Character.collision_grid_height = self.screen_height / Collision_Grid_Y_Per_Battle_Scene
-        Character.sound_effect_pool = self.sound_effect_pool
-        DamageEffect.collision_grid_width = self.screen_width / Collision_Grid_X_Per_Battle_Scene
-        DamageEffect.collision_grid_height = self.screen_height / Collision_Grid_Y_Per_Battle_Scene
-        Effect.sound_effect_pool = self.sound_effect_pool
-
         # Create battle ui
-        Battle.battle_cursor = BattleCursor(load_images(self.data_dir,
-                                                        subfolder=("ui", "cursor_battle")))  # no need to scale cursor
-
         battle_ui_images = self.game.battle_ui_images
         self.battle_ui_images = battle_ui_images
         CharacterSpeechBox.images = battle_ui_images
@@ -433,7 +442,7 @@ class Battle:
             team_state["total_supply"] = 0
             team_state["leadership"] = 0
             team_state["start_pos"] *= base_stage_end
-            team_state["active_retinue"] = []
+            team_state["active_leader"] = 0
             # add available strategies to team stat
             if team_state["main_army"] and team_state["main_army"].commander_id:  # army exist
                 main_army = team_state["main_army"]
@@ -451,21 +460,21 @@ class Battle:
                 if commander_stat["Strategy"]:
                     self.add_strategy_to_team_state(team_state, commander_stat["Strategy"])
 
-                retinue_list = [item[0] for item in main_army.army_followers["retinue"] if item[1]]
-                if len(retinue_list) < 3:  # check for retinue in reinforcement armies until can get full 3
+                leader_list = [item[0] for item in main_army.army_followers["leader"] if item[1]]
+                if len(leader_list) < 3:  # check for leader in reinforcement armies until can get full 3
                     for army in team_state["reinforcement_army"]:
-                        if army.army_followers["retinue"]:
-                            retinue_list += [item[0] for item in army.army_followers["retinue"][:3 - len(retinue_list)]
+                        if army.army_followers["leader"]:
+                            leader_list += [item[0] for item in army.army_followers["leader"][:3 - len(leader_list)]
                                              if item[1]]
-                            if len(retinue_list) == 3:
+                            if len(leader_list) == 3:
                                 break
 
-                for retinue in retinue_list:
-                    team_state["leadership"] += (self.character_list[retinue]["Leadership"] *
-                                                 Retinue_Leadership_Add_Modifier)
-                    self.add_strategy_to_team_state(team_state, self.character_list[retinue]["Strategy"])
+                for leader in leader_list:
+                    team_state["leadership"] += (self.character_list[leader]["Leadership"] *
+                                                 Leadership_Add_Modifier)
+                    self.add_strategy_to_team_state(team_state, self.character_list[leader]["Strategy"])
 
-                team_state["active_retinue"] = retinue_list
+                team_state["active_leader"] = len(leader_list)
             team_state["strategy_resource"] = team_state["leadership"]
             team_state["strategy_regen"] = team_state["leadership"] / 100
 
@@ -496,19 +505,19 @@ class Battle:
         self.player_enemy_team = None
         # add common battle ui
         if self.game.show_fps:
-            self.outer_ui_updater.add(self.fps_count)
+            self.add_to_outer_ui_menu_updater(self.fps_count)
         else:
-            self.outer_ui_updater.remove(self.fps_count)
-        self.outer_ui_updater.add(self.always_command_ui)
+            self.remove_from_outer_ui_menu_updater(self.fps_count)
+        self.add_to_outer_ui_menu_updater(self.always_command_ui)
         if self.player_team:
             self.player_enemy_team = (0, 2, 1)[self.player_team]
             self.player_culture = team_state[self.player_team]["culture"]
             self.player_input = MethodType(player_input_battle, self)
-            self.outer_ui_updater.add(self.only_player_command_ui)
+            self.add_to_outer_ui_menu_updater(self.only_player_command_ui)
         else:  # no player in battle, use another method that does not allow some hotkey input
             self.player_input = MethodType(battle_no_player_input_battle, self)
             self.player_culture = Custom_Default_Culture
-            self.outer_ui_updater.remove(self.only_player_command_ui)
+            self.remove_from_outer_ui_menu_updater(self.only_player_command_ui)
 
         # Stop all sound
         self.music_channel.set_volume(0)
@@ -764,7 +773,7 @@ class Battle:
         self.player_key_hold = {key: False for key in self.player_key_bind}
 
         self.screen.fill((0, 0, 0))
-        self.outer_ui_updater.add(self.battle_cursor)
+        self.add_to_outer_ui_menu_updater(self.battle_cursor)
         self.remove_from_ui_menu_updater(self.cursor)
 
         if self.start_cutscene:
@@ -838,8 +847,7 @@ class Battle:
                                                                   {"leader": [["leader_vraesier", True], ],
                                                                    "troop": [["castle_human_militia_spear", True],
                                                                              ["castle_human_militia_bow", True]],
-                                                                   "air": [["castle_cat_air_rocket_bomb", True]],
-                                                                   "retinue": [["castle_human_leader_jester", True]]},
+                                                                   "air": [["castle_cat_air_rocket_bomb", True]]},
                                                                   supply=1000, max_supply=1000)
                         self.setup_new_army_arrive(self.game.custom_team_army[1][4], 1)
                     elif event.key == K_KP_2:
@@ -888,6 +896,14 @@ class Battle:
     def remove_from_ui_menu_updater(self, *args):
         self.ui_menu_updater.remove(*args)
         self.ui_menu_drawer.remove(*args)
+
+    def add_to_outer_ui_menu_updater(self, *args):
+        self.outer_ui_updater.add(*args)
+        self.outer_ui_drawer.add(*args)
+
+    def remove_from_outer_ui_menu_updater(self, *args):
+        self.outer_ui_updater.remove(*args)
+        self.outer_ui_drawer.remove(*args)
 
     def clean_character_group(self):
         for character in self.all_battle_characters:
@@ -977,4 +993,4 @@ class Battle:
         self.battle_time = 0.0
         self.drama_timer = 0  # reset drama text popup
         self.ai_battle_speak_timer = 0
-        self.outer_ui_updater.remove(self.drama_text)
+        self.remove_from_outer_ui_menu_updater(self.drama_text)

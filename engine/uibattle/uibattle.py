@@ -11,17 +11,17 @@ from engine.utils.text_making import text_render_with_bg, make_long_text
 
 
 class UIBattle(UIMenu):
+    battle = None
+    camera = None
+    battle_camera_ui_drawer = None
+    battle_effect_updater = None
+
     def __init__(self, player_cursor_interact=False, has_containers=False):
         """
         Parent class for all battle menu user interface that exist inside of battle camera, 
         typically player cannot directly interact with them
         """
-        from engine.battle.battle import Battle
         UIMenu.__init__(self, player_cursor_interact=player_cursor_interact, has_containers=has_containers)
-        self.battle = Battle.battle
-        self.camera = self.battle.camera
-        self.battle_camera_ui_drawer = self.battle.battle_camera_ui_drawer
-        self.battle_effect_updater = self.battle.battle_effect_updater
 
     def check_draw(self):
         battle_camera_ui_drawer = self.battle_camera_ui_drawer
