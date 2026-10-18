@@ -1,6 +1,8 @@
 "ID","Culture","Race","Health","Offence","Defence","Speed","Leadership","Slash Resistance","Crush Resistance","Stab Resistance","Fire Resistance","Water Resistance","Air Resistance","Earth Resistance","Magic Resistance","Poison Resistance","Cost","Supply","Upkeep","Mass","Arrive Per Call","Capacity","Respond Time","Reinforce Time","Is Leader","Is Unique","No Commander","Strategy","Commander AI Aggressiveness","Commander AI Cleverness","Commander AI Swiftness","Commander Melee Like","Commander Range Like","Commander Cavalry Like","Commander Air Like","Commander Leader Like","Sub Characters","Spawns","Status Immunity","Type","Grade","Class","AI Behaviour","Power Score","Can Custom","Property","Note"
 "1_test_strategy","free","human",10,,,,100,,,,,,,,,,,,,,,,,,,,,"spell_magic_bomb",,,,,,,,,,,,"ground","common","infantry","idle",,,"invincible",
-"1_test_strategy_2","free","human",10,,,,100,,,,,,,,,,,,,,,,,,,,,"spell_huge_stone",,,,,,,,,,,,"ground","common","infantry","idle",,,"invincible",
+"1_test_strategy_2","free","human",10,,,,100,,,,,,,,,,,,,,,,,,,,,"spell_firewall",,,,,,,,,,,,"ground","common","infantry","idle",,,"invincible",
+"1_test_strategy_3","free","human",10,,,,100,,,,,,,,,,,,,,,,,,,,,"spell_meteor",,,,,,,,,,,,"ground","common","infantry","idle",,,"invincible",
+"1_test_strategy_4","free","human",10,,,,100,,,,,,,,,,,,,,,,,,,,,"spell_ice_pillar",,,,,,,,,,,,"ground","common","infantry","idle",,,"invincible",
 "barren_orc_axe","barren","orc",800,11,7,25,,,0.25,0.25,-0.25,0.5,-0.5,,-0.5,-0.5,50,240,,240,6,10,2,8,,,,,,,,,,,,,,,,"ground","common","infantry","melee",,,,
 "barren_orc_berserker","barren","orc",1400,5,1,38,,,,,-0.25,0.5,-0.5,,-0.5,-0.5,,400,,320,5,6,0.5,13,,,,,,,,,,,,,,,"fear","ground","good","infantry","melee",,,,
 "barren_orc_drum","barren","orc",650,7,11,18,,,0.25,0.25,-0.25,0.5,-0.5,,-0.5,-0.5,,300,,280,4,3,4,15,,,,,,,,,,,,,,,,"ground","common","support","melee",,,,
