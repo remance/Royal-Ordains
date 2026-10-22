@@ -8,12 +8,12 @@ from engine.uiouterbattle.uiouterbattle import UIOuterBattle
 from engine.utils.rotation import set_rotate
 
 
-class Weather:
-    battle = None
-    weather_matter_images = None
-    weather_data = None
-
+class Weather(UIOuterBattle):
     def __init__(self, weather_type, wind_direction, level):
+        self._layer = 99999999999999999999
+        UIOuterBattle.__init__(self)
+        self.weather_data = self.battle.weather_data
+        self.weather_matter_images = self.battle.sprite_data.weather_matter_images
         self.new_weather_reset = True
         self.weather_matters = self.battle.weather_matters
         self.weather_spawn_timer = {}
@@ -145,11 +145,10 @@ def travel_to_map_border(pos, angle, screen_size):
 
     if dx < 1.0e-16:  # left border
         y = (-pos[0]) * dy / dx + pos[1]
-
         if 0 <= y <= screen_size[1]:
             return Vector2((0, y))
 
-    if dx > 1.0e-16:  # right border
+    elif dx > 1.0e-16:  # right border
         y = (screen_size[0] - pos[0]) * dy / dx + pos[1]
         if 0 <= y <= screen_size[1]:
             return Vector2((screen_size[0], y))
@@ -159,7 +158,7 @@ def travel_to_map_border(pos, angle, screen_size):
         if 0 <= x <= screen_size[0]:
             return Vector2((x, 0))
 
-    if dy > 1.0e-16:  # bottom border
+    elif dy > 1.0e-16:  # bottom border
         x = (screen_size[1] - pos[1]) * dx / dy + pos[0]
         if 0 <= x <= screen_size[0]:
             return Vector2((x, screen_size[1]))

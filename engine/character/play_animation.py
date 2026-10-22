@@ -34,7 +34,7 @@ def next_animation_frame(self):
     """
     if self.current_animation_frame["sound_effect"]:  # play sound from animation
         sound = self.current_animation_frame["sound_effect"]
-        self.battle.add_sound_effect_queue(self.sound_effect_pool[sound[0]][0],
+        self.battle.add_sound_effect_queue(choice(self.sound_effect_pool[sound[0]]),
                                            self.base_pos, sound[1], sound[2])
     if change_animation_frame(self):
         return True

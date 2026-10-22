@@ -3,6 +3,6 @@
 "Attack2","Rapier Stab Low",,,,300,,,,45,7,10,,,"stab",,,,
 "Attack3","Rapier Slash",,,,300,,,,26,46,30,20,,"slash",,,,
 "Attack4","Rapier Strike",,,,300,,,,19,13,40,-60,,"crush",,,,
-"Skill1","Offence Shift",,,"self:{health>50;no_status=overload}",5000,,60,,,,,,,,"bless,overload",,,
-"Skill2","Defence Shift",,,"self:{health<50;no_status=pale_dance}",5000,,60,,,,,,,,"bless,pale_dance",,,
+"Skill1","Offence Shift",,,"self:{health>=0.5;no_status=overload}",5000,,60,,,,,,,,"bless,overload",,,
+"Skill2","Defence Shift",,,"self:{health<=0.5;no_status=pale_dance}",5000,,60,,,,,,,,"bless,pale_dance",,,
 "Skill3","Tactical Feint",,,,1500,2500,20,50,,,,,,,,"disarmed",,

@@ -191,7 +191,7 @@ class Battle:
         StageObject.containers = self.battle_effect_updater, self.battle_stage_objects, self.battle_camera_object_drawer
         StrategyIcon.containers = self.battle_effect_updater, self.battle_camera_ui_drawer
         DamageEffect.containers = self.battle_effect_updater
-        MatterSprite.containers = self.weather_matters, self.outer_ui_updater
+        MatterSprite.containers = self.weather_matters, self.outer_ui_updater, self.outer_ui_drawer
         Character.containers = self.battle_character_updater, self.all_battle_characters
 
         self.cursor = game.cursor
@@ -237,8 +237,6 @@ class Battle:
         self.sprite_data = self.game.sprite_data
         self.map_data = self.game.map_data
         self.weather_data = self.map_data.weather_data
-        Weather.weather_data = self.weather_data
-        Weather.weather_matter_images = self.sprite_data.weather_matter_images
         self.character_animation_data = self.game.character_animation_data
         self.character_portraits = self.game.character_portraits
         self.effect_animation_pool = self.game.effect_animation_pool
@@ -280,7 +278,6 @@ class Battle:
         DamageEffect.collision_grid_width = self.screen_width / Collision_Grid_X_Per_Battle_Scene
         DamageEffect.collision_grid_height = self.screen_height / Collision_Grid_Y_Per_Battle_Scene
         Effect.sound_effect_pool = self.sound_effect_pool
-        Weather.battle = self
 
         self.game_speed = 1
         self.all_team_ally = {index: sprite.Group() for index in team_list}
@@ -457,6 +454,9 @@ class Battle:
                     item in main_army.army_followers["troop"]]
                 commander_stat = self.character_list[main_army.commander_id]
                 team_state["leadership"] += commander_stat["Leadership"]
+                if main_army.garrison_strategy:
+                    for strategy in main_army.garrison_strategy:
+                        self.add_strategy_to_team_state(team_state, strategy)
                 if commander_stat["Strategy"]:
                     self.add_strategy_to_team_state(team_state, commander_stat["Strategy"])
 
@@ -837,7 +837,8 @@ class Battle:
                     # FOR DEVELOPMENT comment out later
                     if event.key == K_KP_1:
                         self.drama_text.queue.append((False, "Hello and welcome to showcase video", "Dollhi"))
-                        # self.screen_shake_value += 1000
+                        self.screen_shake_value += 1000
+
                         self.game.custom_team_army[1][4].__init__("", "small", "small", "leader_bigta",
                                                                   {"leader": [["leader_vraesier", True], ],
                                                                    "troop": [["castle_human_militia_spear", True],
@@ -860,8 +861,6 @@ class Battle:
                         for enemy in self.all_battle_characters:
                             if enemy.alive:
                                 enemy.health -= 100
-                        self.drama_text.queue.append((
-                            False, "They will return when out of resource and require rest to be ready again", None))
                     elif event.key == K_KP_5:
                         self.grand_event_notification.add_event(("event_bad", "test"))
                         self.screen_shake_value = 1000

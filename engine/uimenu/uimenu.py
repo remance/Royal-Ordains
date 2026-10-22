@@ -348,37 +348,38 @@ class SliderMenu(UIMenu):
         self.slider_size = bar_images[1].get_width()
         self.difference = (self.image.get_width() - self.slider_size) / 2
         self.value_scale = self.slider_size / 100
-        rect = bar_images[1].get_rect(center=(self.image.get_width() / 2, self.image.get_height() / 2))
-        self.image.blit(bar_images[1], rect)
+        self.bar_rect = bar_images[1].get_rect(center=(self.image.get_width() / 2, self.image.get_height() / 2))
+        self.image.blit(bar_images[1], self.bar_rect)
         self.button_image_list = button_images
         self.button_image = self.button_image_list[0]
-        self.min_value = self.pos[0] - (self.slider_size / self.value_scale)  # min value position of the scroll bar
-        self.max_value = self.pos[0] + (self.slider_size / self.value_scale)  # max value position
         self.value = value
-        self.mouse_value = (self.slider_size * value / 100) + self.difference  # convert mouse pos on scroll to value
         self.base_image = self.image.copy()
-        button_rect = self.button_image_list[1].get_rect(center=(self.mouse_value, self.image.get_height() / 2))
+        button_rect = self.button_image_list[1].get_rect(
+            center=((self.slider_size * value / 100) + self.difference,
+                    self.image.get_height() / 2))
         self.image.blit(self.button_image, button_rect)
         self.rect = self.image.get_rect(center=self.pos)
 
-    def player_input(self, value_box, forced_value=False):
+    def player_input(self, value_box, forced_value: bool|int|float=False):
         """
         Update slider value and position
         :param value_box: UI box that show number value
         :param forced_value: forced number value
         """
         if forced_value is False:
-            self.mouse_value = self.cursor.pos[0]
-            if self.mouse_value > self.max_value:
-                self.mouse_value = self.max_value
-            elif self.mouse_value < self.min_value:
-                self.mouse_value = self.min_value
-            self.value = (self.mouse_value - self.min_value) / 2
+            inside_mouse_pos = Vector2(
+                (self.cursor.pos[0] - self.rect.topleft[0]),
+                (self.cursor.pos[1] - self.rect.topleft[1]))
+            if self.bar_rect.collidepoint(inside_mouse_pos):  # cursor within slider bar
+                inside_bar_mouse_pos = Vector2(
+                    (inside_mouse_pos[0] - self.bar_rect.topleft[0]),
+                    (inside_mouse_pos[1] - self.bar_rect.topleft[1]))
+                self.value = ceil(inside_bar_mouse_pos[0] / self.slider_size * 100)
         else:  # for revert, cancel or esc in the option menu
             self.value = forced_value
-        self.mouse_value = (self.slider_size * self.value / 100) + self.difference
         self.image = self.base_image.copy()
-        button_rect = self.button_image_list[1].get_rect(center=(self.mouse_value, self.image.get_height() / 2))
+        button_rect = self.button_image_list[1].get_rect(center=((self.slider_size * self.value / 100) + self.difference,
+                                                                 self.image.get_height() / 2))
         self.image.blit(self.button_image, button_rect)
         value_box.change_value(self.value)
 

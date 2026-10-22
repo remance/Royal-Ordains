@@ -4,38 +4,45 @@ from random import choice, uniform
 def check_status(who, status):
     if status not in who.status_duration:
         return True
+    return None
 
 
 def check_health_lower(who, value):
-    if who.health * who.base_health / 100 <= value:
+    if who.health * who.base_health <= value:
         return True
+    return None
 
 
 def check_resource_lower(who, value):
-    if who.resource * who.base_resource / 100 <= value:
+    if who.resource * who.base_resource <= value:
         return True
+    return None
 
 
 def check_health_higher(who, value):
-    if who.health * who.base_health / 100 >= value:
+    if who.health * who.base_health >= value:
         return True
+    return None
 
 
 def check_resource_higher(who, value):
-    if who.resource * who.base_resource / 100 >= value:
+    if who.resource * who.base_resource >= value:
         return True
+    return None
 
 
 def check_engage(who, value):
     """Check if who has enemy in provided range"""
     if who.nearest_enemy_distance > value:
         return True
+    return None
 
 
 def check_target_type(who, value):
     """Check if who match the target type value"""
     if who.character_type == value:
         return True
+    return None
 
 
 def check_no_stay(who, value):
@@ -43,6 +50,7 @@ def check_no_stay(who, value):
     check = "stay" not in who.commander_order  # require local variable due to comparison chain issue with is boolean
     if check is value:
         return True
+    return None
 
 
 ai_condition_check_dict = {"health>": check_health_higher, "resource>": check_resource_higher,
@@ -56,8 +64,9 @@ def leader_condition_check(self, value):
     if self.leader:
         for condition2, value2 in value.items():
             if not ai_condition_check_dict[condition2](self.leader, value2):
-                return
+                return None
         return True
+    return None
 
 
 def allies_condition_check(self, value):
@@ -65,7 +74,7 @@ def allies_condition_check(self, value):
     for character in self.near_ally:
         for condition2, value2 in value.items():
             if not ai_condition_check_dict[condition2](character[0], value2):
-                return
+                return None
     return True
 
 
@@ -75,13 +84,14 @@ def ally_condition_check(self, value):
         for condition2, value2 in value.items():
             if ai_condition_check_dict[condition2](character[0], value2):
                 return True
+    return None
 
 
 def self_condition_check(self, value):
     """Require self to meet condition"""
     for condition2, value2 in value.items():
         if not ai_condition_check_dict[condition2](self, value2):
-            return
+            return None
     return True
 
 
@@ -90,8 +100,9 @@ def enemy_condition_check(self, value):
     if self.nearest_enemy and self.nearest_enemy.alive:
         for condition2, value2 in value.items():
             if not ai_condition_check_dict[condition2](self.nearest_enemy, value2):
-                return
+                return None
         return True
+    return None
 
 
 ai_who_check_dict = {"leader": leader_condition_check, "allies": allies_condition_check,
@@ -102,7 +113,7 @@ ai_who_check_dict = {"leader": leader_condition_check, "allies": allies_conditio
 def check_ai_condition(self, condition_dict):
     for condition, value in condition_dict.items():
         if not ai_who_check_dict[condition](self, value):
-            return
+            return None
     return True
 
 

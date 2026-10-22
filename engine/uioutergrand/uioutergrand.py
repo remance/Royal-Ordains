@@ -5,6 +5,7 @@ from pygame.sprite import spritecollideany
 
 from engine.uimenu.uimenu import UIMenu, UIScroll
 from engine.uibattle.uibattle import CharacterSpeechBox
+from engine.uiouterbattle.drama import TextDrama
 from engine.utils.text_making import (add_plus_to_number, add_comma_number, text_render_with_bg,
                                       make_long_text)
 
@@ -970,6 +971,12 @@ class PlayerArmyList(GrandListUI, UIOuterGrand):
                                                   width_text_wrapper=self.max_description_box_width)
                             self.add_to_outer_ui_menu_updater(self.text_popup)
                         break
+
+
+class GrandTextDrama(TextDrama, UIOuterGrand):
+    def __init__(self, grand):
+        UIOuterGrand.__init__(self, player_cursor_interact=False)
+        TextDrama.__init__(self, grand)
 
 
 class PlayerGrandInteract(UIOuterGrand):

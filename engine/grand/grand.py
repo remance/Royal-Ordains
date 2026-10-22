@@ -49,13 +49,12 @@ from engine.grandobject.grandobject import GrandObject, SettlementObject
 from engine.grandregion.grandregion import GrandRegion
 from engine.uigrand.uigrand import (DotInfoBanner, DotInfoBannerArmy, DotInfoBannerSettlement, DotNameBannerSettlement)
 from engine.uimenu.uimenu import TextPopup, GrandMiniMap
-from engine.uiouterbattle.drama import TextDrama
 from engine.uiouterbattle.uiouterbattle import FPSCount
 from engine.uioutergrand.cosmos import CosmosUI, MiniCosmosUI
 from engine.uioutergrand.uioutergrand import (PlayerGrandInteract, PlayerTopBar,
                                               PlayerArmyList, PlayerArmyListSortOption, MapSettingOption,
                                               TimeSettingOption, EventDetailPopup, PlayerFactionCultureList,
-                                              MenuBar, EventNotification)
+                                              MenuBar, EventNotification, GrandTextDrama)
 from engine.uioutergrand.uioutergrandcollapsible import (ArmyManagement, PresetArmyReserveSetup,
                                                          CourtManagement, CultureManagement,
                                                          DiplomacyManagement, PresetArmyGrandCharacterSelector,
@@ -223,14 +222,6 @@ class Grand:
 
         self.screen = self.game.screen
 
-        # Create the game camera
-        self.camera_topleft_pos = Vector2(500, 500)  # camera topleft pos on scene
-        self.shown_camera_topleft_pos = self.camera_topleft_pos.copy()
-
-        self.camera = Camera(self.screen, (self.camera_width, self.camera_height))
-        self.camera_w_center = self.camera.camera_w_center
-        self.camera_h_center = self.camera.camera_h_center
-
         # Create map object
         self.base_world_map = None
         self.map_x_end = 0
@@ -242,12 +233,25 @@ class Grand:
         self.army_move_line_width = int(24 * self.screen_scale_width)
         self.army_move_inner_line_width = int(12 * self.screen_scale_width)
 
+
+        # Create the game camera
+        self.camera_topleft_pos = Vector2(500, 500)  # camera topleft pos on scene
+        self.base_camera_center_pos = Vector2(
+            (self.camera_topleft_pos[0] / self.map_shown_to_base_scale_width) + self.camera_center_x,
+            (self.camera_topleft_pos[1] / self.map_shown_to_base_scale_height) + self.camera_center_y)
+        self.shown_camera_topleft_pos = self.camera_topleft_pos.copy()
+
+        self.camera = Camera(self.screen, (self.camera_width, self.camera_height))
+        self.camera_w_center = self.camera.camera_w_center
+        self.camera_h_center = self.camera.camera_h_center
+
+        # Assign grand variables to class
         Army.grand = self
         GrandArmyActor.grand = self
         GrandObject.grand = self
         GrandRegion.grand = self
-        GrandRegion.screen_scale = self.screen_scale
 
+        # initiate default variables
         self.clock_time = 0
         self.true_dt = 0
         self.dt = 0  # Realtime used for time calculation
@@ -291,7 +295,7 @@ class Grand:
         self.map_setting_option_ui = MapSettingOption()
         self.event_detail_popup = EventDetailPopup()
 
-        self.drama_text = TextDrama(self)  # message at the top of screen that show up for important event
+        self.drama_text = GrandTextDrama(self)  # message at the top of screen that show up for important event
         self.player_interact = PlayerGrandInteract()
 
         self.player_grand_reserve_army_setup_ui = PresetArmyReserveSetup(
@@ -595,7 +599,7 @@ class Grand:
 
                     # FOR DEVELOPMENT comment out later
                     if event.key == K_F1:
-                        self.drama_text.queue.append(True, ("Hello and welcome to showcase video", "Dollhi"))
+                        self.drama_text.queue.append((True, "Hello and welcome to showcase video", "dollhi"))
                     # elif event.key == K_F2:
                     # elif event.key == K_F3:
                     # elif event.key == K_F6:

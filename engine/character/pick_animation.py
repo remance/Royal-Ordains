@@ -1,4 +1,4 @@
-from random import uniform
+from random import uniform, choice
 
 
 def pick_animation(self):
@@ -115,7 +115,7 @@ def pick_animation(self):
 
     if self.current_animation_frame["sound_effect"]:  # play sound from animation
         sound = self.current_animation_frame["sound_effect"]
-        self.battle.add_sound_effect_queue(self.sound_effect_pool[sound[0]][0],
+        self.battle.add_sound_effect_queue(choice(self.sound_effect_pool[sound[0]]),
                                            self.base_pos, sound[1], sound[2])
 
     self.current_action = current_action
@@ -171,7 +171,7 @@ def pick_cutscene_animation(self, action):
 
     if self.current_animation_frame["sound_effect"]:  # play sound from animation
         sound = self.current_animation_frame["sound_effect"]
-        self.battle.add_sound_effect_queue(self.sound_effect_pool[sound[0]][0],
+        self.battle.add_sound_effect_queue(choice(self.sound_effect_pool[sound[0]]),
                                            self.base_pos, sound[1], sound[2])
 
     self.animation_name = animation_name

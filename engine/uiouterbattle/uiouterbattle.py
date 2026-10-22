@@ -560,17 +560,18 @@ class BattleScale(UIOuterBattle):
 
 
 class EventNotification(UIOuterBattle):
-    event_icons = {}
 
     def __init__(self, pos):
         self._layer = 5
         UIOuterBattle.__init__(self, player_cursor_interact=False)
+        self.grand_ui_images = self.game.grand_ui_images
         self.font = self.game.medium_generic_ui_font
         self.header_font = self.game.large_generic_ui_font
         self.image = Surface((0 * self.screen_scale_width, 0 * self.screen_scale_height))
         self.event_item_height = 100 * self.screen_scale_height
         self.image.fill((0, 200, 50))
         self.image_width = 800 * self.screen_scale_width
+        self.max_text_width = 700 * self.screen_scale_width
         self.base_image = self.image.copy()
         self.active_events = []
         self.rect = self.image.get_rect(topleft=pos)
@@ -585,10 +586,12 @@ class EventNotification(UIOuterBattle):
                               len(self.active_events[:6]) * self.event_item_height), SRCALPHA)
         for index, event in enumerate(self.active_events[:6]):  # show only max 6 items
             event = event[0]
-            event_icon = self.event_icons[event[0]]
+            event_icon = self.grand_ui_images[event[0]]
             self.image.blit(event_icon, event_icon.get_rect(topleft=(0, index * self.event_item_height)))
 
-            event_text = text_render_with_bg(event[1], self.font)
+            event_text = make_long_text(event[1], (0, 0), self.font, Color("black"),
+                                        with_texture=(None, (Color("black"), (255, 255, 255), 2)),
+                                        specific_width=self.max_text_width)
             self.image.blit(event_text, event_text.get_rect(topleft=(100 * self.screen_scale_width,
                                                                      index * self.event_item_height)))
 
@@ -804,6 +807,7 @@ class TacticalMap(UIOuterBattle):
     def update(self, dt):
         """update map"""
         battle = self.battle
+        player_team = battle.player_team
         self.update_timer += battle.true_dt
         if self.update_timer > 0.05:
             self.image = self.base_image.copy()
@@ -816,7 +820,8 @@ class TacticalMap(UIOuterBattle):
             # draw commander
             team_commander = battle.team_commander
             for team, character in team_commander.items():
-                if character and not character.invisible:
+                if character and (not character.invisible or character.team == player_team):
+                    # still show player character when invisible on map
                     scaled_pos = (character.base_pos[0] / map_scale_width, self.ground_commander_icon_pos_y)
                     health_state = round(character.health / character.base_health, 1)
                     if health_state != self.commander_health_state[team]:
@@ -837,7 +842,7 @@ class TacticalMap(UIOuterBattle):
             for team, character_team in self.all_team_ally.items():
                 dot_image = self.troop_dot_images[team]
                 for character in character_team:
-                    if not character.invisible:
+                    if not character.invisible or character.team == player_team:
                         if character.character_type == "air":
                             image.blit(dot_image, dot_image.get_rect(midbottom=(
                                 character.base_pos[0] / map_scale_width, air_icon_pos_y)))

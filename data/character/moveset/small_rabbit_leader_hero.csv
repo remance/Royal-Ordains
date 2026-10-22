@@ -1,3 +1,4 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
 "Attack1","Slash",,,,300,,,,42,17,22,15,,"slash",,,,
-"Skill1","Bark",,,,600,1000,35,100,,,,,,,,"disrupt",,
+"Skill1","Bark",,,,600,1000,35,40,,,,,,,,"disrupt",,
+"Skill2","Leap",,,"self:{no_stay},self:{health<=0.5}",,,7,20,35,60,50,-100,,"crush",,,,"movable,x_momentum:(300;700)"

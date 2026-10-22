@@ -20,25 +20,25 @@ def state_grand_process(self):
                 self.mini_cosmic_ui.reset()
                 self.sort_player_army_list()
 
-            self.ui_timer += self.true_dt  # ui update by real time instead of self time to reduce workload.
+        self.ui_timer += self.true_dt  # ui update by real time instead of self time to reduce workload.
 
-            # Screen shaking
-            if self.screen_shake_value:
-                decrease = 1000
-                if self.screen_shake_value > decrease:
-                    decrease = self.screen_shake_value
-                self.screen_shake_value -= (dt * decrease)
-                if self.screen_shake_value < 0:
-                    self.screen_shake_value = 0
-                else:
-                    self.shake_camera()
+        # Screen shaking
+        if self.screen_shake_value:
+            decrease = 1000
+            if self.screen_shake_value > decrease:
+                decrease = self.screen_shake_value
+            self.screen_shake_value -= (dt * decrease)
+            if self.screen_shake_value < 0:
+                self.screen_shake_value = 0
+            else:
+                self.shake_camera()
 
-            if self.sound_effect_queue:
-                for key, value in self.sound_effect_queue.items():  # play each sound effect initiate in this loop
-                    self.play_sound_effect(key, value)
-                self.sound_effect_queue = {}
+        if self.sound_effect_queue:
+            for key, value in self.sound_effect_queue.items():  # play each sound effect initiate in this loop
+                self.play_sound_effect(key, value)
+            self.sound_effect_queue = {}
 
-            self.drama_process()
+        self.drama_process(add_battle_log=False)
 
         # Object related updater
         self.grand_object_updater.update(self.true_dt, dt)

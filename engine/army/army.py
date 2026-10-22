@@ -21,7 +21,7 @@ class Army:
     reset_stat = reset_stat
 
     def __init__(self, army_id: str, faction: str, culture: str, commander_char_id: str, army_followers: dict,
-                 supply: int = 0, max_supply: int = 0, custom_preset_id=None, grand_state=None):
+                 supply: int = 0, max_supply: int = 0, garrison_strategy: tuple|list=(), custom_preset_id=None, grand_state=None):
         self.game_id = army_id
         self.faction = faction
         self.culture = culture
@@ -37,6 +37,7 @@ class Army:
         self.power = 0
         self.total_supply_usage = 0
         self.travel_time_modifier = 1
+        self.garrison_strategy = garrison_strategy
         self.can_assemble = {}
         self.supply = supply
         self.max_supply = max_supply

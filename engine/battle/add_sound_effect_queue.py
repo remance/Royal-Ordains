@@ -41,7 +41,6 @@ def add_sound_effect_queue(self, sound_object, sound_pos, sound_distance_power, 
 
             left_effect_volume = left_sound_power * volume_mod * use_volume
             right_effect_volume = right_sound_power * volume_mod * use_volume
-
             if right_effect_volume or left_effect_volume:
                 if sound_object not in self.sound_effect_queue:
                     self.sound_effect_queue[sound_object] = [left_effect_volume, right_effect_volume]

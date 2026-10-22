@@ -2,4 +2,4 @@
 "Skill1","Use Flash Stone",,,,1200,1300,10,30,,,,,,,,,,"arc"
 "Skill2","Hide","name:Skill2Ready",,,800,,30,60,,,,,,,"invisible",,,
 "UseItem","Speed Potion",,,,2000,,30,,,,,,,,"haste",,,
-"UseItem2","Resource Potion",,,"self:{resource<=50}",,,30,,,,,,,,"resource_potion",,,
+"UseItem2","Resource Potion",,,"self:{resource<=0.5}",,,30,,,,,,,,"resource_potion",,,

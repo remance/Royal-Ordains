@@ -184,6 +184,7 @@ class Character(sprite.Sprite):
         self.already_hit = []
         self.move_cooldown = {}  # character can attack when cooldown reach attack speed
         self.status_duration = {}  # current status duration
+        self.old_status_key = ()  # for checking status change
 
         self.timer = 0
         self.frame_timer = 0

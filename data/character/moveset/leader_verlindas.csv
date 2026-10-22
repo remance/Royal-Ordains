@@ -4,4 +4,4 @@
 "Skill1","Spectral Dance","name:Skill1Ready","name:Skill1End",,900,,12,20,90,80,90,40,0.2,"magic",,,,
 "Skill2","Crimson Flare",,,,2000,4000,10,20,5,1000,,,,"magic","excited","daze",,
 "Skill3","Spectral Blood",,,,900,,10,20,15,60,,,,"magic",,,"bleeding",
-"UseItem","Resource Potion",,,"self:{resource<=20}",,,120,,,,,,,,"resource_potion",,,
+"UseItem","Resource Potion",,,"self:{resource<=0.2}",,,120,,,,,,,,"resource_potion",,,

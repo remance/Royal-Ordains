@@ -6,15 +6,14 @@ import pygame
 def loading_screen(self, state):
     if state == "start":
         self.screen.fill((0, 0, 0))
-        self.screen.blit(self.loading_text,  # blit loading text
-                         self.loading_text.get_rect(bottomright=(self.screen_width, self.screen_height)))
+        text_surface = self.screen_fade_font.render("Loading", True, (255, 255, 255))
+        text_rect = text_surface.get_rect(bottomleft=(0, self.screen.get_height()))
+        self.screen.blit(text_surface, text_rect)
     elif state == "end":
         self.cursor.change_image("normal")
     else:
         self.screen.fill((0, 0, 0))
-        self.screen.blit(self.loading_text,  # blit loading text
-                         self.loading_text.get_rect(bottomright=(self.screen_width, self.screen_height)))
-        text_surface = self.loading_screen_lore_font.render(state, True, (255, 255, 255))
+        text_surface = self.screen_fade_font.render(state, True, (255, 255, 255))
         text_rect = text_surface.get_rect(bottomleft=(0, self.screen.get_height()))
         self.screen.blit(text_surface, text_rect)
         loading_lore_text = self.grab_text(

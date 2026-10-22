@@ -22,3 +22,7 @@ def add_new_army_to_reinforcement(self, team, team_state, army):
         if "air" not in later_reinforcement["team"][team]:
             later_reinforcement["team"][team]["air"] = []
         later_reinforcement["team"][team]["air"] += air_reinforcement
+
+    if army.garrison_strategy:
+        for strategy in army.garrison_strategy:
+            self.add_strategy_to_team_state(team_state, strategy)

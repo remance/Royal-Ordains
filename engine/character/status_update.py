@@ -1,14 +1,14 @@
 def status_update(self):
     """Calculate stat with effect from weather, skill, and status"""
-    old_status_key = self.status_duration.keys()
     self.status_duration = {key: value - 0.1 for key, value in self.status_duration.items() if value > 0.1}
     self.move_cooldown = {key: value - 0.1 for key, value in self.move_cooldown.items() if value > 0.1}
 
     current_weather = self.battle.current_weather
-    if old_status_key != self.status_duration.keys() or (not self.immune_weather and (
+    if self.old_status_key != self.status_duration.keys() or (not self.immune_weather and (
             self.weather != current_weather.weather_now or current_weather.new_weather_reset)):
         # status or weather got changed from previous update
         # reset to base stat for new status update
+        self.old_status_key = self.status_duration.keys()
         self.offence = self.base_offence
         self.defence = self.base_defence
         self.speed = self.base_speed
@@ -19,6 +19,7 @@ def status_update(self):
                                    element, value in self.base_element_resistance.items()}
         self.resource_cost_modifier = self.base_resource_cost_modifier
 
+        self.invisible = False
         self.blind = False
         self.false_order = False
 

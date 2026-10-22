@@ -262,7 +262,7 @@ class Game:
         self.character_number_font = Font(self.ui_font["manuscript_font"], int(60 * self.screen_scale_height))
         self.critical_damage_number_font = Font(self.ui_font["manuscript_font2"], int(76 * self.screen_scale_height))
         self.drama_font = Font(self.ui_font["manuscript_font"], int(90 * self.screen_scale_height))
-        self.screen_fade_font = Font(self.ui_font["manuscript_font"], int(100 * self.screen_scale_height))
+        self.screen_fade_font = Font(self.ui_font["manuscript_font"], int(120 * self.screen_scale_height))
 
         self.list_font1 = Font(self.ui_font["text_paragraph"], int(40 * Game.screen_scale_height))
         self.list_font2 = Font(self.ui_font["text_paragraph"], int(32 * Game.screen_scale_height))
@@ -320,9 +320,6 @@ class Game:
         self.localisation = DataLocalisation()
         self.grab_text = self.localisation.grab_text
         Game.localisation = self.localisation
-
-        self.loading_text = self.screen_fade_font.render(self.grab_text(("ui", "info_text_loading")), True,
-                                                         (255, 255, 255))
 
         self.game_intro(False)  # run intro
 

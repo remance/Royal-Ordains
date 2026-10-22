@@ -1,4 +1,4 @@
-from random import uniform
+from random import uniform, choice
 
 from engine.effect.effect import Effect
 from engine.uibattle.uibattle import DamageNumber
@@ -54,7 +54,7 @@ def cal_loss(self, attacker, final_damage, impact, hit_angle, critical):
                 if "knockdown" not in self.current_action:  # not already in knock down state
                     self.interrupt_animation = True
                     self.command_action = self.knockdown_command_action
-                    self.battle.add_sound_effect_queue(self.sound_effect_pool["knock_down"][0], self.base_pos,
+                    self.battle.add_sound_effect_queue(choice(self.sound_effect_pool["knock_down"]), self.base_pos,
                                                        self.knock_down_sound_distance,
                                                        self.knock_down_screen_shake,
                                                        volume_mod=self.hit_volume_mod)  # larger size play louder sound
@@ -76,7 +76,7 @@ def cal_loss(self, attacker, final_damage, impact, hit_angle, critical):
 
                 self.interrupt_animation = True
                 self.command_action = self.damaged_command_action
-                self.battle.add_sound_effect_queue(self.sound_effect_pool["damaged"][0], self.base_pos,
+                self.battle.add_sound_effect_queue(choice(self.sound_effect_pool["damaged"]), self.base_pos,
                                                    self.dmg_sound_distance,
                                                    self.dmg_screen_shake,
                                                    volume_mod=self.hit_volume_mod)

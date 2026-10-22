@@ -35,11 +35,11 @@ def menu_main(self):
         self.add_to_ui_menu_updater(self.grand_menu_uis)
 
     elif self.test_battle_button.event_press:
-        self.custom_team_army[1][0].__init__("", "small", "small", "leader_noxbox_201",
-                                             {"leader": [["doll_leader_maker", True],
+        self.custom_team_army[1][0].__init__("", "small", "small", "leader_bigta",
+                                             {"leader": [["leader_adaqua", True],["small_rabbit_leader_shaman", True],
                                                          ["small_rabbit_leader_banner", True], ],
                                               "troop": [["small_rabbit_sling", True], ["small_snail_sword", True],
-                                                        ["small_rabbit_cannon", True], ],
+                                                        ["small_rabbit_trebuchet", True], ],
                                               "air": []}, supply=888888)
         self.custom_team_army[1][1].__init__("", "small", "small", "leader_amgarn",
                                              {"leader": [["small_rabbit_leader_knight", True],
@@ -49,14 +49,14 @@ def menu_main(self):
                                               "air": [["castle_human_air_flying_monk", True],
                                                       ["small_eagle_air_stone", True]]}, supply=888888)
         self.custom_team_army[2][0].__init__("", "castle", "castle", "death_undead_leader_lich",
-                                             {"leader": [["leader_adaqua", True], ],
+                                             {"leader": [["leader_elmaliern", True], ],
                                               "troop": [["death_cat_necromancer", True], ["death_undead_zombie", True],
                                                         ["death_undead_ghoul", True],
                                                         ["death_undead_grave_knight", True],
                                                         ["death_undead_banshee", True], ],
-                                              "air": []}, supply=10000)
+                                              "air": [["death_gargoyle_air", True]]}, supply=10000)
         self.custom_team_army[2][1].__init__("", "castle", "castle", "death_undead_leader_lich",
-                                             {"leader": [], "troop": [], "air": []}, supply=700)
+                                             {"leader": [], "troop": [["death_undead_zombie", True],], "air": []}, supply=700)
 
         for army in self.custom_team_army[1][2:]:
             army.__init__("", "", "", None, {"leader": [], "troop": [], "air": []})
@@ -83,7 +83,7 @@ def menu_main(self):
                 "main_army": self.custom_team_army[2][0],
                 "reinforcement_army": self.custom_team_army[2][1:2]}}
 
-        self.start_battle(None, "main", "stage_custom1", team_state, 1,
+        self.start_battle(None, "main", "test", team_state, 1,
                           self.grab_text(("ui", "info_text_custom_battle")),
                           setup_battle=True)
 

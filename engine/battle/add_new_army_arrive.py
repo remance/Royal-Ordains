@@ -39,11 +39,11 @@ def add_new_army_arrive(self):
                 self.add_new_army_to_reinforcement(team, team_state, army)
 
                 if team == player_team:
-                    self.grand_event_notification.add_event(("good", grab_text(("ui", "info_text_your")) +
+                    self.grand_event_notification.add_event(("event_good", grab_text(("ui", "info_text_your")) +
                                                              grab_text(("character", commander_id, "Name")) +
                                                              grab_text(("ui", "info_text_army_arrive"))))
                 else:
-                    self.grand_event_notification.add_event(("bad", grab_text(("ui", "info_text_enemy’s")) +
+                    self.grand_event_notification.add_event(("event_bad", grab_text(("ui", "info_text_enemy’s")) +
                                                              grab_text(("character", commander_id, "Name")) +
                                                              grab_text(("ui", "info_text_army_arrive"))))
             self.awaiting_armies.pop(team)

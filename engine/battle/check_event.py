@@ -1,5 +1,5 @@
 from copy import deepcopy
-
+from random import choice
 from pygame.mixer import Sound
 
 
@@ -42,7 +42,7 @@ def check_event(self):
                     event_list[key].pop("ambient")
                 if "sound" in event_list[key]:  # play sound
                     for sound_effect in event_list[key]["sound"]:
-                        self.add_sound_effect_queue(sound_effect[0],
+                        self.add_sound_effect_queue(choice(sound_effect[0]),
                                                     self.base_camera_center_pos, sound_effect[1], sound_effect[2])
                     event_list[key].pop("sound")
                 if "cutscene" in event_list[key]:  # cutscene

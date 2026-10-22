@@ -262,7 +262,7 @@ class DataSprite(GameData):
         effect_to_load = set(effect_to_load)
 
         if len(character_list) > 1 and self.load_threads > 2:
-            per_chunk = ceil(len(character_list) / self.load_threads - 1)  # keep 1 for effect load
+            per_chunk = ceil(len(character_list) / (self.load_threads - 1))  # keep 1 for effect load
             chunks = [tuple(character_list)[i:i + per_chunk] for i in range(0, len(character_list), per_chunk)]
             threads = []
 

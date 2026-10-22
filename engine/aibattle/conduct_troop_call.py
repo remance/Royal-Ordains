@@ -116,7 +116,6 @@ def conduct_troop_call(self):
             if "enemy_air_group" in current_info and True in current_info["enemy_air_group"]:
                 # enemy has active air group consider sending interceptor
                 if air_interceptor_available_to_call and self.commander_air_prefer >= uniform(0, 10):
-                    # consider sending interceptor to go with bombers
                     for air_group in tuple(air_interceptor_available_to_call):
                         if self.defensive > uniform(0, 10):
                             air_to_call.append(air_group)
