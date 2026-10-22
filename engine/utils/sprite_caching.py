@@ -1,9 +1,7 @@
-import hashlib
 import lzma
 import pickle
 
 from PIL import Image
-
 from pygame import Surface
 from pygame.image import tobytes, frombuffer
 from pygame.mask import from_surface

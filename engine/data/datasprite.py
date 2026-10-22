@@ -1,4 +1,3 @@
-import ast
 import lzma
 import pickle
 from math import ceil
@@ -12,8 +11,8 @@ import psutil
 from pygame.mask import from_surface
 from pygame.transform import smoothscale, flip, rotate, scale
 
+from engine.constants import Culture_Policy_Integration
 from engine.data.data import GameData
-from engine.utils.common import edit_config
 from engine.utils.data_loading import load_image, load_images
 from engine.utils.sprite_caching import load_pickle_with_surfaces, save_pickle_with_surfaces
 from engine.utils.text_making import text_render_with_bg
@@ -76,6 +75,16 @@ class DataSprite(GameData):
                                               subfolder=("ui", "strategy_ui"))
             self.grand_ui_images = load_images(self.data_dir, screen_scale=self.screen_scale,
                                                subfolder=("ui", "grand_ui"))
+
+            # add some smaller version of icons
+            for policy in Culture_Policy_Integration:
+                self.grand_ui_images["policy_small_" + policy] = smoothscale(self.grand_ui_images["policy_" + policy],
+                                                                             (70 * self.screen_scale_width, 70 * self.screen_scale_height))
+            self.grand_ui_images["culture_value_good"] = smoothscale(self.grand_ui_images["diplomacy_value_good"],
+                                                                     (70 * self.screen_scale_width, 70 * self.screen_scale_height))
+            self.grand_ui_images["culture_value_bad"] = smoothscale(self.grand_ui_images["diplomacy_value_bad"],
+                                                                    (70 * self.screen_scale_width, 70 * self.screen_scale_height))
+
             self.battle_ui_images = load_images(self.data_dir, screen_scale=self.screen_scale,
                                                 subfolder=("ui", "battle_ui"))
             self.cosmos_ui_images = load_images(self.data_dir, screen_scale=self.screen_scale,
@@ -136,6 +145,7 @@ class DataSprite(GameData):
 
                     icon.blit(self.battle_ui_images["behaviour_" + self.game.character_list[file]["AI Behaviour"]],
                               (0, 0))
+
                     class_image = self.battle_ui_images["class_" + self.game.character_list[file]["Grade"] + "_" +
                                                         self.game.character_list[file]["Class"]]
                     icon.blit(class_image, class_image.get_rect(bottomleft=(0, icon.get_height())))
@@ -246,7 +256,8 @@ class DataSprite(GameData):
         self.game.cursor.change_image("loading")
         effect_to_load = []
         for character in character_list:
-            effect_to_load += [effect for effect in self.animation_load_index["character_load_index"][character] if effect
+            effect_to_load += [effect for effect in self.animation_load_index["character_load_index"][character] if
+                               effect
                                not in self.effect_animation_pool]  # get effect not yet loaded
         effect_to_load = set(effect_to_load)
 
@@ -269,7 +280,7 @@ class DataSprite(GameData):
 
             for index, character_todo in enumerate(chunks):
                 thread = Thread(target=load_character_sprite, args=(character_todo, self.data_dir, self.screen_scale,
-                                                                    self.character_animation_data, ),
+                                                                    self.character_animation_data,),
                                 daemon=True)
                 threads.append(thread)
                 thread.start()
@@ -290,8 +301,9 @@ def load_effect_sprites(effect_to_load, cache_animation_hash, data_dir, effect_a
                         animation_load_index, screen_scale):
     for effect in tuple(effect_to_load):
         if (not Path(join(data_dir, "animation", "effect", "cache_" + effect + ".xz")).exists() or
-                (screen_scale != (1, 1) and (cache_animation_hash and (screen_scale != cache_animation_hash["effect"][effect]["screen_scale"] or
-                                             animation_load_index["effect"][effect] != cache_animation_hash["effect"][effect]["hash"])))):
+                (screen_scale != (1, 1) and (cache_animation_hash and (
+                        screen_scale != cache_animation_hash["effect"][effect]["screen_scale"] or
+                        animation_load_index["effect"][effect] != cache_animation_hash["effect"][effect]["hash"])))):
             # effect sprite or screen resolution got changed, load and scale for new cache
             loaded_effect_animation = load_pickle_with_surfaces(
                 join(data_dir, "animation", "effect", effect + ".xz"),

@@ -1,5 +1,5 @@
 def cancel_building_raze_or_pillage(self, faction, region, slot):
-    building_state = self.current_campaign_state["region"]["building"][region][slot]
+    building_state = self.current_campaign_state["region"][region]["building"][slot]
     building_state[1] = True
     building_state[2] = 0
 

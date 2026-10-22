@@ -82,7 +82,7 @@ class Character(sprite.Sprite):
     status_immunity = ()
     image = Surface((0, 0))  # start with empty surface
     mask = from_surface(image)
-    rect = image.get_rect(topleft=(0, 0))
+    rect = image.get_rect()
     collision_grid_width = 0
 
     ai_logic = ai_logic
@@ -547,7 +547,7 @@ class BattleCharacter(Character):
         self.near_ally = []
         self.near_enemy = []
 
-        ai_speak_list = self.battle.localisation.grab_text(("ai_speak", stat["ID"]))
+        ai_speak_list = self.battle.localisation.grab_text(("battle_speak", stat["ID"]))
         if type(ai_speak_list) is dict:  # only add if not empty
             self.ai_speak_list = ai_speak_list
 

@@ -14,7 +14,6 @@ class Weather:
     weather_data = None
 
     def __init__(self, weather_type, wind_direction, level):
-        self._layer = 99999999999999999999
         self.new_weather_reset = True
         self.weather_matters = self.battle.weather_matters
         self.weather_spawn_timer = {}

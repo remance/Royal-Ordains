@@ -27,11 +27,16 @@ Phase_To_Game_Time = 1  # in second to 1 phase
 Turn_To_Phase = 12  # in phase to 1 turn
 Phase_To_Battle_Time = 60  # in second
 
+# number of turn a diplomacy event will have effect
+Diplomacy_Turn_Event_Gift = 30
+Diplomacy_Turn_Event_Battle = 15
+Diplomacy_Turn_Event_Occupy = 50
+
 """culture policy for grand campaign
 ANY CHANGE IN KEYS WILL CAUSE ERRORS from the inconsistency in game code, uioutergrand and ui sprite asset
 the value indicate maximum integration value that the culture can reach"""
-Culture_Policy_Integration = {"reject": -1, "tolerate": 0.1, "restrict": 0.35, "partial": 0.7, "accept": 1}
-Culture_Policy_Relation = {"reject": -30, "tolerate": 0, "restrict": -15, "partial": -5, "accept": 10}
+Culture_Policy_Integration = {"reject": 0, "tolerate": 0.1, "restrict": 0.35, "partial": 0.7, "accept": 1}
+Culture_Policy_Difference_Relation = {0: 0, 1: -5, 2: -15, 3: -20, 4: -30}
 
 """Route type travel modifier for army in grand campaign"""
 Route_Travel_Modifier = {"land": 1, "forest": 2, "hill": 2, "snow": 2, "sea": 3, "mountain": 3, "ocean": 4}

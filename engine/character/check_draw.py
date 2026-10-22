@@ -7,6 +7,7 @@ def check_draw(self, dt):
             # TODO maybe add occlusion culling using shadow mini cell,
             #  (create mini black version of all sprites and map to mini screen metrix,
             #  then each cell is marked occluded only if opacity is not 1)
+            #  also why not use collide grid for additional check as well?
             blit_check = (self.char_id, int(self.pos[0]), int(self.pos[1]), self.direction, self.animation_name,
                           self.show_frame)
             if blit_check not in self.blit_culling_check:

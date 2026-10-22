@@ -2,6 +2,7 @@ import pygame
 
 from engine.character.character import BattleCharacter
 from engine.uibattle.uibattle import CharacterSpeechBox
+from engine.uioutergrand.uioutergrand import DiplomacyHead
 from engine.utils.common import edit_config
 
 
@@ -71,11 +72,13 @@ def menu_option(self):
         if not self.easy_text_box.tick:
             self.easy_text_box.change_tick(True)
             CharacterSpeechBox.simple_font = True
+            DiplomacyHead.simple_font = True
             edit_config("USER", "easy_text", 1, self.config_path,
                         self.config)
         else:
             self.easy_text_box.change_tick(False)
             CharacterSpeechBox.simple_font = False
+            DiplomacyHead.simple_font = False
             edit_config("USER", "easy_text", 0, self.config_path,
                         self.config)
 

@@ -71,7 +71,7 @@ def change_phase(self):
                         self.activity = {}
     else:  # idle
         if (self.base_pos in self.region_by_pos_index and
-                current_campaign_state["region"]["control"][self.region_by_pos_index[self.base_pos]] == self.faction):
+                current_campaign_state["region"][self.region_by_pos_index[self.base_pos]]["control"] == self.faction):
             # idle at faction owned settlement
             if self.supply < self.max_supply and self.enable_resupply:
                 # replenish supply

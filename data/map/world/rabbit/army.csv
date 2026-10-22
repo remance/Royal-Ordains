@@ -1,5 +1,5 @@
 "ID","Faction","Region","Commander","Leader 1","Leader 2","Leader 3","Troop 1","Troop 2","Troop 3","Troop 4","Troop 5","Air 1","Air 2","Air 3","Air 4","Air 5","Supply","Max Supply"
-1,"bigta","up1","leader_bigta","leader_doll_princess","leader_hermanos",,"small_rabbit_spear","small_rabbit_spear","small_rabbit_sling",,,,,,,,500,500
+1,"bigta","up1","leader_bigta",,,,"small_rabbit_spear","small_rabbit_spear","small_rabbit_sling",,,,,,,,500,500
 2,"free","up2","small_rabbit_leader_banner",,,,"small_rabbit_spear","small_rabbit_sling",,,,,,,,,300,300
 3,"free","up3","small_rabbit_leader_shaman",,,,"small_rabbit_spear","small_snail_sword","small_rabbit_sling",,,,,,,,500,500
 4,"amgarn","left1","leader_amgarn",,,,"small_rabbit_spear","small_rabbit_killer","small_rabbit_killer",,,,,,,,500,500

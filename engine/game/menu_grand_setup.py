@@ -1,5 +1,4 @@
 import gc
-
 from copy import deepcopy
 
 from engine.constants import Culture_Policy_Integration
@@ -19,14 +18,15 @@ def menu_grand_setup(self):
             faction_state[faction] = {"alliance": faction_value["Alliance"],
                                       "diplomacy": {faction2: {"value": 0, "history": faction_value["Relation"][
                                           faction2], "offer": False} if faction2 in faction_value["Relation"] else {
-                                          "value": 0, "history": [], "offer": False} for faction2 in self.map_data.faction_list if faction != faction2},
+                                          "value": 0, "history": [], "offer": False} for faction2 in
+                                                    self.map_data.faction_list if faction != faction2},
                                       "army": [], "reserve": [], "plan": {},
                                       "region": [key for key, value in self.map_data.region_list.items() if
                                                  value["Control"] == faction],
                                       "culture": {
                                           faction_value["Culture"]: {
                                               "policy": tuple(Culture_Policy_Integration.keys())[-1],
-                                              "influence": 1, "weight": 1, "integration": 1}},
+                                              "influence": 1, "weight": 1, "integration": 1, "penalty": 0}},
                                       "total_culture_weight": 1,
                                       "character": {faction_value["Ruler"]: (None, "courtier")} | {
                                           key: (None, "courtier") for key in faction_value["Courtier"]},
@@ -41,27 +41,23 @@ def menu_grand_setup(self):
                                                            "influence_effect": [],
                                                            "coexist_effect": [],
                                                            "event_effect": []},
+                                      "recruit": {"leader": [], "troop": [], "air": []},
                                       "event": {}}
 
         for army_id, army in self.map_data.start_army_list.items():
             faction_state[army["Faction"]]["army"].append(army)
 
         campaign_state = {"player_camera_pos": None, "player_faction": None,
-                          "region": {"dot": {key: value["Settlement POS"] for key, value in
-                                             self.map_data.region_list.items()},
-                                     "control": {key: value["Control"] for key, value in
-                                                 self.map_data.region_list.items()},
-                                     "building": {key: [value["Build Slot " + str(index)] for index in range(1, 10) if
-                                                        value["Build Slot " + str(index)]] for key, value in
-                                                  self.map_data.region_list.items()},
-                                     "object": {key: value["Object"] for key, value in
-                                                self.map_data.region_list.items()},
-                                     "income": {key: {"gold_income": 0, "supply_income": 0, "happiness": 0} for key in
-                                                self.map_data.region_list},
-                                     "recruit": {"leader": [], "troop": [], "air": []},
-                                     "garrison": {"leader": [], "troop": [], "air": [], "strategy": []},
-                                     "technology": [],
-                                     "culture": {key: {} for key in self.map_data.region_list}
+                          "region": {key: {"dot": value["Settlement POS"],
+                                           "control": value["Control"],
+                                           "building": [value["Build Slot " + str(index)] for index in range(1, 10) if
+                                                        value["Build Slot " + str(index)]],
+                                           "object": value["Object"],
+                                           "income": {"gold_income": 0, "supply_income": 0, "happiness": 0},
+                                           "recruit": {"leader": [], "troop": [], "air": []},
+                                           "garrison": {"leader": [], "troop": [], "air": [], "strategy": []},
+                                           "technology": [],
+                                           "culture": {}} for key, value in self.map_data.region_list.items()
                                      },
                           "free_character": [],
                           "battle": {"armies": [], "dot": [], "factions": [], "auto": {}, "manual": None},

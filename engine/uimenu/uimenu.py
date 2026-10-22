@@ -175,34 +175,35 @@ class UIMenu(Sprite):
         self.event_middle_mouse_press = False
         self.mouse_over = False
         cursor = self.cursor
-        if self.player_interact and not self.pause and not cursor.mouse_over:
+        if self.player_interact and not cursor.mouse_over:
             if self.rect.collidepoint(cursor.pos):
                 self.mouse_over = True
                 cursor.mouse_over = True
-                if cursor.is_select_just_up:
-                    if self.play_sound_when_click:
-                        self.button_sound_channel.play(choice(self.sound_effect_pool["button"]))
-                        self.button_sound_channel.set_volume(self.game.play_effect_volume)
-                    self.event = True
-                    self.event_press = True
-                    cursor.is_select_just_up = False  # reset select button to prevent overlap interaction
-                elif cursor.is_select_down:
-                    self.event = True
-                    self.event_hold = True
-                    self.cursor.is_select_just_down = False  # reset select button to prevent overlap interaction
-                elif cursor.is_alt_select_just_up:
-                    self.event = True
-                    self.event_alt_press = True
-                    cursor.is_alt_select_just_up = False  # reset select button to prevent overlap interaction
-                elif cursor.is_alt_select_down:
-                    self.event = True
-                    self.event_alt_hold = True
-                    cursor.is_alt_select_just_down = False  # reset select button to prevent overlap interaction
-                elif cursor.is_middle_mouse_select_just_up:
-                    self.event = True
-                    self.event_middle_mouse_press = True
-                    cursor.is_middle_mouse_select_just_up = False  # reset select button to prevent overlap interaction
-                return True
+                if not self.pause:
+                    if cursor.is_select_just_up:
+                        if self.play_sound_when_click:
+                            self.button_sound_channel.play(choice(self.sound_effect_pool["button"]))
+                            self.button_sound_channel.set_volume(self.game.play_effect_volume)
+                        self.event = True
+                        self.event_press = True
+                        cursor.is_select_just_up = False  # reset select button to prevent overlap interaction
+                    elif cursor.is_select_down:
+                        self.event = True
+                        self.event_hold = True
+                        self.cursor.is_select_just_down = False  # reset select button to prevent overlap interaction
+                    elif cursor.is_alt_select_just_up:
+                        self.event = True
+                        self.event_alt_press = True
+                        cursor.is_alt_select_just_up = False  # reset select button to prevent overlap interaction
+                    elif cursor.is_alt_select_down:
+                        self.event = True
+                        self.event_alt_hold = True
+                        cursor.is_alt_select_just_down = False  # reset select button to prevent overlap interaction
+                    elif cursor.is_middle_mouse_select_just_up:
+                        self.event = True
+                        self.event_middle_mouse_press = True
+                        cursor.is_middle_mouse_select_just_up = False  # reset select button to prevent overlap interaction
+                    return True
 
 
 class UIScroll(UIMenu):
@@ -532,7 +533,6 @@ class CharacterSelector(UIMenu):
         self.current_row = 0
         self.portrait_rects = []
         self.selector_character_list = []
-        self.shown_character_type = None
         temp_rect_image = Surface((int(200 * self.screen_scale_width), int(200 * self.screen_scale_height)))
 
         self.max_row = 5
@@ -552,15 +552,16 @@ class CharacterSelector(UIMenu):
 
     def add(self, faction=None, character_type=None, exist_unique_check=()):
         selector_character_list = ()
-        self.shown_character_type = character_type
         if faction:
             if self.game.menu_state in ("custom", "preset"):
                 if character_type in ("commander", "leader"):
                     selector_character_list = [value for value in
-                                               self.custom_character_setup[faction]["ground"]["leader"]["unique"] if value
+                                               self.custom_character_setup[faction]["ground"]["leader"]["unique"] if
+                                               value
                                                not in exist_unique_check]
                     selector_character_list += [value for value in
-                                                self.custom_character_setup["free"]["ground"]["leader"]["unique"] if value
+                                                self.custom_character_setup["free"]["ground"]["leader"]["unique"] if
+                                                value
                                                 not in exist_unique_check]
                     if character_type == "commander":  # exclude leader that cannot be commander
                         selector_character_list = [value for value in selector_character_list
@@ -574,11 +575,9 @@ class CharacterSelector(UIMenu):
                 selector_character_list = self.all_main_exist_characters[faction]
         # sort characters, based on unique leader, common leader, ground troop, air troop
         true_selector_character_list = [item for item in selector_character_list if
-                                        self.character_list[item]["Is Leader"] and self.character_list[item][
-                                            "Is Unique"]]
+                                        self.character_list[item]["Is Unique"]]
         true_selector_character_list += [item for item in selector_character_list if
-                                         self.character_list[item]["Is Leader"] and not self.character_list[item][
-                                             "Is Unique"]]
+                                         self.character_list[item]["Is Leader"]]
         true_selector_character_list += [item for item in selector_character_list if self.character_list[item][
             "Type"] == "ground" and item not in true_selector_character_list]
         true_selector_character_list += [item for item in selector_character_list if self.character_list[item][
@@ -610,6 +609,63 @@ class CharacterSelector(UIMenu):
                 else:
                     break
 
+    def grab_character_stat_text(self, character_id, character_data):
+        grab_text = self.grab_text
+        class_text = grab_text(("ui", "info_header_class")) + grab_text(
+            ("ui", "grade_" + character_data["Grade"])) + " " + grab_text(
+            ("ui", "behaviour_" + character_data["AI Behaviour"])) + " " + grab_text(
+            ("ui", "class_" + character_data["Class"]))
+        if character_data["Is Unique"]:
+            class_text += " " + grab_text(("ui", "info_text_hero"))
+
+        char_stat = [grab_text(("character", character_id, "Name")) + " (" +
+                     str(character_data["Arrive Per Call"]) + "" +
+                     "x" + str(character_data["Capacity"]) + ")",
+                     grab_text(("character", character_id, "Description")),
+                     class_text,
+                     grab_text(("ui", "info_header_health")) + add_comma_number(
+                         character_data["Health"]),
+                     grab_text(("ui", "info_header_offence")) + str(character_data["Offence"]),
+                     grab_text(("ui", "info_header_defence")) + str(character_data["Defence"]),
+                     grab_text(("ui", "info_header_speed")) + str(character_data["Speed"]),
+                     (grab_text(("ui", "info_header_cost")) + add_comma_number(
+                         character_data["Cost"]), self.grand_ui_images["gold"])]
+
+        if character_data["Leadership"]:
+            char_stat.append(grab_text(("ui", "info_header_leadership")) + str(
+                character_data["Leadership"]))
+        if character_data["Strategy"]:
+            char_stat.append(
+                grab_text(("ui", "info_header_strategy")) + grab_text(
+                    ("strategy", character_data["Strategy"], "Name")))
+        if character_data["Supply"]:
+            char_stat.append(
+                (grab_text(("ui", "info_header_supply_cost")) + str(character_data["Supply"]),
+                 self.grand_ui_images["supply"]))
+
+        resistance_text = [grab_text(("ui", "info_header_resistance"))]
+        has_resistance = False
+        for resistance in (
+                "Slash", "Crush", "Stab", "Fire", "Water", "Air", "Earth", "Magic", "Poison"):
+            if character_data[resistance + " Resistance"]:
+                has_resistance = True
+                resistance_text += [
+                    str(int(100 * character_data[resistance + " Resistance"])) + "%",
+                    self.battle_ui_images["element_" + resistance.lower()], " "]
+        if has_resistance:
+            char_stat.append(resistance_text)
+        tag_text = ""
+        for prop in character_data["Property"]:
+            prop_text = grab_text(("ui", "property_" + prop))
+            if "(" not in prop_text:  # mean tag has no localisation, likely intentional
+                tag_text += prop_text + ", "
+        if tag_text:
+            tag_text = grab_text(("ui", "info_header_property")) + tag_text
+            tag_text = tag_text[:-2]  # remove additional comma
+            char_stat.append(tag_text)
+
+        return char_stat
+
     def update(self, dt):
         if UIMenu.update(self, dt):
             if self.cursor.scroll_up:
@@ -632,7 +688,6 @@ class CharacterSelector(UIMenu):
                     shown_index = index + start_index
                     if shown_index < len(self.selector_character_list):
                         character_id = self.selector_character_list[shown_index]
-                        grab_text = self.grab_text
                         character_data = self.character_list[character_id]
                         game = self.game
                         if self.event_press:
@@ -680,61 +735,13 @@ class CharacterSelector(UIMenu):
                                         [[0, key] for key in animation_list if key != "Default"])
                                     game.lorebook_character_description_showcase.change_character(character_id)
                                     game.lorebook_character_moveset_showcase.change_moveset(character_id, None)
-                            return
+                        else:
+                            char_stat = self.grab_character_stat_text(character_id, character_data)
 
-                        char_stat = [grab_text(("character", character_id, "Name")) + " (" +
-                                     str(character_data["Arrive Per Call"]) + "" +
-                                     "x" + str(character_data["Capacity"]) + ")",
-                                     grab_text(("character", character_id, "Description")),
-                                     grab_text(("ui", "info_header_class")) + grab_text(
-                                         ("ui", "grade_" + character_data["Grade"])) + " " + grab_text(
-                                         ("ui", "behaviour_" + character_data["AI Behaviour"])) + " " + grab_text(
-                                         ("ui", "class_" + character_data["Class"])),
-                                     grab_text(("ui", "info_header_health")) + add_comma_number(
-                                         character_data["Health"]),
-                                     grab_text(("ui", "info_header_offence")) + str(character_data["Offence"]),
-                                     grab_text(("ui", "info_header_defence")) + str(character_data["Defence"]),
-                                     grab_text(("ui", "info_header_speed")) + str(character_data["Speed"]),
-                                     (grab_text(("ui", "info_header_cost")) + add_comma_number(
-                                         character_data["Cost"]), self.grand_ui_images["gold"])]
-
-                        if character_data["Leadership"]:
-                            char_stat.append(grab_text(("ui", "info_header_leadership")) + str(
-                                character_data["Leadership"]))
-                        if character_data["Strategy"]:
-                            char_stat.append(
-                                grab_text(("ui", "info_header_strategy")) + grab_text(
-                                    ("strategy", character_data["Strategy"], "Name")))
-                        if character_data["Supply"]:
-                            char_stat.append(
-                                (grab_text(("ui", "info_header_supply_cost")) + str(character_data["Supply"]),
-                                 self.grand_ui_images["supply"]))
-
-                        resistance_text = [grab_text(("ui", "info_header_resistance"))]
-                        has_resistance = False
-                        for resistance in (
-                                "Slash", "Crush", "Stab", "Fire", "Water", "Air", "Earth", "Magic", "Poison"):
-                            if character_data[resistance + " Resistance"]:
-                                has_resistance = True
-                                resistance_text += [
-                                    str(int(100 * character_data[resistance + " Resistance"])) + "%",
-                                    self.battle_ui_images["element_" + resistance.lower()], " "]
-                        if has_resistance:
-                            char_stat.append(resistance_text)
-                        tag_text = ""
-                        for prop in character_data["Property"]:
-                            prop_text = grab_text(("ui", "property_" + prop))
-                            if "(" not in prop_text:  # mean tag has no localisation, likely intentional
-                                tag_text += prop_text + ", "
-                        if tag_text:
-                            tag_text = grab_text(("ui", "info_header_property")) + tag_text
-                            tag_text = tag_text[:-2]  # remove additional comma
-                            char_stat.append(tag_text)
-
-                        game.text_popup.popup(self.cursor.rect, char_stat,
-                                              width_text_wrapper=int(1400 * self.screen_scale_width))
-                        self.add_to_ui_menu_updater(game.text_popup)
-                    break
+                            game.text_popup.popup(self.cursor.rect, char_stat,
+                                                  width_text_wrapper=int(1400 * self.screen_scale_width))
+                            self.add_to_ui_menu_updater(game.text_popup)
+                    return
 
 
 class CustomTeamSetupUI(UIMenu):
@@ -1094,7 +1101,6 @@ class PresetArmySetupUI(UIMenu):
 
     def reset(self):
         self.image.fill((100, 100, 100))
-
         for header in self.army_header:
             character_type = header.split(" ")[0].lower()
             index = 0
@@ -1668,7 +1674,7 @@ class OptionMenuText(UIMenu):
                                   text_surface.get_width(), button_image.get_height()), SRCALPHA)
             text_rect = text_surface.get_rect(topright=(self.image.get_width(), 0))
             self.image.blit(text_surface, text_rect)
-            button_rect = button_image.get_rect(topleft=(0, 0))
+            button_rect = button_image.get_rect()
             self.image.blit(button_image, button_rect)
         else:
             self.image = text_render_with_bg(text, self.font, Color("black"))
@@ -1896,7 +1902,7 @@ class CharacterDescriptionShowCase(UIMenu):
         if character != self.showing_character:
             self.image = self.base_image.copy()
             portrait = self.character_portraits[character]["character_ui"]
-            portrait_rect = portrait.get_rect(topleft=(0, 0))
+            portrait_rect = portrait.get_rect()
             self.image.blit(portrait, portrait_rect)
             name = self.grab_text(("character", character, "Name"))
             character_name = self.name_cap_font.render(name, True, (30, 30, 30))
@@ -2158,8 +2164,9 @@ class GrandMiniMap(UIMenu):
             draw.rect(self.camera_border_image, (250, 100, 100), self.camera_border_image.get_rect(),
                       width=int(10 * self.screen_scale_width))
 
-    def change_grand_faction(self, region_control_data):
+    def change_grand_faction(self, region_data):
         """Used in grand campaign game minimap, repaint faction colour of control change regions"""
+        region_control_data = {key: value["control"] for key, value in region_data.items()}
         if self.region_control_data != region_control_data:
             self.before_scale_image = self.base_image.copy()
             for region_id in region_control_data:

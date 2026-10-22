@@ -70,7 +70,7 @@ class DotInfoBanner(UIGrand):
                                                                  banner_body_height / 2)))
         self.image = Surface(((banner[0].get_width() * 2) + banner_body_width,
                               banner_body_height), SRCALPHA)
-        left_rect = banner[0].get_rect(topleft=(0, 0))
+        left_rect = banner[0].get_rect()
         self.image.blit(banner[0], left_rect)
         self.image.blit(banner_body, banner_body.get_rect(topleft=left_rect.topright))
         self.image.blit(banner[2], banner[2].get_rect(topright=(self.image.get_width(), 0)))
@@ -83,7 +83,7 @@ class DotNameBannerSettlement(DotInfoBanner):
     def __init__(self, base_pos, pos, region):
         DotInfoBanner.__init__(self, base_pos, pos)
         self.region = region
-        self.reset(self.grand.current_campaign_state["region"]["control"][region])
+        self.reset(self.grand.current_campaign_state["region"][region]["control"])
 
     def reset(self, faction_owner):
         team = "neutral"
@@ -107,7 +107,7 @@ class DotInfoBannerSettlement(DotInfoBanner):
         self.previous_income = ()
         self.owner = None
         self.region = region
-        self.reset(self.grand.current_campaign_state["region"]["control"][region])
+        self.reset(self.grand.current_campaign_state["region"][region]["control"])
 
     def check_draw(self):
         if self.owner == self.grand.player_faction and self.rect.colliderect(self.camera.rect):
@@ -120,7 +120,7 @@ class DotInfoBannerSettlement(DotInfoBanner):
     def reset(self, faction_owner):
         self.owner = faction_owner
         if faction_owner == self.grand.player_faction:
-            income_state = self.grand.current_campaign_state["region"]["income"][self.region].copy()
+            income_state = self.grand.current_campaign_state["region"][self.region]["income"].copy()
             if self.previous_income != income_state:
                 self.previous_income = income_state
                 self.make_text_image("player",

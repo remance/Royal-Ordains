@@ -5,12 +5,12 @@ def cal_region_income_recruit(self, faction, region):
     total_happiness = 0
     income_mod = {"gold": 1.0, "supply": 1.0, "happiness": 1.0}
     campaign_region_state = self.current_campaign_state["region"]
-    owner = campaign_region_state["control"][region]
+    owner = campaign_region_state[region]["control"]
     faction_culture_state = self.current_campaign_state["faction"][owner]["culture"]
     recruit_list = {"leader": [], "troop": [], "air": []}
     garrison_list = {"leader": [], "troop": [], "air": [], "strategy": []}
 
-    for building_state in campaign_region_state["building"][region]:
+    for building_state in campaign_region_state[region]["building"]:
 
         if building_state:
             # check for requirement active
@@ -53,17 +53,17 @@ def cal_region_income_recruit(self, faction, region):
                 if building_stat["Garrison Strategy"]:
                     garrison_list["strategy"].append(building_stat["Garrison Strategy"])
 
-    region_income_state = campaign_region_state["income"][region]
+    region_income_state = campaign_region_state[region]["income"]
 
     region_income_state["gold_income"] = total_gold_income * income_mod["gold"]
     region_income_state["supply_income"] = total_supply_income * income_mod["supply"]
     region_income_state["happiness"] = total_happiness * income_mod["happiness"]
 
-    campaign_region_state["garrison"][region] = garrison_list
-    campaign_region_state["recruit"][region] = recruit_list
+    campaign_region_state[region]["garrison"] = garrison_list
+    campaign_region_state[region]["recruit"] = recruit_list
 
     if owner == self.grand.player_faction:
-        self.dots_settlement_info_banners[campaign_region_state["dot"][region]].reset(owner)
+        self.dots_settlement_info_banners[campaign_region_state[region]["dot"]].reset(owner)
 
     if faction == self.player_faction and region == self.region_management_ui.player_selected_region:
         self.region_management_ui.change_selected_region(region)

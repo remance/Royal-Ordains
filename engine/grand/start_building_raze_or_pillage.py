@@ -2,7 +2,7 @@ from math import ceil
 
 
 def start_building_raze_or_pillage(self, faction, region, slot, building, pillage=False):
-    building_state = self.current_campaign_state["region"]["building"][region][slot]
+    building_state = self.current_campaign_state["region"][region]["building"][slot]
     if pillage:  # pillage, take half time
         building_state[1] = "pillage"
         building_state[2] = ceil(self.building_list[building]["Real Build Time"] / 2)

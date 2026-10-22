@@ -11,7 +11,7 @@ class Camera:
         self.camera_top_bound = None
         self.camera_right_bound = None
         self.camera_bottom_bound = None
-        self.rect = self.image.get_rect(topleft=(0, 0))
+        self.rect = self.image.get_rect()
 
     def update(self, blit_objects):
         """Update self camera with sprite blit to camera image,

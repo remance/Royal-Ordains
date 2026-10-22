@@ -5,58 +5,7 @@ from pygame import quit as pg_quit
 
 
 def state_grand_process(self):
-    if self.input_popup:  # currently, have input text pop up on screen, stop everything else until done.
-        self.ui_menu_updater.update(self.true_dt)
-        self.camera.update_with_in_camera_check(self.grand_camera_region_drawer)
-        # add route after map region draw to blit route dots on the map under other sprites.
-        self.draw_route()
-
-        self.camera.update_with_in_camera_check(self.grand_camera_object_drawer)
-        self.camera.update(self.grand_camera_ui_drawer)
-        self.camera.out_update(self.outer_ui_drawer)
-        self.camera.out_update(self.ui_menu_drawer)
-
-        if self.input_ok_button.event_press:
-            done = True
-
-            if self.input_popup[1] in ("retreat", "retreat_assemble"):
-                # all army in the same battles retreat and lose battle
-                for army in self.player_selected_army:  # TODO finish retreat function here
-                    army.issue_move_command(self.input_popup[2][0], direct=self.input_popup[2][1])
-                    # if army.base_pos in self.current_campaign_state["battle"]["auto"]:
-                    #     self.current_campaign_state["battle"]["auto"].remove(army.base_pos)
-                    #
-                    # for battle in self.current_campaign_state["battle"]["auto"]:
-
-                    # self.grand.current_campaign_state["battle"]["armies"].remove(self.game_id)
-                # for army in self.player_selected_army:
-
-                pass
-            elif self.input_popup[1] == "dismiss":
-                character = self.input_popup[2]
-                self.dismiss_faction_character(self.player_faction, character)
-                self.court_management_ui.court_reset()
-
-            elif self.input_popup[1] == "quit":
-                pygame.time.wait(1000)
-                pg_quit()
-                sys.exit()
-
-            if done:
-                self.change_pause_update(False)
-                self.input_box.render_text("")
-                self.input_popup = None
-                self.remove_from_ui_menu_updater(self.all_input_popup_uis)
-                self.add_to_outer_ui_menu_updater(self.cursor)
-                self.remove_from_ui_menu_updater(self.cursor)
-
-        elif self.input_cancel_button.event_press or self.input_close_button.event_press or self.esc_press:
-            self.change_pause_update(False)
-            self.input_box.render_text("")
-            self.input_popup = None
-            self.remove_from_ui_menu_updater(self.all_input_popup_uis)
-
-    else:
+    if not self.input_popup:
         # Update game time
         dt = self.true_dt * self.game_speed
         self.dt = dt  # apply dt with game_speed for calculation
@@ -109,13 +58,13 @@ def state_grand_process(self):
         # add route after map region draw to blit route dots on the map under other sprites.
         self.draw_route()
 
-        # update ui
+        # update and draw ui within camera
         self.grand_camera_ui_updater.update(self.true_dt)
-        self.outer_ui_updater.update(dt)
-
-        # draw ui
         self.camera.update_with_in_camera_check(self.grand_camera_object_drawer)
         self.camera.update(self.grand_camera_ui_drawer)
+
+        # update and draw ui outside camera
+        self.outer_ui_updater.update(dt)
         self.camera.out_update(self.outer_ui_drawer)
         self.camera.out_update(self.ui_menu_drawer)
 
@@ -132,4 +81,56 @@ def state_grand_process(self):
             self.remove_from_outer_ui_menu_updater(self.cursor)
             self.add_to_ui_menu_updater(self.cursor)
             self.add_to_ui_menu_updater(self.grand_menu_button.values())  # add menu and its buttons to drawer
+    else:  # have input text pop up on screen, stop everything else until done
+        self.ui_menu_updater.update(self.true_dt)
+        self.camera.update_with_in_camera_check(self.grand_camera_region_drawer)
+        # add route after map region draw to blit route dots on the map under other sprites.
+        self.draw_route()
 
+        # draw ui within camera
+        self.camera.update_with_in_camera_check(self.grand_camera_object_drawer)
+        self.camera.update(self.grand_camera_ui_drawer)
+
+        # draw ui outside camera
+        self.camera.out_update(self.outer_ui_drawer)
+        self.camera.out_update(self.ui_menu_drawer)
+
+        if self.input_ok_button.event_press:
+            done = True
+
+            if self.input_popup[1] in ("retreat", "retreat_assemble"):
+                # all army in the same battles retreat and lose battle
+                for army in self.player_selected_army:  # TODO finish retreat function here
+                    army.issue_move_command(self.input_popup[2][0], direct=self.input_popup[2][1])
+                    # if army.base_pos in self.current_campaign_state["battle"]["auto"]:
+                    #     self.current_campaign_state["battle"]["auto"].remove(army.base_pos)
+                    #
+                    # for battle in self.current_campaign_state["battle"]["auto"]:
+
+                    # self.grand.current_campaign_state["battle"]["armies"].remove(self.game_id)
+                # for army in self.player_selected_army:
+
+                pass
+            elif self.input_popup[1] == "dismiss":
+                character = self.input_popup[2]
+                self.dismiss_faction_character(self.player_faction, character)
+                self.court_management_ui.reset()
+
+            elif self.input_popup[1] == "quit":
+                pygame.time.wait(1000)
+                pg_quit()
+                sys.exit()
+
+            if done:
+                self.change_pause_update(False)
+                self.input_box.render_text("")
+                self.input_popup = None
+                self.remove_from_ui_menu_updater(self.all_input_popup_uis)
+                self.add_to_outer_ui_menu_updater(self.cursor)
+                self.remove_from_ui_menu_updater(self.cursor)
+
+        elif self.input_cancel_button.event_press or self.input_close_button.event_press or self.esc_press:
+            self.change_pause_update(False)
+            self.input_box.render_text("")
+            self.input_popup = None
+            self.remove_from_ui_menu_updater(self.all_input_popup_uis)

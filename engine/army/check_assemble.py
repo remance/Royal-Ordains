@@ -18,7 +18,7 @@ def check_assemble(self, specific=None):
     character_recruit_building_list = self.character_recruit_building_list
     character_list = self.character_list
     owned_region_list = self.grand.current_campaign_state["faction"][self.faction]["region"]
-    region_building_list = self.grand.current_campaign_state["region"]["building"]
+    region_campaign_state = self.grand.current_campaign_state["region"]
     for key, followers in self.army_followers.items():
         for index, value in enumerate(followers):
             if value:
@@ -32,15 +32,17 @@ def check_assemble(self, specific=None):
                             if character in assemble_time_check_cache:  # already has nearest check for same character
                                 can_assemble[(key, index)] = assemble_time_check_cache[character]
                             else:
-                                building_to_check = character_recruit_building_list[character]  # already in [id, True, 0]
+                                building_to_check = character_recruit_building_list[
+                                    character]  # already in [id, True, 0]
                                 for region in owned_region_list:
-                                    if building_to_check in region_building_list[region]:
+                                    region_building_list = region_campaign_state[region]["building"]
+                                    if building_to_check in region_building_list:
                                         if self.current_region == region:  # same region use 1 turn, no need to check further
                                             can_assemble[(key, index)] = Turn_To_Phase
                                             assemble_time_check_cache[character] = Turn_To_Phase
                                             break
                                         if (self.current_region, region) in self.pathfinding_array:
-                                            how_many = region_building_list[region].count(building_to_check) - 1
+                                            how_many = region_building_list.count(building_to_check) - 1
                                             how_long = len(self.pathfinding_array[(self.current_region, region)])
                                             if how_many:  # each multiple building reduce assemble turn by 1
                                                 how_long -= how_many

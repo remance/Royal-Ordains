@@ -465,7 +465,7 @@ class Battle:
                     for army in team_state["reinforcement_army"]:
                         if army.army_followers["leader"]:
                             leader_list += [item[0] for item in army.army_followers["leader"][:3 - len(leader_list)]
-                                             if item[1]]
+                                            if item[1]]
                             if len(leader_list) == 3:
                                 break
 
@@ -637,17 +637,12 @@ class Battle:
         self.clean_character_group()
         # grids for collision are kept in y, x metrix
         # the last y grid is used strategy/range collision for ALL characters where height play no part, so + 1 grid y per
-        self.all_team_ground_enemy_collision_grids = {index: [[sprite.Group() for _ in
-                                                               range(
-                                                                   int(stage_len * Collision_Grid_X_Per_Battle_Scene))]
-                                                              for
-                                                              _ in range(Collision_Grid_Y_Per_Battle_Scene + 1)] for
-                                                      index in team_list}
-        self.all_team_air_enemy_collision_grids = {index: [[sprite.Group() for _ in
-                                                            range(int(stage_len * Collision_Grid_X_Per_Battle_Scene))]
-                                                           for
-                                                           _ in range(Collision_Grid_Y_Per_Battle_Scene + 1)] for index
-                                                   in team_list}
+        self.all_team_ground_enemy_collision_grids = {index: [[
+            sprite.Group() for _ in range(int(stage_len * Collision_Grid_X_Per_Battle_Scene))] for
+            _ in range(Collision_Grid_Y_Per_Battle_Scene + 1)] for index in team_list}
+        self.all_team_air_enemy_collision_grids = {index: [[
+            sprite.Group() for _ in range(int(stage_len * Collision_Grid_X_Per_Battle_Scene))] for
+            _ in range(Collision_Grid_Y_Per_Battle_Scene + 1)] for index in team_list}
 
         self.last_grid = int(stage_len * Collision_Grid_X_Per_Battle_Scene)
 

@@ -26,6 +26,7 @@ def issue_move_command(self, target_destination, direct=False):
                 if self.base_pos == route_list[activity["id_routes"][0]]["Dots"][0]:
                     # still at starting point of travelling, remove current travel
                     activity = {}
+                    already_travel = False
 
             if self.current_region != target_destination:
                 if (self.current_region, target_destination) in self.pathfinding_array:

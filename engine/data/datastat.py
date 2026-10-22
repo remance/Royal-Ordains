@@ -276,7 +276,8 @@ class DataStat(GameData):
                     if building_data2["Precede"] == building:  # found upgrade
                         self.building_upgrade_list[building][building2] = []
                         for requirement_building in building_data2["Requirement"]:
-                            self.building_upgrade_list[building][building2].append(requirement_check[requirement_building])
+                            self.building_upgrade_list[building][building2].append(
+                                requirement_check[requirement_building])
 
                 # self.building_requirement_check_list[building] = []  #
                 # for building2, building_data2 in self.building_list.items():

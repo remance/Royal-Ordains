@@ -233,9 +233,10 @@ def state_battle_process(self):
             else:
                 self.end_delay += dt
                 if self.end_delay >= 5:  # show result
-                    self.remove_from_outer_ui_menu_updater(self.command_ui, self.strategy_select_ui, self.player_interact,
-                                            self.battle_scale_ui, self.tactical_map_ui,
-                                            self.battle_helper_ui, self.battle_cursor)
+                    self.remove_from_outer_ui_menu_updater(self.command_ui, self.strategy_select_ui,
+                                                           self.player_interact,
+                                                           self.battle_scale_ui, self.tactical_map_ui,
+                                                           self.battle_helper_ui, self.battle_cursor)
                     self.add_to_outer_ui_menu_updater(self.battle_result_ui, self.out_of_battle_result_button)
 
                     self.add_to_ui_menu_updater(self.cursor)

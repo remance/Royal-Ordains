@@ -48,8 +48,8 @@ class CharacterCommandIndicator(UIBattle):
     def setup(self, leader=None):
         if leader:
             self.leader = leader
-            self.move_image.blit(leader.icon["right"], leader.icon["right"].get_rect(topleft=(0, 0)))
-            self.attack_image.blit(leader.icon["right"], leader.icon["right"].get_rect(topleft=(0, 0)))
+            self.move_image.blit(leader.icon["right"], leader.icon["right"].get_rect())
+            self.attack_image.blit(leader.icon["right"], leader.icon["right"].get_rect())
             self.battle_effect_updater.add(self)
         else:
             self.battle_effect_updater.remove(self)
@@ -168,7 +168,7 @@ class CharacterSpeechBox(UIBattle):
                                    text_surface.get_height() + start_top.get_height() + start_bottom.get_height()),
                                   SRCALPHA)
 
-        start_top_rect = start_top.get_rect(topleft=(0, 0))
+        start_top_rect = start_top.get_rect()
         self.base_image.blit(start_top, start_top_rect)
 
         start_bottom_rect = start_bottom.get_rect(bottomleft=(0, self.base_image.get_height()))

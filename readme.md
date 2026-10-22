@@ -79,8 +79,8 @@ To compile the source code into an executable program, recommend using pyinstall
 Check the [`requirements.txt`](requirements.txt) file for dependency requirements if running with the python source
 code.<br>
 
-Also, the game is currently written based on the pygame 2.5.2 module and python 3.11. Using older versions of the two
-likely will cause error.
+Also, the game is currently written based on the pygame-ce 2.5.8 module and python 3.12. Using older versions of the two
+may cause error.
 
 # Current Game Features
 

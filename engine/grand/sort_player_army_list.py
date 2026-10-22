@@ -16,4 +16,4 @@ def sort_player_army_list(self):
         self.current_campaign_state["faction"][self.player_faction]["army"].sort(
             key=lambda x: self.grab_text(("region", x.current_region, "Name")), reverse=reverse)
 
-    self.player_army_list_ui.reset_list()
+    self.player_army_list_ui.reset()

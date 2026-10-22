@@ -2,7 +2,7 @@ from math import ceil
 
 
 def cancel_building_construction_or_repair(self, faction, region, slot, building):
-    building_state = self.current_campaign_state["region"]["building"][region][slot]
+    building_state = self.current_campaign_state["region"][region]["building"][slot]
     building_state[2] = 0
     if not building_state[1]:  # cancel repair
         self.current_campaign_state["faction"][faction]["gold"] += ceil(self.building_list[building]["Cost"] / 2)

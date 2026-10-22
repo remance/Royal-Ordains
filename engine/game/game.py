@@ -2,9 +2,7 @@ import ast
 import configparser
 import sys
 from copy import deepcopy
-from multiprocessing import cpu_count
 from os.path import join
-from threading import Thread
 
 import pygame
 from pygame import sprite, display, mouse
@@ -53,12 +51,13 @@ from engine.game.start_battle import start_battle
 from engine.grand.grand import Grand
 from engine.menuobject.menuobject import MenuActor, MenuRotate, StaticImage
 from engine.uibattle.uibattle import CharacterSpeechBox
-from engine.uimenu.uimenu import (UIMenu, MenuCursor, BoxUI, BrownMenuButton, MenuButton, UIScroll,
-                                  TextPopup, CustomTeamSetupUI, FactionSelector, PresetArmySetupUI, GrandMiniMap,
+from engine.uimenu.uimenu import (UIMenu, MenuCursor, BoxUI, BrownMenuButton, MenuButton, TextPopup, CustomTeamSetupUI,
+                                  FactionSelector, PresetArmySetupUI, GrandMiniMap,
                                   GrandFactionDetail, GrandFactionShowCase, CharacterDescriptionShowCase,
                                   CharacterMovesetShowCase, CharacterSelector, CustomPresetTitle, ListUI,
                                   CustomArmyPresetListAdapter, GenericListAdapter)
 from engine.uiouterbattle.uiouterbattle import Profiler, FPSCount
+from engine.uioutergrand.uioutergrand import DiplomacyHead
 from engine.updater.updater import ReversedLayeredUpdates
 from engine.utils.common import empty_method
 from engine.utils.data_loading import load_image, load_images, csv_read
@@ -137,7 +136,7 @@ class Game:
         self.error_log = error_log
         self.error_log.write("Game Version: " + self.game_version)
 
-        self.campaign = "rabbit"
+        self.campaign = "main"
         self.menu_state = "main_menu"
 
         # Read config file
@@ -322,7 +321,8 @@ class Game:
         self.grab_text = self.localisation.grab_text
         Game.localisation = self.localisation
 
-        self.loading_text = self.screen_fade_font.render(self.grab_text(("ui", "info_text_loading")), True, (255, 255, 255))
+        self.loading_text = self.screen_fade_font.render(self.grab_text(("ui", "info_text_loading")), True,
+                                                         (255, 255, 255))
 
         self.game_intro(False)  # run intro
 
@@ -644,6 +644,8 @@ class Game:
             self.add_to_ui_menu_updater(self.fps_count)
         if self.use_simple_text:
             CharacterSpeechBox.simple_font = True
+            DiplomacyHead.simple_font = True
+
 
         # lorebook ui
         self.lorebook_back_button = BrownMenuButton((.15, 0.5), (0, 1.5),

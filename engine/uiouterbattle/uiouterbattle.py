@@ -10,8 +10,8 @@ from pygame.transform import flip
 
 from engine.battle.player_input_battle import key_select_strategy
 from engine.constants import *
-from engine.uimenu.uimenu import UIMenu, MenuCursor, BoxUI
 from engine.uibattle.uibattle import UIBattle
+from engine.uimenu.uimenu import UIMenu, MenuCursor, BoxUI
 from engine.utils.common import keyboard_mouse_press_check
 from engine.utils.text_making import text_render_with_bg, text_render_with_texture, \
     make_long_text, shorten_number, add_comma_number
@@ -28,7 +28,6 @@ class UIOuterBattle(UIBattle):
         Parent class for all battle menu user interface that exist outside of battle camera
         """
         UIBattle.__init__(self, player_cursor_interact=player_cursor_interact, has_containers=has_containers)
-
         self.max_description_box_width = int(1000 * self.screen_scale_width)
 
 
@@ -50,8 +49,8 @@ class BattleCursor(UIOuterBattle, MenuCursor):
     def __init__(self, images):
         """Game battle cursor"""
         self._layer = 9999999999999999999999999999999999999999  # as high as possible, always blit last
-        MenuCursor.__init__(self, images)
         UIOuterBattle.__init__(self)
+        MenuCursor.__init__(self, images)
 
     def update(self, dt):
         self.event = False
@@ -199,7 +198,7 @@ class Command(UIOuterBattle):
         self.image = Surface((800 * self.screen_scale_width, 400 * self.screen_scale_height), SRCALPHA)
         self.image_width = self.image.get_width()
         self.image.fill((0, 0, 0, 125))
-        self.rect = self.image.get_rect(topleft=(0, 0))
+        self.rect = self.image.get_rect()
         self.update_timer = 0
         self.player_team = 1
         self.player_enemy_team = 2
@@ -523,7 +522,7 @@ class FPSCount(UIOuterBattle):
         self.clock = parent.clock
         fps_text = self.font.render("60", True, (255, 60, 60))
         self.text_rect = fps_text.get_rect(center=(self.image.get_width() / 2, self.image.get_height() / 2))
-        self.rect = self.image.get_rect(topleft=(0, 0))
+        self.rect = self.image.get_rect()
 
     def update(self, dt):
         """Update current fps"""
@@ -725,7 +724,7 @@ class BattleHelper(UIOuterBattle):
             text = text_render_with_bg(time_text, self.font)
             text_bg = Surface((text.get_size()))
             text_bg.fill((213, 209, 210))
-            text_bg.blit(text, text.get_rect(topleft=(0, 0)))
+            text_bg.blit(text, text.get_rect())
             self.image.blit(text_bg, text.get_rect(center=self.base_battle_timer_rect_center))
 
 

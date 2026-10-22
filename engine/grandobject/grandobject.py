@@ -74,7 +74,7 @@ class SettlementObject(GrandObject):
 
         GrandObject.__init__(self, building_state[0], base_pos, building_state)
 
-        for building_index, building in enumerate(self.grand.current_campaign_state["region"]["building"][region]):
+        for building_index, building in enumerate(self.grand.current_campaign_state["region"][region]["building"]):
             self.building_states[building_index] = ()
             self.change_building_state(building_index, building)
         self.change_state(building_state)
@@ -100,7 +100,8 @@ class SettlementObject(GrandObject):
             non_settlement_index = building_index - 1
             if self.building_states[non_settlement_index] != new_state:
                 slot_rect = self.slot_rects[non_settlement_index]
-                self.base_image.blit(self.grand_ui_images["slot_" + self.building_list[new_state[0]]["Type"]], slot_rect)
+                self.base_image.blit(self.grand_ui_images["slot_" + self.building_list[new_state[0]]["Type"]],
+                                     slot_rect)
                 if not new_state[1]:
                     self.base_image.blit(self.grand_ui_images["slot_damaged"], slot_rect)
                 if new_state[2]:

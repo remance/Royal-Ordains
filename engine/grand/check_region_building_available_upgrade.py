@@ -1,6 +1,6 @@
 def check_region_building_available_upgrade(self, faction, region, building_to_check):
     building_list = self.building_list
-    region_buildings = self.current_campaign_state["region"]["building"][region]
+    region_buildings = self.current_campaign_state["region"][region]["building"]
 
     # building is active if it is not damaged, in progress, all requirement buildings are active
     region_active_building = [item[0] for item in region_buildings if item[1] and not item[2] and item[3]]

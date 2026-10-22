@@ -292,7 +292,7 @@
 "leader_kelwy_blaster","small","vertkin",2000,45,41,40,82,0.25,0.25,0.25,0.25,-0.5,,,,,,,,160,1,1,1,,"TRUE","TRUE",,,5,7,6,3,4,3,8,8,,,"slow,fear","ground","elite","infantry","mix",380,,,
 "leader_kelwy_sharpshooter","small","vertkin",1500,95,7,15,30,,,,0.25,-0.5,,,,,,,,80,1,1,4,,"TRUE","TRUE",,"strategy_deploy_large_barricades",2,7,3,1,8,1,8,8,,,,"ground","elite","infantry","range",400,,,
 "leader_kifid","marsh","goblin",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,"strategy_precise_execution",,,,,,,,,,,,"ground",,,,,,,"no_upgrade"
-"leader_king","castle","human",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE","TRUE",,,,,,,,,,,,,"ground","common","support","idle",,"FALSE","invincible","no_upgrade"
+"leader_king","castle","human",,,,,,,,,,,,,,,,,,,1,1,,,,"TRUE","TRUE",,,,,,,,,,,,,"ground","common","support","idle",,"FALSE","invincible","no_upgrade"
 "leader_kirnharl","port","human",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,,,,,,,,,,,,,"ground",,,,,,,
 "leader_kirnharl_grown_branch","port","human",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,,,,,,,,,,,,,"ground",,,,,,,
 "leader_kumaisheh","desert","vertkin",,,,,,,,,,,,,,,,,,,1,1,,,"TRUE","TRUE",,,,,,,,,,,,,,"ground",,,,,,,

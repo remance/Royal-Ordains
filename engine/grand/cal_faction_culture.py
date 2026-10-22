@@ -20,10 +20,11 @@ def cal_faction_culture(self, faction):
     culture_weight = {}
     faction_campaign_state = self.current_campaign_state["faction"][faction]
     faction_culture_campaign_state = faction_campaign_state["culture"]
+    region_campaign_state = self.current_campaign_state["region"]
     for region in faction_campaign_state["region"]:
-        region_culture_campaign_state = self.current_campaign_state["region"]["culture"][region]
+        region_culture_campaign_state = region_campaign_state[region]["culture"]
         region_culture_campaign_state.clear()
-        for building_state in self.current_campaign_state["region"]["building"][region]:
+        for building_state in region_campaign_state[region]["building"]:
             if building_state and building_state[1] is True and not building_state[2]:
                 # building is in active state and not destroyed/constructing state
                 building_id = building_state[0]

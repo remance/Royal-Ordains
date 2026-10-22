@@ -2,7 +2,7 @@ from math import ceil
 
 
 def start_building_construction_or_repair(self, faction, region, slot, building):
-    building_state = self.current_campaign_state["region"]["building"][region][slot]
+    building_state = self.current_campaign_state["region"][region]["building"][slot]
     if not building_state[1]:  # repair
         building_state[2] = ceil(self.building_list[building]["Real Build Time"] / 2)
         self.current_campaign_state["faction"][faction]["gold"] -= ceil(self.building_list[building]["Cost"] / 2)

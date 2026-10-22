@@ -8,23 +8,23 @@ def change_turn(self, turn_change=True):
     @param turn_change: turn actually change or not, function can be used for campaign setup when False
     @return:
     """
+    # TODO check for culture extinction
     for faction, faction_state in self.current_campaign_state["faction"].items():
         if faction != "free":
+            # update diplomacy relation  # TODO add cultural policy difference
+            for diplomacy_value in faction_state["diplomacy"].values():
+                diplomacy_value["value"] = 0
+                for index, history in enumerate(tuple(diplomacy_value["history"])):
+                    if diplomacy_value["history"][index][2] > 1:
+                        diplomacy_value["history"][index][2] -= 1
+                        diplomacy_value["value"] += diplomacy_value["history"][index][1]
+                    else:
+                        diplomacy_value["history"].pop(index)
+
             if turn_change:
                 # event duration is based on turn rather than phase
                 faction_state["event"] = {event: value - 1 for event, value in faction_state["event"].items() if
                                           value > 1}
-                for diplomacy_value in faction_state["diplomacy"].values():
-                    for key in tuple(diplomacy_value["history"]):
-                        history = diplomacy_value["history"][key]
-                        if history < 0:
-                            diplomacy_value["history"][key] += 10
-                            if diplomacy_value["history"][key] >= 0:
-                                diplomacy_value["history"].remove(key)
-                        else:
-                            diplomacy_value["history"][key] -= 10
-                            if diplomacy_value["history"][key] <= 0:
-                                diplomacy_value["history"].remove(key)
 
                 # faction_region_control = self.current_campaign_state["region"]["control"][faction]
                 for faction_culture in faction_state["culture"].values():
@@ -50,6 +50,6 @@ def change_turn(self, turn_change=True):
             for army in faction_state["army"]:
                 army.reset_stat(reset_player_army_card=True)
 
-            self.cal_faction_income(faction)
+            self.cal_faction_income_recruit(faction)
 
     self.change_phase(phase_change=turn_change)

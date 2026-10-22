@@ -136,17 +136,23 @@ class DataMap(GameData):
             header = rd[0]
             hex2colour_column = ("Colour",)
             hex2colour_column = [index for index, item in enumerate(header) if item in hex2colour_column]
-            list_column = ("Alliance", "Courtier")
+            list_column = ("Alliance", "Courtier", "Relation",)
             list_column = [index for index, item in enumerate(header) if item in list_column]
-            dict_column = ("Relation",)
-            dict_column = [index for index, item in enumerate(header) if item in dict_column]
             tuple_column = ("Showcase Leader", "Showcase Troop")
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
                     row = stat_convert(row, n, i, list_column=list_column, tuple_column=tuple_column,
-                                       dict_column=dict_column, hex2colour_column=hex2colour_column)
+                                       hex2colour_column=hex2colour_column)
                 self.faction_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
+                # remake relation list to dict
+                old_relation = self.faction_list[row[0]]["Relation"]
+                self.faction_list[row[0]]["Relation"] = {}
+                for relation in old_relation:
+                    if relation[0] not in self.faction_list[row[0]]["Relation"]:
+                        self.faction_list[row[0]]["Relation"][relation[0]] = []
+
+                    self.faction_list[row[0]]["Relation"][relation[0]].append([relation[1], relation[2], relation[3]])
         edit_file.close()
 
         self.default_grand_faction = tuple(self.faction_list.keys())[0]

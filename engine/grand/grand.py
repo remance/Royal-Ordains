@@ -18,9 +18,10 @@ from engine.battle.shake_camera import shake_camera
 from engine.camera.camera import Camera
 from engine.game.change_pause_update import change_pause_update
 from engine.grand.activate_input_popup import activate_input_popup
+from engine.grand.add_diplomacy_history_event import add_diplomacy_history_event
 from engine.grand.auto_battle_process import auto_battle_process
 from engine.grand.cal_faction_culture import cal_faction_culture
-from engine.grand.cal_faction_income import cal_faction_income
+from engine.grand.cal_faction_income_recruit import cal_faction_income_recruit
 from engine.grand.cal_region_income_recruit import cal_region_income_recruit
 from engine.grand.cancel_building_construction_or_repair import cancel_building_construction_or_repair
 from engine.grand.cancel_building_raze_or_pillage import cancel_building_raze_or_pillage
@@ -32,6 +33,7 @@ from engine.grand.create_new_army import create_new_army
 from engine.grand.dismiss_faction_character import dismiss_faction_character
 from engine.grand.draw_route import draw_route
 from engine.grand.fix_camera import fix_camera
+from engine.grand.give_faction_gift import give_faction_gift
 from engine.grand.grand_process import grand_process
 from engine.grand.make_esc_menu import make_esc_menu
 from engine.grand.offer_faction_ally import offer_faction_ally
@@ -46,18 +48,19 @@ from engine.grandarmyactor.grandarmyactor import GrandArmyActor
 from engine.grandobject.grandobject import GrandObject, SettlementObject
 from engine.grandregion.grandregion import GrandRegion
 from engine.uigrand.uigrand import (DotInfoBanner, DotInfoBannerArmy, DotInfoBannerSettlement, DotNameBannerSettlement)
-from engine.uimenu.uimenu import TextPopup, GrandMiniMap, CharacterSelector
+from engine.uimenu.uimenu import TextPopup, GrandMiniMap
 from engine.uiouterbattle.drama import TextDrama
 from engine.uiouterbattle.uiouterbattle import FPSCount
 from engine.uioutergrand.cosmos import CosmosUI, MiniCosmosUI
-from engine.uioutergrand.uioutergrand import (ArmyManagement, PlayerGrandInteract, PlayerTopBar,
-                                              PresetArmyReserveSetupUI, PlayerFactionCultureList,
+from engine.uioutergrand.uioutergrand import (PlayerGrandInteract, PlayerTopBar,
                                               PlayerArmyList, PlayerArmyListSortOption, MapSettingOption,
-                                              TimeSettingOption, EventDetailPopup, CourtManagementUI,
-                                              DiplomacyManagementUI,
-                                              MenuBar, RegionManagementUI, BuildingManagementUI,
-                                              EventNotification, ArmyInfo, RegionManagementToggleButton,
-                                              ArmyDeployToggleButton)
+                                              TimeSettingOption, EventDetailPopup, PlayerFactionCultureList,
+                                              MenuBar, EventNotification)
+from engine.uioutergrand.uioutergrandcollapsible import (ArmyManagement, PresetArmyReserveSetup,
+                                                         CourtManagement, CultureManagement,
+                                                         DiplomacyManagement, PresetArmyGrandCharacterSelector,
+                                                         RegionManagement, BuildingManagement, PresetArmyReserveList,
+                                                         RegionManagementToggleButton, ArmyDeployToggleButton)
 from engine.updater.updater import ReversedLayeredUpdates
 from engine.utils.common import clean_group_object
 
@@ -67,11 +70,12 @@ class Grand:
     cursor = None
 
     activate_input_popup = activate_input_popup
+    add_diplomacy_history_event = add_diplomacy_history_event
     add_sound_effect_queue = add_sound_effect_queue
     auto_battle_process = auto_battle_process
     back_to_grand_state = back_to_grand_state
     cal_faction_culture = cal_faction_culture
-    cal_faction_income = cal_faction_income
+    cal_faction_income_recruit = cal_faction_income_recruit
     cal_region_income_recruit = cal_region_income_recruit
     change_game_state = change_game_state
     change_pause_update = change_pause_update
@@ -86,6 +90,7 @@ class Grand:
     drama_process = drama_process
     draw_route = draw_route
     fix_camera = fix_camera
+    give_faction_gift = give_faction_gift
     grand_process = grand_process
     make_esc_menu = make_esc_menu
     offer_faction_ally = offer_faction_ally
@@ -203,6 +208,7 @@ class Grand:
 
         self.sprite_data = self.game.sprite_data
         self.building_portraits = self.sprite_data.building_portraits
+        self.culture_coas = self.sprite_data.culture_coas
         self.character_animation_data = self.sprite_data.character_animation_data
         self.character_portraits = self.sprite_data.character_portraits
         self.effect_animation_pool = self.sprite_data.effect_animation_pool
@@ -288,13 +294,18 @@ class Grand:
         self.drama_text = TextDrama(self)  # message at the top of screen that show up for important event
         self.player_interact = PlayerGrandInteract()
 
-        self.player_grand_preset_army_setup = PresetArmyReserveSetupUI((self.screen_width * 0.45, self.screen_height * 0.2),
-                                                                True)
-        self.player_army_info_ui = ArmyInfo(self.player_grand_preset_army_setup.rect.topleft)
-        self.player_grand_character_selector = CharacterSelector((self.screen_width * 0.78, self.screen_height * 0.2))
+        self.player_grand_reserve_army_setup_ui = PresetArmyReserveSetup(
+            (self.screen_width * 0.45, self.screen_height * 0.2),
+            True)
+        self.player_grand_reserve_army_list_ui = PresetArmyReserveList(
+            self.player_grand_reserve_army_setup_ui.rect.topleft)
+        self.player_grand_character_selector_ui = PresetArmyGrandCharacterSelector(
+            (self.screen_width * 0.78, self.screen_height * 0.2))
 
-        self.player_army_reserve_setup_uis = (self.player_grand_preset_army_setup,
-                                              self.player_grand_character_selector)
+        self.player_army_reserve_setup_uis = (self.player_grand_reserve_army_list_ui,
+                                              self.player_grand_reserve_army_list_ui.scroll,
+                                              self.player_grand_reserve_army_setup_ui,
+                                              self.player_grand_character_selector_ui)
 
         self.player_top_bar_ui = PlayerTopBar()
         self.player_faction_culture_list_ui = PlayerFactionCultureList()
@@ -305,13 +316,16 @@ class Grand:
 
         self.player_army_list_sort_option_ui = PlayerArmyListSortOption()
         self.player_army_list_ui = PlayerArmyList()
-        self.court_management_ui = CourtManagementUI()
+        self.court_management_ui = CourtManagement()
         self.court_management_uis = (self.court_management_ui, self.court_management_ui.scroll)
 
-        self.diplomacy_management_ui = DiplomacyManagementUI()
+        self.culture_management_ui = CultureManagement()
+        self.culture_management_uis = (self.culture_management_ui, self.culture_management_ui.scroll)
+
+        self.diplomacy_management_ui = DiplomacyManagement()
         self.diplomacy_management_uis = (self.diplomacy_management_ui, self.diplomacy_management_ui.scroll)
 
-        self.region_management_ui = RegionManagementUI()
+        self.region_management_ui = RegionManagement()
 
         region_manage_toggle_button = {"selected": self.grand_ui_images["selected_region_manage_button"],
                                        "unselected": self.grand_ui_images["unselected_region_manage_button"]}
@@ -324,7 +338,7 @@ class Grand:
 
         self.player_region_management_uis = (self.region_management_ui, self.region_management_tab_button,
                                              self.army_deploy_tab_button)
-        self.building_management_ui = BuildingManagementUI()
+        self.building_management_ui = BuildingManagement()
 
         self.army_management_ui = ArmyManagement()
         self.player_army_management_uis = (self.army_management_ui, self.army_deploy_tab_button)
@@ -350,7 +364,8 @@ class Grand:
                                        self.army_deploy_tab_button, self.building_management_ui,
                                        self.army_management_ui, self.army_deploy_tab_button,
                                        self.court_management_ui, self.court_management_ui.scroll,
-                                       self.diplomacy_management_ui, self.diplomacy_management_ui.scroll)
+                                       self.diplomacy_management_ui, self.diplomacy_management_ui.scroll,
+                                       self.culture_management_ui, self.culture_management_ui.scroll)
 
         self.always_uis = (self.player_interact, self.mini_map, self.map_setting_option_ui,
                            self.mini_cosmic_ui, self.time_setting_ui, self.menu_bar_ui, self.cursor)
@@ -441,24 +456,23 @@ class Grand:
         # setup ui
         if self.player_faction:
             self.player_faction_culture_list_ui.culture_change()
-            self.diplomacy_management_ui.reset_cards()
+            self.diplomacy_management_ui.reset()
         self.mini_map.region_control_data = {}
         self.mini_map.change_grand_setup(self.map_data.base_world_map)
-        self.mini_map.change_grand_faction(self.current_campaign_state["region"]["control"])
+        self.mini_map.change_grand_faction(self.current_campaign_state["region"])
         self.cosmic_ui.reset(self.current_campaign_state["cosmic_time"])
         self.mini_cosmic_ui.reset()
 
-        campaign_building_state = self.current_campaign_state["region"]["building"]
         self.settlement_object_list = {}
         self.wonder_object_list = {}
-        for region, region_objects in self.current_campaign_state["region"]["object"].items():
-            region_buildings = campaign_building_state[region]
+        for region, region_state in self.current_campaign_state["region"].items():
+            region_buildings = self.current_campaign_state["region"][region]["building"]
             # create region objects
             GrandRegion(region, self.region_list[region]["Region POS"],
-                        self.current_campaign_state["region"]["control"][region])
+                        self.current_campaign_state["region"][region]["control"])
 
             # create wonder objects
-            for key, region_object in region_objects.items():
+            for key, region_object in region_state["object"].items():
                 self.wonder_object_list[(region, key)] = GrandObject(region_object[0],
                                                                      (region_object[1], region_object[2]),
                                                                      region_buildings[key])
@@ -487,7 +501,7 @@ class Grand:
         if player_faction:
             self.player_input = MethodType(player_input_grand, self)
             self.add_to_outer_ui_menu_updater(self.only_player_uis)
-            self.player_army_list_ui.reset_list()
+            self.player_army_list_ui.reset()
         else:  # no player faction, camera at center
             self.player_input = MethodType(battle_no_player_input_grand, self)
             self.remove_from_outer_ui_menu_updater(self.only_player_uis)
@@ -626,7 +640,8 @@ class Grand:
     def exit_grand(self):
         # remove menu and ui
         self.remove_from_ui_menu_updater(self.grand_menu_button.values(), self.esc_slider_menu.values(),
-                                         self.esc_value_boxes.values(), self.esc_option_text.values())
+                                         self.esc_value_boxes.values(), self.esc_option_text.values(),
+                                         self.player_collapsable_uis)
 
         # stop all sounds
         self.music_channel.set_volume(0)
