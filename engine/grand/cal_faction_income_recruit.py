@@ -91,7 +91,7 @@ def cal_faction_income_recruit(self, faction):
         region_income_state = region_campaign_state[region]["income"]
         region_recruit_state = region_campaign_state[region]["recruit"]
         for key, value in region_recruit_state.items():  # add recruit from each region
-            faction_data["recruit"][key] += [item for item in value if value not in faction_data["recruit"][key]]
+            faction_data["recruit"][key] += [item for item in value if item not in faction_data["recruit"][key]]
         region_gold_income = region_income_state["gold_income"] * happiness_effect_modifier
         region_supply_income = region_income_state["supply_income"] * happiness_effect_modifier
         total_gold_income += region_gold_income

@@ -454,9 +454,11 @@ class Game:
         # Custom battle select menu button
         self.custom_team_players = {1: "player", 2: "computer"}
         self.showcase_army = Army("", "", "", "",
-                                  {"leader": [], "troop": [], "air": []})
+                                  {"leader": [[], [], []], "troop": [[], [], [], [], []],
+                                   "air": [[], [], [], [], []]})
         self.custom_team_army = {index: [Army("", "", "", "",
-                                              {"leader": [], "troop": [], "air": []})
+                                              {"leader": [[], [], []], "troop": [[], [], [], [], []],
+                                               "air": [[], [], [], [], []]})
                                          for _ in range(5)] for index in (1, 2)}
 
         self.setup_back_button = BrownMenuButton((.15, 0.5), (0.6, 0),
@@ -852,8 +854,6 @@ class Game:
                                 self.before_save_preset_army_setup[self.custom_preset_army_setup.selected_culture] = {}
                             save_preset = deepcopy(self.custom_preset_army_setup.army_preset)
                             save_preset["Name"] = self.input_box.text
-                            if save_preset["Commander"]:  # change list to str
-                                save_preset["Commander"] = save_preset["Commander"][0]
                             self.before_save_preset_army_setup[self.custom_preset_army_setup.selected_culture][
                                 "custom_" + self.input_box.text] = save_preset
                             save_preset = self.convert_custom_army_to_deployable(

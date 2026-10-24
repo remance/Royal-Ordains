@@ -8,7 +8,7 @@ def reset_stat(self, include_culture_influence=True, reset_player_army_card=Fals
     self.power = 0
     self.total_number = 0
     self.total_supply_usage = 0
-    to_check = {"commander": [[self.commander_id, True]]} | self.army_followers
+    to_check = {"commander": ((self.commander_id, True),)} | self.army_followers
     for key, group in to_check.items():
         for character in group:
             if character and character[0] and character[1]:
@@ -37,6 +37,6 @@ def reset_stat(self, include_culture_influence=True, reset_player_army_card=Fals
                     self.total_supply_usage += (character_stat["Supply"] * character_stat["Capacity"])
                     self.total_number += total_can_call
     self.strategy_regen = self.leadership / 100
-
-    if reset_player_army_card and self.faction == self.grand.player_faction:
+    if (reset_player_army_card and self.faction == self.grand.player_faction and
+            self in self.grand.current_campaign_state["faction"][self.faction]["army"]):
         self.grand.player_army_list_ui.reset_card(self)

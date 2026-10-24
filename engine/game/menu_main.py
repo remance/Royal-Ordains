@@ -36,7 +36,7 @@ def menu_main(self):
 
     elif self.test_battle_button.event_press:
         self.custom_team_army[1][0].__init__("", "small", "small", "leader_bigta",
-                                             {"leader": [["leader_adaqua", True],["small_rabbit_leader_shaman", True],
+                                             {"leader": [["leader_adaqua", True], ["small_rabbit_leader_shaman", True],
                                                          ["small_rabbit_leader_banner", True], ],
                                               "troop": [["small_rabbit_sling", True], ["small_snail_sword", True],
                                                         ["small_rabbit_trebuchet", True], ],

@@ -24,7 +24,7 @@ def add_new_army_arrive(self):
                     if team_state["active_leader"] < 3:
                         # add new army leader until reach 3
                         if army.army_followers["leader"]:
-                            for leader in [item[0] for item in army.army_followers["leader"] if item[1]]:
+                            for leader in [item[0] for item in army.army_followers["leader"] if item and item[1]]:
                                 team_state["leadership"] += (self.character_list[leader]["Leadership"] *
                                                              Leadership_Add_Modifier)
                                 self.add_strategy_to_team_state(team_state, self.character_list[leader]["Strategy"])

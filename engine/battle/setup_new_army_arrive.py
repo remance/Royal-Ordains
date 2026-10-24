@@ -5,7 +5,7 @@ def setup_new_army_arrive(self, army, team):
     # add leader
     if team_state["active_leader"] < 3:
         if army.army_followers["leader"]:
-            for leader in [item[0] for item in army.army_followers["leader"] if item[1]]:
+            for leader in [item[0] for item in army.army_followers["leader"] if item and item[1]]:
                 strategy = self.stat_data.character_list[leader]["Strategy"]
                 if self.strategy_list[strategy]["Summon"]:
                     battle_character_list += list(self.strategy_list[strategy]["Summon"].keys())
@@ -13,7 +13,7 @@ def setup_new_army_arrive(self, army, team):
     battle_character_list.append(army.commander_id)
     for follower_group in (army.army_followers["leader"], army.army_followers["troop"], army.army_followers["air"]):
         for follower in follower_group:
-            if follower[1] and follower[0] not in battle_character_list:
+            if follower and follower[1] and follower[0] not in battle_character_list:
                 battle_character_list.append(follower[0])
 
     battle_character_list = self.check_battle_character_to_load(battle_character_list)

@@ -796,10 +796,11 @@ class PlayerArmyList(GrandListUI, UIOuterGrand):
     def draw_army_card(self, army):
         card_image = self.empty_card_image.copy()
 
-        commander_image = self.character_portraits[army.commander_id]["tiny"]["right"]
-        commander_image_rect = commander_image.get_rect(topleft=(self.card_icon_rects["assemble"].topright[0],
-                                                                 -10 * self.screen_scale_height))
-        card_image.blit(commander_image, commander_image_rect)
+        if army.commander_id:
+            commander_image = self.character_portraits[army.commander_id]["tiny"]["right"]
+            commander_image_rect = commander_image.get_rect(topleft=(self.card_icon_rects["assemble"].topright[0],
+                                                                     -10 * self.screen_scale_height))
+            card_image.blit(commander_image, commander_image_rect)
 
         supply_text_colour = (255, 255, 255)
         if army.supply / army.max_supply < 0.2:

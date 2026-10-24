@@ -64,7 +64,7 @@ def state_grand_process(self):
         self.camera.update(self.grand_camera_ui_drawer)
 
         # update and draw ui outside camera
-        self.outer_ui_updater.update(dt)
+        self.outer_ui_updater.update(self.true_dt)
         self.camera.out_update(self.outer_ui_drawer)
         self.camera.out_update(self.ui_menu_drawer)
 

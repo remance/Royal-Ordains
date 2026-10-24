@@ -48,7 +48,7 @@ from engine.grandarmyactor.grandarmyactor import GrandArmyActor
 from engine.grandobject.grandobject import GrandObject, SettlementObject
 from engine.grandregion.grandregion import GrandRegion
 from engine.uigrand.uigrand import (DotInfoBanner, DotInfoBannerArmy, DotInfoBannerSettlement, DotNameBannerSettlement)
-from engine.uimenu.uimenu import TextPopup, GrandMiniMap
+from engine.uimenu.uimenu import TextPopup, GrandMiniMap, CustomPresetTitle
 from engine.uiouterbattle.uiouterbattle import FPSCount
 from engine.uioutergrand.cosmos import CosmosUI, MiniCosmosUI
 from engine.uioutergrand.uioutergrand import (PlayerGrandInteract, PlayerTopBar,
@@ -305,11 +305,16 @@ class Grand:
             self.player_grand_reserve_army_setup_ui.rect.topleft)
         self.player_grand_character_selector_ui = PresetArmyGrandCharacterSelector(
             (self.screen_width * 0.78, self.screen_height * 0.2))
+        self.player_reserve_army_title = CustomPresetTitle((self.game.screen_width * 0.8, 80 * self.screen_scale_height),
+                                                          (self.screen_rect.width / 2,
+                                                           self.player_grand_reserve_army_setup_ui.rect.midtop[1]))
 
         self.player_army_reserve_setup_uis = (self.player_grand_reserve_army_list_ui,
                                               self.player_grand_reserve_army_list_ui.scroll,
+                                              self.player_reserve_army_title,
                                               self.player_grand_reserve_army_setup_ui,
-                                              self.player_grand_character_selector_ui)
+                                              self.player_grand_character_selector_ui,
+                                              self.player_grand_character_selector_ui.scroll)
 
         self.player_top_bar_ui = PlayerTopBar()
         self.player_faction_culture_list_ui = PlayerFactionCultureList()

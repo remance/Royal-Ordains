@@ -1,0 +1,3 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
+"Attack1","Cleave",,,,450,,6,,65,500,50,-100,0.2,"slash",,,,
+"Skill1","Regeneration",,,"self:{health<=0.8}",,,45,,,,,,,,"regeneration,large_heal",,,

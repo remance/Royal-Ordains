@@ -38,11 +38,11 @@ def cal_region_income_recruit(self, faction, region):
                             income_mod[key] = 0
 
                 if building_stat["Leader Recruit"]:
-                    recruit_list["leader"] += building_stat["Leader Reinforcement"]
+                    recruit_list["leader"] += [item for item in building_stat["Leader Recruit"] if item not in recruit_list["leader"]]
                 if building_stat["Troop Recruit"]:
-                    recruit_list["troop"] += building_stat["Troop Reinforcement"]
+                    recruit_list["troop"] += [item for item in building_stat["Troop Recruit"] if item not in recruit_list["troop"]]
                 if building_stat["Air Recruit"]:
-                    recruit_list["air"] += building_stat["Air Reinforcement"]
+                    recruit_list["air"] += [item for item in building_stat["Air Recruit"] if item not in recruit_list["air"]]
 
                 if building_stat["Leader Reinforcement"]:
                     garrison_list["leader"] += building_stat["Leader Reinforcement"]

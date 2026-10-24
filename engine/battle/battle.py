@@ -448,10 +448,10 @@ class Battle:
                 team_state["total_supply"] = main_army.supply
                 team_state["leader_call_list"] = [
                     [item[0], self.character_list[item[0]]["Capacity"], self.character_list[item[0]]["Supply"]] for
-                    item in main_army.army_followers["leader"]]
+                    item in main_army.army_followers["leader"] if item and item[1]]
                 team_state["troop_call_list"] = [
                     [item[0], self.character_list[item[0]]["Capacity"], self.character_list[item[0]]["Supply"]] for
-                    item in main_army.army_followers["troop"]]
+                    item in main_army.army_followers["troop"] if item and item[1]]
                 commander_stat = self.character_list[main_army.commander_id]
                 team_state["leadership"] += commander_stat["Leadership"]
                 if main_army.garrison_strategy:
@@ -460,12 +460,12 @@ class Battle:
                 if commander_stat["Strategy"]:
                     self.add_strategy_to_team_state(team_state, commander_stat["Strategy"])
 
-                leader_list = [item[0] for item in main_army.army_followers["leader"] if item[1]]
+                leader_list = [item[0] for item in main_army.army_followers["leader"] if item and item[1]]
                 if len(leader_list) < 3:  # check for leader in reinforcement armies until can get full 3
                     for army in team_state["reinforcement_army"]:
                         if army.army_followers["leader"]:
                             leader_list += [item[0] for item in army.army_followers["leader"][:3 - len(leader_list)]
-                                            if item[1]]
+                                            if item and item[1]]
                             if len(leader_list) == 3:
                                 break
 

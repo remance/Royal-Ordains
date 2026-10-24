@@ -456,8 +456,8 @@ class PresetArmyReserveList(GrandListUI, UIOuterGrand):
         self.image.fill((240, 240, 240))
         self.base_image = self.image.copy()
 
-        self.empty_card_image = Surface((800 * self.screen_scale_width, 200 * self.screen_scale_height), SRCALPHA)
-
+        self.empty_card_image = Surface((800 * self.screen_scale_width, 200 * self.screen_scale_height))
+        self.empty_card_image.fill((239, 238, 176))
         draw.rect(self.empty_card_image, (0, 0, 0), self.empty_card_image.get_rect(),
                   width=int(10 * self.screen_scale_height))
 
@@ -471,37 +471,38 @@ class PresetArmyReserveList(GrandListUI, UIOuterGrand):
 
         card_image_center_y = self.empty_card_image.get_height() / 2
 
-        default_portrait = self.character_portraits["default"]["tiny"]["right"]
-        self.card_button_rects = {"commander": default_portrait.get_rect(midleft=(50 * self.screen_scale_width, card_image_center_y)),
+        default_portrait = self.character_portraits["default"]["mini"]["right"]
+        self.card_button_rects = {"commander": default_portrait.get_rect(midleft=(30 * self.screen_scale_width, card_image_center_y)),
                                   "leader1": default_portrait.get_rect(
-                                      midleft=(200 * self.screen_scale_width, card_image_center_y)),
+                                      midleft=(150 * self.screen_scale_width, card_image_center_y)),
                                   "leader2": default_portrait.get_rect(
-                                      midleft=(350 * self.screen_scale_width, card_image_center_y)),
+                                      midleft=(250 * self.screen_scale_width, card_image_center_y)),
                                   "leader3": default_portrait.get_rect(
-                                      midleft=(500 * self.screen_scale_width, card_image_center_y)),
-                                  "delete": delete_button.get_rect(center=(600 * self.screen_scale_width,
+                                      midleft=(350 * self.screen_scale_width, card_image_center_y)),
+                                  "delete": delete_button.get_rect(center=(580 * self.screen_scale_width,
                                                                            card_image_center_y)),
                                   "copy": copy_button.get_rect(center=(700 * self.screen_scale_width,
                                                                        card_image_center_y))}
-        self.unique_card_image = self.empty_card_image.copy()
-        self.unique_card_image.blit(self.grand_ui_images["reserve_preset_delete"], self.card_button_rects["delete"])
         for button, button_rect in self.card_button_rects.items():
             if button in ("delete", "copy"):
                 self.empty_card_image.blit(self.grand_ui_images["reserve_preset_" + button], button_rect)
+            else:
+                self.empty_card_image.blit(self.character_portraits["empty"]["mini"]["right"], button_rect)
 
-        self.max_row = 4
+        self.max_row = 6
         self.max_row_show = 1  # trick the scroller to use additional row instead of total
 
-        self.card_rects = [self.empty_card_image.get_rect(midleft=(0, 100 * self.screen_scale_height)) for
+        self.card_rects = [self.empty_card_image.get_rect(midleft=(0, (100 + (200 * y)) * self.screen_scale_height)) for
                            y in range(self.max_row)]
 
         self.card_list = {}
+        self.showing_army = None
 
     def create_cards_surface(self):
         self.card_list = {}
         campaign_faction_state = self.grand.current_campaign_state["faction"]
         player_reserve_army_list = ["new"] + campaign_faction_state[self.grand.player_faction]["reserve"]
-        self.total_row = ceil(len(player_reserve_army_list) / (len(self.card_rects) - 1))
+        self.total_row = ceil((len(player_reserve_army_list) + 1) / (len(self.card_rects) - 1))
         if self.total_row == 1:
             self.total_row = 0
         self.scroll_total_row = self.total_row + 1
@@ -510,7 +511,9 @@ class PresetArmyReserveList(GrandListUI, UIOuterGrand):
 
         for army in player_reserve_army_list:
             self.create_army_card(army)
-        self.draw_card_list_to_ui([army.game_id if army != "new" else army for army in player_reserve_army_list])
+
+        self.draw_card_list_to_ui([army.game_id if army != "new" else army for army in player_reserve_army_list],
+                                  (self.showing_army, ))
 
     def create_army_card(self, army):
         """Create card image for new faction"""
@@ -519,33 +522,36 @@ class PresetArmyReserveList(GrandListUI, UIOuterGrand):
             card_image = self.new_preset_card_image
         else:
             card_id = army.game_id
-            has_unique = False
             character_rect = {}
             for character_header in ("commander", "leader1", "leader2", "leader3"):
                 if character_header == "commander":
                     character = army.commander_id
                 else:
-                    char_index = int(character_header[-1])
+                    char_index = int(character_header[-1]) - 1
                     character = None
                     if char_index < len(army.army_followers["leader"]) and army.army_followers["leader"][char_index]:
                         character = army.army_followers["leader"][char_index][0]
 
                 if character:
                     character_rect[character_header] = character
-                    if self.character_list[character]["Is Unique"]:
-                        has_unique = True
 
             card_image = self.empty_card_image.copy()
-            if has_unique:
-                card_image = self.unique_card_image.copy()
 
             for character_header, character in character_rect.items():
                 if not character:
                     character = "empty"
-                card_image.blit(self.character_portraits[character]["tiny"]["right"],
+                card_image.blit(self.character_portraits[character]["mini"]["right"],
                                 self.card_button_rects[character_header])
 
-        self.card_list[card_id] = (card_image, card_image)
+        selected_card = card_image.copy()
+        draw.rect(selected_card, (120, 120, 240), selected_card.get_rect(),
+                  width=int(10 * self.screen_scale_height))
+
+        self.card_list[card_id] = (card_image, selected_card)
+
+    def reset(self):
+        GrandListUI.reset(self)
+        self.showing_army = None
 
     def update(self, dt):
         grand = self.grand
@@ -556,12 +562,14 @@ class PresetArmyReserveList(GrandListUI, UIOuterGrand):
                 if self.current_row > 0:
                     self.current_row -= 1
                     self.scroll.change_image(self.current_row, self.scroll_total_row)
-                    self.draw_card_list_to_ui([army.game_id for army in player_reserve_army_list])
+                    self.draw_card_list_to_ui(["new"] + [army.game_id for army in player_reserve_army_list],
+                                              (self.showing_army, ))
             elif cursor.scroll_down:
                 if self.current_row < self.total_row:
                     self.current_row += 1
                     self.scroll.change_image(self.current_row, self.scroll_total_row)
-                    self.draw_card_list_to_ui([army.game_id for army in player_reserve_army_list])
+                    self.draw_card_list_to_ui(["new"] + [army.game_id for army in player_reserve_army_list],
+                                              (self.showing_army, ))
             else:
                 text_popup = self.text_popup
                 grab_text = self.grab_text
@@ -575,45 +583,96 @@ class PresetArmyReserveList(GrandListUI, UIOuterGrand):
                         inside_card_mouse_pos = Vector2(
                             (inside_mouse_pos[0] - rect.topleft[0]),
                             (inside_mouse_pos[1] - rect.topleft[1]))
-                        for button_key, button_rect in self.card_button_rects.items():
-                            if button_rect.collidepoint(inside_card_mouse_pos):
-                                if self.event_press:
-                                    if index:
-                                        new_army = player_reserve_army_list[index - 1]
-                                        grand.player_grand_reserve_army_setup_ui.showing_army = new_army
-                                        grand.player_grand_reserve_army_setup_ui.reset(active=True)
-                                    else:  # create new reserve army
-                                        new_army = Army(str(uuid4()), "", "", "",
-                                                                   {"leader": [], "troop": [], "air": []})
-                                        player_reserve_army_list.insert(0, new_army)
-                                        self.create_cards_surface()
-                                        grand.player_grand_reserve_army_setup_ui.showing_army = new_army
-                                        grand.player_grand_reserve_army_setup_ui.reset(active=True)
-                                    # if button_key == "gift_gold":
-                                    #     if
-                                    # elif button_key == "gift_supply":
-                                    # elif button_key == "diplomacy_status":
-                                    self.draw_card_list_to_ui([army.game_id for army in player_reserve_army_list])
-                                else:
-                                    if index:
+                        if index:
+                            hover_over_army = player_reserve_army_list[index - 1]
+                            for button_key, button_rect in self.card_button_rects.items():
+                                if button_rect.collidepoint(inside_card_mouse_pos):
+                                    if self.event_press:
                                         if button_key == "delete":
-                                            text_popup.popup(cursor.rect,
-                                                             (grab_text(("ui", "info_text_delete_reserve")), "",
-                                                              grab_text(("ui", "info_text_delete_reserve_description"))),
-                                                             width_text_wrapper=self.max_description_box_width)
-                                            self.add_to_outer_ui_menu_updater(text_popup)
+                                            if hover_over_army.game_id == self.showing_army:
+                                                grand.player_grand_reserve_army_setup_ui.showing_army = None
+                                                self.showing_army = None
+                                                grand.player_grand_reserve_army_setup_ui.reset(active=False)
+                                                grand.player_reserve_army_title.change_text("", 0, 0, 0)
+                                            hover_over_army.remove_army_from_reserve()
+                                            self.create_cards_surface()
+                                            return
                                         elif button_key == "copy":
-                                            text_popup.popup(cursor.rect,
-                                                             (grab_text(("ui", "info_text_copy_reserve")), "",
-                                                              grab_text(("ui", "info_text_copy_reserve_description"))),
-                                                             width_text_wrapper=self.max_description_box_width)
-                                            self.add_to_outer_ui_menu_updater(text_popup)
+                                            copy_commander = hover_over_army.commander_id
+                                            if self.character_list[copy_commander]["Is Unique"]:
+                                                copy_commander = ""
+                                            copy_army_followers = hover_over_army.army_followers.copy()
+                                            for index, leader in enumerate(copy_army_followers["leader"]):
+                                                if self.character_list[leader]["Is Unique"]:
+                                                    copy_army_followers["leader"][index] = []
+                                            hover_over_army = Army(str(uuid4()), grand.player_faction, hover_over_army.culture,
+                                                                   copy_commander, hover_over_army.army_followers)
+                                            player_reserve_army_list.insert(0, hover_over_army)
+                                            self.create_cards_surface()
+                                            return
                                     else:
-                                        text_popup.popup(cursor.rect,
-                                                         (grab_text(("ui", "info_text_new_reserve"))),
-                                                         width_text_wrapper=self.max_description_box_width)
-                                        self.add_to_outer_ui_menu_updater(text_popup)
-                                return
+                                        if index:
+                                            if button_key == "delete":
+                                                text_popup.popup(cursor.rect,
+                                                                 (grab_text(("ui", "info_text_delete_reserve")), "",
+                                                                  grab_text(("ui", "info_text_delete_reserve_description"))),
+                                                                 width_text_wrapper=self.max_description_box_width)
+                                                self.add_to_outer_ui_menu_updater(text_popup)
+                                            elif button_key == "copy":
+                                                text_popup.popup(cursor.rect,
+                                                                 (grab_text(("ui", "info_text_copy_reserve")), "",
+                                                                  grab_text(("ui", "info_text_copy_reserve_description"))),
+                                                                 width_text_wrapper=self.max_description_box_width)
+                                                self.add_to_outer_ui_menu_updater(text_popup)
+                                            elif button_key == "commander":
+                                                if hover_over_army.commander_id:
+                                                    text_popup.popup(cursor.rect,
+                                                                     (grab_text(("ui", "info_header_commander")) +
+                                                                     grab_text(("character", hover_over_army.commander_id, "Name"))),
+                                                                     width_text_wrapper=self.max_description_box_width)
+                                                    self.add_to_outer_ui_menu_updater(text_popup)
+                                            else:
+                                                index = int(button_key[-1]) - 1
+                                                if hover_over_army.army_followers["leader"][index]:
+                                                    text_popup.popup(cursor.rect,
+                                                                     (grab_text(("ui", "info_header_leader")) +
+                                                                     grab_text(("character", hover_over_army.army_followers["leader"][index][0], "Name"))),
+                                                                     width_text_wrapper=self.max_description_box_width)
+                                                    self.add_to_outer_ui_menu_updater(text_popup)
+
+                            if self.event_press:
+                                # click at card itself
+                                grand.player_grand_reserve_army_setup_ui.showing_army = hover_over_army.game_id
+                                self.showing_army = hover_over_army.game_id
+                                self.create_cards_surface()
+                                grand.player_grand_reserve_army_setup_ui.reset(active=True)
+                                grand.player_grand_reserve_army_setup_ui.popup("", hover_over_army)
+                                grand.player_reserve_army_title.change_text("", hover_over_army.cost,
+                                                                            hover_over_army.total_supply_usage,
+                                                                            hover_over_army.leadership)
+                        else:
+                            if self.event_press:  # click at first new army card, create new reserve army
+                                hover_over_army = Army(str(uuid4()), grand.player_faction, "", "",
+                                                       {"leader": [[], [], []],
+                                                        "troop": [[], [], [], [], []],
+                                                        "air": [[], [], [], [], []]})
+                                player_reserve_army_list.insert(0, hover_over_army)
+
+                                self.create_cards_surface()
+                                grand.player_grand_reserve_army_setup_ui.showing_army = hover_over_army.game_id
+                                self.showing_army = hover_over_army.game_id
+                                grand.player_grand_reserve_army_setup_ui.reset(active=True)
+                                grand.player_grand_reserve_army_setup_ui.popup("", hover_over_army)
+                                grand.player_reserve_army_title.change_text("", 0, 0, 0)
+                                self.scroll.change_image(self.current_row, self.scroll_total_row)
+                            else:
+                                text_popup.popup(cursor.rect,
+                                                 (grab_text(("ui", "info_text_new_reserve"))),
+                                                 width_text_wrapper=self.max_description_box_width)
+                                self.add_to_outer_ui_menu_updater(text_popup)
+
+                        self.draw_card_list_to_ui(["new"] + [army.game_id for army in player_reserve_army_list],
+                                                  (self.showing_army,))
                         return
         elif (cursor.event and not grand.player_grand_reserve_army_setup_ui.rect.collidepoint(cursor.pos) and
               not grand.player_grand_character_selector_ui.rect.collidepoint(cursor.pos)):
@@ -622,43 +681,64 @@ class PresetArmyReserveList(GrandListUI, UIOuterGrand):
 
 class PresetArmyReserveSetup(PresetArmySetupUI, UIOuterGrand):
     # disable player keyboard input for grand
-    go_up = empty_method
-    go_down = empty_method
-    go_left = empty_method
-    go_right = empty_method
 
     def __init__(self, pos, layer=10):
         """UI for setting up reserve preset army setup"""
         self._layer = layer
         UIOuterGrand.__init__(self)
         PresetArmySetupUI.__init__(self, pos, True)
-
-    def change_character(self, slot, character, change_selector=True, reset=True):
-        self.army_preset[slot] = character
-        if change_selector:
-            self.grand.player_grand_character_selector_ui.add(slot.split(" ")[0].lower())
-        if reset:
-            self.reset()
-        else:
-            index = 0
-            if "Commander" not in slot:
-                index = int(slot.split(" ")[1]) - 1
-            if character and character[0]:
-                self.image.blit(self.character_portraits[character[0]]["setup_ui"],
-                                self.portrait_type_rects[slot.split(" ")[0].lower()][index])
+        self.showing_army = None
 
     def change_portrait_selection(self, character_type, new_index):
         self.selected_portrait_index = (character_type, new_index)
         self.reset()
         self.grand.player_grand_character_selector_ui.add(character_type)
 
-    def grand_change_character(self, reserve_army, role, slot, character, change_selector=True, reset=True):
-        self.change_character(slot, character, change_selector, reset)
-        if self.character_list[character]["Is Unique"]:
-            self.grand.current_campaign_state["faction"][self.grand.player_faction]["character"][character] = \
-                (reserve_army, role)
-        if role == "commander":  # redraw reserve army list when commander got changed
-            self.grand.player_grand_reserve_army_list_ui.create_cards_surface()
+    def change_character(self, slot, character, change_selector=False, reset_now=False):
+        grand = self.grand
+        player_faction_state = grand.current_campaign_state["faction"][grand.player_faction]
+        for army in player_faction_state["reserve"]:
+            if army.game_id == self.showing_army:
+                old_character = None
+                if "Commander" in slot:
+                    slot = "Commander"
+                self.army_preset[slot] = character
+
+                role = slot.lower().split(" ")[0]
+
+                if role == "commander":
+                    if army.commander_id:
+                        old_character = army.commander_id
+                    army.commander_id = character
+                else:
+                    index = int(slot.split(" ")[-1]) - 1
+                    if army.army_followers[role] and army.army_followers[role][index]:
+                        old_character = army.army_followers[role][index][0]
+                    army.army_followers[role][index] = [character, False]
+
+                if role in ("commander", "leader"):  # redraw reserve army list
+                    grand.player_grand_reserve_army_list_ui.create_cards_surface()
+
+                army.reset_stat()
+                grand.player_reserve_army_title.change_text("", army.cost, army.total_supply_usage,
+                                                            army.leadership)
+
+                if character != old_character:
+                    if character in player_faction_state["character"]:
+                        player_faction_state["character"][character] = (army, role)
+                    if old_character:
+                        player_faction_state["character"][old_character] = (None, "courtier")
+
+                if reset_now:
+                    self.reset()
+                else:
+                    index = 0
+                    if "Commander" not in slot:
+                        index = int(slot.split(" ")[1]) - 1
+                    if character:
+                        self.image.blit(self.character_portraits[character]["setup_ui"],
+                                        self.portrait_type_rects[slot.split(" ")[0].lower()][index])
+                return
 
     def reset(self, active=True):
         self.image.fill((100, 100, 100))
@@ -675,24 +755,24 @@ class PresetArmyReserveSetup(PresetArmySetupUI, UIOuterGrand):
 
                 if self.selected_portrait_index and self.selected_portrait_index == (character_type, index):
                     self.image.blit(self.selected_circle, rect)
-                if character and character[0]:
-                    character = character[0]
+                if character:
                     self.image.blit(self.character_portraits[character]["setup_ui"], rect)
         else:
             self.pause = True
-        # self.game.custom_army_title_popup.change_text(self.current_preset_name, self.preset_cost,
-        #                                               self.preset_supply, self.preset_leadership)
-        # self.game.custom_preset_army_title.change_text(self.current_preset_name, self.preset_cost,
-        #                                                self.preset_supply, self.preset_leadership)
+
+        self.preset_cost = self.game.showcase_army.cost
+        self.preset_supply = self.game.showcase_army.total_supply_usage
+        self.preset_leadership = self.game.showcase_army.leadership
 
     def update(self, dt):
         grand = self.grand
         cursor = self.cursor
         if not self.input_delay:
-            for key, pressed in grand.player_key_hold.items():
-                if pressed and key in self.key_hold_method:
-                    self.key_hold_method[key]()
-                    self.input_delay = 0.15
+            if not self.pause:
+                for key, pressed in grand.player_key_hold.items():
+                    if pressed and key in self.key_hold_method:
+                        self.key_hold_method[key]()
+                        self.input_delay = 0.15
         else:
             self.input_delay -= dt
             if self.input_delay < 0:
@@ -709,9 +789,17 @@ class PresetArmyReserveSetup(PresetArmySetupUI, UIOuterGrand):
                             self.change_portrait_selection(character_type, index)
                         elif self.event_alt_press:
                             if character_type == "commander":
+                                character = self.army_preset["Commander"]
                                 self.army_preset["Commander"] = None
                             else:
+                                character = self.army_preset[character_type.capitalize() + " " + str(index + 1)]
                                 self.army_preset[character_type.capitalize() + " " + str(index + 1)] = None
+                            for army in grand.current_campaign_state["faction"][grand.player_faction]["reserve"]:
+                                if army.game_id == self.showing_army:
+                                    army.remove_follower(character_type, character)
+                                    break
+                            if character_type in ("commander", "leader"):
+                                grand.player_grand_reserve_army_list_ui.create_cards_surface()
                             self.change_portrait_selection(character_type, index)
 
                         if character_type == "commander":
@@ -720,7 +808,7 @@ class PresetArmyReserveSetup(PresetArmySetupUI, UIOuterGrand):
                             character = self.army_preset[character_type.capitalize() + " " + str(index + 1)]
 
                         if character:
-                            character_name_text = self.grab_text(("character", character[0], "Name"))
+                            character_name_text = self.grab_text(("character", character, "Name"))
                         else:
                             character_name_text = self.grab_text(("ui", "info_text_empty_" + character_type))
                             if character_type == "commander":
@@ -750,28 +838,27 @@ class PresetArmyGrandCharacterSelector(CharacterSelector, UIOuterGrand):
 
     def add(self, character_type):
         grand = self.grand
-        selector_character_list = ()
+        true_selector_character_list = ()
         player_faction_state = grand.current_campaign_state["faction"][grand.player_faction]
         if character_type in ("commander", "leader"):
             selector_character_list = player_faction_state["recruit"]["leader"].copy()
             # add unique hero
+            print(player_faction_state["character"])
             selector_character_list += [character for character, character_state in
-                                        player_faction_state["character"].items() if not character_state[0]]
+                                        player_faction_state["character"].items() if not character_state[0] and
+                                        self.character_list[character]["Is Leader"]]
             if character_type == "commander":  # exclude leader that cannot be commander
                 selector_character_list = [value for value in selector_character_list
                                            if not self.character_list[value]["No Commander"]]
-        elif character_type:
-            selector_character_list = player_faction_state["recruit"][character_type].copy()
 
-        # sort characters, based on unique leader, common leader, ground troop, air troop
-        true_selector_character_list = [item for item in selector_character_list if
-                                        self.character_list[item]["Is Unique"]]
-        true_selector_character_list += [item for item in selector_character_list if
-                                         self.character_list[item]["Is Leader"]]
-        true_selector_character_list += [item for item in selector_character_list if self.character_list[item][
-            "Type"] == "ground" and item not in true_selector_character_list]
-        true_selector_character_list += [item for item in selector_character_list if self.character_list[item][
-            "Type"] == "air" and item not in true_selector_character_list]
+            # sort characters, based on unique leader, common leader
+            true_selector_character_list = [item for item in selector_character_list if
+                                            self.character_list[item]["Is Unique"]]
+            true_selector_character_list += [item for item in selector_character_list if
+                                             self.character_list[item]["Is Leader"] and item not in true_selector_character_list]
+        elif character_type:  # ground or air troop
+            true_selector_character_list = player_faction_state["recruit"][character_type].copy()
+
         self.selector_character_list = true_selector_character_list
 
         additional_character = len(self.selector_character_list) - self.max_total_character_show
@@ -811,13 +898,13 @@ class PresetArmyGrandCharacterSelector(CharacterSelector, UIOuterGrand):
                         if self.event_press:
                             player_grand_reserve_army_setup_ui = grand.player_grand_reserve_army_setup_ui
                             selected_portrait = player_grand_reserve_army_setup_ui.selected_portrait_index
-                            player_grand_reserve_army_setup_ui.grand_change_character(selected_portrait[0],
-                                                                                      selected_portrait[
-                                                                                          0].capitalize() + " " +
-                                                                                      str(selected_portrait[1] + 1),
-                                                                                      [character_id, False])
+                            player_grand_reserve_army_setup_ui.change_character(selected_portrait[0].capitalize() + " " +
+                                                                                str(selected_portrait[1] + 1),
+                                                                                character_id)
                             if selected_portrait[0] in ("leader", "commander"):
                                 self.add(selected_portrait[0])  # reset character list to update hero adding if any
+                        elif self.event_alt_press:  # remove character from reserved army
+                            pass
 
                         else:
                             char_stat = self.grab_character_stat_text(character_id, character_data)
@@ -1003,6 +1090,7 @@ class ArmyManagement(UIOuterGrand):
         self.rect = self.image.get_rect(bottomleft=(0, self.screen_height))
 
     def update(self, dt):
+        # TODO add copy for reserve button
         if UIOuterGrand.update(self, dt):
             inside_mouse_pos = Vector2(
                 (self.cursor.pos[0] - self.rect.topleft[0]),

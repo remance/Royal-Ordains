@@ -3,6 +3,8 @@ from engine.army.change_phase import change_phase
 from engine.army.check_assemble import check_assemble
 from engine.army.issue_move_command import issue_move_command
 from engine.army.remove_army_from_active import remove_army_from_active
+from engine.army.remove_army_from_reserve import remove_army_from_reserve
+from engine.army.remove_follower import remove_follower
 from engine.army.reset_stat import reset_stat
 from engine.grand.deploy_army_from_reserve import deploy_army_from_reserve
 
@@ -18,10 +20,13 @@ class Army:
     deploy_from_reserve = deploy_army_from_reserve
     issue_move_command = issue_move_command
     remove_army_from_active = remove_army_from_active
+    remove_army_from_reserve = remove_army_from_reserve
+    remove_follower = remove_follower
     reset_stat = reset_stat
 
     def __init__(self, army_id: str, faction: str, culture: str, commander_char_id: str, army_followers: dict,
-                 supply: int = 0, max_supply: int = 0, garrison_strategy: tuple|list=(), custom_preset_id=None, grand_state=None):
+                 supply: int = 0, max_supply: int = 0, garrison_strategy: tuple | list = (),
+                 custom_preset_id=None, grand_state=None):
         self.game_id = army_id
         self.faction = faction
         self.culture = culture
@@ -91,6 +96,6 @@ class Army:
                 "power": self.power, "supply": self.supply, "max_supply": self.max_supply,
                 "strategy": [self.character_list[self.commander_id]["Strategy"]] +
                             [self.character_list[character[0]]["Strategy"] for character in
-                             self.army_followers["leader"] if character],
+                             self.army_followers["leader"] if character and character[1]],
                 "total_supply_usage": self.total_supply_usage
                 }

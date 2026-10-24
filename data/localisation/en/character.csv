@@ -45,7 +45,7 @@
 "death_bat_air","Dark Bat","A flying bat. Can be a real nuisance to air enemies. Its bite is infected with poison.","Bats are believed by many to be corrupted featherless birds. They are servants of dark magicians that spread unholiness throughout the world. Their dark blood is exotic medicine to cure bad blood disease."
 "death_cat_necromancer","Black Cat","A black cat necromancer. Can raise a skeleton to do its bidding. Unable to fight on its own.","Suffering from a lifetime of superstitious discrimination in the Central Realms, most black cats were exiled to the Death Land in the east. Vindictive of such injustice, they decided to become real harbingers of death."
 "death_gargoyle_air","Flying Gargoyle","A flying gargoyle. Strong and sturdy with its stone body.","Stone gargoyles are protectors of ancient cities, untiring and ever vigilant. Still loyal to their old masters, they fly through the sky to aid them in battle."
-"death_rat_tower_disease_thrower","Disease Thrower","A ratman with disease rot bags. Does not deal much direct damage, but the disease will greatly impede living enemies.",
+"death_rat_tower_disease_thrower","Disease Thrower","A rat with disease rot bags. Does not deal much direct damage, but the disease will greatly impede living enemies.",
 "death_undead_banshee","Banshee","Wailing banshee. This ghost can inflict extremely powerful debuffs on enemy but can do only little damage to anyone, including fellow ghosts.","Banshees are sorrowful maiden spirits who were killed before finding love. Unable to pass on, necromancers like to lure them into enemies' ranks, whereas these banshees will scream bloody in frustration at all who suffer the misfortune of facing them."
 "death_undead_corpse_thrower","Corpse Catapult","A corpse catapult. Can hurl a diseased cow zombie from afar to crush the unfortunate victim and also explode into a plague mist.","There are a few that are more dangerous than a flying diseased cow. This skeletal catapult may not pack a punch strong enough to crumble a solid stone wall, but anyone who gets hit by the plague would soon die without escape."
 "death_undead_ghoul","Ghoul","A speedy ghoul. Can swiftly sneak through the battlefield and hit enemies where it hurts with plague.","Ghouls are among the most dangerous undead creatures that necromancers and raise. They are agile and filled to the brim with deadly plague that only the strong can survive. Wild ghouls are the main reason why the Death Land remain untouched by every living civilisation."
@@ -76,8 +76,8 @@
 "desert_human_leader_fire_warlock","Fire Warlock","A fire warlock. Can cast a small fireball. Can also summon Fire Djinn.",
 "desert_human_leader_water_warlock","Water Warlock","A water warlock. Can cast a small ice bolt. Can also summon Water Djinn.",
 "desert_human_sword","Desert Swordsman","A light swordman. Decent melee fighter with good speed.",
-"desert_lizard_assassin","Lizard Assassin","A lizardman assassin. Exceedingly fast infantry with deadly melee and ranged attacks. Deals poison damage.",
-"desert_lizard_spear","Spearlizard","A lizardman with a long spear. Very effective in fighting against armoured infantry, but struggles to hold the defensive line. Deals poison damage.",
+"desert_lizard_assassin","Lizard Assassin","A lizard assassin. Exceedingly fast infantry with deadly melee and ranged attacks. Deals poison damage.",
+"desert_lizard_spear","Spearlizard","A lizard with a long spear. Very effective in fighting against armoured infantry, but struggles to hold the defensive line. Deals poison damage.",
 "desert_minotaur_ram","Minotaur Charger","A monstrous minotaur. Its size and strength can match a troll. Making it a powerful heavy sieger.",
 "desert_troll_ballista","Troll Siege Ballista","A troll strapped with a siege ballista on its back. The might of short and long-range power at the same time.",
 "doll_air_balloon","Battleship Model","A battle balloon airship. Very slow, but can protect itself with a harpoon shooter and rain down a lot of bombs.","Written somewhere, ""A 1-to-100 scale inflatable balloon airship model made from lightweight steel with a self-regenerative helium mini generator"". These balloons would be a flying fortress if they were larger in size. Manned with a captain doll, a firstmate doll and two crewmate dolls, these dolls actually do not really get along much. Nonetheless, they were still the pride of the Doll Family because of how expensive they were to maintain."
@@ -139,7 +139,7 @@
 "holy_human_light_bringer","Light Bringer","Red Flame-bladed sword",
 "holy_human_loyal_knight","Loyal Knight","Blue knight",
 "holy_sheep_fanatic","Fanatic of the Faith",,
-"leader_abubaba","Abubaba","A swift swordman. Learnt in exotic swordmanship that few can imitate. Can attack enemies with great speed.",
+"leader_abubaba","Abubaba","A swift swordman. Learned in exotic swordmanship that few can imitate. Can attack enemies with great speed.",
 "leader_abubaba_duel","Abubaba the Duelist",,
 "leader_abubaba_warrior","Abubaba the Warrior",,
 "leader_adaqua","Adaqua","A former bandit that is quite skilled with a bow. Unable to perform melee attacks.","The last leader of the Red Leaf Bandit. Allegedly, the daughter of the original founder, whom the Kingdom of Masendor's rangers captured and executed. Despite a rough upbringing, Adaqua possessed intelligence that her foster father lacked, which helped elevate the group to a significant contender for control of the Pamat forest. Loved catching and collecting bugs."
@@ -166,7 +166,7 @@
 "leader_augtual_attack",,,
 "leader_augtual_defend",,,
 "leader_aunnial","Aunnial",,
-"leader_avalkari","Avalkari",,
+"leader_avalkari","Avalkari","A very powerful elf necromancer. Can summon various kinds of undead.",
 "leader_bajiniri","Bajiniri",,
 "leader_bajiniri_chaos",,,
 "leader_bajumiji","Bajumiji",,
@@ -217,27 +217,27 @@
 "leader_duskuksa","Duskuksa","A rune journeyman with versatile abilities. He can use rune smithing to provide buffs to allies and unleash powerful explosions on enemies.","A dwarf of tradition and faith. This Rune Journeyman intended to carry his forebears' legacy to the utmost."
 "leader_duskuksa_lord","Lord Duskuksa",,
 "leader_duskuksa_sage","Sage Duskuksa",,
-"leader_duvdup","Duvdup",,
+"leader_duvdlup","Duvdlup",,
 "leader_ehi","Ehi",,
 "leader_ehi_prophet",,,
-"leader_elmaliern","Elmaliern","A desperate human widow. Dabbles in the art of necromancy, allowing her to conjure zombies and skeletons in battle.",
+"leader_elmaliern","Elmaliern","A desperate human widow. Dabbles in the art of necromancy, allowing her to conjure zombies and skeletons in battle.","Elmaliern used to be a normal housewife in a peaceful village. But then her husband suddenly died, and she was wracked with grief. Sworn to bring him back to life, she journeyed to learn the ancient art of necromancy."
 "leader_elmaliern_lich",,,
 "leader_elmaliern_spiritualist",,,
-"leader_emlai","Emlai",,
+"leader_emlai","Emlai","A vampire king. Has mastery over blood that can be used to cause devastating effects.","A powerful king who used to rule a great kingdom a long time ago. Emlai awoke to find himself very disappointed in the failure of his descendants, who let his glorious realm fall into ruin. So he set out to rebuild the lost home in the new land."
 "leader_entaguz","Entaguz",,
 "leader_entaguz_enhance",,,
 "leader_entium","Entium","A centaur hunter. Excels in the art of archery, he can quickly loose arrows with high accuracy.",
 "leader_entium_greatbow","Entium the Great",,
 "leader_eona","Eona","A blind human songstress. Capable of providing great support to allies, but can not fight.",
 "leader_eona_peace","Eona the Songstress of Unity",,
-"leader_erkevhern","Erkevhern","A ratman alchemist. She excels in herbalism and toxicology; the potions she makes can heal and harm.",
+"leader_erkevhern","Erkevhern","A rat alchemist. She excels in herbalism and toxicology; the potions she makes can heal and harm.",
 "leader_erkevhern_potent",,,
 "leader_esluoya","Esluoya","A moon elf witch. Cold but charming, she is prepared with a myriad of destructive and bewitching spells that should not be underestimated.",
 "leader_esluoya_enchant",,,
 "leader_filia","Filia","An elf thief. Nimble and sleight, she is skilled at disarming and stealing from any opponent. Rendering them ineffective in combat.",
 "leader_filia_light",,,
 "leader_filia_shadow",,,
-"leader_forgotten","The Forgotten","A powerful ancient warrior. Still half asleep, he will only regain his strength after being hurt enough.",
+"leader_forgotten","The Forgotten","A powerful ancient warrior. Still half asleep, he will only regain his strength after being hurt enough.","The old empires waged wars over the smallest of quarrels. And to resolve their differences, strong champions were chosen to represent their great armies. Very few could survive to old age, having to duel the finest from all over the world every so often. This here is among the countable who lived long enough to retire and died of old age."
 "leader_forgotten_horror","Real Life Horror",,
 "leader_forgotten_legend","Remembrance of Legend",,
 "leader_foxereal","Regin","A small monk that excels in magical arts. Can also confuse enemies and render them less effective in combat.","Regin was a mysterious monk who appeared out of nowhere. Despite having an abnormally large nose, people still loved him for the many great sermons he delivered. After playing around with magic tricks, he discovered that he had a talent for real magic and quickly became one of the best monk mages."
@@ -450,10 +450,10 @@
 "marsh_goblin_wolf_cav","Wolf Rider","A goblin riding a wolf. Fast and deadly. Can growl to inflict fear on nearby enemies.",
 "marsh_hobgoblin_club","Battle Clubber","A hobgoblin with a big club. The backbone of the Cactus Realms army. A good melee warrior in all accounts.",
 "marsh_hobgoblin_leader_blacksword","Blacksword Cleaver","A blacksword hobgoblin. A proven strength to lead and destroy. As a leader should be.",
-"marsh_lizard_javelin","Javelin Skirmisher","A lizardman javelin thrower. Quite accurate and lethal, for the lack of range and rate of fire.",
-"marsh_lizard_leader_greatspear","Greatspear General","A lizardman greatspear warrior. Not as long as a pike but dangerous all the same. Can inflict high damage from a safe distance behind other melee fighters.",
-"marsh_lizard_warrior","Water Warrior","A lizardman warrior. Decent at both offence and defence with high speed. Their attacks deal water element damage rather than typical physical damage.",
-"marsh_lizard_wasp_pot","Wask Pot Thrower","A lizardman wasp thrower. A wasp sting is beyond mere annoyance; the toxin can make the victim nauseous and less effective in a fight.",
+"marsh_lizard_javelin","Javelin Skirmisher","A lizard javelin thrower. Quite accurate and lethal, for the lack of range and rate of fire.",
+"marsh_lizard_leader_greatspear","Greatspear General","A lizard greatspear warrior. Not as long as a pike but dangerous all the same. Can inflict high damage from a safe distance behind other melee fighters.",
+"marsh_lizard_warrior","Water Warrior","A lizard warrior. Decent at both offence and defence with high speed. Their attacks deal water element damage rather than typical physical damage.",
+"marsh_lizard_wasp_pot","Wask Pot Thrower","A lizard wasp thrower. A wasp sting is beyond mere annoyance; the toxin can make the victim nauseous and less effective in a fight.",
 "mountain_construct_golem","Stone Golem","A stone golem. An ideal siege machine and frontline that can withstand most physical attacks.",
 "mountain_dwarf_axe","Axe Warrior","A dwarf warrior. Great balanced troop that is quite slow.",
 "mountain_dwarf_beard_warrior","Beard Warrior","A naked beard dwarf. Moderately fast yet resilient, and has no weak side.",
@@ -488,7 +488,7 @@
 "neutral_order_knightess",,,
 "neutral_phoenix","Young Phoenix","A young phoenix. Can resurrect from death and deal strong fire damage.","Young phoenixes that were reborn from their previous death not too long ago and still live on the ground. They are immortal, so no matter how many times they die, they will come back from the ashes. One day they will grow and fly to the sun for a family visit. It is widely believed that ingesting the blood of an old phoenix can make one live forever."
 "neutral_raptor","Raptor",,
-"neutral_rat_club","Clubratman",,
+"neutral_rat_club","Clubrat",,
 "neutral_small_barricade","Small Barricade","A small barricade. Best not to rely on it too much.","Small barricades like these were often objects of scrutiny. ""Ohh, they are so small. How can they ever hope to stop anything?"" or ""Not even goblins will care about these small little things."" and so on. Fools all."
 "neutral_snail_leader_mage_air","Snail Mage",,
 "neutral_sphinx","Sphinx",,

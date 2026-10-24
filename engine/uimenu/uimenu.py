@@ -559,11 +559,7 @@ class CharacterSelector(UIMenu):
                     selector_character_list = [value for value in
                                                self.custom_character_setup[faction]["ground"]["leader"]["unique"] if
                                                value
-                                               not in exist_unique_check]
-                    selector_character_list += [value for value in
-                                                self.custom_character_setup["free"]["ground"]["leader"]["unique"] if
-                                                value
-                                                not in exist_unique_check]
+                                               not in exist_unique_check and self.character_list[value]["Is Leader"]]
                     if character_type == "commander":  # exclude leader that cannot be commander
                         selector_character_list = [value for value in selector_character_list
                                                    if not self.character_list[value]["No Commander"]]
@@ -574,11 +570,13 @@ class CharacterSelector(UIMenu):
                     selector_character_list = self.custom_character_setup[faction]["air"]
             else:
                 selector_character_list = self.all_main_exist_characters[faction]
+
         # sort characters, based on unique leader, common leader, ground troop, air troop
         true_selector_character_list = [item for item in selector_character_list if
                                         self.character_list[item]["Is Unique"]]
         true_selector_character_list += [item for item in selector_character_list if
-                                         self.character_list[item]["Is Leader"]]
+                                         self.character_list[item]["Is Leader"] and item not in
+                                         true_selector_character_list]
         true_selector_character_list += [item for item in selector_character_list if self.character_list[item][
             "Type"] == "ground" and item not in true_selector_character_list]
         true_selector_character_list += [item for item in selector_character_list if self.character_list[item][
@@ -698,13 +696,11 @@ class CharacterSelector(UIMenu):
                                 selected_portrait = game.custom_preset_army_setup.selected_portrait_index
                                 if selected_portrait[0] == "commander":
                                     game.custom_preset_army_setup.change_character(
-                                        selected_portrait[0].capitalize(),
-                                        [character_id, True])
+                                        selected_portrait[0].capitalize(), character_id)
                                 else:
                                     game.custom_preset_army_setup.change_character(
                                         selected_portrait[0].capitalize() + " " +
-                                        str(selected_portrait[1] + 1),
-                                        [character_id, True])
+                                        str(selected_portrait[1] + 1), character_id)
                             elif game.menu_state == "beast":
                                 lorebook_showcase_character = game.lorebook_showcase_character
                                 if lorebook_showcase_character.char_id != character_id:
@@ -740,7 +736,7 @@ class CharacterSelector(UIMenu):
                             char_stat = self.grab_character_stat_text(character_id, character_data)
 
                             game.text_popup.popup(self.cursor.rect, char_stat,
-                                                  width_text_wrapper=int(1400 * self.screen_scale_width))
+                                                  width_text_wrapper=int(1000 * self.screen_scale_width))
                             self.add_to_ui_menu_updater(game.text_popup)
                     return
 
@@ -1050,43 +1046,36 @@ class PresetArmySetupUI(UIMenu):
     def popup(self, preset_name, army):
         self.current_preset_id = army.custom_preset_id
         self.current_preset_name = preset_name
-        self.preset_cost = army.cost
-        self.preset_supply = army.total_supply_usage
-        self.preset_leadership = army.leadership
         self.army_preset = deepcopy(self.empty_army_preset)
 
-        self.change_character("Commander", [army.commander_id, True], change_selector=False, reset=False)
+        self.change_character("Commander", army.commander_id, change_selector=False, reset_now=False)
         for index, leader in enumerate(army.army_followers["leader"]):
-            self.change_character("Leader " + str(index + 1), leader, change_selector=False, reset=False)
+            if leader:
+                self.change_character("Leader " + str(index + 1), leader[0], change_selector=False, reset_now=False)
         for index, troop in enumerate(army.army_followers["troop"]):
-            self.change_character("Troop " + str(index + 1), troop, change_selector=False, reset=False)
+            if troop:
+                self.change_character("Troop " + str(index + 1), troop[0], change_selector=False, reset_now=False)
         for index, air_group in enumerate(army.army_followers["air"]):
-            self.change_character("Air " + str(index + 1), air_group, change_selector=False, reset=False)
+            if air_group:
+                self.change_character("Air " + str(index + 1), air_group[0], change_selector=False, reset_now=False)
         self.selected_portrait_index = ()
         self.reset()
 
-    def change_character(self, slot, character, change_selector=True, reset=True):
+    def change_character(self, slot, character, change_selector=True, reset_now=True):
         self.army_preset[slot] = character
         before_save = self.game.before_save_preset_army_setup
         if self.selected_culture in before_save and self.current_preset_id in before_save[self.selected_culture]:
-            before_save[self.selected_culture][self.current_preset_id][slot] = character[0]
+            before_save[self.selected_culture][self.current_preset_id][slot] = character
         if change_selector:
             if any(ext in slot for ext in ("Commander", "Leader")):
                 # update character selector to exclude unique leader
                 self.game.character_selector.add(
                     self.selected_culture, slot.split(" ")[0].lower(),
-                    [self.army_preset[value][0] for value in self.army_leader_header if self.army_preset[value]])
+                    [self.army_preset[value] for value in self.army_leader_header if self.army_preset[value]])
             else:
                 self.game.character_selector.add(self.selected_culture, slot.split(" ")[0].lower())
-        if reset:
+        if reset_now:  # reset entire image
             self.reset()
-        else:
-            index = 0
-            if "Commander" not in slot:
-                index = int(slot.split(" ")[1]) - 1
-            if character and character[0]:
-                self.image.blit(self.character_portraits[character[0]]["setup_ui"],
-                                self.portrait_type_rects[slot.split(" ")[0].lower()][index])
 
     def change_portrait_selection(self, character_type, new_index):
         self.selected_portrait_index = (character_type, new_index)
@@ -1096,7 +1085,7 @@ class PresetArmySetupUI(UIMenu):
             if character_type in ("commander", "leader"):
                 self.game.character_selector.add(
                     self.selected_culture, character_type,
-                    [self.army_preset[value][0] for value in self.army_leader_header if self.army_preset[value]])
+                    [self.army_preset[value] for value in self.army_leader_header if self.army_preset[value]])
             else:
                 self.game.character_selector.add(self.selected_culture, character_type)
 
@@ -1113,10 +1102,19 @@ class PresetArmySetupUI(UIMenu):
 
             if self.selected_portrait_index and self.selected_portrait_index == (character_type, index):
                 self.image.blit(self.selected_circle, rect)
-            if character and character[0]:
-                character = character[0]
+            if character:
                 self.image.blit(self.character_portraits[character]["setup_ui"], rect)
 
+        army_preset = self.game.convert_custom_army_to_deployable(self.army_preset,
+                                                                  self.game.showcase_army.culture)
+        self.game.showcase_army.__init__(self.current_preset_name, army_preset["culture"],
+                                         army_preset["culture"],
+                                         army_preset["commander"],
+                                         army_preset["followers"])
+
+        self.preset_cost = self.game.showcase_army.cost
+        self.preset_supply = self.game.showcase_army.total_supply_usage
+        self.preset_leadership = self.game.showcase_army.leadership
         self.game.custom_army_title_popup.change_text(self.current_preset_name, self.preset_cost,
                                                       self.preset_supply, self.preset_leadership)
         self.game.custom_preset_army_title.change_text(self.current_preset_name, self.preset_cost,
@@ -1201,6 +1199,7 @@ class PresetArmySetupUI(UIMenu):
                                 self.army_preset["Commander"] = None
                             else:
                                 self.army_preset[character_type.capitalize() + " " + str(index + 1)] = None
+                            self.reset()
                             self.change_portrait_selection(character_type, index)
 
                         if character_type == "commander":
@@ -1209,7 +1208,7 @@ class PresetArmySetupUI(UIMenu):
                             character = self.army_preset[character_type.capitalize() + " " + str(index + 1)]
 
                         if character:
-                            character_name_text = self.grab_text(("character", character[0], "Name"))
+                            character_name_text = self.grab_text(("character", character, "Name"))
                         else:
                             character_name_text = self.grab_text(("ui", "info_text_empty_" + character_type))
                             if character_type == "commander":
@@ -2414,6 +2413,7 @@ class CustomArmyPresetListAdapter(ListAdapterHideExpand):
 
 class CustomPresetTitle(UIMenu):
     def __init__(self, size, pos):
+        self._layer = 6
         UIMenu.__init__(self)
         self.font = self.game.medium_generic_ui_font
         self.pos = pos
