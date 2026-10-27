@@ -1,6 +1,7 @@
 import lzma
 import pickle
 from os.path import join
+from PIL import Image
 
 import pygame
 from pygame import Surface, SRCALPHA, Vector2
@@ -34,7 +35,6 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
 
     for character in animation_pool:
         if not compile_specific or character == compile_specific:
-            print(character)
             character_animation_pool = {}
 
             if character not in event_actor_sprite_pool:
@@ -301,7 +301,7 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
             effect_raw_data_hash.update(str(effect_sprite_adjust[effect_name]).encode())
         for effect_part, frame_list in data.items():
             for surface in frame_list:
-                effect_raw_data_hash.update(tobytes(surface, "RGBA"))
+                effect_raw_data_hash.update(image_avg_hashing(surface))
         effect_raw_data_hash = effect_raw_data_hash.hexdigest()
         if effect_name not in animation_load_index["effect"] or effect_raw_data_hash != animation_load_index["effect"][effect_name]:
             for effect_part, frame_list in data.items():
@@ -376,3 +376,13 @@ def recursive_remove_mask(value_item):
             recursive_remove_mask(value_item[key])
         elif type(value_item[key]) is pygame.Mask:
             value_item.pop(key)
+
+
+def image_avg_hashing(surface):
+    data = tobytes(surface, "RGBA")
+    size = surface.get_size()
+    data2 = Image.frombytes("RGBA", size, data).resize((10, 10), Image.Resampling.LANCZOS).convert("L")
+    pixel_data = list(data2.getdata())
+    avg_pixel = sum(pixel_data) / len(pixel_data)
+    bits = "".join(['1' if (px >= avg_pixel) else '0' for px in pixel_data])
+    return (str(hex(int(bits, 2)))[2:][::-1].upper()).encode()

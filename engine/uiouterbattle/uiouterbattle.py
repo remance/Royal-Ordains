@@ -6,7 +6,7 @@ import pygame
 from pygame import Vector2, Surface, SRCALPHA, Color, Rect, draw, mouse
 from pygame.font import Font
 from pygame.key import name as pygame_key_name
-from pygame.transform import flip
+from pygame.transform import flip, rotate
 
 from engine.battle.player_input_battle import key_select_strategy
 from engine.constants import *
@@ -615,7 +615,7 @@ class EventNotification(UIOuterBattle):
 
 class BattleHelper(UIOuterBattle):
     def __init__(self, weather_icon_images, helper_ui_image, helper_ui_base_image, helper_images, time_choice_images,
-                 time_select_images):
+                 time_select_images, wind_arrow_images):
         self._layer = 12
         UIOuterBattle.__init__(self)
         self.font = self.game.battle_timer_font
@@ -626,6 +626,7 @@ class BattleHelper(UIOuterBattle):
         self.helper_ui_base_rect = helper_ui_base_image.get_rect(bottomleft=(0, self.image.get_height()))
         self.time_choice_images = time_choice_images
         self.time_select_images = time_select_images
+        self.wind_arrow_images = wind_arrow_images
         self.helper_images = helper_images
 
         self.base_image = self.image.copy()
@@ -644,6 +645,10 @@ class BattleHelper(UIOuterBattle):
         self.time_option = 2
         self.time_text = None
         self.weather = None
+        self.wind_angle = None
+        self.wind_direction = "idle"
+        self.wind_icon_pos = (500 * self.screen_scale_width, 175 * self.screen_scale_height)
+        self.weather_icon_pos = (650 * self.screen_scale_width, 175 * self.screen_scale_height)
         self.battle_state = "normal"
         self.battle_name = ""
         self.battle_info_text = ()
@@ -681,23 +686,27 @@ class BattleHelper(UIOuterBattle):
             image.blit(self.time_choice_images[index], rect)
         if self.weather:
             icon_image = self.weather_icon_images[self.weather]
-            image.blit(icon_image,
-                       icon_image.get_rect(center=(570 * self.screen_scale_width, 175 * self.screen_scale_height)))
+            image.blit(icon_image, icon_image.get_rect(center=self.weather_icon_pos))
+            wind_icon = self.wind_arrow_images[self.wind_direction]
+            image.blit(wind_icon, wind_icon.get_rect(center=self.wind_icon_pos))
 
     def update(self, dt):
         """Update battle time"""
         must_reset_image = False
         reset_inside_helper_image = False
 
-        current_weather = self.battle.current_weather.weather_now
-        if self.weather != current_weather:
+        current_weather = self.battle.current_weather
+        weather_now = current_weather.weather_now
+        if self.weather != weather_now:
             grab_text = self.grab_text
-            self.weather = current_weather
+            self.wind_direction = current_weather.wind_direction
+            self.weather = weather_now
             self.battle_info_text = (self.battle_name,
                                      "",
                                      grab_text(("ui", "info_header_weather")) +
-                                     grab_text(("ui", "weather_strength_" + current_weather.split("_")[1])) +
-                                     grab_text(("ui", "weather_" + current_weather.split("_")[0])))
+                                     grab_text(("ui", "weather_strength_" + weather_now.split("_")[1])) +
+                                     grab_text(("ui", "weather_" + weather_now.split("_")[0])),
+                                     grab_text(("ui", "info_header_wind")) + grab_text(("ui", "info_text_" + self.wind_direction)))
             must_reset_image = True
 
         if UIMenu.update(self, dt):

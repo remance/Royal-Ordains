@@ -86,6 +86,8 @@ def commander_die(self):
         self.battle.player_selected_strategy = None
     for character in self.battle.all_team_ally[self.team]:
         character.broken = True
+        if character.is_summon:
+            character.health = 0
     for air_group in self.battle.team_state[self.team]["air_group"]:
         for character in air_group:
             character.broken = True

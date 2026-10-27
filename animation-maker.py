@@ -255,7 +255,7 @@ def read_animation_data(change_character=True):
                 if true_name not in true_name_list:
                     true_name_list.append(true_name)
 
-            for true_name in set(true_name_list):  # create effect animation list
+            for true_name in sorted(set(true_name_list)):  # create effect animation list
                 final_name = true_name
                 if "#" in true_name:  # has animation to play
                     final_name = true_name[:-1]
@@ -266,7 +266,6 @@ def read_animation_data(change_character=True):
                                              final_name == key]
 
                 effect_sprite_pool[folder_data_name][final_name] = sprite_animation_list
-
     if change_character:
         change_animation_character("leader_vraesier")
 

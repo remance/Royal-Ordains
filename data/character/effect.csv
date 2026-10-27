@@ -21,7 +21,7 @@
 "bomb_small",,1350,,,"explosion_small","stone",1700,,
 "bone",,1000,"TRUE","bounce",,"stone",1100,,"travel_spin"
 "boulder",,2500,"TRUE","stick",,"stone_big",2200,,
-"breath",,,TRUE,,,,,,
+"breath",,,"TRUE",,,,,,
 "bullet",,10000,"TRUE",,,"bullet",3000,2,
 "caltrops",30,,"TRUE",,,,,,
 "cannonball",,4000,"TRUE","bounce",,"cannon_ball_small",2800,3,
@@ -42,6 +42,7 @@
 "dark_energy",,1000,"TRUE",,"dark_energy_explosion",,,,"travel_spin"
 "dark_energy_explosion",,,"TRUE",,,"magic_explosion",1500,3,
 "dark_goo",,,"TRUE",,,,,,
+"death_cloud",15,200,"TRUE",,,,,,"travel_wind_direction"
 "demon",,,,,,,,,
 "doll_candle",,,,,,,,,
 "doll_claw",,,,,,,,,

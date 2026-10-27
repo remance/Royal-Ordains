@@ -101,6 +101,8 @@ class Effect(Sprite):
         self.x_momentum = 0  # only use for reach bouncing off
         self.y_momentum = 0
         self.random_move = False
+        self.travel_wind_direction = False
+        self.current_wind_travel_direction = None
         self.speed = 0
         self.start_move_delay = 0
         self.base_target_pos = base_target_pos
@@ -224,6 +226,7 @@ class Effect(Sprite):
                 elif "self_height" in moveset_property["override_target"]:
                     # target is at the same height as self, used for direct moving effect like bullet
                     self.base_target_pos[1] = self.base_pos[1]
+
                 if "bottom" in moveset_property["override_target"]:  # target is based on bottom of image rather center
                     self.base_target_pos[1] = self.base_target_pos[1] - (
                             self.base_image["sprite"][0].get_height() / 2) / self.screen_scale_height
@@ -240,6 +243,8 @@ class Effect(Sprite):
                 self.travel_distance = moveset["Range"]
             if "random_move" in moveset_property:
                 self.random_move = True
+            if "travel_wind_direction" in moveset_property:
+                self.travel_wind_direction = True
             if "one_hit_per_enemy" in moveset_property:
                 self.one_hit_per_enemy = True
             if "ignore_ground" in moveset_property:
@@ -279,7 +284,7 @@ class Effect(Sprite):
                     # convert from data angle to projectile calculable
                     self.travel_distance = moveset["Range"]
                     if self.base_target_pos[0] - self.base_pos[0] < 0:
-                        self.travel_distance = -self.travel_distance
+                        self.travel_distance *= -1
                     self.angle = convert_projectile_degree_angle(self.angle)
                 # apply inaccuracy using offence
                 offence_mistake = self.offence
@@ -330,6 +335,16 @@ class Effect(Sprite):
                     if self.travel:  # remove sound for moving effect
                         self.sound_effect = None
                     self.sound_timer = 0
+
+            if self.duration:  # only clear for sprite with duration
+                current_weather = self.battle.current_weather
+                self.duration -= dt
+                if current_weather.element == Weak_To_Element[self.element]:
+                    # effect with weak element against weather receive duration penalty based on weather strength
+                    self.duration -= dt * current_weather.cal_level
+                if self.duration <= 0:
+                    self.reach_target()
+                    return
 
             done, just_start = self.play_animation(self.animation_frame_play_time, dt, False)
 
@@ -548,6 +563,7 @@ class ShowcaseEffect(Effect):
         self.x_momentum = 0  # only use for reach bouncing off
         self.y_momentum = 0
 
+        self.travel_wind_direction = False
         self.random_move = False
 
         self.speed = 0

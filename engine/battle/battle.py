@@ -347,7 +347,10 @@ class Battle:
                                               battle_ui_images["time_normal"],
                                               battle_ui_images["time_fast"]),
                                              (battle_ui_images["time_select"],
-                                              battle_ui_images["time_unselect"])
+                                              battle_ui_images["time_unselect"]),
+                                             {"idle": battle_ui_images["wind_idle"],
+                                              "right": battle_ui_images["wind_right"],
+                                              "left": battle_ui_images["wind_left"], }
                                              )
         self.battle_scale_ui = BattleScale(self.tactical_map_ui.rect.bottomleft)
         self.strategy_select_ui = StrategySelect(self.battle_scale_ui.rect.midbottom,
