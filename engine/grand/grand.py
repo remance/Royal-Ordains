@@ -56,7 +56,7 @@ from engine.uioutergrand.uioutergrand import (PlayerGrandInteract, PlayerTopBar,
                                               PlayerArmyList, PlayerArmyListSortOption, MapSettingOption,
                                               TimeSettingOption, EventDetailPopup, PlayerFactionCultureList,
                                               MenuBar, EventNotification, GrandTextDrama)
-from engine.uioutergrand.uioutergrandcollapsible import (ArmyManagement, PresetArmyReserveSetup,
+from engine.uioutergrand.uioutergrandcollapsible import (ArmyDeployManagement, PresetArmyReserveSetup,
                                                          CourtManagement, CultureManagement,
                                                          DiplomacyManagement, PresetArmyGrandCharacterSelector,
                                                          RegionManagement, BuildingManagement, PresetArmyReserveList,
@@ -335,21 +335,26 @@ class Grand:
 
         self.region_management_ui = RegionManagement()
 
-        region_manage_toggle_button = {"selected": self.grand_ui_images["selected_region_manage_button"],
-                                       "unselected": self.grand_ui_images["unselected_region_manage_button"]}
-        self.region_management_tab_button = RegionManagementToggleButton(region_manage_toggle_button,
-                                                                         self.grab_text(("ui", "button_region_manage")),
-                                                                         self.region_management_ui.rect.topleft)
-        self.army_deploy_tab_button = ArmyDeployToggleButton(region_manage_toggle_button,
-                                                             self.grab_text(("ui", "button_army_deploy")),
-                                                             self.region_management_tab_button.rect.bottomright)
+        self.region_management_tab_button = RegionManagementToggleButton(
+            {"selected": self.grand_ui_images["region_manage_button_selected"],
+             "unselected": self.grand_ui_images["region_manage_button_unselected"]},
+            self.grab_text(("ui", "button_region_manage")),
+            self.region_management_ui.rect.topleft)
+        self.army_deploy_tab_button = ArmyDeployToggleButton(
+            {"selected": self.grand_ui_images["army_deploy_manage_button_selected"],
+             "unselected": self.grand_ui_images["army_deploy_manage_button_unselected"]},
+            self.grab_text(("ui", "button_army_deploy")),
+            self.region_management_tab_button.rect.bottomright)
 
         self.player_region_management_uis = (self.region_management_ui, self.region_management_tab_button,
                                              self.army_deploy_tab_button)
         self.building_management_ui = BuildingManagement()
 
-        self.army_management_ui = ArmyManagement()
-        self.player_army_management_uis = (self.army_management_ui, self.army_deploy_tab_button)
+        self.army_deploy_management_ui = ArmyDeployManagement()
+        self.player_army_deploy_uis = (self.army_deploy_management_ui, self.region_management_tab_button,
+                                       self.army_deploy_tab_button, self.player_grand_reserve_army_list_ui,
+                                       self.player_grand_reserve_army_list_ui.scroll,
+                                       self.player_grand_reserve_army_setup_ui)
 
         self.event_notification_ui = EventNotification()
 
@@ -370,7 +375,7 @@ class Grand:
 
         self.player_collapsable_uis = (self.region_management_ui, self.region_management_tab_button,
                                        self.army_deploy_tab_button, self.building_management_ui,
-                                       self.army_management_ui, self.army_deploy_tab_button,
+                                       self.army_deploy_management_ui, self.army_deploy_tab_button,
                                        self.court_management_ui, self.court_management_ui.scroll,
                                        self.diplomacy_management_ui, self.diplomacy_management_ui.scroll,
                                        self.culture_management_ui, self.culture_management_ui.scroll, self.cosmic_ui)

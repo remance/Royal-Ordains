@@ -1,4 +1,4 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
-"Attack1","Shoot Poison Dart",,,"self:{no_engage=500}",4500,5000,4,,3,4,4,4,,"poison",,,"poison",
-"Skill1","Shoot Sleep Dart",,,,3000,3500,10,20,2,4,4,4,,"stab",,,"collapse",
-"Die",,,,,,,,,,,,,,,,,,
+"Attack1","Shoot Poison Dart",,,"self:{no_engage=500}",4500,5000,4,,3,4,4,4,,"poison",,,"poison,weakness",
+"Skill1","Hide",,,,2000,,120,20,,,,,,,"invisible",,,
+"Die","Shoot Sleep Dart",,,"self:{die}",3000,3500,10,,2,4,4,4,,"stab",,,"collapse",

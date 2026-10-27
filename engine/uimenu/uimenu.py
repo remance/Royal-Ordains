@@ -1736,7 +1736,7 @@ class ValueBox(UIMenu):
         self.image = image.copy()
         self.base_image = self.image.copy()
         self.value = value
-        text_surface = self.font.render(str(self.value), True, (30, 30, 30))
+        text_surface = self.font.render(str(int(self.value)), True, (30, 30, 30))
         text_rect = text_surface.get_rect(center=self.image.get_rect().center)
         self.image.blit(text_surface, text_rect)
         self.rect = self.image.get_rect(center=self.pos)
@@ -1744,7 +1744,7 @@ class ValueBox(UIMenu):
     def change_value(self, value):
         self.value = value
         self.image = self.base_image.copy()
-        text_surface = self.font.render(str(self.value), True, (30, 30, 30))
+        text_surface = self.font.render(str(int(self.value)), True, (30, 30, 30))
         text_rect = text_surface.get_rect(center=self.image.get_rect().center)
         self.image.blit(text_surface, text_rect)
 

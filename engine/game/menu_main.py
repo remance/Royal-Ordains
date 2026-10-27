@@ -59,9 +59,11 @@ def menu_main(self):
                                              {"leader": [], "troop": [["death_undead_zombie", True],], "air": []}, supply=700)
 
         for army in self.custom_team_army[1][2:]:
-            army.__init__("", "", "", None, {"leader": [], "troop": [], "air": []})
+            army.__init__("", "", "", None, {"leader": [[], [], []], "troop": [[], [], [], [], []],
+                                             "air": [[], [], [], [], []]})
         for army in self.custom_team_army[2][2:]:
-            army.__init__("", "", "", None, {"leader": [], "troop": [], "air": []})
+            army.__init__("", "", "", None, {"leader": [[], [], []], "troop": [[], [], [], [], []],
+                                             "air": [[], [], [], [], []]})
 
         stage_stat = {}
         team_state = {

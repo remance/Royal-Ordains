@@ -603,8 +603,9 @@ class PresetArmyReserveList(GrandListUI, UIOuterGrand):
                                                 copy_commander = ""
                                             copy_army_followers = hover_over_army.army_followers.copy()
                                             for index, leader in enumerate(copy_army_followers["leader"]):
-                                                if self.character_list[leader]["Is Unique"]:
-                                                    copy_army_followers["leader"][index] = []
+                                                if leader:
+                                                    if self.character_list[leader[0]]["Is Unique"]:
+                                                        copy_army_followers["leader"][index] = []
                                             hover_over_army = Army(str(uuid4()), grand.player_faction, hover_over_army.culture,
                                                                    copy_commander, hover_over_army.army_followers)
                                             player_reserve_army_list.insert(0, hover_over_army)
@@ -719,7 +720,7 @@ class PresetArmyReserveSetup(PresetArmySetupUI, UIOuterGrand):
                 if role in ("commander", "leader"):  # redraw reserve army list
                     grand.player_grand_reserve_army_list_ui.create_cards_surface()
 
-                army.reset_stat()
+                army.reset_stat(for_reserve_info=True)
                 grand.player_reserve_army_title.change_text("", army.cost, army.total_supply_usage,
                                                             army.leadership)
 
@@ -843,7 +844,6 @@ class PresetArmyGrandCharacterSelector(CharacterSelector, UIOuterGrand):
         if character_type in ("commander", "leader"):
             selector_character_list = player_faction_state["recruit"]["leader"].copy()
             # add unique hero
-            print(player_faction_state["character"])
             selector_character_list += [character for character, character_state in
                                         player_faction_state["character"].items() if not character_state[0] and
                                         self.character_list[character]["Is Leader"]]
@@ -1078,13 +1078,13 @@ class CultureManagement(GrandListUI, UIOuterGrand):
             self.remove_from_outer_ui_menu_updater(self.grand.culture_management_uis)
 
 
-class ArmyManagement(UIOuterGrand):
+class ArmyDeployManagement(UIOuterGrand):
     def __init__(self):
         self._layer = 5
         UIOuterGrand.__init__(self)
         self.font = self.game.generic_ui_font
         self.header_font = self.game.large_generic_ui_font
-        self.image = Surface((2200 * self.screen_scale_width, 432 * self.screen_scale_height))
+        self.image = Surface((int(1300 * self.screen_scale_width), int(1080 * self.screen_scale_height)), SRCALPHA)
         self.image.fill((200, 50, 50))
         self.base_image = self.image.copy()
         self.rect = self.image.get_rect(bottomleft=(0, self.screen_height))
@@ -1310,7 +1310,7 @@ class RegionManagement(UIOuterGrand):
         recruit_text = grab_text(("ui", "info_header_recruit"))
         for recruit_stat in ("Leader Recruit", "Troop Recruit", "Air Recruit"):
             for item in building_stat[recruit_stat]:
-                recruit_text += item + ", "
+                recruit_text += grab_text(("character", item, "Name")) + ", "
                 recruit = True
         if recruit:
             text.append(recruit_text[:-2])
@@ -1430,10 +1430,13 @@ class RegionManagementToggleButton(ToggleButton):
     def update(self, dt):
         ToggleButton.update(self, dt)
         if self.event_press:
-            region_management_tab_button = self.grand.region_management_tab_button
-            if region_management_tab_button.selected:
+            grand = self.grand
+            army_deploy_tab_button = grand.army_deploy_tab_button
+            if army_deploy_tab_button.selected:
                 self.selected = True
-                region_management_tab_button.selected = False
+                army_deploy_tab_button.selected = False
+                grand.remove_from_outer_ui_menu_updater(grand.player_army_deploy_uis)
+                grand.add_to_outer_ui_menu_updater(grand.region_management_ui)
 
 
 class ArmyDeployToggleButton(ToggleButton):
@@ -1444,10 +1447,13 @@ class ArmyDeployToggleButton(ToggleButton):
     def update(self, dt):
         ToggleButton.update(self, dt)
         if self.event_press:
-            army_deploy_tab_button = self.grand.army_deploy_tab_button
-            if army_deploy_tab_button.selected:
+            grand = self.grand
+            region_management_tab_button = grand.region_management_tab_button
+            if region_management_tab_button.selected:
                 self.selected = True
-                army_deploy_tab_button.selected = False
+                region_management_tab_button.selected = False
+                grand.remove_from_outer_ui_menu_updater(grand.region_management_ui)
+                grand.add_to_outer_ui_menu_updater(grand.player_army_deploy_uis)
 
 
 class BuildingManagement(UIOuterGrand):

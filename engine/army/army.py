@@ -6,7 +6,7 @@ from engine.army.remove_army_from_active import remove_army_from_active
 from engine.army.remove_army_from_reserve import remove_army_from_reserve
 from engine.army.remove_follower import remove_follower
 from engine.army.reset_stat import reset_stat
-from engine.grand.deploy_army_from_reserve import deploy_army_from_reserve
+from engine.army.deploy_army_from_reserve import deploy_army_from_reserve
 
 
 class Army:

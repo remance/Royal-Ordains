@@ -1,2 +1,4 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
-"Attack1","Strike",,,,350,,4,,28,23,160,80,,"crush",,,,
+"Attack1","Strike",,,,350,,4,,28,33,160,80,,"crush",,,,
+"Skill1","Roar",,,"self:{health<=0.5}",,,,,,,,,,,"berserk",,,
+"Die","Throw Club",,,"self:{die}",,1200,,,15,120,500,200,,,,,,"arc"
