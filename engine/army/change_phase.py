@@ -53,7 +53,7 @@ def change_phase(self):
                             campaign_battle_armies.append(self.game_id)
                             campaign_battle_factions
                             if self.faction == self.player_faction:
-                                self.player_army_list_ui.reset_card(self)
+                                self.grand_army_list_ui.reset_card(self)
 
                     activity["dot_routes"][0].pop(0)  # remove passed dot
 
@@ -106,3 +106,7 @@ def change_phase(self):
 
                 if army_change:
                     self.reset_stat(reset_player_army_card=True)
+                else:
+                    if self.faction == self.player_faction:
+                        self.grand_army_list_ui.reset_card(self)
+

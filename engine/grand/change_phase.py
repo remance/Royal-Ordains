@@ -96,4 +96,4 @@ def change_phase(self, phase_change=True):
             pass
 
     if self.player_faction:
-        self.player_faction_culture_list_ui.culture_change()
+        self.grand_faction_culture_list_ui.culture_change()

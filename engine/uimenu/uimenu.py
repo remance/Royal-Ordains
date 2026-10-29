@@ -139,7 +139,8 @@ class UIMenu(Sprite):
     ui_font = None
     updater = None
 
-    def __init__(self, player_cursor_interact=True, has_containers=False, play_sound_when_click=False):
+    def __init__(self, player_cursor_interact=True, has_containers=False, play_sound_when_click=False,
+                 bypass_update_pause_check=False):
         """
         Parent class for all menu user interface objects
 
@@ -165,6 +166,7 @@ class UIMenu(Sprite):
         self.event_middle_mouse_press = False
         self.mouse_over = False
         self.pause = False
+        self.bypass_update_pause_check = bypass_update_pause_check
 
     def update(self, dt):
         self.event = False
@@ -179,7 +181,7 @@ class UIMenu(Sprite):
             if self.rect.collidepoint(cursor.pos):
                 self.mouse_over = True
                 cursor.mouse_over = True
-                if not self.pause:
+                if not self.pause or self.bypass_update_pause_check:
                     if cursor.is_select_just_up:
                         if self.play_sound_when_click:
                             self.button_sound_channel.play(choice(self.sound_effect_pool["button"]))
@@ -1039,8 +1041,7 @@ class PresetArmySetupUI(UIMenu):
         self.selected_culture = selected_culture
         self.selected_portrait_index = ()
         self.game.character_selector.add(None, "")
-        self.game.custom_preset_army_title.change_text(self.current_preset_name, 0, 0, 0)
-        self.game.custom_preset_army_title.change_text(self.current_preset_name, 0, 0, 0)
+        self.game.custom_preset_army_title.change_text(self.current_preset_name)
         self.game.custom_preset_list_box.adapter.__init__()  # reset custom preset list as well
         self.reset()
 
@@ -2425,7 +2426,7 @@ class CustomPresetTitle(UIMenu):
         self.image.fill((150, 150, 150))
         self.rect = self.image.get_rect(midbottom=self.pos)
 
-    def change_text(self, name, cost, supply, leadership):
+    def change_text(self, name, cost=0, supply=0, leadership=0, upkeep=0, ):
         self.name = name
         self.image.fill((150, 150, 150))
 
@@ -2436,7 +2437,7 @@ class CustomPresetTitle(UIMenu):
         text_surface = self.font.render(self.grab_text(("ui", "info_header_leadership")) +
                                         add_comma_number(int(leadership)) +
                                         "/" + self.grab_text(("ui", "info_header_cost")) + add_comma_number(cost) +
-                                        "/" + self.grab_text(("ui", "info_header_supply")) + add_comma_number(supply),
+                                        "/" + self.grab_text(("ui", "info_header_supply_max_usage")) + add_comma_number(supply),
                                         True, (30, 30, 30))
         text_rect = text_surface.get_rect(midright=(self.image.get_width(), self.image.get_height() / 2))
         self.image.blit(text_surface, text_rect)

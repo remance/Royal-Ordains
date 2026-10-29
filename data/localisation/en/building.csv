@@ -9,15 +9,12 @@
 "castle_food_a2_farm","Grain Farm",
 "castle_food_a3_farm","Irrigated Grain Farm",
 "castle_food_a4_farm","Farm Estate",
-"castle_food_b1_granary","Granary","A granary is crucial for efficient grain-based food production operations. The stored grains can be used for long-term ration planning and commerce. Additionally, since grains last much longer with proper storage, more thorough research can be achieved to improve livestock feeding."
-"castle_food_c1_ranch","Ranch",
-"castle_food_c2_barn","Barn",
+"castle_food_b1_ranch","Ranch",
+"castle_food_b2_barn","Barn",
 "castle_fun_a1_tavern","Tavern","A place that can provide the best legal entertainment. Alcohol, bed, community, music, and performance, this place has them all."
-"castle_fun_c1_court","Court",
-"castle_fun_d1_hall","Hall",
+"castle_fun_b1_court","Court",
 "castle_money_a1_market","Market","An aggregation of commerce where capital from all over the realm are gathered and transacted by established and travelling merchants. There is simply no better method to efficiently generate money than in the market."
 "castle_money_a2_great_market","Great Market",
-"castle_money_b1_windmill","Windmill",
 "castle_money_c1_slum","Slum","A slum is a gathering of society's undesirables. A place outside of the reach of the law, and no less savage than the natural world. Despite its prevalent ill effects on civilisation, the underworld can be a useful place for morally questionable transactions away from the eyes of God."
 "castle_money_c2_brothel","Brothel","An establishment for housing the most important profession in the world. Brothels are indeed officially illegal and condemned. By placing them in the slum with a legal front business, they can bring the debauchery of forbidden ecstasy for those with the means to obtain it."
 "castle_settlement_1_motte","Motte-and-bailey ","A motte-and-bailey castle is a small fortification for protecting a small settlement. The defensive and self-sustained design allows it to be a living space for the regional lord. Monsters and raiders will have difficulty taking down these bastions of civilisation."
@@ -29,6 +26,7 @@
 "castle_tech_b1_forestry","Forestry","Civilisation cannot exist without nature. A balance is required to be maintained between order and chaos. So forestry assumes the role in that management."
 "castle_tech_c1_library","Court Library","martial department funding is 10-to-1 to that of magical one."
 "castle_tech_d1_masonry","Masonry",
+"castle_tech_e1_granary","Granary","A granary is crucial for efficient grain-based food production operations. The stored grains can be used for long-term ration planning and commerce. Additionally, since grains last much longer with proper storage, more thorough research can be achieved to improve livestock feeding."
 "common_conservatory","Conservatory","The beauty of the sea should be preserved for future generations. Reaping the benefit without care will only result in destruction, this conservatory will attempt to protect the area from unauthorised sea poaching and harvesting."
 "common_dam","Dam",
 "common_fishery","Fishery",
@@ -146,7 +144,7 @@
 "small_settlement_5_warren_great","Great Warren",
 "small_tech_a1_fur_hardener","Fur Hardener","A fur hardener hut that focuses on producing and improving chemical solutions to toughen rabbit's fur for natural protection in battle."
 "small_tech_b1_weapon_smith","Weapon Smith",
-,,
+"small_tech_c1_study","Study",
 ,,
 ,,
 ,,

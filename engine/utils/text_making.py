@@ -65,7 +65,7 @@ def recursive_convert_line_item(result, item, first_run):
             line += [x for x in line_split[0]]
 
 
-def make_long_text(text, pos, font, color=Color("black"), with_texture=(),
+def make_long_text(text, pos, font, color=(30, 30, 30), with_texture=(),
                    specific_width=None, alignment="left"):
     """
     Blit long text into separate row of text by blitting text word by word

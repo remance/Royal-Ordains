@@ -489,9 +489,9 @@ class Command(UIOuterBattle):
                          pygame_key_name(self.battle.player_key_bind[call_shortcut_name]),
                          grab_text(("character", character, "Description")),
                          grab_text(("ui", "info_header_class")) + grab_text(
-                             ("ui", "class_" + character_data["Class"])),
-                         grab_text(("ui", "info_header_supply_cost")) + add_comma_number(
-                             character_data["Supply"]),
+                             ("ui", "class_" + character_data["Behaviour Class"])),
+                         (grab_text(("ui", "info_header_supply_cost")) + add_comma_number(
+                             character_data["Supply"]), self.grand_ui_images["supply"]),
                          grab_text(("ui", "info_header_call_cooldown")) + str(character_data["Reinforce Time"]),
                          grab_text(("ui", "info_header_call_response")) + str(
                              character_data["Respond Time"])]

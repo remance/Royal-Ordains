@@ -39,4 +39,4 @@ def reset_stat(self, include_culture_influence=True, reset_player_army_card=Fals
     self.strategy_regen = self.leadership / 100
     if (reset_player_army_card and self.faction == self.grand.player_faction and
             self in self.grand.current_campaign_state["faction"][self.faction]["army"]):
-        self.grand.player_army_list_ui.reset_card(self)
+        self.grand.grand_army_list_ui.reset_card(self)

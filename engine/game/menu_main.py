@@ -40,14 +40,14 @@ def menu_main(self):
                                                          ["small_rabbit_leader_banner", True], ],
                                               "troop": [["small_rabbit_tower", True], ["small_snail_sword", True],
                                                         ["small_rabbit_trebuchet", True], ],
-                                              "air": []}, supply=888888)
+                                              "air": []}, supply=10000)
         self.custom_team_army[1][1].__init__("", "small", "small", "leader_amgarn",
                                              {"leader": [["small_rabbit_leader_knight", True],
                                                          ["small_rabbit_leader_knight", True]],
                                               "troop": [["small_rabbit_sling", True], ["small_rabbit_spear", True],
                                                         ["small_rabbit_spear", True], ],
                                               "air": [["castle_human_air_flying_monk", True],
-                                                      ["small_eagle_air_stone", True]]}, supply=888888)
+                                                      ["small_eagle_air_stone", True]]}, supply=10000)
         self.custom_team_army[2][0].__init__("", "castle", "castle", "death_undead_leader_lich",
                                              {"leader": [["leader_elmaliern", True], ],
                                               "troop": [["death_cat_necromancer", True], ["death_undead_zombie", True],

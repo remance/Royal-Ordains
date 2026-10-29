@@ -19,6 +19,6 @@ def remove_army_from_active(self, destroyed=False):
     self.commander_actor.clean_object()
 
     if self.faction == grand.player_faction:  # reset ui
-        grand.player_army_list_ui.reset()
+        grand.grand_army_list_ui.reset()
 
     grand.cal_faction_income_recruit()

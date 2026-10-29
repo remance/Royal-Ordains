@@ -52,9 +52,9 @@ from engine.uigrand.uigrand import (DotInfoBanner, DotInfoBannerArmy, DotInfoBan
 from engine.uimenu.uimenu import TextPopup, GrandMiniMap, CustomPresetTitle
 from engine.uiouterbattle.uiouterbattle import FPSCount
 from engine.uioutergrand.cosmos import CosmosUI, MiniCosmosUI
-from engine.uioutergrand.uioutergrand import (PlayerGrandInteract, PlayerTopBar,
-                                              PlayerArmyList, PlayerArmyListSortOption, MapSettingOption,
-                                              TimeSettingOption, EventDetailPopup, PlayerFactionCultureList,
+from engine.uioutergrand.uioutergrand import (PlayerGrandInteract, FactionTopBar,
+                                              ArmyList, ArmyListSortOption, MapSettingOption,
+                                              TimeSettingOption, EventDetailPopup, FactionCultureList,
                                               MenuBar, EventNotification, GrandTextDrama)
 from engine.uioutergrand.uioutergrandcollapsible import (ArmyDeployManagement, PresetArmyReserveSetup,
                                                          CourtManagement, CultureManagement,
@@ -297,33 +297,15 @@ class Grand:
         self.drama_text = GrandTextDrama(self)  # message at the top of screen that show up for important event
         self.player_interact = PlayerGrandInteract()
 
-        self.player_grand_reserve_army_setup_ui = PresetArmyReserveSetup(
-            (self.screen_width * 0.45, self.screen_height * 0.2),
-            True)
-        self.player_grand_reserve_army_list_ui = PresetArmyReserveList(
-            self.player_grand_reserve_army_setup_ui.rect.topleft)
-        self.player_grand_character_selector_ui = PresetArmyGrandCharacterSelector(
-            (self.screen_width * 0.78, self.screen_height * 0.2))
-        self.player_reserve_army_title = CustomPresetTitle((self.game.screen_width * 0.8, 80 * self.screen_scale_height),
-                                                          (self.screen_rect.width / 2,
-                                                           self.player_grand_reserve_army_setup_ui.rect.midtop[1]))
-
-        self.player_army_reserve_setup_uis = (self.player_grand_reserve_army_list_ui,
-                                              self.player_grand_reserve_army_list_ui.scroll,
-                                              self.player_reserve_army_title,
-                                              self.player_grand_reserve_army_setup_ui,
-                                              self.player_grand_character_selector_ui,
-                                              self.player_grand_character_selector_ui.scroll)
-
-        self.player_top_bar_ui = PlayerTopBar()
-        self.player_faction_culture_list_ui = PlayerFactionCultureList()
+        self.grand_faction_top_bar_ui = FactionTopBar()
+        self.grand_faction_culture_list_ui = FactionCultureList()
         self.time_setting_ui = TimeSettingOption()
         self.menu_bar_ui = MenuBar()
         self.cosmic_ui = CosmosUI()
         self.mini_cosmic_ui = MiniCosmosUI(self.game.cosmos_ui_images, self.cosmic_ui)
 
-        self.player_army_list_sort_option_ui = PlayerArmyListSortOption()
-        self.player_army_list_ui = PlayerArmyList()
+        self.grand_army_list_sort_option_ui = ArmyListSortOption()
+        self.grand_army_list_ui = ArmyList()
         self.court_management_ui = CourtManagement()
         self.court_management_uis = (self.court_management_ui, self.court_management_ui.scroll)
 
@@ -350,11 +332,70 @@ class Grand:
                                              self.army_deploy_tab_button)
         self.building_management_ui = BuildingManagement()
 
-        self.army_deploy_management_ui = ArmyDeployManagement()
-        self.player_army_deploy_uis = (self.army_deploy_management_ui, self.region_management_tab_button,
-                                       self.army_deploy_tab_button, self.player_grand_reserve_army_list_ui,
-                                       self.player_grand_reserve_army_list_ui.scroll,
-                                       self.player_grand_reserve_army_setup_ui)
+        self.grand_reserve_army_list_ui = PresetArmyReserveList(
+            self.region_management_ui.rect.topleft)
+        self.grand_reserve_army_list_ui.new_list = ["new"]
+
+        self.grand_reserve_army_setup_ui = PresetArmyReserveSetup(
+            self.grand_reserve_army_list_ui.rect.topright)
+        self.grand_character_selector_ui = PresetArmyGrandCharacterSelector(
+            self.grand_reserve_army_setup_ui.rect.topright)
+        self.grand_reserve_army_title = CustomPresetTitle((self.game.screen_width * 0.7, 80 * self.screen_scale_height),
+                                                          (self.screen_rect.width / 2,
+                                                           self.grand_reserve_army_setup_ui.rect.midtop[1]))
+
+        self.grand_army_reserve_setup_uis = (self.grand_reserve_army_list_ui,
+                                             self.grand_reserve_army_list_ui.scroll,
+                                             self.grand_reserve_army_title,
+                                             self.grand_reserve_army_setup_ui,
+                                             self.grand_character_selector_ui,
+                                             self.grand_character_selector_ui.scroll)
+
+        self.grand_reserve_army_setup_ui.related_uis = {"list": self.grand_reserve_army_list_ui,
+                                                        "title": self.grand_reserve_army_title,
+                                                        "character": self.grand_character_selector_ui}
+        self.grand_reserve_army_list_ui.related_uis = {"setup": self.grand_reserve_army_setup_ui,
+                                                       "title": self.grand_reserve_army_title,
+                                                       "character": self.grand_character_selector_ui}
+        self.grand_character_selector_ui.related_uis = {"list": self.grand_reserve_army_list_ui,
+                                                        "title": self.grand_reserve_army_title,
+                                                        "setup": self.grand_reserve_army_setup_ui}
+
+        self.grand_army_deploy_management_ui = ArmyDeployManagement(self.grand_reserve_army_list_ui.rect.bottomleft)
+
+        self.grand_army_deploy_list_ui = PresetArmyReserveList(
+            self.region_management_ui.rect.topleft)
+        self.grand_army_deploy_setup_ui = PresetArmyReserveSetup(
+            self.grand_reserve_army_list_ui.rect.topright)
+        self.grand_character_deploy_setup_selector_ui = PresetArmyGrandCharacterSelector(
+            self.grand_army_deploy_setup_ui.rect.topright)
+
+        self.grand_army_deploy_uis = (self.grand_army_deploy_management_ui, self.region_management_tab_button,
+                                      self.army_deploy_tab_button, self.grand_army_deploy_list_ui,
+                                      self.grand_army_deploy_list_ui.scroll, self.grand_reserve_army_title,
+                                      self.grand_character_deploy_setup_selector_ui,
+                                      self.grand_army_deploy_setup_ui)
+
+        self.grand_character_deploy_setup_selector_ui.related_uis = {"setup": self.grand_army_deploy_setup_ui,
+                                                                     "list": self.grand_army_deploy_list_ui,
+                                                                     "region_tab": self.region_management_tab_button,
+                                                                     "deploy_tab": self.army_deploy_tab_button,
+                                                                     "deploy": self.grand_army_deploy_management_ui,}
+        self.grand_army_deploy_management_ui.related_uis = {"setup": self.grand_army_deploy_setup_ui,
+                                                            "list": self.grand_army_deploy_list_ui,
+                                                            "region_tab": self.region_management_tab_button,
+                                                            "deploy_tab": self.army_deploy_tab_button,
+                                                            "character": self.grand_character_deploy_setup_selector_ui}
+        self.grand_army_deploy_list_ui.related_uis = {"setup": self.grand_army_deploy_setup_ui,
+                                                      "deploy": self.grand_army_deploy_management_ui,
+                                                      "character": self.grand_character_deploy_setup_selector_ui,
+                                                      "region_tab": self.region_management_tab_button,
+                                                      "deploy_tab": self.army_deploy_tab_button}
+        self.grand_army_deploy_setup_ui.related_uis = {"list": self.grand_army_deploy_list_ui,
+                                                       "deploy": self.grand_army_deploy_management_ui,
+                                                       "region_tab": self.region_management_tab_button,
+                                                       "deploy_tab": self.army_deploy_tab_button,
+                                                       "character": self.grand_character_deploy_setup_selector_ui,}
 
         self.event_notification_ui = EventNotification()
 
@@ -369,16 +410,15 @@ class Grand:
         self.esc_value_boxes = esc_menu_dict["esc_value_boxes"]
         self.esc_option_text = esc_menu_dict["volume_texts"]
 
-        self.only_player_uis = (self.player_top_bar_ui, self.player_faction_culture_list_ui,
-                                self.player_army_list_sort_option_ui, self.player_army_list_ui,
-                                self.player_army_list_ui.scroll, self.event_notification_ui)
+        self.only_player_has_faction_uis = (self.grand_faction_top_bar_ui, self.grand_faction_culture_list_ui,
+                                            self.grand_army_list_sort_option_ui, self.grand_army_list_ui,
+                                            self.grand_army_list_ui.scroll, self.event_notification_ui)
 
-        self.player_collapsable_uis = (self.region_management_ui, self.region_management_tab_button,
-                                       self.army_deploy_tab_button, self.building_management_ui,
-                                       self.army_deploy_management_ui, self.army_deploy_tab_button,
-                                       self.court_management_ui, self.court_management_ui.scroll,
-                                       self.diplomacy_management_ui, self.diplomacy_management_ui.scroll,
-                                       self.culture_management_ui, self.culture_management_ui.scroll, self.cosmic_ui)
+        self.player_collapsable_uis = (list(self.grand_army_deploy_uis) + list(self.culture_management_uis) +
+                                       list(self.diplomacy_management_uis) + list(self.grand_army_reserve_setup_uis) +
+                                       list(self.court_management_uis) + list(self.player_region_management_uis) +
+                                       # list(self.tech) +
+                                       [self.cosmic_ui])
 
         self.always_uis = (self.player_interact, self.mini_map, self.map_setting_option_ui,
                            self.mini_cosmic_ui, self.time_setting_ui, self.menu_bar_ui, self.cursor)
@@ -465,7 +505,7 @@ class Grand:
 
         # setup ui
         if self.player_faction:
-            self.player_faction_culture_list_ui.culture_change()
+            self.grand_faction_culture_list_ui.culture_change()
             self.diplomacy_management_ui.reset()
         self.mini_map.region_control_data = {}
         self.mini_map.change_grand_setup(self.map_data.base_world_map)
@@ -510,11 +550,11 @@ class Grand:
 
         if player_faction:
             self.player_input = MethodType(player_input_grand, self)
-            self.add_to_outer_ui_menu_updater(self.only_player_uis)
-            self.player_army_list_ui.reset()
+            self.add_to_outer_ui_menu_updater(self.only_player_has_faction_uis)
+            self.grand_army_list_ui.reset()
         else:  # no player faction, camera at center
             self.player_input = MethodType(battle_no_player_input_grand, self)
-            self.remove_from_outer_ui_menu_updater(self.only_player_uis)
+            self.remove_from_outer_ui_menu_updater(self.only_player_has_faction_uis)
 
         self.change_turn(turn_change=False)
         self.sort_player_army_list()
@@ -660,7 +700,7 @@ class Grand:
         self.current_ambient = None
 
         # remove all reference from battle object
-        self.player_army_list_ui.reset()
+        self.grand_army_list_ui.reset()
         self.time_setting_ui.reset()
         self.player_selected_army = []
         self.campaign = None

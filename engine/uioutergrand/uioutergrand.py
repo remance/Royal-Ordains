@@ -102,14 +102,18 @@ class ToggleButton(Button):
         self.selected = False
         self.rect = self.image.get_rect(topleft=pos)
 
+    def change_selection(self):
+        if self.selected:
+            self.selected = False
+            self.image = self.images["unselected"]
+        else:
+            self.selected = True
+            self.image = self.images["selected"]
+
     def update(self, dt):
         if UIOuterGrand.update(self, dt) and self.event_press:
-            if self.selected:
-                self.selected = True
-                self.image = self.images["unselected"]
-            else:
-                self.selected = False
-                self.image = self.images["selected"]
+            if not self.selected:
+                self.change_selection()
 
 
 class DiplomacyHead(UIOuterGrand):
@@ -222,7 +226,7 @@ class DiplomacyHead(UIOuterGrand):
     # def update(self, dt):
 
 
-class PlayerTopBar(UIOuterGrand):
+class FactionTopBar(UIOuterGrand):
     def __init__(self):
         """UI Bar at the top of screen showing player's faction resource and turn time"""
         self._layer = 5
@@ -307,9 +311,9 @@ class PlayerTopBar(UIOuterGrand):
                     break
 
 
-class PlayerFactionCultureList(UIOuterGrand):
+class FactionCultureList(UIOuterGrand):
     def __init__(self):
-        self._layer = 5
+        self._layer = 8
         UIOuterGrand.__init__(self)
         self.font = self.game.medium_generic_ui_font
         self.value_text_font_cache = self.game.font_text_cache[self.font]
@@ -321,7 +325,7 @@ class PlayerFactionCultureList(UIOuterGrand):
         self.culture_coa_rects = {}
         self.faction_culture_value = {}
         self.culture_management_button_rect = Rect((0, 0, 0, 0))
-        self.rect = self.image.get_rect(topleft=self.grand.player_top_bar_ui.rect.bottomleft)
+        self.rect = self.image.get_rect(topleft=self.grand.grand_faction_top_bar_ui.rect.bottomleft)
 
     def add_culture_portrait(self, surface, culture, culture_value, pos):
         culture_image = self.culture_coas[culture]["tiny"]
@@ -394,7 +398,7 @@ class PlayerFactionCultureList(UIOuterGrand):
                                                           25 * self.screen_scale_height))
 
                 self.culture_coa_rects[culture] = culture_rect
-            self.rect = self.image.get_rect(topleft=self.grand.player_top_bar_ui.rect.bottomleft)
+            self.rect = self.image.get_rect(topleft=self.grand.grand_faction_top_bar_ui.rect.bottomleft)
 
     def update(self, dt):
         if UIOuterGrand.update(self, dt):
@@ -405,9 +409,12 @@ class PlayerFactionCultureList(UIOuterGrand):
                 (self.cursor.pos[1] - self.rect.topleft[1]))
             if self.culture_management_button_rect.collidepoint(inside_mouse_pos):
                 if self.event_press:
-                    self.remove_from_outer_ui_menu_updater(grand.player_collapsable_uis)
-                    grand.culture_management_ui.reset()
-                    self.add_to_outer_ui_menu_updater(grand.culture_management_uis)
+                    if grand.culture_management_ui in grand.outer_ui_updater:
+                        self.remove_from_outer_ui_menu_updater(grand.player_collapsable_uis)
+                    else:
+                        self.remove_from_outer_ui_menu_updater(grand.player_collapsable_uis)
+                        grand.culture_management_ui.reset()
+                        self.add_to_outer_ui_menu_updater(grand.culture_management_uis)
                 else:
                     self.text_popup.popup(self.cursor.rect, grab_text(("ui", "info_text_policy_management")),
                                           width_text_wrapper=self.max_description_box_width)
@@ -436,9 +443,12 @@ class PlayerFactionCultureList(UIOuterGrand):
 
 class MenuBar(UIOuterGrand):
     def __init__(self):
-        self._layer = 4
+        self._layer = 30
         UIOuterGrand.__init__(self)
         button_images = self.grand.grand_ui_images
+
+        self.button_select_line_width = int(10 * self.screen_scale_width)
+        self.hover_button = None
         self.image = Surface((1000 * self.screen_scale_width, 80 * self.screen_scale_height), SRCALPHA)
         self.image.fill((50, 50, 200))
         self.button_rects = {"army_reserve": button_images["army_reserve"].get_rect(
@@ -453,38 +463,59 @@ class MenuBar(UIOuterGrand):
                 topleft=(650 * self.screen_scale_width, 0))}
         for key, value in self.button_rects.items():
             self.image.blit(button_images[key], self.button_rects[key])
+        self.base_image = self.image.copy()
         self.rect = self.image.get_rect(topleft=(self.grand.time_setting_ui.rect.topright[0], 0))
 
     def update(self, dt):
         if UIOuterGrand.update(self, dt):
-
+            grand = self.grand
+            cursor = self.cursor
             inside_mouse_pos = Vector2(
-                (self.cursor.pos[0] - self.rect.topleft[0]),
-                (self.cursor.pos[1] - self.rect.topleft[1]))
+                (cursor.pos[0] - self.rect.topleft[0]),
+                (cursor.pos[1] - self.rect.topleft[1]))
 
             for key, rect in self.button_rects.items():
                 if rect.collidepoint(inside_mouse_pos):
+                    if key != self.hover_button:
+                        self.hover_button = key
+                        self.image = self.base_image.copy()
+                        draw.rect(self.image, (230, 230, 230), rect, width=self.button_select_line_width)
                     if self.event_press:
-                        self.grand.remove_from_outer_ui_menu_updater(self.grand.player_collapsable_uis)
                         if key == "menu":
-                            self.grand.esc_press = True
+                            grand.esc_press = True
+                            return
                         elif key == "army_reserve":
-                            self.grand.player_grand_reserve_army_setup_ui.reset(active=False)
-                            self.grand.player_grand_character_selector_ui.add(None)
-                            self.grand.player_grand_reserve_army_list_ui.reset()
-                            self.add_to_outer_ui_menu_updater(self.grand.player_army_reserve_setup_uis)
+                            if grand.grand_reserve_army_setup_ui not in grand.outer_ui_updater:
+                                self.remove_from_outer_ui_menu_updater(grand.player_collapsable_uis)
+                                grand.grand_reserve_army_setup_ui.reset(active=False)
+                                grand.grand_character_selector_ui.add(None)
+                                grand.grand_reserve_army_list_ui.reset()
+                                self.add_to_outer_ui_menu_updater(grand.grand_army_reserve_setup_uis)
+                            else:
+                                self.remove_from_outer_ui_menu_updater(grand.player_collapsable_uis)
                         elif key == "court":
-                            self.grand.court_management_ui.reset()
-                            self.add_to_outer_ui_menu_updater(self.grand.court_management_uis)
+                            if grand.court_management_ui not in grand.outer_ui_updater:
+                                self.remove_from_outer_ui_menu_updater(grand.player_collapsable_uis)
+                                grand.court_management_ui.reset()
+                                self.add_to_outer_ui_menu_updater(grand.court_management_uis)
+                            else:
+                                self.remove_from_outer_ui_menu_updater(grand.player_collapsable_uis)
                         elif key == "diplomacy":
-                            self.grand.diplomacy_management_ui.reset()
-                            self.add_to_outer_ui_menu_updater(self.grand.diplomacy_management_uis)
+                            if grand.diplomacy_management_ui not in grand.outer_ui_updater:
+                                self.remove_from_outer_ui_menu_updater(grand.player_collapsable_uis)
+                                grand.diplomacy_management_ui.reset()
+                                self.add_to_outer_ui_menu_updater(grand.diplomacy_management_uis)
+                            else:
+                                self.remove_from_outer_ui_menu_updater(grand.player_collapsable_uis)
                         elif key == "technology":
-                            pass
+                            return
 
                     else:
-                        self.text_popup.popup(self.cursor.rect, self.grab_text(("ui", "info_text_" + key)))
+                        self.text_popup.popup(cursor.rect, self.grab_text(("ui", "info_text_" + key)))
                         self.add_to_outer_ui_menu_updater(self.text_popup)
+                    return
+        self.image = self.base_image
+        self.hover_button = None
 
 
 class TimeSettingOption(UIOuterGrand):
@@ -517,7 +548,7 @@ class TimeSettingOption(UIOuterGrand):
                 self.image.blit(image, rect)
                 break
 
-        self.rect = self.image.get_rect(topleft=(self.grand.player_top_bar_ui.rect.topright[0], 0))
+        self.rect = self.image.get_rect(topleft=(self.grand.grand_faction_top_bar_ui.rect.topright[0], 0))
 
     def reset(self):
         self.image = self.base_image.copy()
@@ -545,7 +576,7 @@ class TimeSettingOption(UIOuterGrand):
                     break
 
 
-class PlayerArmyListSortOption(UIOuterGrand):
+class ArmyListSortOption(UIOuterGrand):
     def __init__(self):
         self._layer = 5
         UIOuterGrand.__init__(self)
@@ -747,13 +778,13 @@ class EventDetailPopup(UIOuterGrand):
                 (self.cursor.pos[1] - self.rect.topleft[1]))
 
 
-class PlayerArmyList(GrandListUI, UIOuterGrand):
+class ArmyList(GrandListUI, UIOuterGrand):
     def __init__(self):
         self._layer = 5
         UIOuterGrand.__init__(self)
 
         self.image = Surface((950 * self.screen_scale_width, 1050 * self.screen_scale_height), SRCALPHA)
-        self.rect = self.image.get_rect(topright=self.grand.player_army_list_sort_option_ui.rect.bottomright)
+        self.rect = self.image.get_rect(topright=self.grand.grand_army_list_sort_option_ui.rect.bottomright)
 
         GrandListUI.__init__(self)
         self.font = self.game.medium_generic_ui_font
@@ -781,7 +812,7 @@ class PlayerArmyList(GrandListUI, UIOuterGrand):
         self.card_rects = [self.empty_card_image.get_rect(
             topleft=(0, self.empty_card_image.get_height() * index)) for index in range(8)]
 
-    def add_assemble_resupply_to_card(self, army, which):
+    def add_assemble_resupply_button_to_card(self, army, which):
         rect = self.card_icon_rects[which]
         if which == "assemble":
             check = army.enable_assemble
@@ -844,9 +875,9 @@ class PlayerArmyList(GrandListUI, UIOuterGrand):
         if army.game_id in self.grand.current_campaign_state["battle"]["armies"]:
             activity = self.grab_text(("ui", "info_text_combat"))
         elif "travel" in army.activity:
-            activity = ">> " + self.grab_text(("region", army.activity["destination"], "Name"))
+            activity = ">" + self.grab_text(("region", army.activity["destination"], "Name"))
         elif "assemble" in army.activity:
-            activity = self.grab_text(("ui", "info_text_assemble"))
+            activity = self.grab_text(("ui", "info_text_assemble")) + " " + str(max(army.can_assemble.values())) + " " + self.grab_text(("ui", "info_text_phases"))
         else:
             activity = self.grab_text(("ui", "info_text_idle"))
         text_surface = text_render_with_bg(activity,
@@ -866,8 +897,8 @@ class PlayerArmyList(GrandListUI, UIOuterGrand):
     def reset_card(self, army):
         """Reset only specific card based on input index"""
         self.card_list[army] = self.draw_army_card(army)
-        self.add_assemble_resupply_to_card(army, "assemble")
-        self.add_assemble_resupply_to_card(army, "resupply")
+        self.add_assemble_resupply_button_to_card(army, "assemble")
+        self.add_assemble_resupply_button_to_card(army, "resupply")
 
         if self.grand.current_campaign_state["faction"][self.grand.player_faction]["army"].index(
                 army) >= self.current_row:
@@ -885,8 +916,8 @@ class PlayerArmyList(GrandListUI, UIOuterGrand):
         self.scroll_total_row = self.total_row + 1
         for army in current_army_list:
             self.card_list[army] = self.draw_army_card(army)
-            self.add_assemble_resupply_to_card(army, "assemble")
-            self.add_assemble_resupply_to_card(army, "resupply")
+            self.add_assemble_resupply_button_to_card(army, "assemble")
+            self.add_assemble_resupply_button_to_card(army, "resupply")
         self.draw_card_list_to_ui(current_army_list, self.grand.player_selected_army)
 
     def update(self, dt):
@@ -928,7 +959,7 @@ class PlayerArmyList(GrandListUI, UIOuterGrand):
                                             army.enable_resupply = False
                                         else:
                                             army.enable_resupply = True
-                                    self.add_assemble_resupply_to_card(army, which)
+                                    self.add_assemble_resupply_button_to_card(army, which)
                                     self.draw_card_list_to_ui(
                                         self.grand.current_campaign_state["faction"][self.grand.player_faction]["army"],
                                         self.grand.player_selected_army)
@@ -1052,17 +1083,22 @@ class PlayerGrandInteract(UIOuterGrand):
                                 grand.player_selected_army = army_select_list
                         else:
                             grand.player_selected_army = []
-                            all_settlement_objects = self.grand.grand_settlement_objects
+                            all_settlement_objects = grand.grand_settlement_objects
                             selected_settlement_object = spritecollideany(self, all_settlement_objects)
                             if (selected_settlement_object and selected_settlement_object.region in
                                     grand.current_campaign_state["faction"][player_faction]["region"]):
                                 # click on player owned settlement
-                                self.grand.remove_from_outer_ui_menu_updater(self.grand.player_collapsable_uis)
+                                grand.remove_from_outer_ui_menu_updater(grand.player_collapsable_uis)
+                                grand.army_deploy_tab_button.selected = True
+                                grand.army_deploy_tab_button.change_selection()
+                                grand.region_management_tab_button.selected = False
+                                grand.region_management_tab_button.change_selection()
+                                grand.region_management_tab_button.activate_toggle()
                                 grand.region_management_ui.change_selected_region(selected_settlement_object.region)
                             else:  # select at no settlement, remove region management ui
                                 grand.region_management_ui.change_selected_region(None)
 
-                        grand.player_army_list_ui.draw_card_list_to_ui(player_armies, grand.player_selected_army)
+                        grand.grand_army_list_ui.draw_card_list_to_ui(player_armies, grand.player_selected_army)
                         self.reset()
 
                 elif self.event_alt_press:  # right click order selected leader to do something

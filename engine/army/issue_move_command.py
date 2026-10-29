@@ -92,6 +92,6 @@ def issue_move_command(self, target_destination, direct=False):
                                                      enumerate(dot_routes)]}
 
                 if self.grand.player_faction == self.faction:
-                    self.grand.player_army_list_ui.reset_card(self)
+                    self.grand.grand_army_list_ui.reset_card(self)
         activity["travel_how"] = direct
         self.activity = activity
