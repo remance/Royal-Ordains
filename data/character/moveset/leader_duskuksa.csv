@@ -1,0 +1,7 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
+"Attack1","Hot Hammer",,,,200,,,,20,120,,,0.1,"fire",,"Hot",,
+"Attack2","Cold Axe",,,,250,,,,25,100,,,0.1,"water",,"Cold",,
+"Skill1","Cool Heart",,,"self:{no_status=76}",400,,,25,,,,,,"water",76,,,
+"Skill2","Fiery Heart",,,"self:{no_status=66}",600,,,25,,,,,,"fire",66,,,
+"Skill3","Excess Power",,,,460,,,35,52,150,,100,,"fire",,20,,
+"Skill4","Cold Wave",,,,580,,,35,42,40,,30,,"water",,23,,

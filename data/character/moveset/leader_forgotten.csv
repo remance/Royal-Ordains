@@ -1,0 +1,5 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
+"Attack1","Slumber Stab",,,"self:{health>=0.7}",250,,,,20,40,20,20,,"stab",,,,
+"Attack2","Awaken Strike",,,"self:{health<=0.7}",250,,,,40,110,220,120,0.3,"crush",,,,
+"Skill1","Awaken Might",,,"self:{health<=0.5}",,,30,,,,,,,,"great_power,great_speed,haste",,,
+"Skill2","Long Slumber",,,"self:{health>=1}",,,10,,,,,,,,"slow",,,

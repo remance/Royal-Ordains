@@ -1,0 +1,78 @@
+from pygame import SRCALPHA
+from pygame.sprite import Sprite
+from pygame.surface import Surface
+
+
+class Scene(Sprite):
+    image = None
+    battle = None
+    camera = None
+
+    def __init__(self):
+        from engine.game.game import Game
+        self.main_dir = Game.main_dir
+        self.data_dir = Game.data_dir
+        self.screen_scale = Game.screen_scale
+        self.screen_size = Game.screen_size
+        self.screen_width = self.screen_size[0]
+        self.screen_height = self.screen_size[1]
+        self.half_screen = self.screen_width / 2
+        self._layer = 0
+        Sprite.__init__(self)
+        self.data = {}
+        self.images = {}
+        self.full_scene_image = None
+        self.current_scene_image = None
+        self.camera_top_bound = None
+        self.camera_left_bound = None
+        self.rect = None
+
+        self.alpha = 0
+        self.fade_speed = 1
+        self.fade_start = False
+        self.fade_in = False
+        self.fade_out = False
+        self.fade_delay = 0
+        self.size_width = self.screen_width
+        self.size_height = self.screen_height
+
+    def setup(self):
+        self.full_scene_image = Surface((self.screen_width * len(self.data), self.size_height), SRCALPHA)
+        for scene_index, image in self.data.items():
+            self.full_scene_image.blit(self.images[image], self.images[image].get_rect(
+                topleft=((scene_index - 1) * self.images[image].get_width(), 0)))
+        self.current_scene_image = Surface.subsurface(self.full_scene_image, (self.battle.camera_left_bound, 0,
+                                                                              self.size_width, self.size_height))
+
+    def update(self):
+        camera = self.camera
+        if self.camera_left_bound != camera.camera_left_bound:
+            self.camera_left_bound = camera.camera_left_bound
+            self.current_scene_image = Surface.subsurface(self.full_scene_image, (self.camera_left_bound, 0,
+                                                                                  self.size_width, self.size_height))
+        if self.camera_top_bound != camera.camera_top_bound:
+            self.camera_top_bound = camera.camera_top_bound
+            self.rect = self.current_scene_image.get_rect(midtop=(self.current_scene_image.get_width() / 2,
+                                                                  self.camera_top_bound))
+        self.image.blit(self.current_scene_image, self.rect)
+
+        if self.fade_start:
+            if self.fade_in:  # keep fading in
+                self.alpha += self.battle.dt * self.fade_speed
+                if self.alpha >= 255:
+                    self.alpha = 255
+                    self.fade_in = False
+                self.image.fill((0, 0, 0, self.alpha))
+            elif self.fade_out:
+                self.alpha -= self.battle.dt * self.fade_speed
+                if self.alpha <= 0:
+                    self.alpha = 0
+                    self.fade_out = False
+                self.image.fill((0, 0, 0, self.alpha))
+
+            if self.fade_delay:
+                self.fade_delay -= self.battle.dt
+                if self.fade_delay < 0:
+                    self.fade_delay = 0
+            if not self.fade_delay:
+                self.fade_start = False

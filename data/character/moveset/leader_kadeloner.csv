@@ -1,0 +1,5 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
+"Attack1","Dark Slash",,,,400,,,,62,60,45,30,0.2,"slash",,"fear",,
+"Attack2","Dark Bash",,,,400,,,,40,27,110,-30,,"crush",,"fear",,
+"Skill1","Old Holy",,,,1500,2000,30,30,,,,,,,"bless",,,
+"Skill2","Paladin Protection",,,,3500,4000,20,30,,,,,,,"protection",,,

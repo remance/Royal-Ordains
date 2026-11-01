@@ -1,0 +1,4 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
+"Attack1","Stab",,,,450,,,,28,20,10,,,"stab",,,,
+"Attack2","Javelin",,,"self:{no_engage=500}",1500,1500,5,,35,15,30,10,0.25,"stab",,,,"arc"
+"Skill1","Support",,,"self:{no_status=resource_generation}",2000,1500,30,,,,,,,,"resource_generation",,,

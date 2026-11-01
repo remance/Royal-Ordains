@@ -1,0 +1,13 @@
+"ID","Type","Chance","Arrive Condition"
+"nice_bunny","neutral","9,3",
+"nice_bear_cub","neutral","2,1",
+"nice_cloud_dog","neutral","0.5,1",
+,,,
+,,,
+,,,
+1,"weather",60,
+2,"weather",15,
+3,"weather",6,
+4,"weather",1,
+5,"weather",20,
+"red_leaf","weather",1,

@@ -1,0 +1,276 @@
+# Royal Ordains  <img src="https://github.com/remance/preview2/blob/main/rabbit.png?raw=true">
+
+## Also on Codeberg: https://codeberg.org/Remance/Royal-Ordains
+
+### This is the Book of Royal Ordains. A manuscript that tells the history and fate of the great realms.
+
+<img src="https://github.com/remance/preview2/blob/main/rabbit_sling_run.gif?raw=true" width="200">  <img src="https://github.com/remance/preview2/blob/main/rabbit_spear_run.gif?raw=true" width="220"> <img src="https://github.com/remance/preview2/blob/main/amgarn_run.gif?raw=true" width="150"> <img src="https://github.com/remance/preview2/blob/main/doll_king_run.gif?raw=true" width="70">  
+
+
+
+Made with pure python and [Pygame](https://github.com/pygame/pygame).
+
+<img src="https://github.com/remance/preview2/blob/main/bg1.1.1.3.png?raw=true">
+<img src="https://github.com/remance/preview2/blob/main/bg1.2.1.8.png?raw=true">
+
+[//]: # ([![]&#40;https://markdown-videos-api.jorgenkh.no/youtube/ar8TsS8spMU&#41;]&#40;https://youtu.be/ar8TsS8spMU&#41;)
+
+Wage war and command your army into a battle! Royal Ordains is a casual side-scrolling medieval fantasy strategy game
+in the styles inspired by Medieval arts and more. Player takes indirect control of the commander in battle, who can call
+in troops and uses various strategies and spells to change the course of battle.
+
+<div align="center">    
+    <img src="https://github.com/remance/preview/blob/main/pygamelogo.gif?raw=true" alt="Pygame Logo">
+</div>
+
+
+For any suggestions or bugs, feel free to report them in the [**
+Issues**](https://github.com/remance/Royal-Ordains/issues)
+page.
+
+Discord channel: [![github](https://github.com/remance/preview/blob/main/discord_logo.png?raw=true)][1]
+
+For game update showcase video: [![github](https://github.com/remance/preview/blob/main/youtube_logo3.png?raw=true)][2]
+
+[//]: # (<img src="https://github.com/remance/preview2/blob/main/rabbit-rider.gif?raw=true" width="200" height="200"></a> )
+
+[//]: # (<img src="https://github.com/remance/preview2/blob/main/bigta.gif?raw=true" width="200" height="200"></a>  )
+
+[//]: # (<img src="https://github.com/remance/preview2/blob/main/bow.gif?raw=true" width="200" height="200"></a>)
+
+[//]: # (<img src="https://github.com/remance/preview2/blob/main/peace.gif?raw=true" width="200" height="200"></a>   )
+
+[//]: # (<img src="https://github.com/remance/preview2/blob/main/CourtEnd.gif?raw=true" width="200" height="200"></a>   )
+
+
+---------------
+
+# Contribution to development
+
+All helps, suggestions, and issue reports are appreciated.
+
+Note: All the new and current untested development are done on "dev" branch. The main branch is for a somewhat stable
+version of the game.
+
+---------------
+
+# Index
+
+- [How to run/compile](#how-to-runcompile)
+    - [Run](#run)
+    - [Compile](#compile)
+- [Game Features](#game-features)
+- [Latest Update](#latest-update)
+- [Future Plan](#future-plan)
+
+---
+
+# How to run/compile
+
+If you want to download the release version to test the game, go
+to [Release](https://github.com/remance/Royal-Ordains/releases) tags and [**
+download**](https://github.com/remance/Royal-Ordains/releases/download/0.1/royal-ordains.rar) the zip file. <br>
+
+## Run
+
+To start testing the game run `main.py` via Python interpreter for the source code or `main` file directly for the
+release version. <br>
+
+## Compile
+
+To compile the source code into an executable program, recommend using pyinstaller and `main.spec`. <br>
+
+Check the [`requirements.txt`](requirements.txt) file for dependency requirements if running with the python source
+code.<br>
+
+Also, the game is currently written based on the pygame-ce 2.5.8 module and python 3.12. Using older versions of the two
+may cause error.
+
+# Current Game Features
+
+- Play a custom battle against an AI opponent.
+
+- Call in hundreds of ground and air troops to wage a full-blown battle.
+
+- 4 factions with 100 unique characters and more to come.
+
+[//]: # (# System Requirements)
+
+[//]: # ()
+
+[//]: # (## MINIMUM:)
+
+[//]: # ()
+
+[//]: # (Something that can run pygame should be able to run this game.)
+
+[//]: # ()
+
+[//]: # (OS: Windows 7 &#40;Haven't tested on Windows XP or Vista but may work&#41;, Ubuntu and macOS need further testing)
+
+[//]: # ()
+
+[//]: # (Memory: 2GB RAM)
+
+[//]: # ()
+
+[//]: # (Processor: Need more testing)
+
+[//]: # ()
+
+[//]: # (Graphics: Need more testing)
+
+[//]: # ()
+
+[//]: # (Storage: Currently 200 MB but likely around 500 MB available space in finished version.)
+
+[//]: # ()
+
+[//]: # (### RECOMMEND:)
+
+[//]: # ()
+
+[//]: # (OS: Windows 8, Ubuntu 22.04, macOS Monterey)
+
+[//]: # ()
+
+[//]: # (Memory: 4GB RAM)
+
+[//]: # ()
+
+[//]: # (Processor: Need more testing)
+
+[//]: # ()
+
+[//]: # (Graphics: Need more testing)
+
+[//]: # ()
+
+[//]: # (Storage: 1GB available space)
+
+---------------
+
+## Tool
+
+### Animation maker
+
+Animation maker for the Vector-based character animation in game. The tool is made with pygame and the code may be
+compatible enough for other purposes with some modifications.
+
+![alt text](https://github.com/remance/preview2/blob/main/animation-maker.png?raw=true)
+
+
+---------------
+
+# Credit
+
+[//]: # (## Programming)
+
+[//]: # ()
+
+[//]: # (## Tool)
+
+[//]: # (### Subunit sprite viewer by coppermouse &#40;https://github.com/coppermouse&#41;)
+
+[//]: # (## Game Asset)
+
+[//]: # ()
+
+[//]: # (### Graphic Art:)
+
+[//]: # ()
+
+[//]: # (### Sprite:)
+
+[//]: # ()
+
+[//]: # (- Prototype slash effect sprites by inogNate)
+
+[//]: # (- Weapon sprite by jeet)
+
+### Sound (Obtained and edited):
+
+- Weapon by lebaston100 (https://freesound.org/people/lebaston100/)
+- Musket by aaronsiler (https://freesound.org/people/aaronsiler/)
+- Assorted weapon by Videvo (https://www.videvo.net/)
+- Cannon by man (https://freesound.org/people/man/)
+- Cannonball effect by John Camara (https://www.youtube.com/watch?v=maVSnWIXGE8)
+- Bullet by Audionautics (https://freesound.org/people/Audionautics/)
+- Heavy Weapon swing by Nightflame (https://freesound.org/people/Nightflame/)
+- Sword swing by qubodup (https://freesound.org/people/qubodup/)
+- Sword swing by deleted_user_13668154 (https://freesound.org/people/deleted_user_13668154/)
+- Spear pierce by toyoto (https://freesound.org/people/toyoto/)
+- Hammer swing by EminYILDIRIM (https://freesound.org/people/EminYILDIRIM/)
+- Big warhorn by newagesoup (https://freesound.org/people/newagesoup/)
+- Warhorn by kirmm (https://pixabay.com/sound-effects/battle-horn-1-6931/)
+- Bow drawing by JoeDinesSound (https://freesound.org/people/JoeDinesSound/)
+- Bow drawing by brendan89 (https://freesound.org/people/brendan89/)
+- Javelin, throwing axe, stone effect by freeSFX (https://freesfx.co.uk/)
+- Crossbow shot by Erdie (https://freesound.org/people/Erdie/)
+- Crossbow shot by Ali_6868 (https://freesound.org/people/Ali_6868/)
+- Heavy damaged by Loghome72 (https://freesound.org/people/Loghome72/)
+- Knockback by Ekokubza123 (https://freesound.org/people/Ekokubza123/)
+- Damaged by Merrick079 (https://freesound.org/people/Merrick079/)
+- Mechanism by Globofonia (https://freesound.org/people/Globofonia/)
+- Boom, stone hit, puff, old church bell, clapping, explosion, glass broken, book fall, deep thump, whistling, bell,
+  sword sheath by Pixabay (https://pixabay.com/users/pixabay-1/)
+- Sword sheath and unsheath by SectionSound (https://pixabay.com/users/sectionsound-34536612/)
+- Bell by Mike Koenig (https://soundbible.com/26-Bell-Sound-Ring.html#)
+- Wind, Blood pull, impact, Click sound, Blink by
+  UNIVERSFIELD (https://pixabay.com/users/universfield-28281460/)
+- Earth spike, and Woosh Drum hit by LordSonny (https://pixabay.com/users/lordsonny-38439655/)
+- Whistling by Vampireayanos-narry (https://pixabay.com/users/vampireayanos-narry-33446737/)
+- Firework and explosion sound by
+  Alex_Jauk (https://pixabay.com/users/alex_jauk-16800354/)
+- Various Ice by danielsoundsgood (https://linktr.ee/danielsoundsgood)
+- Catapult by Sounddino (https://sounddino.com/en/effects/catapult/)
+- Horse galloping, zombie by DRAGON-STUDIO (https://pixabay.com/users/dragon-studio-38165424/)
+- Boing, broom, firecracker, metal can, dog growl, dragon roar, cow moo, power charge, toy_button, bone, machine
+  pressure, toy, zombie, rumble, drag,
+  squeak, dig, goo, lyre, bird fly, clock, ghost whisper, woman scream by
+  freesound_community (https://pixabay.com/users/freesound_community-46691455/)
+- Corpse splash, slime, toy train by floraphonic (https://pixabay.com/users/floraphonic-38928062/)
+
+### Music
+
+- Test menu music"The Britons" by kmacleod (https://pixabay.com/users/kmacleod-3979860/)
+- Battle music "Medieval: Battle" by RandomMind (https://www.chosic.com/free-music/all/?keyword=RandomMind&artist)
+- Battle music 2 "War Drums Sound Effect - Realistic Performance - Royalty Free" by Free Audio
+  Zone (https://www.youtube.com/watch?v=d2omr4EpjVc)
+- Battle music 3-9 "Action Drum 1-7" By Ashenrise (https://pixabay.com/users/ashenrise-37219325/)
+- Council music "Meditacao" by Composiia (https://pixabay.com/users/composiia-38203768/)
+- Cathedral music "Camelot Monastery" by Darren
+  Curtis (https://www.chosic.com/free-music/all/?keyword=Darren%20Curtis&artist)
+- Library music "Calmaria" by Composiia (https://pixabay.com/users/composiia-38203768/)
+- Centre music "Rejoicing" by RandomMind (https://www.chosic.com/free-music/all/?keyword=RandomMind&artist)
+- Tavern music "Minstrel Dance" by RandomMind (https://www.chosic.com/free-music/all/?keyword=RandomMind&artist)
+- Scriptorium music "Arnor" by Alex-Productions (https://www.chosic.com/free-music/all/?keyword=Alex-Productions&artist)
+- Garden music "Nature" by Alex-Productions (https://www.chosic.com/free-music/all/?keyword=Alex-Productions&artist)
+- Market music "Fireside Tales" by Darren Curtis (https://www.chosic.com/free-music/all/?keyword=Darren%20Curtis&artist)
+- Herbalist music "Floralia" by theromancrow (https://pixabay.com/users/theromancrow-42411874/)
+- Training ground music "Sword-19" by its_tigri (https://pixabay.com/users/42054041/?tab=music&order=latest&pagi=1)
+- Castle hall music "Royal Coupling" by kmacleod (https://archive.org/details/medieval-instrumental-background-music)
+- Artificer music "Medieval" by thematic_stock_music (https://pixabay.com/users/thematic_stock_music-35174846/)
+- Blacksmith music "Musik Hintergrund" by dueg-oth (https://pixabay.com/users/dueg-oth-34165349/)
+- Barrack music "Forge" by Ehved (https://pixabay.com/users/ehved-42712802/)
+
+### Ambient
+
+- Windy, forest ambient by Pixabay (https://pixabay.com/users/pixabay-1/)
+- Heavy rain weather ambient sound by lebaston100 (https://freesound.org/people/lebaston100/)
+- Meadow ambient by freesound_community (https://pixabay.com/users/freesound_community-46691455/)
+- Light rain, ocean ambient sound by SoundsForYou (https://pixabay.com/users/soundsforyou-4861230/)
+
+[//]: # (## Translation)
+
+[//]: # (## Help with game coding and bugs fixed:)
+
+[//]: # ()
+
+[//]: # (-  coppermouse &#40;https://github.com/coppermouse&#41;)
+
+
+[1]: https://discord.gg/q7yxz4netf
+
+[2]: https://www.youtube.com/channel/UCgapwWog3mYhkEKIGW8VZtw
+
