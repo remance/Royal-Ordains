@@ -1,6 +1,6 @@
 import gc
-from random import randint
 from copy import deepcopy
+from random import randint
 
 from engine.constants import Culture_Policy_Integration
 

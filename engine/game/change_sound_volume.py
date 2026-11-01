@@ -31,6 +31,3 @@ def change_sound_volume(self):
             value.player_input(self.value_boxes[key], forced_value=volume_stat[key])
             main_process.esc_slider_menu[key].player_input(main_process.esc_value_boxes[key],
                                                            forced_value=volume_stat[key])
-
-
-

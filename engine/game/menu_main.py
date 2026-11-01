@@ -56,7 +56,8 @@ def menu_main(self):
                                                         ["death_undead_zombie", True], ],
                                               "air": [["death_gargoyle_air", True]]}, supply=10000)
         self.custom_team_army[2][1].__init__("", "castle", "castle", "death_undead_leader_lich",
-                                             {"leader": [], "troop": [["death_undead_zombie", True],], "air": []}, supply=700)
+                                             {"leader": [], "troop": [["death_undead_zombie", True], ], "air": []},
+                                             supply=700)
 
         for army in self.custom_team_army[1][2:]:
             army.__init__("", "", "", None, {"leader": [[], [], []], "troop": [[], [], [], [], []],

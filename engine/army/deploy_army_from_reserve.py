@@ -1,9 +1,10 @@
 def deploy_army_from_reserve(self, region, max_supply):
     """deploy army from reserve"""
     grand = self.grand
-    self.base_pos = self.region_list[region]["Settlement POS"]
+    self.base_pos = grand.region_list[region]["Settlement POS"]
     self.max_supply = max_supply
 
     self.reset_stat()
-    grand.current_campaign_state[self.faction]["army"].append(self)
-    grand.current_campaign_state[self.faction]["reserve"].remove(self)
+    faction_state = grand.current_campaign_state["faction"][self.faction]
+    faction_state["reserve"].remove(self)
+    grand.create_new_army(faction_state, self.to_dict)

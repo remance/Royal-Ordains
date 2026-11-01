@@ -57,7 +57,7 @@ class TextDrama(UIOuterBattle):
         self.text_input = input_item[1]
         if input_item[2] in self.sound_effect_pool:  # play sound effect
             self.add_sound_effect_queue(choice(self.sound_effect_pool[input_item[2]]),
-                                               self.main_process.base_camera_center_pos, 9999999999999, 0)
+                                        self.main_process.base_camera_center_pos, 9999999999999, 0)
         self.text_surface = text_render_with_bg(self.text_input, self.font, gf_colour=(225, 225, 225),
                                                 o_colour=(20, 20, 20))
         self.image = Surface((self.text_surface.get_width() + int(self.showing_left_corner.get_width() * 4),

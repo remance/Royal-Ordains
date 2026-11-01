@@ -79,11 +79,14 @@ class DataSprite(GameData):
             # add some smaller version of icons
             for policy in Culture_Policy_Integration:
                 self.grand_ui_images["policy_small_" + policy] = smoothscale(self.grand_ui_images["policy_" + policy],
-                                                                             (70 * self.screen_scale_width, 70 * self.screen_scale_height))
+                                                                             (70 * self.screen_scale_width,
+                                                                              70 * self.screen_scale_height))
             self.grand_ui_images["culture_value_good"] = smoothscale(self.grand_ui_images["diplomacy_value_good"],
-                                                                     (70 * self.screen_scale_width, 70 * self.screen_scale_height))
+                                                                     (70 * self.screen_scale_width,
+                                                                      70 * self.screen_scale_height))
             self.grand_ui_images["culture_value_bad"] = smoothscale(self.grand_ui_images["diplomacy_value_bad"],
-                                                                    (70 * self.screen_scale_width, 70 * self.screen_scale_height))
+                                                                    (70 * self.screen_scale_width,
+                                                                     70 * self.screen_scale_height))
 
             self.battle_ui_images = load_images(self.data_dir, screen_scale=self.screen_scale,
                                                 subfolder=("ui", "battle_ui"))

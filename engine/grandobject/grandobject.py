@@ -42,7 +42,7 @@ class GrandObject(Sprite):
         if self.rect.collidepoint(grand.cursor_pos) and not grand.cursor.mouse_over and not grand.player_interact.rect:
             text_popup.popup(self.cursor.rect, (grand.grab_text(("building", self.sprite_id, "Name")), "",
                                                 grand.grab_text(("building", self.sprite_id, "Description"))),
-                                  width_text_wrapper=self.max_description_box_width)
+                             width_text_wrapper=self.max_description_box_width)
             grand.add_to_outer_ui_menu_updater(text_popup)
 
     def change_state(self, new_state):

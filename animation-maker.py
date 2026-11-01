@@ -2569,7 +2569,7 @@ while True:
 
                     elif part_selector.rect.collidepoint(mouse_pos):
                         if character_part_button.text != "":
-                            current_part = list(model.animation_part_list[current_frame].keys())[
+                            current_part = tuple(model.animation_part_list[current_frame].keys())[
                                 model.part_selected[-1]]
                             try:
                                 if "special" in current_part:

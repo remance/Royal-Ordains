@@ -87,22 +87,11 @@ class Army:
 
     @property
     def to_dict(self) -> dict:
-        return {"ID": self.game_id, "faction": self.faction, "culture": self.culture,
-                "commander": self.commander_id, "army_followers": self.army_followers,
-                "supply": self.supply, "custom_preset_id": self.custom_preset_id,
+        """Convert army data to dict for deployment or saving"""
+        return {"ID": self.game_id, "Faction": self.faction, "culture": self.culture,
+                "Commander": self.commander_id, "army_followers": self.army_followers,
+                "Supply": self.supply, "Max Supply": self.max_supply, "custom_preset_id": self.custom_preset_id,
                 "grand_state": {"activity": self.activity, "enable_resupply": self.enable_resupply,
                                 "enable_assemble": self.enable_assemble, "base_pos": self.base_pos,
                                 "current_region": self.current_region, },
-                }
-
-    @property
-    def to_preset_dict(self) -> dict:
-        return {"culture": self.culture, "commander": [self.commander_id], "army_followers": self.army_followers,
-                "cost": self.cost, "leadership": self.leadership,
-                "total_number": self.total_number, "upkeep": self.upkeep,
-                "power": self.power, "supply": self.supply, "max_supply": self.max_supply,
-                "strategy": [self.character_list[self.commander_id]["Strategy"]] +
-                            [self.character_list[character[0]]["Strategy"] for character in
-                             self.army_followers["leader"] if character and character[1]],
-                "total_supply_usage": self.total_supply_usage
                 }

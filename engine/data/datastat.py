@@ -156,7 +156,8 @@ class DataStat(GameData):
                                     item_row["ai_min_attack_range"] = move["AI Range"]
                                 if item_row["ai_max_attack_range"] < move["AI Range"]:
                                     item_row["ai_max_attack_range"] = move["AI Range"]
-                            if item_row["ai_min_effect_range"] > move["Range"] and (move["Status"] or move["Enemy Status"]):
+                            if item_row["ai_min_effect_range"] > move["Range"] and (
+                                    move["Status"] or move["Enemy Status"]):
                                 item_row["ai_min_effect_range"] = move["Range"]
                             if item_row["ai_ally_max_effect_range"] < move["Range"] and move["Status"]:
                                 item_row["ai_ally_max_effect_range"] = move["Range"]
@@ -180,7 +181,7 @@ class DataStat(GameData):
                 if character_data["Culture"] not in self.custom_character_setup:
                     self.all_main_exist_characters[character_data["Culture"]] = []
                     self.custom_character_setup[character_data["Culture"]] = {
-                        "air": [], "ground": {"leader": {"unique": [], "generic": []}, "troop": []}}
+                        "air": [], "leader": {"unique": [], "generic": []}, "troop": []}
                 if character_data["Class"] != "sub" and os.path.exists(
                         os.path.join(self.data_dir, "ui", "character_ui", character + ".png")):
                     self.all_main_exist_characters[character_data["Culture"]].append(character)
@@ -188,14 +189,11 @@ class DataStat(GameData):
                     if character_data["Type"] == "ground":
                         if character_data["Is Leader"]:
                             if character_data["Is Unique"]:
-                                self.custom_character_setup[character_data["Culture"]][character_data["Type"]][
-                                    "leader"]["unique"].append(character)
+                                self.custom_character_setup[character_data["Culture"]]["leader"]["unique"].append(character)
                             else:
-                                self.custom_character_setup[character_data["Culture"]][character_data["Type"]][
-                                    "leader"]["generic"].append(character)
+                                self.custom_character_setup[character_data["Culture"]]["leader"]["generic"].append(character)
                         else:
-                            self.custom_character_setup[character_data["Culture"]][character_data["Type"]][
-                                "troop"].append(character)
+                            self.custom_character_setup[character_data["Culture"]]["troop"].append(character)
                     else:
                         self.custom_character_setup[character_data["Culture"]][character_data["Type"]].append(character)
 
@@ -284,7 +282,7 @@ class DataStat(GameData):
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
-            tuple_column = ("Colour", )
+            tuple_column = ("Colour",)
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
             dict_column = ("Cosmic Replace", "Effect", "Event Scene", "Event Actor")
             dict_column = [index for index, item in enumerate(header) if item in dict_column]

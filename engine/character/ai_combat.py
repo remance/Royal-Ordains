@@ -20,7 +20,7 @@ def check_resource_lower(who, value):
 
 
 def check_health_higher(who, value):
-    if  who.base_health * value >= who.health:
+    if who.base_health * value >= who.health:
         return True
     return None
 

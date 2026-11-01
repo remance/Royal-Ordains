@@ -1,5 +1,5 @@
 from engine.constants import Culture_Policy_Integration
-from engine.utils.text_making import convert_modifier_number_to_percent_text, add_plus_to_number
+from engine.utils.text_making import add_plus_to_number
 
 
 def cal_faction_income_recruit(self, faction):
@@ -99,7 +99,8 @@ def cal_faction_income_recruit(self, faction):
         region_income_state = region_campaign_state[region]["income"]
         region_recruit_state = region_campaign_state[region]["recruit"]
         for key, value in region_recruit_state.items():  # add recruit from each region
-            campaign_faction_state["recruit"][key] += [item for item in value if item not in campaign_faction_state["recruit"][key]]
+            campaign_faction_state["recruit"][key] += [item for item in value if
+                                                       item not in campaign_faction_state["recruit"][key]]
         region_gold_income = region_income_state["gold_income"] * happiness_effect_modifier
         region_supply_income = region_income_state["supply_income"] * happiness_effect_modifier
         total_gold_income += region_gold_income

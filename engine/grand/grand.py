@@ -30,6 +30,7 @@ from engine.grand.change_turn import change_turn
 from engine.grand.check_region_building_available_upgrade import check_region_building_available_upgrade
 from engine.grand.create_campaign_route_pathfinding import create_campaign_route_pathfinding
 from engine.grand.create_new_army import create_new_army
+from engine.grand.create_rebel_army import create_rebel_army
 from engine.grand.dismiss_faction_character import dismiss_faction_character
 from engine.grand.draw_route import draw_route
 from engine.grand.fix_camera import fix_camera
@@ -86,6 +87,7 @@ class Grand:
     check_region_building_available_upgrade = check_region_building_available_upgrade
     create_campaign_route_pathfinding = create_campaign_route_pathfinding
     create_new_army = create_new_army
+    create_rebel_army = create_rebel_army
     dismiss_faction_character = dismiss_faction_character
     drama_process = drama_process
     draw_route = draw_route
@@ -192,11 +194,13 @@ class Grand:
         self.ambient_pool = game.ambient_pool
         self.weather_ambient_pool = game.weather_ambient_pool
         self.sound_effect_queue = {}
-        self.default_grand_music_pool = [value for key, value in self.music_pool.items() if not key.isdigit() and key != "menu"]
+        self.default_grand_music_pool = [value for key, value in self.music_pool.items() if
+                                         not key.isdigit() and key != "menu"]
         self.weather_screen_adjust = self.screen_width / self.screen_height  # for weather sprite spawn position
 
         self.stat_data = self.game.stat_data
         self.character_list = self.game.character_list
+        self.custom_character_setup = self.stat_data.custom_character_setup
         self.map_data = self.game.map_data
         self.weather_data = self.map_data.weather_data
         self.faction_list = self.map_data.faction_list
@@ -232,7 +236,6 @@ class Grand:
         self.map_shown_to_base_scale_height = 1
         self.army_move_line_width = int(24 * self.screen_scale_width)
         self.army_move_inner_line_width = int(12 * self.screen_scale_width)
-
 
         # Create the game camera
         self.camera_topleft_pos = Vector2(500, 500)  # camera topleft pos on scene
@@ -463,8 +466,9 @@ class Grand:
                         dot, (dot_pos_x, (dot_pos_y + banner_offset)),
                         self.settlement_dots[dot])
                 self.dots_army_occupation[dot] = []
-                self.dots_army_info_banners[dot] = DotInfoBannerArmy(
-                    dot, (dot_pos_x, dot_pos_y + army_dot_pos_y_offset))
+                if dot not in self.dots_army_info_banners:
+                    self.dots_army_info_banners[dot] = DotInfoBannerArmy(
+                        dot, (dot_pos_x, dot_pos_y + army_dot_pos_y_offset))
 
         # setup armies, replace dict with object
         for faction, faction_state in self.current_campaign_state["faction"].items():
@@ -615,7 +619,8 @@ class Grand:
                     if event.key == K_F1:
                         self.drama_text.queue.append((True, "Hello and welcome to showcase video", "dollhi"))
                     elif event.key == K_F2:
-                        self.drama_text.queue.append((True, "Showcase: Grand strategy campaign development and cosmos system", None))
+                        self.drama_text.queue.append(
+                            (True, "Showcase: Grand strategy campaign development and cosmos system", None))
                     # elif event.key == K_F3:
                     # elif event.key == K_F6:
                     # self.screen_shake_value = 11111

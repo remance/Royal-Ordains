@@ -1,19 +1,20 @@
 import lzma
 import pickle
+from hashlib import md5
 from os.path import join
-from PIL import Image
 
 import pygame
+from PIL import Image
 from pygame import Surface, SRCALPHA, Vector2
 from pygame.image import tobytes
 from pygame.transform import smoothscale, flip
-from hashlib import md5
 
 from engine.utils.sprite_altering import sprite_rotate, apply_sprite_effect, crop_sprite
 from engine.utils.sprite_caching import save_pickle_with_surfaces, load_pickle_with_surfaces, CompilableSurface
 
 
-def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_pool, effect_animation_pool, character_list,
+def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_pool, effect_animation_pool,
+                 character_list,
                  effect_list, strategy_list, compile_specific=None):
     part_sprite_adjust = {}
     effect_sprite_adjust = {}
@@ -258,7 +259,7 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                     character_animation_pool.pop(animation_name)
 
             save_pickle_with_surfaces(join(data_dir, "animation", character + ".xz"),
-                                                       character_animation_pool)
+                                      character_animation_pool)
             # animation_load_index[character] = character_hash
 
     save_pickle_with_surfaces(join(data_dir, "animation", "grand_actor.xz"), grand_actor_sprite_pool)
@@ -282,8 +283,10 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                                 add_ind_effect_adjust_sprite(effect_sprite_adjust,
                                                              [effect_list[part[0]]["After Reach Effect"],
                                                               "base", 0, 0, 0, 0, 0, part[7], part[8]])
-                                if effect_list[part[0]]["After Reach Effect"] not in animation_load_index["character_load_index"][character]:
-                                    animation_load_index["character_load_index"][character].append(effect_list[part[0]]["After Reach Effect"])
+                                if effect_list[part[0]]["After Reach Effect"] not in \
+                                        animation_load_index["character_load_index"][character]:
+                                    animation_load_index["character_load_index"][character].append(
+                                        effect_list[part[0]]["After Reach Effect"])
 
     for strategy, strategy_data in strategy_list.items():
         # add from strategy with effects
@@ -291,7 +294,8 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
             for effect in strategy_data[effect_list]:
                 add_ind_effect_adjust_sprite(effect_sprite_adjust, effect)
                 for character, character_data in character_list.items():
-                    if character_data["Strategy"] == strategy and effect not in animation_load_index["character_load_index"][character]:
+                    if character_data["Strategy"] == strategy and effect not in \
+                            animation_load_index["character_load_index"][character]:
                         animation_load_index["character_load_index"][character].append(effect[0])
 
     print("effect")
@@ -306,7 +310,8 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
             for surface in frame_list:
                 effect_raw_data_hash.update(image_avg_hashing(surface))
         effect_raw_data_hash = effect_raw_data_hash.hexdigest()
-        if effect_name not in animation_load_index["effect"] or effect_raw_data_hash != animation_load_index["effect"][effect_name]:
+        if effect_name not in animation_load_index["effect"] or effect_raw_data_hash != animation_load_index["effect"][
+            effect_name]:
             for effect_part, frame_list in data.items():
                 if effect_part not in effect_animation_pool_save[effect_name]:
                     effect_animation_pool_save[effect_name][effect_part] = {0: {1: {1: {}}}}

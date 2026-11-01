@@ -32,8 +32,7 @@ def start_battle_engagement(self, armies, base_pos):
     stage_len = len(
         [value for value in self.game.preset_map_data[stage]["data"].values() if "scene" in value["Type"]])
 
-    campaign_battle_factions[base_pos]["team"][1] = team_1_army.faction
-    campaign_battle_factions[base_pos]["team"][2] = team_2_army.faction
+    campaign_battle_factions[base_pos] = (team_1_army.faction, team_2_army.faction)
 
     commander_1_stat = self.character_list[team_1_army.commander_id]
     commander_2_stat = self.character_list[team_2_army.commander_id]

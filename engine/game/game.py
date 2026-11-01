@@ -584,9 +584,10 @@ class Game:
 
         self.custom_preset_army_setup = PresetArmySetupUI((self.screen_width * 0.4, self.screen_height * 0.2),
                                                           True)
-        self.custom_preset_army_title = CustomPresetTitle((self.game.screen_width * 0.8, 120 * self.screen_scale_height),
-                                                          (self.screen_rect.width / 2,
-                                                           self.custom_preset_army_setup.rect.midtop[1]))
+        self.custom_preset_army_title = CustomPresetTitle(
+            (self.game.screen_width * 0.8, 120 * self.screen_scale_height),
+            (self.screen_rect.width / 2,
+             self.custom_preset_army_setup.rect.midtop[1]))
         self.character_selector = CharacterSelector((self.screen_width * 0.78, self.screen_height * 0.2))
         self.custom_preset_list_box = ListUI(pivot=(-0.9, -0.6), origin=(-1, -1), size=(0.15, 0.5),
                                              items=CustomArmyPresetListAdapter(),
@@ -644,7 +645,6 @@ class Game:
         if self.use_simple_text:
             CharacterSpeechBox.simple_font = True
             DiplomacyHead.simple_font = True
-
 
         # lorebook ui
         self.lorebook_back_button = BrownMenuButton((.15, 0.5), (0, 1.5),

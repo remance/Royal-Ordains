@@ -576,15 +576,14 @@ class CharacterSelector(UIMenu):
             if self.game.menu_state in ("custom", "preset"):
                 if character_type in ("commander", "leader"):
                     selector_character_list = [value for value in
-                                               self.custom_character_setup[faction]["ground"]["leader"]["unique"] if
-                                               value
+                                               self.custom_character_setup[faction]["leader"]["unique"] if value
                                                not in exist_unique_check and self.character_list[value]["Is Leader"]]
                     if character_type == "commander":  # exclude leader that cannot be commander
                         selector_character_list = [value for value in selector_character_list
                                                    if not self.character_list[value]["No Commander"]]
-                    selector_character_list += self.custom_character_setup[faction]["ground"]["leader"]["generic"]
+                    selector_character_list += self.custom_character_setup[faction]["leader"]["generic"]
                 elif character_type == "troop":
-                    selector_character_list = self.custom_character_setup[faction]["ground"]["troop"]
+                    selector_character_list = self.custom_character_setup[faction]["troop"]
                 elif character_type == "air":
                     selector_character_list = self.custom_character_setup[faction]["air"]
             else:
@@ -2450,11 +2449,15 @@ class CustomPresetTitle(UIMenu):
         text_rect = text_surface.get_rect(midleft=(0, self.image.get_height() / 2))
         self.image.blit(text_surface, text_rect)
 
-        text_stuff = [self.grab_text(("ui", "info_header_leadership")) + add_comma_number(int(leadership)), self.grand_ui_images["leadership"],
-                      "/" + self.grab_text(("ui", "info_header_supply_max_usage")) + add_comma_number(supply), self.grand_ui_images["supply"],
-                      "/" + self.grab_text(("ui", "info_header_cost")) + add_comma_number(cost), self.grand_ui_images["gold"]]
+        text_stuff = [self.grab_text(("ui", "info_header_leadership")) + add_comma_number(int(leadership)),
+                      self.grand_ui_images["leadership"],
+                      "/" + self.grab_text(("ui", "info_header_supply_max_usage")) + add_comma_number(supply),
+                      self.grand_ui_images["supply"],
+                      "/" + self.grab_text(("ui", "info_header_cost")) + add_comma_number(cost),
+                      self.grand_ui_images["gold"]]
         if upkeep:
-            text_stuff += ["/" + self.grab_text(("ui", "info_header_upkeep")) + add_comma_number(upkeep), self.grand_ui_images["gold"]]
+            text_stuff += ["/" + self.grab_text(("ui", "info_header_upkeep")) + add_comma_number(upkeep),
+                           self.grand_ui_images["gold"]]
         text_surface = make_long_text(text_stuff, (0, 0), self.font)
         text_rect = text_surface.get_rect(midright=(self.image.get_width(), self.image.get_height() / 2))
         self.image.blit(text_surface, text_rect)

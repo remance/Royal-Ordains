@@ -6,7 +6,7 @@ import pygame
 from pygame import Vector2, Surface, SRCALPHA, Color, Rect, draw, mouse
 from pygame.font import Font
 from pygame.key import name as pygame_key_name
-from pygame.transform import flip, rotate
+from pygame.transform import flip
 
 from engine.battle.player_input_battle import key_select_strategy
 from engine.constants import *
@@ -706,7 +706,8 @@ class BattleHelper(UIOuterBattle):
                                      grab_text(("ui", "info_header_weather")) +
                                      grab_text(("ui", "weather_strength_" + weather_now.split("_")[1])) +
                                      grab_text(("ui", "weather_" + weather_now.split("_")[0])),
-                                     grab_text(("ui", "info_header_wind")) + grab_text(("ui", "info_text_" + self.wind_direction)))
+                                     grab_text(("ui", "info_header_wind")) + grab_text(
+                                         ("ui", "info_text_" + self.wind_direction)))
             must_reset_image = True
 
         if UIMenu.update(self, dt):

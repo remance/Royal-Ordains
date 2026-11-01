@@ -65,8 +65,8 @@ def make_option_menu(self, main_menu_buttons_box):
                                           float(config["effect_volume"])),
                      }
     value_boxes = {key: ValueBox(self.option_menu_images["value"],
-                               (volume_slider[key].rect.topright[0] * 1.1, volume_slider[key].rect.center[1]),
-                               volume_slider[key].value, self.large_generic_ui_font) for key in volume_slider}
+                                 (volume_slider[key].rect.topright[0] * 1.1, volume_slider[key].rect.center[1]),
+                                 volume_slider[key].value, self.large_generic_ui_font) for key in volume_slider}
 
     volume_texts = {key: OptionMenuText((volume_slider[key].pos[0] - (volume_slider[key].pos[0] / 4.5),
                                          volume_slider[key].pos[1]),

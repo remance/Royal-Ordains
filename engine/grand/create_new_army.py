@@ -3,13 +3,13 @@ from engine.grandarmyactor.grandarmyactor import GrandArmyActor
 
 
 def create_new_army(self, faction_state, army_data, index="new", sort=True, no_assemble=False):
-    """Create new army that did not exist before"""
+    """Create new active army"""
     faction_army_state = faction_state["army"]
     if index == "new":
         faction_army_state.append(None)
         index = -1
     army_faction = army_data["Faction"]
-    if no_assemble:  # deploy from starting new campaign data, no assembling required
+    if no_assemble:  # deploy from provided data, no assembling required
         grand_state = {"current_region": army_data["Region"], "activity": {}, "enable_resupply": True,
                        "enable_assemble": True}
         army_followers = {"leader": [[], [], []],
@@ -35,10 +35,13 @@ def create_new_army(self, faction_state, army_data, index="new", sort=True, no_a
 
     GrandArmyActor(faction_army_state[index], army_faction)
 
-    for header in ("Commander", "Leader 1", "Leader 2", "Leader 3"):
-        character = army_data[header]
+    for index, character in enumerate([faction_army_state[index].commander_id,] +
+                                      [item[0] for item in faction_army_state[index].army_followers["leader"] if item]):
+        header = "commander"
+        if index:
+            header = "leader"
         if character and self.character_list[character]["Is Unique"]:
-            # assign starting army id to unique character in it
+            # assign army id to unique character in it
             faction_state["character"][character] = (faction_army_state[index], header.split(" ")[0].lower())
 
     if sort and army_faction == self.player_faction:  # update player ui

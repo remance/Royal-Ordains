@@ -1,7 +1,7 @@
 import sys
+from random import choice
 
 import pygame
-from random import choice
 from pygame import Sound, quit as pg_quit
 
 

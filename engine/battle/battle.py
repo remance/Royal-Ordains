@@ -124,7 +124,7 @@ class Battle:
         # finish main menu
         # link grand to battle, auto battle, enter manual, leave manual, auto process,
         # Future idea
-        # espionage, morale,
+        # espionage, morale, strategic spell in grand
 
         self.clock = pygame.time.Clock()  # Game clock to keep track of realtime pass
 

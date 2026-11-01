@@ -26,8 +26,8 @@ def check_enemy_army(self):
         if battle_army_list[2]:  # start new battle
             self.grand.start_battle_engagement(battle_army_list, self.base_pos)
 
-    elif (campaign_battle_factions["team"][0] in campaign_faction_state["alliance"] or
-          campaign_battle_factions["team"][1] in campaign_faction_state["alliance"]):
+    elif (campaign_battle_factions[0] in campaign_faction_state["alliance"] or
+          campaign_battle_factions[1] in campaign_faction_state["alliance"]):
         # ongoing battle belong to this army faction alliance, join in battle
         campaign_battle_armies.append(self.game_id)
         campaign_battle_factions

@@ -81,4 +81,3 @@ def change_phase(self):
                 else:
                     if self.faction == self.player_faction:
                         self.grand_army_list_ui.reset_card(self)
-

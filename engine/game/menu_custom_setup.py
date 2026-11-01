@@ -38,7 +38,7 @@ def menu_custom_setup(self):
                                                                     army_preset["culture"],
                                                                     army_preset["commander"],
                                                                     army_preset["followers"],
-                                                                    custom_preset_id = hover_preset)
+                                                                    custom_preset_id=hover_preset)
                         setup_ui.change_cost(index, self.custom_team_army[team][index].cost,
                                              self.custom_team_army[team][index].total_supply_usage)
                         self.custom_team_army_buttons[team][index].change_state(

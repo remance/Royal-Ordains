@@ -1,12 +1,12 @@
 from random import uniform, random, choice
 
 troop_behaviour_class_to_call = {"attack_melee": ("melee_infantry", "flank_infantry", "mix_infantry", "melee_siege"),
-                       "defend_melee": ("melee_infantry", "mix_infantry", "melee_support"),
-                       "attack_cavalry": ("melee_cavalry", "flank_cavalry", "range_cavalry"),
-                       "defend_cavalry": ("range_cavalry", "mix_cavalry"),
-                       "attack_range": ("range_infantry", "mix_infantry", "range_siege"),
-                       "defend_range": ("range_siege", "range_support", "range_infantry", "mix_infantry",
-                                        "trap_infantry", "trap_siege")}
+                                 "defend_melee": ("melee_infantry", "mix_infantry", "melee_support"),
+                                 "attack_cavalry": ("melee_cavalry", "flank_cavalry", "range_cavalry"),
+                                 "defend_cavalry": ("range_cavalry", "mix_cavalry"),
+                                 "attack_range": ("range_infantry", "mix_infantry", "range_siege"),
+                                 "defend_range": ("range_siege", "range_support", "range_infantry", "mix_infantry",
+                                                  "trap_infantry", "trap_siege")}
 
 
 def conduct_troop_call(self):
@@ -68,9 +68,11 @@ def conduct_troop_call(self):
                     next(reversed(roulette)) + self.commander_defend_cavalry_prefer + int(
                         random() * 10)] = "defend_cavalry"
             if any(item in check_troop_class for item in troop_behaviour_class_to_call["attack_range"]):
-                roulette[next(reversed(roulette)) + self.commander_attack_range_prefer + int(random() * 10)] = "attack_range"
+                roulette[
+                    next(reversed(roulette)) + self.commander_attack_range_prefer + int(random() * 10)] = "attack_range"
             if any(item in check_troop_class for item in troop_behaviour_class_to_call["defend_range"]):
-                roulette[next(reversed(roulette)) + self.commander_defend_range_prefer + int(random() * 10)] = "defend_range"
+                roulette[
+                    next(reversed(roulette)) + self.commander_defend_range_prefer + int(random() * 10)] = "defend_range"
             if leader_available_to_call:
                 roulette[next(reversed(roulette)) + self.commander_leader_prefer + int(random() * 10)] = "leader"
             roulette_key = tuple(roulette.keys())

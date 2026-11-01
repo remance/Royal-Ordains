@@ -1,11 +1,10 @@
 from math import ceil
 from random import choice
 
-from pygame import Vector2, Surface, SRCALPHA, Rect, draw, Color, Font
+from pygame import Vector2, Surface, SRCALPHA, Rect, draw, Color
 from pygame.sprite import spritecollideany
 
 from engine.uimenu.uimenu import UIMenu, UIScroll
-from engine.uibattle.uibattle import CharacterSpeechBox
 from engine.uiouterbattle.drama import TextDrama
 from engine.utils.text_making import (add_plus_to_number, add_comma_number, text_render_with_bg,
                                       make_long_text)
@@ -221,7 +220,6 @@ class DiplomacyHead(UIOuterGrand):
         #                                        character.base_pos, 1000,
         #                                        0, volume="voice")
 
-
     # def update(self, dt):
 
 
@@ -388,7 +386,7 @@ class FactionCultureList(UIOuterGrand):
                 self.image_width = self.image.get_width()
                 self.image.fill((255, 255, 255))
             self.culture_management_button_rect = self.grand_ui_images["policy_management"].get_rect(midright=(
-                                self.image.get_width(), 100 * self.screen_scale_height))
+                self.image.get_width(), 100 * self.screen_scale_height))
             self.image.blit(self.grand_ui_images["policy_management"], self.culture_management_button_rect)
 
             self.culture_coa_rects = {}
@@ -433,7 +431,8 @@ class FactionCultureList(UIOuterGrand):
                                 ("ui", "info_text_culture_" + culture_state["policy"])),
                             grab_text(("ui", "info_header_integration")) + this_culture_value[
                                 "integration"],
-                            grab_text(("ui", "info_header_influence")) + this_culture_value["influence"] + this_culture_value["weight"]]
+                            grab_text(("ui", "info_header_influence")) + this_culture_value["influence"] +
+                            this_culture_value["weight"]]
                         if int(this_culture_value["penalty"]):
                             text.append(grab_text(("ui", "info_header_happiness_penalty")) + this_culture_value[
                                 "penalty"])
@@ -846,8 +845,12 @@ class ArmyList(GrandListUI, UIOuterGrand):
         supply_text_colour = (255, 255, 255)
         if army.supply / army.max_supply < 0.2:
             supply_text_colour = (150, 20, 20)
-        supply_text = (str(int(army.supply / army.max_supply * 100)) + "% (" +
-                       str(int(army.supply / army.total_supply_usage * 100)) + "%)")
+
+        if army.total_supply_usage:
+            supply_available_text = "% (" + str(int(army.supply / army.total_supply_usage * 100)) + "%)"
+        else:
+            supply_available_text = "% (100%)"
+        supply_text = (str(int(army.supply / army.max_supply * 100)) + supply_available_text)
         if supply_text not in self.value_text_font_cache:
             text_surface = text_render_with_bg(supply_text,
                                                self.font, (0, 0, 0), supply_text_colour)
@@ -857,8 +860,11 @@ class ArmyList(GrandListUI, UIOuterGrand):
         card_image.blit(text_surface, text_surface.get_rect(topleft=((305 * self.screen_scale_width),
                                                                      10 * self.screen_scale_height)))
 
-        total_number_text = (add_comma_number(army.total_number) + " (" +
-                             str(int(army.assemble_percent[1] / sum(army.assemble_percent) * 100)) + "%)")
+        if sum(army.assemble_percent):
+            assemble_text = " (" + str(int(army.assemble_percent[1] / sum(army.assemble_percent) * 100)) + "%)"
+        else:
+            assemble_text = "% (100%)"
+        total_number_text = (add_comma_number(army.total_number) + assemble_text)
         if total_number_text not in self.value_text_font_cache:
             text_surface = text_render_with_bg(total_number_text,
                                                self.font, (0, 0, 0), (255, 255, 255))
@@ -883,7 +889,8 @@ class ArmyList(GrandListUI, UIOuterGrand):
         elif "travel" in army.activity:
             activity = ">" + self.grab_text(("region", army.activity["destination"], "Name"))
         elif "assemble" in army.activity:
-            activity = self.grab_text(("ui", "info_text_assemble")) + " " + str(max(army.can_assemble.values())) + " " + self.grab_text(("ui", "info_text_phases"))
+            activity = self.grab_text(("ui", "info_text_assemble")) + " " + str(
+                max(army.can_assemble.values())) + " " + self.grab_text(("ui", "info_text_phases"))
         else:
             activity = self.grab_text(("ui", "info_text_idle"))
         text_surface = text_render_with_bg(activity,
@@ -935,14 +942,16 @@ class ArmyList(GrandListUI, UIOuterGrand):
                 if self.current_row > 0:
                     self.current_row -= 1
                     self.scroll.change_image(self.current_row, self.scroll_total_row)
-                    self.draw_card_list_to_ui(self.grand.current_campaign_state["faction"][self.grand.player_faction]["army"],
-                                              self.grand.player_selected_army)
+                    self.draw_card_list_to_ui(
+                        self.grand.current_campaign_state["faction"][self.grand.player_faction]["army"],
+                        self.grand.player_selected_army)
             elif self.cursor.scroll_down:
                 if self.current_row < self.total_row:
                     self.current_row += 1
                     self.scroll.change_image(self.current_row, self.scroll_total_row)
-                    self.draw_card_list_to_ui(self.grand.current_campaign_state["faction"][self.grand.player_faction]["army"],
-                                              self.grand.player_selected_army)
+                    self.draw_card_list_to_ui(
+                        self.grand.current_campaign_state["faction"][self.grand.player_faction]["army"],
+                        self.grand.player_selected_army)
             else:
                 grand = self.grand
                 for index, rect in enumerate(self.card_rects):
@@ -996,7 +1005,7 @@ class ArmyList(GrandListUI, UIOuterGrand):
                         # elif self.event_alt_press:
                         #     # open army management ui
                         #     grand.player_grand_preset_army_setup.popup("", army)
-                        #     grand.player_army_info_ui.add_info(army.to_preset_dict)
+                        #     grand.player_army_info_ui.add_info(army)
                         #     self.outer_ui_updater.add(grand.player_grand_preset_army_setup,
                         #                               grand.player_army_info_ui)
                         elif self.event_middle_mouse_press:
@@ -1156,4 +1165,3 @@ class PlayerGrandInteract(UIOuterGrand):
                         self.rect = Rect(left + grand.camera_topleft_pos[0],
                                          top + grand.camera_topleft_pos[1], 1,
                                          1)  # rect for collision unit selection check
-
