@@ -64,9 +64,9 @@ def make_option_menu(self, main_menu_buttons_box):
                                           (self.screen_rect.width / 2, self.screen_rect.height / 2),
                                           float(config["effect_volume"])),
                      }
-    value_box = {key: ValueBox(self.option_menu_images["value"],
+    value_boxes = {key: ValueBox(self.option_menu_images["value"],
                                (volume_slider[key].rect.topright[0] * 1.1, volume_slider[key].rect.center[1]),
-                               volume_slider[key].value, int(52 * self.screen_scale[1])) for key in volume_slider}
+                               volume_slider[key].value, self.large_generic_ui_font) for key in volume_slider}
 
     volume_texts = {key: OptionMenuText((volume_slider[key].pos[0] - (volume_slider[key].pos[0] / 4.5),
                                          volume_slider[key].pos[1]),
@@ -226,7 +226,7 @@ def make_option_menu(self, main_menu_buttons_box):
     return {"back_button": back_button, "keybind_button": keybind_button,
             "default_button": default_button, "resolution_drop": resolution_drop,
             "resolution_bar": resolution_bar, "resolution_text": resolution_text, "volume_sliders": volume_slider,
-            "value_boxes": value_box, "volume_texts": volume_texts, "fullscreen_box": fullscreen_box,
+            "value_boxes": value_boxes, "volume_texts": volume_texts, "fullscreen_box": fullscreen_box,
             "fullscreen_text": fullscreen_text, "fps_box": fps_box,
             "fps_text": fps_text, "keybind_text": keybind_text, "keybind_icon": keybind_icon,
             "easy_text_box": easy_text_box, "easy_text": easy_text, "show_dmg_box": show_dmg_box,

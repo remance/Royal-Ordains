@@ -1,4 +1,5 @@
 import gc
+from random import randint
 from copy import deepcopy
 
 from engine.constants import Culture_Policy_Integration
@@ -42,7 +43,7 @@ def menu_grand_setup(self):
                                                            "coexist_effect": [],
                                                            "event_effect": []},
                                       "recruit": {"leader": [], "troop": [], "air": []},
-                                      "event": {}}
+                                      "event": []}
 
         for army_id, army in self.map_data.start_army_list.items():
             faction_state[army["Faction"]]["army"].append(army)
@@ -64,7 +65,7 @@ def menu_grand_setup(self):
                           "pathfinding": {}, "direct_routing": {},
                           "possible_events": deepcopy(self.map_data.event_list),
                           "faction": faction_state, "eventlog": [],
-                          "cosmic_time": 0, "cosmic_event": {},
+                          "cosmic_time": randint(0, 99999999999999999), "cosmic_event": {},
                           "turn": 1, "phase": 1}
 
         self.grand.prepare_new_campaign(self.campaign, player_faction, campaign_state)

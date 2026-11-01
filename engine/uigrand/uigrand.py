@@ -3,7 +3,7 @@ from pygame.transform import smoothscale, flip
 
 from engine.uimenu.uimenu import UIMenu
 from engine.utils.sprite_altering import apply_sprite_colour
-from engine.utils.text_making import text_render_with_bg, minimise_number_text
+from engine.utils.text_making import text_render_with_bg, make_long_text, minimise_number_text
 
 
 class UIGrand(UIMenu):
@@ -43,17 +43,20 @@ class DotInfoBanner(UIGrand):
             body = self.grand.grand_ui_images["region_banner_body"]
             self.banner_team_cache["neutral"] = (end, body, flip(self.grand.grand_ui_images["region_banner_end"],
                                                                  True, False))
-            coloured_end = apply_sprite_colour(end, (100, 100, 220))
+            # player banner
+            coloured_end = apply_sprite_colour(end, (50, 50, 180))
             self.banner_team_cache["player"] = (coloured_end,
-                                                apply_sprite_colour(body, (100, 100, 220)),
+                                                apply_sprite_colour(body, (50, 50, 180)),
                                                 flip(coloured_end, True, False))
-            coloured_end = apply_sprite_colour(end, (220, 100, 100))
+            # enemy banner
+            coloured_end = apply_sprite_colour(end, (180, 50, 50))
             self.banner_team_cache["enemy"] = (coloured_end,
-                                               apply_sprite_colour(body, (220, 100, 100)),
+                                               apply_sprite_colour(body, (180, 50, 50)),
                                                flip(coloured_end, True, False))
-            coloured_end = apply_sprite_colour(end, (100, 220, 100))
+            # ally banner
+            coloured_end = apply_sprite_colour(end, (50, 180, 50))
             self.banner_team_cache["ally"] = (coloured_end,
-                                              apply_sprite_colour(body, (220, 100, 100)),
+                                              apply_sprite_colour(body, (50, 180, 50)),
                                               flip(coloured_end, True, False))
         self.previous_state_value_list = {}
         self.pos = pos
@@ -62,18 +65,23 @@ class DotInfoBanner(UIGrand):
 
     def make_text_image(self, team, text):
         banner = self.banner_team_cache[team]
-        text_image = text_render_with_bg(text, self.font)
+        if type(text) is str:
+            text_image = text_render_with_bg(text, self.font)
+        else:
+            text_image = make_long_text(text, (0, 0), self.font,
+                                        with_texture=(None, ((30, 30, 30), (255, 255, 255), 2)))
+        banner_left = banner[0]
+        banner_right = banner[2]
         banner_body = smoothscale(banner[1], (text_image.get_width(), banner[1].get_height()))
         banner_body_width = banner_body.get_width()
         banner_body_height = banner_body.get_height()
-        banner_body.blit(text_image, text_image.get_rect(center=(banner_body_width / 2,
-                                                                 banner_body_height / 2)))
-        self.image = Surface(((banner[0].get_width() * 2) + banner_body_width,
+        banner_body.blit(text_image, text_image.get_rect(center=(banner_body_width / 2, banner_body_height / 2)))
+        self.image = Surface(((banner_left.get_width() * 2) + banner_body_width,
                               banner_body_height), SRCALPHA)
-        left_rect = banner[0].get_rect()
-        self.image.blit(banner[0], left_rect)
+        left_rect = banner_left.get_rect()
+        self.image.blit(banner_left, left_rect)
         self.image.blit(banner_body, banner_body.get_rect(topleft=left_rect.topright))
-        self.image.blit(banner[2], banner[2].get_rect(topright=(self.image.get_width(), 0)))
+        self.image.blit(banner_right, banner_right.get_rect(topright=(self.image.get_width(), 0)))
 
     def update(self, dt):
         self.check_draw()
@@ -123,10 +131,13 @@ class DotInfoBannerSettlement(DotInfoBanner):
             income_state = self.grand.current_campaign_state["region"][self.region]["income"].copy()
             if self.previous_income != income_state:
                 self.previous_income = income_state
-                self.make_text_image("player",
-                                     "G:" + minimise_number_text(income_state["gold_income"]) + ", " +
-                                     "S:" + minimise_number_text(income_state["supply_income"]) + ", " +
-                                     "H:" + minimise_number_text(income_state["happiness"]))
+                text = [minimise_number_text(income_state["gold_income"]), self.grand_ui_images["gold"], "/",
+                        minimise_number_text(income_state["supply_income"]), self.grand_ui_images["supply"], "/"]
+                if income_state["happiness"] > 0:
+                    text.append(self.grand_ui_images["happiness"])
+                else:
+                    text.append(self.grand_ui_images["anger"])
+                self.make_text_image("player", text)
 
             self.rect = self.image.get_rect(midbottom=self.pos)
 
@@ -137,18 +148,18 @@ class DotInfoBannerArmy(DotInfoBanner):
 
     def reset(self, state_value_list):
         if "battle" in state_value_list:
-            text = (minimise_number_text(state_value_list[0][0]) + "/" +
-                    minimise_number_text(
-                        state_value_list[0][1] / state_value_list[0][2] * 100) + "%") + " VS " + (
-                           minimise_number_text(state_value_list[1][0]) + "/" +
-                           minimise_number_text(
-                               state_value_list[1][1] / state_value_list[1][2] * 100) + "%")
+            text = ((minimise_number_text(state_value_list[0][0]), self.grand_ui_images["number"]), "/",
+                    minimise_number_text(state_value_list[0][1] / state_value_list[0][2] * 100) + "%",
+                    self.grand_ui_images["supply"], "VS",
+                    minimise_number_text(state_value_list[1][0]), self.grand_ui_images["number"], "/",
+                    minimise_number_text(state_value_list[1][1] / state_value_list[1][2] * 100) + "%",
+                    self.grand_ui_images["supply"])
             team = state_value_list[2]
         else:
             team = state_value_list[3]
-            text = (minimise_number_text(state_value_list[0]) + "/" +
-                    minimise_number_text(
-                        state_value_list[1] / state_value_list[2] * 100) + "%")
+            text = (minimise_number_text(state_value_list[0]), self.grand_ui_images["number"], "/",
+                    minimise_number_text(state_value_list[1] / state_value_list[2] * 100) + "%",
+                    self.grand_ui_images["supply"])
         self.make_text_image(team, text)
         self.rect = self.image.get_rect(midtop=self.pos)
 
@@ -163,14 +174,14 @@ class DotInfoBannerArmy(DotInfoBanner):
                         if army.faction == self.grand.player_faction:
                             state_value_list[3] = "player"
                         state_value_list[team - 1][0] += army.total_number
-                        state_value_list[team - 1][1] += army.max_supply
+                        state_value_list[team - 1][1] += army.supply
                         state_value_list[team - 1][2] += army.total_supply_usage
 
             else:
                 state_value_list = [0, 0, 0, "neutral"]
                 for army in self.dots_army_occupation[self.base_pos]:
                     state_value_list[0] += army.total_number
-                    state_value_list[1] += army.max_supply
+                    state_value_list[1] += army.supply
                     state_value_list[2] += army.total_supply_usage
                     if player_faction and state_value_list[3] == "neutral":
                         if army.faction == self.grand.player_faction:

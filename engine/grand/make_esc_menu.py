@@ -38,7 +38,7 @@ def make_esc_menu(self):
 
     value_box = {key: ValueBox(self.game.option_menu_images["value"],
                                (volume_slider[key].rect.topright[0] * 1.1, volume_slider[key].rect.center[1]),
-                               volume_slider[key].value, int(52 * self.screen_scale[1])) for key in volume_slider}
+                               volume_slider[key].value, self.game.large_generic_ui_font) for key in volume_slider}
 
     volume_texts = {key: OptionMenuText((volume_slider[key].pos[0] - (volume_slider[key].pos[0] / 4.5),
                                          volume_slider[key].pos[1]),

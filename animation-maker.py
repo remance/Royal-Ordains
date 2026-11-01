@@ -10,6 +10,8 @@ from os.path import join, split, normpath, abspath
 from pathlib import Path
 
 import pygame
+from pygame import Surface, SRCALPHA, draw, Vector2
+from pygame.sprite import Sprite, LayeredUpdates, Group
 from pygame.mixer import Channel
 from pygame.transform import smoothscale, rotate, flip as pyflip
 
@@ -74,9 +76,9 @@ language = "en"
 
 default_sprite_size = (700, 500)
 
-ui_drawer = pygame.sprite.LayeredUpdates()
+ui_drawer = LayeredUpdates()
 ui_updater = ReversedLayeredUpdates()
-fake_group = pygame.sprite.LayeredUpdates()  # just fake group to add for container and not get auto update
+fake_group = LayeredUpdates()  # just fake group to add for container and not get auto update
 
 Game.main_dir = main_dir
 Game.data_dir = data_dir
@@ -255,7 +257,7 @@ def read_animation_data(change_character=True):
                 if true_name not in true_name_list:
                     true_name_list.append(true_name)
 
-            for true_name in set(true_name_list):  # create effect animation list
+            for true_name in sorted(set(true_name_list)):  # create effect animation list
                 final_name = true_name
                 if "#" in true_name:  # has animation to play
                     final_name = true_name[:-1]
@@ -266,7 +268,6 @@ def read_animation_data(change_character=True):
                                              final_name == key]
 
                 effect_sprite_pool[folder_data_name][final_name] = sprite_animation_list
-
     if change_character:
         change_animation_character("leader_vraesier")
 
@@ -352,13 +353,13 @@ with open(join(data_dir, "character", "character.csv"),
             char_list.append(row[0])
 
 
-class Filmstrip(pygame.sprite.Sprite):
+class Filmstrip(Sprite):
     """animation sprite filmstrip"""
     base_image = None
 
     def __init__(self, pos):
         self._layer = 5
-        pygame.sprite.Sprite.__init__(self, self.containers)
+        Sprite.__init__(self, self.containers)
         self.pos = pos
         self.image = self.base_image.copy()  # original no sprite
         self.base_image2 = self.base_image.copy()  # after add sprite but before activate or deactivate
@@ -378,8 +379,8 @@ class Filmstrip(pygame.sprite.Sprite):
         if self.activate:
             select_colour = (100, 150, 50)
         if select:
-            pygame.draw.rect(self.image, select_colour, self.image.get_rect(),
-                             int(self.image.get_width() / 5))
+            draw.rect(self.image, select_colour, self.image.get_rect(),
+                      int(self.image.get_width() / 5))
 
     def add_strip(self, image=None, change=True):
         if change:
@@ -395,16 +396,16 @@ class Filmstrip(pygame.sprite.Sprite):
             self.image = self.base_image2.copy()
         self.base_image3 = self.base_image2.copy()
         if not self.activate:  # draw black corner and replace film dot
-            pygame.draw.rect(self.base_image3, (0, 0, 0), self.image.get_rect(),
-                             int(self.image.get_width() / 5))
+            draw.rect(self.base_image3, (0, 0, 0), self.image.get_rect(),
+                      int(self.image.get_width() / 5))
 
 
-class Button(pygame.sprite.Sprite):
+class Button(Sprite):
     """Normal button"""
 
     def __init__(self, text, image, pos, description=None, font_size=16):
         self._layer = 5
-        pygame.sprite.Sprite.__init__(self, self.containers)
+        Sprite.__init__(self, self.containers)
         self.font = pygame.font.Font(Game.ui_font["text_paragraph"], int(font_size * screen_scale[1]))
         self.image = image.copy()
         self.base_image = self.image.copy()
@@ -456,16 +457,16 @@ class SwitchButton(Button):
         self.image.blit(text_surface, text_rect)
 
 
-class BodyHelper(pygame.sprite.Sprite):
+class BodyHelper(Sprite):
     def __init__(self, size, pos, ui_type, part_images):
         self._layer = 6
-        pygame.sprite.Sprite.__init__(self, self.containers)
+        Sprite.__init__(self, self.containers)
         self.font_size = int(9 * screen_scale[1])
         self.font = pygame.font.Font(Game.ui_font["text_paragraph"], self.font_size)
         self.size = size
-        self.image = pygame.Surface(self.size, pygame.SRCALPHA)
+        self.image = Surface(self.size, SRCALPHA)
         self.image.fill((255, 255, 200))
-        pygame.draw.rect(self.image, (100, 150, 150), self.image.get_rect(), 3)
+        draw.rect(self.image, (100, 150, 150), self.image.get_rect(), 3)
         self.base_image = self.image.copy()  # for original before add part and click
         self.rect = self.image.get_rect(center=pos)
         self.ui_type = ui_type
@@ -698,17 +699,17 @@ class BodyHelper(pygame.sprite.Sprite):
             #     self.image.blit(text_surface, text_rect)
 
 
-class NameBox(pygame.sprite.Sprite):
+class NameBox(Sprite):
     def __init__(self, size, pos, description=None):
         self._layer = 6
-        pygame.sprite.Sprite.__init__(self, self.containers)
+        Sprite.__init__(self, self.containers)
         self.font_size = int(22 * screen_scale[1])
         self.font = pygame.font.Font(Game.ui_font["text_paragraph"], int(self.font_size * screen_scale[1]))
         self.description = description
         self.size = size
-        self.image = pygame.Surface(self.size)
+        self.image = Surface(self.size)
         self.image.fill((182, 233, 242))
-        pygame.draw.rect(self.image, (100, 200, 0), self.image.get_rect(), 2)
+        draw.rect(self.image, (100, 200, 0), self.image.get_rect(), 2)
         self.base_image = self.image.copy()
         self.pos = pos
         self.rect = self.image.get_rect(midtop=self.pos)
@@ -730,10 +731,10 @@ class NameBox(pygame.sprite.Sprite):
                 add_to_ui_menu_updater(text_popup)
 
 
-class ColourWheel(pygame.sprite.Sprite):
+class ColourWheel(Sprite):
     def __init__(self, image, pos):
         self._layer = 50
-        pygame.sprite.Sprite.__init__(self)
+        Sprite.__init__(self)
         self.image = image
         self.pos = pos
         self.rect = self.image.get_rect(center=self.pos)
@@ -920,8 +921,8 @@ class Model:
                    frame_prop_list_box, ui_updater, ui_drawer, screen_scale, layer=9, old_list=frame_property_select[current_frame])
 
     def create_animation_sprite(self, pose_layer_list, frame, empty=False):
-        image = pygame.Surface((default_sprite_size[0], default_sprite_size[1]),
-                               pygame.SRCALPHA)  # default size will scale down later
+        image = Surface((default_sprite_size[0], default_sprite_size[1]),
+                        SRCALPHA)  # default size will scale down later
         save_mask = False
         if frame == current_frame:
             save_mask = True
@@ -1091,7 +1092,7 @@ class Model:
                     self.part_name_list[edit_frame][part_index][1] = part_change
                     self.generate_body(self.bodypart_list[edit_frame])
                     if not self.animation_part_list[edit_frame][part_index]:
-                        self.animation_part_list[edit_frame][part_index] = [0, pygame.Vector2(0, 0), [0, 0], 0, 0, 0, 1,
+                        self.animation_part_list[edit_frame][part_index] = [0, Vector2(0, 0), [0, 0], 0, 0, 0, 1,
                                                                             1, 0]
                         self.animation_part_list[edit_frame][part_index][1] = "center"
                     self.animation_part_list[edit_frame][part_index][0] = self.sprite_image[part_index]
@@ -1153,7 +1154,7 @@ class Model:
                         if self.animation_part_list[edit_frame][part_index] is not None and \
                                 len(self.animation_part_list[edit_frame][part_index]) > 3:
                             if edit_type == "place":  # mouse place
-                                new_point = pygame.Vector2(edit_mouse_pos)
+                                new_point = Vector2(edit_mouse_pos)
                                 offset = (self.animation_part_list[edit_frame][part_index][2][0] - center[0],
                                           self.animation_part_list[edit_frame][part_index][2][1] - center[1])
                                 new_point = new_point + offset - showroom_base_point
@@ -1531,7 +1532,7 @@ image = smoothscale(load_image(current_data_dir, "film.png", screen_scale, "anim
                     (int(50 * screen_scale[0]), int(50 * screen_scale[1])))
 
 Filmstrip.base_image = image
-filmstrips = pygame.sprite.Group()
+filmstrips = Group()
 
 Button.containers = ui_updater, ui_drawer
 SwitchButton.containers = ui_updater, ui_drawer
@@ -1540,9 +1541,9 @@ Filmstrip.containers = ui_updater, ui_drawer, filmstrips
 NameBox.containers = ui_updater, ui_drawer
 MenuButton.containers = fake_group
 NameList.containers = ui_updater, ui_drawer
-popup_namegroup = pygame.sprite.Group()
-anim_prop_namegroup = pygame.sprite.Group()
-frame_prop_namegroup = pygame.sprite.Group()
+popup_namegroup = Group()
+anim_prop_namegroup = Group()
+frame_prop_namegroup = Group()
 
 filmstrip_list = [Filmstrip((0, 42 * screen_scale[1]))]
 
@@ -2700,7 +2701,7 @@ while True:
                                 helper_click = helper
                                 break
                         if helper_click is not False:  # to avoid removing selected part when click other stuff
-                            new_mouse_pos = pygame.Vector2(
+                            new_mouse_pos = Vector2(
                                 (mouse_pos[0] - helper_click.rect.topleft[0]),
                                 (mouse_pos[1] - helper_click.rect.topleft[1]))
                             this_part = helper_click.select_part(new_mouse_pos, shift_press, ctrl_press)
@@ -2776,7 +2777,7 @@ while True:
 
                 if showroom.rect.collidepoint(mouse_pos):  # mouse at showroom
                     if mouse_left_up:  # left click on showroom
-                        new_mouse_pos = pygame.Vector2(
+                        new_mouse_pos = Vector2(
                             (mouse_pos[0] - showroom.rect.topleft[0]) * showroom_scale_mul[0],
                             (mouse_pos[1] - showroom.rect.topleft[1]) * showroom_scale_mul[1])
                         model.click_part(new_mouse_pos, shift_press, ctrl_press)
@@ -2789,7 +2790,7 @@ while True:
                                                            specific_part=tuple(model.mask_part_list.keys())[part])
                             helper.blit_part()
                     elif model.part_selected:
-                        new_mouse_pos = pygame.Vector2(
+                        new_mouse_pos = Vector2(
                             (mouse_pos[0] - showroom.rect.topleft[0]) * showroom_scale_mul[0] * model.size,
                             (mouse_pos[1] - showroom.rect.topleft[1]) * showroom_scale_mul[1] * model.size)
                         if mouse_wheel_up or mouse_wheel_down:
@@ -2912,8 +2913,8 @@ while True:
                         prop_list = model.frame_list[index]["animation_property"] + model.frame_list[index][
                             "frame_property"]
                         pose_layer_list = model.make_layer_list(model.animation_part_list[index], prop_list)
-                        image = pygame.Surface((abs(min_x) + abs(max_x), abs(min_y) + abs(max_y)),
-                                               pygame.SRCALPHA)  # default size will scale down later
+                        image = Surface((abs(min_x) + abs(max_x), abs(min_y) + abs(max_y)),
+                                        SRCALPHA)  # default size will scale down later
                         base_point = (image.get_width() / 2 - ((min_x + max_x) / 2), image.get_height() - max_y)
                         for layer in pose_layer_list:
                             part = model.animation_part_list[index][layer]

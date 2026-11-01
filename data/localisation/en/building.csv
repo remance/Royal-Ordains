@@ -9,15 +9,12 @@
 "castle_food_a2_farm","Grain Farm",
 "castle_food_a3_farm","Irrigated Grain Farm",
 "castle_food_a4_farm","Farm Estate",
-"castle_food_b1_granary","Granary","A granary is crucial for efficient grain-based food production operations. The stored grains can be used for long-term ration planning and commerce. Additionally, since grains last much longer with proper storage, more thorough research can be achieved to improve livestock feeding."
-"castle_food_c1_ranch","Ranch",
-"castle_food_c2_barn","Barn",
+"castle_food_b1_ranch","Ranch",
+"castle_food_b2_barn","Barn",
 "castle_fun_a1_tavern","Tavern","A place that can provide the best legal entertainment. Alcohol, bed, community, music, and performance, this place has them all."
-"castle_fun_c1_court","Court",
-"castle_fun_d1_hall","Hall",
+"castle_fun_b1_court","Court",
 "castle_money_a1_market","Market","An aggregation of commerce where capital from all over the realm are gathered and transacted by established and travelling merchants. There is simply no better method to efficiently generate money than in the market."
 "castle_money_a2_great_market","Great Market",
-"castle_money_b1_windmill","Windmill",
 "castle_money_c1_slum","Slum","A slum is a gathering of society's undesirables. A place outside of the reach of the law, and no less savage than the natural world. Despite its prevalent ill effects on civilisation, the underworld can be a useful place for morally questionable transactions away from the eyes of God."
 "castle_money_c2_brothel","Brothel","An establishment for housing the most important profession in the world. Brothels are indeed officially illegal and condemned. By placing them in the slum with a legal front business, they can bring the debauchery of forbidden ecstasy for those with the means to obtain it."
 "castle_settlement_1_motte","Motte-and-bailey ","A motte-and-bailey castle is a small fortification for protecting a small settlement. The defensive and self-sustained design allows it to be a living space for the regional lord. Monsters and raiders will have difficulty taking down these bastions of civilisation."
@@ -29,6 +26,7 @@
 "castle_tech_b1_forestry","Forestry","Civilisation cannot exist without nature. A balance is required to be maintained between order and chaos. So forestry assumes the role in that management."
 "castle_tech_c1_library","Court Library","martial department funding is 10-to-1 to that of magical one."
 "castle_tech_d1_masonry","Masonry",
+"castle_tech_e1_granary","Granary","A granary is crucial for efficient grain-based food production operations. The stored grains can be used for long-term ration planning and commerce. Additionally, since grains last much longer with proper storage, more thorough research can be achieved to improve livestock feeding."
 "common_conservatory","Conservatory","The beauty of the sea should be preserved for future generations. Reaping the benefit without care will only result in destruction, this conservatory will attempt to protect the area from unauthorised sea poaching and harvesting."
 "common_dam","Dam",
 "common_fishery","Fishery",
@@ -88,7 +86,7 @@
 "doll_barrack_g1_balloon_maker","Launch Zone",
 "doll_barrack_a1_workshop","Workshop",
 "doll_barrack_a2_manufacture","Manufacture",
-"doll_barrack_b1_castle","Toy Castle",
+"doll_barrack_b1_castle","Toy Castle","Castles are where all knights live. This castle is a bit too fragile for siege defence, but it still looks nice."
 "doll_barrack_c1_crafting_hut","Crafting Hut",
 "doll_barrack_d1_toy_maker","Toy Maker",
 "doll_barrack_d2_factory","Factory",
@@ -98,11 +96,11 @@
 "doll_food_3_automated_sawmill","Automated Sawmill",
 "doll_fun_a1_theatre","Theatre",
 "doll_fun_a2_circus","Circus",
-"doll_settlement_1_house_comfy","Comfy Doll House","A very comfortable doll house. Modest and warm, this house provides a good memory."
-"doll_settlement_2_house_rich","Rich Doll House",
-"doll_settlement_3_mansion","Doll Mansion",
-"doll_settlement_4_mansion_glorious","Glorious Doll Mansion",
-"doll_settlement_5_palace_royally","Royally Doll Palace",
+"doll_settlement_1_house_comfy","Comfy Doll House","A very comfortable dollhouse. Modest and warm, this house provides a good memory."
+"doll_settlement_2_house_rich","Rich Doll House","A rich dollhouse. Filled with many vanity furnishings and functions."
+"doll_settlement_3_mansion","Doll Mansion","A mansion dollhouse. Only the richest of dolls can stay in this manor."
+"doll_settlement_4_mansion_glorious","Glorious Doll Mansion","A glorious mansion dollhouse. An even bigger mansion. Hundreds of doll servants live inside this abode."
+"doll_settlement_5_palace_royally","Royally Doll Palace","A royally doll palace. Fit for the best of dolls. There is simply no better."
 "doll_tech_a1_geo_study","Geology Study",
 "doll_tech_a2_geo_academy","Geology Academy",
 "doll_tech_b1_reinforce_smith","Reinforce Smith",
@@ -119,14 +117,14 @@
 ,,
 ,,
 "small_barrack_f1_siege_guild","Bird House","A siege guild housing smart rabbit engineers. Sacrificing the simple happiness of nature for the capability of civilised warfare, the vertkins will be ready for true wars."
-"small_barrack_f2_gunnery_guild","Mew",
+"small_barrack_f2_gunnery_guild","Mew","A new way of war is achieved in the most unlikely of places. Only in weakness can one find a new strength."
 "small_barrack_g1_bird_house","Siege Guild","A bird house for the eagles. They do not require much, just basic necessities, and a good sturdy roof is enough to satisfy them."
 "small_barrack_g2_mew","Gunnery Guild","A bird mansion for the eagles. Superb comfort, superb caretakers. The eagles live like royalty in this mew at the others' expense."
 "small_barrack_a1_warrior_warren","Warrior Warren","A warren for housing rabbit warriors. If the rabbits are to go to war, they will require special training and respite."
 "small_barrack_a2_noble_warren","Noble Warren","Only proven rabbit warriors can become a noble. And with that comes a great privilege to rest in an extra nice noble warren."
-"small_barrack_b1_arena","Arena",
+"small_barrack_b1_arena","Arena","With wars approaching, even vertkins must prepare to protect their homes. And there is no better place to practice combat than an arena."
 "small_barrack_c1_snail_house","Snail House","A snail house with a good and balanced humidity system. Snails can live happily and safely in these places."
-"small_barrack_d1_hound","Hound Pen",
+"small_barrack_d1_hound","Hound Pen","Can a prey tame its predator? An answer can be found in this hound pen. A hound is loyal to its master with no prejudice, after all."
 "small_barrack_e1_dark_hole","Dark Hole","A deep, dark hole for rabbits to brood over the unfairness of the world. After a long period of brooding, they will become a cold and cruel rabbit who has no qualms about killing. They may even come to enjoy such malicious acts."
 "small_faith_1_shrine","Shrine","A little shrine to offer gratitude to the spirit of the place. Not particularly grandiose, but it provides little joy to anyone who visits it. The place also features a small exchange where visitors can trade souvenirs and trinkets for gold."
 "small_food_1_garden","Garden","A food garden. Not as efficient as a farm, but rabbits do not require as much subsistence compared to larger people."
@@ -134,7 +132,7 @@
 "small_food_2.2_flower_garden","Flower Garden","Beautiful and delicious snacks, flower gardens are a favourite of rabbits to relax."
 "small_fun_1_water_spring","Water Spring","A water spring provides entertainment for most vertkins. It occasionally serves as a communal space for frolicking activities."
 "small_guard_1_tower","Rabbit Tower","A rabbit tower to overlook the warren. Not the most durable of structures, but it provides a nice deterrent against small-time predators."
-"small_guard_2.1_tower","Rabbit Guard Tower",
+"small_guard_2.1_tower","Rabbit Guard Tower","A warren must be on guard for enemies at all times, so a tower must be accompanied by patrol groups to safeguard the land in every measure."
 "small_guard_2.2_music_tower","Music Tower","Not everything created for war has to be only about war. Rabbits also find joy in life through music, so they tend to adapt the tower into a music tower in peacetime."
 "small_money_a1_clay_maker","Clay Maker","Pottery is one of the most popular recreations among rabbits. Extra earthenware can also fetch good money in other communities."
 "small_money_b1_trader","Trader","A trader's lodge. Nature exists to be used, so perhaps a little bit of taking should be fine."
@@ -143,10 +141,10 @@
 "small_settlement_2_warren_small","Small Warren","A small warren that can house hundreds of rabbits. A new commune is shaping up to become the cornerstone of this little domain."
 "small_settlement_3_warren_moderate","Moderate Warren","A moderate warren that can house a thousand rabbits. A tall mound yet also deep into the earth, a complex network of accommodation stretches far and wide."
 "small_settlement_4_warren_nice","Nice Warren","A nice warren that provides comfort to thousands of rabbits. Beyond mere survival, this warren is stocked with commodities and equipments to provide happy times."
-"small_settlement_5_warren_great","Great Warren",
+"small_settlement_5_warren_great","Great Warren","A great oversized warren that symbolises the domination of rabbits in the area. An uncountable number of rabbits live in this great mound."
 "small_tech_a1_fur_hardener","Fur Hardener","A fur hardener hut that focuses on producing and improving chemical solutions to toughen rabbit's fur for natural protection in battle."
 "small_tech_b1_weapon_smith","Weapon Smith",
-,,
+"small_tech_c1_study","Study","A small study for rabbits to improve their ken. The small world will expand into the vast unknown."
 ,,
 ,,
 ,,
@@ -218,10 +216,10 @@
 "unique_misery_volcano",,
 "unique_penguin_paradise","Penguin Paradise",
 "unique_phoenix_nest",,
-"unique_rabbit_first_warren","First Warren",
+"unique_rabbit_first_warren","First Warren","The first great warren of rabbits. A historical site that signified the new era of small people."
 "unique_rabbit_first_warren_ruin","First Warren Ruin",
-"unique_rabbit_jousting_arena","Pamat Jousting Arena",
-"unique_rabbit_jousting_arena_ruin",,
+"unique_rabbit_jousting_arena","Pamat Jousting Arena","The forest jousting arena. Inspired by the knight jousting culture of the Central Realms, rabbits came to believe that such strength could be obtained from tournaments."
+"unique_rabbit_jousting_arena_ruin",,"The ruin of the forest jousting arena. Decrepit from destruction, only the whisper of long-gone applause can still be heard."
 "unique_rainbow_lake",,
 "unique_rainbow_pot",,
 "unique_rainbow_pot_looted",,

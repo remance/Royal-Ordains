@@ -284,11 +284,13 @@ class DataStat(GameData):
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
+            tuple_column = ("Colour", )
+            tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
             dict_column = ("Cosmic Replace", "Effect", "Event Scene", "Event Actor")
             dict_column = [index for index, item in enumerate(header) if item in dict_column]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
-                    row = stat_convert(row, n, i, dict_column=dict_column)
+                    row = stat_convert(row, n, i, tuple_column=tuple_column, dict_column=dict_column)
                 self.cosmic_event_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
         edit_file.close()
 

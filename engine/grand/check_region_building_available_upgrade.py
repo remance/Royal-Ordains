@@ -10,7 +10,6 @@ def check_region_building_available_upgrade(self, faction, region, building_to_c
 
     available_building_upgrade_by_type = {}
     all_available_building_upgrade = []
-    faction_gold = self.current_campaign_state["faction"][faction]["gold"]
     for building, requirement in exist_building_upgrade.items():
         this_building_stat = building_list[building]
         building_type = this_building_stat["Type"]
@@ -25,10 +24,8 @@ def check_region_building_available_upgrade(self, faction, region, building_to_c
             if can_build:
                 if building_type not in available_building_upgrade_by_type:
                     available_building_upgrade_by_type[building_type] = {}
-                if this_building_stat["Cost"] > faction_gold:
-                    available_building_upgrade_by_type[building_type][building] = False
-                else:
-                    available_building_upgrade_by_type[building_type][building] = True
-                    all_available_building_upgrade.append(building)
+
+                available_building_upgrade_by_type[building_type][building] = True
+                all_available_building_upgrade.append(building)
 
     return available_building_upgrade_by_type, all_available_building_upgrade

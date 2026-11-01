@@ -9,7 +9,7 @@ from engine.utils.rotation import set_rotate
 
 
 class Weather(UIOuterBattle):
-    def __init__(self, weather_type, wind_direction, level):
+    def __init__(self, weather_type, wind_angle, level):
         self._layer = 99999999999999999999
         UIOuterBattle.__init__(self)
         self.weather_data = self.battle.weather_data
@@ -49,8 +49,14 @@ class Weather(UIOuterBattle):
         self.weather_spawn_timer = {key: 0 for key in self.spawn_cooldown}
         self.wind_strength = int(stat["Wind Strength"] * cal_level)
         self.speed = stat["Travel Speed"] * self.wind_strength
-        self.wind_direction = wind_direction
-        self.travel_angle = wind_direction - 90  # convert degree from human-readable (or whatever it is called)
+        self.wind_angle = wind_angle
+        self.wind_direction = "idle"
+        if 0 < wind_angle < 180:
+            self.wind_direction = "right"
+        elif -180 < wind_angle < 0:
+            self.wind_direction = "left"
+
+        self.travel_angle = wind_angle - 90  # convert degree from human-readable (or whatever it is called)
         if self.travel_angle == 0:
             self.spawn_angle = 180
         else:

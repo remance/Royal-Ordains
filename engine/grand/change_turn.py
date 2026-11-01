@@ -1,5 +1,5 @@
 from engine.constants import Culture_Policy_Integration
-
+from random import uniform
 
 def change_turn(self, turn_change=True):
     """
@@ -20,11 +20,20 @@ def change_turn(self, turn_change=True):
                         diplomacy_value["value"] += diplomacy_value["history"][index][1]
                     else:
                         diplomacy_value["history"].pop(index)
+            self.cal_faction_culture(faction)
+
+            for region in faction_state["region"]:
+                self.cal_region_income_recruit(faction, region)
+
+            for army in faction_state["army"]:
+                army.reset_stat(reset_player_army_card=True)
+
+            self.cal_faction_income_recruit(faction)
 
             if turn_change:
                 # event duration is based on turn rather than phase
-                faction_state["event"] = {event: value - 1 for event, value in faction_state["event"].items() if
-                                          value > 1}
+                faction_state["event"] = {event: [event[0], event[1] - 1] for event in faction_state["event"] if
+                                          event[0] > 1}
 
                 # faction_region_control = self.current_campaign_state["region"]["control"][faction]
                 for faction_culture in faction_state["culture"].values():
@@ -36,20 +45,19 @@ def change_turn(self, turn_change=True):
                         faction_culture["integration"] -= 0.01
 
                 faction_state["gold"] += faction_state["gold_income"]
-                if faction_state["gold"] < 0:
-                    faction_state["gold"] = 0
                 faction_state["supply"] += faction_state["supply_income"]
+
+                if faction_state["gold"] < 0:  # last 10 turns each
+                    faction_state["event"].append([{"ID": "bankrupt", "happiness": faction_state["gold"] / 1000}, 10])
                 if faction_state["supply"] < 0:
-                    faction_state["supply"] = 0
+                    faction_state["event"].append([{"ID": "famine", "happiness": faction_state["supply"] / 1000}, 10])
 
-            self.cal_faction_culture(faction)
+                if faction_state["happiness"] < 0:
+                    # check for rebel among unhappy region
 
-            for region in faction_state["region"]:
-                self.cal_region_income_recruit(faction, region)
-
-            for army in faction_state["army"]:
-                army.reset_stat(reset_player_army_card=True)
-
-            self.cal_faction_income_recruit(faction)
+                    # check for universal random rebel
+                    if uniform(-100, 0) < faction_state["happiness"]:
+                        # rebel!
+                        self.create_new_army(no_assemble=True)
 
     self.change_phase(phase_change=turn_change)

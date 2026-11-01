@@ -4,29 +4,37 @@ from engine.utils.text_making import convert_modifier_number_to_percent_text, ad
 
 def cal_faction_income_recruit(self, faction):
     current_campaign_state = self.current_campaign_state
-    faction_data = current_campaign_state["faction"][faction]
-    total_gold_income = self.faction_list[faction]["Gold Income"]
-    total_supply_income = self.faction_list[faction]["Supply Income"]
+    campaign_faction_state = current_campaign_state["faction"][faction]
+    faction_data = self.faction_list[faction]
+    total_gold_income = faction_data["Gold Income"]
+    total_supply_income = faction_data["Supply Income"]
     total_happiness = 0
-    region_control_state = faction_data["region"]
+    region_control_state = campaign_faction_state["region"]
     region_campaign_state = current_campaign_state["region"]
 
-    list_of_happiness_effect = {"region_income": [], "influence_effect": [], "coexist_effect": [], "event_effect": []}
+    list_of_happiness_effect = {"region_income": [], "influence_effect": [], "coexist_effect": [], "event_effect": [],
+                                "famine_effect": [], "bankrupt_effect": []}
     list_of_gold_income_effect = {"start_income": total_gold_income, "region_income": [], "army_upkeep": [],
                                   "event_effect": []}
     list_of_supply_income_effect = {"start_income": total_supply_income, "region_income": [], "event_effect": []}
 
-    for event in faction_data["event"]:  # add happiness from event first
-        for effect, effect_value in self.map_data.event_list[event]["Effect"]:
+    for event in campaign_faction_state["event"]:
+        event_data = event[0]
+        event_type = "event_effect"
+        if event_data["ID"] == "bankrupt":
+            event_type = "bankrupt_effect"
+        elif event_data["ID"] == "famine":
+            event_type = "famine_effect"
+        for effect, effect_value in event_data.items():
             if effect == "happiness":
                 total_happiness += effect_value
-                list_of_happiness_effect["event_effect"].append((event, effect_value))
+                list_of_happiness_effect[event_type].append((event["ID"], effect_value))
             elif effect == "gold":
                 total_gold_income += effect_value
-                list_of_gold_income_effect["event_effect"].append((event, effect_value))
+                list_of_gold_income_effect[event_type].append((event["ID"], effect_value))
             elif effect == "supply":
                 total_supply_income += effect_value
-                list_of_supply_income_effect["event_effect"].append((event, effect_value))
+                list_of_supply_income_effect[event_type].append((event["ID"], effect_value))
 
     for event in current_campaign_state["cosmic_event"]:
         for effect, effect_value in self.cosmic_event_list[event]["Effect"].items():
@@ -86,12 +94,12 @@ def cal_faction_income_recruit(self, faction):
     happy_mod_text = add_plus_to_number(happiness_effect_modifier) + "%"
     happiness_effect_modifier = (happiness_effect_modifier / 100) + 1
 
-    faction_data["recruit"] = {"leader": [], "troop": [], "air": []}
+    campaign_faction_state["recruit"] = {"leader": [], "troop": [], "air": []}
     for region in region_control_state:
         region_income_state = region_campaign_state[region]["income"]
         region_recruit_state = region_campaign_state[region]["recruit"]
         for key, value in region_recruit_state.items():  # add recruit from each region
-            faction_data["recruit"][key] += [item for item in value if item not in faction_data["recruit"][key]]
+            campaign_faction_state["recruit"][key] += [item for item in value if item not in campaign_faction_state["recruit"][key]]
         region_gold_income = region_income_state["gold_income"] * happiness_effect_modifier
         region_supply_income = region_income_state["supply_income"] * happiness_effect_modifier
         total_gold_income += region_gold_income
@@ -102,14 +110,14 @@ def cal_faction_income_recruit(self, faction):
     list_of_gold_income_effect["happiness_modifier"] = happy_mod_text
     list_of_supply_income_effect["happiness_modifier"] = happy_mod_text
 
-    for army in faction_data["army"]:
+    for army in campaign_faction_state["army"]:
         total_gold_income += army.upkeep
         list_of_gold_income_effect["army_upkeep"].append((army.game_id, army.upkeep))
 
-    faction_data["gold_income"] = total_gold_income
-    faction_data["supply_income"] = total_supply_income
-    faction_data["happiness"] = total_happiness
+    campaign_faction_state["gold_income"] = total_gold_income
+    campaign_faction_state["supply_income"] = total_supply_income
+    campaign_faction_state["happiness"] = total_happiness
 
-    faction_data["happiness_effect"] = list_of_happiness_effect
-    faction_data["gold_effect"] = list_of_gold_income_effect
-    faction_data["supply_effect"] = list_of_supply_income_effect
+    campaign_faction_state["happiness_effect"] = list_of_happiness_effect
+    campaign_faction_state["gold_effect"] = list_of_gold_income_effect
+    campaign_faction_state["supply_effect"] = list_of_supply_income_effect

@@ -37,5 +37,9 @@ def apply_status(self, status):
                                            false_order=True)
             elif status_property["false_order"] == "retreat":
                 # retreat from battle
-                self.issue_commander_order(("broken",), false_order=True)
+                if self.no_move:  # character that cannot move go into idle instead
+                    self.issue_commander_order(("idle", self.base_pos[0]),
+                                               false_order=True)
+                else:
+                    self.issue_commander_order(("broken",), false_order=True)
         self.status_duration[status] = status_stat["Duration"]

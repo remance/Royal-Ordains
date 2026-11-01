@@ -83,6 +83,7 @@ def state_grand_process(self):
 
             self.menu_bar_ui.option_selected = None
             self.change_game_state("menu")  # open menu
+            self.remove_from_outer_ui_menu_updater(self.player_collapsable_uis)
             self.remove_from_outer_ui_menu_updater(self.cursor)
             self.add_to_ui_menu_updater(self.cursor)
             self.add_to_ui_menu_updater(self.grand_menu_button.values())  # add menu and its buttons to drawer
@@ -142,3 +143,13 @@ def state_grand_process(self):
             self.input_box.render_text("")
             self.input_popup = None
             self.remove_from_ui_menu_updater(self.all_input_popup_uis)
+
+    # if self.current_campaign_state["cosmic_event"]:  # add colour effect to screen from cosmic
+    #     for event in self.cosmic_event_list:
+    #         # apply colour effect only for first event in list
+    #         colour = self.cosmic_event_list[event]["Colour"]
+    #         s = pygame.Surface(self.screen_size, pygame.SRCALPHA)
+    #         if colour:
+    #             s.fill(colour)
+    #             self.camera.image.blit(s)
+    #         break

@@ -584,7 +584,7 @@ class Game:
 
         self.custom_preset_army_setup = PresetArmySetupUI((self.screen_width * 0.4, self.screen_height * 0.2),
                                                           True)
-        self.custom_preset_army_title = CustomPresetTitle((self.game.screen_width * 0.8, 80 * self.screen_scale_height),
+        self.custom_preset_army_title = CustomPresetTitle((self.game.screen_width * 0.8, 120 * self.screen_scale_height),
                                                           (self.screen_rect.width / 2,
                                                            self.custom_preset_army_setup.rect.midtop[1]))
         self.character_selector = CharacterSelector((self.screen_width * 0.78, self.screen_height * 0.2))

@@ -139,7 +139,8 @@ class UIMenu(Sprite):
     ui_font = None
     updater = None
 
-    def __init__(self, player_cursor_interact=True, has_containers=False, play_sound_when_click=False):
+    def __init__(self, player_cursor_interact=True, has_containers=False, play_sound_when_click=False,
+                 bypass_update_pause_check=False):
         """
         Parent class for all menu user interface objects
 
@@ -165,6 +166,7 @@ class UIMenu(Sprite):
         self.event_middle_mouse_press = False
         self.mouse_over = False
         self.pause = False
+        self.bypass_update_pause_check = bypass_update_pause_check
 
     def update(self, dt):
         self.event = False
@@ -179,7 +181,7 @@ class UIMenu(Sprite):
             if self.rect.collidepoint(cursor.pos):
                 self.mouse_over = True
                 cursor.mouse_over = True
-                if not self.pause:
+                if not self.pause or self.bypass_update_pause_check:
                     if cursor.is_select_just_up:
                         if self.play_sound_when_click:
                             self.button_sound_channel.play(choice(self.sound_effect_pool["button"]))
@@ -334,7 +336,7 @@ class MenuCursor(UIMenu):
 
 
 class SliderMenu(UIMenu):
-    def __init__(self, bar_images, button_images, pos, value):
+    def __init__(self, bar_images, button_images, pos, value, layer=25):
         """
         Slider UI that let player click or drag the setting point in the bar
         :param bar_images: List of box image and slider box
@@ -342,26 +344,45 @@ class SliderMenu(UIMenu):
         :param pos: Position of the ui sprite
         :param value: Value of the setting
         """
-        self._layer = 25
+        self._layer = layer
         UIMenu.__init__(self)
+        self.pressed = False
         self.pos = pos
         self.image = bar_images[0].copy()
         self.slider_size = bar_images[1].get_width()
+        self.image_center_y = self.image.get_height() / 2
         self.difference = (self.image.get_width() - self.slider_size) / 2
         self.value_scale = self.slider_size / 100
         self.bar_rect = bar_images[1].get_rect(center=(self.image.get_width() / 2, self.image.get_height() / 2))
         self.image.blit(bar_images[1], self.bar_rect)
         self.button_image_list = button_images
         self.button_image = self.button_image_list[0]
+        self.pressed_button_image = self.button_image_list[1]
         self.value = value
         self.base_image = self.image.copy()
-        button_rect = self.button_image_list[1].get_rect(
+        button_rect = self.button_image.get_rect(
             center=((self.slider_size * value / 100) + self.difference,
-                    self.image.get_height() / 2))
+                    self.image_center_y))
         self.image.blit(self.button_image, button_rect)
         self.rect = self.image.get_rect(center=self.pos)
 
-    def player_input(self, value_box, forced_value: bool|int|float=False):
+    def update(self, dt):
+        if UIMenu.update(self, dt) and self.event_hold:
+            self.pressed = True
+            self.image = self.base_image.copy()
+            button_rect = self.pressed_button_image.get_rect(
+                center=((self.slider_size * self.value / 100) + self.difference,
+                        self.image_center_y))
+            self.image.blit(self.pressed_button_image, button_rect)
+        elif self.pressed:
+            self.pressed = False
+            self.image = self.base_image.copy()
+            button_rect = self.button_image.get_rect(
+                center=((self.slider_size * self.value / 100) + self.difference,
+                        self.image_center_y))
+            self.image.blit(self.button_image, button_rect)
+
+    def player_input(self, value_box, forced_value: bool | int | float = False):
         """
         Update slider value and position
         :param value_box: UI box that show number value
@@ -378,10 +399,7 @@ class SliderMenu(UIMenu):
                 self.value = ceil(inside_bar_mouse_pos[0] / self.slider_size * 100)
         else:  # for revert, cancel or esc in the option menu
             self.value = forced_value
-        self.image = self.base_image.copy()
-        button_rect = self.button_image_list[1].get_rect(center=((self.slider_size * self.value / 100) + self.difference,
-                                                                 self.image.get_height() / 2))
-        self.image.blit(self.button_image, button_rect)
+        self.pressed = True
         value_box.change_value(self.value)
 
 
@@ -632,8 +650,8 @@ class CharacterSelector(UIMenu):
                          character_data["Cost"]), self.grand_ui_images["gold"])]
 
         if character_data["Leadership"]:
-            char_stat.append(grab_text(("ui", "info_header_leadership")) + str(
-                character_data["Leadership"]))
+            char_stat.append((grab_text(("ui", "info_header_leadership")) + str(
+                character_data["Leadership"]), self.grand_ui_images["leadership"]))
         if character_data["Strategy"]:
             char_stat.append(
                 grab_text(("ui", "info_header_strategy")) + grab_text(
@@ -1039,8 +1057,7 @@ class PresetArmySetupUI(UIMenu):
         self.selected_culture = selected_culture
         self.selected_portrait_index = ()
         self.game.character_selector.add(None, "")
-        self.game.custom_preset_army_title.change_text(self.current_preset_name, 0, 0, 0)
-        self.game.custom_preset_army_title.change_text(self.current_preset_name, 0, 0, 0)
+        self.game.custom_preset_army_title.change_text(self.current_preset_name)
         self.game.custom_preset_list_box.adapter.__init__()  # reset custom preset list as well
         self.reset()
 
@@ -1728,15 +1745,15 @@ class KeybindIcon(UIMenu):
 
 
 class ValueBox(UIMenu):
-    def __init__(self, image, pos, value, text_size):
+    def __init__(self, image, pos, value, font):
         self._layer = 26
         UIMenu.__init__(self, player_cursor_interact=False)
-        self.font = Font(self.ui_font["main_button"], text_size)
+        self.font = font
         self.pos = pos
         self.image = image.copy()
         self.base_image = self.image.copy()
         self.value = value
-        text_surface = self.font.render(str(self.value), True, (30, 30, 30))
+        text_surface = self.font.render(str(int(self.value)), True, (30, 30, 30))
         text_rect = text_surface.get_rect(center=self.image.get_rect().center)
         self.image.blit(text_surface, text_rect)
         self.rect = self.image.get_rect(center=self.pos)
@@ -1744,7 +1761,7 @@ class ValueBox(UIMenu):
     def change_value(self, value):
         self.value = value
         self.image = self.base_image.copy()
-        text_surface = self.font.render(str(self.value), True, (30, 30, 30))
+        text_surface = self.font.render(str(int(self.value)), True, (30, 30, 30))
         text_rect = text_surface.get_rect(center=self.image.get_rect().center)
         self.image.blit(text_surface, text_rect)
 
@@ -2418,14 +2435,14 @@ class CustomPresetTitle(UIMenu):
     def __init__(self, size, pos):
         self._layer = 15
         UIMenu.__init__(self)
-        self.font = self.game.medium_generic_ui_font
+        self.font = self.game.large_generic_ui_font
         self.pos = pos
         self.name = ""
         self.image = pygame.Surface(size)
         self.image.fill((150, 150, 150))
         self.rect = self.image.get_rect(midbottom=self.pos)
 
-    def change_text(self, name, cost, supply, leadership):
+    def change_text(self, name, cost=0, supply=0, leadership=0, upkeep=0):
         self.name = name
         self.image.fill((150, 150, 150))
 
@@ -2433,11 +2450,12 @@ class CustomPresetTitle(UIMenu):
         text_rect = text_surface.get_rect(midleft=(0, self.image.get_height() / 2))
         self.image.blit(text_surface, text_rect)
 
-        text_surface = self.font.render(self.grab_text(("ui", "info_header_leadership")) +
-                                        add_comma_number(int(leadership)) +
-                                        "/" + self.grab_text(("ui", "info_header_cost")) + add_comma_number(cost) +
-                                        "/" + self.grab_text(("ui", "info_header_supply")) + add_comma_number(supply),
-                                        True, (30, 30, 30))
+        text_stuff = [self.grab_text(("ui", "info_header_leadership")) + add_comma_number(int(leadership)), self.grand_ui_images["leadership"],
+                      "/" + self.grab_text(("ui", "info_header_supply_max_usage")) + add_comma_number(supply), self.grand_ui_images["supply"],
+                      "/" + self.grab_text(("ui", "info_header_cost")) + add_comma_number(cost), self.grand_ui_images["gold"]]
+        if upkeep:
+            text_stuff += ["/" + self.grab_text(("ui", "info_header_upkeep")) + add_comma_number(upkeep), self.grand_ui_images["gold"]]
+        text_surface = make_long_text(text_stuff, (0, 0), self.font)
         text_rect = text_surface.get_rect(midright=(self.image.get_width(), self.image.get_height() / 2))
         self.image.blit(text_surface, text_rect)
 

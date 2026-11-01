@@ -1,4 +1,4 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
 "Attack1","Slash",,,,250,,,,14,11,4,5,,"slash",,,,
-"Attack2","Bite",,,,200,,,,10,16,10,20,,"water",,,,
-"Skill1","Throw Stone",,"name:Skill1End","self:{no_engage=800}",4000,4000,4,10,15,4,10,10,,"crush",,,,"arc"
+"Skill1","Throw Stone",,"name:Skill1End","self:{no_engage=400}",1500,2000,4,5,15,4,10,10,,"crush",,,,"arc"
+"Die","Shell Block",,,"self:{die}",,,,,,,,,,,,,,

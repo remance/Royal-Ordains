@@ -20,7 +20,7 @@ def start_battle_engagement(self, armies, base_pos):
                 campaign_battle_armies.append(army)
 
             if army.faction == self.player_faction:
-                self.player_army_list_ui.reset_card(army)
+                self.grand_army_list_ui.reset_card(army)
 
     if team_1_army.current_region != self.region_list[team_1_army.current_region]["Settlement POS"]:
         # fight outside of settlement

@@ -1,12 +1,13 @@
 from engine.army.change_commander import change_commander
 from engine.army.change_phase import change_phase
 from engine.army.check_assemble import check_assemble
+from engine.army.check_enemy_army import check_enemy_army
+from engine.army.deploy_army_from_reserve import deploy_army_from_reserve
 from engine.army.issue_move_command import issue_move_command
 from engine.army.remove_army_from_active import remove_army_from_active
 from engine.army.remove_army_from_reserve import remove_army_from_reserve
 from engine.army.remove_follower import remove_follower
 from engine.army.reset_stat import reset_stat
-from engine.grand.deploy_army_from_reserve import deploy_army_from_reserve
 
 
 class Army:
@@ -15,6 +16,7 @@ class Army:
     grand = None
 
     change_commander = change_commander
+    check_enemy_army = check_enemy_army
     change_phase = change_phase
     check_assemble = check_assemble
     deploy_from_reserve = deploy_army_from_reserve
@@ -80,6 +82,8 @@ class Army:
             self.check_assemble()
 
         self.reset_stat(include_culture_influence=include_culture_influence)
+        if grand_state:
+            self.check_enemy_army()  # check for enemy/battle when it is created right away in grand
 
     @property
     def to_dict(self) -> dict:

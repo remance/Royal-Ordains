@@ -8,25 +8,25 @@ def check_status(who, status):
 
 
 def check_health_lower(who, value):
-    if who.health * who.base_health <= value:
+    if who.base_health * value <= who.health:
         return True
     return None
 
 
 def check_resource_lower(who, value):
-    if who.resource * who.base_resource <= value:
+    if who.base_resource * value <= who.resource:
         return True
     return None
 
 
 def check_health_higher(who, value):
-    if who.health * who.base_health >= value:
+    if  who.base_health * value >= who.health:
         return True
     return None
 
 
 def check_resource_higher(who, value):
-    if who.resource * who.base_resource >= value:
+    if who.base_resource * value >= value:
         return True
     return None
 

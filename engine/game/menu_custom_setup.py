@@ -37,7 +37,8 @@ def menu_custom_setup(self):
                         self.custom_team_army[team][index].__init__("", army_preset["culture"],
                                                                     army_preset["culture"],
                                                                     army_preset["commander"],
-                                                                    army_preset["followers"])
+                                                                    army_preset["followers"],
+                                                                    custom_preset_id = hover_preset)
                         setup_ui.change_cost(index, self.custom_team_army[team][index].cost,
                                              self.custom_team_army[team][index].total_supply_usage)
                         self.custom_team_army_buttons[team][index].change_state(
@@ -131,7 +132,7 @@ def menu_custom_setup(self):
             self.custom_preset_culture_selector.change_culture_preset(Custom_Default_Culture)
             self.custom_preset_army_setup.change_culture_preset(Custom_Default_Culture)
             self.custom_preset_list_box.adapter.__init__()
-            self.custom_preset_army_title.change_text("", 0, 0, 0)
+            self.custom_preset_army_title.change_text("")
             self.add_to_ui_menu_updater(self.custom_preset_menu_uis)
             self.remove_from_ui_menu_updater(self.custom_battle_menu_uis_remove)
             for index in range(0, 4):

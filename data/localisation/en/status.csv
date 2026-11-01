@@ -15,6 +15,11 @@
 "collapse","Collapse","Collapse into a state unbefitting of combat, perhaps a prompt rescue is in order.","Debuff"
 "confident","Confident","Be confident and march onward. Strike with conviction and spare no mercy.","Buff"
 "confuse","Confuse","""What is going on? What is happening?"" Confusion in battle may last a short time, but such a condition may as well cause defeat.","Debuff"
+"cosmos_blood_moon","Blood Moon",,
+"cosmos_diamond_sun","Diamond Sun",,
+"cosmos_radiant_eclipse","Radiant Eclipse",,
+"cosmos_royal_moon","Royal Moon",,
+"cosmos_vert_moon","Vert Moon",,
 "cripple","Cripple","Cripple in body, but can the heart hold out? Only time will tell.","Debuff"
 "cure","Cure","Cure from negative physical manifestations. A healthy warrior for a hearty combat.","Buff"
 "curse","Curse","Unholy curse power, the like of which only the foulest of creatures can conjure. Misfortune becomes the definition of the victim.","Debuff"
@@ -28,6 +33,7 @@
 "drench","Drench","Wet from head to toes, almost as if swimming in the water. Avoid cold temperature or air element damage at all costs.","Debuff"
 "drunk","Drunk","Getting drunk in battle may not be the smartest thing to do, but It sure helps raise the morale and fierceness of the unit.","Debuff"
 "earth_shield","Earth Shield","Blessing of the earth, to be its guardian forevermore.","Buff"
+"earthquake","Earthquake",,
 "electrocution","Electrocution","Electric shock causes not just mere pain, but it also leaves the victim's body in extreme constriction.","Debuff"
 "enraged","Enraged","Enraged enough to attack with intensity, but not enough to forget to defend.","Debuff"
 "escalation_1","Escalation Phase 1","Escalation begins, weakness prevails, yet strength awaits.","Debuff"
@@ -41,7 +47,13 @@
 "flame_shield","Flame Shield","With fire as an ally and shield, no other flame can truly harm them.","Buff"
 "freezing","Freezing","Frozen in place and time. Nothing to be done but wait.","Debuff"
 "full_power","Full Power","Into full power and full offensive. The best moment to attack is now.","Buff"
+"great_defence","Great Defence",,
 "great_heal","Great Heal",,"Buff"
+"great_offence","Great Offence",,
+"great_power","Great Power","Infused with great power. Pure strength flows.",
+"great_slow","Great Slow",,
+"great_speed","Great Speed",,
+"great_weakness","Great Weakness",,
 "half_resource_cost","Half Resource Cost","Be more efficient, and you will find that resources exist more than you think.","Buff"
 "haste","Haste","Overflowed with speed. So reached half a victory.","Buff"
 "health_potion","Health Potion","Health potions are rudimentary articles for all adventurers and heroes. Difficult to mass-produce, they serve as healing items for those with the means to acquire them.","Buff"
@@ -68,12 +80,15 @@
 "pin_down","Pin Down","Pinned down in place and unable to move quickly. A primed target for a hail of arrows.","Debuff"
 "plague","Plague","Anyone with a plague is dangerous to everyone around him, especially when so many people are staying so close in tight formation.","Debuff"
 "poison","Poison","A dangerous substance that causes damage over time. Endure and hope for the best or seek aid.","Debuff"
+"protection","Protection",,
 "provoke","Provoke","No longer calm and collected, such an aggravated mind is easy to trick.","Debuff"
 "pure_focus","Pure Focus","Focus only on victory. Optimise all available resources to achieve it.","Buff"
 "regeneration","Regeneration","Wounds can be healed naturally, but such a slow process can be insufficient. The faster the recovery, the more fights can be done.","Buff"
+"resource_drain","Resource Drain",,
 "resource_generation","Resource Generation","Regenerating resources is crucial. Combat effectiveness depends on the resources available to be used after all.","Buff"
 "resource_kit","Resource Kit",,"Buff"
 "resource_potion","Resource Potion","Resource potions improve the focus of the user, allowing them to fight more efficiently.  ","Buff"
+"rust","Rust",,
 "second_wind","Second Wind","Regaining lost health to enjoy the fight a little longer.","Buff"
 "shock","Shock",,"Debuff"
 "slow","Slow","Slowing to a crawl. Best be steady, or you may lose both race and war.","Debuff"
@@ -86,11 +101,15 @@
 "stun","Stun","Vision blur, hearing deafen, regain oneself or be perished.","Debuff"
 "suppressed","Suppressed",,"Debuff"
 "supreme_defence","Supreme Defence","There is no offence without defence. The best defence creates the greatest opportunity.","Buff"
+"supreme_resistance","Supreme Resistance",,
 "tactical_retreat","Tactical Retreat",,"Buff"
 "terror","Terror","How can one fight under terror? It would be better to run far away from this accursed battlefield.","Debuff"
 "time_stop","Time Stop","Control the time, control the destiny.","Debuff"
 "true_speed","True Speed",,"Buff"
+"turn_undead","Turn Undead",,
 "vulnerable","Vulnerable",,"Debuff"
 "wasp","Wasp",,"Debuff"
 "water_shield","Water Shield",,"Buff"
+"weakness","Weakness",,
 "wet","Wet","Being wet can be either good or bad. Fire and burning become much less effective, but the damage and effect of air and water become a dangerous threat.","Debuff"
+"will_domination","Will Domination",,

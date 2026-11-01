@@ -39,7 +39,7 @@ class GrandObject(Sprite):
     def update(self, true_dt, dt):
         grand = self.grand
         text_popup = grand.text_popup
-        if self.rect.collidepoint(grand.cursor_pos) and not grand.cursor.event and not grand.player_interact.rect:
+        if self.rect.collidepoint(grand.cursor_pos) and not grand.cursor.mouse_over and not grand.player_interact.rect:
             text_popup.popup(self.cursor.rect, (grand.grab_text(("building", self.sprite_id, "Name")), "",
                                                 grand.grab_text(("building", self.sprite_id, "Description"))),
                                   width_text_wrapper=self.max_description_box_width)
