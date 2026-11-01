@@ -11,8 +11,18 @@ def move_logic(self, dt, done):
     @param done: animation done playing
     @return: True if sprite reach target and is killed
     """
+
+    speed = self.speed
+    if self.travel_wind_direction:
+        new_wind_direction = self.battle.current_weather.wind_drection
+        if self.current_wind_travel_direction != new_wind_direction:
+            self.current_wind_travel_direction = new_wind_direction
+            if new_wind_direction != "idle":
+                self.travel_distance *= -1  # go opposite way
+            else:  # idle wind for effect that travel with wind means it stop moving
+                speed = 0
+
     if self.travel_distance:  # sprite that can move
-        speed = self.speed
         if self.direct_shot:
             new_pos = Vector2(self.base_pos[0] - (speed * self.sin_angle),
                               self.base_pos[1] - (speed * self.cos_angle))
@@ -68,3 +78,5 @@ def move_logic(self, dt, done):
     elif done:
         self.reach_target()
         return True
+
+    return None

@@ -1,11 +1,19 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.game.game import Game
+    from engine.grand.grand import Grand
+
 import gc
 
 from pygame.event import clear as clear_event
 
 
-def start_battle(self, grand, campaign, stage, team_state, player_team, battle_name, custom_stage_data=None,
-                 ai_retreat=False,
-                 setup_battle=False):
+def start_battle(self: Game, grand: Grand, campaign: str, stage: str, team_state: dict, player_team: (None, int),
+                 battle_name: str, custom_stage_data: (None, dict) = None, ai_retreat: bool = False,
+                 setup_battle: bool = False):
     # self.error_log.write("\n Map: " + str(self.map_selected) + "\n")
     self.loading_screen("start")
     if setup_battle:

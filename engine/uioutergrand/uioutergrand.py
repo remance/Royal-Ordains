@@ -1,12 +1,13 @@
 from math import ceil
 from random import choice
 
-from pygame import Vector2, Surface, SRCALPHA, Rect, draw, Color, Font
+from pygame import Vector2, Surface, SRCALPHA, Rect, draw, Color
 from pygame.sprite import spritecollideany
 
-from engine.uimenu.uimenu import UIMenu, UIScroll
 from engine.uibattle.uibattle import CharacterSpeechBox
+from engine.uimenu.uimenu import UIMenu, UIScroll
 from engine.uiouterbattle.drama import TextDrama
+from engine.constants import Base_Animation_Frame_Play_Time
 from engine.utils.text_making import (add_plus_to_number, add_comma_number, text_render_with_bg,
                                       make_long_text)
 
@@ -92,9 +93,9 @@ class Button(UIOuterGrand):
 
 
 class ToggleButton(Button):
-    def __init__(self, images, text, pos):
+    def __init__(self, images, text, pos, layer=5):
         """Button that player click to toggle selected/unselected"""
-        self._layer = 5
+        self._layer = layer
         Button.__init__(self, images, text)
 
         self.images = images
@@ -102,127 +103,85 @@ class ToggleButton(Button):
         self.selected = False
         self.rect = self.image.get_rect(topleft=pos)
 
+    def change_selection(self):
+        if self.selected:
+            self.selected = False
+            self.image = self.images["unselected"]
+        else:
+            self.selected = True
+            self.image = self.images["selected"]
+
     def update(self, dt):
         if UIOuterGrand.update(self, dt) and self.event_press:
-            if self.selected:
-                self.selected = True
-                self.image = self.images["unselected"]
-            else:
-                self.selected = False
-                self.image = self.images["selected"]
+            if not self.selected:
+                self.change_selection()
+
+
+class DiplomacyHeadSpeechbox(CharacterSpeechBox, UIOuterGrand):
+    add_sound_effect_queue = None
+
+    def __init__(self, character, text):
+        UIOuterGrand.__init__(self, player_cursor_interact=False)
+        CharacterSpeechBox.__init__(self, character, text, font_size=70, add_battle_log=False)
+
+    def check_draw(self):
+        """No need to check draw for grand diplomacy head speech"""
+        pass
 
 
 class DiplomacyHead(UIOuterGrand):
-    simple_font = False
-
-    def __init__(self, font_size):
+    def __init__(self):
         """UI showing AI faction ruler talk to player"""
         self._layer = 5
         UIOuterGrand.__init__(self, player_cursor_interact=False)
+        self.grand_diplomacy_animation_pool = self.grand.sprite_data.grand_diplomacy_animation_pool
         self.character_list = self.grand.character_list
 
-        self.font_size = int(font_size * self.screen_scale_height)
-        self.image = Surface((1000 * self.screen_scale_width, 200 * self.screen_scale_height))
+        self.image = Surface((400 * self.screen_scale_width, 400 * self.screen_scale_height), SRCALPHA)
 
-        self.talk_timer = 0
-        self.culture = "default"
-        self.rect = self.image.get_rect(topright=self.grand.mini_cosmic_ui.rect.topleft)
+        self.timer = 0
+        self.rect = self.image.get_rect(midright=(self.grand.mini_cosmic_ui.rect.midleft[0] - (10 * self.screen_scale_width),
+                                                  self.grand.mini_cosmic_ui.rect.midleft[1]))
 
-    def start_speak(self, character, speech_id):
-        self.culture = self.character_list[character]["Culture"]
-        self.culture = "default"
-        #
-        # font = "simple"
-        # if not self.simple_font and self.game.language in ("en", "es", "it", "fr", "de",):
-        #     # culture font only available for latin alphabet sadly
-        #     font = "culture_" + character.culture
-        #
-        # font = Font(self.ui_font[font], self.font_size)
-        # max_text_width = 800 * self.screen_scale_width
-        # text = self.grab_text(("diplomacy", character))
-        # long_text_surface = make_long_text(text, (0, 0), self.font)
-        # text_surface = Surface(long_text_surface.get_size())
-        # text_surface.fill((224, 224, 224))
-        # text_surface.blit(long_text_surface, (0, 0))
-        #
-        # images = self.grand.battle_ui_images
-        # start_top = images["speech_start_top"]
-        # start_mid = smoothscale(images["speech_start_mid"], (images["speech_start_mid"].get_width(),
-        #                                                           text_surface.get_height()))
-        # start_bottom = images["speech_start_bottom"]
-        #
-        # end_top = images["speech_end_top"]
-        # end_mid = smoothscale(images["speech_end_mid"], (images["speech_end_mid"].get_width(),
-        #                                                       text_surface.get_height()))
-        # end_bottom = images["speech_end_bottom"]
-        #
-        # body_top = smoothscale(images["speech_body_top"], (text_surface.get_width(),
-        #                                                         images["speech_body_top"].get_height()))
-        # body_bottom = smoothscale(images["speech_body_bottom"], (text_surface.get_width(),
-        #                                                               images["speech_body_bottom"].get_height()))
-        #
-        # self.base_image = Surface((text_surface.get_width() + start_top.get_width() + end_top.get_width(),
-        #                            text_surface.get_height() + start_top.get_height() + start_bottom.get_height()),
-        #                           SRCALPHA)
-        #
-        # start_top_rect = start_top.get_rect()
-        # self.base_image.blit(start_top, start_top_rect)
-        #
-        # start_bottom_rect = start_bottom.get_rect(bottomleft=(0, self.base_image.get_height()))
-        # self.base_image.blit(start_bottom, start_bottom_rect)
-        #
-        # start_mid_rect = start_mid.get_rect(topleft=(0, start_top_rect.height))
-        # self.base_image.blit(start_mid, start_mid_rect)
-        #
-        # end_top_rect = end_top.get_rect(topright=(self.base_image.get_width(), 0))
-        # self.base_image.blit(end_top, end_top_rect)
-        #
-        # end_bottom_rect = end_bottom.get_rect(bottomright=(self.base_image.get_width(), self.base_image.get_height()))
-        # self.base_image.blit(end_bottom, end_bottom_rect)
-        #
-        # end_mid_rect = end_mid.get_rect(topright=(self.base_image.get_width(), end_top_rect.height))
-        # self.base_image.blit(end_mid, end_mid_rect)
-        #
-        # body_top_rect = body_top.get_rect(topleft=(start_top_rect.width, 0))
-        # self.base_image.blit(body_top, body_top_rect)
-        #
-        # body_bottom_rect = body_bottom.get_rect(bottomleft=(start_bottom_rect.width, self.base_image.get_height()))
-        # self.base_image.blit(body_bottom, body_bottom_rect)
-        #
-        # self.right_image = self.base_image
-        # self.left_image = flip(self.base_image, 1, 0)
-        #
-        # text_rect = text_surface.get_rect(topleft=start_mid_rect.topright)
-        # self.right_image.blit(text_surface, text_rect)
-        #
-        # text_rect = text_surface.get_rect(topright=(self.base_image.get_width() - start_mid_rect.topright[0],
-        #                                             start_mid_rect.topright[1]))
-        # self.left_image.blit(text_surface, text_rect)
-        #
-        # self.base_pos = character.base_pos.copy()
-        # self.finish_unfolding = False
-        # self.direction_left = False
-        # self.current_length = start_top.get_width()
-        #
-        # self.max_length = self.base_image.get_width()
-        #
-        # self.image = self.base_image.subsurface((0, 0, self.current_length, self.base_image.get_height()))
-        # self.rect = self.image.get_rect(midleft=character.rect.center)
-        #
-        # if voice:
-        #     self.battle.add_sound_effect_queue(choice(self.battle.sound_effect_pool[voice[0]]),
-        #                                        character.base_pos, voice[1],
-        #                                        voice[2], volume="voice")
-        # elif voice is False:  # None will play no sound
-        #     self.battle.add_sound_effect_queue(choice(self.battle.sound_effect_pool["parchment_write"]),
-        #                                        character.base_pos, 1000,
-        #                                        0, volume="voice")
+        # variable to imitate battle character for speech box
+        self.base_pos = self.grand.base_camera_center_pos
+        self.pos = (self.rect.midleft[0] - (10 * self.screen_scale_width), self.rect.midleft[1])
+        self.culture = "free"
+        self.alive = True
+        self.speech = None
+        self.current_animation_direction = {"head": (0, 0)}
+        self.current_animation = {}
+        self.direction = "left"
+        self.max_frame = 0
+        self.show_frame = 0
+        self.frame_timer = 0
+
+    def start_speak(self, character_id, speech_id):
+        self.show_frame = 0
+        self.frame_timer = 0
+        self.base_pos = self.grand.base_camera_center_pos
+        self.culture = self.character_list[character_id]["Culture"]
+        speech_type = speech_id.split("_")[0]
+        self.current_animation = self.grand_diplomacy_animation_pool[character_id]["DIPLOMACY_" + speech_type]
+        self.max_frame = len(self.current_animation) - 1
+        self.image = self.current_animation[self.show_frame]["left"]["sprite"]
+        self.add_to_outer_ui_menu_updater(self)
+        self.add_to_outer_ui_menu_updater(DiplomacyHeadSpeechbox(self, choice(
+            self.grab_text(("diplomacy_speak", character_id))[speech_id])))
+
+    def update(self, dt):
+        self.frame_timer += dt
+        if self.frame_timer >= Base_Animation_Frame_Play_Time:
+            self.frame_timer = 0
+            self.show_frame += 1
+            if self.show_frame <= self.max_frame:
+                self.image = self.current_animation[self.show_frame]["left"]["sprite"]
+        if self.speech not in self.grand.outer_ui_updater:
+            self.speech = None
+            self.remove_from_outer_ui_menu_updater(self)
 
 
-    # def update(self, dt):
-
-
-class PlayerTopBar(UIOuterGrand):
+class FactionTopBar(UIOuterGrand):
     def __init__(self):
         """UI Bar at the top of screen showing player's faction resource and turn time"""
         self._layer = 5
@@ -251,12 +210,13 @@ class PlayerTopBar(UIOuterGrand):
         self.rect = self.image.get_rect()
 
     def update(self, dt):
-        current_campaign_state = self.grand.current_campaign_state
+        grand = self.grand
+        current_campaign_state = grand.current_campaign_state
 
-        resource = current_campaign_state["faction"][self.grand.player_faction]
-        resource = ((int(resource["gold"]), int(resource["gold_income"])),
-                    (int(resource["supply"]), int(resource["supply_income"])),
-                    int(resource["happiness"]),
+        faction_resource = current_campaign_state["faction"][grand.player_faction]
+        resource = ((int(faction_resource["gold"]), int(faction_resource["gold_income"])),
+                    (int(faction_resource["supply"]), int(faction_resource["supply_income"])),
+                    int(faction_resource["happiness"]),
                     str(current_campaign_state["turn"]) + "." + str(current_campaign_state["phase"]))
 
         if self.player_faction_resource != resource:
@@ -280,11 +240,13 @@ class PlayerTopBar(UIOuterGrand):
                 (self.cursor.pos[1] - self.rect.topleft[1]))
             for key, rect in self.blit_text_rect.items():
                 if rect.collidepoint(inside_mouse_pos):
-                    text = [self.grab_text(("ui", "info_text_" + key)), "",
-                            self.grab_text(("ui", "info_text_" + key + "_description")), ""]
+                    grab_text = self.grab_text
+                    text = [grab_text(("ui", "info_text_" + key)), "",
+                            grab_text(("ui", "info_text_" + key + "_description")), ""]
                     if key != "turn":
-                        resource_effect_list = self.grand.current_campaign_state["faction"][self.grand.player_faction][
-                            key + "_effect"]
+                        if faction_resource[key] < 0:  # add warning for negative reserve
+                            text.append(grab_text(("ui", "info_text_warn_" + key)))
+                        resource_effect_list = current_campaign_state["faction"][grand.player_faction][key + "_effect"]
                         text_sum = {key: 0 for key in resource_effect_list}
                         for key2, value2 in resource_effect_list.items():
                             if type(value2) is list:
@@ -297,9 +259,9 @@ class PlayerTopBar(UIOuterGrand):
                         for key2, value2 in text_sum.items():
                             if value2:
                                 if type(value2) is str:
-                                    text.append(self.grab_text(("ui", "info_header_" + key2)) + value2)
+                                    text.append(grab_text(("ui", "info_header_" + key2)) + value2)
                                 else:
-                                    text.append(self.grab_text(("ui", "info_header_" + key2)) +
+                                    text.append(grab_text(("ui", "info_header_" + key2)) +
                                                 add_plus_to_number(add_comma_number(int(value2))))
                     self.text_popup.popup(self.cursor.rect, text,
                                           width_text_wrapper=self.max_description_box_width)
@@ -307,12 +269,12 @@ class PlayerTopBar(UIOuterGrand):
                     break
 
 
-class PlayerFactionCultureList(UIOuterGrand):
+class FactionCultureList(UIOuterGrand):
     def __init__(self):
-        self._layer = 5
+        self._layer = 8
         UIOuterGrand.__init__(self)
         self.font = self.game.medium_generic_ui_font
-        self.value_text_font_cache = self.game.font_text_cache[self.font]
+        self.cache_value_text_font = self.game.cache_font_text[self.font]
         self.culture_coas = self.grand.sprite_data.culture_coas
         self.image = Surface((0, 0))
         self.image_width = self.image.get_width()
@@ -321,36 +283,35 @@ class PlayerFactionCultureList(UIOuterGrand):
         self.culture_coa_rects = {}
         self.faction_culture_value = {}
         self.culture_management_button_rect = Rect((0, 0, 0, 0))
-        self.rect = self.image.get_rect(topleft=self.grand.player_top_bar_ui.rect.bottomleft)
+        self.rect = self.image.get_rect(topleft=self.grand.faction_top_bar_ui.rect.bottomleft)
 
-    def add_culture_portrait(self, surface, culture, culture_value, pos):
+    def add_culture_portrait(self, surface, culture, culture_state, pos):
         culture_image = self.culture_coas[culture]["tiny"]
         culture_rect = culture_image.get_rect(topleft=pos)
         surface.blit(culture_image, culture_rect)
 
-        policy_image = self.grand_ui_images["policy_small_" + culture_value["policy"]]
+        policy_image = self.grand_ui_images["policy_small_" + culture_state["policy"]]
         surface.blit(policy_image, policy_image.get_rect(midtop=culture_rect.topleft))
-
-        if int(culture_value["penalty"]):
+        if culture_state["penalty"] != "0":
             penalty_image = self.grand_ui_images["culture_value_bad"]
         else:
             penalty_image = self.grand_ui_images["culture_value_good"]
         surface.blit(penalty_image, penalty_image.get_rect(midbottom=culture_rect.bottomleft))
 
-        integration_value = culture_value["integration"]
-        if integration_value not in self.value_text_font_cache:
+        integration_value = culture_state["integration"]
+        if integration_value not in self.cache_value_text_font:
             text_surface = text_render_with_bg(integration_value, self.font, Color("black"))
-            self.value_text_font_cache[integration_value] = text_surface
+            self.cache_value_text_font[integration_value] = text_surface
         else:
-            text_surface = self.value_text_font_cache[integration_value]
+            text_surface = self.cache_value_text_font[integration_value]
         surface.blit(text_surface, text_surface.get_rect(midtop=culture_rect.topright))
 
-        influence_value = culture_value["influence"]
-        if influence_value not in self.value_text_font_cache:
+        influence_value = culture_state["influence"]
+        if influence_value not in self.cache_value_text_font:
             text_surface = text_render_with_bg(influence_value, self.font, Color("black"))
-            self.value_text_font_cache[influence_value] = text_surface
+            self.cache_value_text_font[influence_value] = text_surface
         else:
-            text_surface = self.value_text_font_cache[influence_value]
+            text_surface = self.cache_value_text_font[influence_value]
         surface.blit(text_surface, text_surface.get_rect(midbottom=culture_rect.bottomright))
         return culture_rect
 
@@ -358,7 +319,7 @@ class PlayerFactionCultureList(UIOuterGrand):
         culture_state = player_faction_state["culture"][culture]
         return {"policy": culture_state["policy"],
                 "integration": str(int(culture_state["integration"] * 100)) + "%",
-                "influence": str(int(culture_state["influence"] * 100)) + "%",
+                "influence": str(round(culture_state["influence"] * 100, 1)) + "%",
                 "weight": " (" + str(culture_state["weight"]) + "/" +
                           str(player_faction_state["total_culture_weight"]) + ")",
                 "penalty": str(culture_state["penalty"])}
@@ -382,7 +343,7 @@ class PlayerFactionCultureList(UIOuterGrand):
                 self.image_width = self.image.get_width()
                 self.image.fill((255, 255, 255))
             self.culture_management_button_rect = self.grand_ui_images["policy_management"].get_rect(midright=(
-                                self.image.get_width(), 100 * self.screen_scale_height))
+                self.image.get_width(), 100 * self.screen_scale_height))
             self.image.blit(self.grand_ui_images["policy_management"], self.culture_management_button_rect)
 
             self.culture_coa_rects = {}
@@ -394,7 +355,7 @@ class PlayerFactionCultureList(UIOuterGrand):
                                                           25 * self.screen_scale_height))
 
                 self.culture_coa_rects[culture] = culture_rect
-            self.rect = self.image.get_rect(topleft=self.grand.player_top_bar_ui.rect.bottomleft)
+            self.rect = self.image.get_rect(topleft=self.grand.faction_top_bar_ui.rect.bottomleft)
 
     def update(self, dt):
         if UIOuterGrand.update(self, dt):
@@ -405,9 +366,12 @@ class PlayerFactionCultureList(UIOuterGrand):
                 (self.cursor.pos[1] - self.rect.topleft[1]))
             if self.culture_management_button_rect.collidepoint(inside_mouse_pos):
                 if self.event_press:
-                    self.remove_from_outer_ui_menu_updater(grand.player_collapsable_uis)
-                    grand.culture_management_ui.reset()
-                    self.add_to_outer_ui_menu_updater(grand.culture_management_uis)
+                    if grand.culture_management_ui in grand.outer_ui_updater:
+                        self.remove_from_outer_ui_menu_updater(grand.player_collapsable_uis)
+                    else:
+                        self.remove_from_outer_ui_menu_updater(grand.player_collapsable_uis)
+                        grand.culture_management_ui.reset()
+                        self.add_to_outer_ui_menu_updater(grand.culture_management_uis)
                 else:
                     self.text_popup.popup(self.cursor.rect, grab_text(("ui", "info_text_policy_management")),
                                           width_text_wrapper=self.max_description_box_width)
@@ -424,8 +388,9 @@ class PlayerFactionCultureList(UIOuterGrand):
                                 ("ui", "info_text_culture_" + culture_state["policy"])),
                             grab_text(("ui", "info_header_integration")) + this_culture_value[
                                 "integration"],
-                            grab_text(("ui", "info_header_influence")) + this_culture_value["influence"] + this_culture_value["weight"]]
-                        if int(this_culture_value["penalty"]):
+                            grab_text(("ui", "info_header_influence")) + this_culture_value["influence"] +
+                            this_culture_value["weight"]]
+                        if this_culture_value["penalty"]:
                             text.append(grab_text(("ui", "info_header_happiness_penalty")) + this_culture_value[
                                 "penalty"])
                         self.text_popup.popup(self.cursor.rect, text,
@@ -436,9 +401,12 @@ class PlayerFactionCultureList(UIOuterGrand):
 
 class MenuBar(UIOuterGrand):
     def __init__(self):
-        self._layer = 4
+        self._layer = 30
         UIOuterGrand.__init__(self)
         button_images = self.grand.grand_ui_images
+
+        self.button_select_line_width = int(10 * self.screen_scale_width)
+        self.hover_button = None
         self.image = Surface((1000 * self.screen_scale_width, 80 * self.screen_scale_height), SRCALPHA)
         self.image.fill((50, 50, 200))
         self.button_rects = {"army_reserve": button_images["army_reserve"].get_rect(
@@ -453,38 +421,59 @@ class MenuBar(UIOuterGrand):
                 topleft=(650 * self.screen_scale_width, 0))}
         for key, value in self.button_rects.items():
             self.image.blit(button_images[key], self.button_rects[key])
+        self.base_image = self.image.copy()
         self.rect = self.image.get_rect(topleft=(self.grand.time_setting_ui.rect.topright[0], 0))
 
     def update(self, dt):
         if UIOuterGrand.update(self, dt):
-
+            grand = self.grand
+            cursor = self.cursor
             inside_mouse_pos = Vector2(
-                (self.cursor.pos[0] - self.rect.topleft[0]),
-                (self.cursor.pos[1] - self.rect.topleft[1]))
+                (cursor.pos[0] - self.rect.topleft[0]),
+                (cursor.pos[1] - self.rect.topleft[1]))
 
             for key, rect in self.button_rects.items():
                 if rect.collidepoint(inside_mouse_pos):
+                    if key != self.hover_button:
+                        self.hover_button = key
+                        self.image = self.base_image.copy()
+                        draw.rect(self.image, (230, 230, 230), rect, width=self.button_select_line_width)
                     if self.event_press:
-                        self.grand.remove_from_outer_ui_menu_updater(self.grand.player_collapsable_uis)
                         if key == "menu":
-                            self.grand.esc_press = True
+                            grand.esc_press = True
+                            return
                         elif key == "army_reserve":
-                            self.grand.player_grand_reserve_army_setup_ui.reset(active=False)
-                            self.grand.player_grand_character_selector_ui.add(None)
-                            self.grand.player_grand_reserve_army_list_ui.reset()
-                            self.add_to_outer_ui_menu_updater(self.grand.player_army_reserve_setup_uis)
+                            if grand.reserve_army_setup_ui not in grand.outer_ui_updater:
+                                self.remove_from_outer_ui_menu_updater(grand.player_collapsable_uis)
+                                grand.reserve_army_setup_ui.reset(active=False)
+                                grand.grand_character_selector_ui.add(None)
+                                grand.reserve_army_list_ui.reset()
+                                self.add_to_outer_ui_menu_updater(grand.army_reserve_setup_uis)
+                            else:
+                                self.remove_from_outer_ui_menu_updater(grand.player_collapsable_uis)
                         elif key == "court":
-                            self.grand.court_management_ui.reset()
-                            self.add_to_outer_ui_menu_updater(self.grand.court_management_uis)
+                            if grand.court_management_ui not in grand.outer_ui_updater:
+                                self.remove_from_outer_ui_menu_updater(grand.player_collapsable_uis)
+                                grand.court_management_ui.reset()
+                                self.add_to_outer_ui_menu_updater(grand.court_management_uis)
+                            else:
+                                self.remove_from_outer_ui_menu_updater(grand.player_collapsable_uis)
                         elif key == "diplomacy":
-                            self.grand.diplomacy_management_ui.reset()
-                            self.add_to_outer_ui_menu_updater(self.grand.diplomacy_management_uis)
+                            if grand.diplomacy_management_ui not in grand.outer_ui_updater:
+                                self.remove_from_outer_ui_menu_updater(grand.player_collapsable_uis)
+                                grand.diplomacy_management_ui.reset()
+                                self.add_to_outer_ui_menu_updater(grand.diplomacy_management_uis)
+                            else:
+                                self.remove_from_outer_ui_menu_updater(grand.player_collapsable_uis)
                         elif key == "technology":
-                            pass
+                            return
 
                     else:
-                        self.text_popup.popup(self.cursor.rect, self.grab_text(("ui", "info_text_" + key)))
+                        self.text_popup.popup(("topright", cursor.rect.topleft), self.grab_text(("ui", "info_text_" + key)))
                         self.add_to_outer_ui_menu_updater(self.text_popup)
+                    return
+        self.image = self.base_image
+        self.hover_button = None
 
 
 class TimeSettingOption(UIOuterGrand):
@@ -517,35 +506,41 @@ class TimeSettingOption(UIOuterGrand):
                 self.image.blit(image, rect)
                 break
 
-        self.rect = self.image.get_rect(topleft=(self.grand.player_top_bar_ui.rect.topright[0], 0))
+        self.rect = self.image.get_rect(topleft=(self.grand.faction_top_bar_ui.rect.topright[0], 0))
 
     def reset(self):
         self.image = self.base_image.copy()
 
         for index, image in enumerate(self.time_option_rects):  # add selected border after base image
             rect = self.time_option_rects[image]
-            if not index:
+            if index == self.grand.game_speed:
                 self.image.blit(self.time_select_image, rect)
                 self.image.blit(image, rect)
                 break
 
     def update(self, dt):
-        if UIOuterGrand.update(self, dt) and self.event_press:
+        if UIOuterGrand.update(self, dt):
+            cursor = self.cursor
             inside_mouse_pos = Vector2(
-                (self.cursor.pos[0] - self.rect.topleft[0]),
-                (self.cursor.pos[1] - self.rect.topleft[1]))
+                (cursor.pos[0] - self.rect.topleft[0]),
+                (cursor.pos[1] - self.rect.topleft[1]))
             for index, image in enumerate(self.time_option_rects):
                 rect = self.time_option_rects[image]
                 if rect.collidepoint(inside_mouse_pos):
-                    if index != self.grand.game_speed:
-                        self.grand.game_speed = index
-                        self.image = self.base_image.copy()
-                        self.image.blit(self.time_select_image, rect)
-                        self.image.blit(image, rect)
+                    if self.event_press:
+                        if index != self.grand.game_speed:
+                            if index:
+                                self.grand.before_pause_game_speed = index
+                            self.grand.game_speed = index
+                            self.reset()
+                    else:
+                        self.text_popup.popup(("topright", cursor.rect.topleft),
+                                              self.grab_text(("ui", "info_text_time_speed_" + str(index))))
+                        self.add_to_outer_ui_menu_updater(self.text_popup)
                     break
 
 
-class PlayerArmyListSortOption(UIOuterGrand):
+class ArmyListSortOption(UIOuterGrand):
     def __init__(self):
         self._layer = 5
         UIOuterGrand.__init__(self)
@@ -602,10 +597,12 @@ class EventNotification(UIOuterGrand):
         self.event_item_height_center = self.event_item_height / 2
         self.font = self.game.large_generic_ui_font
         self.image = Surface((1000 * self.screen_scale_width, 1100 * self.screen_scale_height), SRCALPHA)
+        self.max_item = int(self.image.get_height() / self.event_item_height)
         self.base_image = self.image.copy()
         self.before_hover_image = self.image
         self.event_card_rects = [Rect(0, index * self.event_item_height,
-                                      1000 * self.screen_scale_width, self.event_item_height) for index in range(10)]
+                                      1000 * self.screen_scale_width, self.event_item_height) for
+                                 index in range(self.max_item)]
         self.event_cards = {}
         self.current_hover_index = None
         self.rect = self.image.get_rect(midleft=(0, self.half_screen_height))
@@ -613,7 +610,7 @@ class EventNotification(UIOuterGrand):
     def update_image(self):
         self.current_hover_index = None
         self.image = self.base_image.copy()
-        to_show_events = self.grand.current_campaign_state["eventlog"][-10:]  # show only last 10 items
+        to_show_events = self.grand.current_campaign_state["eventlog"][-self.max_item:]  # show only last max items
 
         for index, event in enumerate(to_show_events):
             if event not in self.event_cards:  # create new card
@@ -624,8 +621,8 @@ class EventNotification(UIOuterGrand):
                 for card in (card_image, hover_card_image):
                     card.blit(event_icon, event_icon.get_rect(midleft=(0, self.event_item_height_center)))
 
-                    event_text = make_long_text((self.grand_ui_images["turn"], ":" + event[2], event[1]), (0, 0),
-                                                self.font, with_texture=(None, (Color("black"), (255, 255, 255), 2)),
+                    event_text = make_long_text((self.grand_ui_images["turn"], ":" + event[2], event[1]),
+                                                self.font, with_texture=(None, ((20, 20, 20), (255, 255, 255), 2)),
                                                 specific_width=700 * self.screen_scale_width)
                     card.blit(event_text, event_text.get_rect(topleft=(100 * self.screen_scale_width, 0)))
                 self.event_cards[event] = (card_image, hover_card_image)
@@ -636,9 +633,9 @@ class EventNotification(UIOuterGrand):
     def hover_over_card(self, index):
         if self.current_hover_index != index:
             self.image = self.before_hover_image.copy()
-            showing_events = self.grand.current_campaign_state["eventlog"][-10:]
+            showing_events = self.grand.current_campaign_state["eventlog"][-self.max_item:]
             if index < len(showing_events):
-                event = self.grand.current_campaign_state["eventlog"][-10:][index]
+                event = self.grand.current_campaign_state["eventlog"][-self.max_item:][index]
                 self.image.blit(self.event_cards[event][1],
                                 self.event_cards[event][0].get_rect(topleft=(0, index * self.event_item_height)))
             self.current_hover_index = index
@@ -657,14 +654,14 @@ class EventNotification(UIOuterGrand):
     def update(self, dt):
         cursor = self.cursor
         cursor_pos = cursor.pos
-        if self.event_cards and self.rect.collidepoint(cursor_pos):
+        if self.event_cards and UIOuterGrand.update(self, dt):
             inside_mouse_pos = Vector2(
                 (cursor_pos[0] - self.rect.topleft[0]),
                 (cursor_pos[1] - self.rect.topleft[1]))
             for index, rect in enumerate(self.event_card_rects):
                 if rect.collidepoint(inside_mouse_pos):
-                    if cursor.is_select_just_up:  # go to event
-                        showing_events = self.grand.current_campaign_state["eventlog"][-10:]
+                    if self.event_press:  # go to event
+                        showing_events = self.grand.current_campaign_state["eventlog"][-self.max_item:]
                         if index < len(showing_events):
                             event = showing_events[index]
                             if event[3]:
@@ -672,8 +669,8 @@ class EventNotification(UIOuterGrand):
                                     (event[3][0] * self.grand.map_shown_to_base_scale_width) - self.half_screen_width,
                                     (event[3][1] * self.grand.map_shown_to_base_scale_height) - self.half_screen_height)
                                 self.grand.fix_camera()
-                    elif cursor.is_alt_select_just_down:  # remove event
-                        showing_events = self.grand.current_campaign_state["eventlog"][-10:]
+                    elif self.event_alt_press:  # remove event
+                        showing_events = self.grand.current_campaign_state["eventlog"][-self.max_item:]
                         if index < len(showing_events):
                             self.remove_event(showing_events[index])
                     else:
@@ -694,7 +691,6 @@ class TechManagement(UIOuterGrand):
             inside_mouse_pos = Vector2(
                 (self.cursor.pos[0] - self.rect.topleft[0]),
                 (self.cursor.pos[1] - self.rect.topleft[1]))
-
 
 
 class MapSettingOption(UIOuterGrand):
@@ -747,17 +743,17 @@ class EventDetailPopup(UIOuterGrand):
                 (self.cursor.pos[1] - self.rect.topleft[1]))
 
 
-class PlayerArmyList(GrandListUI, UIOuterGrand):
+class ArmyList(GrandListUI, UIOuterGrand):
     def __init__(self):
         self._layer = 5
         UIOuterGrand.__init__(self)
 
         self.image = Surface((950 * self.screen_scale_width, 1050 * self.screen_scale_height), SRCALPHA)
-        self.rect = self.image.get_rect(topright=self.grand.player_army_list_sort_option_ui.rect.bottomright)
+        self.rect = self.image.get_rect(topright=self.grand.army_list_sort_option_ui.rect.bottomright)
 
         GrandListUI.__init__(self)
         self.font = self.game.medium_generic_ui_font
-        self.value_text_font_cache = self.game.font_text_cache[self.font]
+        self.cache_value_text_font = self.game.cache_font_text[self.font]
         self.image.fill((80, 200, 100, 100))
         self.base_image = self.image.copy()
         self.empty_card_image = Surface((950 * self.screen_scale_width, 150 * self.screen_scale_height), SRCALPHA)
@@ -781,7 +777,7 @@ class PlayerArmyList(GrandListUI, UIOuterGrand):
         self.card_rects = [self.empty_card_image.get_rect(
             topleft=(0, self.empty_card_image.get_height() * index)) for index in range(8)]
 
-    def add_assemble_resupply_to_card(self, army, which):
+    def add_assemble_resupply_button_to_card(self, army, which):
         rect = self.card_icon_rects[which]
         if which == "assemble":
             check = army.enable_assemble
@@ -809,44 +805,52 @@ class PlayerArmyList(GrandListUI, UIOuterGrand):
         supply_text_colour = (255, 255, 255)
         if army.supply / army.max_supply < 0.2:
             supply_text_colour = (150, 20, 20)
-        supply_text = (str(int(army.supply / army.max_supply * 100)) + "% (" +
-                       str(int(army.supply / army.total_supply_usage * 100)) + "%)")
-        if supply_text not in self.value_text_font_cache:
+
+        if army.total_supply_usage:
+            supply_available_text = "% (" + str(int(army.supply / army.total_supply_usage * 100)) + "%)"
+        else:
+            supply_available_text = "% (100%)"
+        supply_text = (str(int(army.supply / army.max_supply * 100)) + supply_available_text)
+        if supply_text not in self.cache_value_text_font:
             text_surface = text_render_with_bg(supply_text,
                                                self.font, (0, 0, 0), supply_text_colour)
-            self.value_text_font_cache[supply_text] = text_surface
+            self.cache_value_text_font[supply_text] = text_surface
         else:
-            text_surface = self.value_text_font_cache[supply_text]
+            text_surface = self.cache_value_text_font[supply_text]
         card_image.blit(text_surface, text_surface.get_rect(topleft=((305 * self.screen_scale_width),
                                                                      10 * self.screen_scale_height)))
 
-        total_number_text = (add_comma_number(army.total_number) + " (" +
-                             str(int(army.assemble_percent[1] / sum(army.assemble_percent) * 100)) + "%)")
-        if total_number_text not in self.value_text_font_cache:
+        if sum(army.assemble_percent):
+            assemble_text = " (" + str(int(army.assemble_percent[1] / sum(army.assemble_percent) * 100)) + "%)"
+        else:
+            assemble_text = "% (100%)"
+        total_number_text = (add_comma_number(army.total_number) + assemble_text)
+        if total_number_text not in self.cache_value_text_font:
             text_surface = text_render_with_bg(total_number_text,
                                                self.font, (0, 0, 0), (255, 255, 255))
-            self.value_text_font_cache[total_number_text] = text_surface
+            self.cache_value_text_font[total_number_text] = text_surface
         else:
-            text_surface = self.value_text_font_cache[total_number_text]
+            text_surface = self.cache_value_text_font[total_number_text]
         card_image.blit(text_surface, text_surface.get_rect(topleft=((305 * self.screen_scale_width),
                                                                      80 * self.screen_scale_height)))
 
-        if army.current_region not in self.value_text_font_cache:
+        if army.current_region not in self.cache_value_text_font:
             text_surface = text_render_with_bg(self.grab_text(("region", army.current_region, "Name")),
                                                self.font, (0, 0, 0), supply_text_colour)
-            self.value_text_font_cache[army.current_region] = text_surface
+            self.cache_value_text_font[army.current_region] = text_surface
         else:
-            text_surface = self.value_text_font_cache[army.current_region]
+            text_surface = self.cache_value_text_font[army.current_region]
         card_image.blit(text_surface, text_surface.get_rect(topright=(card_image.get_width() -
                                                                       (50 * self.screen_scale_width),
                                                                       10 * self.screen_scale_height)))
 
-        if army.game_id in self.grand.current_campaign_state["battle"]["armies"]:
+        if army.game_id in self.grand.current_campaign_state["battle"]["army"]:
             activity = self.grab_text(("ui", "info_text_combat"))
         elif "travel" in army.activity:
-            activity = ">> " + self.grab_text(("region", army.activity["destination"], "Name"))
+            activity = ">" + self.grab_text(("region", army.activity["destination"], "Name"))
         elif "assemble" in army.activity:
-            activity = self.grab_text(("ui", "info_text_assemble"))
+            activity = self.grab_text(("ui", "info_text_assemble")) + " " + str(
+                max(army.can_assemble.values())) + " " + self.grab_text(("ui", "info_text_phases"))
         else:
             activity = self.grab_text(("ui", "info_text_idle"))
         text_surface = text_render_with_bg(activity,
@@ -866,8 +870,8 @@ class PlayerArmyList(GrandListUI, UIOuterGrand):
     def reset_card(self, army):
         """Reset only specific card based on input index"""
         self.card_list[army] = self.draw_army_card(army)
-        self.add_assemble_resupply_to_card(army, "assemble")
-        self.add_assemble_resupply_to_card(army, "resupply")
+        self.add_assemble_resupply_button_to_card(army, "assemble")
+        self.add_assemble_resupply_button_to_card(army, "resupply")
 
         if self.grand.current_campaign_state["faction"][self.grand.player_faction]["army"].index(
                 army) >= self.current_row:
@@ -885,8 +889,8 @@ class PlayerArmyList(GrandListUI, UIOuterGrand):
         self.scroll_total_row = self.total_row + 1
         for army in current_army_list:
             self.card_list[army] = self.draw_army_card(army)
-            self.add_assemble_resupply_to_card(army, "assemble")
-            self.add_assemble_resupply_to_card(army, "resupply")
+            self.add_assemble_resupply_button_to_card(army, "assemble")
+            self.add_assemble_resupply_button_to_card(army, "resupply")
         self.draw_card_list_to_ui(current_army_list, self.grand.player_selected_army)
 
     def update(self, dt):
@@ -898,14 +902,16 @@ class PlayerArmyList(GrandListUI, UIOuterGrand):
                 if self.current_row > 0:
                     self.current_row -= 1
                     self.scroll.change_image(self.current_row, self.scroll_total_row)
-                    self.draw_card_list_to_ui(self.grand.current_campaign_state["faction"][self.grand.player_faction]["army"],
-                                              self.grand.player_selected_army)
+                    self.draw_card_list_to_ui(
+                        self.grand.current_campaign_state["faction"][self.grand.player_faction]["army"],
+                        self.grand.player_selected_army)
             elif self.cursor.scroll_down:
                 if self.current_row < self.total_row:
                     self.current_row += 1
                     self.scroll.change_image(self.current_row, self.scroll_total_row)
-                    self.draw_card_list_to_ui(self.grand.current_campaign_state["faction"][self.grand.player_faction]["army"],
-                                              self.grand.player_selected_army)
+                    self.draw_card_list_to_ui(
+                        self.grand.current_campaign_state["faction"][self.grand.player_faction]["army"],
+                        self.grand.player_selected_army)
             else:
                 grand = self.grand
                 for index, rect in enumerate(self.card_rects):
@@ -928,7 +934,7 @@ class PlayerArmyList(GrandListUI, UIOuterGrand):
                                             army.enable_resupply = False
                                         else:
                                             army.enable_resupply = True
-                                    self.add_assemble_resupply_to_card(army, which)
+                                    self.add_assemble_resupply_button_to_card(army, which)
                                     self.draw_card_list_to_ui(
                                         self.grand.current_campaign_state["faction"][self.grand.player_faction]["army"],
                                         self.grand.player_selected_army)
@@ -956,12 +962,11 @@ class PlayerArmyList(GrandListUI, UIOuterGrand):
                             self.draw_card_list_to_ui(
                                 self.grand.current_campaign_state["faction"][self.grand.player_faction]["army"],
                                 self.grand.player_selected_army)
-                        # elif self.event_alt_press:
-                        #     # open army management ui
-                        #     grand.player_grand_preset_army_setup.popup("", army)
-                        #     grand.player_army_info_ui.add_info(army.to_preset_dict)
-                        #     self.outer_ui_updater.add(grand.player_grand_preset_army_setup,
-                        #                               grand.player_army_info_ui)
+                        elif self.event_alt_press:
+                            # open army management ui
+                            grand.army_setup_ui.reset(army)
+                            grand.army_management_ui.reset(army)
+                            grand.add_to_outer_ui_menu_updater(grand.army_management_uis)
                         elif self.event_middle_mouse_press:
                             grand.camera_topleft_pos = Vector2(
                                 (army.base_pos[
@@ -1052,17 +1057,22 @@ class PlayerGrandInteract(UIOuterGrand):
                                 grand.player_selected_army = army_select_list
                         else:
                             grand.player_selected_army = []
-                            all_settlement_objects = self.grand.grand_settlement_objects
+                            all_settlement_objects = grand.grand_settlement_objects
                             selected_settlement_object = spritecollideany(self, all_settlement_objects)
                             if (selected_settlement_object and selected_settlement_object.region in
                                     grand.current_campaign_state["faction"][player_faction]["region"]):
                                 # click on player owned settlement
-                                self.grand.remove_from_outer_ui_menu_updater(self.grand.player_collapsable_uis)
+                                grand.remove_from_outer_ui_menu_updater(grand.player_collapsable_uis)
+                                grand.army_deploy_tab_button.selected = True
+                                grand.army_deploy_tab_button.change_selection()
+                                grand.region_management_tab_button.selected = False
+                                grand.region_management_tab_button.change_selection()
+                                grand.region_management_tab_button.activate_toggle()
                                 grand.region_management_ui.change_selected_region(selected_settlement_object.region)
                             else:  # select at no settlement, remove region management ui
                                 grand.region_management_ui.change_selected_region(None)
 
-                        grand.player_army_list_ui.draw_card_list_to_ui(player_armies, grand.player_selected_army)
+                        grand.army_list_ui.draw_card_list_to_ui(player_armies, grand.player_selected_army)
                         self.reset()
 
                 elif self.event_alt_press:  # right click order selected leader to do something
@@ -1071,7 +1081,7 @@ class PlayerGrandInteract(UIOuterGrand):
                             (int(grand.base_cursor_pos[0]), int(grand.base_cursor_pos[1]))).rgb)
                         if region_colour in grand.region_by_colour_index:
                             region_id = grand.region_by_colour_index[region_colour]
-                            if any([army.game_id in grand.current_campaign_state["battle"]["armies"] for army in
+                            if any([army.game_id in grand.current_campaign_state["battle"]["army"] for army in
                                     grand.player_selected_army]):
                                 # player army in battle, this will cause battle lost and armies retreat from battle,
                                 # ask for confirmation first
@@ -1114,4 +1124,3 @@ class PlayerGrandInteract(UIOuterGrand):
                         self.rect = Rect(left + grand.camera_topleft_pos[0],
                                          top + grand.camera_topleft_pos[1], 1,
                                          1)  # rect for collision unit selection check
-

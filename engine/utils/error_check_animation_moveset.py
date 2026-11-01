@@ -138,7 +138,8 @@ with open(os.path.join(data_dir, "character", "character.csv"),
                             print("move not exist in animation pool", str(row[0]), move_data["Move"])
                         if move_data["Prepare Animation"] and move_data["Prepare Animation"]["name"] not in \
                                 animation_pool_data[str(row[0])]:
-                            print("prepare animation not exit in pool", str(row[0]), move_data["Prepare Animation"]["name"])
+                            print("prepare animation not exit in pool", str(row[0]),
+                                  move_data["Prepare Animation"]["name"])
 
                         if move_data["After Animation"] and move_data["After Animation"]["name"] not in \
                                 animation_pool_data[str(row[0])]:

@@ -1,7 +1,14 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.game.game import Game
+
 from engine.uimenu.uimenu import BoxUI, BrownMenuButton, InputBox
 
 
-def make_input_box(self):
+def make_input_box(self: Game):
     """Input box popup"""
     input_ui = BoxUI((0, 0.5), (self.screen_rect.width / 2, self.screen_rect.height / 2), parent=self.screen,
                      layer=10000)  # user text input ui box popup

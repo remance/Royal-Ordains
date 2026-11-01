@@ -80,7 +80,7 @@ def issue_move_command(self, target_destination, direct=False):
                     if not dot_routes:  # turn out no route to move
                         return
 
-                if self.game_id in self.grand.current_campaign_state["battle"]["armies"]:
+                if self.game_id in self.grand.current_campaign_state["battle"]["army"]:
                     command_type = "retreat"
 
                 route_difficulties = [Route_Travel_Modifier[route_list[new_travel_route_id[index]]["Type"]] for
@@ -92,6 +92,6 @@ def issue_move_command(self, target_destination, direct=False):
                                                      enumerate(dot_routes)]}
 
                 if self.grand.player_faction == self.faction:
-                    self.grand.player_army_list_ui.reset_card(self)
+                    self.grand.army_list_ui.reset_card(self)
         activity["travel_how"] = direct
         self.activity = activity

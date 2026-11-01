@@ -1,4 +1,12 @@
-def drama_process(self, add_battle_log=True):
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.battle.battle import Battle
+
+
+def drama_process(self: Battle, add_battle_log: bool = True):
     # Drama text function
     if not self.drama_timer and self.drama_text.queue:  # Start timer and draw if there is event queue
         # add to ui and realtime ui updater, so it shows when both running and pause

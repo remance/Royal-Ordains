@@ -1,7 +1,14 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.game.game import Game
+
 from random import choice
 
 
-def check_custom_team_fund(self, create_random=False, specific_team=None):
+def check_custom_team_fund(self: Game, create_random: bool = False, specific_team: (None, int) = None):
     # remade team army to include only those with at least 1 existing character and or made random one
     custom_team_army = {team: [] for team in (1, 2)}
     removed_team_army_index = {team: [] for team in (1, 2)}

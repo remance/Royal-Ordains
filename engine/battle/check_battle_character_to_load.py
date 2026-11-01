@@ -1,6 +1,13 @@
-def check_battle_character_to_load(self, battle_character_list):
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.battle.battle import Battle
+
+
+def check_battle_character_to_load(self: Battle, battle_character_list: (tuple, list)):
     already_check_char = set()
-    battle_character_list = [item for item in battle_character_list if item]
     battle_character_list = list(set([char_id if "+" not in char_id else char_id.split("+")[0] for char_id in
                                       battle_character_list]))
     character_list = self.character_list

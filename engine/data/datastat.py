@@ -27,6 +27,17 @@ class DataStat(GameData):
                 self.culture_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
         edit_file.close()
 
+        self.race_list = {}
+        with open(os.path.join(self.data_dir, "character", "race.csv"),
+                  encoding="utf-8", mode="r") as edit_file:
+            rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
+            header = rd[0]
+            for index, row in enumerate(rd[1:]):
+                for n, i in enumerate(row):
+                    row = stat_convert(row, n, i)
+                self.race_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
+        edit_file.close()
+
         # Character status effect dict
         self.status_list = {}
         self.can_cure_status_list = []
@@ -41,7 +52,7 @@ class DataStat(GameData):
                             "Fire Resistance Bonus", "Water Resistance Bonus", "Air Resistance Bonus",
                             "Earth Resistance Bonus",
                             "Magic Resistance Bonus", "Poison Resistance Bonus", "Magic Resistance Bonus")
-            tuple_column = ("Status Conflict",)  # value in tuple only
+            tuple_column = ("Status Conflict", "Exclude Race Type")  # value in tuple only
             dict_column = [index for index, item in enumerate(header) if item in dict_column]
             percent_column = [index for index, item in enumerate(header) if item in percent_column]
             float_column = [index for index, item in enumerate(header) if item in float_column]
@@ -66,8 +77,7 @@ class DataStat(GameData):
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
             dict_column = ("Summon", "AI Condition", "Property",)
-            tuple_column = (
-                "Effects", "Damage Effects", "Status", "Enemy Status", "Effect Enemy Status")  # value in tuple only
+            tuple_column = ("Effects", "Damage Effects", "Status", "Enemy Status", "Effect Enemy Status")  # value in tuple only
             dict_column = [index for index, item in enumerate(header) if item in dict_column]
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
             for index, row in enumerate(rd[1:]):
@@ -100,7 +110,18 @@ class DataStat(GameData):
                 item_row = self.character_list[row[0]]
                 item_row["Move"] = {}
                 item_row["Behaviour Class"] = str(item_row["AI Behaviour"]) + "_" + str(item_row["Class"])
-                item_row["Summon List"] = ()
+                race_stat = self.race_list[item_row["Race"]]
+                item_row["Race Type"] = race_stat["Type"]
+                item_row["Slash Resistance"] = race_stat["Slash Resistance"] + item_row["Slash Resistance Bonus"]
+                item_row["Crush Resistance"] = race_stat["Crush Resistance"] + item_row["Crush Resistance Bonus"]
+                item_row["Stab Resistance"] = race_stat["Stab Resistance"] + item_row["Stab Resistance Bonus"]
+                item_row["Fire Resistance"] = race_stat["Fire Resistance"] + item_row["Fire Resistance Bonus"]
+                item_row["Water Resistance"] = race_stat["Water Resistance"] + item_row["Water Resistance Bonus"]
+                item_row["Air Resistance"] = race_stat["Air Resistance"] + item_row["Air Resistance Bonus"]
+                item_row["Earth Resistance"] = race_stat["Earth Resistance"] + item_row["Earth Resistance Bonus"]
+                item_row["Magic Resistance"] = race_stat["Magic Resistance"] + item_row["Magic Resistance Bonus"]
+                item_row["Poison Resistance"] = race_stat["Poison Resistance"] + item_row["Poison Resistance Bonus"]
+
                 item_row["ai_min_attack_range"] = infinity
                 item_row["ai_skirmish_range"] = 0
                 item_row["ai_max_attack_range"] = 0
@@ -156,7 +177,8 @@ class DataStat(GameData):
                                     item_row["ai_min_attack_range"] = move["AI Range"]
                                 if item_row["ai_max_attack_range"] < move["AI Range"]:
                                     item_row["ai_max_attack_range"] = move["AI Range"]
-                            if item_row["ai_min_effect_range"] > move["Range"] and (move["Status"] or move["Enemy Status"]):
+                            if item_row["ai_min_effect_range"] > move["Range"] and (
+                                    move["Status"] or move["Enemy Status"]):
                                 item_row["ai_min_effect_range"] = move["Range"]
                             if item_row["ai_ally_max_effect_range"] < move["Range"] and move["Status"]:
                                 item_row["ai_ally_max_effect_range"] = move["Range"]
@@ -180,7 +202,7 @@ class DataStat(GameData):
                 if character_data["Culture"] not in self.custom_character_setup:
                     self.all_main_exist_characters[character_data["Culture"]] = []
                     self.custom_character_setup[character_data["Culture"]] = {
-                        "air": [], "ground": {"leader": {"unique": [], "generic": []}, "troop": []}}
+                        "air": [], "leader": {"unique": [], "generic": []}, "troop": []}
                 if character_data["Class"] != "sub" and os.path.exists(
                         os.path.join(self.data_dir, "ui", "character_ui", character + ".png")):
                     self.all_main_exist_characters[character_data["Culture"]].append(character)
@@ -188,14 +210,11 @@ class DataStat(GameData):
                     if character_data["Type"] == "ground":
                         if character_data["Is Leader"]:
                             if character_data["Is Unique"]:
-                                self.custom_character_setup[character_data["Culture"]][character_data["Type"]][
-                                    "leader"]["unique"].append(character)
+                                self.custom_character_setup[character_data["Culture"]]["leader"]["unique"].append(character)
                             else:
-                                self.custom_character_setup[character_data["Culture"]][character_data["Type"]][
-                                    "leader"]["generic"].append(character)
+                                self.custom_character_setup[character_data["Culture"]]["leader"]["generic"].append(character)
                         else:
-                            self.custom_character_setup[character_data["Culture"]][character_data["Type"]][
-                                "troop"].append(character)
+                            self.custom_character_setup[character_data["Culture"]]["troop"].append(character)
                     else:
                         self.custom_character_setup[character_data["Culture"]][character_data["Type"]].append(character)
 
@@ -230,14 +249,14 @@ class DataStat(GameData):
 
         self.building_list = {}
         self.building_upgrade_list = {}
-        self.building_higher_upgrade_path = {}
+        self.building_path_for_requirement_check = {}
         self.building_requirement_check_list = {}
         self.character_recruit_building_list = {}
         with open(os.path.join(self.data_dir, "character", "building.csv"),
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
-            tuple_column = ("Leader Reinforcement", "Troop Reinforcement",
+            tuple_column = ("Settlement Root", "Leader Reinforcement", "Troop Reinforcement",
                             "Air Reinforcement", "Leader Recruit", "Troop Recruit", "Air Recruit", "Technology",
                             "Requirement")
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
@@ -253,16 +272,25 @@ class DataStat(GameData):
                 for character in self.building_list[row[0]]["Leader Recruit"] + self.building_list[row[0]][
                     "Troop Recruit"] + self.building_list[row[0]]["Air Recruit"]:
                     # ready state of building, (building_id, active_state, progress_value, requirement_state)
-                    self.character_recruit_building_list[character] = [row[0], True, 0, True]
+                    if character not in self.character_recruit_building_list:
+                        self.character_recruit_building_list[character] = []
+                    self.character_recruit_building_list[character].append([row[0], True, 0, True])
 
             requirement_check = {}
             for building, building_data in self.building_list.items():
-                # create a list of previous upgrade version of the building,
+                # create a list of upgrade version of the building,
                 # also used for checking requirement satisfaction of higher upgrade version of the building
-                self.building_higher_upgrade_path[building] = []
-                self.recursive_check_building_upgrade_path(building, self.building_higher_upgrade_path[building])
-                requirement_check[building] = [building] + self.building_higher_upgrade_path[building]
-                self.building_higher_upgrade_path[building] = tuple(self.building_higher_upgrade_path[building])
+                if building_data["Settlement Root"]:
+                    # remake to include all settlement upgrade
+                    new_list = []
+                    self.recursive_check_building_upgrade_path(building_data["Settlement Root"][0], new_list)
+                    building_data["Settlement Root"] = tuple(list(building_data["Settlement Root"]) + new_list)
+
+                self.building_path_for_requirement_check[building] = []
+                self.recursive_check_building_upgrade_path(building, self.building_path_for_requirement_check[building])
+                requirement_check[building] = [building] + self.building_path_for_requirement_check[building]
+                self.building_path_for_requirement_check[building] = [[building, True, 0, True]] + [
+                    [item, True, 0, True] for item in self.building_path_for_requirement_check[building]]
 
             for building, building_data in self.building_list.items():
                 self.building_upgrade_list[building] = {}  # list of possible upgrade and requirement check
@@ -272,11 +300,6 @@ class DataStat(GameData):
                         for requirement_building in building_data2["Requirement"]:
                             self.building_upgrade_list[building][building2].append(
                                 requirement_check[requirement_building])
-
-                # self.building_requirement_check_list[building] = []  #
-                # for building2, building_data2 in self.building_list.items():
-                #     if building2 in building_data["Requirement"]:  # found upgrade
-                #         self.building_upgrade_requirement_check_list[building].append(self.building_previous_upgrade_path[building])
         edit_file.close()
 
         self.cosmic_event_list = {}
@@ -284,11 +307,13 @@ class DataStat(GameData):
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
+            tuple_column = ("Colour",)
+            tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
             dict_column = ("Cosmic Replace", "Effect", "Event Scene", "Event Actor")
             dict_column = [index for index, item in enumerate(header) if item in dict_column]
             for index, row in enumerate(rd[1:]):
                 for n, i in enumerate(row):
-                    row = stat_convert(row, n, i, dict_column=dict_column)
+                    row = stat_convert(row, n, i, tuple_column=tuple_column, dict_column=dict_column)
                 self.cosmic_event_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
         edit_file.close()
 

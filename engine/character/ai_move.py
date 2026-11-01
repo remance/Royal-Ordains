@@ -1,18 +1,25 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.character.character import BaseBattleCharacter, BattleCharacter, GrandAutoCharacter
+
 from random import choice, uniform
 
 follow_distance = 100
 stay_formation_distance = 1
 
 
-def random_walk(self):
+def random_walk(self: (BaseBattleCharacter, BattleCharacter)):
     self.command_action = self.walk_command_action
     self.ai_movement_timer = uniform(0.1, 10)
     self.command_action["x_momentum"] = uniform(50, 500)
     self.command_action["direction"] = choice(("left", "right"))
 
 
-def follow_leader(self):
-    leader_distance = self.leader.base_pos[0] - self.base_pos[0]
+def follow_leader(self: (BaseBattleCharacter, BattleCharacter)):
+    leader_distance = self.commander_character.base_pos[0] - self.base_pos[0]
     abs_leader_distance = abs(leader_distance)
     if abs_leader_distance > self.follow_leader_distance:  # follow leader
         self.command_action = self.run_command_action
@@ -26,39 +33,40 @@ def follow_leader(self):
             self.command_action["direction"] = "left"
 
 
-def move_to_target_order(self):
+def move_to_target_order(self: (BaseBattleCharacter, BattleCharacter)):
+    base_pos_x = self.base_pos[0]
     if "move" in self.commander_order:
-        command_target = self.commander_order[1]
+        command_target_x = self.commander_order[1]
     else:
+        enemy_commander_character = self.enemy_commander_character
         if self.nearest_enemy_pos:  # walk to nearest enemy first
-            command_target = self.nearest_enemy_pos[0]
-        elif (self.enemy_commander and self.enemy_commander.alive and
-              abs(self.base_pos[0] - self.enemy_commander.base_pos[0]) < self.ai_max_attack_range):
+            command_target_x = self.nearest_enemy_pos[0]
+        elif (enemy_commander_character and enemy_commander_character.alive and
+              abs(base_pos_x - enemy_commander_character.base_pos[0]) < self.ai_max_attack_range):
             # no nearby enemy but commander within max attack range, target commander first
-            command_target = self.enemy_commander.base_pos[0]
+            command_target_x = enemy_commander_character.base_pos[0]
         elif self.commander_order:
             # nothing to target, move to attack order point
-            command_target = self.commander_order[1]
+            command_target_x = self.commander_order[1]
         else:
             random_walk(self)
             return
 
-    distance_to_target = abs(self.base_pos[0] - command_target)
+    distance_to_target = abs(base_pos_x - command_target_x)
     if distance_to_target > self.run_speed:
         if not self.command_action:
             self.command_action = self.run_command_action
             self.command_action["x_momentum"] = self.run_speed * 2
-            if command_target > self.base_pos[0]:
+            if command_target_x > base_pos_x:
                 self.command_action["direction"] = "right"
             else:
                 self.command_action["direction"] = "left"
 
 
-def move_away_from_enemy(self):
+def move_away_from_enemy(self: (BaseBattleCharacter, BattleCharacter)):
     base_pos_x = self.base_pos[0]
     command_target_x = self.nearest_enemy_pos[0]
-    distance_to_target = abs(base_pos_x - command_target_x)
-    if distance_to_target > self.run_speed and abs(base_pos_x - self.start_pos) > self.run_speed:
+    if abs(base_pos_x - self.start_pos) > self.run_speed:
         # ignore if already at start point
         if not self.command_action:
             self.command_action = self.run_command_action
@@ -69,17 +77,17 @@ def move_away_from_enemy(self):
                 self.command_action["direction"] = "left"
 
 
-def stationary_ai(self):
+def stationary_ai(self: (BaseBattleCharacter, BattleCharacter)):
     pass
 
 
-def nice_ai(self):
+def nice_ai(self: (BaseBattleCharacter, BattleCharacter)):
     """Just walk around doing nothing"""
     if not self.ai_movement_timer:
         random_walk(self)
 
 
-def curious_ai(self):
+def curious_ai(self: (BaseBattleCharacter, BattleCharacter)):
     """Run to nearby enemy within range"""
     if not self.ai_movement_timer:
         if self.nearest_enemy:
@@ -100,7 +108,7 @@ def curious_ai(self):
             random_walk(self)
 
 
-def observer_ai(self):
+def observer_ai(self: (BaseBattleCharacter, BattleCharacter)):
     """Keep facing target"""
     if self.target.base_pos[0] >= self.base_pos[0]:
         self.new_direction = "right"
@@ -108,35 +116,35 @@ def observer_ai(self):
         self.new_direction = "left"
 
 
-def melee_ai(self):
+def melee_ai(self: BattleCharacter):
     if not self.command_action:
         if "idle" not in self.commander_order:
             if ("move" not in self.commander_order and
                     (not self.nearest_enemy or self.nearest_enemy_distance > self.ai_min_attack_range)):
                 # keep moving to attack target point, stop moving if there are enemy to attack
-                move_to_target_order(self)
+                self.move_to_target_order()
             elif not self.all_team_enemy_check[self.team]:
                 # walk randomly when no enemy
                 random_walk(self)
 
 
-def range_ai(self):
+def range_ai(self: BattleCharacter):
     if not self.command_action:
         if "idle" not in self.commander_order:
             if self.all_team_enemy_check[self.team]:
                 if self.nearest_enemy and self.nearest_enemy_distance < self.ai_skirmish_range:
                     # enemy too close, start running away
-                    move_away_from_enemy(self)
+                    self.move_away_from_enemy()
                 elif ("move" in self.commander_order or not self.nearest_enemy or
                       self.nearest_enemy_distance > self.ai_max_attack_range):
                     # keep moving to target point, stop moving if there are enemy to attack
-                    move_to_target_order(self)
+                    self.move_to_target_order()
             else:
                 # walk randomly when no enemy
                 random_walk(self)
 
 
-def mix_ai(self):
+def mix_ai(self: BattleCharacter):
     """Mix ai behave like ranged ai but does not run away from enemy, will stand their ground instead"""
     if not self.command_action:
         if "idle" not in self.commander_order:
@@ -145,25 +153,26 @@ def mix_ai(self):
                 random_walk(self)
             elif "move" in self.commander_order or not self.nearest_enemy or self.nearest_enemy_distance > self.ai_max_attack_range:
                 # keep moving to target point, stop moving if there are enemy to attack
-                move_to_target_order(self)
+                self.move_to_target_order()
 
 
-def flank_ai(self):
+def flank_ai(self: BattleCharacter):
     if not self.command_action:
         if self.all_team_enemy_check[self.team]:
             nearest_enemy = self.nearest_enemy
             if "idle" not in self.commander_order:
+                enemy_commander_character = self.enemy_commander_character
                 if nearest_enemy and nearest_enemy.alive and (nearest_enemy.ai_behaviour != "melee" or
                                                               nearest_enemy.character_grade == "common"):
                     # flanker will focus on nearby non-melee or low class melee troop to fight, switch command to attack
                     self.issue_commander_order(("attack", self.nearest_enemy_pos[0]))
-                elif self.enemy_commander and self.enemy_commander.alive:
+                elif enemy_commander_character and enemy_commander_character.alive:
                     # aim at enemy commander
-                    if self.base_pos[0] > self.enemy_commander.base_pos[0]:
-                        target = self.enemy_commander.base_pos[0] - self.ai_min_attack_range
+                    if self.base_pos[0] > enemy_commander_character.base_pos[0]:
+                        target = enemy_commander_character.base_pos[0] - self.ai_min_attack_range
                     else:
-                        target = self.enemy_commander.base_pos[0] + self.ai_min_attack_range
-                    if abs(self.base_pos[0] - self.enemy_commander.base_pos[0]) > self.ai_min_attack_range:
+                        target = enemy_commander_character.base_pos[0] + self.ai_min_attack_range
+                    if abs(self.base_pos[0] - enemy_commander_character.base_pos[0]) > self.ai_min_attack_range:
                         self.issue_commander_order(("move", target))
                     else:
                         self.issue_commander_order(("attack", target))
@@ -177,38 +186,39 @@ def flank_ai(self):
                     "attack" in self.commander_order and (
                     not self.nearest_enemy or self.nearest_enemy_distance > self.ai_min_attack_range)):
                 # keep moving to attack target point, stop moving if there are enemy to attack
-                move_to_target_order(self)
+                self.move_to_target_order()
         else:
             # walk randomly when no enemy
             random_walk(self)
 
 
-def leader_common_ai(self, attack_range):
+def leader_common_ai(self: BattleCharacter, attack_range: (int, float)):
     if not self.command_action:
         if not self.nearest_enemy or self.nearest_enemy_distance > attack_range:
             # keep moving to attack target point, stop moving if there are enemy to attack
-            move_to_target_order(self)
+            self.move_to_target_order()
 
 
-def commander_melee_ai(self):
+def commander_melee_ai(self: BattleCharacter):
     leader_common_ai(self, self.ai_min_attack_range)
 
 
-def commander_range_ai(self):
+def commander_range_ai(self: BattleCharacter):
     leader_common_ai(self, self.ai_max_attack_range)
 
 
-def air_ai(self):
+def air_ai(self: BattleCharacter):
     if not self.command_action:
         # air unit keep moving at all time
         if "back" in self.commander_order:
             command_target = self.commander_order[1]
         elif not self.nearest_enemy or self.nearest_enemy_distance > self.ai_max_attack_range:
-            # move to command point if no nearby enemy or in retreat order
-            enemy_commander = self.battle.team_commander[self.enemy_team]
-            if enemy_commander and enemy_commander.alive:  # prioritise attack alive enemy commander first
-                command_target = enemy_commander.base_pos[0]
-            else:  # if not exist then attack enemy respawn point
+            # move to command point if no nearby enemy
+            enemy_commander_character = self.enemy_commander_character
+            if enemy_commander_character and enemy_commander_character.alive:
+                # prioritise attack alive enemy commander first
+                command_target = enemy_commander_character.base_pos[0]
+            else:  # if enemy commander not exist then attack enemy respawn point
                 command_target = self.commander_order[1]
         else:  # move to nearest enemy in attack range instead
             command_target = self.nearest_enemy_pos[0]
@@ -221,7 +231,7 @@ def air_ai(self):
             self.command_action["direction"] = "left"
 
 
-def leader_ai(self):
+def leader_ai(self: BattleCharacter):
     if self.commander_order:
         if "move" in self.commander_order:
             command_target = self.commander_order[1]
@@ -246,3 +256,51 @@ ai_move_dict = {"default": stationary_ai, "nice": nice_ai, "curious": curious_ai
                 "interceptor": air_ai, "fighter": air_ai, "bomber": air_ai}
 
 commander_inner_move_dict = {"melee": commander_melee_ai, "range": commander_range_ai, "mix": commander_range_ai}
+
+
+def auto_random_walk(self: GrandAutoCharacter):
+    self.base_pos[0] += uniform(-self.walk_speed, self.walk_speed)
+
+
+def auto_move_to_target_order(self: GrandAutoCharacter):
+    """Move function for grand auto character, character move to target point right away rather than perform animation"""
+    base_pos_x = self.base_pos[0]
+    if "move" in self.commander_order:
+        command_target_x = self.commander_order[1]
+    else:
+        enemy_commander_character = self.enemy_commander_character
+        if self.nearest_enemy_pos:  # walk to nearest enemy first
+            command_target_x = self.nearest_enemy_pos[0]
+        elif (enemy_commander_character and enemy_commander_character.alive and
+              abs(base_pos_x - enemy_commander_character.base_pos[0]) < self.ai_max_attack_range):
+            # no nearby enemy but commander within max attack range, target commander first
+            command_target_x = enemy_commander_character.base_pos[0]
+        elif self.commander_order:
+            # nothing to target, move to attack order point
+            command_target_x = self.commander_order[1]
+        else:
+            return
+
+    distance_to_target = abs(base_pos_x - command_target_x)
+    if distance_to_target > self.ai_max_attack_range:
+        if command_target_x < base_pos_x:  # left direction
+            self.base_pos[0] -= self.run_speed
+            if self.base_pos[0] < 0:
+                self.base_pos[0] = 0
+        else:
+            self.base_pos[0] += self.run_speed
+            if self.base_pos[0] > self.base_stage_end:
+                self.base_pos[0] = self.base_stage_end
+
+
+def auto_move_away_from_enemy(self: GrandAutoCharacter):
+    base_pos_x = self.base_pos[0]
+    command_target_x = self.nearest_enemy_pos[0]
+    if command_target_x > base_pos_x:  # run to left direction
+        self.base_pos[0] -= self.run_speed
+        if self.base_pos[0] < 0:
+            self.base_pos[0] = 0
+    else:
+        self.base_pos[0] += self.run_speed
+        if self.base_pos[0] > self.base_stage_end:
+            self.base_pos[0] = self.base_stage_end

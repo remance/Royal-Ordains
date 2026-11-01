@@ -1,7 +1,14 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.battle.battle import Battle
+
 from pygame import Vector2
 
 
-def fix_camera(self):
+def fix_camera(self: Battle):
     if self.camera_center_pos[0] > self.stage_end:  # camera cannot go further than max x
         self.camera_center_pos[0] = self.stage_end
     elif self.camera_center_pos[0] < self.stage_start:  # camera does not move beyond left corner scene

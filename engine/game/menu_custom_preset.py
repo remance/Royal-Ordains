@@ -1,10 +1,17 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.game.game import Game
+
 from copy import deepcopy
 from os import path
 
 from engine.constants import Custom_Default_Culture
 
 
-def menu_custom_preset(self):
+def menu_custom_preset(self: Game):
     if self.preset_back_button.event_press or self.esc_press:  # back to custom battle setup menu
         self.menu_state = "custom"
         self.add_to_ui_menu_updater(self.custom_battle_menu_uis)

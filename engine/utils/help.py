@@ -18,7 +18,7 @@ class FakeGame:
         self.add_to_ui_menu_updater = None
         self.remove_from_ui_menu_updater = None
         self.button_sound_channel = None
-        self.font_text_cache = {}
+        self.cache_font_text = {}
         self.config = {"VERSION": {
             "hash": "{'screen_resolution': (1360, 768), 'character': {}, 'effect': 'f14932053866e17234c8c76bbf184e1495ce5ddf8907bea346ed47a10d48fa4f'}"}}
 

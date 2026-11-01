@@ -1,7 +1,14 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.grand.grand import Grand
+
 from engine.constants import Route_Travel_Modifier
 
 
-def create_campaign_route_pathfinding(self):
+def create_campaign_route_pathfinding(self: Grand):
     pathfinding_dict = self.current_campaign_state["pathfinding"]
     direct_route_dict = self.current_campaign_state["direct_routing"]
     region_number = len(self.region_list)

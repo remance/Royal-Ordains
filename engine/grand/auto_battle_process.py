@@ -1,7 +1,14 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.grand.grand import Grand
+
 from engine.constants import Phase_To_Battle_Time
 
 
-def auto_battle_process(self, battle_state):
+def auto_battle_process(self: Grand, battle_state: dict):
     """Update auto battle when phase pass in turn based manner"""
     # update supply, strategy
     full_team_state = battle_state["team"]
@@ -37,5 +44,5 @@ def add_reinforcement(self, army):
 
 def end_battle(self):
     pass
-    # if army.faction == self.player_faction:
+    # if army.belong_to_player_faction:
     # reset_card

@@ -16,7 +16,7 @@ def battle_character_enter_stage(self):
                 self.battle.all_team_enemy_check[team].add(self)
     if not self.is_commander:
         self.issue_commander_order(("attack", self.battle.team_state[self.enemy_team]["start_pos"]))
-    self.enemy_commander = self.battle.team_commander[self.enemy_team]
+    self.enemy_commander_character = self.battle.team_commander[self.enemy_team]
     self.pick_animation()
 
 

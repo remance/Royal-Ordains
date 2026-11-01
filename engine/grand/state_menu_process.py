@@ -1,3 +1,10 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.grand.grand import Grand
+
 import sys
 
 import pygame
@@ -6,16 +13,17 @@ from pygame import quit as pg_quit
 from engine.utils.common import edit_config
 
 
-def state_menu_process(self):
+def state_menu_process(self: Grand):
+    camera = self.camera
     self.ui_menu_updater.update(self.true_dt)
-    self.camera.update_with_in_camera_check(self.grand_camera_region_drawer)
+    camera.update_with_in_camera_check(self.grand_camera_region_drawer)
     # add route after map region draw to blit route dots on the map under other sprites.
     self.draw_route()
 
-    self.camera.update_with_in_camera_check(self.grand_camera_object_drawer)
-    self.camera.update(self.grand_camera_ui_drawer)
-    self.camera.out_update(self.outer_ui_drawer)
-    self.camera.out_update(self.ui_menu_drawer)
+    camera.update_with_in_camera_check(self.grand_camera_object_drawer)
+    camera.update(self.grand_camera_ui_drawer)
+    camera.out_update(self.outer_ui_drawer)
+    camera.out_update(self.ui_menu_drawer)
 
     if self.input_popup:  # currently, have input text pop up on screen, stop everything else until done.
         if self.input_ok_button.event_press:
@@ -73,17 +81,10 @@ def state_menu_process(self):
                                                   self.confirm_popup_uis)
                     break  # found clicked button, break loop
 
-        elif self.esc_menu_mode == "battle":  # battle log
-            if self.esc_dialogue_button.event_press or self.esc_press:  # confirm or esc, close option menu
-                self.esc_menu_mode = "menu"  # go back to start_set esc menu
-                self.remove_from_ui_menu_updater(self.esc_dialogue_button,
-                                                 self.dialogue_box)  # remove option menu sprite
-                self.add_to_ui_menu_updater(self.grand_menu_button.values())  # add start_set esc menu buttons back
-
         elif self.esc_menu_mode == "option":  # option menu
             for key, value in self.esc_slider_menu.items():
                 if value.event:  # press on slider bar
-                    value.player_input(self.esc_value_boxes[key])  # update slider button based on mouse value
+                    value.player_input()  # update slider button based on mouse value
                     edit_config("USER", key + "_volume", value.value, self.game.config_path,
                                 self.config)
                     self.game.change_sound_volume()

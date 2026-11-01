@@ -144,7 +144,7 @@ class ScreenFade(UIOuterBattle):
                 self.text_surface = text_render_with_texture(self.text, self.font,
                                                              self.font_texture[self.use_font_texture])
             else:
-                self.text_surface = make_long_text(text, (font_size, font_size), self.font,
+                self.text_surface = make_long_text(text, self.font,
                                                    with_texture=(self.font_texture[self.use_font_texture], None),
                                                    specific_width=self.max_text_width, alignment="center")
 
@@ -184,9 +184,9 @@ class ScreenFade(UIOuterBattle):
 
 
 class Command(UIOuterBattle):
-    number_respond_text_cache = {}
-    number_cooldown_text_cache = {}
-    stat_cache = {}
+    cache_number_respond_text = {}
+    cache_number_cooldown_text = {}
+    cache_stat = {}
 
     def __init__(self, call_count_image, air_count_image):
         self._layer = 9
@@ -194,7 +194,7 @@ class Command(UIOuterBattle):
         self.character_list = self.battle.character_list
         self.character_portraits = self.battle.character_portraits
         self.number_font = self.game.character_indicator_font
-        self.number_text_cache = self.font_text_cache[self.number_font]
+        self.cache_number_text = self.cache_font_text[self.number_font]
         self.image = Surface((800 * self.screen_scale_width, 400 * self.screen_scale_height), SRCALPHA)
         self.image_width = self.image.get_width()
         self.image.fill((0, 0, 0, 125))
@@ -346,22 +346,22 @@ class Command(UIOuterBattle):
                                            self.call_cooldown_icon.get_rect(center=pool_rect[index].center))
                                 if state[1]:
                                     number = int(state[3])
-                                    if number in self.number_cooldown_text_cache:
-                                        number_text = self.number_cooldown_text_cache[number]
+                                    if number in self.cache_number_cooldown_text:
+                                        number_text = self.cache_number_cooldown_text[number]
                                     else:
                                         number_text = text_render_with_bg(str(number), self.font,
                                                                           gf_colour=(0, 0, 0),
                                                                           o_colour=(255, 255, 255))
-                                        self.number_cooldown_text_cache[number] = number_text
+                                        self.cache_number_cooldown_text[number] = number_text
                                     image.blit(number_text,
                                                number_text.get_rect(center=pool_rect[index].center))
 
-                            if char_number_reserve not in self.number_text_cache:
+                            if char_number_reserve not in self.cache_number_text:
                                 number_text = text_render_with_bg(str(char_number_reserve),
                                                                   self.number_font, o_colour=(200, 200, 100))
-                                self.number_text_cache[char_number_reserve] = number_text
+                                self.cache_number_text[char_number_reserve] = number_text
                             else:
-                                number_text = self.number_text_cache[char_number_reserve]
+                                number_text = self.cache_number_text[char_number_reserve]
                             number_rect = number_text.get_rect(
                                 midbottom=self.pool_index_rects[pool_index][index].bottomright)
                             image.blit(self.call_count_image,
@@ -399,12 +399,12 @@ class Command(UIOuterBattle):
                         if check[2]:  # number in group change
                             self.player_air_group_number[index] = len(air_group)
 
-                        if len(air_group) not in self.number_text_cache:
+                        if len(air_group) not in self.cache_number_text:
                             number_text = text_render_with_bg(str(len(air_group)),
                                                               self.number_font, o_colour=(200, 200, 100))
-                            self.number_text_cache[len(air_group)] = number_text
+                            self.cache_number_text[len(air_group)] = number_text
                         else:
-                            number_text = self.number_text_cache[len(air_group)]
+                            number_text = self.cache_number_text[len(air_group)]
                         number_rect = number_text.get_rect(midtop=portrait_rect.topleft)
                         image.blit(self.air_count_image,
                                    self.air_count_image.get_rect(center=number_rect.center))
@@ -446,7 +446,7 @@ class Command(UIOuterBattle):
                             self.popup_description("Call Leader " + str(index + 1),
                                                    self.leader_call_pool[index][1], character)
                             if self.event_press:  # call leader
-                                self.battle.call_reinforcement(self.player_team, "leader", index)
+                                self.battle.call_reinforcement_to_battle(self.player_team, "leader", index)
                         return
 
                 for index, rect in self.ground_portrait_rect.items():
@@ -456,7 +456,7 @@ class Command(UIOuterBattle):
                             self.popup_description("Call Troop " + str(index + 1),
                                                    self.troop_call_pool[index][1], character)
                             if self.event_press:  # call ground troop
-                                self.battle.call_reinforcement(self.player_team, "troop", index)
+                                self.battle.call_reinforcement_to_battle(self.player_team, "troop", index)
                             return
 
                 for air_group, rect in self.air_group_rect.items():
@@ -481,22 +481,29 @@ class Command(UIOuterBattle):
                         return
 
     def popup_description(self, call_shortcut_name, call_remain, character):
-        if character not in self.stat_cache:
-            grab_text = self.grab_text
+
+        grab_text = self.grab_text
+        if character not in self.cache_stat:
+            # Cache stuffs that are static
             character_data = self.character_list[character]
             char_stat = [grab_text(("ui", "info_header_name")) + grab_text(("character", character, "Name")),
                          grab_text(("ui", "info_header_call_keybind")) +
                          pygame_key_name(self.battle.player_key_bind[call_shortcut_name]),
                          grab_text(("character", character, "Description")),
                          grab_text(("ui", "info_header_class")) + grab_text(
+                             ("ui", "grade_" + character_data["Grade"])) + " " + grab_text(
+                             ("ui", "behaviour_" + character_data["AI Behaviour"])) + " " + grab_text(
                              ("ui", "class_" + character_data["Class"])),
-                         grab_text(("ui", "info_header_supply_cost")) + add_comma_number(
-                             character_data["Supply"]),
-                         grab_text(("ui", "info_header_call_cooldown")) + str(character_data["Reinforce Time"]),
+                         (grab_text(("ui", "info_header_supply_cost")) + add_comma_number(
+                             character_data["Supply"]), self.grand_ui_images["supply"]),
+                         grab_text(("ui", "info_header_call_cooldown")) + str(character_data["Reinforce Time"]) +
+                         grab_text(("ui", "info_text_value_seconds")),
                          grab_text(("ui", "info_header_call_response")) + str(
-                             character_data["Respond Time"])]
-        else:
-            char_stat = self.stat_cache[character]
+                             character_data["Respond Time"]) + grab_text(("ui", "info_text_value_seconds"))]
+            self.cache_stat[character] = char_stat
+
+        char_stat = self.cache_stat[character].copy()
+
         if call_remain:
             char_stat.append(grab_text(("ui", "info_header_call_remain")) + str(call_remain))
         self.text_popup.popup(self.rect.bottomleft, char_stat, width_text_wrapper=self.max_description_box_width)
@@ -589,8 +596,8 @@ class EventNotification(UIOuterBattle):
             event_icon = self.grand_ui_images[event[0]]
             self.image.blit(event_icon, event_icon.get_rect(topleft=(0, index * self.event_item_height)))
 
-            event_text = make_long_text(event[1], (0, 0), self.font, Color("black"),
-                                        with_texture=(None, (Color("black"), (255, 255, 255), 2)),
+            event_text = make_long_text(event[1], self.font,
+                                        with_texture=(None, ((30, 30, 30), (255, 255, 255), 2)),
                                         specific_width=self.max_text_width)
             self.image.blit(event_text, event_text.get_rect(topleft=(100 * self.screen_scale_width,
                                                                      index * self.event_item_height)))
@@ -615,7 +622,7 @@ class EventNotification(UIOuterBattle):
 
 class BattleHelper(UIOuterBattle):
     def __init__(self, weather_icon_images, helper_ui_image, helper_ui_base_image, helper_images, time_choice_images,
-                 time_select_images):
+                 time_select_images, wind_arrow_images):
         self._layer = 12
         UIOuterBattle.__init__(self)
         self.font = self.game.battle_timer_font
@@ -626,6 +633,7 @@ class BattleHelper(UIOuterBattle):
         self.helper_ui_base_rect = helper_ui_base_image.get_rect(bottomleft=(0, self.image.get_height()))
         self.time_choice_images = time_choice_images
         self.time_select_images = time_select_images
+        self.wind_arrow_images = wind_arrow_images
         self.helper_images = helper_images
 
         self.base_image = self.image.copy()
@@ -644,6 +652,10 @@ class BattleHelper(UIOuterBattle):
         self.time_option = 2
         self.time_text = None
         self.weather = None
+        self.wind_angle = None
+        self.wind_direction = "idle"
+        self.wind_icon_pos = (500 * self.screen_scale_width, 175 * self.screen_scale_height)
+        self.weather_icon_pos = (650 * self.screen_scale_width, 175 * self.screen_scale_height)
         self.battle_state = "normal"
         self.battle_name = ""
         self.battle_info_text = ()
@@ -681,23 +693,38 @@ class BattleHelper(UIOuterBattle):
             image.blit(self.time_choice_images[index], rect)
         if self.weather:
             icon_image = self.weather_icon_images[self.weather]
-            image.blit(icon_image,
-                       icon_image.get_rect(center=(570 * self.screen_scale_width, 175 * self.screen_scale_height)))
+            image.blit(icon_image, icon_image.get_rect(center=self.weather_icon_pos))
+            wind_icon = self.wind_arrow_images[self.wind_direction]
+            image.blit(wind_icon, wind_icon.get_rect(center=self.wind_icon_pos))
+
+        self.add_time_text(self.time_text)
+
+    def add_time_text(self, time_text):
+        self.time_text = time_text
+        text = text_render_with_bg(time_text, self.font)
+        text_bg = Surface((text.get_size()))
+        text_bg.fill((213, 209, 210))
+        text_bg.blit(text, text.get_rect())
+        self.image.blit(text_bg, text.get_rect(center=self.base_battle_timer_rect_center))
 
     def update(self, dt):
         """Update battle time"""
         must_reset_image = False
         reset_inside_helper_image = False
 
-        current_weather = self.battle.current_weather.weather_now
-        if self.weather != current_weather:
+        current_weather = self.battle.current_weather
+        weather_now = current_weather.weather_now
+        if self.weather != weather_now:
             grab_text = self.grab_text
-            self.weather = current_weather
+            self.wind_direction = current_weather.wind_direction
+            self.weather = weather_now
             self.battle_info_text = (self.battle_name,
                                      "",
                                      grab_text(("ui", "info_header_weather")) +
-                                     grab_text(("ui", "weather_strength_" + current_weather.split("_")[1])) +
-                                     grab_text(("ui", "weather_" + current_weather.split("_")[0])))
+                                     grab_text(("ui", "weather_strength_" + weather_now.split("_")[1])) +
+                                     grab_text(("ui", "weather_" + weather_now.split("_")[0])),
+                                     grab_text(("ui", "info_header_wind")) + grab_text(
+                                         ("ui", "info_text_" + self.wind_direction)))
             must_reset_image = True
 
         if UIMenu.update(self, dt):
@@ -711,7 +738,10 @@ class BattleHelper(UIOuterBattle):
                     if self.event_press:
                         self.time_option = index
                         if self.battle.game_speed != self.time_choice[index]:
-                            self.battle.game_speed = self.time_choice[index]
+                            new_speed = self.time_choice[index]
+                            if new_speed:
+                                self.battle.before_pause_game_speed = new_speed
+                            self.battle.game_speed = new_speed
                             must_reset_image = True
                     break
             if not helper_mouse_over:
@@ -723,12 +753,7 @@ class BattleHelper(UIOuterBattle):
 
         time_text = datetime.fromtimestamp(self.battle.battle_time).strftime('%M:%S')
         if time_text != self.time_text or must_reset_image or reset_inside_helper_image:
-            self.time_text = time_text
-            text = text_render_with_bg(time_text, self.font)
-            text_bg = Surface((text.get_size()))
-            text_bg.fill((213, 209, 210))
-            text_bg.blit(text, text.get_rect())
-            self.image.blit(text_bg, text.get_rect(center=self.base_battle_timer_rect_center))
+            self.add_time_text(time_text)
 
 
 class TacticalMap(UIOuterBattle):
@@ -908,8 +933,8 @@ class TacticalMap(UIOuterBattle):
 
 
 class StrategySelect(UIOuterBattle):
-    icon_cache = {}
-    strategy_text_list_cache = {}
+    cache_icon = {}
+    cache_strategy_text_list = {}
 
     def __init__(self, pos, strategy_icons, resource_image):
         self._layer = 10
@@ -918,7 +943,7 @@ class StrategySelect(UIOuterBattle):
         self.strategy_icons = strategy_icons
         self.font = self.game.battle_timer_font
 
-        self.number_text_cache = self.font_text_cache[self.font]
+        self.cache_number_text = self.cache_font_text[self.font]
         self.update_timer = 0
         self.strategy_status = {}
         self.base_resource_image = resource_image
@@ -967,7 +992,7 @@ class StrategySelect(UIOuterBattle):
                 icon_image.blit(shortcut_text, text_rect)
                 pos_x += 180 * self.screen_scale_width
                 self.strategy_rect[index] = rect
-                self.icon_cache[index] = icon_image
+                self.cache_icon[index] = icon_image
 
     def update(self, dt):
         if self.player_team:
@@ -977,11 +1002,11 @@ class StrategySelect(UIOuterBattle):
                 current_strategy_resource = int(self.player_team_stat["strategy_resource"])
                 if self.current_strategy_resource != current_strategy_resource:
                     self.current_strategy_resource = current_strategy_resource
-                    if current_strategy_resource not in self.number_text_cache:
+                    if current_strategy_resource not in self.cache_number_text:
                         text = text_render_with_bg(str(current_strategy_resource), self.font)
-                        self.number_text_cache[current_strategy_resource] = text
+                        self.cache_number_text[current_strategy_resource] = text
                     else:
-                        text = self.number_text_cache[current_strategy_resource]
+                        text = self.cache_number_text[current_strategy_resource]
                     resource_image = self.base_resource_image.copy()
                     resource_image.blit(text, text.get_rect(center=self.resource_image_center))
                     image.blit(resource_image, self.resource_text_rect)
@@ -990,18 +1015,18 @@ class StrategySelect(UIOuterBattle):
                     check = (cooldown, strategy == self.battle.player_selected_strategy)
                     if index not in self.strategy_status or self.strategy_status[index] != check:
                         self.strategy_status[index] = check
-                        image.blit(self.icon_cache[index], self.strategy_rect[index])
+                        image.blit(self.cache_icon[index], self.strategy_rect[index])
 
                         if cooldown:  # in cooldown
                             cooldown = int(cooldown)
                             image.blit(self.cooldown_strategy_icon, self.strategy_rect[index])
-                            if cooldown in self.number_text_cache:
-                                number_text = self.number_text_cache[cooldown]
+                            if cooldown in self.cache_number_text:
+                                number_text = self.cache_number_text[cooldown]
                             else:
                                 number_text = text_render_with_bg(str(cooldown), self.font,
                                                                   gf_colour=(255, 255, 255),
                                                                   o_colour=(0, 0, 0))
-                                self.number_text_cache[cooldown] = number_text
+                                self.cache_number_text[cooldown] = number_text
                             image.blit(number_text, number_text.get_rect(center=self.strategy_rect[index].center))
                         elif self.battle.player_selected_strategy and strategy == self.battle.player_selected_strategy:
                             image.blit(self.selected_strategy_icon, self.strategy_rect[index])
@@ -1014,7 +1039,7 @@ class StrategySelect(UIOuterBattle):
                 for index, rect in self.strategy_rect.items():
                     if rect.collidepoint(inside_mouse_pos):
                         this_strategy = tuple(self.player_team_stat["strategy_cooldown"].keys())[index]
-                        if this_strategy not in self.strategy_text_list_cache:
+                        if this_strategy not in self.cache_strategy_text_list:
                             grab_text = self.grab_text
                             strategy_stat = self.strategy_list[this_strategy]
                             text = (grab_text(("strategy", this_strategy, "Name")),
@@ -1026,9 +1051,9 @@ class StrategySelect(UIOuterBattle):
                                     grab_text(("ui", "info_header_strategy_range")) +
                                     str(strategy_stat["Range"])
                                     )
-                            self.strategy_text_list_cache[this_strategy] = text
+                            self.cache_strategy_text_list[this_strategy] = text
                         else:
-                            text = self.strategy_text_list_cache[this_strategy]
+                            text = self.cache_strategy_text_list[this_strategy]
                         self.text_popup.popup(self.rect.bottomleft, text,
                                               width_text_wrapper=self.max_description_box_width)
                         self.add_to_outer_ui_menu_updater(self.text_popup)

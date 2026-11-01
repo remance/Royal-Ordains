@@ -1,18 +1,25 @@
-from engine.character.character import Character, BattleCharacter, CommanderBattleCharacter
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.battle.battle import Battle
+
+from engine.character.character import BaseBattleCharacter, BattleCharacter, CommanderBattleCharacter
 from engine.constants import Default_Battle_Ground_Pos, Default_Battle_Float_Pos, Default_Battle_Air_Pos
 
 team_start_x_distance = 600
 
 
-def setup_team_characters(self, stage_data):
+def setup_team_characters(self: Battle, stage_data: dict):
     """Setup all characters at the start of battle, not used for character spawn afterward"""
     for team, team_state in self.team_state.items():
         if "unit" in team_state:
-            if team_state["commander_unit"]:
-                data = {key: value for key, value in team_state["commander_unit"].items()}
+            if team_state["commander_character"]:
+                data = {key: value for key, value in team_state["commander_character"].items()}
                 data["Team"] = team
                 add_battle_char = CommanderBattleCharacter(self.last_char_game_id,
-                                                           team_state["commander_unit"])
+                                                           team_state["commander_character"])
                 add_battle_char.enter_stage()
                 commander_char = add_battle_char
                 self.team_commander[team] = commander_char
@@ -72,8 +79,8 @@ def add_neutral_stage_character(self, input_data):
     else:
         data["POS"] = (data["POS"], Default_Battle_Ground_Pos)
     if "no_battle" in data["Stage Property"] or "no_battle" in character_data["Property"]:
-        add_battle_char = Character(self.last_char_game_id,
-                                    data | self.character_list[data["ID"]])
+        add_battle_char = BaseBattleCharacter(self.last_char_game_id,
+                                              data | self.character_list[data["ID"]])
         add_battle_char.enter_stage()
         self.last_char_game_id += 1
     else:

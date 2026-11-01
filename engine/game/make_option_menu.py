@@ -1,8 +1,15 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.game.game import Game
+
 from engine.uimenu.uimenu import BrownMenuButton, TickBox, OptionMenuText, SliderMenu, ValueBox, \
     MenuButton, KeybindIcon, ListUI, GenericListAdapter
 
 
-def make_option_menu(self, main_menu_buttons_box):
+def make_option_menu(self: Game, main_menu_buttons_box):
     """
     This method create UI in option menu and keybinding menu
     """
@@ -51,7 +58,7 @@ def make_option_menu(self, main_menu_buttons_box):
     scroller_images = (self.option_menu_images["scroller_box"], self.option_menu_images["scroller"])
     scroll_button_images = (
         self.option_menu_images["scroll_button_normal"], self.option_menu_images["scroll_button_click"])
-    volume_slider = {"master": SliderMenu(scroller_images, scroll_button_images,
+    volume_sliders = {"master": SliderMenu(scroller_images, scroll_button_images,
                                           (self.screen_rect.width / 2, self.screen_rect.height / 4),
                                           float(config["master_volume"])),
                      "music": SliderMenu(scroller_images, scroll_button_images,
@@ -64,14 +71,17 @@ def make_option_menu(self, main_menu_buttons_box):
                                           (self.screen_rect.width / 2, self.screen_rect.height / 2),
                                           float(config["effect_volume"])),
                      }
-    value_box = {key: ValueBox(self.option_menu_images["value"],
-                               (volume_slider[key].rect.topright[0] * 1.1, volume_slider[key].rect.center[1]),
-                               volume_slider[key].value, int(52 * self.screen_scale[1])) for key in volume_slider}
+    value_boxes = {key: ValueBox(self.option_menu_images["value"],
+                                 (volume_sliders[key].rect.topright[0] * 1.1, volume_sliders[key].rect.center[1]),
+                                 volume_sliders[key].value, self.large_generic_ui_font) for key in volume_sliders}
 
-    volume_texts = {key: OptionMenuText((volume_slider[key].pos[0] - (volume_slider[key].pos[0] / 4.5),
-                                         volume_slider[key].pos[1]),
+    for key, value in volume_sliders.items():
+        value.value_box = value_boxes[key]
+
+    volume_texts = {key: OptionMenuText((volume_sliders[key].pos[0] - (volume_sliders[key].pos[0] / 4.5),
+                                         volume_sliders[key].pos[1]),
                                         self.grab_text(key=("ui", "option_" + key + "_volume",)),
-                                        font_size) for key in volume_slider}
+                                        font_size) for key in volume_sliders}
 
     # Resolution changing bar that fold out the list when clicked
 
@@ -89,11 +99,9 @@ def make_option_menu(self, main_menu_buttons_box):
                                      font_size)
 
     keybind_text = {"Confirm": OptionMenuText((self.screen_rect.width / 6, self.screen_rect.height * 0.1),
-                                              self.grab_text(
-                                                  key=("ui", "keybind_confirm")), font_size),
+                                              self.grab_text(key=("ui", "keybind_confirm")), font_size),
                     "Menu/Cancel": OptionMenuText((self.screen_rect.width / 6, self.screen_rect.height * 0.17),
-                                                  self.grab_text(
-                                                      key=("ui", "keybind_menu")), font_size),
+                                                  self.grab_text(key=("ui", "keybind_menu")), font_size),
                     "Up": OptionMenuText((self.screen_rect.width / 6, self.screen_rect.height * 0.24),
                                          self.grab_text(key=("ui", "keybind_move_up")), font_size),
                     "Down": OptionMenuText((self.screen_rect.width / 6, self.screen_rect.height * 0.31),
@@ -103,59 +111,43 @@ def make_option_menu(self, main_menu_buttons_box):
                     "Right": OptionMenuText((self.screen_rect.width / 6, self.screen_rect.height * 0.45),
                                             self.grab_text(key=("ui", "keybind_move_right")), font_size),
                     "Call Leader 1": OptionMenuText((self.screen_rect.width / 6, self.screen_rect.height * 0.52),
-                                                    self.grab_text(key=("ui", "keybind_call_leader1")),
-                                                    font_size),
+                                                    self.grab_text(key=("ui", "keybind_call_leader1")), font_size),
                     "Call Leader 2": OptionMenuText((self.screen_rect.width / 6, self.screen_rect.height * 0.59),
-                                                    self.grab_text(key=("ui", "keybind_call_leader2")),
-                                                    font_size),
+                                                    self.grab_text(key=("ui", "keybind_call_leader2")), font_size),
                     "Call Leader 3": OptionMenuText((self.screen_rect.width / 6, self.screen_rect.height * 0.66),
-                                                    self.grab_text(key=("ui", "keybind_call_leader3")),
-                                                    font_size),
+                                                    self.grab_text(key=("ui", "keybind_call_leader3")), font_size),
                     "Call Troop 1": OptionMenuText((self.screen_rect.width / 2.1, self.screen_rect.height * 0.1),
-                                                   self.grab_text(key=("ui", "keybind_call_troop1")),
-                                                   font_size),
+                                                   self.grab_text(key=("ui", "keybind_call_troop1")), font_size),
                     "Call Troop 2": OptionMenuText((self.screen_rect.width / 2.1, self.screen_rect.height * 0.17),
-                                                   self.grab_text(key=("ui", "keybind_call_troop2")),
-                                                   font_size),
+                                                   self.grab_text(key=("ui", "keybind_call_troop2")), font_size),
                     "Call Troop 3": OptionMenuText((self.screen_rect.width / 2.1, self.screen_rect.height * 0.24),
-                                                   self.grab_text(key=("ui", "keybind_call_troop3")),
-                                                   font_size),
+                                                   self.grab_text(key=("ui", "keybind_call_troop3")), font_size),
                     "Call Troop 4": OptionMenuText((self.screen_rect.width / 2.1, self.screen_rect.height * 0.31),
-                                                   self.grab_text(key=("ui", "keybind_call_troop4")),
-                                                   font_size),
+                                                   self.grab_text(key=("ui", "keybind_call_troop4")), font_size),
                     "Call Troop 5": OptionMenuText((self.screen_rect.width / 2.1, self.screen_rect.height * 0.38),
-                                                   self.grab_text(key=("ui", "keybind_call_troop5")),
-                                                   font_size),
+                                                   self.grab_text(key=("ui", "keybind_call_troop5")), font_size),
                     "Call Air 1": OptionMenuText((self.screen_rect.width / 2.1, self.screen_rect.height * 0.45),
-                                                 self.grab_text(key=("ui", "keybind_call_air1")),
-                                                 font_size),
+                                                 self.grab_text(key=("ui", "keybind_call_air1")), font_size),
                     "Call Air 2": OptionMenuText((self.screen_rect.width / 2.1, self.screen_rect.height * 0.52),
-                                                 self.grab_text(key=("ui", "keybind_call_air2")),
-                                                 font_size),
+                                                 self.grab_text(key=("ui", "keybind_call_air2")), font_size),
                     "Call Air 3": OptionMenuText((self.screen_rect.width / 2.1, self.screen_rect.height * 0.59),
-                                                 self.grab_text(key=("ui", "keybind_call_air3")),
-                                                 font_size),
+                                                 self.grab_text(key=("ui", "keybind_call_air3")), font_size),
                     "Call Air 4": OptionMenuText((self.screen_rect.width / 2.1, self.screen_rect.height * 0.66),
-                                                 self.grab_text(key=("ui", "keybind_call_air4")),
-                                                 font_size),
+                                                 self.grab_text(key=("ui", "keybind_call_air4")), font_size),
                     "Call Air 5": OptionMenuText((self.screen_rect.width / 2.1, self.screen_rect.height * 0.73),
-                                                 self.grab_text(key=("ui", "keybind_call_air5")),
-                                                 font_size),
+                                                 self.grab_text(key=("ui", "keybind_call_air5")), font_size),
                     "Strategy 1": OptionMenuText((self.screen_rect.width / 1.2, self.screen_rect.height * 0.1),
-                                                 self.grab_text(key=("ui", "keybind_select_strategy1")),
-                                                 font_size),
+                                                 self.grab_text(key=("ui", "keybind_select_strategy1")), font_size),
                     "Strategy 2": OptionMenuText((self.screen_rect.width / 1.2, self.screen_rect.height * 0.17),
-                                                 self.grab_text(key=("ui", "keybind_select_strategy2")),
-                                                 font_size),
+                                                 self.grab_text(key=("ui", "keybind_select_strategy2")), font_size),
                     "Strategy 3": OptionMenuText((self.screen_rect.width / 1.2, self.screen_rect.height * 0.24),
-                                                 self.grab_text(key=("ui", "keybind_select_strategy3")),
-                                                 font_size),
+                                                 self.grab_text(key=("ui", "keybind_select_strategy3")), font_size),
                     "Strategy 4": OptionMenuText((self.screen_rect.width / 1.2, self.screen_rect.height * 0.31),
-                                                 self.grab_text(key=("ui", "keybind_select_strategy4")),
-                                                 font_size),
+                                                 self.grab_text(key=("ui", "keybind_select_strategy4")), font_size),
                     "Strategy 5": OptionMenuText((self.screen_rect.width / 1.2, self.screen_rect.height * 0.38),
-                                                 self.grab_text(key=("ui", "keybind_select_strategy5")),
-                                                 font_size),
+                                                 self.grab_text(key=("ui", "keybind_select_strategy5")), font_size),
+                    "Change Pause": OptionMenuText((self.screen_rect.width / 1.2, self.screen_rect.height * 0.45),
+                                                   self.grab_text(key=("ui", "keybind_change_pause")), font_size),
                     }
 
     keybind_icon = {"Confirm": KeybindIcon((self.screen_rect.width / 4, keybind_text["Confirm"].rect.centery),
@@ -221,12 +213,14 @@ def make_option_menu(self, main_menu_buttons_box):
                                               font_size, keybind["Strategy 4"]),
                     "Strategy 5": KeybindIcon((self.screen_rect.width / 1.1, keybind_text["Strategy 5"].rect.centery),
                                               font_size, keybind["Strategy 5"]),
+                    "Change Pause": KeybindIcon((self.screen_rect.width / 1.1, keybind_text["Change Pause"].rect.centery),
+                                              font_size, keybind["Change Pause"]),
                     }
 
     return {"back_button": back_button, "keybind_button": keybind_button,
             "default_button": default_button, "resolution_drop": resolution_drop,
-            "resolution_bar": resolution_bar, "resolution_text": resolution_text, "volume_sliders": volume_slider,
-            "value_boxes": value_box, "volume_texts": volume_texts, "fullscreen_box": fullscreen_box,
+            "resolution_bar": resolution_bar, "resolution_text": resolution_text, "volume_sliders": volume_sliders,
+            "value_boxes": value_boxes, "volume_texts": volume_texts, "fullscreen_box": fullscreen_box,
             "fullscreen_text": fullscreen_text, "fps_box": fps_box,
             "fps_text": fps_text, "keybind_text": keybind_text, "keybind_icon": keybind_icon,
             "easy_text_box": easy_text_box, "easy_text": easy_text, "show_dmg_box": show_dmg_box,

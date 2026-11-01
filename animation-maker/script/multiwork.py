@@ -24,7 +24,7 @@ for x in Path(join(animation_dir)).iterdir():  # grab char with sprite
         file_list.append(normpath(x).split(os.sep)[-1])
 
 # for file_name in file_list:
-file_name = "death_undead_pain_golem.csv"
+file_name = "leader_avalkari.csv"
 with open(join(main_dir, "animation-maker", "data", "animation", file_name), encoding="utf-8",
           mode="r") as edit_file:
     rd = csv.reader(edit_file, quoting=csv.QUOTE_MINIMAL)
@@ -38,14 +38,16 @@ with open(join(main_dir, "animation-maker", "data", "animation", file_name), enc
                 new_column = column.split(",")
                 if len(new_column) > 4 and column:
                     # if float(new_column[2]) > 180:
-                    new_width_scale = float(new_column[7]) + 0.5
-                    new_height_scale = float(new_column[8]) + 0.5
-                    print(new_column[6], new_column[7], new_width_scale, new_height_scale)
-                    new_column[2] = str(round(float(new_column[2]) * (1 + new_width_scale - float(new_column[7])), 0))
-                    new_column[3] = str(round(float(new_column[3]) * (1 + new_height_scale - float(new_column[8])), 0))
+                    # new_width_scale = float(new_column[7]) + 0.5
+                    # new_height_scale = float(new_column[8]) + 0.5
+                    # print(new_column[6], new_column[7], new_width_scale, new_height_scale)
+                    # new_column[2] = str(round(float(new_column[2]) * (1 + new_width_scale - float(new_column[7])), 0))
+                    # new_column[3] = str(round(float(new_column[3]) * (1 + new_height_scale - float(new_column[8])), 0))
+                    new_column[2] = str(float(new_column[2]) + 200)
+                    new_column[3] = str(float(new_column[3]))
                     # if float(new_column[3]) < -180:
-                    new_column[7] = str(new_width_scale)
-                    new_column[8] = str(new_height_scale)
+                    # new_column[7] = str(new_width_scale)
+                    # new_column[8] = str(new_height_scale)
                     new_column = ",".join(new_column)
                     row[col_index] = new_column
         final_save.append(row)

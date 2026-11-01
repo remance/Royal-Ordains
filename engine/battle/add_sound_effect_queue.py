@@ -1,8 +1,16 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pygame import Sound, Vector2
+    from engine.battle.battle import Battle
+
 from math import log2
 
 
-def add_sound_effect_queue(self, sound_object, sound_pos, sound_distance_power, shake_power, volume_mod=1,
-                           volume="effect"):
+def add_sound_effect_queue(self: Battle, sound_object: Sound, sound_pos: Vector2, sound_distance_power: (int, float),
+                           shake_power: (int, float), volume_mod: (int, float) = 1, volume: str = "effect"):
     """Stereo sound effect player based on sound pos distance from center camera pos"""
     use_volume = self.play_effect_volume
     if volume == "voice":
@@ -49,7 +57,7 @@ def add_sound_effect_queue(self, sound_object, sound_pos, sound_distance_power, 
                     self.sound_effect_queue[sound_object][1] += right_effect_volume
 
 
-def cal_shake_value(distance, shake_value):
+def cal_shake_value(distance: (int, float), shake_value: (int, float)):
     distance = log2(distance + 0.1)
     if distance < 1:
         distance = 1

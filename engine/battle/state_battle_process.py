@@ -1,11 +1,19 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.battle.battle import Battle
+
 from random import choice
+from math import ceil
 
 from pygame.mixer import Sound
 
 from engine.constants import Opposite_Team, Phase_To_Battle_Time
 
 
-def state_battle_process(self):
+def state_battle_process(self: Battle):
     camera = self.camera
     self.remove_from_outer_ui_menu_updater(self.text_popup)
     self.player_input()
@@ -81,8 +89,7 @@ def state_battle_process(self):
         for battle_ai_commander in self.all_battle_ai_commanders:
             battle_ai_commander.update(dt)
 
-        if self.later_reinforcement:
-            self.check_reinforcement()
+        self.check_reinforcement()
 
         for team, team_state in self.team_state.items():
             team_state["strategy_cooldown"] = {key: [cooldown - dt if cooldown > dt else 0 for cooldown in value] for
@@ -184,9 +191,9 @@ def state_battle_process(self):
                 loser_team = Opposite_Team[self.winner_team]
 
                 gain_supply = 0
-                transfer_supply = self.team_state[loser_team]["total_supply"] * 0.15
+                transfer_supply = ceil(self.team_state[loser_team]["total_supply"] * 0.2)
                 remain_supply = self.team_state[loser_team]["supply_resource"] + self.team_state[loser_team][
-                    "supply_reserve"] * 0.15
+                    "supply_reserve"] * 0.2
                 if transfer_supply < remain_supply:  # max supply is less than remain supply, use remain instead
                     transfer_supply = remain_supply
                 if transfer_supply > self.team_state[loser_team]["supply_resource"]:

@@ -32,7 +32,7 @@ def hit_collide_check(self):
                                     if self.remain_check:
                                         if self.after_reach == "bounce":
                                             sprite_bounce(self)
-                                    elif len(self.current_animation) == 1:
+                                    elif self.len_current_animation == 1:
                                         self.reach_target()
                                         return True
                                 else:

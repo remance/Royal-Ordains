@@ -1,3 +1,10 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.grandarmyactor.grandarmyactor import GrandArmyActor
+
 from pygame import Vector2
 
 from engine.constants import Phase_To_Game_Time
@@ -5,7 +12,7 @@ from engine.constants import Phase_To_Game_Time
 infinity = float("inf")
 
 
-def move_logic(self, dt):
+def move_logic(self: GrandArmyActor, dt: float):
     """Actor always reach target pos within half of the phase in game time when not skipping ahead"""
     distance = self.target_pos.distance_to(self.pos)
     if distance > self.skip_move_length or distance < 1:

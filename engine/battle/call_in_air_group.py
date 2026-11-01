@@ -1,4 +1,12 @@
-def call_in_air_group(self, team, groups, pos):
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.battle.battle import Battle
+
+
+def call_in_air_group(self: Battle, team: int, groups: (tuple, list), pos):
     delay = 0.1
     for group_index in groups:
         if not any([air_character.active for air_character in self.team_state[team]["air_group"][group_index]]):

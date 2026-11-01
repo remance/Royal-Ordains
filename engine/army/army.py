@@ -1,12 +1,15 @@
 from engine.army.change_commander import change_commander
 from engine.army.change_phase import change_phase
 from engine.army.check_assemble import check_assemble
+from engine.army.check_enemy_army import check_enemy_army
+from engine.army.deploy_army_from_reserve import deploy_army_from_reserve
 from engine.army.issue_move_command import issue_move_command
 from engine.army.remove_army_from_active import remove_army_from_active
 from engine.army.remove_army_from_reserve import remove_army_from_reserve
-from engine.army.remove_follower import remove_follower
+from engine.army.change_follower import change_follower
 from engine.army.reset_stat import reset_stat
-from engine.grand.deploy_army_from_reserve import deploy_army_from_reserve
+
+from engine.utils.common import empty_method
 
 
 class Army:
@@ -15,20 +18,22 @@ class Army:
     grand = None
 
     change_commander = change_commander
+    change_follower = change_follower
+    check_enemy_army = check_enemy_army
     change_phase = change_phase
     check_assemble = check_assemble
     deploy_from_reserve = deploy_army_from_reserve
     issue_move_command = issue_move_command
     remove_army_from_active = remove_army_from_active
     remove_army_from_reserve = remove_army_from_reserve
-    remove_follower = remove_follower
     reset_stat = reset_stat
 
     def __init__(self, army_id: str, faction: str, culture: str, commander_char_id: str, army_followers: dict,
-                 supply: int = 0, max_supply: int = 0, garrison_strategy: tuple | list = (),
-                 custom_preset_id=None, grand_state=None):
+                 supply: int = 0, max_supply: int = 0, is_garrison=False, garrison_strategy: tuple | list = (),
+                 custom_preset_id=None, grand_state=None, no_enemy_check=True):
         self.game_id = army_id
         self.faction = faction
+        self.belong_to_player_faction = False
         self.culture = culture
         self.army_followers = army_followers
         self.commander_id = commander_char_id
@@ -42,6 +47,7 @@ class Army:
         self.power = 0
         self.total_supply_usage = 0
         self.travel_time_modifier = 1
+        self.is_garrison = is_garrison
         self.garrison_strategy = garrison_strategy
         self.can_assemble = {}
         self.supply = supply
@@ -59,6 +65,8 @@ class Army:
         self.direct_routing_array = {}
 
         if grand_state:  # active army in grand campaign exist in region, so can be used as purpose indication
+            if self.faction == self.grand.player_faction:
+                self.belong_to_player_faction = True
             self.enable_resupply = grand_state["enable_resupply"]
             self.enable_assemble = grand_state["enable_assemble"]
             self.activity = grand_state["activity"]
@@ -76,29 +84,30 @@ class Army:
             self.dots_army_occupation = self.grand.dots_army_occupation
             self.dots_army_occupation[self.base_pos].append(self)
             self.sort_dot_army_occupation(self.base_pos)
-            self.region_by_pos_index = self.grand.region_by_pos_index
+            self.region_settlement_pos_index = self.grand.region_settlement_pos_index
             self.check_assemble()
 
         self.reset_stat(include_culture_influence=include_culture_influence)
+        if not no_enemy_check:
+            self.check_enemy_army()  # check for enemy/battle when it is created right away in grand
 
     @property
     def to_dict(self) -> dict:
-        return {"ID": self.game_id, "faction": self.faction, "culture": self.culture,
-                "commander": self.commander_id, "army_followers": self.army_followers,
-                "supply": self.supply, "custom_preset_id": self.custom_preset_id,
+        """Convert army data to dict for deployment or saving"""
+        return {"ID": self.game_id, "Faction": self.faction, "culture": self.culture,
+                "Commander": self.commander_id, "army_followers": self.army_followers,
+                "Supply": self.supply, "Max Supply": self.max_supply, "custom_preset_id": self.custom_preset_id,
                 "grand_state": {"activity": self.activity, "enable_resupply": self.enable_resupply,
                                 "enable_assemble": self.enable_assemble, "base_pos": self.base_pos,
                                 "current_region": self.current_region, },
                 }
 
-    @property
-    def to_preset_dict(self) -> dict:
-        return {"culture": self.culture, "commander": [self.commander_id], "army_followers": self.army_followers,
-                "cost": self.cost, "leadership": self.leadership,
-                "total_number": self.total_number, "upkeep": self.upkeep,
-                "power": self.power, "supply": self.supply, "max_supply": self.max_supply,
-                "strategy": [self.character_list[self.commander_id]["Strategy"]] +
-                            [self.character_list[character[0]]["Strategy"] for character in
-                             self.army_followers["leader"] if character and character[1]],
-                "total_supply_usage": self.total_supply_usage
-                }
+
+class GarrisonArmy(Army):
+    change_phase = empty_method
+
+    def __init__(self, army_id: str, faction: str, culture: str, commander_char_id: str, army_followers: dict,
+                 garrison_strategy: tuple | list = (), grand_state=None):
+        Army.__init__(self, army_id, faction, culture, commander_char_id, army_followers,
+                      0, 0, is_garrison=True, garrison_strategy=garrison_strategy,
+                      grand_state=grand_state)

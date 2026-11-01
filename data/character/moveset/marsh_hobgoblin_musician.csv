@@ -1,0 +1,4 @@
+"Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
+"Skill1","Drum Signal",,,,,6000,30,20,,,,,,,"clarity",,,
+"Skill2","Sound Horn",,,,,6000,30,20,,,,,,,"confident",,,
+"Die","Final Horn",,,,,6000,,,,,,,,,"brave",,,

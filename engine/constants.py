@@ -26,6 +26,7 @@ Leadership_Add_Modifier = 0.3
 Phase_To_Game_Time = 1  # in second to 1 phase
 Turn_To_Phase = 12  # in phase to 1 turn
 Phase_To_Battle_Time = 60  # in second
+Phase_To_Round = 6  # battle round, 1 phase of 60 second battle time to simulate 6 actions per 10 seconds
 
 # number of turn a diplomacy event will have effect
 Diplomacy_Turn_Event_Gift = 30
@@ -33,19 +34,26 @@ Diplomacy_Turn_Event_Battle = 15
 Diplomacy_Turn_Event_Occupy = 50
 
 """culture policy for grand campaign
-ANY CHANGE IN KEYS WILL CAUSE ERRORS from the inconsistency in game code, uioutergrand and ui sprite asset
+ANY CHANGE IN DICT KEYS WILL CAUSE ERRORS FROM THE INCONSISTENCY IN GAME CODE, UIOUTERGRAND AND UI CULTURE ASSET
 the value indicate maximum integration value that the culture can reach"""
+Culture_Policy_Key = ("reject", "tolerate", "restrict", "partial", "accept")
+Culture_Default_New = "tolerate"
 Culture_Policy_Integration = {"reject": 0, "tolerate": 0.1, "restrict": 0.35, "partial": 0.7, "accept": 1}
 Culture_Policy_Difference_Relation = {0: 0, 1: -5, 2: -15, 3: -20, 4: -30}
 
 """Route type travel modifier for army in grand campaign"""
 Route_Travel_Modifier = {"land": 1, "forest": 2, "hill": 2, "snow": 2, "sea": 3, "mountain": 3, "ocean": 4}
 
+"""Speech priority for diplomacy head in grand campaign"""
+
+Diplomacy_Speech_Priority = {"lose": 2, "war": 2, "offer_ally": 2, "offer_gift": 2, "accept_ally": 2, "war_you": 1, "accept_gift": 0,
+                             "accept_ally_you": 0, "lose_region": 0, "gain_region": 0}
+
 # DO NOT CHANGE BELOW AS THEY MAY BREAK THE GAME
 Default_Screen_Width = 3840
 Default_Screen_Height = 2160
-Default_Showcase_Character_POS = (Default_Screen_Width * 0.6, Default_Screen_Height * 0.6)
-Default_Showcase_Character_air_POS = (Default_Screen_Width * 0.6, Default_Screen_Height * 0.45)
+Default_Showcase_Character_POS = (Default_Screen_Width * 0.55, Default_Screen_Height * 0.6)
+Default_Showcase_Character_air_POS = (Default_Screen_Width * 0.5, Default_Screen_Height * 0.45)
 Weak_To_Element = {"fire": "water", "water": "air", "earth": "fire", "air": "earth", "magic": None,
                    "stab": None, "slash": None, "crush": None}
 Opposite_Team = {1: 2, 2: 1}

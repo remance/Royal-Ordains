@@ -1,3 +1,10 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.game.game import Game
+
 import sys
 import time
 from copy import deepcopy
@@ -11,7 +18,7 @@ from pygame.event import get as get_event, clear as clear_event
 from pygame.locals import *
 from pygame.mixer import Sound, Channel
 
-from engine.aibattle.battle_commander_ai import BattleCommanderAI
+from engine.aibattlecommander.battle_commander_ai import BattleCommanderAI
 from engine.battle.activate_retreat import activate_retreat
 from engine.battle.activate_strategy import activate_strategy
 from engine.battle.add_new_army_arrive import add_new_army_arrive
@@ -19,7 +26,7 @@ from engine.battle.add_new_army_to_reinforcement import add_new_army_to_reinforc
 from engine.battle.add_sound_effect_queue import add_sound_effect_queue
 from engine.battle.add_strategy_to_team_state import add_strategy_to_team_state
 from engine.battle.call_in_air_group import call_in_air_group
-from engine.battle.call_reinforcement import call_reinforcement
+from engine.battle.call_reinforcement_to_battle import call_reinforcement_to_battle
 from engine.battle.change_game_state import change_game_state
 from engine.battle.check_battle_character_to_load import check_battle_character_to_load
 from engine.battle.check_event import check_event
@@ -41,7 +48,7 @@ from engine.battle.state_menu_process import state_menu_process, back_to_battle_
 from engine.battle.state_result_process import state_result_process
 from engine.battleobject.battleobject import StageObject
 from engine.camera.camera import Camera
-from engine.character.character import Character
+from engine.character.character import BaseBattleCharacter
 from engine.constants import *
 from engine.effect.effect import DamageEffect, Effect
 from engine.game.activate_input_popup import activate_input_popup
@@ -88,7 +95,7 @@ class Battle:
     add_strategy_to_team_state = add_strategy_to_team_state
     back_to_battle_state = back_to_battle_state
     call_in_air_group = call_in_air_group
-    call_reinforcement = call_reinforcement
+    call_reinforcement_to_battle = call_reinforcement_to_battle
     change_game_state = change_game_state
     change_pause_update = change_pause_update
     check_battle_character_to_load = check_battle_character_to_load
@@ -115,7 +122,7 @@ class Battle:
 
     process_list = {"battle": state_battle_process, "menu": state_menu_process, "result": state_result_process}
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         self.game = game
         Battle.battle = self
         # TODO LIST
@@ -124,7 +131,7 @@ class Battle:
         # finish main menu
         # link grand to battle, auto battle, enter manual, leave manual, auto process,
         # Future idea
-        # espionage, morale,
+        # espionage, morale, strategic spell in grand
 
         self.clock = pygame.time.Clock()  # Game clock to keep track of realtime pass
 
@@ -192,7 +199,7 @@ class Battle:
         StrategyIcon.containers = self.battle_effect_updater, self.battle_camera_ui_drawer
         DamageEffect.containers = self.battle_effect_updater
         MatterSprite.containers = self.weather_matters, self.outer_ui_updater, self.outer_ui_drawer
-        Character.containers = self.battle_character_updater, self.all_battle_characters
+        BaseBattleCharacter.containers = self.battle_character_updater, self.all_battle_characters
 
         self.cursor = game.cursor
 
@@ -272,13 +279,14 @@ class Battle:
         UIOuterBattle.text_popup = self.text_popup
         UIOuterBattle.add_to_outer_ui_menu_updater = self.add_to_outer_ui_menu_updater
         UIOuterBattle.remove_from_outer_ui_menu_updater = self.remove_from_outer_ui_menu_updater
-        Character.collision_grid_width = self.screen_width / Collision_Grid_X_Per_Battle_Scene  # collision grid size based on screen scale
-        Character.collision_grid_height = self.screen_height / Collision_Grid_Y_Per_Battle_Scene
-        Character.sound_effect_pool = self.sound_effect_pool
+        BaseBattleCharacter.collision_grid_width = self.screen_width / Collision_Grid_X_Per_Battle_Scene  # collision grid size based on screen scale
+        BaseBattleCharacter.collision_grid_height = self.screen_height / Collision_Grid_Y_Per_Battle_Scene
+        BaseBattleCharacter.sound_effect_pool = self.sound_effect_pool
         DamageEffect.collision_grid_width = self.screen_width / Collision_Grid_X_Per_Battle_Scene
         DamageEffect.collision_grid_height = self.screen_height / Collision_Grid_Y_Per_Battle_Scene
         Effect.sound_effect_pool = self.sound_effect_pool
 
+        self.before_pause_game_speed = 1
         self.game_speed = 1
         self.all_team_ally = {index: sprite.Group() for index in team_list}
         self.all_team_enemy_check = {index: sprite.Group() for index in team_list}  # for victory check
@@ -301,7 +309,7 @@ class Battle:
         self.team_state = {team: {"faction": None, "culture": None, "strategy_resource": 0, "supply_resource": 0,
                                   "supply_reserve": 0, "total_supply": 0, "leadership": 0, "start_pos": 0,
                                   "leader_call_list": [], "troop_call_list": [],
-                                  "air_group": [], "strategy_cooldown": {}} for
+                                  "air_group": [], "strategy_cooldown": {}, "later_reinforcement": {}} for
                            team in team_list}
         self.team_commander = {team: None for team in team_list}
         self.team_deployed = {team: 0 for team in team_list}
@@ -310,8 +318,6 @@ class Battle:
         self.player_culture = None
         self.player_selected_strategy = None
 
-        self.later_reinforcement = {"weather": {}, "time": {},
-                                    "team": {team: {"air": [], "ground": []} for team in team_list}}
         self.team1_call_leader_cooldown_reinforcement = {}
         self.team1_call_troop_cooldown_reinforcement = {}
         self.team2_call_leader_cooldown_reinforcement = {}
@@ -332,6 +338,7 @@ class Battle:
         battle_ui_images = self.game.battle_ui_images
         self.battle_ui_images = battle_ui_images
         CharacterSpeechBox.images = battle_ui_images
+        CharacterSpeechBox.add_sound_effect_queue = self.add_sound_effect_queue
 
         StrategyIcon.strategy_icons = self.sprite_data.strategy_icons
         self.command_ui = Command(battle_ui_images["call_count"], battle_ui_images["air_count"])
@@ -347,7 +354,10 @@ class Battle:
                                               battle_ui_images["time_normal"],
                                               battle_ui_images["time_fast"]),
                                              (battle_ui_images["time_select"],
-                                              battle_ui_images["time_unselect"])
+                                              battle_ui_images["time_unselect"]),
+                                             {"idle": battle_ui_images["wind_idle"],
+                                              "right": battle_ui_images["wind_right"],
+                                              "left": battle_ui_images["wind_left"], }
                                              )
         self.battle_scale_ui = BattleScale(self.tactical_map_ui.rect.bottomleft)
         self.strategy_select_ui = StrategySelect(self.battle_scale_ui.rect.midbottom,
@@ -424,11 +434,15 @@ class Battle:
         self.cutscene_playing = None
         self.current_scene = 1
 
-    def setup_battle_start(self, campaign, stage, full_team_state):
+    def setup_battle_start(self, campaign, stage, full_team_state, battle_state=None):
         """setup battle used for both auto and manual"""
-        self.map_data.read_map_data(campaign, stage)
-        stage_len = len(
-            [value for value in self.game.preset_map_data[stage]["data"].values() if "scene" in value["Type"]])
+        if not battle_state:
+            # not already loaded battle stage
+            self.map_data.read_map_data(campaign, stage)
+            stage_len = len(
+                [value for value in self.game.preset_map_data[stage]["data"].values() if "scene" in value["Type"]])
+        else:
+            stage_len = battle_state["stage_size"]
         base_stage_end = stage_len * Default_Screen_Width
 
         for team, team_state in full_team_state.items():
@@ -440,6 +454,7 @@ class Battle:
             team_state["leadership"] = 0
             team_state["start_pos"] *= base_stage_end
             team_state["active_leader"] = 0
+            team_state["later_reinforcement"] = {}
             # add available strategies to team stat
             if team_state["main_army"] and team_state["main_army"].commander_id:  # army exist
                 main_army = team_state["main_army"]
@@ -480,7 +495,7 @@ class Battle:
 
             for army in team_state["reinforcement_army"]:
                 if army.commander_id:
-                    self.add_new_army_to_reinforcement(team, team_state, army)
+                    self.add_new_army_to_reinforcement(team_state, army)
 
     def prepare_new_stage(self, attach_grand, campaign, stage, team_state, player_team, battle_name,
                           custom_stage_data, ai_retreat):
@@ -647,9 +662,12 @@ class Battle:
             if item["Arrive Condition"]:
                 for key, value in item["Arrive Condition"].items():
                     # use only first condition
-                    if value not in self.later_reinforcement[key]:
-                        self.later_reinforcement[key][value] = []
-                    self.later_reinforcement[key][value].append(item)
+                    later_reinforcement = self.team_state[item["Team"]]["later_reinforcement"]
+                    if key not in later_reinforcement:
+                        later_reinforcement[key] = {}
+                    if value not in later_reinforcement[key]:
+                        later_reinforcement[key][value] = []
+                    later_reinforcement[key][value].append(item)
                     break
 
         self.setup_team_characters(stage_data)
@@ -778,11 +796,11 @@ class Battle:
         frame = 0
         clear_event()
         while True:  # battle running
-            frame += 1
+            # frame += 1
 
-            if frame % 30 == 0 and hasattr(self.game, "profiler"):  # Remove for stable release, along with dev key
-                self.game.profiler.refresh()
-                frame = 0
+            # if frame % 30 == 0 and hasattr(self.game, "profiler"):  # Remove for stable release, along with dev key
+            #     self.game.profiler.refresh()
+            #     frame = 0
 
             key_state = pygame.key.get_pressed()
             self.esc_press = False
@@ -865,13 +883,13 @@ class Battle:
                         self.grand_event_notification.add_event(("event_good", "test"))
                     elif event.key == K_KP_7:
                         self.activate_strategy(2, "Spell_huge_stone", 1000)
-                    elif event.key == K_KP_8:  # clear profiler
-                        if hasattr(self.game, "profiler"):
-                            self.game.profiler.clear()
-                    elif event.key == K_KP_9:  # show/hide profiler
-                        if not hasattr(self.game, "profiler"):
-                            self.game.setup_profiler()
-                        self.game.profiler.switch_show_hide()
+                    # elif event.key == K_KP_8:  # clear profiler
+                    #     if hasattr(self.game, "profiler"):
+                    #         self.game.profiler.clear()
+                    # elif event.key == K_KP_9:  # show/hide profiler
+                    #     if not hasattr(self.game, "profiler"):
+                    #         self.game.setup_profiler()
+                    #     self.game.profiler.switch_show_hide()
 
             return_state = self.state_process()  # run code based on current state
             if return_state is not None:
@@ -945,7 +963,7 @@ class Battle:
         self.team_state = {team: {"faction": None, "culture": None, "strategy_resource": 0,
                                   "supply_resource": 0, "supply_reserve": 0, "total_supply": 0, "leadership": 0,
                                   "start_pos": 0, "leader_call_list": [], "troop_call_list": [],
-                                  "air_group": [], "strategy": {}} for
+                                  "air_group": [], "strategy": {}, "later_reinforcement": {}} for
                            team in team_list}
         self.team1_call_leader_cooldown_reinforcement = {}
         self.team1_call_troop_cooldown_reinforcement = {}
@@ -953,8 +971,6 @@ class Battle:
         self.team2_call_troop_cooldown_reinforcement = {}
         self.all_battle_ai_commanders = []
 
-        self.later_reinforcement = {"weather": {}, "time": {},
-                                    "team": {team: {"air": [], "ground": []} for team in team_list}}
         self.ai_process_list = []
         self.team_commander = {team: None for team in team_list}
         self.player_commander = None

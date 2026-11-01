@@ -129,22 +129,23 @@ class CharacterInteractPrompt(UIBattle):
 
 class CharacterSpeechBox(UIBattle):
     images = {}
+    add_sound_effect_queue = None
     simple_font = False
 
     def __init__(self, character, text, specific_timer=None, player_input_indicator=False, cutscene_event=None,
-                 voice=False, font_size=60, max_text_width=800):
+                 voice=False, font_size=60, max_text_width=800, add_battle_log=True):
         """Speech box that appear from character head"""
         self._layer = 9999999999999999998
         UIBattle.__init__(self, player_cursor_interact=False, has_containers=True)
         font = "simple"
-        if not self.simple_font and self.game.language in ("en", "es", "it", "fr", "de",):
+        if not self.simple_font and self.language in ("en", "es", "it", "fr", "de",):
             # culture font only available for latin alphabet sadly
             font = "culture_" + character.culture
 
         self.font_size = int(font_size * self.screen_scale_height)
         self.font = Font(self.ui_font[font], self.font_size)
         max_text_width *= self.screen_scale_width
-        long_text_surface = make_long_text(text, (0, 0), self.font)
+        long_text_surface = make_long_text(text, self.font)
         text_surface = Surface(long_text_surface.get_size())
         text_surface.fill((224, 224, 224))
         text_surface.blit(long_text_surface, (0, 0))
@@ -225,27 +226,28 @@ class CharacterSpeechBox(UIBattle):
         self.rect = self.image.get_rect(midleft=character.rect.center)
 
         if voice:
-            self.battle.add_sound_effect_queue(choice(self.battle.sound_effect_pool[voice[0]]),
+            self.add_sound_effect_queue(choice(self.battle.sound_effect_pool[voice[0]]),
                                                character.base_pos, voice[1],
                                                voice[2], volume="voice")
-        elif voice is False:  # None will play no sound
-            self.battle.add_sound_effect_queue(choice(self.battle.sound_effect_pool["parchment_write"]),
+        elif voice is False:  # None will play no sound, False play default sound
+            self.add_sound_effect_queue(choice(self.battle.sound_effect_pool["parchment_write"]),
                                                character.base_pos, 1000,
                                                0, volume="voice")
 
-        if specific_timer:
-            self.timer = specific_timer
-        else:
+        if specific_timer is None:
             self.timer = 3
             if len(text) > 20:
                 self.timer += int(len(text) / 20)
+        else:
+            self.timer = specific_timer
 
-        self.battle.save_data.save_profile["battle log"].append(
-            ("(" + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + ") At " + self.battle.stage + ", " +
-             character.name + ": ", text))
-        if len(self.battle.save_data.save_profile["battle log"]) > 500:
-            self.battle.save_data.save_profile["battle log"] = self.battle.save_data.save_profile["battle log"][
-                                                               1:]
+        if add_battle_log:
+            self.battle.save_data.save_profile["battle log"].append(
+                ("(" + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + ") At " + self.battle.stage + ", " +
+                 character.name + ": ", text))
+            if len(self.battle.save_data.save_profile["battle log"]) > 500:
+                self.battle.save_data.save_profile["battle log"] = self.battle.save_data.save_profile["battle log"][
+                                                                   1:]
 
     def update(self, dt):
         """Play unfold animation and blit text at the end"""
@@ -327,7 +329,7 @@ class StrategyIcon(UIBattle):
 
 
 class DamageNumber(UIBattle):
-    image_cache = {team: {True: {}, False: {}} for team in team_colour}
+    cache_image = {team: {True: {}, False: {}} for team in team_colour}
 
     def __init__(self, value, pos, critical, team):
         self._layer = 9999999999999999997
@@ -336,16 +338,16 @@ class DamageNumber(UIBattle):
         if type(value) is str:
             self.timer = 1
         str_value = str(value)
-        if str_value not in self.image_cache[team][critical]:
+        if str_value not in self.cache_image[team][critical]:
             if critical:
                 self.image = text_render_with_bg(str_value, self.game.critical_damage_number_font,
                                                  gf_colour=team_colour[team])
             else:
                 self.image = text_render_with_bg(str_value, self.game.damage_number_font,
                                                  gf_colour=team_colour[team])
-            self.image_cache[team][critical][str_value] = self.image
+            self.cache_image[team][critical][str_value] = self.image
         else:
-            self.image = self.image_cache[team][critical][str_value]
+            self.image = self.cache_image[team][critical][str_value]
 
         self.rect = self.image.get_rect(midbottom=pos)
 

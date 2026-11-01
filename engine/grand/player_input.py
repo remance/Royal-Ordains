@@ -1,14 +1,19 @@
-"""No need for menu/cancel input check here, already done in battle update"""
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.grand.grand import Grand
 
 
-def battle_no_player_input_grand(self):
+def battle_no_player_input_grand(self: Grand):
     for key, pressed in self.player_key_hold.items():  # check for holding input
         if pressed and key in grand_key_hold:
             grand_key_hold[key](self)
 
 
-def player_input_grand(self):
-    if self.player_grand_reserve_army_list_ui not in self.outer_ui_updater:
+def player_input_grand(self: Grand):
+    if self.reserve_army_list_ui not in self.outer_ui_updater:
         for key, pressed in self.player_key_press.items():
             if pressed and key in grand_key_input:
                 grand_key_input[key](self)
@@ -18,26 +23,35 @@ def player_input_grand(self):
                 grand_key_hold[key](self)
 
 
-def camera_go_left(self):
+def change_pause(self: Grand):
+    if self.game_speed:
+        self.before_pause_game_speed = self.game_speed
+        self.game_speed = 0
+    else:
+        self.game_speed = self.before_pause_game_speed
+    self.time_setting_ui.reset()
+
+
+def camera_go_left(self: Grand):
     self.camera_topleft_pos[0] -= (2000 * self.true_dt)
     self.fix_camera()
 
 
-def camera_go_right(self):
+def camera_go_right(self: Grand):
     self.camera_topleft_pos[0] += (2000 * self.true_dt)
     self.fix_camera()
 
 
-def camera_go_up(self):
+def camera_go_up(self: Grand):
     self.camera_topleft_pos[1] -= (2000 * self.true_dt)
     self.fix_camera()
 
 
-def camera_go_down(self):
+def camera_go_down(self: Grand):
     self.camera_topleft_pos[1] += (2000 * self.true_dt)
     self.fix_camera()
 
 
 grand_key_hold = {"Left": camera_go_left, "Right": camera_go_right, "Up": camera_go_up, "Down": camera_go_down}
 
-grand_key_input = {}
+grand_key_input = {"Change Pause": change_pause}

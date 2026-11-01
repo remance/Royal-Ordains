@@ -28,12 +28,13 @@ class DataSprite(GameData):
         if self.load_threads > 10:
             self.load_threads = 10
 
-        self.number_text_cache = {}
+        self.cache_number_text = {}
         self.character_animation_data = {}
         self.region_sprites = {}
         self.stage_object_animation_pool = {}
         self.grand_object_animation_pool = {}
         self.grand_actor_animation_pool = {}
+        self.grand_diplomacy_animation_pool = {}
         self.character_portraits = {}
         self.strategy_icons = {}
         self.grand_ui_images = {}
@@ -79,11 +80,14 @@ class DataSprite(GameData):
             # add some smaller version of icons
             for policy in Culture_Policy_Integration:
                 self.grand_ui_images["policy_small_" + policy] = smoothscale(self.grand_ui_images["policy_" + policy],
-                                                                             (70 * self.screen_scale_width, 70 * self.screen_scale_height))
+                                                                             (70 * self.screen_scale_width,
+                                                                              70 * self.screen_scale_height))
             self.grand_ui_images["culture_value_good"] = smoothscale(self.grand_ui_images["diplomacy_value_good"],
-                                                                     (70 * self.screen_scale_width, 70 * self.screen_scale_height))
+                                                                     (70 * self.screen_scale_width,
+                                                                      70 * self.screen_scale_height))
             self.grand_ui_images["culture_value_bad"] = smoothscale(self.grand_ui_images["diplomacy_value_bad"],
-                                                                    (70 * self.screen_scale_width, 70 * self.screen_scale_height))
+                                                                    (70 * self.screen_scale_width,
+                                                                     70 * self.screen_scale_height))
 
             self.battle_ui_images = load_images(self.data_dir, screen_scale=self.screen_scale,
                                                 subfolder=("ui", "battle_ui"))
@@ -135,11 +139,11 @@ class DataSprite(GameData):
                     icon = self.character_portraits[file]["setup_ui"]
                     add_number = character_list[file]["Capacity"]
                     if add_number:
-                        if add_number not in self.number_text_cache:
+                        if add_number not in self.cache_number_text:
                             number_text = text_render_with_bg(str(add_number), number_font, o_colour=(200, 200, 100))
-                            self.number_text_cache[add_number] = number_text
+                            self.cache_number_text[add_number] = number_text
                         else:
-                            number_text = self.number_text_cache[add_number]
+                            number_text = self.cache_number_text[add_number]
                         number_rect = number_text.get_rect(bottomright=mini_portrait.get_size())
                         icon.blit(number_text, number_rect)
 
@@ -186,6 +190,10 @@ class DataSprite(GameData):
             #     join(self.data_dir, "animation", "stage_object.xz"),
             #     screen_scale=self.screen_scale)
 
+            self.grand_actor_animation_pool = load_pickle_with_surfaces(
+                join(self.data_dir, "animation", "grand_actor.xz"),
+                screen_scale=self.screen_scale)
+
     def load_region_sprite(self, map_data, grand_ui_images, map_shown_to_base_scale_width,
                            map_shown_to_base_scale_height, campaign: str):
         self.region_sprites = load_images(self.data_dir, screen_scale=self.screen_scale,
@@ -227,6 +235,14 @@ class DataSprite(GameData):
                                                                             dot_rect.y - region_rect.y))
                                 self.region_sprites[region].blit(dot_image, blit_dot_rect)
                                 break
+
+    def load_diplomacy_animation(self, character_list):
+        for file_name in character_list:
+            if file_name not in self.grand_diplomacy_animation_pool:
+                # get animation for each character that is not yet loaded
+                self.grand_diplomacy_animation_pool[file_name] = load_pickle_with_surfaces(
+                    join(self.data_dir, "animation", "diplomacy", file_name + ".xz"),
+                    screen_scale=self.screen_scale)
 
     def load_character_animation(self, character_list):
         # only load those not already loaded
@@ -307,7 +323,7 @@ def load_effect_sprites(effect_to_load, cache_animation_hash, data_dir, effect_a
         if (not Path(join(data_dir, "animation", "effect", "cache_" + effect + ".xz")).exists() or
                 (screen_scale != (1, 1) and (cache_animation_hash and (
                         screen_scale != cache_animation_hash["effect"][effect]["screen_scale"] or
-                        animation_load_index["effect"][effect] != cache_animation_hash["effect"][effect]["hash"])))):
+                        animation_load_index["effect"][effect]["hash"] != cache_animation_hash["effect"][effect]["hash"])))):
             # effect sprite or screen resolution got changed, load and scale for new cache
             loaded_effect_animation = load_pickle_with_surfaces(
                 join(data_dir, "animation", "effect", effect + ".xz"),
@@ -316,7 +332,7 @@ def load_effect_sprites(effect_to_load, cache_animation_hash, data_dir, effect_a
             # save sprite cache, and screen resolution size in hash cache for later game launch sprite scale check
             save_pickle_with_surfaces(join(
                 data_dir, "animation", "effect", "cache_" + effect + ".xz"), loaded_effect_animation)
-            cache_animation_hash["effect"][effect] = {"hash": animation_load_index["effect"][effect],
+            cache_animation_hash["effect"][effect] = {"hash": animation_load_index["effect"][effect]["hash"],
                                                       "screen_scale": screen_scale}
 
         else:

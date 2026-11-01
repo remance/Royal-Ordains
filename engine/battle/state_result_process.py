@@ -1,12 +1,21 @@
-def state_result_process(self):
-    # update battle scene first here
-    self.scene.update()
-    self.camera.update(self.battle_camera_object_drawer)
+from __future__ import annotations
 
-    self.camera.update(self.battle_camera_ui_drawer)
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.battle.battle import Battle
+
+
+def state_result_process(self: Battle):
+    # update battle scene first here
+    camera = self.camera
+    self.scene.update()
+    camera.update(self.battle_camera_object_drawer)
+
+    camera.update(self.battle_camera_ui_drawer)
     self.outer_ui_updater.update(self.true_dt)
 
-    self.camera.out_update(self.outer_ui_drawer)
+    camera.out_update(self.outer_ui_drawer)
     self.ui_menu_updater.update(self.true_dt)
     self.ui_menu_drawer.draw(self.screen)  # draw the UI
 

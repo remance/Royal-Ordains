@@ -1,2 +1,4 @@
 "Move","Name","Prepare Animation","After Animation","AI Condition","AI Range","Range","Cooldown","Resource Cost","Power","Penetrate","Impact X","Impact Y","Critical Chance Bonus","Element","Status","Enemy Status","Effect Enemy Status","Property"
-"Attack1","Stab",,,,800,,3,,26,50,80,-50,0.1,"stab",,,,
+"Attack1","Stab",,,,700,,3,,26,50,80,-50,0.1,"stab",,,,
+"Skill1","Spear Fall Back","name:Skill1Ready","name:Skill1End","self:{no_stay}",300,,9,,30,110,200,60,,"stab",,,,"movable,x_momentum:(-400;-600),repeat,speed:3000"
+"Die","Plant Banner",,,"self:{die}",,3000,,,,,,,,,"resource_generation",,,

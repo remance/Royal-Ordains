@@ -56,9 +56,10 @@ class DataLocalisation:
                 for index, row in enumerate(rd[1:]):
                     if row[0] not in self.text[language][file]:
                         self.text[language][file][row[0]] = {}
-                    if row[1].split("_")[0] not in self.text[language][file][row[0]]:
-                        self.text[language][file][row[0]][row[1].split("_")[0]] = []
-                    self.text[language][file][row[0]][row[1].split("_")[0]].append(row[2])
+                    speak_id = "_".join(row[1].split("_")[:-1])
+                    if speak_id not in self.text[language][file][row[0]]:
+                        self.text[language][file][row[0]][speak_id] = []
+                    self.text[language][file][row[0]][speak_id].append(row[2])
             edit_file.close()
             for key, value in self.text[language][file].items():
                 for key2, value2 in value.items():

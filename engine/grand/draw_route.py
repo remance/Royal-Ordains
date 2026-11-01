@@ -1,7 +1,14 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.grand.grand import Grand
+
 from pygame import draw
 
 
-def draw_route(self):
+def draw_route(self: Grand):
     camera_left_bound = self.camera.camera_left_bound
     camera_top_bound = self.camera.camera_top_bound
     map_shown_to_base_scale_width = self.map_shown_to_base_scale_width

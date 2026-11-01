@@ -61,6 +61,7 @@ def play_showcase_animation(self, dt, hold_check):
     :return: Boolean of animation finish playing or not
     """
     self.frame_timer += dt
+
     if self.frame_timer >= self.final_animation_frame_play_time:  # start next frame or end animation
         if showcase_next_animation_frame(self):
             return True

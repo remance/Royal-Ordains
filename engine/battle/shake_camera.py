@@ -1,8 +1,15 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.battle.battle import Battle
+
 from math import log
 from random import uniform
 
 
-def shake_camera(self):
+def shake_camera(self: Battle):
     log_shake = log(self.screen_shake_value)
     self.shown_camera_center_pos = [self.shown_camera_center_pos[0] + uniform(-1, 1) * log_shake,
                                     self.shown_camera_center_pos[1] + uniform(-1, 1) * log_shake]

@@ -1,15 +1,22 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.grand.grand import Grand
+
 from random import uniform
 
 
-def check_faction_region_number(self, value, faction):
-    if len(self.current_campaign_state["faction"][faction]["region"]) < value:
+def check_faction_region_number(self: Grand, value: int, faction_id: str):
+    if len(self.current_campaign_state["faction"][faction_id]["region"]) < value:
         return False
     return True
 
 
-def check_faction_building_build(self, value, faction):
+def check_faction_building_build(self: Grand, value: dict, faction_id: str):
     building_check = {key: value2 for key, value2 in value.items()}
-    for region in self.current_campaign_state["faction"][faction]["region"]:  # check owned region
+    for region in self.current_campaign_state["faction"][faction_id]["region"]:  # check owned region
         for build_slot in self.current_campaign_state["region"][region]["building"]:  # check each building slot
             for building in tuple(building_check.keys()):
                 # this slot has match building
@@ -24,8 +31,8 @@ def check_faction_building_build(self, value, faction):
     return False
 
 
-def check_faction_culture_higher(self, value, faction):
-    faction_culture_state = self.current_campaign_state["faction"][faction]["culture"]
+def check_faction_culture_higher(self: Grand, value: dict, faction_id: str):
+    faction_culture_state = self.current_campaign_state["faction"][faction_id]["culture"]
     for culture, culture_value in value.items():
         if culture not in faction_culture_state or faction_culture_state[culture]["influence"] < value:
             # influence not higher than condition
@@ -33,8 +40,8 @@ def check_faction_culture_higher(self, value, faction):
     return True
 
 
-def check_faction_culture_lower(self, value, faction):
-    faction_culture_state = self.current_campaign_state["faction"][faction]["culture"]
+def check_faction_culture_lower(self: Grand, value: dict, faction_id: str):
+    faction_culture_state = self.current_campaign_state["faction"][faction_id]["culture"]
     for culture, culture_value in value.items():
         if culture in faction_culture_state and faction_culture_state[culture]["influence"] > value:
             # influence not lower than condition
@@ -42,36 +49,36 @@ def check_faction_culture_lower(self, value, faction):
     return True
 
 
-def check_faction_control_region(self, value, faction):
+def check_faction_control_region(self: Grand, value: (list, tuple), faction_id: str):
     # check if region is controlled by this faction
     for region in value:
-        if region not in self.current_campaign_state["faction"][faction]["region"]:
+        if region not in self.current_campaign_state["faction"][faction_id]["region"]:
             return False
 
 
-def check_faction_character_exist(self, value, faction):
+def check_faction_character_exist(self: Grand, value: str, faction_id: str):
     # check if character is employed in this faction
-    if value not in self.current_campaign_state["faction"][faction]["character"]:
+    if value not in self.current_campaign_state["faction"][faction_id]["character"]:
         return False
 
 
-def check_faction_gold_higher(self, value, faction):
-    if self.current_campaign_state["faction"][faction]["gold"] < value:
+def check_faction_gold_higher(self: Grand, value: int, faction_id: str):
+    if self.current_campaign_state["faction"][faction_id]["gold"] < value:
         return False
 
 
-def check_faction_gold_lower(self, value, faction):
-    if self.current_campaign_state["faction"][faction]["gold"] > value:
+def check_faction_gold_lower(self: Grand, value: int, faction_id: str):
+    if self.current_campaign_state["faction"][faction_id]["gold"] > value:
         return False
 
 
-def check_faction_happiness_higher(self, value, faction):
-    if self.current_campaign_state["faction"][faction]["happiness"] < value:
+def check_faction_happiness_higher(self: Grand, value: int, faction_id: str):
+    if self.current_campaign_state["faction"][faction_id]["happiness"] < value:
         return False
 
 
-def check_faction_happiness_lower(self, value, faction):
-    if self.current_campaign_state["faction"][faction]["happiness"] > value:
+def check_faction_happiness_lower(self: Grand, value: int, faction_id):
+    if self.current_campaign_state["faction"][faction_id]["happiness"] > value:
         return False
 
 
@@ -87,7 +94,7 @@ check_specific_faction_condition = {"region_number": check_faction_region_number
                                     "happiness<": check_faction_happiness_lower}
 
 
-def check_event(self):
+def check_event(self: Grand):  # TODO finish this when add campaign preset event
     still_possible_events = self.current_campaign_state["possible_events"]
     current_turn = self.current_campaign_state["turn"]
     for event in tuple(still_possible_events.keys()):
@@ -110,11 +117,11 @@ def check_event(self):
                         break
                 else:
                     for faction in self.current_campaign_state["faction"]:
-                        if not check_specific_faction_condition[condition](self, value, event_faction):
+                        if not check_specific_faction_condition[condition](self, value, faction):
                             event_occur = False
                             break
                         elif event_data["One Time Event"]:  # event pass but only one faction receive unique event
-                            event_occur = event_faction
+                            event_occur = faction
                             break
                     if not event_occur:
                         break

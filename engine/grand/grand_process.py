@@ -1,7 +1,14 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.grand.grand import Grand
+
 from engine.constants import Phase_To_Game_Time, Turn_To_Phase
 
 
-def grand_process(self, dt):
+def grand_process(self: Grand, dt: float):
     self.phase_timer += dt
     if self.phase_timer > Phase_To_Game_Time:
         self.phase_timer -= Phase_To_Game_Time

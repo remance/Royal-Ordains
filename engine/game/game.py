@@ -14,7 +14,7 @@ from pygame.mixer import Sound, Channel
 from engine.army.army import Army
 from engine.battle.battle import Battle
 from engine.battleobject.battleobject import StageObject
-from engine.character.character import Character, BattleCharacter, ShowcaseCharacter, SubShowcaseCharacter
+from engine.character.character import BaseBattleCharacter, BattleCharacter, ShowcaseBattleCharacter, SubShowcaseBattleCharacter
 from engine.constants import *
 from engine.data.datalocalisation import DataLocalisation
 from engine.data.datamap import DataMap
@@ -57,7 +57,6 @@ from engine.uimenu.uimenu import (UIMenu, MenuCursor, BoxUI, BrownMenuButton, Me
                                   CharacterMovesetShowCase, CharacterSelector, CustomPresetTitle, ListUI,
                                   CustomArmyPresetListAdapter, GenericListAdapter)
 from engine.uiouterbattle.uiouterbattle import Profiler, FPSCount
-from engine.uioutergrand.uioutergrand import DiplomacyHead
 from engine.updater.updater import ReversedLayeredUpdates
 from engine.utils.common import empty_method
 from engine.utils.data_loading import load_image, load_images, csv_read
@@ -85,9 +84,8 @@ class Game:
     screen_scale_height = screen_scale[1]
     screen_size = ()
 
-    game_version = "0.2.7"
+    game_version = "0.3"
 
-    # import from game
     activate_input_popup = activate_input_popup
     assign_key = assign_key
     back_mainmenu = back_mainmenu
@@ -221,8 +219,8 @@ class Game:
         display.set_icon(icon)
 
         Game.screen_rect = self.screen.get_rect()
-        Character.screen_scale_width = self.screen_scale_width
-        Character.screen_scale_height = self.screen_scale_height
+        BaseBattleCharacter.screen_scale_width = self.screen_scale_width
+        BaseBattleCharacter.screen_scale_height = self.screen_scale_height
         Effect.screen_scale_width = self.screen_scale_width
         Effect.screen_scale_height = self.screen_scale_height
         ShowcaseEffect.screen_scale_width = self.screen_scale_width
@@ -269,7 +267,7 @@ class Game:
         self.list_font3 = Font(self.ui_font["text_paragraph"], int(24 * Game.screen_scale_height))
 
         # must add font object above to cache dict if require caching
-        self.font_text_cache = {self.profiler_font: {}, self.note_font: {}, self.fps_counter_font: {},
+        self.cache_font_text = {self.profiler_font: {}, self.note_font: {}, self.fps_counter_font: {},
                                 self.generic_ui_font: {}, self.medium_generic_ui_font: {},
                                 self.large_generic_ui_font: {},
                                 self.battle_timer_font: {}, self.preset_name_font: {},
@@ -289,8 +287,8 @@ class Game:
 
         # Assign containers
         ShowcaseEffect.containers = self.all_showcase_effects
-        ShowcaseCharacter.containers = self.all_showcase_characters
-        SubShowcaseCharacter.containers = self.all_showcase_characters
+        ShowcaseBattleCharacter.containers = self.all_showcase_characters
+        SubShowcaseBattleCharacter.containers = self.all_showcase_characters
         StaticImage.containers = self.ui_menu_updater, self.ui_menu_drawer
         MenuRotate.containers = self.ui_menu_updater, self.ui_menu_drawer
         MenuActor.containers = self.ui_menu_updater, self.ui_menu_drawer
@@ -326,6 +324,7 @@ class Game:
         # Battle related data
         self.stat_data = DataStat()
         self.character_list = self.stat_data.character_list
+        self.race_list = self.stat_data.race_list
         self.map_data = DataMap()
 
         self.preset_map_data = self.map_data.preset_map_data
@@ -351,11 +350,11 @@ class Game:
             BattleCharacter.show_dmg_number = True
         Army.character_recruit_building_list = self.stat_data.character_recruit_building_list
         Army.character_list = self.character_list
-        Character.stat_data = self.stat_data
-        Character.character_list = self.character_list
-        Character.status_list = self.stat_data.status_list
-        Character.status_apply_funcs = self.stat_data.status_apply_funcs
-        Character.effect_list = self.stat_data.effect_list
+        BaseBattleCharacter.character_list = self.character_list
+        BaseBattleCharacter.race_list = self.race_list
+        BaseBattleCharacter.status_list = self.stat_data.status_list
+        BaseBattleCharacter.status_apply_funcs = self.stat_data.status_apply_funcs
+        BaseBattleCharacter.effect_list = self.stat_data.effect_list
 
         Effect.character_list = self.character_list
         Effect.effect_list = self.stat_data.effect_list
@@ -369,10 +368,11 @@ class Game:
         UIMenu.building_portraits = self.building_portraits
         UIMenu.button_sound_channel = self.button_sound_channel
         UIMenu.data_dir = self.data_dir
-        UIMenu.font_text_cache = self.font_text_cache
+        UIMenu.cache_font_text = self.cache_font_text
         UIMenu.font_texture = self.font_texture
         UIMenu.game = self
         UIMenu.grand_ui_images = self.grand_ui_images
+        UIMenu.language = self.language
         UIMenu.localisation = self.localisation
         UIMenu.remove_from_ui_menu_updater = self.remove_from_ui_menu_updater
         UIMenu.screen_center = (self.screen_width / 2, self.screen_height / 2)
@@ -584,9 +584,10 @@ class Game:
 
         self.custom_preset_army_setup = PresetArmySetupUI((self.screen_width * 0.4, self.screen_height * 0.2),
                                                           True)
-        self.custom_preset_army_title = CustomPresetTitle((self.game.screen_width * 0.8, 80 * self.screen_scale_height),
-                                                          (self.screen_rect.width / 2,
-                                                           self.custom_preset_army_setup.rect.midtop[1]))
+        self.custom_preset_army_title = CustomPresetTitle(
+            (self.game.screen_width * 0.8, 120 * self.screen_scale_height),
+            (self.screen_rect.width / 2,
+             self.custom_preset_army_setup.rect.midtop[1]))
         self.character_selector = CharacterSelector((self.screen_width * 0.78, self.screen_height * 0.2))
         self.custom_preset_list_box = ListUI(pivot=(-0.9, -0.6), origin=(-1, -1), size=(0.15, 0.5),
                                              items=CustomArmyPresetListAdapter(),
@@ -634,7 +635,7 @@ class Game:
         self.grand = Grand(self)
 
         Game.battle = self.battle
-        Character.battle = self.battle
+        BaseBattleCharacter.battle = self.battle
         Effect.battle = self.battle
         StageObject.battle = self.battle
 
@@ -643,8 +644,6 @@ class Game:
             self.add_to_ui_menu_updater(self.fps_count)
         if self.use_simple_text:
             CharacterSpeechBox.simple_font = True
-            DiplomacyHead.simple_font = True
-
 
         # lorebook ui
         self.lorebook_back_button = BrownMenuButton((.15, 0.5), (0, 1.5),
@@ -654,7 +653,7 @@ class Game:
         self.lorebook_showcase_character_selector = CharacterSelector(
             (self.screen_width * 0.17, self.screen_height * 0.15))
 
-        self.lorebook_showcase_box = StaticImage((self.screen_width * 0.595, self.screen_height * 0.4),
+        self.lorebook_showcase_box = StaticImage((self.screen_width * 0.558, self.screen_height * 0.4),
                                                  load_image(self.game.data_dir, "showcase_box.png",
                                                             self.screen_scale, ("ui", "mainmenu_ui")), 0)
         self.remove_from_ui_menu_updater(self.lorebook_showcase_box)
@@ -666,15 +665,15 @@ class Game:
                 if anim not in animation_list:
                     animation_list.append(anim)
         animation_list = sorted(animation_list)
-        self.lorebook_showcase_animation_list_box = ListUI(pivot=(0.7, -0.7), origin=(-1, -1), size=(0.15, 0.5),
+        self.lorebook_showcase_animation_list_box = ListUI(pivot=(0.6, -0.7), origin=(-1, -1), size=(0.15, 0.5),
                                                            items=GenericListAdapter(
                                                                [[0, key] for key in animation_list if
                                                                 key != "Default"]),
                                                            parent=self.screen, item_size=20)
-        self.lorebook_showcase_character = ShowcaseCharacter(0, {"ID": Default_Showcase_Character,
+        self.lorebook_showcase_character = ShowcaseBattleCharacter(0, {"ID": Default_Showcase_Character,
                                                                  "POS": Default_Showcase_Character_POS,
                                                                  "direction": "right"} |
-                                                             self.character_list[Default_Showcase_Character])
+                                                                   self.character_list[Default_Showcase_Character])
         self.lorebook_character_description_showcase = CharacterDescriptionShowCase()
         self.lorebook_character_moveset_showcase = CharacterMovesetShowCase()
         self.lorebook_character_description_showcase.change_character(Default_Showcase_Character)

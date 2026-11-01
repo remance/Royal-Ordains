@@ -11,7 +11,11 @@
 "manuscript_font","manuskript-gothisch.regular"
 "manuscript_font2","gothicregular"
 "manuscript_font2old","gothicaged"
-"simple_talk_font","ubuntumono-r"
+"simple_talk_font_en","ubuntumono-r"
+"simple_talk_font_es","ubuntumono-r"
+"simple_talk_font_it","ubuntumono-r"
+"simple_talk_font_fr","ubuntumono-r"
+"simple_talk_font_de","ubuntumono-r"
 ,
 "talk_font","gothicregular"
 "culture_small","pfeffer-mediaeval"
