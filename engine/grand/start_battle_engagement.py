@@ -19,7 +19,7 @@ def start_battle_engagement(self, armies, base_pos):
             if army not in campaign_battle_armies:
                 campaign_battle_armies.append(army)
 
-            if army.faction == self.player_faction:
+            if army.belong_to_player_faction:
                 self.grand_army_list_ui.reset_card(army)
 
     if team_1_army.current_region != self.region_list[team_1_army.current_region]["Settlement POS"]:

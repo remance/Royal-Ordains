@@ -1,4 +1,5 @@
 from random import choice
+from math import ceil
 
 from pygame.mixer import Sound
 
@@ -184,9 +185,9 @@ def state_battle_process(self):
                 loser_team = Opposite_Team[self.winner_team]
 
                 gain_supply = 0
-                transfer_supply = self.team_state[loser_team]["total_supply"] * 0.15
+                transfer_supply = ceil(self.team_state[loser_team]["total_supply"] * 0.2)
                 remain_supply = self.team_state[loser_team]["supply_resource"] + self.team_state[loser_team][
-                    "supply_reserve"] * 0.15
+                    "supply_reserve"] * 0.2
                 if transfer_supply < remain_supply:  # max supply is less than remain supply, use remain instead
                     transfer_supply = remain_supply
                 if transfer_supply > self.team_state[loser_team]["supply_resource"]:

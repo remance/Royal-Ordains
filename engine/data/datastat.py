@@ -251,7 +251,9 @@ class DataStat(GameData):
                 for character in self.building_list[row[0]]["Leader Recruit"] + self.building_list[row[0]][
                     "Troop Recruit"] + self.building_list[row[0]]["Air Recruit"]:
                     # ready state of building, (building_id, active_state, progress_value, requirement_state)
-                    self.character_recruit_building_list[character] = [row[0], True, 0, True]
+                    if character not in self.character_recruit_building_list:
+                        self.character_recruit_building_list[character] = []
+                    self.character_recruit_building_list[character].append([row[0], True, 0, True])
 
             requirement_check = {}
             for building, building_data in self.building_list.items():

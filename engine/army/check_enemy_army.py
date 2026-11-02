@@ -31,5 +31,5 @@ def check_enemy_army(self):
         # ongoing battle belong to this army faction alliance, join in battle
         campaign_battle_armies.append(self.game_id)
         campaign_battle_factions
-        if self.faction == self.player_faction:
+        if self.belong_to_player_faction:
             self.grand_army_list_ui.reset_card(self)

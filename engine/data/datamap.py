@@ -45,14 +45,14 @@ class DataMap(GameData):
         self.event_list = {}
         self.faction_list = {}
         self.region_by_colour_index = {}
-        self.region_by_pos_index = {}
+        self.region_settlement_pos_index = {}
         self.base_world_map = None
         self.default_grand_faction = None
 
     def load_campaign_data(self, campaign: str):
         self.region_list = {}
         self.region_by_colour_index = {}
-        self.region_by_pos_index = {}
+        self.region_settlement_pos_index = {}
         with open(os.path.join(self.data_dir, "map", "world", campaign, "region.csv"),
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
@@ -71,8 +71,9 @@ class DataMap(GameData):
                                        dict_column=dict_column, hex2colour_column=hex2colour_column)
 
                 self.region_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
-                self.region_by_colour_index[row[1]] = row[0]  # assume colour is column B
-                self.region_by_pos_index[row[4]] = row[0]  # assume colour is column E
+        for region, region_data in self.region_list.items():
+            self.region_by_colour_index[region_data["Colour"]] = region
+            self.region_settlement_pos_index[region_data["Settlement POS"]] = region
         edit_file.close()
 
         self.route_list = {}

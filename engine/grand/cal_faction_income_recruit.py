@@ -1,3 +1,5 @@
+from math import ceil
+
 from engine.constants import Culture_Policy_Integration
 from engine.utils.text_making import add_plus_to_number
 
@@ -28,13 +30,13 @@ def cal_faction_income_recruit(self, faction):
         for effect, effect_value in event_data.items():
             if effect == "happiness":
                 total_happiness += effect_value
-                list_of_happiness_effect[event_type].append((event["ID"], effect_value))
+                list_of_happiness_effect[event_type].append((event_data["ID"], effect_value))
             elif effect == "gold":
                 total_gold_income += effect_value
-                list_of_gold_income_effect[event_type].append((event["ID"], effect_value))
+                list_of_gold_income_effect[event_type].append((event_data["ID"], effect_value))
             elif effect == "supply":
                 total_supply_income += effect_value
-                list_of_supply_income_effect[event_type].append((event["ID"], effect_value))
+                list_of_supply_income_effect[event_type].append((event_data["ID"], effect_value))
 
     for event in current_campaign_state["cosmic_event"]:
         for effect, effect_value in self.cosmic_event_list[event]["Effect"].items():
@@ -85,7 +87,7 @@ def cal_faction_income_recruit(self, faction):
         list_of_happiness_effect["region_income"].append((region, region_happiness))
 
     total_happiness += influence_happiness_penalty
-    happiness_effect_modifier = int(total_happiness + influence_happiness_penalty)
+    happiness_effect_modifier = ceil(total_happiness + influence_happiness_penalty)
     if happiness_effect_modifier < -50:  # less than -50 incur no additional penalty
         happiness_effect_modifier = -50
     if happiness_effect_modifier > 50:
@@ -101,8 +103,8 @@ def cal_faction_income_recruit(self, faction):
         for key, value in region_recruit_state.items():  # add recruit from each region
             campaign_faction_state["recruit"][key] += [item for item in value if
                                                        item not in campaign_faction_state["recruit"][key]]
-        region_gold_income = region_income_state["gold_income"] * happiness_effect_modifier
-        region_supply_income = region_income_state["supply_income"] * happiness_effect_modifier
+        region_gold_income = ceil(region_income_state["gold_income"] * happiness_effect_modifier)
+        region_supply_income = ceil(region_income_state["supply_income"] * happiness_effect_modifier)
         total_gold_income += region_gold_income
         total_supply_income += region_supply_income
         list_of_gold_income_effect["region_income"].append((region, region_gold_income))

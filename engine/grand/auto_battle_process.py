@@ -37,5 +37,5 @@ def add_reinforcement(self, army):
 
 def end_battle(self):
     pass
-    # if army.faction == self.player_faction:
+    # if army.belong_to_player_faction:
     # reset_card

@@ -31,6 +31,7 @@ class Army:
                  custom_preset_id=None, grand_state=None):
         self.game_id = army_id
         self.faction = faction
+        self.belong_to_player_faction = False
         self.culture = culture
         self.army_followers = army_followers
         self.commander_id = commander_char_id
@@ -61,6 +62,8 @@ class Army:
         self.direct_routing_array = {}
 
         if grand_state:  # active army in grand campaign exist in region, so can be used as purpose indication
+            if self.faction == self.grand.player_faction:
+                self.belong_to_player_faction = True
             self.enable_resupply = grand_state["enable_resupply"]
             self.enable_assemble = grand_state["enable_assemble"]
             self.activity = grand_state["activity"]
@@ -78,7 +81,7 @@ class Army:
             self.dots_army_occupation = self.grand.dots_army_occupation
             self.dots_army_occupation[self.base_pos].append(self)
             self.sort_dot_army_occupation(self.base_pos)
-            self.region_by_pos_index = self.grand.region_by_pos_index
+            self.region_settlement_pos_index = self.grand.region_settlement_pos_index
             self.check_assemble()
 
         self.reset_stat(include_culture_influence=include_culture_influence)

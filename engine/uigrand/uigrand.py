@@ -171,7 +171,7 @@ class DotInfoBannerArmy(DotInfoBanner):
                 state_value_list = [[0, 0, 0], [0, 0, 0], "neutral", "battle"]
                 for team, team_value in self.grand.current_campaign_state["battle"]["auto"][self.base_pos].items():
                     for army in team_value.values():
-                        if army.faction == self.grand.player_faction:
+                        if army.belong_to_player_faction:
                             state_value_list[3] = "player"
                         state_value_list[team - 1][0] += army.total_number
                         state_value_list[team - 1][1] += army.supply
@@ -184,7 +184,7 @@ class DotInfoBannerArmy(DotInfoBanner):
                     state_value_list[1] += army.supply
                     state_value_list[2] += army.total_supply_usage
                     if player_faction and state_value_list[3] == "neutral":
-                        if army.faction == self.grand.player_faction:
+                        if army.belong_to_player_faction:
                             state_value_list[3] = "player"
                         elif army.faction in self.grand.current_campaign_state["faction"][player_faction]["alliance"]:
                             state_value_list[3] = "ally"

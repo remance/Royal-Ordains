@@ -1,5 +1,6 @@
 from math import ceil, floor
 from uuid import uuid4
+from copy import deepcopy
 
 from pygame import Vector2, Surface, SRCALPHA, draw
 from pygame.transform import flip
@@ -594,22 +595,23 @@ class PresetArmyReserveList(GrandListUI, UIOuterGrand):
                                                 army_setup_ui.showing_army = None
                                                 self.showing_army = None
                                                 army_setup_ui.reset(active=False)
+                                                grand.grand_character_selector_ui.add(None)
                                                 grand.grand_reserve_army_title.change_text("")
                                             hover_over_army.remove_army_from_reserve()
                                             self.create_cards_surface()
                                             return
                                         elif button_key == "copy":
                                             copy_commander = hover_over_army.commander_id
-                                            if self.character_list[copy_commander]["Is Unique"]:
+                                            if not copy_commander or self.character_list[copy_commander]["Is Unique"]:
                                                 copy_commander = ""
-                                            copy_army_followers = hover_over_army.army_followers.copy()
+                                            copy_army_followers = deepcopy(hover_over_army.army_followers)
                                             for index, leader in enumerate(copy_army_followers["leader"]):
                                                 if leader:
                                                     if self.character_list[leader[0]]["Is Unique"]:
                                                         copy_army_followers["leader"][index] = []
                                             hover_over_army = Army(str(uuid4()), grand.player_faction,
                                                                    hover_over_army.culture,
-                                                                   copy_commander, hover_over_army.army_followers)
+                                                                   copy_commander, copy_army_followers)
                                             player_reserve_army_list.insert(0, hover_over_army)
                                             self.create_cards_surface()
                                             return
@@ -690,7 +692,7 @@ class PresetArmyReserveList(GrandListUI, UIOuterGrand):
                                        item in grand.grand_army_deploy_uis) and
               not grand.menu_bar_ui.mouse_over):
             # this also cover for reserve army related uis mouse check
-            self.remove_from_outer_ui_menu_updater(grand.grand_army_reserve_setup_uis)
+            self.remove_from_outer_ui_menu_updater(grand.grand_army_deploy_uis)
 
 
 class PresetArmyReserveSetup(PresetArmySetupUI, UIOuterGrand):
@@ -923,7 +925,7 @@ class PresetArmyGrandCharacterSelector(CharacterSelector, UIOuterGrand):
                             char_stat = self.grab_character_stat_text(character_id, character_data)
 
                             self.text_popup.popup(cursor.rect, char_stat,
-                                                  width_text_wrapper=int(1400 * self.screen_scale_width))
+                                                  width_text_wrapper=int(1000 * self.screen_scale_width))
 
                             self.add_to_outer_ui_menu_updater(self.text_popup)
 
@@ -1100,7 +1102,7 @@ class ArmyDeployManagement(UIOuterGrand):
         UIOuterGrand.__init__(self)
         self.font = self.game.generic_ui_font
         self.header_font = self.game.large_generic_ui_font
-        self.image = Surface((int(2500 * self.screen_scale_width), int(300 * self.screen_scale_height)), SRCALPHA)
+        self.image = Surface((int(2800 * self.screen_scale_width), int(300 * self.screen_scale_height)), SRCALPHA)
         self.image.fill((200, 50, 50))
         self.image_center_x = self.image.get_width() / 2
         self.showing_army = None
@@ -1116,7 +1118,7 @@ class ArmyDeployManagement(UIOuterGrand):
 
     def reset(self, region, army):
         grand = self.grand
-        self.showing_army = army
+        self.showing_army = army.game_id
         self.image = self.base_image.copy()
 
         self.player_selected_region = region
@@ -1145,6 +1147,7 @@ class ArmyDeployManagement(UIOuterGrand):
         if self.showing_army != army_setup_ui.showing_army:
             for army in player_faction_state["reserve"]:
                 if army.game_id == army_setup_ui.showing_army:
+                    self.showing_army = army.game_id
                     self.reset(grand.region_management_ui.player_selected_region, army)
 
         if UIOuterGrand.update(self, dt):
@@ -1158,12 +1161,14 @@ class ArmyDeployManagement(UIOuterGrand):
                             reserve_list_ui = grand.grand_reserve_army_list_ui
                             for army in player_faction_state["reserve"]:
                                 if army.game_id == army_setup_ui.showing_army:
-                                    army.deploy_from_reserve(self.player_selected_region, self.max_supply)
-                                    army_setup_ui.showing_army = None
-                                    reserve_list_ui.showing_army = None
-                                    army_setup_ui.reset(active=False)
-                                    grand.grand_reserve_army_title.change_text("")
-                                    reserve_list_ui.create_cards_surface()
+                                    if army.commander_id:  # can only deploy if army has commander
+                                        army.deploy_from_reserve(self.player_selected_region, self.max_supply)
+                                        army_setup_ui.showing_army = None
+                                        reserve_list_ui.showing_army = None
+                                        army_setup_ui.reset(active=False)
+                                        grand.grand_character_selector_ui.add(None)
+                                        grand.grand_reserve_army_title.change_text("")
+                                        reserve_list_ui.create_cards_surface()
                                     return
                     else:
                         text_popup = self.text_popup
@@ -1547,6 +1552,7 @@ class ArmyDeployToggleButton(ToggleButton):
         grand.remove_from_outer_ui_menu_updater(grand.player_region_management_uis)
 
         grand.grand_reserve_army_setup_ui.reset(active=False)
+        grand.grand_character_selector_ui.add(None)
         grand.grand_reserve_army_list_ui.reset()
 
         grand.add_to_outer_ui_menu_updater(grand.grand_army_deploy_uis)

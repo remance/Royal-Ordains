@@ -69,21 +69,25 @@ class GrandArmyActor(Sprite):
 
     def change_team_state(self):
         """create circle sprite with commander portrait"""
-        actor_image = self.grand.sprite_data.character_portraits[self.army.commander_id]["tiny"]["right"]
-        current_campaign_state = self.grand.current_campaign_state
-        team = "player"
-        army_faction = self.army.faction
-        player_faction = self.grand.player_faction
-        if army_faction != self.grand.player_faction:
-            team = "neutral"
-            if player_faction:
+        grand = self.grand
+        army = self.army
+        actor_circle_cache = self.actor_circle_cache
+        actor_image = grand.sprite_data.character_portraits[army.commander_id]["tiny"]["right"]
+        current_campaign_state = grand.current_campaign_state
+        team = "neutral"
+        army_faction = army.faction
+        player_faction = grand.player_faction
+        if player_faction:
+            if army.belong_to_player_faction:
+                team = "player"
+            else:
                 if army_faction in current_campaign_state["faction"][player_faction]["alliance"]:
                     team = "ally"
                 elif army_faction != "free":
                     team = "enemy"
-        if actor_image not in self.actor_circle_cache:
-            self.actor_circle_cache[actor_image] = {}
-        if army_faction not in self.actor_circle_cache[actor_image]:
+        if actor_image not in actor_circle_cache:
+            actor_circle_cache[actor_image] = {}
+        if army_faction not in actor_circle_cache[actor_image]:
             image = Surface((actor_image.get_width() * 1.2, actor_image.get_height() * 1.2), SRCALPHA)
             selected_image = image.copy()
             draw.circle(image, (0, 0, 0),
@@ -98,9 +102,9 @@ class GrandArmyActor(Sprite):
             image.blit(actor_image, actor_image.get_rect(center=(image.get_width() / 2, image.get_height() / 2)))
             selected_image.blit(actor_image, actor_image.get_rect(center=(selected_image.get_width() / 2,
                                                                           selected_image.get_height() / 2)))
-            self.actor_circle_cache[actor_image][army_faction] = (image, selected_image)
-        self.circle_not_selected_image = self.actor_circle_cache[actor_image][army_faction][0]
-        self.circle_selected_image = self.actor_circle_cache[actor_image][army_faction][1]
+            actor_circle_cache[actor_image][army_faction] = (image, selected_image)
+        self.circle_not_selected_image = actor_circle_cache[actor_image][army_faction][0]
+        self.circle_selected_image = actor_circle_cache[actor_image][army_faction][1]
         self.image = self.circle_not_selected_image
 
     def update(self, true_dt, dt):

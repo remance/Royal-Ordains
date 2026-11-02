@@ -278,7 +278,7 @@ class Grand:
         self.dots_army_occupation = {}
 
         self.region_by_colour_index = {}
-        self.region_by_pos_index = {}
+        self.region_settlement_pos_index = {}
         self.region_list = {}
         self.route_list = {}
         self.settlement_object_list = {}
@@ -434,7 +434,7 @@ class Grand:
         self.base_world_map = self.map_data.base_world_map
         self.faction_list = self.map_data.faction_list
         self.region_by_colour_index = self.map_data.region_by_colour_index
-        self.region_by_pos_index = self.map_data.region_by_pos_index
+        self.region_settlement_pos_index = self.map_data.region_settlement_pos_index
         self.region_list = self.map_data.region_list
         self.route_list = self.map_data.route_list
 

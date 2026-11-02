@@ -8,76 +8,80 @@ def change_phase(self):
     if self.game_id in campaign_battle_armies:  # in battle
         return
 
-    elif activity:
-        if "travel" in activity:
-            activity["progress"] += 1
-            if activity["progress"] == activity["difficulties"][0]:
-                # move to next dot in route
-                next_dot = activity["dot_routes"][0][1]
-                if (self.activity["travel"] == "retreat" or next_dot not in campaign_battle_dot or
-                        self.faction in campaign_battle_factions[next_dot]):
-                    # can only move to that dots if no battle is taking place between other unrelated factions
-                    activity["progress"] = 0  # reset progress
-                    dots_army_occupation[self.base_pos].remove(self)  # remove army from old occupation
+    elif "travel" in activity:
+        activity["progress"] += 1
+        if activity["progress"] == activity["difficulties"][0]:
+            # move to next dot in route
+            next_dot = activity["dot_routes"][0][1]
+            if (self.activity["travel"] == "retreat" or next_dot not in campaign_battle_dot or
+                    self.faction in campaign_battle_factions[next_dot]):
+                # can only move to that dots if no battle is taking place between other unrelated factions
+                activity["progress"] = 0  # reset progress
+                dots_army_occupation[self.base_pos].remove(self)  # remove army from old occupation
+                self.sort_dot_army_occupation(self.base_pos)
+                self.base_pos = activity["dot_routes"][0][1]
+                if self.game_id not in dots_army_occupation[self.base_pos]:
+                    dots_army_occupation[self.base_pos].append(self)
+                    # sort army dot position by power
                     self.sort_dot_army_occupation(self.base_pos)
-                    self.base_pos = activity["dot_routes"][0][1]
-                    if self.game_id not in dots_army_occupation[self.base_pos]:
-                        dots_army_occupation[self.base_pos].append(self)
-                        # sort army dot position by power
-                        self.sort_dot_army_occupation(self.base_pos)
-                        self.check_enemy_army()
+                    self.check_enemy_army()
 
-                    activity["dot_routes"][0].pop(0)  # remove passed dot
+                activity["dot_routes"][0].pop(0)  # remove passed dot
 
-                    if len(activity["dot_routes"][0]) == 1:  # finish this route
-                        activity["id_routes"].pop(0)
-                        activity["dot_routes"].pop(0)
-                        activity["difficulties"].pop(0)
-                        activity["remain_phase_require"].pop(0)
-                    else:
-                        activity["remain_phase_require"][0].pop(0)
+                if len(activity["dot_routes"][0]) == 1:  # finish this route
+                    activity["id_routes"].pop(0)
+                    activity["dot_routes"].pop(0)
+                    activity["difficulties"].pop(0)
+                    activity["remain_phase_require"].pop(0)
+                else:
+                    activity["remain_phase_require"][0].pop(0)
 
-                    region_colour = tuple(self.base_world_map.get_at((int(self.base_pos[0]),
-                                                                      int(self.base_pos[1]))).rgb)
-                    self.current_region = self.grand.region_by_colour_index[region_colour]
-                    if not activity["dot_routes"]:  # no more route left, finish travel
-                        self.activity = {}
+                region_colour = tuple(self.base_world_map.get_at((int(self.base_pos[0]),
+                                                                  int(self.base_pos[1]))).rgb)
+                self.current_region = self.grand.region_by_colour_index[region_colour]
+                if not activity["dot_routes"]:  # no more route left, finish travel
+                    self.activity = {}
     else:  # idle
-        if (self.base_pos in self.region_by_pos_index and
-                current_campaign_state["region"][self.region_by_pos_index[self.base_pos]]["control"] == self.faction):
+        if (self.base_pos in self.region_settlement_pos_index and
+                current_campaign_state["region"][self.region_settlement_pos_index[self.base_pos]]["control"] == self.faction):
             # idle at faction owned settlement
             if self.supply < self.max_supply and self.enable_resupply:
                 # replenish supply
                 faction_state = current_campaign_state["faction"][self.faction]
-                remain_supply = faction_state["supply"]
-                if remain_supply:  # can only replenish if faction supply reserve is more than 0
+                reserve_supply = faction_state["supply"]
+                if reserve_supply > 0:  # can only replenish if faction supply reserve is more than 0
                     replenish_supply = self.max_supply - self.supply
-                    if replenish_supply > remain_supply:
-                        replenish_supply = remain_supply
+                    if replenish_supply > 500:  # can only resupply max 500 per phase
+                        replenish_supply = 500
+                    elif replenish_supply > reserve_supply:
+                        replenish_supply = reserve_supply
                     self.supply += replenish_supply
-                    faction_state["supply"] = remain_supply - replenish_supply
+                    faction_state["supply"] = reserve_supply - replenish_supply
+                    if self.belong_to_player_faction:
+                        self.grand.grand_army_list_ui.reset_card(self)
 
             if self.enable_assemble:
                 if self.assemble_percent[0] and not self.can_assemble:
                     # has follower that not yet assemble and not already assembling
                     self.check_assemble()
 
-                if "assemble" not in self.activity:
-                    self.activity = {"assemble": True}
-
                 can_assemble = self.can_assemble
-                army_change = False
-                for follower, value in can_assemble.items():
-                    can_assemble[follower] -= 1
-                    if not can_assemble[follower]:  # finish assembling for this follower, enable it
-                        self.army_followers[follower[0]][follower[1]][1] = True
-                        can_assemble.pop(follower)
-                        if not can_assemble:  # finish all assemble
-                            self.activity = {}
-                        army_change = True
+                if can_assemble:
+                    if "assemble" not in self.activity:
+                        self.activity = {"assemble": True}
 
-                if army_change:
-                    self.reset_stat(reset_player_army_card=True)
-                else:
-                    if self.faction == self.player_faction:
-                        self.grand_army_list_ui.reset_card(self)
+                    army_change = False
+                    for follower, value in tuple(can_assemble.items()):
+                        can_assemble[follower] -= 1
+                        if not can_assemble[follower]:  # finish assembling for this follower, enable it
+                            self.army_followers[follower[0]][follower[1]][1] = True
+                            can_assemble.pop(follower)
+                            if not can_assemble:  # finish all assemble
+                                self.activity = {}
+                            army_change = True
+
+                    if army_change:
+                        self.reset_stat(reset_player_army_card=True)
+                    else:
+                        if self.belong_to_player_faction:
+                            self.grand.grand_army_list_ui.reset_card(self)

@@ -37,8 +37,7 @@ def change_turn(self, turn_change=True):
 
             if turn_change:
                 # event duration is based on turn rather than phase
-                faction_state["event"] = {event: [event[0], event[1] - 1] for event in faction_state["event"] if
-                                          event[0] > 1}
+                faction_state["event"] = [[event[0], event[1] - 1] for event in faction_state["event"] if event[1] > 1]
 
                 # faction_region_control = self.campaign_region_state["control"][faction]
                 for faction_culture in faction_state["culture"].values():
@@ -73,5 +72,4 @@ def change_turn(self, turn_change=True):
                             if uniform(spawn_chance, 0) > faction_state["happiness"]:
                                 # rebel!
                                 self.create_rebel_army(region, faction_state, int(uniform(20, 20 + (-happiness * 2))))
-
     self.change_phase(phase_change=turn_change)
