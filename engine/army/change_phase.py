@@ -51,8 +51,8 @@ def change_phase(self):
                 reserve_supply = faction_state["supply"]
                 if reserve_supply > 0:  # can only replenish if faction supply reserve is more than 0
                     replenish_supply = self.max_supply - self.supply
-                    if replenish_supply > 500:  # can only resupply max 500 per phase
-                        replenish_supply = 500
+                    if replenish_supply > 100:  # can only resupply max 100 per phase
+                        replenish_supply = 100
                     elif replenish_supply > reserve_supply:
                         replenish_supply = reserve_supply
                     self.supply += replenish_supply

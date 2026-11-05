@@ -316,7 +316,7 @@ class FactionCultureList(UIOuterGrand):
         self._layer = 8
         UIOuterGrand.__init__(self)
         self.font = self.game.medium_generic_ui_font
-        self.value_text_font_cache = self.game.font_text_cache[self.font]
+        self.cache_value_text_font = self.game.cache_font_text[self.font]
         self.culture_coas = self.grand.sprite_data.culture_coas
         self.image = Surface((0, 0))
         self.image_width = self.image.get_width()
@@ -342,19 +342,19 @@ class FactionCultureList(UIOuterGrand):
         surface.blit(penalty_image, penalty_image.get_rect(midbottom=culture_rect.bottomleft))
 
         integration_value = culture_value["integration"]
-        if integration_value not in self.value_text_font_cache:
+        if integration_value not in self.cache_value_text_font:
             text_surface = text_render_with_bg(integration_value, self.font, Color("black"))
-            self.value_text_font_cache[integration_value] = text_surface
+            self.cache_value_text_font[integration_value] = text_surface
         else:
-            text_surface = self.value_text_font_cache[integration_value]
+            text_surface = self.cache_value_text_font[integration_value]
         surface.blit(text_surface, text_surface.get_rect(midtop=culture_rect.topright))
 
         influence_value = culture_value["influence"]
-        if influence_value not in self.value_text_font_cache:
+        if influence_value not in self.cache_value_text_font:
             text_surface = text_render_with_bg(influence_value, self.font, Color("black"))
-            self.value_text_font_cache[influence_value] = text_surface
+            self.cache_value_text_font[influence_value] = text_surface
         else:
-            text_surface = self.value_text_font_cache[influence_value]
+            text_surface = self.cache_value_text_font[influence_value]
         surface.blit(text_surface, text_surface.get_rect(midbottom=culture_rect.bottomright))
         return culture_rect
 
@@ -662,7 +662,7 @@ class EventNotification(UIOuterGrand):
                     card.blit(event_icon, event_icon.get_rect(midleft=(0, self.event_item_height_center)))
 
                     event_text = make_long_text((self.grand_ui_images["turn"], ":" + event[2], event[1]), (0, 0),
-                                                self.font, with_texture=(None, (Color("black"), (255, 255, 255), 2)),
+                                                self.font, with_texture=(None, ((20, 20, 20), (255, 255, 255), 2)),
                                                 specific_width=700 * self.screen_scale_width)
                     card.blit(event_text, event_text.get_rect(topleft=(100 * self.screen_scale_width, 0)))
                 self.event_cards[event] = (card_image, hover_card_image)
@@ -793,7 +793,7 @@ class ArmyList(GrandListUI, UIOuterGrand):
 
         GrandListUI.__init__(self)
         self.font = self.game.medium_generic_ui_font
-        self.value_text_font_cache = self.game.font_text_cache[self.font]
+        self.cache_value_text_font = self.game.cache_font_text[self.font]
         self.image.fill((80, 200, 100, 100))
         self.base_image = self.image.copy()
         self.empty_card_image = Surface((950 * self.screen_scale_width, 150 * self.screen_scale_height), SRCALPHA)
@@ -851,12 +851,12 @@ class ArmyList(GrandListUI, UIOuterGrand):
         else:
             supply_available_text = "% (100%)"
         supply_text = (str(int(army.supply / army.max_supply * 100)) + supply_available_text)
-        if supply_text not in self.value_text_font_cache:
+        if supply_text not in self.cache_value_text_font:
             text_surface = text_render_with_bg(supply_text,
                                                self.font, (0, 0, 0), supply_text_colour)
-            self.value_text_font_cache[supply_text] = text_surface
+            self.cache_value_text_font[supply_text] = text_surface
         else:
-            text_surface = self.value_text_font_cache[supply_text]
+            text_surface = self.cache_value_text_font[supply_text]
         card_image.blit(text_surface, text_surface.get_rect(topleft=((305 * self.screen_scale_width),
                                                                      10 * self.screen_scale_height)))
 
@@ -865,21 +865,21 @@ class ArmyList(GrandListUI, UIOuterGrand):
         else:
             assemble_text = "% (100%)"
         total_number_text = (add_comma_number(army.total_number) + assemble_text)
-        if total_number_text not in self.value_text_font_cache:
+        if total_number_text not in self.cache_value_text_font:
             text_surface = text_render_with_bg(total_number_text,
                                                self.font, (0, 0, 0), (255, 255, 255))
-            self.value_text_font_cache[total_number_text] = text_surface
+            self.cache_value_text_font[total_number_text] = text_surface
         else:
-            text_surface = self.value_text_font_cache[total_number_text]
+            text_surface = self.cache_value_text_font[total_number_text]
         card_image.blit(text_surface, text_surface.get_rect(topleft=((305 * self.screen_scale_width),
                                                                      80 * self.screen_scale_height)))
 
-        if army.current_region not in self.value_text_font_cache:
+        if army.current_region not in self.cache_value_text_font:
             text_surface = text_render_with_bg(self.grab_text(("region", army.current_region, "Name")),
                                                self.font, (0, 0, 0), supply_text_colour)
-            self.value_text_font_cache[army.current_region] = text_surface
+            self.cache_value_text_font[army.current_region] = text_surface
         else:
-            text_surface = self.value_text_font_cache[army.current_region]
+            text_surface = self.cache_value_text_font[army.current_region]
         card_image.blit(text_surface, text_surface.get_rect(topright=(card_image.get_width() -
                                                                       (50 * self.screen_scale_width),
                                                                       10 * self.screen_scale_height)))

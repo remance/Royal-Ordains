@@ -28,7 +28,7 @@ class GrandArmyActor(Sprite):
     containers = None
     grand = None
 
-    actor_circle_cache = {}
+    cache_actor_circle = {}
 
     def __init__(self, army, faction):
         self.map_shown_to_base_scale_width = self.grand.map_shown_to_base_scale_width
@@ -71,7 +71,7 @@ class GrandArmyActor(Sprite):
         """create circle sprite with commander portrait"""
         grand = self.grand
         army = self.army
-        actor_circle_cache = self.actor_circle_cache
+        cache_actor_circle = self.cache_actor_circle
         actor_image = grand.sprite_data.character_portraits[army.commander_id]["tiny"]["right"]
         current_campaign_state = grand.current_campaign_state
         team = "neutral"
@@ -85,9 +85,9 @@ class GrandArmyActor(Sprite):
                     team = "ally"
                 elif army_faction != "free":
                     team = "enemy"
-        if actor_image not in actor_circle_cache:
-            actor_circle_cache[actor_image] = {}
-        if army_faction not in actor_circle_cache[actor_image]:
+        if actor_image not in cache_actor_circle:
+            cache_actor_circle[actor_image] = {}
+        if army_faction not in cache_actor_circle[actor_image]:
             image = Surface((actor_image.get_width() * 1.2, actor_image.get_height() * 1.2), SRCALPHA)
             selected_image = image.copy()
             draw.circle(image, (0, 0, 0),
@@ -102,9 +102,9 @@ class GrandArmyActor(Sprite):
             image.blit(actor_image, actor_image.get_rect(center=(image.get_width() / 2, image.get_height() / 2)))
             selected_image.blit(actor_image, actor_image.get_rect(center=(selected_image.get_width() / 2,
                                                                           selected_image.get_height() / 2)))
-            actor_circle_cache[actor_image][army_faction] = (image, selected_image)
-        self.circle_not_selected_image = actor_circle_cache[actor_image][army_faction][0]
-        self.circle_selected_image = actor_circle_cache[actor_image][army_faction][1]
+            cache_actor_circle[actor_image][army_faction] = (image, selected_image)
+        self.circle_not_selected_image = cache_actor_circle[actor_image][army_faction][0]
+        self.circle_selected_image = cache_actor_circle[actor_image][army_faction][1]
         self.image = self.circle_not_selected_image
 
     def update(self, true_dt, dt):

@@ -8,4 +8,5 @@ def deploy_army_from_reserve(self, region, max_supply):
     self.reset_stat()
     faction_state = grand.current_campaign_state["faction"][self.faction]
     faction_state["reserve"].remove(self)
+    faction_state["gold"] -= self.cost
     grand.create_new_army(faction_state, self.to_dict)

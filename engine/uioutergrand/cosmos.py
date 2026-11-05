@@ -280,7 +280,7 @@ class CosmosUI(UIOuterGrand):
 
 
 class CosmicEntity(UIOuterGrand):
-    rotate_cache = {}
+    cache_rotate = {}
     image = Surface((0, 0))
 
     def __init__(self, dot_size, start_angle, colour, cosmic_id, orbit=None, epicycle=None, specific_base_pos=(),
@@ -291,8 +291,8 @@ class CosmicEntity(UIOuterGrand):
         self.dot_size = dot_size * self.screen_scale_width
         self.colour = colour
         self.cosmic_id = cosmic_id
-        if cosmic_id not in self.rotate_cache:
-            self.rotate_cache[cosmic_id] = {}
+        if cosmic_id not in self.cache_rotate:
+            self.cache_rotate[cosmic_id] = {}
 
         self.using_event_image = False
         self.last_path = []
@@ -372,11 +372,11 @@ class CosmicEntity(UIOuterGrand):
                                          self.orbit_angle)
             if self.movement_angle and self.base_pos:
                 sprite_angle = int(set_rotate(self.base_pos, new_pos))
-                if sprite_angle not in self.rotate_cache[self.cosmic_id]:
+                if sprite_angle not in self.cache_rotate[self.cosmic_id]:
                     self.image = rotate(self.base_image, sprite_angle)
-                    self.rotate_cache[self.cosmic_id][sprite_angle] = self.image
+                    self.cache_rotate[self.cosmic_id][sprite_angle] = self.image
                 else:
-                    self.image = self.rotate_cache[self.cosmic_id][sprite_angle]
+                    self.image = self.cache_rotate[self.cosmic_id][sprite_angle]
             self.base_pos = new_pos
 
         if self.epicycle_speed:

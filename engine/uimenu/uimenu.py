@@ -123,7 +123,7 @@ class UIMenu(Sprite):
     cursor = None
     data_dir = None
     font_texture = None
-    font_text_cache = None
+    cache_font_text = None
     game = None
     grand_ui_images = None
     remove_from_ui_menu_updater = None
@@ -392,11 +392,14 @@ class SliderMenu(UIMenu):
             inside_mouse_pos = Vector2(
                 (self.cursor.pos[0] - self.rect.topleft[0]),
                 (self.cursor.pos[1] - self.rect.topleft[1]))
-            if self.bar_rect.collidepoint(inside_mouse_pos):  # cursor within slider bar
-                inside_bar_mouse_pos = Vector2(
-                    (inside_mouse_pos[0] - self.bar_rect.topleft[0]),
-                    (inside_mouse_pos[1] - self.bar_rect.topleft[1]))
-                self.value = ceil(inside_bar_mouse_pos[0] / self.slider_size * 100)
+            inside_bar_mouse_pos = Vector2(
+                (inside_mouse_pos[0] - self.bar_rect.topleft[0]),
+                (inside_mouse_pos[1] - self.bar_rect.topleft[1]))
+            self.value = ceil(inside_bar_mouse_pos[0] / self.slider_size * 100)
+            if self.value < 0:
+                self.value = 0
+            elif self.value > 100:
+                self.value = 100
         else:  # for revert, cancel or esc in the option menu
             self.value = forced_value
         self.pressed = True

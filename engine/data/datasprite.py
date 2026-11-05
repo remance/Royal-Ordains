@@ -28,7 +28,7 @@ class DataSprite(GameData):
         if self.load_threads > 10:
             self.load_threads = 10
 
-        self.number_text_cache = {}
+        self.cache_number_text = {}
         self.character_animation_data = {}
         self.region_sprites = {}
         self.stage_object_animation_pool = {}
@@ -138,11 +138,11 @@ class DataSprite(GameData):
                     icon = self.character_portraits[file]["setup_ui"]
                     add_number = character_list[file]["Capacity"]
                     if add_number:
-                        if add_number not in self.number_text_cache:
+                        if add_number not in self.cache_number_text:
                             number_text = text_render_with_bg(str(add_number), number_font, o_colour=(200, 200, 100))
-                            self.number_text_cache[add_number] = number_text
+                            self.cache_number_text[add_number] = number_text
                         else:
-                            number_text = self.number_text_cache[add_number]
+                            number_text = self.cache_number_text[add_number]
                         number_rect = number_text.get_rect(bottomright=mini_portrait.get_size())
                         icon.blit(number_text, number_rect)
 

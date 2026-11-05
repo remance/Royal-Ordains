@@ -43,7 +43,7 @@ class FakeGame:
         self.add_to_ui_menu_updater = None
         self.remove_from_ui_menu_updater = None
         self.button_sound_channel = Channel(3)
-        self.font_text_cache = {}
+        self.cache_font_text = {}
 
 
 class FakeBattle:
@@ -101,7 +101,7 @@ for item in Game.ui_font:  # add ttf file extension for font data reading.
 UIMenu.add_to_ui_menu_updater = Game.game.add_to_ui_menu_updater
 UIMenu.button_sound_channel = Game.game.button_sound_channel
 UIMenu.data_dir = data_dir
-UIMenu.font_text_cache = Game.game.font_text_cache
+UIMenu.cache_font_text = Game.game.cache_font_text
 UIMenu.game = Game.game
 UIMenu.localisation = localisation
 UIMenu.remove_from_ui_menu_updater = Game.game.remove_from_ui_menu_updater

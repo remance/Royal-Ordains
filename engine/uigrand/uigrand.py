@@ -29,7 +29,7 @@ class UIGrand(UIMenu):
 
 class DotInfoBanner(UIGrand):
     base_image = Surface((1, 1))  # need to be at size 1,1 here so armydot can check_draw position before reset
-    banner_team_cache = {}
+    cache_banner_team = {}
 
     def __init__(self, base_pos, pos):
         self._layer = 5
@@ -38,24 +38,24 @@ class DotInfoBanner(UIGrand):
         self.base_pos = base_pos
         self.dots_army_occupation = self.grand.dots_army_occupation
 
-        if not self.banner_team_cache:  # create banner cache
+        if not self.cache_banner_team:  # create banner cache
             end = self.grand.grand_ui_images["region_banner_end"]
             body = self.grand.grand_ui_images["region_banner_body"]
-            self.banner_team_cache["neutral"] = (end, body, flip(self.grand.grand_ui_images["region_banner_end"],
+            self.cache_banner_team["neutral"] = (end, body, flip(self.grand.grand_ui_images["region_banner_end"],
                                                                  True, False))
             # player banner
             coloured_end = apply_sprite_colour(end, (50, 50, 180))
-            self.banner_team_cache["player"] = (coloured_end,
+            self.cache_banner_team["player"] = (coloured_end,
                                                 apply_sprite_colour(body, (50, 50, 180)),
                                                 flip(coloured_end, True, False))
             # enemy banner
             coloured_end = apply_sprite_colour(end, (180, 50, 50))
-            self.banner_team_cache["enemy"] = (coloured_end,
+            self.cache_banner_team["enemy"] = (coloured_end,
                                                apply_sprite_colour(body, (180, 50, 50)),
                                                flip(coloured_end, True, False))
             # ally banner
             coloured_end = apply_sprite_colour(end, (50, 180, 50))
-            self.banner_team_cache["ally"] = (coloured_end,
+            self.cache_banner_team["ally"] = (coloured_end,
                                               apply_sprite_colour(body, (50, 180, 50)),
                                               flip(coloured_end, True, False))
         self.previous_state_value_list = {}
@@ -64,7 +64,7 @@ class DotInfoBanner(UIGrand):
         self.rect = self.image.get_rect(midtop=pos)
 
     def make_text_image(self, team, text):
-        banner = self.banner_team_cache[team]
+        banner = self.cache_banner_team[team]
         if type(text) is str:
             text_image = text_render_with_bg(text, self.font)
         else:

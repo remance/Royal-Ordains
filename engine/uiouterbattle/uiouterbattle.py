@@ -184,9 +184,9 @@ class ScreenFade(UIOuterBattle):
 
 
 class Command(UIOuterBattle):
-    number_respond_text_cache = {}
-    number_cooldown_text_cache = {}
-    stat_cache = {}
+    cache_number_respond_text = {}
+    cache_number_cooldown_text = {}
+    cache_stat = {}
 
     def __init__(self, call_count_image, air_count_image):
         self._layer = 9
@@ -194,7 +194,7 @@ class Command(UIOuterBattle):
         self.character_list = self.battle.character_list
         self.character_portraits = self.battle.character_portraits
         self.number_font = self.game.character_indicator_font
-        self.number_text_cache = self.font_text_cache[self.number_font]
+        self.cache_number_text = self.cache_font_text[self.number_font]
         self.image = Surface((800 * self.screen_scale_width, 400 * self.screen_scale_height), SRCALPHA)
         self.image_width = self.image.get_width()
         self.image.fill((0, 0, 0, 125))
@@ -346,22 +346,22 @@ class Command(UIOuterBattle):
                                            self.call_cooldown_icon.get_rect(center=pool_rect[index].center))
                                 if state[1]:
                                     number = int(state[3])
-                                    if number in self.number_cooldown_text_cache:
-                                        number_text = self.number_cooldown_text_cache[number]
+                                    if number in self.cache_number_cooldown_text:
+                                        number_text = self.cache_number_cooldown_text[number]
                                     else:
                                         number_text = text_render_with_bg(str(number), self.font,
                                                                           gf_colour=(0, 0, 0),
                                                                           o_colour=(255, 255, 255))
-                                        self.number_cooldown_text_cache[number] = number_text
+                                        self.cache_number_cooldown_text[number] = number_text
                                     image.blit(number_text,
                                                number_text.get_rect(center=pool_rect[index].center))
 
-                            if char_number_reserve not in self.number_text_cache:
+                            if char_number_reserve not in self.cache_number_text:
                                 number_text = text_render_with_bg(str(char_number_reserve),
                                                                   self.number_font, o_colour=(200, 200, 100))
-                                self.number_text_cache[char_number_reserve] = number_text
+                                self.cache_number_text[char_number_reserve] = number_text
                             else:
-                                number_text = self.number_text_cache[char_number_reserve]
+                                number_text = self.cache_number_text[char_number_reserve]
                             number_rect = number_text.get_rect(
                                 midbottom=self.pool_index_rects[pool_index][index].bottomright)
                             image.blit(self.call_count_image,
@@ -399,12 +399,12 @@ class Command(UIOuterBattle):
                         if check[2]:  # number in group change
                             self.player_air_group_number[index] = len(air_group)
 
-                        if len(air_group) not in self.number_text_cache:
+                        if len(air_group) not in self.cache_number_text:
                             number_text = text_render_with_bg(str(len(air_group)),
                                                               self.number_font, o_colour=(200, 200, 100))
-                            self.number_text_cache[len(air_group)] = number_text
+                            self.cache_number_text[len(air_group)] = number_text
                         else:
-                            number_text = self.number_text_cache[len(air_group)]
+                            number_text = self.cache_number_text[len(air_group)]
                         number_rect = number_text.get_rect(midtop=portrait_rect.topleft)
                         image.blit(self.air_count_image,
                                    self.air_count_image.get_rect(center=number_rect.center))
@@ -481,7 +481,7 @@ class Command(UIOuterBattle):
                         return
 
     def popup_description(self, call_shortcut_name, call_remain, character):
-        if character not in self.stat_cache:
+        if character not in self.cache_stat:
             grab_text = self.grab_text
             character_data = self.character_list[character]
             char_stat = [grab_text(("ui", "info_header_name")) + grab_text(("character", character, "Name")),
@@ -496,7 +496,7 @@ class Command(UIOuterBattle):
                          grab_text(("ui", "info_header_call_response")) + str(
                              character_data["Respond Time"])]
         else:
-            char_stat = self.stat_cache[character]
+            char_stat = self.cache_stat[character]
         if call_remain:
             char_stat.append(grab_text(("ui", "info_header_call_remain")) + str(call_remain))
         self.text_popup.popup(self.rect.bottomleft, char_stat, width_text_wrapper=self.max_description_box_width)
@@ -918,8 +918,8 @@ class TacticalMap(UIOuterBattle):
 
 
 class StrategySelect(UIOuterBattle):
-    icon_cache = {}
-    strategy_text_list_cache = {}
+    cache_icon = {}
+    cache_strategy_text_list = {}
 
     def __init__(self, pos, strategy_icons, resource_image):
         self._layer = 10
@@ -928,7 +928,7 @@ class StrategySelect(UIOuterBattle):
         self.strategy_icons = strategy_icons
         self.font = self.game.battle_timer_font
 
-        self.number_text_cache = self.font_text_cache[self.font]
+        self.cache_number_text = self.cache_font_text[self.font]
         self.update_timer = 0
         self.strategy_status = {}
         self.base_resource_image = resource_image
@@ -977,7 +977,7 @@ class StrategySelect(UIOuterBattle):
                 icon_image.blit(shortcut_text, text_rect)
                 pos_x += 180 * self.screen_scale_width
                 self.strategy_rect[index] = rect
-                self.icon_cache[index] = icon_image
+                self.cache_icon[index] = icon_image
 
     def update(self, dt):
         if self.player_team:
@@ -987,11 +987,11 @@ class StrategySelect(UIOuterBattle):
                 current_strategy_resource = int(self.player_team_stat["strategy_resource"])
                 if self.current_strategy_resource != current_strategy_resource:
                     self.current_strategy_resource = current_strategy_resource
-                    if current_strategy_resource not in self.number_text_cache:
+                    if current_strategy_resource not in self.cache_number_text:
                         text = text_render_with_bg(str(current_strategy_resource), self.font)
-                        self.number_text_cache[current_strategy_resource] = text
+                        self.cache_number_text[current_strategy_resource] = text
                     else:
-                        text = self.number_text_cache[current_strategy_resource]
+                        text = self.cache_number_text[current_strategy_resource]
                     resource_image = self.base_resource_image.copy()
                     resource_image.blit(text, text.get_rect(center=self.resource_image_center))
                     image.blit(resource_image, self.resource_text_rect)
@@ -1000,18 +1000,18 @@ class StrategySelect(UIOuterBattle):
                     check = (cooldown, strategy == self.battle.player_selected_strategy)
                     if index not in self.strategy_status or self.strategy_status[index] != check:
                         self.strategy_status[index] = check
-                        image.blit(self.icon_cache[index], self.strategy_rect[index])
+                        image.blit(self.cache_icon[index], self.strategy_rect[index])
 
                         if cooldown:  # in cooldown
                             cooldown = int(cooldown)
                             image.blit(self.cooldown_strategy_icon, self.strategy_rect[index])
-                            if cooldown in self.number_text_cache:
-                                number_text = self.number_text_cache[cooldown]
+                            if cooldown in self.cache_number_text:
+                                number_text = self.cache_number_text[cooldown]
                             else:
                                 number_text = text_render_with_bg(str(cooldown), self.font,
                                                                   gf_colour=(255, 255, 255),
                                                                   o_colour=(0, 0, 0))
-                                self.number_text_cache[cooldown] = number_text
+                                self.cache_number_text[cooldown] = number_text
                             image.blit(number_text, number_text.get_rect(center=self.strategy_rect[index].center))
                         elif self.battle.player_selected_strategy and strategy == self.battle.player_selected_strategy:
                             image.blit(self.selected_strategy_icon, self.strategy_rect[index])
@@ -1024,7 +1024,7 @@ class StrategySelect(UIOuterBattle):
                 for index, rect in self.strategy_rect.items():
                     if rect.collidepoint(inside_mouse_pos):
                         this_strategy = tuple(self.player_team_stat["strategy_cooldown"].keys())[index]
-                        if this_strategy not in self.strategy_text_list_cache:
+                        if this_strategy not in self.cache_strategy_text_list:
                             grab_text = self.grab_text
                             strategy_stat = self.strategy_list[this_strategy]
                             text = (grab_text(("strategy", this_strategy, "Name")),
@@ -1036,9 +1036,9 @@ class StrategySelect(UIOuterBattle):
                                     grab_text(("ui", "info_header_strategy_range")) +
                                     str(strategy_stat["Range"])
                                     )
-                            self.strategy_text_list_cache[this_strategy] = text
+                            self.cache_strategy_text_list[this_strategy] = text
                         else:
-                            text = self.strategy_text_list_cache[this_strategy]
+                            text = self.cache_strategy_text_list[this_strategy]
                         self.text_popup.popup(self.rect.bottomleft, text,
                                               width_text_wrapper=self.max_description_box_width)
                         self.add_to_outer_ui_menu_updater(self.text_popup)

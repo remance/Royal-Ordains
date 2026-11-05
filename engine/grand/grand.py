@@ -354,16 +354,17 @@ class Grand:
                                              self.grand_character_selector_ui,
                                              self.grand_character_selector_ui.scroll)
 
-        self.grand_army_deploy_management_ui = ArmyDeployManagement(self.grand_reserve_army_list_ui.rect.bottomleft)
+        self.grand_army_deploy_management_ui = ArmyDeployManagement(self.grand_reserve_army_title.rect.topleft)
 
         scroller_images = (self.game.option_menu_images["scroller_box"], self.game.option_menu_images["scroller"])
         scroll_button_images = (
             self.game.option_menu_images["scroll_button_normal"], self.game.option_menu_images["scroll_button_click"])
-        self.deploy_supply_slider = SliderMenu(scroller_images, scroll_button_images,
-                                               self.grand_army_deploy_management_ui.rect.center, 100)
         self.deploy_supply_value_box = ValueBox(self.game.option_menu_images["value"],
-                                                self.deploy_supply_slider.rect.midleft, 100,
+                                                self.grand_army_deploy_management_ui.rect.topright, 100,
                                                 self.game.large_generic_ui_font)
+        self.deploy_supply_slider = SliderMenu(scroller_images, scroll_button_images,
+                                               self.deploy_supply_value_box.rect.topright, 100)
+
 
         self.grand_army_deploy_uis = (self.grand_army_deploy_management_ui, self.region_management_tab_button,
                                       self.army_deploy_tab_button, self.grand_reserve_army_list_ui,
