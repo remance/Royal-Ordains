@@ -1,3 +1,10 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.game.game import Game
+
 from configparser import ConfigParser
 
 import pygame
@@ -6,7 +13,7 @@ import screeninfo
 from engine.constants import *
 
 
-def create_config(self):
+def create_config(self: Game):
     config = ConfigParser()
 
     screen = screeninfo.get_monitors()[0]

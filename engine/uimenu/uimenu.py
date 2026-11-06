@@ -126,6 +126,7 @@ class UIMenu(Sprite):
     cache_font_text = None
     game = None
     grand_ui_images = None
+    language = None
     remove_from_ui_menu_updater = None
     screen_center = None
     screen_height = None
@@ -359,6 +360,7 @@ class SliderMenu(UIMenu):
         self.button_image = self.button_image_list[0]
         self.pressed_button_image = self.button_image_list[1]
         self.value = value
+        self.value_box = None  # got added later
         self.base_image = self.image.copy()
         button_rect = self.button_image.get_rect(
             center=((self.slider_size * value / 100) + self.difference,
@@ -374,6 +376,7 @@ class SliderMenu(UIMenu):
                 center=((self.slider_size * self.value / 100) + self.difference,
                         self.image_center_y))
             self.image.blit(self.pressed_button_image, button_rect)
+            self.player_input()
         elif self.pressed:
             self.pressed = False
             self.image = self.base_image.copy()
@@ -382,10 +385,9 @@ class SliderMenu(UIMenu):
                         self.image_center_y))
             self.image.blit(self.button_image, button_rect)
 
-    def player_input(self, value_box, forced_value: bool | int | float = False):
+    def player_input(self, forced_value: bool | int | float = False):
         """
         Update slider value and position
-        :param value_box: UI box that show number value
         :param forced_value: forced number value
         """
         if forced_value is False:
@@ -402,8 +404,7 @@ class SliderMenu(UIMenu):
                 self.value = 100
         else:  # for revert, cancel or esc in the option menu
             self.value = forced_value
-        self.pressed = True
-        value_box.change_value(self.value)
+        self.value_box.change_value(self.value)
 
 
 class InputUI(UIMenu):
@@ -549,7 +550,7 @@ class CharacterSelector(UIMenu):
         self.character_list = self.game.character_list
         self.custom_character_setup = self.game.stat_data.custom_character_setup
         self.all_main_exist_characters = self.game.stat_data.all_main_exist_characters
-        self.image = Surface((int(1300 * self.screen_scale_width), int(1080 * self.screen_scale_height)), SRCALPHA)
+        self.image = Surface((int(1100 * self.screen_scale_width), int(1080 * self.screen_scale_height)), SRCALPHA)
         self.image.fill((200, 200, 200))
         self.total_row = 0
         self.scroll_total_row = self.total_row + 1
@@ -560,10 +561,10 @@ class CharacterSelector(UIMenu):
 
         self.max_row = 5
         self.max_row_show = 1  # trick the scroller to use additional row instead of total
-        self.max_total_character_show = 30
+        self.max_total_character_show = 25
 
         for y in range(5):
-            for x in range(6):
+            for x in range(5):
                 rect = temp_rect_image.get_rect(center=((150 + (x * 200)) * self.screen_scale_width,
                                                         50 + (y * 200) * self.screen_scale_height))
                 self.portrait_rects.append(rect)
@@ -607,7 +608,7 @@ class CharacterSelector(UIMenu):
         additional_character = len(self.selector_character_list) - self.max_total_character_show
         if additional_character < 0:
             additional_character = 0
-        self.total_row = ceil(additional_character / 6)
+        self.total_row = ceil(additional_character / 5)
         self.scroll_total_row = self.total_row + 1
         self.current_row = 0  # reset showing row
         self.scroll.change_image(self.current_row, self.scroll_total_row)
@@ -615,11 +616,11 @@ class CharacterSelector(UIMenu):
 
     def add_character(self):
         self.image.fill((200, 200, 200))
-        start_index = (self.current_row * 6)
+        start_index = (self.current_row * 5)
         for index, character in enumerate(self.selector_character_list):
             if index >= start_index:
                 shown_index = index - start_index
-                if int(shown_index / 6) < self.max_row:
+                if int(shown_index / 5) < self.max_row:
                     if character in self.character_portraits:
                         self.image.blit(self.character_portraits[character]["setup_ui"],
                                         self.portrait_rects[shown_index])
@@ -641,7 +642,7 @@ class CharacterSelector(UIMenu):
         char_stat = [grab_text(("character", character_id, "Name")) + " (" +
                      str(character_data["Arrive Per Call"]) + "" +
                      "x" + str(character_data["Capacity"]) + ")",
-                     grab_text(("character", character_id, "Description")),
+                     grab_text(("character", character_id, "Description")), "",
                      class_text,
                      grab_text(("ui", "info_header_health")) + add_comma_number(
                          character_data["Health"]),
@@ -671,7 +672,7 @@ class CharacterSelector(UIMenu):
                 has_resistance = True
                 resistance_text += [
                     str(int(100 * character_data[resistance + " Resistance"])) + "%",
-                    self.battle_ui_images["element_" + resistance.lower()], " "]
+                    self.battle_ui_images["element_" + resistance.lower()]]
         if has_resistance:
             char_stat.append(resistance_text)
         tag_text = ""
@@ -702,7 +703,7 @@ class CharacterSelector(UIMenu):
             inside_mouse_pos = Vector2(
                 (self.cursor.pos[0] - self.rect.topleft[0]),
                 (self.cursor.pos[1] - self.rect.topleft[1]))
-            start_index = (self.current_row * 6)
+            start_index = (self.current_row * 5)
             for index, rect in enumerate(self.portrait_rects):
                 if rect.collidepoint(inside_mouse_pos):
                     shown_index = index + start_index
@@ -1898,8 +1899,7 @@ class GrandFactionDetail(UIMenu):
                                                                               self.font_size)))
 
         text_surface = make_long_text(self.grab_text(("faction", faction, "Description")),
-                                      (0, 0), self.font,
-                                      color=(30, 30, 30), specific_width=self.image.get_width())
+                                      self.font, color=(30, 30, 30), specific_width=self.image.get_width())
         self.image.blit(text_surface, (self.font_size / 2, self.font_size * 3))
 
 
@@ -1914,7 +1914,7 @@ class CharacterDescriptionShowCase(UIMenu):
         self.showing_character = None
         self.image = Surface((2200 * self.screen_scale_width, 550 * self.screen_scale_height))
         self.image.fill((200, 200, 200))
-        self.description_box = Surface((1500 * self.screen_scale_width, 450 * self.screen_scale_height))
+        self.description_box = Surface((1600 * self.screen_scale_width, 450 * self.screen_scale_height))
         self.description_box.fill((200, 200, 200))
         self.base_image = self.image.copy()
 
@@ -1932,7 +1932,7 @@ class CharacterDescriptionShowCase(UIMenu):
             self.image.blit(character_name, character_name_rect)
             self.description_box.fill((200, 200, 200))
             text_surface = make_long_text(self.grab_text(("character", character, "Lore")),
-                                          (0, 0), self.font, specific_width=self.description_box.get_width())
+                                          self.font, specific_width=self.description_box.get_width())
             self.description_box.blit(text_surface, (0, 0))
             self.image.blit(self.description_box, self.description_box.get_rect(topleft=character_name_rect.bottomleft))
 
@@ -1948,7 +1948,7 @@ class CharacterMovesetShowCase(UIMenu):
         self.font_space_size = self.font.size(" ")
         self.showing_character = None
         self.showing_moveset = None
-        self.image = Surface((1640 * self.screen_scale_width, 550 * self.screen_scale_height))
+        self.image = Surface((1440 * self.screen_scale_width, 550 * self.screen_scale_height))
         self.image.fill((200, 200, 200))
         self.base_image = self.image.copy()
 
@@ -2032,7 +2032,7 @@ class CharacterMovesetShowCase(UIMenu):
                         tag_text = grab_text(("ui", "info_header_property")) + tag_text
                         tag_text = tag_text[:-2]  # remove additional comma
                         char_stat.append((tag_text,))
-                text_surface = make_long_text(char_stat, (0, 0), self.font, specific_width=self.image.get_width())
+                text_surface = make_long_text(char_stat, self.font, specific_width=self.image.get_width())
                 self.image.blit(text_surface, (0, 0))
 
 
@@ -2454,14 +2454,14 @@ class CustomPresetTitle(UIMenu):
 
         text_stuff = [self.grab_text(("ui", "info_header_leadership")) + add_comma_number(int(leadership)),
                       self.grand_ui_images["leadership"],
-                      "/" + self.grab_text(("ui", "info_header_supply_max_usage")) + add_comma_number(supply),
+                      "/" + self.grab_text(("ui", "info_header_supply_max_usage")) + add_comma_number(int(supply)),
                       self.grand_ui_images["supply"],
-                      "/" + self.grab_text(("ui", "info_header_cost")) + add_comma_number(cost),
+                      "/" + self.grab_text(("ui", "info_header_cost")) + add_comma_number(int(cost)),
                       self.grand_ui_images["gold"]]
         if upkeep:
-            text_stuff += ["/" + self.grab_text(("ui", "info_header_upkeep")) + add_comma_number(upkeep),
+            text_stuff += ["/" + self.grab_text(("ui", "info_header_upkeep")) + add_comma_number(int(upkeep)),
                            self.grand_ui_images["gold"]]
-        text_surface = make_long_text(text_stuff, (0, 0), self.font)
+        text_surface = make_long_text(text_stuff, self.font)
         text_rect = text_surface.get_rect(midright=(self.image.get_width(), self.image.get_height() / 2))
         self.image.blit(text_surface, text_rect)
 
@@ -2523,7 +2523,7 @@ class TextPopup(UIMenu):
                 max_width = width_text_wrapper
                 for text in text_input:
                     if type(text) in (list, tuple):
-                        text_image = make_long_text(text, (font_size, 0), font,
+                        text_image = make_long_text(text, font,
                                                     color=font_colour, specific_width=width_text_wrapper)
                         text_surfaces.append(text_image)
                         max_height += text_image.get_height()
@@ -2533,9 +2533,9 @@ class TextPopup(UIMenu):
                             text_image = Surface((width_text_wrapper,
                                                   font_size), SRCALPHA)
                             surface = font.render(text, True, font_colour)
-                            text_image.blit(surface, (font_size, 0))
+                            text_image.blit(surface, (0, 0))
                         else:
-                            text_image = make_long_text(text, (font_size, 0), font,
+                            text_image = make_long_text(text, font,
                                                         color=font_colour, specific_width=width_text_wrapper)
                         text_surfaces.append(text_image)
                         max_height += text_image.get_height()
@@ -2623,8 +2623,8 @@ class BoxUI(UIMenu, Containable, Container):
                                           self.image.get_width() - self.black_border_size_x2,
                                           self.image.get_height() - self.black_border_size_x2
                                           ))
-        text_surface = make_long_text(text, (0, 0), self.font,
-                                      with_texture=(None, (Color("black"), (255, 255, 255), 2)), alignment="center")
+        text_surface = make_long_text(text, self.font, with_texture=(None, (Color("black"), (255, 255, 255), 2)),
+                                      alignment="center")
         text_rect = text_surface.get_rect(center=(self.image.get_width() / 2, self.image.get_height() / 4))
         self.image.blit(text_surface, text_rect)
 

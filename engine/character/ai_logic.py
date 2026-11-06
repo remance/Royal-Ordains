@@ -1,4 +1,12 @@
-def ai_logic(self, dt):
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.character.character import BattleCharacter
+
+
+def ai_logic(self: BattleCharacter, dt: float):
     if self.ai_timer:
         self.ai_timer -= dt
         if self.ai_timer < 0:

@@ -1,4 +1,11 @@
-def sort_player_army_list(self):
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.grand.grand import Grand
+
+
+def sort_player_army_list(self: Grand):
     how = self.grand_army_list_sort_option_ui.option
     reverse = True
     if how[1] == "descend":

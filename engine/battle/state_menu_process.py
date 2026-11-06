@@ -1,3 +1,10 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.battle.battle import Battle
+
 import sys
 
 from pygame import quit as pg_quit
@@ -6,7 +13,7 @@ from engine.uimenu.uimenu import ListAdapter
 from engine.utils.common import edit_config
 
 
-def state_menu_process(self):
+def state_menu_process(self: Battle):
     # update battle scene first here
     self.ui_menu_updater.update(self.true_dt)  # update ui before more specific update
 
@@ -93,7 +100,7 @@ def state_menu_process(self):
         elif self.esc_menu_mode == "option":  # option menu
             for key, value in self.esc_slider_menu.items():
                 if value.event:  # press on slider bar
-                    value.player_input(self.esc_value_boxes[key])  # update slider button based on mouse value
+                    value.player_input()  # update slider button based on mouse value
                     edit_config("USER", key + "_volume", value.value, self.game.config_path,
                                 self.config)
                     self.game.change_sound_volume()

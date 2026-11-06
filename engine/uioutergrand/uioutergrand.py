@@ -4,6 +4,7 @@ from random import choice
 from pygame import Vector2, Surface, SRCALPHA, Rect, draw, Color
 from pygame.sprite import spritecollideany
 
+from engine.uibattle.uibattle import CharacterSpeechBox
 from engine.uimenu.uimenu import UIMenu, UIScroll
 from engine.uiouterbattle.drama import TextDrama
 from engine.utils.text_making import (add_plus_to_number, add_comma_number, text_render_with_bg,
@@ -115,112 +116,54 @@ class ToggleButton(Button):
                 self.change_selection()
 
 
-class DiplomacyHead(UIOuterGrand):
-    simple_font = False
+class DiplomacyHeadSpeechbox(CharacterSpeechBox, UIOuterGrand):
+    add_sound_effect_queue = None
 
-    def __init__(self, font_size):
+    def __init__(self, character, text):
+        UIOuterGrand.__init__(self, player_cursor_interact=False)
+        CharacterSpeechBox.__init__(self, character, text, add_battle_log=False)
+
+    def check_draw(self):
+        """No need to check draw for grand diplomacy head speech"""
+        pass
+
+
+class DiplomacyHead(UIOuterGrand):
+
+    def __init__(self):
         """UI showing AI faction ruler talk to player"""
         self._layer = 5
         UIOuterGrand.__init__(self, player_cursor_interact=False)
+        self.grand_actor_animation_pool = self.grand.sprite_data.grand_actor_animation_pool
         self.character_list = self.grand.character_list
 
-        self.font_size = int(font_size * self.screen_scale_height)
-        self.image = Surface((1000 * self.screen_scale_width, 200 * self.screen_scale_height))
+        self.image = Surface((400 * self.screen_scale_width, 400 * self.screen_scale_height))
 
-        self.talk_timer = 0
+        self.timer = 0
         self.rect = self.image.get_rect(topright=self.grand.mini_cosmic_ui.rect.topleft)
 
-    def start_speak(self, character, speech_id):
-        culture = self.character_list[character]["Culture"]
+        # variable to imitate battle character for speech box
+        self.base_pos = self.grand.base_camera_center_pos
+        self.pos = self.rect.midleft
+        self.culture = "free"
+        self.alive = True
+        self.speech = None
+        self.current_animation_direction = {"head": (0, 0)}
+        self.direction = "left"
 
-        #
-        # font = "simple"
-        # if not self.simple_font and self.game.language in ("en", "es", "it", "fr", "de",):
-        #     # culture font only available for latin alphabet sadly
-        #     font = "culture_" + character.culture
-        #
-        # font = Font(self.ui_font[font], self.font_size)
-        # max_text_width = 800 * self.screen_scale_width
-        # text = self.grab_text(("diplomacy", character))
-        # long_text_surface = make_long_text(text, (0, 0), self.font)
-        # text_surface = Surface(long_text_surface.get_size())
-        # text_surface.fill((224, 224, 224))
-        # text_surface.blit(long_text_surface, (0, 0))
-        #
-        # images = self.grand.battle_ui_images
-        # start_top = images["speech_start_top"]
-        # start_mid = smoothscale(images["speech_start_mid"], (images["speech_start_mid"].get_width(),
-        #                                                           text_surface.get_height()))
-        # start_bottom = images["speech_start_bottom"]
-        #
-        # end_top = images["speech_end_top"]
-        # end_mid = smoothscale(images["speech_end_mid"], (images["speech_end_mid"].get_width(),
-        #                                                       text_surface.get_height()))
-        # end_bottom = images["speech_end_bottom"]
-        #
-        # body_top = smoothscale(images["speech_body_top"], (text_surface.get_width(),
-        #                                                         images["speech_body_top"].get_height()))
-        # body_bottom = smoothscale(images["speech_body_bottom"], (text_surface.get_width(),
-        #                                                               images["speech_body_bottom"].get_height()))
-        #
-        # self.base_image = Surface((text_surface.get_width() + start_top.get_width() + end_top.get_width(),
-        #                            text_surface.get_height() + start_top.get_height() + start_bottom.get_height()),
-        #                           SRCALPHA)
-        #
-        # start_top_rect = start_top.get_rect()
-        # self.base_image.blit(start_top, start_top_rect)
-        #
-        # start_bottom_rect = start_bottom.get_rect(bottomleft=(0, self.base_image.get_height()))
-        # self.base_image.blit(start_bottom, start_bottom_rect)
-        #
-        # start_mid_rect = start_mid.get_rect(topleft=(0, start_top_rect.height))
-        # self.base_image.blit(start_mid, start_mid_rect)
-        #
-        # end_top_rect = end_top.get_rect(topright=(self.base_image.get_width(), 0))
-        # self.base_image.blit(end_top, end_top_rect)
-        #
-        # end_bottom_rect = end_bottom.get_rect(bottomright=(self.base_image.get_width(), self.base_image.get_height()))
-        # self.base_image.blit(end_bottom, end_bottom_rect)
-        #
-        # end_mid_rect = end_mid.get_rect(topright=(self.base_image.get_width(), end_top_rect.height))
-        # self.base_image.blit(end_mid, end_mid_rect)
-        #
-        # body_top_rect = body_top.get_rect(topleft=(start_top_rect.width, 0))
-        # self.base_image.blit(body_top, body_top_rect)
-        #
-        # body_bottom_rect = body_bottom.get_rect(bottomleft=(start_bottom_rect.width, self.base_image.get_height()))
-        # self.base_image.blit(body_bottom, body_bottom_rect)
-        #
-        # self.right_image = self.base_image
-        # self.left_image = flip(self.base_image, 1, 0)
-        #
-        # text_rect = text_surface.get_rect(topleft=start_mid_rect.topright)
-        # self.right_image.blit(text_surface, text_rect)
-        #
-        # text_rect = text_surface.get_rect(topright=(self.base_image.get_width() - start_mid_rect.topright[0],
-        #                                             start_mid_rect.topright[1]))
-        # self.left_image.blit(text_surface, text_rect)
-        #
-        # self.base_pos = character.base_pos.copy()
-        # self.finish_unfolding = False
-        # self.direction_left = False
-        # self.current_length = start_top.get_width()
-        #
-        # self.max_length = self.base_image.get_width()
-        #
-        # self.image = self.base_image.subsurface((0, 0, self.current_length, self.base_image.get_height()))
-        # self.rect = self.image.get_rect(midleft=character.rect.center)
-        #
-        # if voice:
-        #     self.battle.add_sound_effect_queue(choice(self.battle.sound_effect_pool[voice[0]]),
-        #                                        character.base_pos, voice[1],
-        #                                        voice[2], volume="voice")
-        # elif voice is False:  # None will play no sound
-        #     self.battle.add_sound_effect_queue(choice(self.battle.sound_effect_pool["parchment_write"]),
-        #                                        character.base_pos, 1000,
-        #                                        0, volume="voice")
+    def start_speak(self, character_id, speech_id):
+        self.base_pos = self.grand.base_camera_center_pos
+        self.culture = self.character_list[character_id]["Culture"]
+        self.image = self.grand_actor_animation_pool[character_id]["DIPLOMACY_" + speech_id.split("_")[0]]["left"][
+            "sprite"]
+        self.add_to_outer_ui_menu_updater(self)
+        self.add_to_outer_ui_menu_updater(DiplomacyHeadSpeechbox(self, choice(
+            self.grab_text(("diplomacy_speak", character_id))[speech_id])))
 
-    # def update(self, dt):
+    def update(self, dt):
+        if self.speech not in self.grand.outer_ui_updater:
+            self.speech = None
+            self.remove_from_outer_ui_menu_updater(self)
 
 
 class FactionTopBar(UIOuterGrand):
@@ -327,21 +270,20 @@ class FactionCultureList(UIOuterGrand):
         self.culture_management_button_rect = Rect((0, 0, 0, 0))
         self.rect = self.image.get_rect(topleft=self.grand.grand_faction_top_bar_ui.rect.bottomleft)
 
-    def add_culture_portrait(self, surface, culture, culture_value, pos):
+    def add_culture_portrait(self, surface, culture, culture_state, pos):
         culture_image = self.culture_coas[culture]["tiny"]
         culture_rect = culture_image.get_rect(topleft=pos)
         surface.blit(culture_image, culture_rect)
 
-        policy_image = self.grand_ui_images["policy_small_" + culture_value["policy"]]
+        policy_image = self.grand_ui_images["policy_small_" + culture_state["policy"]]
         surface.blit(policy_image, policy_image.get_rect(midtop=culture_rect.topleft))
-
-        if int(culture_value["penalty"]):
+        if culture_state["penalty"] != "0":
             penalty_image = self.grand_ui_images["culture_value_bad"]
         else:
             penalty_image = self.grand_ui_images["culture_value_good"]
         surface.blit(penalty_image, penalty_image.get_rect(midbottom=culture_rect.bottomleft))
 
-        integration_value = culture_value["integration"]
+        integration_value = culture_state["integration"]
         if integration_value not in self.cache_value_text_font:
             text_surface = text_render_with_bg(integration_value, self.font, Color("black"))
             self.cache_value_text_font[integration_value] = text_surface
@@ -349,7 +291,7 @@ class FactionCultureList(UIOuterGrand):
             text_surface = self.cache_value_text_font[integration_value]
         surface.blit(text_surface, text_surface.get_rect(midtop=culture_rect.topright))
 
-        influence_value = culture_value["influence"]
+        influence_value = culture_state["influence"]
         if influence_value not in self.cache_value_text_font:
             text_surface = text_render_with_bg(influence_value, self.font, Color("black"))
             self.cache_value_text_font[influence_value] = text_surface
@@ -433,7 +375,7 @@ class FactionCultureList(UIOuterGrand):
                                 "integration"],
                             grab_text(("ui", "info_header_influence")) + this_culture_value["influence"] +
                             this_culture_value["weight"]]
-                        if int(this_culture_value["penalty"]):
+                        if this_culture_value["penalty"]:
                             text.append(grab_text(("ui", "info_header_happiness_penalty")) + this_culture_value[
                                 "penalty"])
                         self.text_popup.popup(self.cursor.rect, text,
@@ -661,7 +603,7 @@ class EventNotification(UIOuterGrand):
                 for card in (card_image, hover_card_image):
                     card.blit(event_icon, event_icon.get_rect(midleft=(0, self.event_item_height_center)))
 
-                    event_text = make_long_text((self.grand_ui_images["turn"], ":" + event[2], event[1]), (0, 0),
+                    event_text = make_long_text((self.grand_ui_images["turn"], ":" + event[2], event[1]),
                                                 self.font, with_texture=(None, ((20, 20, 20), (255, 255, 255), 2)),
                                                 specific_width=700 * self.screen_scale_width)
                     card.blit(event_text, event_text.get_rect(topleft=(100 * self.screen_scale_width, 0)))
@@ -694,13 +636,13 @@ class EventNotification(UIOuterGrand):
     def update(self, dt):
         cursor = self.cursor
         cursor_pos = cursor.pos
-        if self.event_cards and self.rect.collidepoint(cursor_pos):
+        if self.event_cards and UIOuterGrand.update(self, dt):
             inside_mouse_pos = Vector2(
                 (cursor_pos[0] - self.rect.topleft[0]),
                 (cursor_pos[1] - self.rect.topleft[1]))
             for index, rect in enumerate(self.event_card_rects):
                 if rect.collidepoint(inside_mouse_pos):
-                    if cursor.is_select_just_up:  # go to event
+                    if self.event_press:  # go to event
                         showing_events = self.grand.current_campaign_state["eventlog"][-10:]
                         if index < len(showing_events):
                             event = showing_events[index]
@@ -709,7 +651,7 @@ class EventNotification(UIOuterGrand):
                                     (event[3][0] * self.grand.map_shown_to_base_scale_width) - self.half_screen_width,
                                     (event[3][1] * self.grand.map_shown_to_base_scale_height) - self.half_screen_height)
                                 self.grand.fix_camera()
-                    elif cursor.is_alt_select_just_down:  # remove event
+                    elif self.event_alt_press:  # remove event
                         showing_events = self.grand.current_campaign_state["eventlog"][-10:]
                         if index < len(showing_events):
                             self.remove_event(showing_events[index])

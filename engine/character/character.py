@@ -218,6 +218,7 @@ class Character(sprite.Sprite):
         self.no_target = False  # can not be target
         self.broken = False  # broken and no longer fight, will only retreat
         self.alive = True
+        self.enemy_commander_character = None
         self.reach_camera_event = {}
 
         self.y_momentum = 0
@@ -417,7 +418,7 @@ class BattleCharacter(Character):
     is_sub_character = False
     active = True
 
-    def __init__(self, game_id: int, stat: dict, leader: BattleCharacter = None,
+    def __init__(self, game_id: int, stat: dict, commander_character: (None, CommanderBattleCharacter) = None,
                  additional_layer: (int, str) = 0, is_commander: bool = False, is_summon: bool = False,
                  additional_current_state=None) -> None:
         """
@@ -432,7 +433,7 @@ class BattleCharacter(Character):
         if additional_layer != "main":
             self.main_character = None
         self.sub_characters = []
-        self.leader = leader
+        self.commander_character = commander_character
 
         self.is_summon = is_summon
         self.indicator = None
@@ -468,9 +469,9 @@ class BattleCharacter(Character):
             self.retreat_pos = -10000
 
         # Get char stat
-        self.leader = None
-        if leader:
-            self.leader = leader
+        self.commander_character = None
+        if commander_character:
+            self.commander_character = commander_character
             self.ai_prepare = MethodType(troop_ai_prepare, self)
         self.power_score = stat["Power Score"]
         self.original_offence = stat["Offence"]
@@ -775,7 +776,7 @@ class AirBattleCharacter(BattleCharacter):
     move_logic = air_move_logic
     die = air_die
 
-    def __init__(self, game_id: int, stat: dict, leader: Character = None):
+    def __init__(self, game_id: int, stat: dict, commander_character: (None, CommanderBattleCharacter) = None):
         """
         SubBattleCharacter object represent a battle character that is linked to a main BattleCharacter
 
@@ -785,7 +786,7 @@ class AirBattleCharacter(BattleCharacter):
         """
         self.active = False
         self.enter_delay = 0
-        BattleCharacter.__init__(self, game_id, stat, leader=leader)
+        BattleCharacter.__init__(self, game_id, stat, commander_character=commander_character)
         self.all_team_enemy_collision_grids = self.battle.all_team_air_enemy_collision_grids
         self.character_type = "air"
         if self.ai_behaviour == "interceptor":

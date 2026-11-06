@@ -1,3 +1,10 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.grand.grand import Grand
+
 from math import ceil
 
 from engine.constants import Turn_To_Phase
@@ -5,26 +12,33 @@ from engine.constants import Turn_To_Phase
 time_per_phase = 1 / Turn_To_Phase  # 1 cosmic time is 1 turn
 
 
-def change_phase(self, phase_change=True):
+def change_phase(self: Grand, phase_change: bool = True):
+    current_campaign_state = self.current_campaign_state
+    region_campaign_state = current_campaign_state["region"]
+
     if phase_change:
-        current_campaign_state = self.current_campaign_state
-        region_campaign_state = current_campaign_state["region"]
         self.cosmic_ui.phase_change()
         current_campaign_state["cosmic_time"] += time_per_phase
         current_campaign_state["cosmic_event"] = {key: value - 1 for key, value in
                                                   current_campaign_state["cosmic_event"].items() if value > 1}
 
-        # process respective faction ai assigned to the phase
+    # process respective faction ai assigned to the phase
 
-        # process faction state
-        for faction, faction_state in current_campaign_state["faction"].items():
+    # process faction state
+    building_path_for_requirement_check = self.building_path_for_requirement_check
+    for faction, faction_state in current_campaign_state["faction"].items():
+        if phase_change:
             for army in faction_state["army"]:
                 army.change_phase()
 
-                for region in faction_state["region"]:  # TODO add requirement check
+        if faction != "free":
+            for region in faction_state["region"]:
+                building_state_change = []
+                region_building_state = region_campaign_state[region]["building"]
+                if phase_change:
                     region_state_change = False
-                    building_state_change = []
-                    for index, building_state in enumerate(region_campaign_state[region]["building"]):
+                    for index, building_state in enumerate(region_building_state):
+                        # update building state process involving razing/pillaging/construction/repair
                         building = building_state[0]
                         if building_state[2]:  # ongoing razing/pillaging/construction/repair
                             building_state[2] -= 1
@@ -64,27 +78,52 @@ def change_phase(self, phase_change=True):
                                                 "event_build", building_text +
                                                 self.grab_text(("ui", "info_text_construction_done")),
                                                 turn_text, self.region_list[region]["Settlement POS"]))
+                else:
+                    # recal for region state anyway if phase change is false
+                    region_state_change = True
 
-                    if building_state_change:
-                        # building state change (like progress value change) may not affect entire region stat
-                        if (faction == self.player_faction and
-                                region == self.region_management_ui.player_selected_region):
-                            self.region_management_ui.change_selected_region(region)
+                require_active_change_check = True
+                while require_active_change_check:
+                    require_active_change_check = False
+                    for building_state in region_building_state:
+                        # now check for requirement satisfaction
+                        building = building_state[0]
+                        if self.building_list[building]["Requirement"]:  # has requirement
+                            satisfy_check = [True if any([building_path in region_building_state for
+                                                          building_path in
+                                                          building_path_for_requirement_check[require_building]]) else
+                                             False for require_building in self.building_list[building]["Requirement"]]
+                            if False in satisfy_check:
+                                new_active_state = False
+                            else:
+                                new_active_state = True
+                        else:
+                            new_active_state = True
 
-                    if region_state_change:
-                        self.cal_region_income_recruit(faction, region)
-                        if faction == self.player_faction:
-                            settlement_object = self.settlement_object_list[region]
-                            for index, building_state in building_state_change:
-                                settlement_object.change_building_state(index, building_state)
-                            # update settlement object in map
-                            settlement_object.change_state(settlement_object.building_state)
+                        if new_active_state != building_state[3]:
+                            building_state[3] = new_active_state
+                            region_state_change = True
 
-                            # update building managmenet ui to reflect new state
-                            if (self.building_management_ui in self.outer_ui_updater and
-                                    region == self.building_management_ui.player_selected_region):
-                                self.building_management_ui.change_selected_building(
-                                    self.building_management_ui.selected_building_index)
+                if building_state_change:
+                    # building state change (like progress value change) may not affect entire region stat
+                    if (faction == self.player_faction and
+                            region == self.region_management_ui.player_selected_region):
+                        self.region_management_ui.change_selected_region(region)
+
+                if region_state_change:
+                    self.cal_region_income_recruit(faction, region)
+                    if faction == self.player_faction:
+                        settlement_object = self.settlement_object_list[region]
+                        for index, building_state in building_state_change:
+                            settlement_object.change_building_state(index, building_state)
+                        # update settlement object in map
+                        settlement_object.change_state(settlement_object.building_state)
+
+                        # update building management ui to reflect new state
+                        if (self.building_management_ui in self.outer_ui_updater and
+                                region == self.building_management_ui.player_selected_region):
+                            self.building_management_ui.change_selected_building(
+                                self.building_management_ui.selected_building_index)
 
             # if faction == self.player_faction and self.player_grand_character_selector in self.outer_ui_updater:
             #     self.player_grand_character_selector
@@ -97,3 +136,6 @@ def change_phase(self, phase_change=True):
 
     if self.player_faction:
         self.grand_faction_culture_list_ui.culture_change()
+        if self.culture_management_ui in self.outer_ui_updater:
+            # reset culture management ui every phase if open
+            self.culture_management_ui.reset()

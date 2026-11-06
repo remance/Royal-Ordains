@@ -1,7 +1,14 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.battle.battle import Battle
+
 from engine.uimenu.uimenu import BrownMenuButton, BoxUI, SliderMenu, ValueBox, OptionMenuText, ListUI, ListAdapter
 
 
-def make_esc_menu(self):
+def make_esc_menu(self: Battle):
     """create Esc menu related objects"""
     font_size = int(64 * self.screen_scale[1])
 
@@ -28,7 +35,7 @@ def make_esc_menu(self):
     scroller_images = (self.game.option_menu_images["scroller_box"], self.game.option_menu_images["scroller"])
     scroll_button_images = (
         self.game.option_menu_images["scroll_button_normal"], self.game.option_menu_images["scroll_button_click"])
-    volume_slider = {"master": SliderMenu(scroller_images, scroll_button_images,
+    volume_sliders = {"master": SliderMenu(scroller_images, scroll_button_images,
                                           (self.screen_rect.width / 2, self.screen_rect.height / 4),
                                           self.master_volume),
                      "music": SliderMenu(scroller_images, scroll_button_images,
@@ -41,17 +48,20 @@ def make_esc_menu(self):
                                           (self.screen_rect.width / 2, self.screen_rect.height / 2),
                                           self.effect_volume)}
 
-    value_box = {key: ValueBox(self.game.option_menu_images["value"],
-                               (volume_slider[key].rect.topright[0] * 1.1, volume_slider[key].rect.center[1]),
-                               volume_slider[key].value, self.game.large_generic_ui_font) for key in volume_slider}
+    value_boxes = {key: ValueBox(self.game.option_menu_images["value"],
+                                 (volume_sliders[key].rect.topright[0] * 1.1, volume_sliders[key].rect.center[1]),
+                                 volume_sliders[key].value, self.game.large_generic_ui_font) for key in volume_sliders}
 
-    volume_texts = {key: OptionMenuText((volume_slider[key].pos[0] - (volume_slider[key].pos[0] / 4.5),
-                                         volume_slider[key].pos[1]),
+    for key, value in volume_sliders.items():
+        value.value_box = value_boxes[key]
+
+    volume_texts = {key: OptionMenuText((volume_sliders[key].pos[0] - (volume_sliders[key].pos[0] / 4.5),
+                                         volume_sliders[key].pos[1]),
                                         self.grab_text(key=("ui", "option_" + key + "_volume",)),
-                                        font_size) for key in volume_slider}
+                                        font_size) for key in volume_sliders}
 
     return {"battle_menu_button": battle_menu_button,
             "esc_option_menu_button": esc_option_menu_button,
-            "esc_slider_menu": volume_slider, "esc_value_boxes": value_box, "volume_texts": volume_texts,
+            "esc_slider_menu": volume_sliders, "esc_value_boxes": value_boxes, "volume_texts": volume_texts,
             "dialogue_box": dialogue_box,
             "esc_dialogue_button": esc_dialogue_button}

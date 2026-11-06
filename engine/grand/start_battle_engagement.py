@@ -1,4 +1,12 @@
-def start_battle_engagement(self, armies, base_pos):
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.grand.grand import Grand
+
+
+def start_battle_engagement(self: Grand, armies: dict, base_pos: tuple):
     current_campaign_state = self.current_campaign_state
     campaign_battle_dot = current_campaign_state["battle"]["dot"]
     campaign_battle_armies = current_campaign_state["battle"]["armies"]

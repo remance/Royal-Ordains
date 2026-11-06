@@ -68,7 +68,7 @@ class DotInfoBanner(UIGrand):
         if type(text) is str:
             text_image = text_render_with_bg(text, self.font)
         else:
-            text_image = make_long_text(text, (0, 0), self.font,
+            text_image = make_long_text(text, self.font,
                                         with_texture=(None, ((30, 30, 30), (255, 255, 255), 2)))
         banner_left = banner[0]
         banner_right = banner[2]

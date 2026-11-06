@@ -1,7 +1,14 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.game.game import Game
+
 import pygame
 
 
-def menu_keybind(self):
+def menu_keybind(self: Game):
     if self.back_button.event_press or self.esc_press:  # back to start_set menu
         self.menu_state = "option"
         self.remove_from_ui_menu_updater(self.keybind_text.values(), self.keybind_icon.values())

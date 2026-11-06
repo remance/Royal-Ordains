@@ -33,8 +33,10 @@ Diplomacy_Turn_Event_Battle = 15
 Diplomacy_Turn_Event_Occupy = 50
 
 """culture policy for grand campaign
-ANY CHANGE IN KEYS WILL CAUSE ERRORS from the inconsistency in game code, uioutergrand and ui sprite asset
+ANY CHANGE IN DICT KEYS WILL CAUSE ERRORS FROM THE INCONSISTENCY IN GAME CODE, UIOUTERGRAND AND UI CULTURE ASSET
 the value indicate maximum integration value that the culture can reach"""
+Culture_Policy_Key = ("reject", "tolerate", "restrict", "partial", "accept")
+Culture_Default_New = "tolerate"
 Culture_Policy_Integration = {"reject": 0, "tolerate": 0.1, "restrict": 0.35, "partial": 0.7, "accept": 1}
 Culture_Policy_Difference_Relation = {0: 0, 1: -5, 2: -15, 3: -20, 4: -30}
 
@@ -44,8 +46,8 @@ Route_Travel_Modifier = {"land": 1, "forest": 2, "hill": 2, "snow": 2, "sea": 3,
 # DO NOT CHANGE BELOW AS THEY MAY BREAK THE GAME
 Default_Screen_Width = 3840
 Default_Screen_Height = 2160
-Default_Showcase_Character_POS = (Default_Screen_Width * 0.6, Default_Screen_Height * 0.6)
-Default_Showcase_Character_air_POS = (Default_Screen_Width * 0.6, Default_Screen_Height * 0.45)
+Default_Showcase_Character_POS = (Default_Screen_Width * 0.55, Default_Screen_Height * 0.6)
+Default_Showcase_Character_air_POS = (Default_Screen_Width * 0.5, Default_Screen_Height * 0.45)
 Weak_To_Element = {"fire": "water", "water": "air", "earth": "fire", "air": "earth", "magic": None,
                    "stab": None, "slash": None, "crush": None}
 Opposite_Team = {1: 2, 2: 1}

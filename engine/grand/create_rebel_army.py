@@ -1,8 +1,15 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.grand.grand import Grand
+
 from uuid import uuid4
 from random import choice, uniform
 
 
-def create_rebel_army(self, region, faction_state, max_spawn_power):
+def create_rebel_army(self: Grand, region_id: str, faction_state: dict, max_spawn_power: float):
     """Create and deploy a random rebel army"""
     current_campaign_state = self.current_campaign_state
     campaign_faction_state = current_campaign_state["faction"]
@@ -10,13 +17,13 @@ def create_rebel_army(self, region, faction_state, max_spawn_power):
     character_list = self.character_list
 
     culture = tuple(faction_state["culture"].keys())[0]
-    region_culture = campaign_region_state[region]["culture"]
+    region_culture = campaign_region_state[region_id]["culture"]
 
     if region_culture:
         culture = choice(tuple(region_culture.keys()))
     culture_character_list = self.custom_character_setup[culture]
     # create rebel army preset
-    rebel_army = {"ID": str(uuid4()), "Faction": "free", "Region": region, "Commander": None,
+    rebel_army = {"ID": str(uuid4()), "Faction": "free", "Region": region_id, "Commander": None,
                   "Leader 1": None, "Leader 2": None, "Leader 3": None, "Troop 1": None,
                   "Troop 2": None, "Troop 3": None, "Troop 4": None, "Troop 5": None,
                   "Air 1": None, "Air 2": None, "Air 3": None, "Air 4": None, "Air 5": None,

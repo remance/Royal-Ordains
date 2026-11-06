@@ -1,3 +1,10 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.battle.battle import Battle
+
 from random import choice
 from math import ceil
 
@@ -6,7 +13,7 @@ from pygame.mixer import Sound
 from engine.constants import Opposite_Team, Phase_To_Battle_Time
 
 
-def state_battle_process(self):
+def state_battle_process(self: Battle):
     camera = self.camera
     self.remove_from_outer_ui_menu_updater(self.text_popup)
     self.player_input()

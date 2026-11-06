@@ -1,12 +1,20 @@
-def check_region_building_available_upgrade(self, faction, region, building_to_check):
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.grand.grand import Grand
+
+
+def check_region_building_available_upgrade(self: Grand, faction_id: str, region_id: str, building_id_to_check: str):
     building_list = self.building_list
-    region_buildings = self.current_campaign_state["region"][region]["building"]
+    region_buildings = self.current_campaign_state["region"][region_id]["building"]
 
     # building is active if it is not damaged, in progress, all requirement buildings are active
     region_active_building = [item[0] for item in region_buildings if item[1] and not item[2] and item[3]]
 
-    exist_building_upgrade = self.building_upgrade_list[building_to_check]
-    faction_cultures_state = self.current_campaign_state["faction"][faction]["culture"]
+    exist_building_upgrade = self.building_upgrade_list[building_id_to_check]
+    faction_cultures_state = self.current_campaign_state["faction"][faction_id]["culture"]
 
     available_building_upgrade_by_type = {}
     all_available_building_upgrade = []

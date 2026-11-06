@@ -1,4 +1,13 @@
-def add_new_army_to_reinforcement(self, team, team_state, army):
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.army.army import Army
+    from engine.battle.battle import Battle
+
+
+def add_new_army_to_reinforcement(self: Battle, team: int, team_state: dict, army: Army):
     commander_id = army.commander_id
     character_list = self.character_list
     team_state["supply_reserve"] += army.supply

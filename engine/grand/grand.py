@@ -1,3 +1,10 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.game.game import Game
+
 import configparser
 import sys
 from os.path import join
@@ -53,7 +60,7 @@ from engine.uigrand.uigrand import (DotInfoBanner, DotInfoBannerArmy, DotInfoBan
 from engine.uimenu.uimenu import TextPopup, GrandMiniMap, CustomPresetTitle, SliderMenu, ValueBox
 from engine.uiouterbattle.uiouterbattle import FPSCount
 from engine.uioutergrand.cosmos import CosmosUI, MiniCosmosUI
-from engine.uioutergrand.uioutergrand import (PlayerGrandInteract, FactionTopBar,
+from engine.uioutergrand.uioutergrand import (PlayerGrandInteract, FactionTopBar, DiplomacyHeadSpeechbox, DiplomacyHead,
                                               ArmyList, ArmyListSortOption, MapSettingOption,
                                               TimeSettingOption, EventDetailPopup, FactionCultureList,
                                               MenuBar, EventNotification, GrandTextDrama)
@@ -109,7 +116,7 @@ class Grand:
 
     process_list = {"grand": state_grand_process, "menu": state_menu_process}
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         self.game = game
         self.battle = self.game.battle
         Grand.grand = self
@@ -206,6 +213,7 @@ class Grand:
         self.faction_list = self.map_data.faction_list
         self.building_list = self.stat_data.building_list
         self.building_upgrade_list = self.stat_data.building_upgrade_list
+        self.building_path_for_requirement_check = self.stat_data.building_path_for_requirement_check
         self.culture_list = self.stat_data.culture_list
         self.cosmic_event_list = self.stat_data.cosmic_event_list
 
@@ -253,6 +261,7 @@ class Grand:
         GrandArmyActor.grand = self
         GrandObject.grand = self
         GrandRegion.grand = self
+        DiplomacyHeadSpeechbox.add_sound_effect_queue = self.add_sound_effect_queue
 
         # initiate default variables
         self.clock_time = 0
@@ -319,6 +328,8 @@ class Grand:
         self.diplomacy_management_ui = DiplomacyManagement()
         self.diplomacy_management_uis = (self.diplomacy_management_ui, self.diplomacy_management_ui.scroll)
 
+        self.diplomacy_head_ui = DiplomacyHead()
+
         self.region_management_ui = RegionManagement()
 
         self.region_management_tab_button = RegionManagementToggleButton(
@@ -360,11 +371,17 @@ class Grand:
         scroll_button_images = (
             self.game.option_menu_images["scroll_button_normal"], self.game.option_menu_images["scroll_button_click"])
         self.deploy_supply_value_box = ValueBox(self.game.option_menu_images["value"],
-                                                self.grand_army_deploy_management_ui.rect.topright, 100,
+                                                (self.grand_army_deploy_management_ui.rect.topright[0] - (
+                                                            self.game.option_menu_images["value"].get_width() / 2),
+                                                 self.grand_army_deploy_management_ui.rect.topright[1] + (
+                                                             self.game.option_menu_images["value"].get_height() / 2)),
+                                                100,
                                                 self.game.large_generic_ui_font)
         self.deploy_supply_slider = SliderMenu(scroller_images, scroll_button_images,
-                                               self.deploy_supply_value_box.rect.topright, 100)
-
+                                               (self.deploy_supply_value_box.rect.midright[0] - (
+                                                   scroller_images[0].get_width()),
+                                                self.deploy_supply_value_box.rect.midright[1]), 100)
+        self.deploy_supply_slider.value_box = self.deploy_supply_value_box
 
         self.grand_army_deploy_uis = (self.grand_army_deploy_management_ui, self.region_management_tab_button,
                                       self.army_deploy_tab_button, self.grand_reserve_army_list_ui,
@@ -618,7 +635,8 @@ class Grand:
 
                     # FOR DEVELOPMENT comment out later
                     if event.key == K_F1:
-                        self.drama_text.queue.append((True, "Hello and welcome to showcase video", "dollhi"))
+                        # self.drama_text.queue.append((True, "Hello and welcome to showcase video", "dollhi"))
+                        self.diplomacy_head_ui.start_speak("leader_doll_king", "accept_gift")
                     elif event.key == K_F2:
                         self.drama_text.queue.append(
                             (True, "Showcase: Grand strategy campaign development and cosmos system", None))

@@ -189,6 +189,10 @@ class DataSprite(GameData):
             #     join(self.data_dir, "animation", "stage_object.xz"),
             #     screen_scale=self.screen_scale)
 
+            self.grand_actor_animation_pool = load_pickle_with_surfaces(
+                join(self.data_dir, "animation", "grand_actor.xz"),
+                screen_scale=self.screen_scale)
+
     def load_region_sprite(self, map_data, grand_ui_images, map_shown_to_base_scale_width,
                            map_shown_to_base_scale_height, campaign: str):
         self.region_sprites = load_images(self.data_dir, screen_scale=self.screen_scale,

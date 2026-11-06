@@ -1,7 +1,14 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.battle.battle import Battle
+
 from engine.constants import Leadership_Add_Modifier
 
 
-def add_new_army_arrive(self):
+def add_new_army_arrive(self: Battle):
     """Check for sprite loading and add reinforcement after finish loading"""
     for thread in tuple(self.load_sprite_background_threads):
         if not thread.is_alive():
@@ -11,23 +18,24 @@ def add_new_army_arrive(self):
         grab_text = self.grab_text
         player_team = self.player_team
         strategy_change = False
+        character_list = self.character_list
         for team, army_list in tuple(self.awaiting_armies.items()):
             for army in army_list:
                 team_state = self.team_state[team]
                 commander_id = army.commander_id
                 if team_state["active_leader"] < 3:
                     strategy_change = True
-                    team_state["leadership"] += (self.character_list[commander_id]["Leadership"] *
+                    team_state["leadership"] += (character_list[commander_id]["Leadership"] *
                                                  Leadership_Add_Modifier)
-                    self.add_strategy_to_team_state(team_state, self.character_list[commander_id]["Strategy"])
+                    self.add_strategy_to_team_state(team_state, character_list[commander_id]["Strategy"])
                     team_state["active_leader"] += 1
                     if team_state["active_leader"] < 3:
                         # add new army leader until reach 3
                         if army.army_followers["leader"]:
                             for leader in [item[0] for item in army.army_followers["leader"] if item and item[1]]:
-                                team_state["leadership"] += (self.character_list[leader]["Leadership"] *
+                                team_state["leadership"] += (character_list[leader]["Leadership"] *
                                                              Leadership_Add_Modifier)
-                                self.add_strategy_to_team_state(team_state, self.character_list[leader]["Strategy"])
+                                self.add_strategy_to_team_state(team_state, character_list[leader]["Strategy"])
                                 team_state["active_leader"] += 1
                                 if team_state["active_leader"] == 3:
                                     break

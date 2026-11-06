@@ -1,3 +1,10 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.game.game import Game
+
 import sys
 import time
 from copy import deepcopy
@@ -115,7 +122,7 @@ class Battle:
 
     process_list = {"battle": state_battle_process, "menu": state_menu_process, "result": state_result_process}
 
-    def __init__(self, game):
+    def __init__(self, game: Game):
         self.game = game
         Battle.battle = self
         # TODO LIST
@@ -332,6 +339,7 @@ class Battle:
         battle_ui_images = self.game.battle_ui_images
         self.battle_ui_images = battle_ui_images
         CharacterSpeechBox.images = battle_ui_images
+        CharacterSpeechBox.add_sound_effect_queue = self.add_sound_effect_queue
 
         StrategyIcon.strategy_icons = self.sprite_data.strategy_icons
         self.command_ui = Command(battle_ui_images["call_count"], battle_ui_images["air_count"])

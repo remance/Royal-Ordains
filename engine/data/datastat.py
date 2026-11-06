@@ -228,7 +228,7 @@ class DataStat(GameData):
 
         self.building_list = {}
         self.building_upgrade_list = {}
-        self.building_higher_upgrade_path = {}
+        self.building_path_for_requirement_check = {}
         self.building_requirement_check_list = {}
         self.character_recruit_building_list = {}
         with open(os.path.join(self.data_dir, "character", "building.csv"),
@@ -257,12 +257,13 @@ class DataStat(GameData):
 
             requirement_check = {}
             for building, building_data in self.building_list.items():
-                # create a list of previous upgrade version of the building,
+                # create a list of upgrade version of the building,
                 # also used for checking requirement satisfaction of higher upgrade version of the building
-                self.building_higher_upgrade_path[building] = []
-                self.recursive_check_building_upgrade_path(building, self.building_higher_upgrade_path[building])
-                requirement_check[building] = [building] + self.building_higher_upgrade_path[building]
-                self.building_higher_upgrade_path[building] = tuple(self.building_higher_upgrade_path[building])
+                self.building_path_for_requirement_check[building] = []
+                self.recursive_check_building_upgrade_path(building, self.building_path_for_requirement_check[building])
+                requirement_check[building] = [building] + self.building_path_for_requirement_check[building]
+                self.building_path_for_requirement_check[building] = [[building, True, 0, True]] + [
+                    [item, True, 0, True] for item in self.building_path_for_requirement_check[building]]
 
             for building, building_data in self.building_list.items():
                 self.building_upgrade_list[building] = {}  # list of possible upgrade and requirement check
@@ -272,11 +273,6 @@ class DataStat(GameData):
                         for requirement_building in building_data2["Requirement"]:
                             self.building_upgrade_list[building][building2].append(
                                 requirement_check[requirement_building])
-
-                # self.building_requirement_check_list[building] = []  #
-                # for building2, building_data2 in self.building_list.items():
-                #     if building2 in building_data["Requirement"]:  # found upgrade
-                #         self.building_upgrade_requirement_check_list[building].append(self.building_previous_upgrade_path[building])
         edit_file.close()
 
         self.cosmic_event_list = {}

@@ -1,3 +1,10 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.grand.grand import Grand
+
 import sys
 from random import choice
 
@@ -5,10 +12,12 @@ import pygame
 from pygame import Sound, quit as pg_quit
 
 
-def state_grand_process(self):
+def state_grand_process(self: Grand):
+    true_dt = self.true_dt
+    camera = self.camera
     if not self.input_popup:
         # Update game time
-        dt = self.true_dt * self.game_speed
+        dt = true_dt * self.game_speed
         self.dt = dt  # apply dt with game_speed for calculation
 
         self.player_input()
@@ -21,7 +30,7 @@ def state_grand_process(self):
                 self.mini_cosmic_ui.reset()
                 self.sort_player_army_list()
 
-        self.ui_timer += self.true_dt  # ui update by real time instead of self time to reduce workload.
+        self.ui_timer += true_dt  # ui update by real time instead of self time to reduce workload.
 
         if not self.music_channel.get_busy():  # whatever music end, pick random from default battle music
             self.music_channel.set_volume(self.play_music_volume)
@@ -46,32 +55,32 @@ def state_grand_process(self):
         self.drama_process(add_battle_log=False)
 
         # Object related updater
-        self.grand_object_updater.update(self.true_dt, dt)
-        self.grand_effect_updater.update(self.true_dt)
+        self.grand_object_updater.update(true_dt, dt)
+        self.grand_effect_updater.update(true_dt)
 
         # if self.current_campaign_state["battle"]["manual"]:
         #     self.battle.grand_event_notification
 
         # update camera
-        self.camera.camera_left_bound = self.camera_topleft_pos[0]
-        self.camera.camera_top_bound = self.camera_topleft_pos[1]
-        self.camera.camera_right_bound = self.camera.camera_left_bound + self.screen_width
-        self.camera.camera_bottom_bound = self.camera.camera_top_bound + self.screen_height
+        camera.camera_left_bound = self.camera_topleft_pos[0]
+        camera.camera_top_bound = self.camera_topleft_pos[1]
+        camera.camera_right_bound = camera.camera_left_bound + self.screen_width
+        camera.camera_bottom_bound = camera.camera_top_bound + self.screen_height
 
         # draw object to camera
-        self.camera.update_with_in_camera_check(self.grand_camera_region_drawer)
+        camera.update_with_in_camera_check(self.grand_camera_region_drawer)
         # add route after map region draw to blit route dots on the map under other sprites.
         self.draw_route()
 
         # update and draw ui within camera
-        self.grand_camera_ui_updater.update(self.true_dt)
-        self.camera.update_with_in_camera_check(self.grand_camera_object_drawer)
-        self.camera.update(self.grand_camera_ui_drawer)
+        self.grand_camera_ui_updater.update(true_dt)
+        camera.update_with_in_camera_check(self.grand_camera_object_drawer)
+        camera.update(self.grand_camera_ui_drawer)
 
         # update and draw ui outside camera
-        self.outer_ui_updater.update(self.true_dt)
-        self.camera.out_update(self.outer_ui_drawer)
-        self.camera.out_update(self.ui_menu_drawer)
+        self.outer_ui_updater.update(true_dt)
+        camera.out_update(self.outer_ui_drawer)
+        camera.out_update(self.ui_menu_drawer)
 
         if self.esc_press:  # pause game and open menu
             self.music_channel.pause()
@@ -88,18 +97,18 @@ def state_grand_process(self):
             self.add_to_ui_menu_updater(self.cursor)
             self.add_to_ui_menu_updater(self.grand_menu_button.values())  # add menu and its buttons to drawer
     else:  # have input text pop up on screen, stop everything else until done
-        self.ui_menu_updater.update(self.true_dt)
-        self.camera.update_with_in_camera_check(self.grand_camera_region_drawer)
+        self.ui_menu_updater.update(true_dt)
+        camera.update_with_in_camera_check(self.grand_camera_region_drawer)
         # add route after map region draw to blit route dots on the map under other sprites.
         self.draw_route()
 
         # draw ui within camera
-        self.camera.update_with_in_camera_check(self.grand_camera_object_drawer)
-        self.camera.update(self.grand_camera_ui_drawer)
+        camera.update_with_in_camera_check(self.grand_camera_object_drawer)
+        camera.update(self.grand_camera_ui_drawer)
 
         # draw ui outside camera
-        self.camera.out_update(self.outer_ui_drawer)
-        self.camera.out_update(self.ui_menu_drawer)
+        camera.out_update(self.outer_ui_drawer)
+        camera.out_update(self.ui_menu_drawer)
 
         if self.input_ok_button.event_press:
             done = True

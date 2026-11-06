@@ -1,3 +1,10 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.battle.battle import Battle
+
 from random import randint, uniform
 
 from engine.character.character import BattleCharacter
@@ -9,8 +16,8 @@ from engine.utils.rotation import find_target_point
 grid_width = Default_Screen_Width / Collision_Grid_X_Per_Battle_Scene
 
 
-def activate_strategy(self, team, strategy, base_pos_x):
-    stat = self.strategy_list[strategy]
+def activate_strategy(self: Battle, team: int, strategy_id: str, base_pos_x: (int, float)):
+    stat = self.strategy_list[strategy_id]
     range_check = stat["Range"]
     stat_property = stat["Property"]
     commander = self.team_commander[team]
@@ -21,14 +28,14 @@ def activate_strategy(self, team, strategy, base_pos_x):
         this_team_state["strategy_resource"] -= stat["Resource Cost"]
 
         if team == self.player_team:
-            self.drama_text.queue.append((False, self.grab_text(("strategy", strategy, "Ally")), None))
+            self.drama_text.queue.append((False, self.grab_text(("strategy", strategy_id, "Ally")), None))
         else:
-            self.drama_text.queue.append((True, self.grab_text(("strategy", strategy, "Enemy")), None))
+            self.drama_text.queue.append((True, self.grab_text(("strategy", strategy_id, "Enemy")), None))
             self.tactical_map_ui.warn_strategy(base_pos_x)
 
-        StrategyIcon(strategy, base_pos_x)
+        StrategyIcon(strategy_id, base_pos_x)
 
-        this_strategy_cooldown = this_team_state["strategy_cooldown"][strategy]
+        this_strategy_cooldown = this_team_state["strategy_cooldown"][strategy_id]
         for index, value in enumerate(this_strategy_cooldown):
             if not value:  # replace cooldown 0 with strategy cooldown
                 this_strategy_cooldown[index] = stat["Cooldown"]

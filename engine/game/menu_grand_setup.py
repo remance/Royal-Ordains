@@ -1,3 +1,10 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.game.game import Game
+
 import gc
 from copy import deepcopy
 from random import randint
@@ -5,7 +12,7 @@ from random import randint
 from engine.constants import Culture_Policy_Integration
 
 
-def menu_grand_setup(self):
+def menu_grand_setup(self: Game):
     if self.setup_back_button.event_press or self.esc_press:  # back to start_set menu
         self.remove_from_ui_menu_updater(self.grand_menu_uis)
         self.grand_faction_selector.change_culture_preset(self.map_data.default_grand_faction)

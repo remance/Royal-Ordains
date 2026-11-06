@@ -1,3 +1,9 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.battle.battle import Battle
+
 import sys
 from random import choice, randint
 
@@ -8,7 +14,7 @@ from engine.battleobject.battleobject import StageObject
 from engine.character.character import BattleCharacter
 
 
-def event_process(self):
+def event_process(self: Battle):
     for event_index, child_event in enumerate(self.cutscene_playing.copy()):
         # play child events until found one that need waiting
         event_property = child_event["Property"]

@@ -1,9 +1,16 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.game.game import Game
+
 from copy import deepcopy
 
 from engine.constants import *
 
 
-def menu_custom_setup(self):
+def menu_custom_setup(self: Game):
     self.remove_from_ui_menu_updater(self.custom_army_info_popup, self.custom_army_title_popup)
     for team, team_bars in self.custom_team_army_button_bars.items():
         for index, bar in enumerate(team_bars):

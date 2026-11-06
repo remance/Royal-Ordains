@@ -1,11 +1,18 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.grand.grand import Grand
+
 from math import ceil
 
 from engine.constants import Diplomacy_Turn_Event_Gift
 
 
-def give_faction_gift(self, give_faction, receive_faction, which: str):
-    give_faction_state = self.current_campaign_state["faction"][give_faction]
-    receive_faction_state = self.current_campaign_state["faction"][receive_faction]
+def give_faction_gift(self: Grand, giver_faction_id: str, receiver_faction_id: str, which: str):
+    give_faction_state = self.current_campaign_state["faction"][giver_faction_id]
+    receive_faction_state = self.current_campaign_state["faction"][receiver_faction_id]
     if which == "gold":
         give_value = ceil(give_faction_state["gold"] * 0.1)
         receiver_diff = give_value / (receive_faction_state["gold"] + receive_faction_state["gold_income"])
@@ -24,5 +31,5 @@ def give_faction_gift(self, give_faction, receive_faction, which: str):
     else:
         diplomacy_value = 1
 
-    self.add_diplomacy_history_event(receive_faction, give_faction, "gift", diplomacy_value,
+    self.add_diplomacy_history_event(receiver_faction_id, giver_faction_id, "gift", diplomacy_value,
                                      Diplomacy_Turn_Event_Gift)

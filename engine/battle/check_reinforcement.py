@@ -1,9 +1,16 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.battle.battle import Battle
+
 from engine.battle.setup_team_characters import add_neutral_stage_character
 from engine.character.character import BattleCharacter
 from engine.constants import Default_Battle_Ground_Pos
 
 
-def check_reinforcement(self):
+def check_reinforcement(self: Battle):
     for condition_type in tuple(self.later_reinforcement.keys()):
         condition_data = self.later_reinforcement[condition_type]
         for condition in tuple(condition_data.keys()):

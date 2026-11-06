@@ -1,4 +1,12 @@
-def menu_lorebook(self):
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.game.game import Game
+
+
+def menu_lorebook(self: Game):
     if self.lorebook_back_button.event_press or self.esc_press:  # back to start_set menu
         self.remove_from_ui_menu_updater(self.lorebook_menu_uis)
         self.back_mainmenu()

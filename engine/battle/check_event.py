@@ -1,10 +1,17 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.battle.battle import Battle
+
 from copy import deepcopy
 from random import choice
 
 from pygame.mixer import Sound
 
 
-def check_event(self):
+def check_event(self: Battle):
     if self.event_list:
         event_list = self.event_list
         # check for event with camera reaching

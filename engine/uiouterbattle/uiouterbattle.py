@@ -144,7 +144,7 @@ class ScreenFade(UIOuterBattle):
                 self.text_surface = text_render_with_texture(self.text, self.font,
                                                              self.font_texture[self.use_font_texture])
             else:
-                self.text_surface = make_long_text(text, (font_size, font_size), self.font,
+                self.text_surface = make_long_text(text, self.font,
                                                    with_texture=(self.font_texture[self.use_font_texture], None),
                                                    specific_width=self.max_text_width, alignment="center")
 
@@ -589,7 +589,7 @@ class EventNotification(UIOuterBattle):
             event_icon = self.grand_ui_images[event[0]]
             self.image.blit(event_icon, event_icon.get_rect(topleft=(0, index * self.event_item_height)))
 
-            event_text = make_long_text(event[1], (0, 0), self.font,
+            event_text = make_long_text(event[1], self.font,
                                         with_texture=(None, ((30, 30, 30), (255, 255, 255), 2)),
                                         specific_width=self.max_text_width)
             self.image.blit(event_text, event_text.get_rect(topleft=(100 * self.screen_scale_width,

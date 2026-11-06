@@ -1,4 +1,12 @@
-def call_reinforcement(self, team, call_type, character_index):
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.battle.battle import Battle
+
+
+def call_reinforcement(self: Battle, team: int, call_type: str, character_index: int):
     if call_type == "leader":
         call_pool = self.team_state[team]["leader_call_list"]
         if team == 1:

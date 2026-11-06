@@ -1,7 +1,14 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.game.game import Game
+
 from engine.constants import Custom_Default_Culture
 
 
-def menu_main(self):
+def menu_main(self: Game):
     if self.custom_battle_button.event_press:
         self.menu_state = "custom"
         self.background = self.background_image["empty_background"]

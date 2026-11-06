@@ -51,10 +51,10 @@ def die(self, retreat=False):
             self.battle.team_state[self.team]["supply_reserve"] += self.supply * 0.5
             self.battle.team_state[self.enemy_team]["supply_reserve"] += self.supply * 0.25
 
-    if self.leader:  # remove self from leader stuff
-        if self.leader.alive:
-            self.leader.reset_commander_variables()
-        self.leader = None
+    if self.commander_character:  # remove self from leader stuff
+        if self.commander_character.alive:
+            self.commander_character.reset_commander_variables()
+        self.commander_character = None
 
     if self.spawns:
         for spawn_name, spawn_num in self.spawns.items():

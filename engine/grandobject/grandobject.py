@@ -4,9 +4,6 @@ from pygame.sprite import Sprite
 from engine.utils.common import clean_object
 
 
-# TODO add ongoing building/repair effect
-
-
 class GrandObject(Sprite):
     clean_object = clean_object
 
@@ -55,7 +52,8 @@ class GrandObject(Sprite):
                 self.image.blit(self.building_portraits["unique_damaged"]["building_ui"], (0, 0))
             if new_state[2]:  # constructing building
                 self.image.blit(self.building_portraits["unique_progress"]["building_ui"], (0, 0))
-
+            if not new_state[3]:  # inactive building from requirement not satisfied
+                self.image.blit(self.building_portraits["unique_unavailable"]["building_ui"], (0, 0))
 
 class SettlementObject(GrandObject):
     slot_rects = []

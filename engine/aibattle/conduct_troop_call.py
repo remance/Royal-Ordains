@@ -1,3 +1,10 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.battle.battle import BattleCommanderAI
+
 from random import uniform, random, choice
 
 troop_behaviour_class_to_call = {"attack_melee": ("melee_infantry", "flank_infantry", "mix_infantry", "melee_siege"),
@@ -9,7 +16,7 @@ troop_behaviour_class_to_call = {"attack_melee": ("melee_infantry", "flank_infan
                                                   "trap_infantry", "trap_siege")}
 
 
-def conduct_troop_call(self):
+def conduct_troop_call(self: BattleCommanderAI):
     """Conduct troop call based on info and commander personality"""
     # commander = self.commander
     current_info = self.current_info

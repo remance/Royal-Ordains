@@ -1,4 +1,11 @@
-def load_grand_campaign(self, campaign):
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.game.game import Game
+
+
+def load_grand_campaign(self: Game, campaign: str):
     self.loading_screen("Loading Campaign Data")  # add loading screen for different campaign load
     self.campaign = campaign
     self.map_data.load_campaign_data(campaign)

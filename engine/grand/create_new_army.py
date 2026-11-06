@@ -1,8 +1,16 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.grand.grand import Grand
+
 from engine.army.army import Army
 from engine.grandarmyactor.grandarmyactor import GrandArmyActor
 
 
-def create_new_army(self, faction_state, army_data, index="new", sort=True, no_assemble=False):
+def create_new_army(self: Grand, faction_state: dict, army_data: dict, index: (str, int) = "new",
+                    sort: bool = True, no_assemble: bool = False):
     """Create new active army"""
     faction_army_state = faction_state["army"]
     if index == "new":

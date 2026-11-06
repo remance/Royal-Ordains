@@ -1,4 +1,13 @@
-def setup_new_army_arrive(self, army, team):
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.army.army import Army
+    from engine.battle.battle import Battle
+
+
+def setup_new_army_arrive(self: Battle, army: Army, team: int):
     battle_character_list = []
     team_state = self.team_state[team]
 
@@ -6,7 +15,7 @@ def setup_new_army_arrive(self, army, team):
     if team_state["active_leader"] < 3:
         if army.army_followers["leader"]:
             for leader in [item[0] for item in army.army_followers["leader"] if item and item[1]]:
-                strategy = self.stat_data.character_list[leader]["Strategy"]
+                strategy = self.character_list[leader]["Strategy"]
                 if self.strategy_list[strategy]["Summon"]:
                     battle_character_list += list(self.strategy_list[strategy]["Summon"].keys())
 

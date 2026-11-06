@@ -31,10 +31,11 @@ class BattleCommanderAI:
         self.current_weather = self.battle.current_weather
         self.activate_strategy = self.battle.activate_strategy
         self.character_list = self.battle.character_list
-        self.commander = self.battle.team_commander[team]
-        self.enemy_commander = self.battle.team_commander[self.enemy_team]
+        self.commander_character = self.battle.team_commander[team]
+        self.enemy_commander_character = self.battle.team_commander[self.enemy_team]
         self.team_state = self.battle.team_state[team]
         self.enemy_team_state = self.battle.team_state[self.enemy_team]
+        self.enemy_strategy = ()
 
         self.ground_enemy_collision_grids = self.battle.all_team_ground_enemy_collision_grids[self.team]
         self.air_enemy_collision_grids = self.battle.all_team_air_enemy_collision_grids[self.team]
@@ -68,8 +69,8 @@ class BattleCommanderAI:
         self.commander_air_prefer = 1
         self.commander_leader_prefer = 1
         self.rush_plan_score = 0
-        if self.commander:
-            commander_stat = self.character_list[self.commander.char_id]
+        if self.commander_character:
+            commander_stat = self.character_list[self.commander_character.char_id]
             self.aggressive = commander_stat["Commander AI Aggressiveness"]
             self.defensive = 10 - self.aggressive
             self.clever = commander_stat["Commander AI Cleverness"]
@@ -106,7 +107,7 @@ class BattleCommanderAI:
         self.start_pos = self.battle.team_state[self.team]["start_pos"]
 
     def update(self, dt):
-        if self.commander.alive:
+        if self.commander_character.alive:
             self.think_timer += dt
             if self.think_timer >= self.think_time:
                 self.think_timer -= self.think_time

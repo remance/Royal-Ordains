@@ -1,7 +1,13 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.grand.grand import Grand
+
 from pygame import Vector2
 
 
-def fix_camera(self):
+def fix_camera(self: Grand):
     if self.camera_topleft_pos[0] > self.map_x_end:  # camera cannot go further than max x
         self.camera_topleft_pos[0] = self.map_x_end
     elif self.camera_topleft_pos[0] < 0:  # camera does not move beyond left corner scene

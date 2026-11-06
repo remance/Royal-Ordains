@@ -65,7 +65,7 @@ def recursive_convert_line_item(result, item, first_run):
             line += [x for x in line_split[0]]
 
 
-def make_long_text(text, indent_pos, font, color=(30, 30, 30), with_texture=(),
+def make_long_text(text, font, indent_pos=(0, 0), color=(30, 30, 30), with_texture=(),
                    specific_width=None, alignment="left"):
     """
     Blit long text into separate row of text by blitting text word by word
@@ -79,11 +79,8 @@ def make_long_text(text, indent_pos, font, color=(30, 30, 30), with_texture=(),
     """
     # TODO Add sizing and colouring for highlight and maybe URL system
     font_render = font.render
-    x, y = [0, indent_pos[1]]
-    true_x = indent_pos[0]
-    word_height = font.size("Ag")[1]
-    if with_texture:
-        word_height = text_render_with_texture("Ag", font, with_texture[0], with_bg=with_texture[1]).get_height()
+    x, y = [indent_pos[0], indent_pos[1]]
+
     max_width = infinity
     if specific_width:
         max_width = specific_width
@@ -91,7 +88,6 @@ def make_long_text(text, indent_pos, font, color=(30, 30, 30), with_texture=(),
     line_surfaces = {}
     new_text = []
     recursive_convert_line_item(new_text, text, True)
-
     for line in new_text:  # create surface for each line
         this_line_word_surface_list = {}
         max_height_this_text_line = []
@@ -102,7 +98,7 @@ def make_long_text(text, indent_pos, font, color=(30, 30, 30), with_texture=(),
         for index, word in enumerate(line):
             if type(word) is Surface:  # image, not text
                 word_surface = word
-                word_width = word_surface.get_width()
+                word_width = word_surface.get_width() + space
             else:  # text
                 if not with_texture:
                     word_surface = font_render(word, True, color)
@@ -114,9 +110,9 @@ def make_long_text(text, indent_pos, font, color=(30, 30, 30), with_texture=(),
                 #     # attach image after word to total word width so they are in the same line
                 #     word_width += line[index + 1].get_width()
 
-            if true_x + word_width >= max_width:  # this word exceed max_width, start new line
+            word_height = word_surface.get_height()
+            if x + word_width >= max_width:  # this word exceed max_width, start new line
                 x = 0  # reset x
-                true_x = indent_pos[0]
                 inline_y += word_height
                 y += word_height
                 max_height_this_text_line.append(word_height)
@@ -126,7 +122,6 @@ def make_long_text(text, indent_pos, font, color=(30, 30, 30), with_texture=(),
             this_line_word_surface_list[inline_y][x] = word_surface
 
             x += word_width
-            true_x += word_width
             max_width_this_text_line.append(x)
         max_height_this_text_line.append(word_height)
 
@@ -139,7 +134,6 @@ def make_long_text(text, indent_pos, font, color=(30, 30, 30), with_texture=(),
         line_surfaces[start_line_y] = line_surface
         y += sum(max_height_this_text_line)
         x = 0  # reset x
-        true_x = indent_pos[0]
 
     if specific_width:
         surface_width = specific_width

@@ -1,3 +1,9 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.game.game import Game
+
 import pygame
 
 from engine.character.character import BattleCharacter
@@ -6,7 +12,7 @@ from engine.uioutergrand.uioutergrand import DiplomacyHead
 from engine.utils.common import edit_config
 
 
-def menu_option(self):
+def menu_option(self: Game):
     if self.resolution_bar.adapter.last_click and self.resolution_bar.adapter.last_click[0] == "click":
         change_resolution(self,
                           resolution_change=self.resolution_list[
@@ -72,13 +78,11 @@ def menu_option(self):
         if not self.easy_text_box.tick:
             self.easy_text_box.change_tick(True)
             CharacterSpeechBox.simple_font = True
-            DiplomacyHead.simple_font = True
             edit_config("USER", "easy_text", 1, self.config_path,
                         self.config)
         else:
             self.easy_text_box.change_tick(False)
             CharacterSpeechBox.simple_font = False
-            DiplomacyHead.simple_font = False
             edit_config("USER", "easy_text", 0, self.config_path,
                         self.config)
 
@@ -97,7 +101,7 @@ def menu_option(self):
     else:
         for key, value in self.option_menu_sliders.items():
             if value.event:  # press on slider bar
-                value.player_input(self.value_boxes[key])  # update slider button based on mouse value
+                value.player_input()  # update slider button based on mouse value
                 edit_config("USER", key + "_volume", value.value, self.config_path,
                             self.config)
                 self.change_sound_volume()

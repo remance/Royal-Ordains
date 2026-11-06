@@ -1,9 +1,16 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.game.game import Game
+
 from random import randint
 
 import pygame
 
 
-def loading_screen(self, state):
+def loading_screen(self: Game, state: str):
     if state == "start":
         self.screen.fill((0, 0, 0))
         text_surface = self.screen_fade_font.render("Loading", True, (255, 255, 255))

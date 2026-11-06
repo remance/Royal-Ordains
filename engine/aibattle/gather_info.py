@@ -1,3 +1,10 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.battle.battle import BattleCommanderAI
+
 from operator import itemgetter
 from random import sample
 
@@ -15,50 +22,50 @@ Cleverness 9 = add enemy strategy info, useful for distancing placement
 """
 
 
-def clever0_gather_info(self):
+def clever0_gather_info(self: BattleCommanderAI):
     pass
 
 
-def clever1_gather_info(self):
+def clever1_gather_info(self: BattleCommanderAI):
     return gather_info_basic(self)
 
 
-def clever2_gather_info(self):
+def clever2_gather_info(self: BattleCommanderAI):
     info_dict = clever1_gather_info(self)
     return info_dict | gather_info_enemy_air(self)
 
 
-def clever3_gather_info(self):
+def clever3_gather_info(self: BattleCommanderAI):
     info_dict = clever2_gather_info(self)
     return info_dict | gather_info_power(self)
 
 
-def clever4_gather_info(self):
+def clever4_gather_info(self: BattleCommanderAI):
     info_dict = clever3_gather_info(self)
     return info_dict | gather_info_density(self)
 
 
-def clever5_gather_info(self):
+def clever5_gather_info(self: BattleCommanderAI):
     info_dict = clever4_gather_info(self)
     return info_dict | gather_info_enemy_commander(self)
 
 
-def clever6_gather_info(self):
+def clever6_gather_info(self: BattleCommanderAI):
     info_dict = clever5_gather_info(self)
     return info_dict | gather_info_status(self)
 
 
-def clever7_gather_info(self):
+def clever7_gather_info(self: BattleCommanderAI):
     info_dict = clever6_gather_info(self)
     return info_dict | gather_info_weather(self)
 
 
-def clever8_gather_info(self):
+def clever8_gather_info(self: BattleCommanderAI):
     info_dict = clever7_gather_info(self)
     return info_dict | gather_info_enemy_strategy(self)
 
 
-def clever9_gather_info(self):
+def clever9_gather_info(self: BattleCommanderAI):
     info_dict = clever8_gather_info(self)
     return info_dict | gather_info_supply(self)
 
@@ -69,14 +76,14 @@ clever_gather_info_level = {0: clever0_gather_info, 1: clever1_gather_info, 2: c
                             9: clever9_gather_info, 10: clever8_gather_info}
 
 
-def gather_info_basic(self):  # clever 1
+def gather_info_basic(self: BattleCommanderAI):  # clever 1
     """Gather basic information of their own commander
     Shuffle strategy list so available strategies are given random priority to be used"""
-    start_pos = self.commander.start_pos
+    start_pos = self.commander_character.start_pos
     strategy_list = [strategy for strategy in self.own_strategy if
                      not min(self.team_state["strategy_cooldown"][strategy]) and
                      self.strategy_list[strategy]["Resource Cost"] <= self.team_state["strategy_resource"]]
-    info = {"commander_health": self.commander.health / self.commander.base_health,
+    info = {"commander_health": self.commander_character.health / self.commander_character.base_health,
             "available_strategy": sample(strategy_list, len(strategy_list)),
             }
 
@@ -90,14 +97,14 @@ def gather_info_basic(self):  # clever 1
     return info
 
 
-def gather_info_enemy_air(self):  # clever 2
+def gather_info_enemy_air(self: BattleCommanderAI):  # clever 2
     air_group = check_air_group(self, self.enemy_team)
     if air_group:
         return {"enemy_air_group": air_group}
     return {}
 
 
-def gather_info_power(self):  # clever 3
+def gather_info_power(self: BattleCommanderAI):  # clever 3
     # battle_scale = self.battle.battle_scale[self.team] / sum(self.battle.battle_scale)
 
     # offence_power_comparison = [1, 1]
@@ -107,17 +114,17 @@ def gather_info_power(self):  # clever 3
     # total_enemy = 0
     #
     # total_enemy += 1 + self.enemy_commander.max_followers_len_check
-    if self.enemy_commander and self.enemy_commander.alive:
+    if self.enemy_commander_character and self.enemy_commander_character.alive:
         # offence_power_comparison[1] += self.enemy_commander.total_offence_power_score
         # defence_power_comparison[1] += self.enemy_commander.total_defence_power_score
         # range_power_comparison[1] += self.enemy_commander.total_range_power_score
-        total_power_comparison[1] += self.enemy_commander.total_power_score
+        total_power_comparison[1] += self.enemy_commander_character.total_power_score
 
-    if self.commander and self.commander.alive:
+    if self.commander_character and self.commander_character.alive:
         # offence_power_comparison[0] += self.commander.total_offence_power_score
         # defence_power_comparison[1] += self.commander.total_defence_power_score
         # range_power_comparison[0] += self.commander.total_range_power_score
-        total_power_comparison[0] += self.commander.total_power_score
+        total_power_comparison[0] += self.commander_character.total_power_score
 
     # offence_power_comparison = offence_power_comparison[0] / offence_power_comparison[1]
     # defence_power_comparison = defence_power_comparison[0] / defence_power_comparison[1]
@@ -130,7 +137,7 @@ def gather_info_power(self):  # clever 3
     return {"total_power_comparison": total_power_comparison[0] / total_power_comparison[1] * 100}
 
 
-def gather_info_density(self):  # clever 4
+def gather_info_density(self: BattleCommanderAI):  # clever 4
     # enemy_ground_density = [len(value) for value in self.ground_enemy_collision_grids[-1]]
     # enemy_air_density = [len(value) for value in self.air_enemy_collision_grids]
     #
@@ -144,15 +151,15 @@ def gather_info_density(self):  # clever 4
     return {"density": True}
 
 
-def gather_info_enemy_commander(self):  # clever 5
-    if self.enemy_commander.alive:
-        return {"enemy_commander_pos": self.enemy_commander.base_pos[0],
-                "enemy_commander_health": self.enemy_commander.health / self.enemy_commander.base_health}
+def gather_info_enemy_commander(self: BattleCommanderAI):  # clever 5
+    if self.enemy_commander_character.alive:
+        return {"enemy_commander_pos": self.enemy_commander_character.base_pos[0],
+                "enemy_commander_health": self.enemy_commander_character.health / self.enemy_commander_character.base_health}
     return {"enemy_commander_pos": 100000000000000,
             "enemy_commander_health": 0}
 
 
-def gather_info_status(self):  # clever 6
+def gather_info_status(self: BattleCommanderAI):  # clever 6
     can_cure = []
     can_clarity = []
     if self.has_cure_strategy and self.has_clarity_strategy:
@@ -166,23 +173,23 @@ def gather_info_status(self):  # clever 6
     return {"can_cure": can_cure, "can_clarity": can_clarity}
 
 
-def gather_info_supply(self):  # clever 7
+def gather_info_supply(self: BattleCommanderAI):  # clever 7
     return {"future_supply": self.team_state["supply_reserve"],
             "enemy_supply": (self.enemy_team_state["supply_resource"], self.enemy_team_state["supply_reserve"])}
 
 
-def gather_info_weather(self):  # clever 8
+def gather_info_weather(self: BattleCommanderAI):  # clever 8
     return {"weather": self.battle.current_weather.weather_type}
 
 
-def gather_info_enemy_strategy(self):  # clever 9
+def gather_info_enemy_strategy(self: BattleCommanderAI):  # clever 9
     return {"available_enemy_strategy": [strategy for strategy in self.enemy_strategy if
                                          not min(self.enemy_team_state["strategy_cooldown"][strategy]) and
                                          self.strategy_list[strategy]["Resource Cost"] <=
                                          self.enemy_team_state["strategy_resource"]]}
 
 
-def check_air_group(self, team):
+def check_air_group(self: BattleCommanderAI, team: int):
     air_group = {True: {"interceptor": {}, "fighter": {}, "bomber": {}},
                  False: {"interceptor": {}, "fighter": {}, "bomber": {}}}
     for index, group in enumerate(self.battle.team_state[team]["air_group"]):

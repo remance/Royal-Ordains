@@ -1,10 +1,17 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.battle.battle import Battle
+
 from engine.character.character import Character, BattleCharacter, CommanderBattleCharacter
 from engine.constants import Default_Battle_Ground_Pos, Default_Battle_Float_Pos, Default_Battle_Air_Pos
 
 team_start_x_distance = 600
 
 
-def setup_team_characters(self, stage_data):
+def setup_team_characters(self: Battle, stage_data: dict):
     """Setup all characters at the start of battle, not used for character spawn afterward"""
     for team, team_state in self.team_state.items():
         if "unit" in team_state:

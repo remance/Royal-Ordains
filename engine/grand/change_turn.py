@@ -1,8 +1,15 @@
-from random import uniform, choice
-from engine.constants import Culture_Policy_Integration
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.grand.grand import Grand
+
+from random import uniform
+from engine.constants import Culture_Policy_Integration, Culture_Policy_Difference_Relation, Culture_Policy_Key
 
 
-def change_turn(self, turn_change=True):
+def change_turn(self: Grand, turn_change: bool = True):
     """
     Update campaign state when turn change
     @param self: Grand object
@@ -16,7 +23,7 @@ def change_turn(self, turn_change=True):
     campaign_battle_state = current_campaign_state["battle"]
     for faction, faction_state in campaign_faction_state.items():
         if faction != "free":
-            # update diplomacy relation  # TODO add cultural policy difference
+            # update diplomacy relation
             for diplomacy_value in faction_state["diplomacy"].values():
                 diplomacy_value["value"] = 0
                 for index, history in enumerate(tuple(diplomacy_value["history"])):
@@ -25,6 +32,18 @@ def change_turn(self, turn_change=True):
                         diplomacy_value["value"] += diplomacy_value["history"][index][1]
                     else:
                         diplomacy_value["history"].pop(index)
+            if faction != self.player_faction:  # no need to add diplomacy difference for player
+                for culture, culture_state in faction_state["culture"].items():
+                    culture_policy_index = Culture_Policy_Key.index(culture_state["policy"])
+                    for faction2, faction_state2 in campaign_faction_state.items():
+                        if faction2 != faction:
+                            if culture in faction_state2["culture"]:
+                                # difference event last 1 turn but added every turn
+                                self.add_diplomacy_history_event(faction2, faction, "culture_difference",
+                                                                 Culture_Policy_Difference_Relation[
+                                                                     abs(culture_policy_index - Culture_Policy_Key.index(
+                                                                         culture_state["policy"]))], 1)
+
             self.cal_faction_culture(faction)
 
             for region in faction_state["region"]:

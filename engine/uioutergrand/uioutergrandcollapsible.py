@@ -596,6 +596,7 @@ class PresetArmyReserveList(GrandListUI, UIOuterGrand):
                                                 army_setup_ui.reset(active=False)
                                                 grand.grand_character_selector_ui.add(None)
                                                 grand.grand_reserve_army_title.change_text("")
+                                                grand.grand_army_deploy_management_ui.reset(None)
                                             hover_over_army.remove_army_from_reserve()
                                             self.create_cards_surface()
                                             return
@@ -662,6 +663,7 @@ class PresetArmyReserveList(GrandListUI, UIOuterGrand):
                                                                            hover_over_army.total_supply_usage,
                                                                            hover_over_army.leadership,
                                                                            hover_over_army.upkeep)
+                                grand.grand_character_selector_ui.add(None)
                         else:
                             if self.event_press:  # click at first new army card, create new reserve army
                                 army_setup_ui = grand.grand_reserve_army_setup_ui
@@ -916,11 +918,12 @@ class PresetArmyGrandCharacterSelector(CharacterSelector, UIOuterGrand):
                         if self.event_press:
                             army_setup_ui = grand.grand_reserve_army_setup_ui
                             selected_portrait = army_setup_ui.selected_portrait_index
-                            army_setup_ui.change_character(selected_portrait[0].capitalize() + " " +
-                                                           str(selected_portrait[1] + 1),
-                                                           character_id)
-                            if selected_portrait[0] in ("leader", "commander"):
-                                self.add(selected_portrait[0])  # reset character list to update hero adding if any
+                            if selected_portrait:
+                                army_setup_ui.change_character(selected_portrait[0].capitalize() + " " +
+                                                               str(selected_portrait[1] + 1),
+                                                               character_id)
+                                if selected_portrait[0] in ("leader", "commander"):
+                                    self.add(selected_portrait[0])  # reset character list to update hero adding if any
                         elif self.event_alt_press:  # remove character from reserved army
                             pass
 
@@ -987,7 +990,7 @@ class CultureManagement(GrandListUI, UIOuterGrand):
         self.max_row = 5
         self.max_row_show = 1  # trick the scroller to use additional row instead of total
 
-        self.card_rects = [self.empty_card_image.get_rect(topleft=(0, (250 + (100 * y)) * self.screen_scale_height)) for
+        self.card_rects = [self.empty_card_image.get_rect(topleft=(0, (250 + (250 * y)) * self.screen_scale_height)) for
                            y in range(self.max_row)]
 
     def create_cards_surface(self):
@@ -1050,50 +1053,68 @@ class CultureManagement(GrandListUI, UIOuterGrand):
                     self.add_to_outer_ui_menu_updater(text_popup)
                 else:
                     for rect_index, rect in enumerate(self.card_rects):
-                        index = rect_index + self.current_row
-                        inside_card_mouse_pos = Vector2(
-                            (inside_mouse_pos[0] - rect.topleft[0]),
-                            (inside_mouse_pos[1] - rect.topleft[1]))
-                        for button_key, button_rect in self.card_button_rects.items():
-                            if button_rect.collidepoint(inside_card_mouse_pos):
-                                if self.event_press:
-                                    if button_key not in ("portrait", "info"):
-                                        player_state_culture = \
-                                        grand.current_campaign_state["faction"][grand.player_faction]["culture"]
-                                        culture = tuple(player_state_culture.keys())[index]
-                                        if player_state_culture[culture]["policy"] != button_key:
-                                            player_state_culture[culture]["policy"] = button_key
-                                            grand.grand_faction_culture_list_ui.culture_change()
-                                            self.create_culture_card(culture, player_state_culture[culture])
-                                            self.draw_card_list_to_ui(
-                                                grand.current_campaign_state["faction"][grand.player_faction][
-                                                    "culture"])
-                                else:
-                                    text_popup = self.text_popup
-                                    grab_text = self.grab_text
-                                    if button_key == "portrait":
-                                        player_state_culture = \
-                                            grand.current_campaign_state["faction"][grand.player_faction]["culture"]
-                                        culture = tuple(player_state_culture.keys())[index]
-                                        text_popup.popup(cursor.rect,
-                                                         (grab_text(("culture", culture, "Name")), "",
-                                                          grab_text(("culture", culture, "Description"))),
-                                                         width_text_wrapper=self.max_description_box_width)
-                                        self.add_to_outer_ui_menu_updater(text_popup)
+                        if rect.collidepoint(inside_mouse_pos):
+                            index = rect_index + self.current_row
+                            inside_card_mouse_pos = Vector2(
+                                (inside_mouse_pos[0] - rect.topleft[0]),
+                                (inside_mouse_pos[1] - rect.topleft[1]))
+                            for button_key, button_rect in self.card_button_rects.items():
+                                if button_rect.collidepoint(inside_card_mouse_pos):
+                                    if self.event_press:
+                                        if button_key not in ("portrait", "info"):
+                                            player_state_culture = \
+                                                grand.current_campaign_state["faction"][grand.player_faction]["culture"]
+                                            culture = tuple(player_state_culture.keys())[index]
+                                            if player_state_culture[culture]["policy"] != button_key:
+                                                player_state_culture[culture]["policy"] = button_key
+                                                grand.grand_faction_culture_list_ui.culture_change()
+                                                self.create_culture_card(culture, player_state_culture[culture])
+                                                self.draw_card_list_to_ui(
+                                                    grand.current_campaign_state["faction"][grand.player_faction][
+                                                        "culture"])
                                     else:
-                                        text_popup.popup(cursor.rect,
-                                                         (grab_text(("ui", "info_text_culture_" + button_key)), "",
-                                                          grab_text(("ui",
-                                                                     "info_text_culture_" + button_key + "_description")),
-                                                          "",
-                                                          grab_text(("ui", "info_header_integration_capacity")) +
-                                                          str(convert_modifier_number_to_percent_text(
-                                                              Culture_Policy_Integration[button_key]) + "%")),
-                                                         width_text_wrapper=self.max_description_box_width)
+                                        text_popup = self.text_popup
+                                        grab_text = self.grab_text
+                                        if button_key == "portrait":
+                                            player_state_culture = \
+                                                grand.current_campaign_state["faction"][grand.player_faction]["culture"]
+                                            culture = tuple(player_state_culture.keys())[index]
+                                            text = [grab_text(("culture", culture, "Name")), "",
+                                                    grab_text(("culture", culture, "Description"))]
 
-                                        self.add_to_outer_ui_menu_updater(text_popup)
-                                return
-                        return
+                                            this_culture_coexistence_modifier = grand.culture_list[culture][
+                                                "Coexistence Modifier"]
+                                            like_list = []
+                                            hate_list = []
+                                            if this_culture_coexistence_modifier:
+                                                for key, value in this_culture_coexistence_modifier.items():
+                                                    if value < 0:
+                                                        hate_list.append(key)
+                                                    else:
+                                                        like_list.append(key)
+                                            if like_list:
+                                                text.append([grab_text(("ui", "info_header_coexist_like"))] + [
+                                                    grand.sprite_data.culture_coas[item]["text"] for item in like_list])
+                                            if hate_list:
+                                                text.append([grab_text(("ui", "info_header_coexist_hate"))] + [
+                                                    grand.sprite_data.culture_coas[item]["text"] for item in hate_list])
+                                            text_popup.popup(cursor.rect, text,
+                                                             width_text_wrapper=self.max_description_box_width)
+                                            self.add_to_outer_ui_menu_updater(text_popup)
+                                        else:
+                                            text = [grab_text(("ui", "info_text_culture_" + button_key)), "",
+                                                    grab_text(
+                                                        ("ui", "info_text_culture_" + button_key + "_description")),
+                                                    "",
+                                                    grab_text(("ui", "info_header_integration_capacity")) +
+                                                    str(convert_modifier_number_to_percent_text(
+                                                        Culture_Policy_Integration[button_key]) + "%")]
+                                            text_popup.popup(cursor.rect, text,
+                                                             width_text_wrapper=self.max_description_box_width)
+
+                                            self.add_to_outer_ui_menu_updater(text_popup)
+                                    return
+                            return
 
         elif self.cursor.event and not grand.grand_faction_culture_list_ui.mouse_over:
             self.remove_from_outer_ui_menu_updater(grand.culture_management_uis)
@@ -1105,7 +1126,7 @@ class ArmyDeployManagement(UIOuterGrand):
         UIOuterGrand.__init__(self)
         self.font = self.game.generic_ui_font
         self.header_font = self.game.large_generic_ui_font
-        self.image = Surface((int(2500 * self.screen_scale_width), int(250 * self.screen_scale_height)), SRCALPHA)
+        self.image = Surface((int(self.screen_width * 0.7), int(250 * self.screen_scale_height)), SRCALPHA)
         self.image.fill((150, 150, 150))
         self.image_center_x = self.image.get_width() / 2
         self.showing_army_game_id = None
@@ -1113,7 +1134,7 @@ class ArmyDeployManagement(UIOuterGrand):
         self.rect = self.image.get_rect(bottomleft=pos)
         self.player_selected_region = None
         self.button_rects = {"deploy": self.grand_ui_images["deploy_button"].get_rect(
-            midright=(self.image.get_width(), self.image.get_height() / 2))}
+            bottomright=(self.image.get_width(), self.image.get_height()))}
 
         self.portrait_button_rects = []
         self.portrait_button_showing = [None] * 14
@@ -1121,6 +1142,9 @@ class ArmyDeployManagement(UIOuterGrand):
             self.portrait_button_rects.append(self.character_portraits["default"]["tiny"]["right"].get_rect(
                 topleft=(
                 (50 + (180 * portrait_button_index)) * self.screen_scale_width, 100 * self.screen_scale_height)))
+
+        for index, rect in enumerate(self.portrait_button_rects):
+            self.button_rects[index] = rect
 
         self.base_image = self.image.copy()
         self.max_supply = 10000
@@ -1140,6 +1164,8 @@ class ArmyDeployManagement(UIOuterGrand):
                                                                  20 * self.screen_scale_height))
         image.blit(region_name_surface, region_name_rect)
 
+        self.portrait_button_showing = [None] * 14
+
         if army_game_id:
             for army in grand.current_campaign_state["faction"][grand.player_faction]["reserve"]:
                 if army.game_id == army_game_id:
@@ -1149,10 +1175,11 @@ class ArmyDeployManagement(UIOuterGrand):
                     if army.commander_id:
                         image.blit(self.character_portraits[army.commander_id]["tiny"]["right"],
                                    self.portrait_button_rects[0])
-                        number_text = make_long_text(("0", self.grand_ui_images["turn"]), (0, 0), self.header_font,
+                        number_text = make_long_text(("0", self.grand_ui_images["turn"]), self.header_font,
                                                      with_texture=(None, ((20, 20, 20), (255, 255, 255), 2)))
                         image.blit(number_text, number_text.get_rect(
                             midtop=self.portrait_button_rects[0].center))
+                        self.portrait_button_showing[0] = (army.commander_id, self.player_selected_region)
 
                     if army.can_assemble:
                         text_surface = text_render_with_bg(" (" +
@@ -1171,14 +1198,21 @@ class ArmyDeployManagement(UIOuterGrand):
 
                         list_index = 1
                         for follower, assemble_time in army.can_assemble.items():
-                            self.portrait_button_showing[list_index] = (army.army_followers[follower[0]][follower[1]],
-                                                                        assemble_time)
+                            self.portrait_button_showing[list_index] = (
+                            army.army_followers[follower[0]][follower[1]][0],
+                            follower[2])
                             number_text = make_long_text((self.grab_text(str(int(assemble_time / Turn_To_Phase))),
-                                                          self.grand_ui_images["turn"]), (0, 0), self.header_font,
+                                                          self.grand_ui_images["turn"]), self.header_font,
                                                          with_texture=(None, ((20, 20, 20), (255, 255, 255), 2)))
                             image.blit(number_text, number_text.get_rect(
                                 midtop=self.portrait_button_rects[list_index].center))
                             list_index += 1
+                    else:
+                        text_surface = text_render_with_bg(" (" +
+                                                           self.grab_text(("ui",
+                                                                           "info_header_assemble_complete_time")) + "0 " + self.grab_text(
+                            ("ui", "info_text_phases")) + ")", self.header_font)
+                        image.blit(text_surface, text_surface.get_rect(topleft=region_name_rect.topright))
                     break
 
             image.blit(self.grand_ui_images["deploy_button"], self.button_rects["deploy"])
@@ -1219,6 +1253,15 @@ class ArmyDeployManagement(UIOuterGrand):
                                              grab_text(("ui", "info_text_deploy_army")),
                                              width_text_wrapper=self.max_description_box_width)
                             self.add_to_outer_ui_menu_updater(text_popup)
+                        elif type(button_key) is int:  # portrait
+                            character_deploy_info = self.portrait_button_showing[button_key]
+                            if character_deploy_info:
+                                text_popup.popup(cursor.rect,
+                                                 (grab_text(("character", character_deploy_info[0], "Name")),
+                                                  grab_text(("ui", "info_header_recruit_from")) +
+                                                  grab_text(("region", character_deploy_info[1], "Name"))),
+                                                 width_text_wrapper=self.max_description_box_width)
+                                self.add_to_outer_ui_menu_updater(text_popup)
                     return
 
 
@@ -1273,8 +1316,9 @@ class RegionManagement(UIOuterGrand):
 
         culture_coa = self.culture_coas["default"]["tiny"]
         self.culture_coa_rects = [culture_coa.get_rect(topleft=(
-            (30 + (50 * row)) * self.screen_scale_width, (500 + (50 * col)) * self.screen_scale_height)) for
-            col in range(3) for row in range(3)]
+            (50 + (250 * col)) * self.screen_scale_width, (500 + (200 * row)) * self.screen_scale_height)) for row in
+            range(3) for
+            col in range(2)]
 
         self.building_button_rects = {}
 
@@ -1300,26 +1344,28 @@ class RegionManagement(UIOuterGrand):
         additional_building_type_file_head = ""
         if self.building_list[building_state[0]]["Type"] == "unique":
             additional_building_type_file_head = "unique_"
-        if building_state[1] is not True or building_state[2]:
-            if not building_state[1]:  # damaged building
-                image.blit(building_portraits[additional_building_type_file_head + "damaged"]["building_ui"],
-                                self.building_slot_rects[index])
 
-            if building_state[2]:  # building on progress with something
-                image.blit(building_portraits[additional_building_type_file_head + "progress"]["building_ui"],
-                                self.building_slot_rects[index])
-                if building_state[1] == "raze":
-                    image.blit(building_portraits["unavailable_raze"]["building_ui"],
-                                    self.building_slot_rects[index])
-                elif building_state[1] == "pillage":
-                    image.blit(building_portraits["unavailable_pillage"]["building_ui"],
-                                    self.building_slot_rects[index])
-                else:  # repair
-                    image.blit(building_portraits["unavailable_repair"]["building_ui"],
-                                    self.building_slot_rects[index])
+        if not building_state[1]:  # damaged building
+            image.blit(building_portraits[additional_building_type_file_head + "damaged"]["building_ui"],
+                       self.building_slot_rects[index])
+        if not building_state[3]:  # building not satisfy requirement
+            image.blit(building_portraits[additional_building_type_file_head + "unavailable"]["building_ui"],
+                       self.building_slot_rects[index])
+        if building_state[2]:  # building on progress with something
+            image.blit(building_portraits[additional_building_type_file_head + "progress"]["building_ui"],
+                       self.building_slot_rects[index])
+            if building_state[1] == "raze":
+                image.blit(building_portraits["unavailable_raze"]["building_ui"],
+                           self.building_slot_rects[index])
+            elif building_state[1] == "pillage":
+                image.blit(building_portraits["unavailable_pillage"]["building_ui"],
+                           self.building_slot_rects[index])
+            else:  # repair
+                image.blit(building_portraits["unavailable_repair"]["building_ui"],
+                           self.building_slot_rects[index])
 
-                turn_left = self.header_font.render(str(building_state[2]), True, (255, 255, 255))
-                image.blit(turn_left, turn_left.get_rect(midbottom=self.building_slot_rects[index].midbottom))
+            turn_left = self.header_font.render(str(building_state[2]), True, (255, 255, 255))
+            image.blit(turn_left, turn_left.get_rect(midbottom=self.building_slot_rects[index].midbottom))
 
     def change_selected_region(self, region):
         if self.player_selected_region != region:
@@ -1412,11 +1458,26 @@ class RegionManagement(UIOuterGrand):
 
         self.selected_building_index = building_index
 
-    def popup_building_info(self, building):
+    def popup_building_info(self, building, building_state=()):
         building_stat = self.building_list[building]
         grab_text = self.grab_text
-        text = [grab_text(("building", building, "Name")), "",
-                (grab_text(("ui", "info_header_cost")) + str(building_stat["Cost"]),
+        text = [grab_text(("building", building, "Name")), "", ]
+
+        if building_state:
+            add_empty_line_at_the_end = False
+            if building_state[2]:
+                add_empty_line_at_the_end = True
+                text.append((grab_text(("ui", "info_text_building_change"))))
+            if not building_state[1]:
+                add_empty_line_at_the_end = True
+                text.append((grab_text(("ui", "info_text_building_damaged"))))
+            if not building_state[3]:
+                add_empty_line_at_the_end = True
+                text.append((grab_text(("ui", "info_text_building_inactive"))))
+            if add_empty_line_at_the_end:
+                text.append("")
+
+        text += [(grab_text(("ui", "info_header_cost")) + str(building_stat["Cost"]),
                  self.grand_ui_images["gold"]),
                 (grab_text(("ui", "info_header_build_time")) + str(building_stat["Build Time"]),
                  self.grand_ui_images["turn"])]
@@ -1542,10 +1603,10 @@ class RegionManagement(UIOuterGrand):
                 region_buildings = current_campaign_state["region"][self.player_selected_region]["building"]
                 for building_index, rect in enumerate(self.building_slot_rects):
                     if rect.collidepoint(inside_mouse_pos) and building_index < len(region_buildings):
+                        region_building_state = region_buildings[building_index]
                         if self.event_press:
                             self.change_selected_building(building_index)
                         elif self.event_alt_press:
-                            region_building_state = region_buildings[building_index]
                             if region_building_state[1] is False or (
                                     region_building_state[1] is True and region_building_state[2]):
                                 # stop construction or repair on damaged building
@@ -1559,7 +1620,7 @@ class RegionManagement(UIOuterGrand):
                                                                       building_index)
                             self.change_selected_building(building_index)
                         else:
-                            self.popup_building_info(region_buildings[building_index][0])
+                            self.popup_building_info(region_buildings[building_index][0], region_building_state)
                         break
 
 

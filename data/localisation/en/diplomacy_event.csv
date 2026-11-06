@@ -1,8 +1,7 @@
 "ID","Name"
 "battle","Battle(s)"
 "region_occupy","Take their region(s)"
-"bad_culture_accept","Accept culture(s) they reject"
-"good_culture_reject","Reject culture(s) they accept"
+"culture_difference","Cultural difference"
 "gift","Gifts"
 ,
 ,

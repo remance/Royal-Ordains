@@ -1,4 +1,12 @@
-def assign_key(self, key_assign):
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.game.game import Game
+
+
+def assign_key(self: Game, key_assign: str):
     if key_assign not in self.player_key_bind.values() or \
             self.player_key_bind[self.input_popup[1]] == key_assign:
         self.player_key_bind[self.input_popup[1]] = key_assign

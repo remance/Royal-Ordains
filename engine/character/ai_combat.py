@@ -1,51 +1,58 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.character.character import BattleCharacter
+
 from random import choice, uniform
 
 
-def check_status(who, status):
+def check_status(who: BattleCharacter, status: str):
     if status not in who.status_duration:
         return True
     return None
 
 
-def check_health_lower(who, value):
+def check_health_lower(who: BattleCharacter, value: (int, float)):
     if who.base_health * value <= who.health:
         return True
     return None
 
 
-def check_resource_lower(who, value):
+def check_resource_lower(who: BattleCharacter, value: (int, float)):
     if who.base_resource * value <= who.resource:
         return True
     return None
 
 
-def check_health_higher(who, value):
+def check_health_higher(who: BattleCharacter, value: (int, float)):
     if who.base_health * value >= who.health:
         return True
     return None
 
 
-def check_resource_higher(who, value):
+def check_resource_higher(who: BattleCharacter, value: (int, float)):
     if who.base_resource * value >= value:
         return True
     return None
 
 
-def check_engage(who, value):
+def check_engage(who: BattleCharacter, value: (int, float)):
     """Check if who has enemy in provided range"""
     if who.nearest_enemy_distance > value:
         return True
     return None
 
 
-def check_target_type(who, value):
+def check_target_type(who: BattleCharacter, value: str):
     """Check if who match the target type value"""
     if who.character_type == value:
         return True
     return None
 
 
-def check_no_stay(who, value):
+def check_no_stay(who: BattleCharacter, value: bool):
     """Check that commander order is not stay"""
     check = "stay" not in who.commander_order  # require local variable due to comparison chain issue with is boolean
     if check is value:
@@ -59,17 +66,17 @@ ai_condition_check_dict = {"health>": check_health_higher, "resource>": check_re
                            "target_type": check_target_type, "no_stay": check_no_stay}
 
 
-def leader_condition_check(self, value):
+def leader_condition_check(self: BattleCharacter, value):
     """Require leader to meet condition"""
-    if self.leader:
+    if self.commander_character:
         for condition2, value2 in value.items():
-            if not ai_condition_check_dict[condition2](self.leader, value2):
+            if not ai_condition_check_dict[condition2](self.commander_character, value2):
                 return None
         return True
     return None
 
 
-def allies_condition_check(self, value):
+def allies_condition_check(self: BattleCharacter, value):
     """Require all nearby allies to meet condition"""
     for character in self.near_ally:
         for condition2, value2 in value.items():
@@ -78,7 +85,7 @@ def allies_condition_check(self, value):
     return True
 
 
-def ally_condition_check(self, value):
+def ally_condition_check(self: BattleCharacter, value):
     """Require one nearby ally to meet condition"""
     for character in self.near_ally:
         for condition2, value2 in value.items():
@@ -87,7 +94,7 @@ def ally_condition_check(self, value):
     return None
 
 
-def self_condition_check(self, value):
+def self_condition_check(self: BattleCharacter, value):
     """Require self to meet condition"""
     for condition2, value2 in value.items():
         if not ai_condition_check_dict[condition2](self, value2):
@@ -95,7 +102,7 @@ def self_condition_check(self, value):
     return True
 
 
-def enemy_condition_check(self, value):
+def enemy_condition_check(self: BattleCharacter, value):
     """Require nearest enemy to meet condition"""
     if self.nearest_enemy and self.nearest_enemy.alive:
         for condition2, value2 in value.items():
@@ -110,14 +117,14 @@ ai_who_check_dict = {"leader": leader_condition_check, "allies": allies_conditio
                      "enemy": enemy_condition_check}
 
 
-def check_ai_condition(self, condition_dict):
+def check_ai_condition(self: BattleCharacter, condition_dict):
     for condition, value in condition_dict.items():
         if not ai_who_check_dict[condition](self, value):
             return None
     return True
 
 
-def find_move_to_attack(self):
+def find_move_to_attack(self: BattleCharacter):
     # has enemy to attack and within max range attack
     # blind cause random direction melee attack but will not allow ranged attack
     resource = self.resource
@@ -142,7 +149,7 @@ def find_move_to_attack(self):
         return True
 
 
-def no_ai(self):
+def no_ai(self: BattleCharacter):
     """No attack at all"""
     pass
 
@@ -161,7 +168,7 @@ def no_ai(self):
 #             self.command_action = self.cheer_action
 
 
-def common_ai(self):
+def common_ai(self: BattleCharacter):
     """Common combat AI"""
     if "move" not in self.commander_order:
         if self.nearest_enemy and self.nearest_enemy_distance <= self.ai_max_attack_range:
@@ -182,12 +189,12 @@ def common_ai(self):
                 self.ai_timer = 0.5
 
 
-def air_ai(self):
+def air_ai(self: BattleCharacter):
     """air type combat AI"""
     if (self.nearest_enemy_pos and not self.command_action and
             not self.current_moveset and not self.ai_timer and
             self.nearest_enemy_distance <= self.ai_max_attack_range):
-        if find_move_to_attack(self):  # air character will only interrupt movement if can attack
+        if find_move_to_attack(self):  # air character will only interrupt movement if it can attack
             if "interruptable" in self.current_action:
                 # stop interruptable action to attack
                 self.interrupt_animation = True

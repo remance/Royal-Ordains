@@ -1,18 +1,25 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.battle.battle import BattleCommanderAI
+
 from random import uniform
 
 from engine.character.ai_prepare import find_grid_range
 
 
-def conduct_commander(self):
-    commander = self.commander
-    commander_base_posx = commander.base_pos[0]
-    enemy_commander = self.enemy_commander
+def conduct_commander(self: BattleCommanderAI):
+    commander_character = self.commander_character
+    commander_base_posx = commander_character.base_pos[0]
+    enemy_commander_character = self.enemy_commander_character
     current_info = self.current_info
 
     # plan for commander, overall, strategy related
     victory_chance = self.team_state["supply_resource"]
-    if current_info and current_info["available_strategy"] and self.clever > uniform(0, 120 - self.team_state[
-        "strategy_resource"]):
+    if current_info and current_info["available_strategy"] and self.clever > uniform(
+            0, 120 - self.team_state["strategy_resource"]):
         for strategy in current_info["available_strategy"]:
             # shuffle strategy list so that
             strategy_stat = self.strategy_list[strategy]
@@ -35,9 +42,9 @@ def conduct_commander(self):
                             weight = int((1 - current_info["enemy_commander_health"]) * 20)
                             character_in_range += [current_info["enemy_commander_pos"]] * weight
                 else:  # use the closest enemy for strategy consideration
-                    if commander.nearest_enemy:
-                        if commander.nearest_enemy_distance <= strategy_stat["Activate Range"]:
-                            character_in_range = [commander.nearest_enemy_pos]
+                    if commander_character.nearest_enemy:
+                        if commander_character.nearest_enemy_distance <= strategy_stat["Activate Range"]:
+                            character_in_range = [commander_character.nearest_enemy_pos]
 
             if strategy in self.own_strategy_type["ally"]:
                 if "density" in current_info:
@@ -45,8 +52,8 @@ def conduct_commander(self):
                                                  strategy_stat["Range"], self.last_grid)
                     character_in_range += [ally.base_pos[0] for grid in grid_range for ally in
                                            self.ground_ally_collision_grids[-1][grid]]
-                elif commander.nearest_ally:
-                    character_in_range += [commander.nearest_ally_pos[0]]
+                elif commander_character.nearest_ally:
+                    character_in_range += [commander_character.nearest_ally_pos[0]]
 
             if "can_cure" in current_info and strategy in self.own_strategy_type["cure"]:
                 # should already have density info with this info
@@ -126,9 +133,9 @@ def conduct_commander(self):
             if "available_enemy_strategy" in current_info:
                 for strategy in current_info["available_enemy_strategy"]:
                     strategy_stat = self.strategy_list[strategy]
-                    if (strategy_stat["Damage Effects"] or strategy_stat["Enemy Status"]) and abs(
-                            commander_base_posx - current_info["enemy_commander_pos"]) <= strategy_stat[
-                        "Activate Range"] + strategy_stat["Range"]:
+                    if ((strategy_stat["Damage Effects"] or strategy_stat["Enemy Status"]) and abs(
+                            commander_base_posx - current_info["enemy_commander_pos"]) <=
+                            strategy_stat["Activate Range"] + strategy_stat["Range"]):
                         safety_first -= uniform(1, 2)
                         break
 
@@ -141,30 +148,30 @@ def conduct_commander(self):
                 commander_what_to_do = "observe"
 
     if commander_what_to_do == "observe":
-        start_pos = commander.start_pos
+        start_pos = commander_character.start_pos
         if abs(commander_base_posx - start_pos) > 200:
-            commander.issue_commander_order(("move", commander.start_pos))
+            commander_character.issue_commander_order(("move", commander_character.start_pos))
     elif commander_what_to_do == "aggressive":
-        if enemy_commander and enemy_commander.alive:  # put attack on enemy commander
-            commander.issue_commander_order(("attack", enemy_commander.base_pos[0]))
+        if enemy_commander_character and enemy_commander_character.alive:  # put attack on enemy commander
+            commander_character.issue_commander_order(("attack", enemy_commander_character.base_pos[0]))
         else:  # put attack on enemy spawn point
-            commander.issue_commander_order(("attack", self.enemy_team_state["start_pos"]))
+            commander_character.issue_commander_order(("attack", self.enemy_team_state["start_pos"]))
     elif "support" in commander_what_to_do:
         # move to support from distance
-        start_pos = commander.start_pos
+        start_pos = commander_character.start_pos
         closest_enemy_distance_to_camp = 0
         closet_enemy_pos = 0
         if "closest_enemy_distance_to_camp" in current_info:
             closet_enemy_pos = current_info["closest_enemy_distance_to_camp"][0]
             closest_enemy_distance_to_camp = current_info["closest_enemy_distance_to_camp"][1]
-        optimal_ai_commander_range = commander.optimal_ai_commander_range
+        optimal_ai_commander_range = commander_character.optimal_ai_commander_range
         if closest_enemy_distance_to_camp < optimal_ai_commander_range:
             # enemy closer to camp
             if "far_" in commander_what_to_do:
                 if abs(commander_base_posx - start_pos) > 200:
-                    commander.issue_commander_order(("move", start_pos))
+                    commander_character.issue_commander_order(("move", start_pos))
             else:
-                commander.issue_commander_order(("attack", start_pos))
+                commander_character.issue_commander_order(("attack", start_pos))
         else:
             # position based on optimal maximum range of commander
             move_type = "attack"
@@ -177,4 +184,4 @@ def conduct_commander(self):
             else:
                 target = closet_enemy_pos + move_distance
 
-            commander.issue_commander_order((move_type, target))
+            commander_character.issue_commander_order((move_type, target))

@@ -57,7 +57,6 @@ from engine.uimenu.uimenu import (UIMenu, MenuCursor, BoxUI, BrownMenuButton, Me
                                   CharacterMovesetShowCase, CharacterSelector, CustomPresetTitle, ListUI,
                                   CustomArmyPresetListAdapter, GenericListAdapter)
 from engine.uiouterbattle.uiouterbattle import Profiler, FPSCount
-from engine.uioutergrand.uioutergrand import DiplomacyHead
 from engine.updater.updater import ReversedLayeredUpdates
 from engine.utils.common import empty_method
 from engine.utils.data_loading import load_image, load_images, csv_read
@@ -373,6 +372,7 @@ class Game:
         UIMenu.font_texture = self.font_texture
         UIMenu.game = self
         UIMenu.grand_ui_images = self.grand_ui_images
+        UIMenu.language = self.language
         UIMenu.localisation = self.localisation
         UIMenu.remove_from_ui_menu_updater = self.remove_from_ui_menu_updater
         UIMenu.screen_center = (self.screen_width / 2, self.screen_height / 2)
@@ -644,7 +644,6 @@ class Game:
             self.add_to_ui_menu_updater(self.fps_count)
         if self.use_simple_text:
             CharacterSpeechBox.simple_font = True
-            DiplomacyHead.simple_font = True
 
         # lorebook ui
         self.lorebook_back_button = BrownMenuButton((.15, 0.5), (0, 1.5),
@@ -654,7 +653,7 @@ class Game:
         self.lorebook_showcase_character_selector = CharacterSelector(
             (self.screen_width * 0.17, self.screen_height * 0.15))
 
-        self.lorebook_showcase_box = StaticImage((self.screen_width * 0.595, self.screen_height * 0.4),
+        self.lorebook_showcase_box = StaticImage((self.screen_width * 0.558, self.screen_height * 0.4),
                                                  load_image(self.game.data_dir, "showcase_box.png",
                                                             self.screen_scale, ("ui", "mainmenu_ui")), 0)
         self.remove_from_ui_menu_updater(self.lorebook_showcase_box)
@@ -666,7 +665,7 @@ class Game:
                 if anim not in animation_list:
                     animation_list.append(anim)
         animation_list = sorted(animation_list)
-        self.lorebook_showcase_animation_list_box = ListUI(pivot=(0.7, -0.7), origin=(-1, -1), size=(0.15, 0.5),
+        self.lorebook_showcase_animation_list_box = ListUI(pivot=(0.6, -0.7), origin=(-1, -1), size=(0.15, 0.5),
                                                            items=GenericListAdapter(
                                                                [[0, key] for key in animation_list if
                                                                 key != "Default"]),

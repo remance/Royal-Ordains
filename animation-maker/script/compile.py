@@ -67,12 +67,11 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                         if "EVENT_" not in animation_name and "DIPLOMACY_" not in animation_name:
                             character_animation_pool[animation_name][frame_index]["right"] = frame_data_r
                             character_animation_pool[animation_name][frame_index]["left"] = frame_data_l
-                        elif "EVENT_" in animation_name or "DIPLOMACY_" in animation_name:  # save to grand sprite data instead
-                            event_animation_name = animation_name + str(frame_index)
-                            if animation_name + str(frame_index) not in effect_sprite_adjust:
-                                grand_actor_sprite_pool[character][event_animation_name] = {}
-                            grand_actor_sprite_pool[character][event_animation_name]["right"] = frame_data_r
-                            grand_actor_sprite_pool[character][event_animation_name]["left"] = frame_data_l
+                        else:  # save to grand sprite data instead
+                            if animation_name not in grand_actor_sprite_pool:
+                                grand_actor_sprite_pool[character][animation_name] = {}
+                            grand_actor_sprite_pool[character][animation_name]["right"] = frame_data_r
+                            grand_actor_sprite_pool[character][animation_name]["left"] = frame_data_l
 
                         min_x = float("infinity")
                         max_x = -float("infinity")
@@ -218,7 +217,10 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                                     image.blit(part_sprite, rect)
                             image = apply_sprite_effect(image, prop_list)
                             if "DIPLOMACY_" in animation_name:  # crop diplomacy image to just rect portrait
-                                image = image.subsurface((base_point[0], -400 + base_point[1], 400, 400))
+                                new_image = Surface((400, 400))
+                                new_image.fill((230, 230, 230))
+                                new_image.blit(image, (0, 0), (base_point[0] - 200, base_point[1] - 600, 400, 400))
+                                image = new_image
                             image, crop_offset = crop_sprite(image)
 
                             image_array = image.tobytes()
