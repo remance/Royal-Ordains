@@ -60,6 +60,7 @@
 "explosion_small",,,"TRUE",,,"explosion",5000,30,
 "fire_barrel",,1500,"TRUE",,"fire_small","stone",2400,,"reach_effect_spawn_ground:bottom"
 "fire_bolt",,4000,"TRUE",,,"fireball",1000,,
+"fire_bolt_end",,,,,"fire_bolt_end",,,,
 "fire_medium",15,,"TRUE",,,,,,
 "fire_small",10,,"TRUE",,,,1300,,
 "fireball",,4000,"TRUE",,"explosion_small","fireball",2200,,
@@ -94,8 +95,9 @@
 "lightning_blast_red",,,"TRUE",,,"magic_explosion",3000,,
 "lightning_red",,5500,"TRUE",,,,,,
 "lightning_strike",,,"TRUE",,,"lightning",6000,500,
-"magic_ball",,600,"TRUE",,,"magic_bolt",1500,,"travel_spin"
-"magic_bolt",,4000,"TRUE",,,"magic_bolt",2000,,
+"magic_ball",,600,"TRUE",," ","magic_bolt",1500,,"travel_spin"
+"magic_bolt",,4000,"TRUE",,"magic_bolt_end","magic_bolt",2000,,
+"magic_bolt_end",,,,,,,,,
 "magic_bomb",,1000,,,"magic_explosion","magic_bomb",2000,,"reach_effect_spawn_ground:bottom,travel_spin"
 "magic_explosion",,,"TRUE",,,"magic_explosion",5000,20,
 "magic_fish",,3500,"TRUE",,,"magic_bolt",1200,,

@@ -15,7 +15,7 @@
 "spell_chaos_world",,50000,600,100,,,,,,,"magic",,,,,,,,"chaos_summon,random_summon_pos"
 "spell_cold_air",2000,6000,5,10,,,,,,,"water",,,,,,"cold",,
 "spell_death_cloud",5000,3000,30,60,100,1,1000000,,,,"poison",,"(death_cloud;base;0;1000;0;0;1;1;1)",,,,"plague,deadly_poison",,"travel_wind_direction,override_target:(use_range)"
-"spell_decay",,,10,30,,,,,,,"poison",,,,,"rust,poison",,,
+"spell_decay",5000,5000,15,30,,,,,,,"poison",,,,,"rust,poison",,,
 "spell_earth_domain",,10000,10,15,,,,,,,"earth",,,,,,,,
 "spell_earth_eruption",4000,500,15,35,,,,,,,"earth",,,,,,,,
 "spell_earth_wall",3500,800,15,35,70,10,1000,1400,2000,,"earth",,"(earth_wall;base;0;2000;0;0;1;1;1)",,,,,,"override_target:(ground;bottom),ignore_ground,direct"
