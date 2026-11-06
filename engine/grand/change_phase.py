@@ -139,3 +139,5 @@ def change_phase(self: Grand, phase_change: bool = True):
         if self.culture_management_ui in self.outer_ui_updater:
             # reset culture management ui every phase if open
             self.culture_management_ui.reset()
+        elif self.diplomacy_management_ui in self.outer_ui_updater:
+            self.diplomacy_management_ui.reset()

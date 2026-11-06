@@ -32,6 +32,16 @@ def camera_go_right(self: Battle):
     self.fix_camera()
 
 
+def change_pause(self: Battle):
+    if self.game_speed:
+        self.before_pause_game_speed = self.game_speed
+        self.game_speed = 0
+    else:
+        self.game_speed = self.before_pause_game_speed
+    self.battle_helper_ui.time_option = self.battle_helper_ui.time_choice.index(self.game_speed)
+    self.battle_helper_ui.reset_image()
+
+
 def key_call_leader(self: Battle, index: int):
     if index < len(self.team_state[self.player_team]["leader_call_list"]):
         self.call_reinforcement(self.player_team, "leader", index)
@@ -148,4 +158,4 @@ battle_key_input = {"Call Leader 1": key_call_leader_1, "Call Leader 2": key_cal
                     "Call Air 5": key_call_air_5, "Strategy 1": key_select_strategy_1,
                     "Strategy 2": key_select_strategy_2,
                     "Strategy 3": key_select_strategy_3, "Strategy 4": key_select_strategy_4,
-                    "Strategy 5": key_select_strategy_5}
+                    "Strategy 5": key_select_strategy_5, "Change Pause": change_pause}

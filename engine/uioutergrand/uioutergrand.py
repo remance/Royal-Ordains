@@ -498,7 +498,7 @@ class TimeSettingOption(UIOuterGrand):
 
         for index, image in enumerate(self.time_option_rects):  # add selected border after base image
             rect = self.time_option_rects[image]
-            if not index:
+            if index == self.grand.game_speed:
                 self.image.blit(self.time_select_image, rect)
                 self.image.blit(image, rect)
                 break
@@ -513,10 +513,10 @@ class TimeSettingOption(UIOuterGrand):
                 if rect.collidepoint(inside_mouse_pos):
                     if self.event_press:
                         if index != self.grand.game_speed:
+                            if index:
+                                self.grand.before_pause_game_speed = index
                             self.grand.game_speed = index
-                            self.image = self.base_image.copy()
-                            self.image.blit(self.time_select_image, rect)
-                            self.image.blit(image, rect)
+                            self.reset()
                     else:
                         self.text_popup.popup(self.cursor.rect, self.grab_text(("ui", "info_text_time_speed_" +
                                                                                 str(index))))

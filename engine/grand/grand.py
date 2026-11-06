@@ -229,6 +229,7 @@ class Grand:
         self.save_data = game.save_data
 
         self.game_speed = 0
+        self.before_pause_game_speed = 0
         self.phase_timer = 0
         self.show_route = True
 

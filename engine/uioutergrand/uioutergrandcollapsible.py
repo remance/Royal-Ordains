@@ -187,7 +187,7 @@ class CourtManagement(GrandListUI, UIOuterGrand):
                                                      width_text_wrapper=self.max_description_box_width)
                                     self.add_to_outer_ui_menu_updater(text_popup)
                             break
-        elif self.cursor.event and not grand.menu_bar_ui.mouse_over:
+        elif self.cursor.event and not grand.menu_bar_ui.mouse_over and not grand.time_setting_ui.mouse_over:
             self.remove_from_outer_ui_menu_updater(grand.court_management_uis)
 
 
@@ -439,7 +439,7 @@ class DiplomacyManagement(GrandListUI, UIOuterGrand):
                                             self.add_to_outer_ui_menu_updater(text_popup)
                                     break
                             break
-        elif cursor.event and not grand.menu_bar_ui.mouse_over:
+        elif cursor.event and not grand.menu_bar_ui.mouse_over and not grand.time_setting_ui.mouse_over:
             self.remove_from_outer_ui_menu_updater(grand.diplomacy_management_uis)
 
 
@@ -691,7 +691,7 @@ class PresetArmyReserveList(GrandListUI, UIOuterGrand):
                         return
         elif (cursor.event and not any(item in grand.outer_ui_updater and item.rect.collidepoint(cursor.pos) for
                                        item in grand.grand_army_deploy_uis) and
-              not grand.menu_bar_ui.mouse_over):
+              not grand.menu_bar_ui.mouse_over and not grand.time_setting_ui.mouse_over):
             # this also cover for reserve army related uis mouse check
             self.remove_from_outer_ui_menu_updater(grand.grand_army_deploy_uis)
 
@@ -824,25 +824,25 @@ class PresetArmyReserveSetup(PresetArmySetupUI, UIOuterGrand):
                                 if character_type in ("commander", "leader"):
                                     grand.grand_reserve_army_list_ui.create_cards_surface()
                                 self.change_portrait_selection(character_type, index)
-
-                            if character_type == "commander":
-                                character = self.army_preset[character_type.capitalize()]
                             else:
-                                character = self.army_preset[character_type.capitalize() + " " + str(index + 1)]
-
-                            if character:
-                                character_name_text = self.grab_text(("character", character, "Name"))
-                            else:
-                                character_name_text = self.grab_text(("ui", "info_text_empty_" + character_type))
                                 if character_type == "commander":
-                                    character_name_text = (character_name_text,
-                                                           self.grab_text(("ui", "warn_grand_no_commander")))
+                                    character = self.army_preset[character_type.capitalize()]
                                 else:
-                                    character_name_text = (character_name_text,
-                                                           self.grab_text(("ui", "warn_empty_slot")))
+                                    character = self.army_preset[character_type.capitalize() + " " + str(index + 1)]
 
-                            self.text_popup.popup(cursor.rect, character_name_text)
-                            self.add_to_outer_ui_menu_updater(self.text_popup)
+                                if character:
+                                    character_name_text = self.grab_text(("character", character, "Name"))
+                                else:
+                                    character_name_text = self.grab_text(("ui", "info_text_empty_" + character_type))
+                                    if character_type == "commander":
+                                        character_name_text = (character_name_text,
+                                                               self.grab_text(("ui", "warn_grand_no_commander")))
+                                    else:
+                                        character_name_text = (character_name_text,
+                                                               self.grab_text(("ui", "warn_empty_slot")))
+
+                                self.text_popup.popup(cursor.rect, character_name_text)
+                                self.add_to_outer_ui_menu_updater(self.text_popup)
                             return
 
 
@@ -1087,6 +1087,7 @@ class CultureManagement(GrandListUI, UIOuterGrand):
                                             like_list = []
                                             hate_list = []
                                             if this_culture_coexistence_modifier:
+                                                text.append("")
                                                 for key, value in this_culture_coexistence_modifier.items():
                                                     if value < 0:
                                                         hate_list.append(key)
@@ -1116,7 +1117,7 @@ class CultureManagement(GrandListUI, UIOuterGrand):
                                     return
                             return
 
-        elif self.cursor.event and not grand.grand_faction_culture_list_ui.mouse_over:
+        elif self.cursor.event and not grand.grand_faction_culture_list_ui.mouse_over and not grand.time_setting_ui.mouse_over:
             self.remove_from_outer_ui_menu_updater(grand.culture_management_uis)
 
 

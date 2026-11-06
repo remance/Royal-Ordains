@@ -229,6 +229,7 @@
 "keybind_call_troop3","Call Troop 3"
 "keybind_call_troop4","Call Troop 4"
 "keybind_call_troop5","Call Troop 5"
+"keybind_change_pause","Pause/Unpause Game"
 "keybind_clear","Clear Order"
 "keybind_confirm","Confirm"
 "keybind_esc","Main Player Menu/Cancel"

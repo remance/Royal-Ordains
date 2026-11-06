@@ -286,6 +286,7 @@ class Battle:
         DamageEffect.collision_grid_height = self.screen_height / Collision_Grid_Y_Per_Battle_Scene
         Effect.sound_effect_pool = self.sound_effect_pool
 
+        self.before_pause_game_speed = 1
         self.game_speed = 1
         self.all_team_ally = {index: sprite.Group() for index in team_list}
         self.all_team_enemy_check = {index: sprite.Group() for index in team_list}  # for victory check

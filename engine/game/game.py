@@ -84,9 +84,8 @@ class Game:
     screen_scale_height = screen_scale[1]
     screen_size = ()
 
-    game_version = "0.2.7"
+    game_version = "0.3"
 
-    # import from game
     activate_input_popup = activate_input_popup
     assign_key = assign_key
     back_mainmenu = back_mainmenu

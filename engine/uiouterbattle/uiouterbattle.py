@@ -690,6 +690,16 @@ class BattleHelper(UIOuterBattle):
             wind_icon = self.wind_arrow_images[self.wind_direction]
             image.blit(wind_icon, wind_icon.get_rect(center=self.wind_icon_pos))
 
+        self.add_time_text(self.time_text)
+
+    def add_time_text(self, time_text):
+        self.time_text = time_text
+        text = text_render_with_bg(time_text, self.font)
+        text_bg = Surface((text.get_size()))
+        text_bg.fill((213, 209, 210))
+        text_bg.blit(text, text.get_rect())
+        self.image.blit(text_bg, text.get_rect(center=self.base_battle_timer_rect_center))
+
     def update(self, dt):
         """Update battle time"""
         must_reset_image = False
@@ -721,7 +731,10 @@ class BattleHelper(UIOuterBattle):
                     if self.event_press:
                         self.time_option = index
                         if self.battle.game_speed != self.time_choice[index]:
-                            self.battle.game_speed = self.time_choice[index]
+                            new_speed = self.time_choice[index]
+                            if new_speed:
+                                self.battle.before_pause_game_speed = new_speed
+                            self.battle.game_speed = new_speed
                             must_reset_image = True
                     break
             if not helper_mouse_over:
@@ -733,12 +746,7 @@ class BattleHelper(UIOuterBattle):
 
         time_text = datetime.fromtimestamp(self.battle.battle_time).strftime('%M:%S')
         if time_text != self.time_text or must_reset_image or reset_inside_helper_image:
-            self.time_text = time_text
-            text = text_render_with_bg(time_text, self.font)
-            text_bg = Surface((text.get_size()))
-            text_bg.fill((213, 209, 210))
-            text_bg.blit(text, text.get_rect())
-            self.image.blit(text_bg, text.get_rect(center=self.base_battle_timer_rect_center))
+            self.add_time_text(time_text)
 
 
 class TacticalMap(UIOuterBattle):

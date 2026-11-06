@@ -23,6 +23,15 @@ def player_input_grand(self: Grand):
                 grand_key_hold[key](self)
 
 
+def change_pause(self: Grand):
+    if self.game_speed:
+        self.before_pause_game_speed = self.game_speed
+        self.game_speed = 0
+    else:
+        self.game_speed = self.before_pause_game_speed
+    self.time_setting_ui.reset()
+
+
 def camera_go_left(self: Grand):
     self.camera_topleft_pos[0] -= (2000 * self.true_dt)
     self.fix_camera()
@@ -45,4 +54,4 @@ def camera_go_down(self: Grand):
 
 grand_key_hold = {"Left": camera_go_left, "Right": camera_go_right, "Up": camera_go_up, "Down": camera_go_down}
 
-grand_key_input = {}
+grand_key_input = {"Change Pause": change_pause}
