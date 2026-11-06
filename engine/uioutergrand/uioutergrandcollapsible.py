@@ -8,8 +8,7 @@ from pygame.transform import flip
 from engine.army.army import Army
 from engine.constants import Culture_Policy_Integration, Turn_To_Phase
 from engine.uimenu.uimenu import PresetArmySetupUI, CharacterSelector, SliderMenu
-from engine.uioutergrand.uioutergrand import (GrandListUI, UIOuterGrand, ToggleButton, OuterGrandUIScroll,
-                                              FactionCultureList)
+from engine.uioutergrand.uioutergrand import (GrandListUI, UIOuterGrand, ToggleButton, FactionCultureList)
 from engine.utils.text_making import (add_plus_to_number, text_render_with_bg, convert_modifier_number_to_percent_text,
                                       make_long_text)
 
@@ -142,9 +141,8 @@ class CourtManagement(GrandListUI, UIOuterGrand):
                 else:
                     for rect_index, rect in enumerate(self.character_slot_rects):
                         if rect.collidepoint(inside_mouse_pos):
-                            character_state_list = \
-                                grand.current_campaign_state["faction"][grand.player_faction][
-                                    "character"]
+                            faction_state = grand.current_campaign_state["faction"][grand.player_faction]
+                            character_state_list = faction_state["character"]
                             index = 0
                             if rect_index:  # non-ruler rect
                                 index = rect_index + (self.current_row * self.max_col)
@@ -162,7 +160,7 @@ class CourtManagement(GrandListUI, UIOuterGrand):
                                     if character_state[1]:
                                         role_text += grab_text(("ui", "info_text_" + character_state[1]))
                                         if character_state[0]:
-                                            if character_state[0].current_region:  # active
+                                            if character_state[0] in faction_state["army"]:  # in active army
                                                 role_text += (grab_text(("ui", "info_text_in_description")) +
                                                               grab_text(("character", character_state[0].commander_id,
                                                                          "Name")) +
@@ -712,51 +710,40 @@ class PresetArmyReserveSetup(PresetArmySetupUI, UIOuterGrand):
         self.reset()
         self.grand.grand_character_selector_ui.add(character_type)
 
-    def change_character(self, slot, character, change_selector=False, reset_now=False):
+    def change_character(self, slot, character_id, change_selector=False, reset_now=False):
         grand = self.grand
         player_faction_state = grand.current_campaign_state["faction"][grand.player_faction]
         for army in player_faction_state["reserve"]:
             if army.game_id == self.showing_army_game_id:
-                old_character = None
                 if "Commander" in slot:
                     slot = "Commander"
-                self.army_preset[slot] = character
-
-                role = slot.lower().split(" ")[0]
-
-                if role == "commander":
-                    if army.commander_id:
-                        old_character = army.commander_id
-                    army.commander_id = character
+                if "Commander" in slot:
+                    follower_type = "commander"
+                    army.change_follower(follower_type, 0, character_id, reset_stat=False)
                 else:
+                    follower_type = slot.lower().split(" ")[0]
                     index = int(slot.split(" ")[-1]) - 1
-                    if army.army_followers[role] and army.army_followers[role][index]:
-                        old_character = army.army_followers[role][index][0]
-                    army.army_followers[role][index] = [character, False]
+                    army.change_follower(follower_type, index, character_id, reset_stat=False)
 
-                if role in ("commander", "leader"):  # redraw reserve army list
+                self.army_preset[slot] = character_id
+
+                if follower_type in ("commander", "leader"):  # redraw reserve army list
                     grand.grand_reserve_army_list_ui.create_cards_surface()
 
                 army.reset_stat(for_reserve_info=True)
                 grand.grand_reserve_army_title.change_text("", army.cost, army.total_supply_usage,
                                                            army.leadership, army.upkeep)
-
-                if character != old_character:
-                    if character in player_faction_state["character"]:
-                        player_faction_state["character"][character] = (army, role)
-                    if old_character:
-                        player_faction_state["character"][old_character] = (None, "courtier")
-
                 if reset_now:
                     self.reset()
                 else:
                     index = 0
                     if "Commander" not in slot:
                         index = int(slot.split(" ")[1]) - 1
-                    if character:
-                        self.image.blit(self.character_portraits[character]["setup_ui"],
+                    if character_id:
+                        self.image.blit(self.character_portraits[character_id]["setup_ui"],
                                         self.portrait_type_rects[slot.split(" ")[0].lower()][index])
                 break
+
         grand.grand_army_deploy_management_ui.reset(self.showing_army_game_id)
 
     def reset(self, active=True):
@@ -811,16 +798,10 @@ class PresetArmyReserveSetup(PresetArmySetupUI, UIOuterGrand):
                             if self.event_press:
                                 self.change_portrait_selection(character_type, index)
                             elif self.event_alt_press:
-                                if character_type == "commander":
-                                    character = self.army_preset["Commander"]
-                                    self.army_preset["Commander"] = None
-                                else:
-                                    character = self.army_preset[character_type.capitalize() + " " + str(index + 1)]
-                                    self.army_preset[character_type.capitalize() + " " + str(index + 1)] = None
-                                for army in grand.current_campaign_state["faction"][grand.player_faction]["reserve"]:
-                                    if army.game_id == self.showing_army_game_id:
-                                        army.remove_follower(character_type, character)
-                                        break
+                                self.change_portrait_selection(character_type, index)
+                                self.change_character(character_type.capitalize() + " " +
+                                                      str(index + 1),
+                                                      None)
                                 if character_type in ("commander", "leader"):
                                     grand.grand_reserve_army_list_ui.create_cards_surface()
                                 self.change_portrait_selection(character_type, index)
@@ -853,8 +834,6 @@ class PresetArmyGrandCharacterSelector(CharacterSelector, UIOuterGrand):
         UIOuterGrand.__init__(self)
         CharacterSelector.__init__(self, pos)
         self.rect = self.image.get_rect(topleft=pos)  # reset rect
-        self.scroll.kill()  # remove UIMenu scroll
-        self.scroll = OuterGrandUIScroll(self, self.rect.topright)
 
     def add(self, character_type):
         grand = self.grand
@@ -924,7 +903,7 @@ class PresetArmyGrandCharacterSelector(CharacterSelector, UIOuterGrand):
                                                                character_id)
                                 if selected_portrait[0] in ("leader", "commander"):
                                     self.add(selected_portrait[0])  # reset character list to update hero adding if any
-                        elif self.event_alt_press:  # remove character from reserved army
+                        elif self.event_alt_press:
                             pass
 
                         else:
@@ -1127,7 +1106,7 @@ class ArmyDeployManagement(UIOuterGrand):
         UIOuterGrand.__init__(self)
         self.font = self.game.generic_ui_font
         self.header_font = self.game.large_generic_ui_font
-        self.image = Surface((int(self.screen_width * 0.7), int(250 * self.screen_scale_height)), SRCALPHA)
+        self.image = Surface((int(self.screen_width * 0.72), int(280 * self.screen_scale_height)), SRCALPHA)
         self.image.fill((150, 150, 150))
         self.image_center_x = self.image.get_width() / 2
         self.showing_army_game_id = None

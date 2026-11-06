@@ -6,7 +6,7 @@ from engine.army.deploy_army_from_reserve import deploy_army_from_reserve
 from engine.army.issue_move_command import issue_move_command
 from engine.army.remove_army_from_active import remove_army_from_active
 from engine.army.remove_army_from_reserve import remove_army_from_reserve
-from engine.army.remove_follower import remove_follower
+from engine.army.change_follower import change_follower
 from engine.army.reset_stat import reset_stat
 
 
@@ -16,6 +16,7 @@ class Army:
     grand = None
 
     change_commander = change_commander
+    change_follower = change_follower
     check_enemy_army = check_enemy_army
     change_phase = change_phase
     check_assemble = check_assemble
@@ -23,7 +24,6 @@ class Army:
     issue_move_command = issue_move_command
     remove_army_from_active = remove_army_from_active
     remove_army_from_reserve = remove_army_from_reserve
-    remove_follower = remove_follower
     reset_stat = reset_stat
 
     def __init__(self, army_id: str, faction: str, culture: str, commander_char_id: str, army_followers: dict,

@@ -35,7 +35,7 @@ def ellipse_orbit(center, radius, angle, orbit_angle):
 
 class MiniCosmosUI(UIOuterGrand):
     def __init__(self, images, cosmic_ui):
-        self._layer = 10
+        self._layer = 5
         UIOuterGrand.__init__(self)
         self.line_width = int(4 * self.screen_scale_width)
         if self.line_width < 1:

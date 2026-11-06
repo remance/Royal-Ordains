@@ -355,8 +355,9 @@ class Grand:
             self.grand_reserve_army_list_ui.rect.topright)
         self.grand_character_selector_ui = PresetArmyGrandCharacterSelector(
             self.grand_reserve_army_setup_ui.rect.topright)
-        self.grand_reserve_army_title = CustomPresetTitle((self.screen_width * 0.7, 120 * self.screen_scale_height),
-                                                          (self.screen_rect.width / 2,
+        self.grand_reserve_army_title = CustomPresetTitle((self.screen_width * 0.72, 120 * self.screen_scale_height),
+                                                          (self.grand_character_selector_ui.rect.topright[0] -
+                                                           (self.screen_width * 0.36),
                                                            self.grand_reserve_army_setup_ui.rect.midtop[1]))
 
         self.grand_army_reserve_setup_uis = (self.grand_reserve_army_list_ui,
@@ -387,7 +388,7 @@ class Grand:
         self.grand_army_deploy_uis = (self.grand_army_deploy_management_ui, self.region_management_tab_button,
                                       self.army_deploy_tab_button, self.grand_reserve_army_list_ui,
                                       self.grand_reserve_army_list_ui.scroll, self.grand_reserve_army_title,
-                                      self.grand_character_selector_ui,
+                                      self.grand_character_selector_ui, self.grand_character_selector_ui.scroll,
                                       self.grand_reserve_army_setup_ui, self.deploy_supply_slider,
                                       self.deploy_supply_value_box)
 

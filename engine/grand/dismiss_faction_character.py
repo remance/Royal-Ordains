@@ -13,7 +13,10 @@ def dismiss_faction_character(self: Grand, faction_id: str, character_id: str):
     if character_state[0]:
         # in army, cannot dismiss commander
         army = character_state[0]
-        army.remove_follower(character_state[1], character_state[0])
+        for index, slot in enumerate(army.army_followers[character_state[1]]):
+            if character_id in slot:
+                army.change_follower(character_state[1], index, None)
+                break
 
     faction_state["character"].pop(character_id)
 

@@ -481,22 +481,29 @@ class Command(UIOuterBattle):
                         return
 
     def popup_description(self, call_shortcut_name, call_remain, character):
+
+        grab_text = self.grab_text
         if character not in self.cache_stat:
-            grab_text = self.grab_text
+            # Cache stuffs that are static
             character_data = self.character_list[character]
             char_stat = [grab_text(("ui", "info_header_name")) + grab_text(("character", character, "Name")),
                          grab_text(("ui", "info_header_call_keybind")) +
                          pygame_key_name(self.battle.player_key_bind[call_shortcut_name]),
                          grab_text(("character", character, "Description")),
                          grab_text(("ui", "info_header_class")) + grab_text(
-                             ("ui", "class_" + character_data["Behaviour Class"])),
+                             ("ui", "grade_" + character_data["Grade"])) + " " + grab_text(
+                             ("ui", "behaviour_" + character_data["AI Behaviour"])) + " " + grab_text(
+                             ("ui", "class_" + character_data["Class"])),
                          (grab_text(("ui", "info_header_supply_cost")) + add_comma_number(
                              character_data["Supply"]), self.grand_ui_images["supply"]),
-                         grab_text(("ui", "info_header_call_cooldown")) + str(character_data["Reinforce Time"]),
+                         grab_text(("ui", "info_header_call_cooldown")) + str(character_data["Reinforce Time"]) +
+                         grab_text(("ui", "info_text_value_seconds")),
                          grab_text(("ui", "info_header_call_response")) + str(
-                             character_data["Respond Time"])]
+                             character_data["Respond Time"]) + grab_text(("ui", "info_text_value_seconds"))]
+            self.cache_stat[character] = char_stat
         else:
             char_stat = self.cache_stat[character]
+
         if call_remain:
             char_stat.append(grab_text(("ui", "info_header_call_remain")) + str(call_remain))
         self.text_popup.popup(self.rect.bottomleft, char_stat, width_text_wrapper=self.max_description_box_width)
