@@ -26,6 +26,7 @@ from engine.camera.camera import Camera
 from engine.game.change_pause_update import change_pause_update
 from engine.grand.activate_input_popup import activate_input_popup
 from engine.grand.add_diplomacy_history_event import add_diplomacy_history_event
+from engine.grand.add_diplomacy_talk_queue import add_diplomacy_talk_queue
 from engine.grand.auto_battle_process import auto_battle_process
 from engine.grand.cal_faction_culture import cal_faction_culture
 from engine.grand.cal_faction_income_recruit import cal_faction_income_recruit
@@ -50,6 +51,7 @@ from engine.grand.sort_dot_army_occupation import sort_dot_army_occupation
 from engine.grand.sort_player_army_list import sort_player_army_list
 from engine.grand.start_battle_engagement import start_battle_engagement
 from engine.grand.start_building_construction_or_repair import start_building_construction_or_repair
+from engine.grand.start_diplomacy_talk import start_diplomacy_talk
 from engine.grand.start_building_raze_or_pillage import start_building_raze_or_pillage
 from engine.grand.state_grand_process import state_grand_process
 from engine.grand.state_menu_process import state_menu_process, back_to_grand_state
@@ -57,7 +59,7 @@ from engine.grandarmyactor.grandarmyactor import GrandArmyActor
 from engine.grandobject.grandobject import GrandObject, SettlementObject
 from engine.grandregion.grandregion import GrandRegion
 from engine.uigrand.uigrand import (DotInfoBanner, DotInfoBannerArmy, DotInfoBannerSettlement, DotNameBannerSettlement)
-from engine.uimenu.uimenu import TextPopup, GrandMiniMap, CustomPresetTitle, SliderMenu, ValueBox
+from engine.uimenu.uimenu import TextPopup, GrandMiniMap, CustomPresetTitle, ValueBox
 from engine.uiouterbattle.uiouterbattle import FPSCount
 from engine.uioutergrand.cosmos import CosmosUI, MiniCosmosUI
 from engine.uioutergrand.uioutergrand import (PlayerGrandInteract, FactionTopBar, DiplomacyHeadSpeechbox, DiplomacyHead,
@@ -65,10 +67,11 @@ from engine.uioutergrand.uioutergrand import (PlayerGrandInteract, FactionTopBar
                                               TimeSettingOption, EventDetailPopup, FactionCultureList,
                                               MenuBar, EventNotification, GrandTextDrama)
 from engine.uioutergrand.uioutergrandcollapsible import (ArmyDeployManagement, PresetArmyReserveSetup,
-                                                         CourtManagement, CultureManagement,
+                                                         CourtManagement, CultureManagement, DeploySupplySliderMenu,
                                                          DiplomacyManagement, PresetArmyGrandCharacterSelector,
                                                          RegionManagement, BuildingManagement, PresetArmyReserveList,
-                                                         RegionManagementToggleButton, ArmyDeployToggleButton)
+                                                         RegionManagementToggleButton, ArmyDeployToggleButton,
+                                                         ArmySetup, ArmyManagement)
 from engine.updater.updater import ReversedLayeredUpdates
 from engine.utils.common import clean_group_object
 
@@ -79,6 +82,7 @@ class Grand:
 
     activate_input_popup = activate_input_popup
     add_diplomacy_history_event = add_diplomacy_history_event
+    add_diplomacy_talk_queue = add_diplomacy_talk_queue
     add_sound_effect_queue = add_sound_effect_queue
     auto_battle_process = auto_battle_process
     back_to_grand_state = back_to_grand_state
@@ -110,6 +114,7 @@ class Grand:
     start_battle_engagement = start_battle_engagement
     start_building_construction_or_repair = start_building_construction_or_repair
     start_building_raze_or_pillage = start_building_raze_or_pillage
+    start_diplomacy_talk = start_diplomacy_talk
     state_process = state_grand_process
     state_grand_process = state_grand_process
     state_menu_process = state_menu_process
@@ -272,6 +277,7 @@ class Grand:
 
         self.ui_timer = 0  # This is timer for ui update function, use realtime
         self.drama_timer = 0
+        self.diplomacy_head_talk_queue = []
 
         self.base_cursor_pos = [0, 0]  # mouse base pos on the map based on camera position
         self.cursor_pos = [0, 0]
@@ -372,17 +378,17 @@ class Grand:
         scroller_images = (self.game.option_menu_images["scroller_box"], self.game.option_menu_images["scroller"])
         scroll_button_images = (
             self.game.option_menu_images["scroll_button_normal"], self.game.option_menu_images["scroll_button_click"])
-        self.deploy_supply_value_box = ValueBox(self.game.option_menu_images["value"],
+        self.deploy_supply_value_box = ValueBox(self.grand_ui_images["value"],
                                                 (self.grand_army_deploy_management_ui.rect.topright[0] - (
-                                                            self.game.option_menu_images["value"].get_width() / 2),
+                                                        self.grand_ui_images["value"].get_width() / 2),
                                                  self.grand_army_deploy_management_ui.rect.topright[1] + (
-                                                             self.game.option_menu_images["value"].get_height() / 2)),
+                                                             self.grand_ui_images["value"].get_height() / 2)),
                                                 100,
                                                 self.game.large_generic_ui_font)
-        self.deploy_supply_slider = SliderMenu(scroller_images, scroll_button_images,
-                                               (self.deploy_supply_value_box.rect.midright[0] - (
-                                                   scroller_images[0].get_width()),
-                                                self.deploy_supply_value_box.rect.midright[1]), 100)
+        self.deploy_supply_slider = DeploySupplySliderMenu(scroller_images, scroll_button_images,
+                                                           (self.deploy_supply_value_box.rect.midright[0] - (
+                                                               scroller_images[0].get_width()),
+                                                            self.deploy_supply_value_box.rect.midright[1]), 100)
         self.deploy_supply_slider.value_box = self.deploy_supply_value_box
 
         self.grand_army_deploy_uis = (self.grand_army_deploy_management_ui, self.region_management_tab_button,
@@ -391,6 +397,11 @@ class Grand:
                                       self.grand_character_selector_ui, self.grand_character_selector_ui.scroll,
                                       self.grand_reserve_army_setup_ui, self.deploy_supply_slider,
                                       self.deploy_supply_value_box)
+
+        self.army_management_ui = ArmyManagement(self.grand_reserve_army_list_ui.rect.topright)
+        self.army_setup_ui = ArmySetup(self.grand_reserve_army_list_ui.rect.topright)
+
+        self.army_management_uis = (self.army_management_ui, self.army_management_ui)
 
         self.event_notification_ui = EventNotification()
 
@@ -638,10 +649,11 @@ class Grand:
                     # FOR DEVELOPMENT comment out later
                     if event.key == K_F1:
                         # self.drama_text.queue.append((True, "Hello and welcome to showcase video", "dollhi"))
-                        self.diplomacy_head_ui.start_speak("leader_doll_king", "accept_gift")
+                        self.add_diplomacy_talk_queue("leader_doll_king", "accept_gift")
                     elif event.key == K_F2:
                         self.drama_text.queue.append(
                             (True, "Showcase: Grand strategy campaign development and cosmos system", None))
+                        self.add_diplomacy_talk_queue("leader_bigta", "accept_gift")
                     # elif event.key == K_F3:
                     # elif event.key == K_F6:
                     # self.screen_shake_value = 11111
@@ -722,6 +734,8 @@ class Grand:
         self.route_list = {}
 
         self.ai_process_list = []
+
+        self.diplomacy_head_talk_queue = []
 
         clean_group_object((self.grand_camera_ui_updater, self.grand_object_updater, self.grand_effect_updater))
 

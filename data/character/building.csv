@@ -351,7 +351,7 @@
 "unique_great_depth_3_adventure_zone","unique_great_depth_2_adventure_zone",,,,,,,,,,,,-500,400,,,"gold:0.4","all","unique",
 "unique_great_depth_4_adventure_zone","unique_great_depth_3_adventure_zone",,,,,,,,,,,,-1000,500,,,"gold:0.5","all","unique",
 "unique_great_depth_5_adventure_zone","unique_great_depth_4_adventure_zone",,,,,,,,,,,,-1500,1000,,,"gold:1","all","unique",
-"unique_great_red_tree","unique_great_red_tree_destroyed",,,,,,"small_human_red_leaf_bandit",,,"small_human_red_leaf_bandit",,,50,,4,,"happiness:0.3","all","unique",
+"unique_great_red_tree","unique_great_red_tree_destroyed",,,,,,"small_human_red_leaf_bandit",,,"small_human_red_leaf_bandit",,,50,,4,,"happiness:0.3","all","unique","done"
 "unique_great_red_tree_destroyed",,,,,,,,,,,,,,50,-6,,,"all","unique",
 "unique_great_ruin",,,,,,,,,,,,,,700,-5,,"gold:0.4","all","unique",
 "unique_great_sail",,,,,,,,,,,,,,,,,,"all","unique",
@@ -375,10 +375,10 @@
 "unique_misery_volcano",,,,,,,,,,,,,,,,,,"all","unique",
 "unique_penguin_paradise",,,,,,,,,,,,,,,,,,"all","unique",
 "unique_phoenix_nest",,,,,,,,,,,,,,,,,,"all","unique",
-"unique_rabbit_first_warren","unique_rabbit_first_warren_ruin",,,,,,,,,,,,,,,,,"all","unique","done"
-"unique_rabbit_first_warren_ruin",,,,,,,,,,,,,,,,,,"all","unique",
-"unique_rabbit_jousting_arena","unique_rabbit_jousting_arena_ruin",,,,,,,,,,,,,,,,,"all","unique","done"
-"unique_rabbit_jousting_arena_ruin",,,,,,,,,,,,,,,,,,"all","unique",
+"unique_rabbit_first_warren","unique_rabbit_first_warren_ruin",,8,,,"small_rabbit_leader_knight,small_rabbit_leader_knight","small_rabbit_spear,small_rabbit_sling",,,,,,100,100,5,,"gold:2","all","unique","done"
+"unique_rabbit_first_warren_ruin",,,,,,,,,,,,,,,,,,"all","unique","done"
+"unique_rabbit_jousting_arena","unique_rabbit_jousting_arena_ruin",,7,,,,,,,,,,,,20,,,"all","unique","done"
+"unique_rabbit_jousting_arena_ruin",,,,,,,,,,,,,,,-5,,,"all","unique","done"
 "unique_rainbow_lake",,,,,,,,,,,,,,,,,,"all","unique",
 "unique_rainbow_pot","unique_rainbow_pot_looted",,,15000,,,,,,,,,,300,8,,"gold:0.4","all","unique",
 "unique_rainbow_pot_looted",,,,3000,,,,,,,,,,,-6,,,"all","unique",

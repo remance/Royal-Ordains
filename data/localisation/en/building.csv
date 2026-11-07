@@ -192,8 +192,8 @@
 "unique_great_depth_3_adventure_zone",,
 "unique_great_depth_4_adventure_zone",,
 "unique_great_depth_5_adventure_zone",,
-"unique_great_red_tree",,
-"unique_great_red_tree_destroyed",,
+"unique_great_red_tree","Great Red Tree","Portiues, the great red Trenieuc tree, mother of many Trenieuc trees, and possibly the eldest of all in Pamat Forest. Many consider it a symbol of resilience and serenity."
+"unique_great_red_tree_destroyed","Damaged Great Red Tree","Portiues in a damaged state. Its large size makes it impossible to be completely uprooted. So there is still a way to repair the damage."
 "unique_great_ruin",,
 "unique_great_sail",,
 "unique_hall_of_blade","Hall of Blade",
@@ -217,9 +217,9 @@
 "unique_penguin_paradise","Penguin Paradise",
 "unique_phoenix_nest",,
 "unique_rabbit_first_warren","First Warren","The first great warren of rabbits. A historical site that signified the new era of small people."
-"unique_rabbit_first_warren_ruin","First Warren Ruin",
+"unique_rabbit_first_warren_ruin","First Warren Ruin","The ruin of the first great warren. There were still sighting reports of rabbits around the ruin from time to time."
 "unique_rabbit_jousting_arena","Pamat Jousting Arena","The forest jousting arena. Inspired by the knight jousting culture of the Central Realms, rabbits came to believe that such strength could be obtained from tournaments."
-"unique_rabbit_jousting_arena_ruin",,"The ruin of the forest jousting arena. Decrepit from destruction, only the whisper of long-gone applause can still be heard."
+"unique_rabbit_jousting_arena_ruin","Pamat Jousting Arena Ruin","The ruin of the forest jousting arena. Decrepit from destruction, only the whisper of long-gone applause could still be heard."
 "unique_rainbow_lake",,
 "unique_rainbow_pot",,
 "unique_rainbow_pot_looted",,

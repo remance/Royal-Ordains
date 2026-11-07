@@ -121,7 +121,7 @@ class DiplomacyHeadSpeechbox(CharacterSpeechBox, UIOuterGrand):
 
     def __init__(self, character, text):
         UIOuterGrand.__init__(self, player_cursor_interact=False)
-        CharacterSpeechBox.__init__(self, character, text, add_battle_log=False)
+        CharacterSpeechBox.__init__(self, character, text, font_size=70, add_battle_log=False)
 
     def check_draw(self):
         """No need to check draw for grand diplomacy head speech"""
@@ -140,11 +140,12 @@ class DiplomacyHead(UIOuterGrand):
         self.image = Surface((400 * self.screen_scale_width, 400 * self.screen_scale_height))
 
         self.timer = 0
-        self.rect = self.image.get_rect(topright=self.grand.mini_cosmic_ui.rect.topleft)
+        self.rect = self.image.get_rect(midright=(self.grand.mini_cosmic_ui.rect.midleft[0] - (10 * self.screen_scale_width),
+                                                  self.grand.mini_cosmic_ui.rect.midleft[1]))
 
         # variable to imitate battle character for speech box
         self.base_pos = self.grand.base_camera_center_pos
-        self.pos = self.rect.midleft
+        self.pos = (self.rect.midleft[0] - (10 * self.screen_scale_width), self.rect.midleft[1])
         self.culture = "free"
         self.alive = True
         self.speech = None
@@ -454,7 +455,7 @@ class MenuBar(UIOuterGrand):
                             return
 
                     else:
-                        self.text_popup.popup(cursor.rect, self.grab_text(("ui", "info_text_" + key)))
+                        self.text_popup.popup(("topright", cursor.rect.topleft), self.grab_text(("ui", "info_text_" + key)))
                         self.add_to_outer_ui_menu_updater(self.text_popup)
                     return
         self.image = self.base_image
@@ -505,9 +506,10 @@ class TimeSettingOption(UIOuterGrand):
 
     def update(self, dt):
         if UIOuterGrand.update(self, dt):
+            cursor = self.cursor
             inside_mouse_pos = Vector2(
-                (self.cursor.pos[0] - self.rect.topleft[0]),
-                (self.cursor.pos[1] - self.rect.topleft[1]))
+                (cursor.pos[0] - self.rect.topleft[0]),
+                (cursor.pos[1] - self.rect.topleft[1]))
             for index, image in enumerate(self.time_option_rects):
                 rect = self.time_option_rects[image]
                 if rect.collidepoint(inside_mouse_pos):
@@ -518,8 +520,8 @@ class TimeSettingOption(UIOuterGrand):
                             self.grand.game_speed = index
                             self.reset()
                     else:
-                        self.text_popup.popup(self.cursor.rect, self.grab_text(("ui", "info_text_time_speed_" +
-                                                                                str(index))))
+                        self.text_popup.popup(("topright", cursor.rect.topleft),
+                                              self.grab_text(("ui", "info_text_time_speed_" + str(index))))
                         self.add_to_outer_ui_menu_updater(self.text_popup)
                     break
 
@@ -944,12 +946,11 @@ class ArmyList(GrandListUI, UIOuterGrand):
                             self.draw_card_list_to_ui(
                                 self.grand.current_campaign_state["faction"][self.grand.player_faction]["army"],
                                 self.grand.player_selected_army)
-                        # elif self.event_alt_press:
-                        #     # open army management ui
-                        #     grand.player_grand_preset_army_setup.popup("", army)
-                        #     grand.player_army_info_ui.add_info(army)
-                        #     self.outer_ui_updater.add(grand.player_grand_preset_army_setup,
-                        #                               grand.player_army_info_ui)
+                        elif self.event_alt_press:
+                            # open army management ui
+                            grand.army_setup_management_ui.reset(army)
+                            grand.army_management_ui.reset(army)
+                            grand.outer_ui_updater.add(grand.army_management_uis)
                         elif self.event_middle_mouse_press:
                             grand.camera_topleft_pos = Vector2(
                                 (army.base_pos[

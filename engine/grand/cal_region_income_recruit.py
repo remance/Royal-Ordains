@@ -66,9 +66,18 @@ def cal_region_income_recruit(self: Grand, faction_id: str, region_id: str):
 
     region_income_state = campaign_region_state[region_id]["income"]
 
-    region_income_state["gold_income"] = total_gold_income * income_mod["gold"]
-    region_income_state["supply_income"] = total_supply_income * income_mod["supply"]
-    region_income_state["happiness"] = total_happiness * income_mod["happiness"]
+    # apply boost only if income in positive
+    region_income_state["gold_income"] = total_gold_income
+    if total_gold_income > 0:
+        region_income_state["gold_income"] *= income_mod["gold"]
+
+    region_income_state["supply_income"] = total_supply_income
+    if total_supply_income > 0:
+        region_income_state["supply_income"] *= income_mod["supply"]
+
+    region_income_state["happiness"] = total_happiness
+    if total_happiness > 0:
+        region_income_state["happiness"] *= income_mod["happiness"]
 
     campaign_region_state[region_id]["garrison"] = garrison_list
     campaign_region_state[region_id]["recruit"] = recruit_list

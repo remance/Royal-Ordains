@@ -54,6 +54,9 @@ def state_grand_process(self: Grand):
 
         self.drama_process(add_battle_log=False)
 
+        if self.diplomacy_head_talk_queue and self.diplomacy_head_ui not in self.outer_ui_updater:
+            self.start_diplomacy_talk()
+
         # Object related updater
         self.grand_object_updater.update(true_dt, dt)
         self.grand_effect_updater.update(true_dt)

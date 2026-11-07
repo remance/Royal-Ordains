@@ -834,6 +834,7 @@ class PresetArmyGrandCharacterSelector(CharacterSelector, UIOuterGrand):
         UIOuterGrand.__init__(self)
         CharacterSelector.__init__(self, pos)
         self.rect = self.image.get_rect(topleft=pos)  # reset rect
+        self.scroll.rect.topright = self.rect.topright  # reset scroll rect position
 
     def add(self, character_type):
         grand = self.grand
@@ -1127,7 +1128,6 @@ class ArmyDeployManagement(UIOuterGrand):
             self.button_rects[index] = rect
 
         self.base_image = self.image.copy()
-        self.max_supply = 10000
 
     def reset(self, army_game_id):
         grand = self.grand
@@ -1216,7 +1216,8 @@ class ArmyDeployManagement(UIOuterGrand):
                             for army in player_faction_state["reserve"]:
                                 if army.game_id == army_setup_ui.showing_army_game_id:
                                     if army.commander_id:  # can only deploy if army has commander
-                                        army.deploy_from_reserve(self.player_selected_region, self.max_supply)
+                                        army.deploy_from_reserve(self.player_selected_region,
+                                                                 grand.deploy_supply_value_box.value)
                                         army_setup_ui.showing_army_game_id = None
                                         reserve_list_ui.showing_army_game_id = None
                                         army_setup_ui.reset(active=False)
@@ -1246,14 +1247,13 @@ class ArmyDeployManagement(UIOuterGrand):
 
 
 class DeploySupplySliderMenu(SliderMenu, UIOuterGrand):
-    def __init__(self):
-        self._layer = 6
+    def __init__(self, bar_images, button_images, pos, value):
         UIOuterGrand.__init__(self)
-        self.previous_value = None
+        SliderMenu.__init__(self, bar_images, button_images, pos, value, layer=11)
 
     def update(self, dt):
         SliderMenu.update(self, dt)
-        self.grand.deploy_supply_value_box()
+        self.grand.deploy_supply_value_box.change_value(self.value * 100)
 
 
 class RegionManagement(UIOuterGrand):
@@ -1754,3 +1754,89 @@ class BuildingManagement(UIOuterGrand):
                                 grand.region_management_ui.popup_building_info(building)
                             return
                     return
+
+
+class ArmySetup(PresetArmySetupUI, UIOuterGrand):
+    # disable player keyboard input for grand
+
+    def __init__(self, pos, layer=10):
+        """UI for setting up reserve preset army setup"""
+        self._layer = layer
+        UIOuterGrand.__init__(self)
+        PresetArmySetupUI.__init__(self, pos, True)
+        self.rect = self.image.get_rect(topleft=pos)  # reset rect
+        self.showing_army_game_id = None
+
+    def reset(self, army):
+        image = self.image
+        image.fill((100, 100, 100))
+        self.showing_army_game_id = army.game_id
+        for header in self.army_header:
+            character_type = header.split(" ")[0].lower()
+            index = 0
+            if header != "Commander":
+                index = int(header.split(" ")[1]) - 1
+            character = army.army_followers[header][index]
+            if character:
+                character = character[0]
+                rect = self.portrait_type_rects[character_type][index]
+                image.blit(self.circle, self.portrait_type_rects[character_type][index])
+                if not character[1]:
+                    pass
+
+            if character:
+                image.blit(self.character_portraits[character]["setup_ui"], rect)
+
+    def update(self, dt):
+        grand = self.grand
+        cursor = self.cursor
+
+        if UIOuterGrand.update(self, dt):
+            if not self.pause:
+                inside_mouse_pos = Vector2(
+                    (cursor.pos[0] - self.rect.topleft[0]),
+                    (cursor.pos[1] - self.rect.topleft[1]))
+                for character_type in ("commander", "leader", "troop", "air"):
+                    for index, rect in enumerate(self.portrait_type_rects[character_type]):
+                        if rect.collidepoint(inside_mouse_pos):
+                            if self.event_alt_press:  # remove follower with right click
+                                for army in grand.current_campaign_state["faction"][grand.player_faction]["army"]:
+                                    if army == self.showing_army_game_id:
+                                        army.change_follower(character_type, index, None)
+                                        if character_type == "commander":
+                                            army.remove_army_from_active()
+                                        break
+                            else:
+                                if character_type == "commander":
+                                    character = self.army_preset[character_type.capitalize()]
+                                else:
+                                    character = self.army_preset[character_type.capitalize() + " " + str(index + 1)]
+
+                                if character:
+                                    character_name_text = self.grab_text(("character", character, "Name"))
+                                else:
+                                    character_name_text = self.grab_text(
+                                        ("ui", "info_text_empty_" + character_type))
+
+                                self.text_popup.popup(cursor.rect, character_name_text)
+                                self.add_to_outer_ui_menu_updater(self.text_popup)
+                        return
+
+
+class ArmyManagement(UIOuterGrand):
+    def __init__(self, pos):
+        self._layer = 9
+        UIOuterGrand.__init__(self)
+        self.font = self.game.generic_ui_font
+        self.header_font = self.game.large_generic_ui_font
+        self.image = Surface((int(self.screen_width * 0.72), int(280 * self.screen_scale_height)), SRCALPHA)
+        self.image.fill((150, 150, 150))
+        self.image_center_x = self.image.get_width() / 2
+        self.showing_army_game_id = None
+
+        self.rect = self.image.get_rect(bottomleft=pos)
+
+        self.base_image = self.image.copy()
+
+    def reset(self, showing_army):
+        pass

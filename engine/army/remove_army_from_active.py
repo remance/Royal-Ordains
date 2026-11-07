@@ -1,14 +1,25 @@
 def remove_army_from_active(self, destroyed=False):
     """remove army and put it in reserved instead"""
-    self.current_region = None
 
     grand = self.grand
-    if destroyed:  # destroyed army get supply removed
-        self.supply = 0  # remove supply
-        # grand.current_campaign_state["faction"][self.faction]# add destroy event
+    current_campaign_state = grand.current_campaign_state
+    faction_state = current_campaign_state[self.faction]
+    if destroyed:
+        if self.belong_to_player_faction:
+            grand = self.grand
+            grand.event_notification_ui.add_new_event((
+                "event_bad", self.grab_text(("character", self.commander_id, "Name")) +
+                self.grab_text(("ui", "army_destroyed")) + self.grab_text(("region", self.current_region, "Name")),
+                str(current_campaign_state["turn"]) + "." + str(current_campaign_state["phase"]), ()))
 
-    grand.current_campaign_state[self.faction]["army"].remove(self)
-    grand.current_campaign_state[self.faction]["reserve"].add(self)
+    elif not destroyed and self.current_region:  # return supply to reserve
+        faction_state["supply"] += self.supply
+        self.supply = 0
+
+    self.current_region = None
+
+    faction_state["army"].remove(self)
+    faction_state["reserve"].add(self)
     grand.dots_army_occupation[self.base_pos].remove(self)
     grand.sort_dot_army_occupation(self.base_pos)
 

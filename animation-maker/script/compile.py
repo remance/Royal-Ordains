@@ -218,7 +218,6 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                             image = apply_sprite_effect(image, prop_list)
                             if "DIPLOMACY_" in animation_name:  # crop diplomacy image to just rect portrait
                                 new_image = Surface((400, 400))
-                                new_image.fill((230, 230, 230))
                                 new_image.blit(image, (0, 0), (base_point[0] - 200, base_point[1] - 600, 400, 400))
                                 image = new_image
                             image, crop_offset = crop_sprite(image)

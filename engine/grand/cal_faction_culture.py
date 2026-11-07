@@ -48,8 +48,9 @@ def cal_faction_culture(self: Grand, faction_id: str):
 
                     culture_integration = faction_culture_campaign_state[culture]["integration"]
                     if culture_integration > 0:
-                        culture_weight[culture] += self.building_list[building_id]["Influence"] * culture_integration
-                        region_culture_campaign_state[culture] += culture_weight[culture]
+                        building_culture = self.building_list[building_id]["Influence"] * culture_integration
+                        culture_weight[culture] += building_culture
+                        region_culture_campaign_state[culture] += building_culture
 
     # culture weight cannot be less than 0
     total_diversity_weight = sum([weight for weight in culture_weight.values() if weight > 0])
