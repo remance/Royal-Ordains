@@ -25,7 +25,7 @@ def cal_region_income_recruit(self: Grand, faction_id: str, region_id: str):
                 # building is in active state and not destroyed/constructing/repairing
                 building_id = building_state[0]
                 building_stat = self.building_list[building_id]
-                integration_state = 1
+                integration_state = 1  # building with "all" culture is fully integrated at all time
                 culture_prohibit = False
                 if building_stat["Culture"] != "all":
                     culture_state = faction_culture_state[building_stat["Culture"]]
@@ -33,10 +33,19 @@ def cal_region_income_recruit(self: Grand, faction_id: str, region_id: str):
                     if culture_state["policy"] == "reject":
                         culture_prohibit = True
                 if integration_state > 0:
-                    # integration more than 0 will allow building to give resource, can be negative
-                    total_gold_income += building_stat["Gold Income"] * integration_state
-                    total_supply_income += building_stat["Supply Income"] * integration_state
-                    total_happiness += building_stat["Happiness"] * integration_state
+                    # integration more than 0 will allow building to give resource
+                    if building_stat["Gold Income"] > 0:  # positive income benefit from more influence
+                        total_gold_income += building_stat["Gold Income"] * integration_state
+                    else:  # negative income get worse from lower influence
+                        total_gold_income += building_stat["Gold Income"] * integration_state
+                    if building_stat["Supply Income"] > 0:
+                        total_supply_income += building_stat["Supply Income"] * integration_state
+                    else:
+                        total_supply_income += building_stat["Supply Income"] * integration_state
+                    if building_stat["Happiness"] > 0:
+                        total_happiness += building_stat["Happiness"] * integration_state
+                    else:
+                        total_happiness += building_stat["Happiness"] * integration_state
 
                 if building_stat["Income Boost"]:
                     for key, value in building_stat["Income Boost"].items():

@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 
 
 def sort_player_army_list(self: Grand):
-    how = self.grand_army_list_sort_option_ui.option
+    how = self.army_list_sort_option_ui.option
     reverse = True
     if how[1] == "descend":
         reverse = False
@@ -23,4 +23,4 @@ def sort_player_army_list(self: Grand):
         self.current_campaign_state["faction"][self.player_faction]["army"].sort(
             key=lambda x: self.grab_text(("region", x.current_region, "Name")), reverse=reverse)
 
-    self.grand_army_list_ui.reset()
+    self.army_list_ui.reset()

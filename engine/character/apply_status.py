@@ -3,15 +3,8 @@ def apply_status(self, status):
     if status not in self.status_immunity:
         status_stat = self.status_list[status]  # get status stat
         status_property = status_stat["Property"]
-        if "apply_type_only" in status_property:
-            # use construct apply and undead apply as only character type check instead
-            if (self.race != "construct" and status_stat["Construct Apply"]) or (
-                    self.race != "undead" and status_stat["Undead Apply"]):
-                # status only applied to construct or undead character
-                return
-        elif (self.race == "construct" and not status_stat["Construct Apply"]) or (
-                self.race == "undead" and not status_stat["Undead Apply"]):
-            # some status cannot be applied to construct or undead character
+        if self.race_type in status_stat["Exclude Race Type"]:
+            # some status cannot be applied to certain race type
             return
 
         # if effect not in self.status_duration:

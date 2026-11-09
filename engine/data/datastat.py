@@ -27,6 +27,17 @@ class DataStat(GameData):
                 self.culture_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
         edit_file.close()
 
+        self.race_list = {}
+        with open(os.path.join(self.data_dir, "character", "race.csv"),
+                  encoding="utf-8", mode="r") as edit_file:
+            rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
+            header = rd[0]
+            for index, row in enumerate(rd[1:]):
+                for n, i in enumerate(row):
+                    row = stat_convert(row, n, i)
+                self.race_list[row[0]] = {header[index + 1]: stuff for index, stuff in enumerate(row[1:])}
+        edit_file.close()
+
         # Character status effect dict
         self.status_list = {}
         self.can_cure_status_list = []
@@ -41,7 +52,7 @@ class DataStat(GameData):
                             "Fire Resistance Bonus", "Water Resistance Bonus", "Air Resistance Bonus",
                             "Earth Resistance Bonus",
                             "Magic Resistance Bonus", "Poison Resistance Bonus", "Magic Resistance Bonus")
-            tuple_column = ("Status Conflict",)  # value in tuple only
+            tuple_column = ("Status Conflict", "Exclude Race Type")  # value in tuple only
             dict_column = [index for index, item in enumerate(header) if item in dict_column]
             percent_column = [index for index, item in enumerate(header) if item in percent_column]
             float_column = [index for index, item in enumerate(header) if item in float_column]
@@ -66,8 +77,7 @@ class DataStat(GameData):
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
             dict_column = ("Summon", "AI Condition", "Property",)
-            tuple_column = (
-                "Effects", "Damage Effects", "Status", "Enemy Status", "Effect Enemy Status")  # value in tuple only
+            tuple_column = ("Effects", "Damage Effects", "Status", "Enemy Status", "Effect Enemy Status")  # value in tuple only
             dict_column = [index for index, item in enumerate(header) if item in dict_column]
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
             for index, row in enumerate(rd[1:]):
@@ -100,7 +110,18 @@ class DataStat(GameData):
                 item_row = self.character_list[row[0]]
                 item_row["Move"] = {}
                 item_row["Behaviour Class"] = str(item_row["AI Behaviour"]) + "_" + str(item_row["Class"])
-                item_row["Summon List"] = ()
+                race_stat = self.race_list[item_row["Race"]]
+                item_row["Race Type"] = race_stat["Type"]
+                item_row["Slash Resistance"] = race_stat["Slash Resistance"] + item_row["Slash Resistance Bonus"]
+                item_row["Crush Resistance"] = race_stat["Crush Resistance"] + item_row["Crush Resistance Bonus"]
+                item_row["Stab Resistance"] = race_stat["Stab Resistance"] + item_row["Stab Resistance Bonus"]
+                item_row["Fire Resistance"] = race_stat["Fire Resistance"] + item_row["Fire Resistance Bonus"]
+                item_row["Water Resistance"] = race_stat["Water Resistance"] + item_row["Water Resistance Bonus"]
+                item_row["Air Resistance"] = race_stat["Air Resistance"] + item_row["Air Resistance Bonus"]
+                item_row["Earth Resistance"] = race_stat["Earth Resistance"] + item_row["Earth Resistance Bonus"]
+                item_row["Magic Resistance"] = race_stat["Magic Resistance"] + item_row["Magic Resistance Bonus"]
+                item_row["Poison Resistance"] = race_stat["Poison Resistance"] + item_row["Poison Resistance Bonus"]
+
                 item_row["ai_min_attack_range"] = infinity
                 item_row["ai_skirmish_range"] = 0
                 item_row["ai_max_attack_range"] = 0

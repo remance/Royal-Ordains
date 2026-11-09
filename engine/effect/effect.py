@@ -121,8 +121,9 @@ class Effect(Sprite):
         self.animation_pool = self.effect_animation_pool[self.effect_name]
         self.current_animation = self.animation_pool[self.part_name][self.sprite_flip][self.width_scale][
             self.height_scale]
+        self.len_current_animation = len(self.current_animation)
 
-        self.max_show_frame = len(self.current_animation) - 1
+        self.max_show_frame = self.len_current_animation - 1
 
         self.base_image = self.current_animation[self.show_frame]
         self.image = None
@@ -313,7 +314,7 @@ class Effect(Sprite):
             self.travel_distance = 0
 
         self.animation_frame_play_time = self.Base_Animation_Frame_Play_Time
-        if len(self.current_animation) == 1:  # effect with no animation play a bit longer
+        if self.len_current_animation == 1:  # effect with no animation play a bit longer
             self.animation_frame_play_time = 0.2
         if "play_time_mod" in effect_stat_property:
             self.animation_frame_play_time *= effect_stat_property["play_time_mod"]
@@ -460,7 +461,7 @@ class TrapEffect(DamageEffect):
         # change image to activate
         self.current_animation = self.animation_pool["activate"][self.sprite_flip][self.width_scale][self.height_scale]
         self.animation_frame_play_time = self.Base_Animation_Frame_Play_Time  # reset animation play speed
-        if len(self.current_animation) == 1:  # effect with no animation play a bit longer
+        if self.len_current_animation == 1:  # effect with no animation play a bit longer
             self.animation_frame_play_time = 0.2
         self.base_image = self.current_animation[self.show_frame]
         self.renew_sprite = True
@@ -612,9 +613,10 @@ class ShowcaseEffect(Effect):
         self.animation_pool = self.effect_animation_pool[self.effect_name]
         self.current_animation = self.animation_pool[self.part_name][self.sprite_flip][self.width_scale][
             self.height_scale]
-        self.max_show_frame = len(self.current_animation) - 1
+        self.len_current_animation = len(self.current_animation)
+        self.max_show_frame = self.len_current_animation - 1
         self.animation_frame_play_time = self.Base_Animation_Frame_Play_Time
-        if len(self.current_animation) == 1:  # effect with no animation play a bit longer
+        if self.len_current_animation == 1:  # effect with no animation play a bit longer
             self.animation_frame_play_time = 0.2
         self.base_image = self.current_animation[self.show_frame]
         self.image = None

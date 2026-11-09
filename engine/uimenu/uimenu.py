@@ -548,6 +548,7 @@ class CharacterSelector(UIMenu):
         UIMenu.__init__(self)
         self.character_portraits = self.game.sprite_data.character_portraits
         self.character_list = self.game.character_list
+        self.race_list = self.game.race_list
         self.custom_character_setup = self.game.stat_data.custom_character_setup
         self.all_main_exist_characters = self.game.stat_data.all_main_exist_characters
         self.image = Surface((int(1100 * self.screen_scale_width), int(1080 * self.screen_scale_height)), SRCALPHA)
@@ -630,51 +631,69 @@ class CharacterSelector(UIMenu):
                 else:
                     break
 
-    def grab_character_stat_text(self, character_id, character_data):
+    def grab_character_stat_text(self, character_id, character_data, race_data, culture_state=None):
         grab_text = self.grab_text
-        class_text = grab_text(("ui", "info_header_class")) + grab_text(
-            ("ui", "grade_" + character_data["Grade"])) + " " + grab_text(
-            ("ui", "behaviour_" + character_data["AI Behaviour"])) + " " + grab_text(
-            ("ui", "class_" + character_data["Class"]))
-        if character_data["Is Unique"]:
-            class_text += " " + grab_text(("ui", "info_text_hero"))
+        class_text = [grab_text(("ui", "info_header_race_type")) +
+                      grab_text(("ui", "race_type_" + character_data["Race Type"])),
+                      grab_text(("ui", "info_header_class")) +
+                      grab_text(("ui", "grade_" + character_data["Grade"])) + " " +
+                      grab_text(("ui", "behaviour_" + character_data["AI Behaviour"])) + " " +
+                      grab_text(("ui", "class_" + character_data["Class"]))]
 
-        char_stat = [grab_text(("character", character_id, "Name")) + " (" +
-                     str(character_data["Arrive Per Call"]) + "" +
-                     "x" + str(character_data["Capacity"]) + ")",
-                     grab_text(("character", character_id, "Description")), "",
-                     class_text,
-                     grab_text(("ui", "info_header_health")) + add_comma_number(
+        if character_data["Is Unique"]:
+            call_text = " (" + grab_text(("ui", "info_text_hero")) + ")"
+        else:
+            call_text = " (" + str(character_data["Arrive Per Call"]) + "x" + str(character_data["Capacity"]) + ")"
+
+        character_text = [grab_text(("character", character_id, "Name")) + call_text,
+                     grab_text(("character", character_id, "Description")), ""] + class_text
+
+        if culture_state:
+            character_culture = character_data["Culture"]
+            influence_cost_mod = 0
+            if character_culture != "free":
+                influence_cost_mod = 2
+                if character_culture in culture_state:
+                    # the lower the culture influence, the higher cost and upkeep
+                    # e.g., 50% culture influence result in double cost, 0 = triple cost
+                    influence_cost_mod = (1 - culture_state[character_culture]["influence"]) * 2
+
+            character_text.append((grab_text(("ui", "info_header_cost_upkeep")) + add_comma_number(
+                int(character_data["Cost"] + (character_data["Cost"] * influence_cost_mod))) + "(" + add_comma_number(
+                int(character_data["Upkeep"] + (character_data["Upkeep"] * influence_cost_mod))) + ")",
+                                  self.grand_ui_images["gold"]))
+        else:
+            character_text.append((grab_text(("ui", "info_header_cost")) + add_comma_number(
+                character_data["Cost"]), self.grand_ui_images["gold"]))
+
+        character_text += [grab_text(("ui", "info_header_health")) + add_comma_number(
                          character_data["Health"]),
                      grab_text(("ui", "info_header_offence")) + str(character_data["Offence"]),
                      grab_text(("ui", "info_header_defence")) + str(character_data["Defence"]),
-                     grab_text(("ui", "info_header_speed")) + str(character_data["Speed"]),
-                     (grab_text(("ui", "info_header_cost")) + add_comma_number(
-                         character_data["Cost"]), self.grand_ui_images["gold"])]
+                     grab_text(("ui", "info_header_speed")) + str(character_data["Speed"])]
 
         if character_data["Leadership"]:
-            char_stat.append((grab_text(("ui", "info_header_leadership")) + str(
+            character_text.append((grab_text(("ui", "info_header_leadership")) + str(
                 character_data["Leadership"]), self.grand_ui_images["leadership"]))
         if character_data["Strategy"]:
-            char_stat.append(
+            character_text.append(
                 grab_text(("ui", "info_header_strategy")) + grab_text(
                     ("strategy", character_data["Strategy"], "Name")))
         if character_data["Supply"]:
-            char_stat.append(
+            character_text.append(
                 (grab_text(("ui", "info_header_supply_cost")) + str(character_data["Supply"]),
                  self.grand_ui_images["supply"]))
 
         resistance_text = [grab_text(("ui", "info_header_resistance"))]
         has_resistance = False
-        for resistance in (
-                "Slash", "Crush", "Stab", "Fire", "Water", "Air", "Earth", "Magic", "Poison"):
-            if character_data[resistance + " Resistance"]:
+        for resistance in ("Slash", "Crush", "Stab", "Fire", "Water", "Air", "Earth", "Magic", "Poison"):
+            resist_value = race_data[resistance + " Resistance"] + character_data[resistance + " Resistance Bonus"]
+            if resist_value:
                 has_resistance = True
-                resistance_text += [
-                    str(int(100 * character_data[resistance + " Resistance"])) + "%",
-                    self.battle_ui_images["element_" + resistance.lower()]]
+                resistance_text += [str(int(100 * resist_value)) + "%",
+                                    self.battle_ui_images["element_" + resistance.lower()]]
         if has_resistance:
-            char_stat.append(resistance_text)
+            character_text.append(resistance_text)
         tag_text = ""
         for prop in character_data["Property"]:
             prop_text = grab_text(("ui", "property_" + prop))
@@ -683,9 +702,9 @@ class CharacterSelector(UIMenu):
         if tag_text:
             tag_text = grab_text(("ui", "info_header_property")) + tag_text
             tag_text = tag_text[:-2]  # remove additional comma
-            char_stat.append(tag_text)
+            character_text.append(tag_text)
 
-        return char_stat
+        return character_text
 
     def update(self, dt):
         if UIMenu.update(self, dt):
@@ -710,6 +729,7 @@ class CharacterSelector(UIMenu):
                     if shown_index < len(self.selector_character_list):
                         character_id = self.selector_character_list[shown_index]
                         character_data = self.character_list[character_id]
+                        race_data = self.race_list[character_data["Race"]]
                         game = self.game
                         if self.event_press:
                             self.button_sound_channel.play(choice(self.sound_effect_pool["button"]))
@@ -755,7 +775,8 @@ class CharacterSelector(UIMenu):
                                     game.lorebook_character_description_showcase.change_character(character_id)
                                     game.lorebook_character_moveset_showcase.change_moveset(character_id, None)
                         else:
-                            char_stat = self.grab_character_stat_text(character_id, character_data)
+                            char_stat = self.grab_character_stat_text(character_id, character_data,
+                                                                      race_data)
 
                             game.text_popup.popup(self.cursor.rect, char_stat,
                                                   width_text_wrapper=int(1000 * self.screen_scale_width))
@@ -1009,6 +1030,7 @@ class PresetArmySetupUI(UIMenu):
         self.key_hold_method = {"Up": self.go_up, "Down": self.go_down, "Left": self.go_left, "Right": self.go_right}
         self.character_portraits = self.game.sprite_data.character_portraits
         self.character_list = self.game.character_list
+        self.race_list = self.game.race_list
         self.image = Surface((int(1300 * self.screen_scale_width), int(1080 * self.screen_scale_height)), SRCALPHA)
         self.image.fill((100, 100, 100))
         self.portrait_type_rects = {"commander": [],
@@ -1942,6 +1964,7 @@ class CharacterMovesetShowCase(UIMenu):
         self._layer = layer
         UIMenu.__init__(self)
         self.character_list = self.game.character_list
+        self.race_list = self.game.race_list
         self.effect_list = self.game.stat_data.effect_list
         self.header_font = self.game.battle_timer_font
         self.font = self.game.large_generic_ui_font
@@ -2044,6 +2067,7 @@ class GrandFactionShowCase(UIMenu):
         self.font = self.game.large_generic_ui_font
         self.character_portraits = self.game.sprite_data.character_portraits
         self.character_list = self.game.character_list
+        self.race_list = self.game.race_list
         self.culture_coas = self.game.sprite_data.culture_coas
         self.image = Surface((900 * self.screen_scale_width, 1200 * self.screen_scale_height))
         self.image.fill((255, 255, 255))
@@ -2195,6 +2219,7 @@ class GrandMiniMap(UIMenu):
                 if (region_id not in self.region_control_data or
                         region_control_data[region_id] != self.region_control_data[region_id]):
                     self.draw_faction(region_control_data[region_id], region_id)
+            self.base_image = self.before_scale_image
             self.region_control_data = region_control_data.copy()
             self.before_camera_image = smoothscale(self.before_scale_image, self.size)
             self.image = self.before_camera_image.copy()

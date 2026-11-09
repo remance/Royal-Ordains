@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from engine.grand.grand import Grand
 
+from math import ceil
 from engine.constants import Culture_Default_New
 
 
@@ -53,7 +54,7 @@ def cal_faction_culture(self: Grand, faction_id: str):
                         region_culture_campaign_state[culture] += building_culture
 
     # culture weight cannot be less than 0
-    total_diversity_weight = sum([weight for weight in culture_weight.values() if weight > 0])
+    total_diversity_weight = ceil(sum([weight for weight in culture_weight.values() if weight > 0]))
 
     # if any([key for key in culture_weight not in self.current_campaign_state[faction]["culture"]]):
     # culture is removed from faction because it no longer exist in the game

@@ -324,6 +324,7 @@ class Game:
         # Battle related data
         self.stat_data = DataStat()
         self.character_list = self.stat_data.character_list
+        self.race_list = self.stat_data.race_list
         self.map_data = DataMap()
 
         self.preset_map_data = self.map_data.preset_map_data
@@ -351,6 +352,7 @@ class Game:
         Army.character_list = self.character_list
         Character.stat_data = self.stat_data
         Character.character_list = self.character_list
+        Character.race_list = self.race_list
         Character.status_list = self.stat_data.status_list
         Character.status_apply_funcs = self.stat_data.status_apply_funcs
         Character.effect_list = self.stat_data.effect_list

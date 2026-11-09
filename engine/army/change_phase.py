@@ -1,10 +1,12 @@
 def change_phase(self):
-    current_campaign_state = self.grand.current_campaign_state
+    grand = self.grand
+    current_campaign_state = grand.current_campaign_state
     campaign_battle_dot = current_campaign_state["battle"]["dot"]
     campaign_battle_factions = current_campaign_state["battle"]["factions"]
     campaign_battle_armies = current_campaign_state["battle"]["armies"]
     dots_army_occupation = self.dots_army_occupation
     activity = self.activity
+
     if self.game_id in campaign_battle_armies:  # in battle
         return
 
@@ -16,15 +18,11 @@ def change_phase(self):
             if (self.activity["travel"] == "retreat" or next_dot not in campaign_battle_dot or
                     self.faction in campaign_battle_factions[next_dot]):
                 # can only move to that dots if no battle is taking place between other unrelated factions
+
                 activity["progress"] = 0  # reset progress
                 dots_army_occupation[self.base_pos].remove(self)  # remove army from old occupation
                 self.sort_dot_army_occupation(self.base_pos)
                 self.base_pos = activity["dot_routes"][0][1]
-                if self.game_id not in dots_army_occupation[self.base_pos]:
-                    dots_army_occupation[self.base_pos].append(self)
-                    # sort army dot position by power
-                    self.sort_dot_army_occupation(self.base_pos)
-                    self.check_enemy_army()
 
                 activity["dot_routes"][0].pop(0)  # remove passed dot
 
@@ -38,12 +36,26 @@ def change_phase(self):
 
                 region_colour = tuple(self.base_world_map.get_at((int(self.base_pos[0]),
                                                                   int(self.base_pos[1]))).rgb)
-                self.current_region = self.grand.region_by_colour_index[region_colour]
+                self.current_region = grand.region_by_colour_index[region_colour]
                 if not activity["dot_routes"]:  # no more route left, finish travel
                     self.activity = {}
+
+                # add to new dot
+                if self.game_id not in dots_army_occupation[self.base_pos]:
+                    dots_army_occupation[self.base_pos].append(self)
+                    # sort army dot position by power
+                    self.sort_dot_army_occupation(self.base_pos)
+                    # check for enemy army for battle
+                    if not self.check_enemy_army():
+                        # no enemy
+                        if self.base_pos in self.region_settlement_pos_index and \
+                                current_campaign_state["region"][self.region_settlement_pos_index[self.base_pos]][
+                                    "control"] not in current_campaign_state["faction"][self.faction]["alliance"]:
+                            # arrive at enemy settlement with no contest, change region control
+                            grand.change_region_control(self.region_settlement_pos_index[self.base_pos], self.faction)
+
     else:  # idle
-        if (self.base_pos in self.region_settlement_pos_index and
-                current_campaign_state["region"][self.region_settlement_pos_index[self.base_pos]]["control"] == self.faction):
+        if self.base_pos in self.region_settlement_pos_index and current_campaign_state["region"][self.region_settlement_pos_index[self.base_pos]]["control"] == self.faction:
             # idle at faction owned settlement
             if self.supply < self.max_supply and self.enable_resupply:
                 # replenish supply
@@ -58,7 +70,7 @@ def change_phase(self):
                     self.supply += replenish_supply
                     faction_state["supply"] = reserve_supply - replenish_supply
                     if self.belong_to_player_faction:
-                        self.grand.grand_army_list_ui.reset_card(self)
+                        grand.army_list_ui.reset_card(self)
 
             if self.enable_assemble:
                 if self.assemble_percent[0] and not self.can_assemble:
@@ -84,4 +96,4 @@ def change_phase(self):
                         self.reset_stat(reset_player_army_card=True)
                     else:
                         if self.belong_to_player_faction:
-                            self.grand.grand_army_list_ui.reset_card(self)
+                            grand.army_list_ui.reset_card(self)

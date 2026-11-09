@@ -13,7 +13,7 @@ def battle_no_player_input_grand(self: Grand):
 
 
 def player_input_grand(self: Grand):
-    if self.grand_reserve_army_list_ui not in self.outer_ui_updater:
+    if self.reserve_army_list_ui not in self.outer_ui_updater:
         for key, pressed in self.player_key_press.items():
             if pressed and key in grand_key_input:
                 grand_key_input[key](self)

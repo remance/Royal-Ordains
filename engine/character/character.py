@@ -72,6 +72,7 @@ class Character(sprite.Sprite):
     battle = None
     stat_data: dict = None
     character_list: dict = None
+    race_list = dict = None
     containers = None
     effect_list: dict = None
     sound_effect_pool: dict = None
@@ -138,11 +139,11 @@ class Character(sprite.Sprite):
     Default_Battle_Ground_Pos = Default_Battle_Ground_Pos
     Character_Gravity = Character_Gravity
 
-    def __init__(self, game_id: int, stat: dict, additional_layer: (int, str) = 0, is_commander: bool = False) -> None:
+    def __init__(self, game_id: int, character_data: dict, additional_layer: (int, str) = 0, is_commander: bool = False) -> None:
         """
         Character object represent a single character in battle
         """
-        self.char_id = stat["ID"]
+        self.char_id = character_data["ID"]
         self.animation_pool = self.battle.character_animation_data[self.char_id]  # list of animation this character
         self.sprite_height = self.animation_pool["Default"][0]["right"]["sprite"].get_height() * 1.5
         self.sprite_width = self.animation_pool["Default"][0]["right"]["sprite"].get_width() * 0.5
@@ -166,15 +167,16 @@ class Character(sprite.Sprite):
         self.camera = self.battle.camera
         self.all_team_enemy_check = self.battle.all_team_enemy_check
 
-        self.race = stat["Race"]
-        self.culture = stat["Culture"]
+        self.race = character_data["Race"]
+        self.race_type = character_data["Race Type"]
+        self.culture = character_data["Culture"]
         self.game_id = game_id  # object ID for reference
 
-        self.name = self.battle.grab_text(("character", stat["ID"], "Name"))
+        self.name = self.battle.grab_text(("character", character_data["ID"], "Name"))
         self.cutscene_event = None
         self.speech = None
         self.is_commander = is_commander
-        self.is_leader = stat["Is Leader"]
+        self.is_leader = character_data["Is Leader"]
 
         self.current_action = {}  # action being performed
         self.command_action = {}  # next action to be performed
@@ -223,8 +225,8 @@ class Character(sprite.Sprite):
 
         self.y_momentum = 0
         self.x_momentum = 0
-        self.run_speed = 9 * stat["Speed"]
-        self.walk_speed = 4 * stat["Speed"]
+        self.run_speed = 9 * character_data["Speed"]
+        self.walk_speed = 4 * character_data["Speed"]
 
         if self.no_run:
             self.run_speed = self.walk_speed
@@ -234,17 +236,17 @@ class Character(sprite.Sprite):
 
         self.commander_order = ()
         self.true_commander_order = ()
-        self.base_pos = Vector2(stat["POS"][0],
-                                stat["POS"][1])  # true position of character in battle
+        self.base_pos = Vector2(character_data["POS"][0],
+                                character_data["POS"][1])  # true position of character in battle
         self.base_ground_pos = self.Default_Battle_Ground_Pos
-        if "Ground Y POS" in stat and stat["Ground Y POS"]:  # replace ground pos based on data in stage
-            self.base_ground_pos = stat["Ground Y POS"]
+        if "Ground Y POS" in character_data and character_data["Ground Y POS"]:  # replace ground pos based on data in stage
+            self.base_ground_pos = character_data["Ground Y POS"]
 
-        if "spawn_at_ground" in stat:
-            if stat["spawn_at_ground"] == "bottom":
+        if "spawn_at_ground" in character_data:
+            if character_data["spawn_at_ground"] == "bottom":
                 self.base_pos[1] = self.base_ground_pos
-        if "direction" in stat:
-            self.direction = stat["direction"]
+        if "direction" in character_data:
+            self.direction = character_data["direction"]
         else:
             self.direction = "right"
             if self.base_pos[0] > self.battle.base_stage_end / 2:
@@ -261,10 +263,10 @@ class Character(sprite.Sprite):
 
         # apply property as variable
         char_property = {}
-        if "Property" in stat:
-            char_property = {key: value for key, value in stat["Property"].items()}
-        if "Stage Property" in stat:
-            char_property |= stat["Stage Property"]
+        if "Property" in character_data:
+            char_property = {key: value for key, value in character_data["Property"].items()}
+        if "Stage Property" in character_data:
+            char_property |= character_data["Stage Property"]
         for stuff in char_property:  # set attribute from property
             if stuff == "target":
                 if type(char_property["target"]) is int:  # target is AI
@@ -285,7 +287,7 @@ class Character(sprite.Sprite):
             self.run_command_action = self.walk_command_action
             self.run_speed = self.walk_speed
 
-        self.ai_behaviour = stat["AI Behaviour"]
+        self.ai_behaviour = character_data["AI Behaviour"]
 
         self.ai_move = MethodType(ai_move_dict["default"], self)
         if self.is_commander:  # commander use behaviour that move based on player/ ai commander order
@@ -418,7 +420,7 @@ class BattleCharacter(Character):
     is_sub_character = False
     active = True
 
-    def __init__(self, game_id: int, stat: dict, commander_character: (None, CommanderBattleCharacter) = None,
+    def __init__(self, game_id: int, character_data: dict, commander_character: (None, CommanderBattleCharacter) = None,
                  additional_layer: (int, str) = 0, is_commander: bool = False, is_summon: bool = False,
                  additional_current_state=None) -> None:
         """
@@ -429,7 +431,7 @@ class BattleCharacter(Character):
         """
         self.ai_speak_list = {}
 
-        Character.__init__(self, game_id, stat, additional_layer=additional_layer, is_commander=is_commander)
+        Character.__init__(self, game_id, character_data, additional_layer=additional_layer, is_commander=is_commander)
         if additional_layer != "main":
             self.main_character = None
         self.sub_characters = []
@@ -451,10 +453,10 @@ class BattleCharacter(Character):
         self.nearest_ally_pos = None
         self.nearest_ally_distance = None
 
-        self.character_type = stat["Type"]
-        self.character_grade = stat["Grade"]
-        self.character_class = stat["Class"]
-        self.team = stat["Team"]
+        self.character_type = character_data["Type"]
+        self.character_grade = character_data["Grade"]
+        self.character_class = character_data["Class"]
+        self.team = character_data["Team"]
         self.enemy_team = 1
         if self.team == 1:
             self.enemy_team = 2
@@ -473,26 +475,26 @@ class BattleCharacter(Character):
         if commander_character:
             self.commander_character = commander_character
             self.ai_prepare = MethodType(troop_ai_prepare, self)
-        self.power_score = stat["Power Score"]
-        self.original_offence = stat["Offence"]
-        self.original_defence = stat["Defence"]
-        self.supply = stat["Supply Drop"]
+        self.power_score = character_data["Power Score"]
+        self.original_offence = character_data["Offence"]
+        self.original_defence = character_data["Defence"]
+        self.supply = character_data["Supply Drop"]
 
         # self.melee_type = "offence"
         # if self.original_offence < self.original_defence:
         #     self.melee_type = "defence"
 
-        self.base_offence = stat["Offence"]
-        self.base_defence = stat["Defence"]
-        self.base_speed = stat["Speed"]
+        self.base_offence = character_data["Offence"]
+        self.base_defence = character_data["Defence"]
+        self.base_speed = character_data["Speed"]
 
         # add leadership from 3 active leaders (leader reduce leadership by half)
-        self.status_immunity = stat["Status Immunity"]
+        self.status_immunity = character_data["Status Immunity"]
 
-        self.base_health = stat["Health"]  # max health of character
+        self.base_health = character_data["Health"]  # max health of character
         self.base_resource = 100
 
-        self.base_element_resistance = {key.split(" ")[0].lower(): stat[key] for key in stat if " Resistance" in key}
+        self.base_element_resistance = {key.split(" ")[0].lower(): self.race_list[character_data["Race"]] + character_data[key] for key in character_data if " Resistance" in key}
         self.base_critical_chance = 0.1
         self.base_health_regen = 0  # health regeneration modifier
         if self.is_summon:
@@ -501,8 +503,8 @@ class BattleCharacter(Character):
 
         self.base_resource_cost_modifier = 1
 
-        self.spawns = stat["Spawns"]
-        self.body_mass = stat["Mass"]
+        self.spawns = character_data["Spawns"]
+        self.body_mass = character_data["Mass"]
         self.damaged_mass = self.body_mass * 2
         self.knockdown_mass = self.body_mass * 4
 
@@ -549,7 +551,7 @@ class BattleCharacter(Character):
         self.near_ally = []
         self.near_enemy = []
 
-        ai_speak_list = self.battle.localisation.grab_text(("battle_speak", stat["ID"]))
+        ai_speak_list = self.battle.localisation.grab_text(("battle_speak", character_data["ID"]))
         if type(ai_speak_list) is dict:  # only add if not empty
             self.ai_speak_list = ai_speak_list
 
@@ -572,22 +574,22 @@ class BattleCharacter(Character):
         self.no_defence = False
         self.no_dodge = False
 
-        self.movesets = deepcopy(stat["Move"])
-        self.die_moveset = stat["Die Move"]
+        self.movesets = deepcopy(character_data["Move"])
+        self.die_moveset = character_data["Die Move"]
         self.ai_range_modifier = 1
         if not self.is_leader:
             self.ai_range_modifier = uniform(0.75, 1)
             for moveset in self.movesets.values():
                 moveset["AI Range"] *= self.ai_range_modifier
 
-        self.ai_min_attack_range = stat["ai_min_attack_range"] * self.ai_range_modifier
-        self.ai_max_attack_range = stat["ai_max_attack_range"] * self.ai_range_modifier
-        self.max_enemy_range_check = stat["max_enemy_range_check"] * self.ai_range_modifier
-        self.ai_skirmish_range = stat["ai_skirmish_range"] * self.ai_range_modifier
-        self.min_resource_move = stat["min_resource_move"]
-        self.ai_min_effect_range = stat["ai_min_effect_range"]
-        self.ai_enemy_max_effect_range = stat["ai_enemy_max_effect_range"]
-        self.ai_ally_max_effect_range = stat["ai_ally_max_effect_range"]
+        self.ai_min_attack_range = character_data["ai_min_attack_range"] * self.ai_range_modifier
+        self.ai_max_attack_range = character_data["ai_max_attack_range"] * self.ai_range_modifier
+        self.max_enemy_range_check = character_data["max_enemy_range_check"] * self.ai_range_modifier
+        self.ai_skirmish_range = character_data["ai_skirmish_range"] * self.ai_range_modifier
+        self.min_resource_move = character_data["min_resource_move"]
+        self.ai_min_effect_range = character_data["ai_min_effect_range"]
+        self.ai_enemy_max_effect_range = character_data["ai_enemy_max_effect_range"]
+        self.ai_ally_max_effect_range = character_data["ai_ally_max_effect_range"]
 
         self.retreat_stage_end = self.battle.base_stage_end + (self.sprite_width * 2)
         self.retreat_stage_start = -self.sprite_width * 2
@@ -599,8 +601,8 @@ class BattleCharacter(Character):
             elif self.ai_behaviour in ai_combat_dict:
                 self.ai_combat = MethodType(ai_combat_dict[self.ai_behaviour], self)
 
-        if stat["Sub Characters"]:  # add sub characters
-            for character in stat["Sub Characters"]:
+        if character_data["Sub Characters"]:  # add sub characters
+            for character in character_data["Sub Characters"]:
                 sub_battle_character = SubBattleCharacter(
                     self.battle.last_char_game_id, self.character_list[character[0]] |
                                                    {"ID": character[0], "Team": self.team,
@@ -609,9 +611,9 @@ class BattleCharacter(Character):
                 sub_battle_character.enter_stage()
                 self.battle.last_char_game_id += 1
 
-        if stat["ID"] in self.battle.character_portraits:
-            self.icon = self.battle.character_portraits[stat["ID"]]["small"]
-            self.command_icon = self.battle.character_portraits[stat["ID"]]["mini"]["right"]
+        if character_data["ID"] in self.battle.character_portraits:
+            self.icon = self.battle.character_portraits[character_data["ID"]]["small"]
+            self.command_icon = self.battle.character_portraits[character_data["ID"]]["mini"]["right"]
 
     def update(self, dt: float):
         """Character battle update, run when cutscene not playing"""
@@ -747,7 +749,7 @@ class SubBattleCharacter(BattleCharacter):
     ai_prepare = sub_character_ai_prepare
     move_logic = sub_move_logic
 
-    def __init__(self, game_id: int, stat: dict, main_character: BattleCharacter):
+    def __init__(self, game_id: int, character_data: dict, main_character: BattleCharacter):
         """
         SubBattleCharacter object represent a battle character that is linked to a main BattleCharacter
 
@@ -756,8 +758,8 @@ class SubBattleCharacter(BattleCharacter):
         Some examples are archer on tower or big creature
         """
         self.main_character = main_character
-        BattleCharacter.__init__(self, game_id, stat, additional_layer="main")
-        self.anchor_pos = stat["Anchor POS"]
+        BattleCharacter.__init__(self, game_id, character_data, additional_layer="main")
+        self.anchor_pos = character_data["Anchor POS"]
         if self.main_character.direction == "right":
             self.pos = Vector2(((self.base_pos[0] - self.anchor_pos[0]) * self.screen_scale_width,
                                 (self.base_pos[1] + self.anchor_pos[1]) * self.screen_scale_height))
@@ -776,7 +778,7 @@ class AirBattleCharacter(BattleCharacter):
     move_logic = air_move_logic
     die = air_die
 
-    def __init__(self, game_id: int, stat: dict, commander_character: (None, CommanderBattleCharacter) = None):
+    def __init__(self, game_id: int, character_data: dict, commander_character: (None, CommanderBattleCharacter) = None):
         """
         SubBattleCharacter object represent a battle character that is linked to a main BattleCharacter
 
@@ -786,7 +788,7 @@ class AirBattleCharacter(BattleCharacter):
         """
         self.active = False
         self.enter_delay = 0
-        BattleCharacter.__init__(self, game_id, stat, commander_character=commander_character)
+        BattleCharacter.__init__(self, game_id, character_data, commander_character=commander_character)
         self.all_team_enemy_collision_grids = self.battle.all_team_air_enemy_collision_grids
         self.character_type = "air"
         if self.ai_behaviour == "interceptor":
@@ -826,7 +828,7 @@ class AirBattleCharacter(BattleCharacter):
 class CommanderBattleCharacter(BattleCharacter):
     die = commander_die
 
-    def __init__(self, game_id: int, stat: dict):
+    def __init__(self, game_id: int, character_data: dict):
         """
         CommanderBattleCharacter object represent the team commander
 
@@ -835,7 +837,7 @@ class CommanderBattleCharacter(BattleCharacter):
         """
         self.followers_len_check = [0, 0]
         self.max_followers_len_check = 0
-        BattleCharacter.__init__(self, game_id, stat, is_commander=True, additional_layer=100000000)
+        BattleCharacter.__init__(self, game_id, character_data, is_commander=True, additional_layer=100000000)
         self.max_ai_commander_range = self.ai_max_attack_range
         for strategy in self.battle.team_state[self.team]["strategy_cooldown"]:
             strategy_stat = self.battle.strategy_list[strategy]
@@ -853,7 +855,7 @@ class ShowcaseCharacter(Character):
     # static variable
     is_sub_character = False
 
-    def __init__(self, game_id: int, stat: dict) -> None:
+    def __init__(self, game_id: int, character_data: dict) -> None:
         """
         BattleCharacter object represent a character that take part in the battle in stage
         Character has three different stage of stat;
@@ -869,11 +871,11 @@ class ShowcaseCharacter(Character):
         self.final_animation_frame_play_time = self.animation_frame_play_time
 
         # variable for attack cross function check
-        Character.__init__(self, game_id, stat, additional_layer="showcase", is_commander=False)
-        self.movesets = stat["Move"]
+        Character.__init__(self, game_id, character_data, additional_layer="showcase", is_commander=False)
+        self.movesets = character_data["Move"]
 
-        if stat["Sub Characters"]:  # add sub characters
-            for character in stat["Sub Characters"]:
+        if character_data["Sub Characters"]:  # add sub characters
+            for character in character_data["Sub Characters"]:
                 SubShowcaseCharacter(0, self.character_list[character[0]] |
                                      {"ID": character[0], "POS": self.base_pos, "direction": self.direction,
                                       "Anchor POS": (character[1], character[2])}, self)
@@ -889,14 +891,14 @@ class SubShowcaseCharacter(Character):
     move_logic = sub_move_logic
     play_battle_animation = play_showcase_animation
 
-    def __init__(self, game_id: int, stat: dict, main_character: ShowcaseCharacter):
+    def __init__(self, game_id: int, character_data: dict, main_character: ShowcaseCharacter):
         """
         SubShowcaseCharacter object represent a showcase character that is linked to a main ShowcaseCharacter
         """
         self.main_character = main_character
-        Character.__init__(self, game_id, stat, additional_layer="main")
+        Character.__init__(self, game_id, character_data, additional_layer="main")
         self.enter_stage()
-        self.anchor_pos = stat["Anchor POS"]
+        self.anchor_pos = character_data["Anchor POS"]
         if self.main_character.direction == "right":
             self.pos = Vector2(((self.base_pos[0] - self.anchor_pos[0]) * self.screen_scale_width,
                                 (self.base_pos[1] + self.anchor_pos[1]) * self.screen_scale_height))

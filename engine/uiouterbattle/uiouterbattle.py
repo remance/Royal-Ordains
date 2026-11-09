@@ -501,8 +501,8 @@ class Command(UIOuterBattle):
                          grab_text(("ui", "info_header_call_response")) + str(
                              character_data["Respond Time"]) + grab_text(("ui", "info_text_value_seconds"))]
             self.cache_stat[character] = char_stat
-        else:
-            char_stat = self.cache_stat[character]
+
+        char_stat = self.cache_stat[character].copy()
 
         if call_remain:
             char_stat.append(grab_text(("ui", "info_header_call_remain")) + str(call_remain))

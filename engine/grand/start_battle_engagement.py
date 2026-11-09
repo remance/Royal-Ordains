@@ -28,7 +28,7 @@ def start_battle_engagement(self: Grand, armies: dict, base_pos: tuple):
                 campaign_battle_armies.append(army)
 
             if army.belong_to_player_faction:
-                self.grand_army_list_ui.reset_card(army)
+                self.army_list_ui.reset_card(army)
 
     if team_1_army.current_region != self.region_list[team_1_army.current_region]["Settlement POS"]:
         # fight outside of settlement

@@ -135,7 +135,7 @@ def change_phase(self: Grand, phase_change: bool = True):
             pass
 
     if self.player_faction:
-        self.grand_faction_culture_list_ui.culture_change()
+        self.faction_culture_list_ui.culture_change()
         if self.culture_management_ui in self.outer_ui_updater:
             # reset culture management ui every phase if open
             self.culture_management_ui.reset()

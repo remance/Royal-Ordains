@@ -11,6 +11,17 @@ def change_region_control(self: Grand, region_id, new_faction_id):
     campaign_region_state = current_campaign_state["region"]
     this_region_state = campaign_region_state[region_id]
 
+    if new_faction_id == self.player_faction:
+        self.event_notification_ui.add_new_event((
+            "event_good", self.grab_text(("ui", "info_text_gain_region")) + self.grab_text(("region", region_id, "Name")),
+            str(current_campaign_state["turn"]) + "." + str(current_campaign_state["phase"]),
+            self.region_list[region_id]["Settlement POS"]))
+    elif this_region_state["control"] == self.player_faction:
+        self.event_notification_ui.add_new_event((
+            "event_bad", self.grab_text(("ui", "info_text_lose_region")) + self.grab_text(("region", region_id, "Name")),
+            str(current_campaign_state["turn"]) + "." + str(current_campaign_state["phase"]),
+            self.region_list[region_id]["Settlement POS"]))
+
     new_faction_owner_campaign_state = current_campaign_state["faction"][new_faction_id]
     # remove region control from old faction
     current_campaign_state["faction"][this_region_state["control"]]["region"].remove(region_id)

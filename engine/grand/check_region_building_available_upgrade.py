@@ -7,6 +7,8 @@ if TYPE_CHECKING:
 
 
 def check_region_building_available_upgrade(self: Grand, faction_id: str, region_id: str, building_id_to_check: str):
+    # TODO maybe make for settlement check so free slot only show building with no unrelated culture?
+
     building_list = self.building_list
     region_buildings = self.current_campaign_state["region"][region_id]["building"]
 
@@ -29,11 +31,11 @@ def check_region_building_available_upgrade(self: Grand, faction_id: str, region
                     # required building condition not met
                     can_build = False
                     break
-            if can_build:
-                if building_type not in available_building_upgrade_by_type:
-                    available_building_upgrade_by_type[building_type] = {}
+            if building_type not in available_building_upgrade_by_type:
+                available_building_upgrade_by_type[building_type] = {}
 
-                available_building_upgrade_by_type[building_type][building] = True
+            available_building_upgrade_by_type[building_type][building] = True
+            if can_build:
                 all_available_building_upgrade.append(building)
 
     return available_building_upgrade_by_type, all_available_building_upgrade

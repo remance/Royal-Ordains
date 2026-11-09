@@ -3,7 +3,7 @@ def remove_army_from_active(self, destroyed=False):
 
     grand = self.grand
     current_campaign_state = grand.current_campaign_state
-    faction_state = current_campaign_state[self.faction]
+    faction_state = current_campaign_state["faction"][self.faction]
     if destroyed:
         if self.belong_to_player_faction:
             grand = self.grand
@@ -19,7 +19,7 @@ def remove_army_from_active(self, destroyed=False):
     self.current_region = None
 
     faction_state["army"].remove(self)
-    faction_state["reserve"].add(self)
+    faction_state["reserve"].append(self)
     grand.dots_army_occupation[self.base_pos].remove(self)
     grand.sort_dot_army_occupation(self.base_pos)
 
@@ -30,6 +30,6 @@ def remove_army_from_active(self, destroyed=False):
     self.commander_actor.clean_object()
 
     if self.belong_to_player_faction:  # reset ui
-        grand.grand_army_list_ui.reset()
+        grand.army_list_ui.reset()
 
-    grand.cal_faction_income_recruit()
+    grand.cal_faction_income_recruit(self.faction)
