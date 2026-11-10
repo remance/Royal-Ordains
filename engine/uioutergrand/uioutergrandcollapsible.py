@@ -1660,9 +1660,9 @@ class ArmyDeployToggleButton(ToggleButton):
 
 
 class BuildingManagement(UIOuterGrand):
-    building_type_bar_colouring = {"barrack": (255, 100, 100), "faith": (0, 100, 255), "food": (0, 127, 40),
-                                   "fun": (255, 100, 255), "guard": (0, 152, 122), "money": (180, 169, 0),
-                                   "tech": (0, 255, 255), "unique": (200, 0, 255), "settlement": (255, 127, 40)}
+    building_type_bar_colouring = {"barrack": (200, 100, 100), "faith": (0, 100, 200), "food": (0, 127, 40),
+                                   "fun": (200, 100, 200), "guard": (0, 152, 122), "money": (180, 169, 0),
+                                   "tech": (0, 200, 200), "unique": (150, 0, 200), "settlement": (200, 127, 40)}
 
     def __init__(self):
         self._layer = 5

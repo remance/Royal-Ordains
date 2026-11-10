@@ -790,11 +790,11 @@ class Battle:
         frame = 0
         clear_event()
         while True:  # battle running
-            frame += 1
+            # frame += 1
 
-            if frame % 30 == 0 and hasattr(self.game, "profiler"):  # Remove for stable release, along with dev key
-                self.game.profiler.refresh()
-                frame = 0
+            # if frame % 30 == 0 and hasattr(self.game, "profiler"):  # Remove for stable release, along with dev key
+            #     self.game.profiler.refresh()
+            #     frame = 0
 
             key_state = pygame.key.get_pressed()
             self.esc_press = False
@@ -877,13 +877,13 @@ class Battle:
                         self.grand_event_notification.add_event(("event_good", "test"))
                     elif event.key == K_KP_7:
                         self.activate_strategy(2, "Spell_huge_stone", 1000)
-                    elif event.key == K_KP_8:  # clear profiler
-                        if hasattr(self.game, "profiler"):
-                            self.game.profiler.clear()
-                    elif event.key == K_KP_9:  # show/hide profiler
-                        if not hasattr(self.game, "profiler"):
-                            self.game.setup_profiler()
-                        self.game.profiler.switch_show_hide()
+                    # elif event.key == K_KP_8:  # clear profiler
+                    #     if hasattr(self.game, "profiler"):
+                    #         self.game.profiler.clear()
+                    # elif event.key == K_KP_9:  # show/hide profiler
+                    #     if not hasattr(self.game, "profiler"):
+                    #         self.game.setup_profiler()
+                    #     self.game.profiler.switch_show_hide()
 
             return_state = self.state_process()  # run code based on current state
             if return_state is not None:

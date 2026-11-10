@@ -256,7 +256,7 @@ class DataStat(GameData):
                   encoding="utf-8", mode="r") as edit_file:
             rd = tuple(csv.reader(edit_file, quoting=csv.QUOTE_ALL))
             header = rd[0]
-            tuple_column = ("Leader Reinforcement", "Troop Reinforcement",
+            tuple_column = ("Settlement Root", "Leader Reinforcement", "Troop Reinforcement",
                             "Air Reinforcement", "Leader Recruit", "Troop Recruit", "Air Recruit", "Technology",
                             "Requirement")
             tuple_column = [index for index, item in enumerate(header) if item in tuple_column]
@@ -280,6 +280,12 @@ class DataStat(GameData):
             for building, building_data in self.building_list.items():
                 # create a list of upgrade version of the building,
                 # also used for checking requirement satisfaction of higher upgrade version of the building
+                if building_data["Settlement Root"]:
+                    # remake to include all settlement upgrade
+                    new_list = []
+                    self.recursive_check_building_upgrade_path(building_data["Settlement Root"][0], new_list)
+                    building_data["Settlement Root"] = tuple(list(building_data["Settlement Root"]) + new_list)
+
                 self.building_path_for_requirement_check[building] = []
                 self.recursive_check_building_upgrade_path(building, self.building_path_for_requirement_check[building])
                 requirement_check[building] = [building] + self.building_path_for_requirement_check[building]

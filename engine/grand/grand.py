@@ -616,11 +616,11 @@ class Grand:
             self.screen.fill((120, 120, 200))  # draw sea
             self.remove_from_outer_ui_menu_updater(self.text_popup)
 
-            frame += 1
-
-            if frame >= 30 and hasattr(self.game, "profiler"):  # Remove for stable release, along with dev key
-                self.game.profiler.refresh()
-                frame = 0
+            # frame += 1
+            #
+            # if frame >= 30 and hasattr(self.game, "profiler"):  # Remove for stable release, along with dev key
+            #     self.game.profiler.refresh()
+            #     frame = 0
 
             key_state = pygame.key.get_pressed()
             self.esc_press = False
@@ -682,13 +682,13 @@ class Grand:
                     # self.screen_shake_value = 11111
                     # elif event.key == K_F7:
                     # self.screen_shake_value = 11111
-                    elif event.key == K_F11:  # clear profiler
-                        if hasattr(self.game, "profiler"):
-                            self.game.profiler.clear()
-                    elif event.key == K_F12:  # show/hide profiler
-                        if not hasattr(self.game, "profiler"):
-                            self.game.setup_profiler()
-                        self.game.profiler.switch_show_hide()
+                    # elif event.key == K_F11:  # clear profiler
+                    #     if hasattr(self.game, "profiler"):
+                    #         self.game.profiler.clear()
+                    # elif event.key == K_F12:  # show/hide profiler
+                    #     if not hasattr(self.game, "profiler"):
+                    #         self.game.setup_profiler()
+                    #     self.game.profiler.switch_show_hide()
                 elif event.type == QUIT:  # quit game
                     pygame.quit()
                     sys.exit()
