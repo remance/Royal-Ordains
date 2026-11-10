@@ -36,6 +36,7 @@
 "crash_player",,,,,,,,,
 "crimson_flare",,,,,,,,,
 "curse_skull",,800,"TRUE",,,"curse_skull",1700,,
+"dart",,5000,"TRUE",,,"bolt",1000,,
 "damaged",,,,,,,,,
 "dark_claw",,,"TRUE",,,,,,
 "dark_day",,,,,,,,,

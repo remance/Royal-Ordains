@@ -306,7 +306,7 @@ def change_frame_process():
     global current_frame_row
     anim.show_frame = current_frame
     model.edit_part(mouse_pos, "change", specific_frame=current_frame)
-    if model.frame_list[current_frame]["sound_effect"]:
+    if "sound_effect" in model.frame_list[current_frame] and model.frame_list[current_frame]["sound_effect"]:
         sound_selector.change_name(str(model.frame_list[current_frame]["sound_effect"][0]))
         sound_distance_selector.change_name(str(model.frame_list[current_frame]["sound_effect"][1]))
     else:

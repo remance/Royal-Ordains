@@ -12,6 +12,9 @@ from pygame.transform import smoothscale, flip
 from engine.utils.sprite_altering import sprite_rotate, apply_sprite_effect, crop_sprite
 from engine.utils.sprite_caching import save_pickle_with_surfaces, load_pickle_with_surfaces, CompilableSurface
 
+speech_type_background_colour = {"accept": (120, 120, 200), "war": (200, 120, 120),
+                                 "lose": (80, 80, 80), "offer": (120, 200, 120),
+                                 "gain": (200, 200, 120)}
 
 def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_pool, effect_animation_pool,
                  character_list,
@@ -19,9 +22,9 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
     part_sprite_adjust = {}
     effect_sprite_adjust = {}
 
-    grand_actor_sprite_pool = {}
+    grand_event_sprite_pool = {}
     try:
-        grand_actor_sprite_pool = load_pickle_with_surfaces(join(data_dir, "animation", "grand_actor.xz"),
+        grand_event_sprite_pool = load_pickle_with_surfaces(join(data_dir, "animation", "grand_actor.xz"),
                                                             (1, 1), add_mask=False)
     except Exception:
         pass
@@ -37,9 +40,8 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
     for character in animation_pool:
         if not compile_specific or character == compile_specific:
             character_animation_pool = {}
-
-            if character not in grand_actor_sprite_pool:
-                grand_actor_sprite_pool[character] = {}
+            grand_diplomacy_sprite_pool = {}
+            grand_event_sprite_pool[character] = {}
             for animation_name, animation_frame in animation_pool[character].items():
                 if "EXCLUDE_" not in animation_name:
                     character_animation_pool[animation_name] = {"max frame": len(animation_frame) - 1}
@@ -68,10 +70,15 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                             character_animation_pool[animation_name][frame_index]["right"] = frame_data_r
                             character_animation_pool[animation_name][frame_index]["left"] = frame_data_l
                         else:  # save to grand sprite data instead
-                            if animation_name not in grand_actor_sprite_pool:
-                                grand_actor_sprite_pool[character][animation_name] = {}
-                            grand_actor_sprite_pool[character][animation_name]["right"] = frame_data_r
-                            grand_actor_sprite_pool[character][animation_name]["left"] = frame_data_l
+                            if "DIPLOMACY_" in animation_name:
+                                if animation_name not in grand_diplomacy_sprite_pool:
+                                    grand_diplomacy_sprite_pool[animation_name] = {}
+                                grand_diplomacy_sprite_pool[animation_name][frame_index] = {
+                                    "right": frame_data_r, "left": frame_data_l}
+                            else:
+                                if animation_name not in grand_event_sprite_pool[character]:
+                                    grand_event_sprite_pool[character][animation_name] = {}
+                                grand_event_sprite_pool[character][animation_name][frame_index] = {"right": frame_data_r, "left": frame_data_l}
 
                         min_x = float("infinity")
                         max_x = -float("infinity")
@@ -218,6 +225,8 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                             image = apply_sprite_effect(image, prop_list)
                             if "DIPLOMACY_" in animation_name:  # crop diplomacy image to just rect portrait
                                 new_image = Surface((400, 400))
+                                speech_type = animation_name.split("_")[1]
+                                new_image.fill(speech_type_background_colour[speech_type])
                                 new_image.blit(image, (0, 0), (base_point[0] - 200, base_point[1] - 600, 400, 400))
                                 image = new_image
                             image, crop_offset = crop_sprite(image)
@@ -261,9 +270,10 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
 
             save_pickle_with_surfaces(join(data_dir, "animation", character + ".xz"),
                                       character_animation_pool)
+            save_pickle_with_surfaces(join(data_dir, "animation", "diplomacy", character + ".xz"), grand_diplomacy_sprite_pool)
             # animation_load_index[character] = character_hash
 
-    save_pickle_with_surfaces(join(data_dir, "animation", "grand_actor.xz"), grand_actor_sprite_pool)
+    save_pickle_with_surfaces(join(data_dir, "animation", "grand_actor.xz"), grand_event_sprite_pool)
 
     for character in character_list:
         # create list of effect that must be loaded along with character

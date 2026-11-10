@@ -45,7 +45,7 @@ Route_Travel_Modifier = {"land": 1, "forest": 2, "hill": 2, "snow": 2, "sea": 3,
 
 """Speech priority for diplomacy head in grand campaign"""
 
-Diplomacy_Speech_Priority = {"lose": 2, "war": 2, "offer_ally": 2, "accept_ally": 2, "war_you": 1, "accept_gift": 0,
+Diplomacy_Speech_Priority = {"lose": 2, "war": 2, "offer_ally": 2, "offer_gift": 2, "accept_ally": 2, "war_you": 1, "accept_gift": 0,
                              "accept_ally_you": 0, "lose_region": 0, "gain_region": 0}
 
 # DO NOT CHANGE BELOW AS THEY MAY BREAK THE GAME

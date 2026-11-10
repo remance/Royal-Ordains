@@ -36,7 +36,7 @@ def menu_grand_setup(self: Game):
                                               "policy": tuple(Culture_Policy_Integration.keys())[-1],
                                               "influence": 1, "weight": 1, "integration": 1, "penalty": 0}},
                                       "total_culture_weight": 1,
-                                      "character": {faction_value["Ruler"]: (None, "courtier")} | {
+                                      "character": {faction_value["Ruler"]: (None, "ruler")} | {
                                           key: (None, "courtier") for key in faction_value["Courtier"]},
                                       "gold": faction_value["Start Gold"], "supply": faction_value["Start Supply"],
                                       "gold_income": faction_value["Gold Income"],

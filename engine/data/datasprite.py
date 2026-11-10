@@ -34,6 +34,7 @@ class DataSprite(GameData):
         self.stage_object_animation_pool = {}
         self.grand_object_animation_pool = {}
         self.grand_actor_animation_pool = {}
+        self.grand_diplomacy_animation_pool = {}
         self.character_portraits = {}
         self.strategy_icons = {}
         self.grand_ui_images = {}
@@ -234,6 +235,14 @@ class DataSprite(GameData):
                                                                             dot_rect.y - region_rect.y))
                                 self.region_sprites[region].blit(dot_image, blit_dot_rect)
                                 break
+
+    def load_diplomacy_animation(self, character_list):
+        for file_name in character_list:
+            if file_name not in self.grand_diplomacy_animation_pool:
+                # get animation for each character that is not yet loaded
+                self.grand_diplomacy_animation_pool[file_name] = load_pickle_with_surfaces(
+                    join(self.data_dir, "animation", "diplomacy", file_name + ".xz"),
+                    screen_scale=self.screen_scale)
 
     def load_character_animation(self, character_list):
         # only load those not already loaded

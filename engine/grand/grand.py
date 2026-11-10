@@ -458,6 +458,17 @@ class Grand:
         self.current_ambient = None
 
         print("Start loading", campaign)
+        yield set_start_load(self, "Load animation")
+        exist_diplomacy_character = []
+        for faction_state in save_state_data["faction"].values():
+            print(faction_state["character"])
+            if faction_state["character"]:
+                ruler = tuple(faction_state["character"].keys())[0]
+                if ruler:
+                    exist_diplomacy_character.append(ruler)
+
+        self.sprite_data.load_diplomacy_animation(exist_diplomacy_character)
+
         yield set_start_load(self, "Campaign setup")
         if self.game.show_fps:
             self.add_to_outer_ui_menu_updater(self.fps_count)
@@ -660,8 +671,13 @@ class Grand:
                     elif event.key == K_F2:
                         self.drama_text.queue.append(
                             (True, "Showcase: Grand strategy campaign development and cosmos system", None))
-                        self.add_diplomacy_talk_queue("leader_bigta", "accept_gift")
-                    # elif event.key == K_F3:
+                        self.add_diplomacy_talk_queue("leader_doll_king", "offer_gift")
+                    elif event.key == K_F3:
+                        self.add_diplomacy_talk_queue("leader_doll_king", "gain_region")
+                    elif event.key == K_F4:
+                        self.add_diplomacy_talk_queue("leader_doll_king", "lose")
+                    elif event.key == K_F5:
+                        self.add_diplomacy_talk_queue("leader_doll_king", "war_you")
                     # elif event.key == K_F6:
                     # self.screen_shake_value = 11111
                     # elif event.key == K_F7:

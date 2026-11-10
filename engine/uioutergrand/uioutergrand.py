@@ -7,6 +7,7 @@ from pygame.sprite import spritecollideany
 from engine.uibattle.uibattle import CharacterSpeechBox
 from engine.uimenu.uimenu import UIMenu, UIScroll
 from engine.uiouterbattle.drama import TextDrama
+from engine.constants import Base_Animation_Frame_Play_Time
 from engine.utils.text_making import (add_plus_to_number, add_comma_number, text_render_with_bg,
                                       make_long_text)
 
@@ -129,15 +130,14 @@ class DiplomacyHeadSpeechbox(CharacterSpeechBox, UIOuterGrand):
 
 
 class DiplomacyHead(UIOuterGrand):
-
     def __init__(self):
         """UI showing AI faction ruler talk to player"""
         self._layer = 5
         UIOuterGrand.__init__(self, player_cursor_interact=False)
-        self.grand_actor_animation_pool = self.grand.sprite_data.grand_actor_animation_pool
+        self.grand_diplomacy_animation_pool = self.grand.sprite_data.grand_diplomacy_animation_pool
         self.character_list = self.grand.character_list
 
-        self.image = Surface((400 * self.screen_scale_width, 400 * self.screen_scale_height))
+        self.image = Surface((400 * self.screen_scale_width, 400 * self.screen_scale_height), SRCALPHA)
 
         self.timer = 0
         self.rect = self.image.get_rect(midright=(self.grand.mini_cosmic_ui.rect.midleft[0] - (10 * self.screen_scale_width),
@@ -150,18 +150,33 @@ class DiplomacyHead(UIOuterGrand):
         self.alive = True
         self.speech = None
         self.current_animation_direction = {"head": (0, 0)}
+        self.current_animation = {}
         self.direction = "left"
+        self.max_frame = 0
+        self.show_frame = 0
+        self.frame_timer = 0
 
     def start_speak(self, character_id, speech_id):
+        self.show_frame = 0
+        self.frame_timer = 0
         self.base_pos = self.grand.base_camera_center_pos
         self.culture = self.character_list[character_id]["Culture"]
-        self.image = self.grand_actor_animation_pool[character_id]["DIPLOMACY_" + speech_id.split("_")[0]]["left"][
-            "sprite"]
+        speech_type = speech_id.split("_")[0]
+        print(self.grand_diplomacy_animation_pool[character_id])
+        self.current_animation = self.grand_diplomacy_animation_pool[character_id]["DIPLOMACY_" + speech_type]
+        self.max_frame = len(self.current_animation) - 1
+        self.image = self.current_animation[self.show_frame]["left"]["sprite"]
         self.add_to_outer_ui_menu_updater(self)
         self.add_to_outer_ui_menu_updater(DiplomacyHeadSpeechbox(self, choice(
             self.grab_text(("diplomacy_speak", character_id))[speech_id])))
 
     def update(self, dt):
+        self.frame_timer += dt
+        if self.frame_timer >= Base_Animation_Frame_Play_Time:
+            self.frame_timer = 0
+            self.show_frame += 1
+            if self.show_frame <= self.max_frame:
+                self.image = self.current_animation[self.show_frame]["left"]["sprite"]
         if self.speech not in self.grand.outer_ui_updater:
             self.speech = None
             self.remove_from_outer_ui_menu_updater(self)
