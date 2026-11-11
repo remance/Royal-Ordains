@@ -79,8 +79,9 @@ def change_turn(self: Grand, turn_change: bool = True):
                     # check for rebel among unhappy region
                     for region in faction_state["region"]:
                         region_state = campaign_region_state[region]
-                        if (region_state["dot"] not in campaign_battle_state["dot"] or
-                                "free" in campaign_battle_state["factions"][region_state["dot"]]):
+                        settlement_dot = region_state["dot"]
+                        if (settlement_dot not in campaign_battle_state["dot"] or
+                                "free" in campaign_battle_state["factions"][settlement_dot]):
                             # can only spawn rebel in region with no battle or free faction already fighting in it
                             happiness = region_state["income"]["happiness"]
                             if happiness < 0:
@@ -88,7 +89,8 @@ def change_turn(self: Grand, turn_change: bool = True):
                             else:
                                 spawn_chance = -1000
                             # check for random rebel
-                            if uniform(spawn_chance, 0) > faction_state["happiness"]:
-                                # rebel!
+                            if (uniform(spawn_chance, 0) > faction_state["happiness"] and
+                                    len(self.dots_army_occupation[settlement_dot]) < 40):
+                                # rebel!, hard limit rebel not showing up when there are more than 40 armies exist there
                                 self.create_rebel_army(region, faction_state, int(uniform(20, 20 + (-happiness * 2))))
     self.change_phase(phase_change=turn_change)

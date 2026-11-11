@@ -162,7 +162,6 @@ class DiplomacyHead(UIOuterGrand):
         self.base_pos = self.grand.base_camera_center_pos
         self.culture = self.character_list[character_id]["Culture"]
         speech_type = speech_id.split("_")[0]
-        print(self.grand_diplomacy_animation_pool[character_id])
         self.current_animation = self.grand_diplomacy_animation_pool[character_id]["DIPLOMACY_" + speech_type]
         self.max_frame = len(self.current_animation) - 1
         self.image = self.current_animation[self.show_frame]["left"]["sprite"]
@@ -320,8 +319,8 @@ class FactionCultureList(UIOuterGrand):
         culture_state = player_faction_state["culture"][culture]
         return {"policy": culture_state["policy"],
                 "integration": str(int(culture_state["integration"] * 100)) + "%",
-                "influence": str(int(culture_state["influence"] * 100)) + "%",
-                "weight": " (" + str(int(culture_state["weight"])) + "/" +
+                "influence": str(round(culture_state["influence"] * 100, 1)) + "%",
+                "weight": " (" + str(culture_state["weight"]) + "/" +
                           str(player_faction_state["total_culture_weight"]) + ")",
                 "penalty": str(culture_state["penalty"])}
 
@@ -598,10 +597,12 @@ class EventNotification(UIOuterGrand):
         self.event_item_height_center = self.event_item_height / 2
         self.font = self.game.large_generic_ui_font
         self.image = Surface((1000 * self.screen_scale_width, 1100 * self.screen_scale_height), SRCALPHA)
+        self.max_item = int(self.image.get_height() / self.event_item_height)
         self.base_image = self.image.copy()
         self.before_hover_image = self.image
         self.event_card_rects = [Rect(0, index * self.event_item_height,
-                                      1000 * self.screen_scale_width, self.event_item_height) for index in range(10)]
+                                      1000 * self.screen_scale_width, self.event_item_height) for
+                                 index in range(self.max_item)]
         self.event_cards = {}
         self.current_hover_index = None
         self.rect = self.image.get_rect(midleft=(0, self.half_screen_height))
@@ -609,7 +610,7 @@ class EventNotification(UIOuterGrand):
     def update_image(self):
         self.current_hover_index = None
         self.image = self.base_image.copy()
-        to_show_events = self.grand.current_campaign_state["eventlog"][-10:]  # show only last 10 items
+        to_show_events = self.grand.current_campaign_state["eventlog"][-self.max_item:]  # show only last max items
 
         for index, event in enumerate(to_show_events):
             if event not in self.event_cards:  # create new card
@@ -632,9 +633,9 @@ class EventNotification(UIOuterGrand):
     def hover_over_card(self, index):
         if self.current_hover_index != index:
             self.image = self.before_hover_image.copy()
-            showing_events = self.grand.current_campaign_state["eventlog"][-10:]
+            showing_events = self.grand.current_campaign_state["eventlog"][-self.max_item:]
             if index < len(showing_events):
-                event = self.grand.current_campaign_state["eventlog"][-10:][index]
+                event = self.grand.current_campaign_state["eventlog"][-self.max_item:][index]
                 self.image.blit(self.event_cards[event][1],
                                 self.event_cards[event][0].get_rect(topleft=(0, index * self.event_item_height)))
             self.current_hover_index = index
@@ -660,7 +661,7 @@ class EventNotification(UIOuterGrand):
             for index, rect in enumerate(self.event_card_rects):
                 if rect.collidepoint(inside_mouse_pos):
                     if self.event_press:  # go to event
-                        showing_events = self.grand.current_campaign_state["eventlog"][-10:]
+                        showing_events = self.grand.current_campaign_state["eventlog"][-self.max_item:]
                         if index < len(showing_events):
                             event = showing_events[index]
                             if event[3]:
@@ -669,7 +670,7 @@ class EventNotification(UIOuterGrand):
                                     (event[3][1] * self.grand.map_shown_to_base_scale_height) - self.half_screen_height)
                                 self.grand.fix_camera()
                     elif self.event_alt_press:  # remove event
-                        showing_events = self.grand.current_campaign_state["eventlog"][-10:]
+                        showing_events = self.grand.current_campaign_state["eventlog"][-self.max_item:]
                         if index < len(showing_events):
                             self.remove_event(showing_events[index])
                     else:

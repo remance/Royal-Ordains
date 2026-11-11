@@ -148,7 +148,7 @@ class CosmosUI(UIOuterGrand):
         self.comet = self.planets["comet"]
         self.no_earth_planets = {key: value for key, value in self.planets.items() if key != "earth"}
 
-        self.rect = self.image.get_rect(center=(self.half_screen_width, self.half_screen_height))
+        self.rect = self.image.get_rect(center=(self.half_screen_width, self.screen_height * 0.52))
         self.mask = from_surface(self.image)
 
     def reset(self, cosmos_time):
@@ -157,6 +157,7 @@ class CosmosUI(UIOuterGrand):
             planet.reset(cosmos_time)
 
     def update(self, dt):
+        grand = self.grand
         if self.must_update_image:
             self.update_image()
 
@@ -174,19 +175,14 @@ class CosmosUI(UIOuterGrand):
                                               width_text_wrapper=self.max_description_box_width)
                         self.add_to_outer_ui_menu_updater(self.text_popup)
                         break
-            elif cursor.event and not self.grand.mini_cosmic_ui.mouse_over:
+            elif cursor.event and not grand.mini_cosmic_ui.mouse_over and not grand.time_setting_ui.mouse_over:
                 self.remove_from_outer_ui_menu_updater(self)
 
-        elif cursor.event and not self.grand.mini_cosmic_ui.mouse_over:
+        elif cursor.event and not grand.mini_cosmic_ui.mouse_over and not grand.time_setting_ui.mouse_over:
             self.remove_from_outer_ui_menu_updater(self)
 
     def update_image(self):
-        # Draw, planet, name and additional info when cosmic ui is being shown
-
-        # Draw distance to the sun for planets other than the sun
-        # if not self.sun:
-        #     distance_text = font.render(f"{round(self.distance_to_sun / 1000, 1)} km", True, WHITE)
-        #     win.blit(distance_text, (int(x - distance_text.get_width() / 2), int(y - distance_text.get_height() / 2)))
+        # Draw, planet and line
         line_width = self.line_width
         # draw movement trail lines
         for planet in self.no_earth_planets.values():
@@ -224,17 +220,18 @@ class CosmosUI(UIOuterGrand):
     def apply_cosmic_event(self, events):  # TODO add its effect for battle
         grand = self.grand
         current_campaign_state = grand.current_campaign_state
-        # remove cosmic events that not longer active
+        # remove cosmic events that no longer active
 
         current_cosmic_events = current_campaign_state["cosmic_event"]
         for event in events:
+            event_data = self.cosmic_event_list[event]
             if event not in current_cosmic_events:  # play event notification for new cosmic event
-                if grand.player_faction:
+                if grand.player_faction and event_data["Notification"]:
                     grand.event_notification_ui.add_new_event((
                         "event_cosmos", self.grab_text(("ui", "cosmos_" + event)),
                         str(current_campaign_state["turn"]) + "." + str(current_campaign_state["phase"]), ()))
 
-            current_campaign_state["cosmic_event"][event] = Turn_To_Phase * self.cosmic_event_list[event]["Duration"]
+            current_campaign_state["cosmic_event"][event] = Turn_To_Phase * event_data["Duration"]
 
     def phase_change(self):
         self.must_update_image = True
@@ -276,9 +273,10 @@ class CosmosUI(UIOuterGrand):
                     current_events.append("vert_moon")
                 elif trio_alignment:
                     current_events.append("trio_conjunction")
+
         if self.red_planet.base_pos.distance_to(self.terra.base_pos) <= 175:
             current_events.append("red_visit")
-        if self.comet.base_pos.distance_to(self.terra.base_pos) <= 350:
+        if self.comet.base_pos.distance_to(self.terra.base_pos) <= 400:
             current_events.append("great_comet")
 
         self.apply_cosmic_event(current_events)
@@ -340,7 +338,8 @@ class CosmicEntity(UIOuterGrand):
         if type(self.epicycle_radius) is tuple:
             self.epicycle_process = ellipse_orbit
         self.update(0)
-        self.start_pos = self.base_pos
+        self.start_pos = Vector2(self.base_pos)
+
         self.pos = (self.base_pos[0] * self.screen_scale_width, self.base_pos[1] * self.screen_scale_height)
         self.rect = self.image.get_rect(center=self.pos)
 
@@ -353,7 +352,8 @@ class CosmicEntity(UIOuterGrand):
             self.current_epicycle_angle = 0
             self.update(cosmos_time)
 
-    def update(self, dt):
+    def update(self, phase_dt):
+        """Update position and event"""
         cosmic_event = self.grand.current_campaign_state["cosmic_event"]
         if cosmic_event:
             if not self.using_event_image:
@@ -362,8 +362,8 @@ class CosmicEntity(UIOuterGrand):
                         self.base_image = self.cosmos_ui_images[
                             self.cosmic_event_list[event]["Cosmic Replace"][self.cosmic_id]]
                         self.image = self.base_image
+                        self.using_event_image = True
                         break
-                self.using_event_image = True
         elif self.using_event_image:
             self.base_image = self.cosmos_ui_images[self.cosmic_id]
             self.image = self.base_image
@@ -372,7 +372,7 @@ class CosmicEntity(UIOuterGrand):
         if self.pos and self.pos not in self.last_path:
             self.last_path.append(self.pos)
         if self.orbit_speed:
-            self.current_orbit_angle += self.orbit_speed * dt
+            self.current_orbit_angle += self.orbit_speed * phase_dt
             new_pos = self.orbit_process(self.parent.base_pos, self.orbit_radius, self.current_orbit_angle,
                                          self.orbit_angle)
 
@@ -386,7 +386,7 @@ class CosmicEntity(UIOuterGrand):
             self.base_pos = new_pos
 
         if self.epicycle_speed:
-            self.current_epicycle_angle += self.epicycle_speed * dt
+            self.current_epicycle_angle += self.epicycle_speed * phase_dt
             self.base_pos = self.epicycle_process(self.base_pos, self.epicycle_radius, self.current_epicycle_angle,
                                                   self.epicycle_angle)
 
@@ -395,7 +395,9 @@ class CosmicEntity(UIOuterGrand):
         self.pos = (self.base_pos[0] * self.screen_scale_width, self.base_pos[1] * self.screen_scale_height)
         self.rect = self.image.get_rect(center=self.pos)
 
-        if self.current_orbit_angle >= 360:
-            if (int(self.base_pos[0]), int(self.base_pos[1])) == (int(self.start_pos[0]), int(self.start_pos[1])):
-                self.current_orbit_angle = self.start_angle
-                self.current_epicycle_angle = 0
+        # if phase_dt and self.current_orbit_angle > 360:
+        #     print(self.cosmic_id, self.base_pos.distance_to(self.start_pos), self.current_orbit_angle)
+        # if phase_dt and self.current_orbit_angle > 360 and self.base_pos.distance_to(self.start_pos) < 1:
+        #     print(self.cosmic_id)
+        #     self.current_orbit_angle = self.start_angle
+        #     self.current_epicycle_angle = 0

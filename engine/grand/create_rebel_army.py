@@ -14,10 +14,11 @@ def create_rebel_army(self: Grand, region_id: str, faction_state: dict, max_spaw
     current_campaign_state = self.current_campaign_state
     campaign_faction_state = current_campaign_state["faction"]
     campaign_region_state = current_campaign_state["region"]
+    region_state = campaign_region_state[region_id]
     character_list = self.character_list
 
     culture = tuple(faction_state["culture"].keys())[0]
-    region_culture = campaign_region_state[region_id]["culture"]
+    region_culture = region_state["culture"]
 
     if region_culture:
         culture = choice(tuple(region_culture.keys()))
@@ -59,3 +60,8 @@ def create_rebel_army(self: Grand, region_id: str, faction_state: dict, max_spaw
 
     rebel_army["Max Supply"] = rebel_army["Supply"]
     self.create_new_army(campaign_faction_state["free"], rebel_army, no_assemble=True)
+
+    if self.player_faction == region_state["control"]:
+        self.event_notification_ui.add_new_event((
+            "event_bad", self.grab_text(("ui", "info_text_rebel_appear")) + self.grab_text(("region", region_id, "Name")),
+            str(current_campaign_state["turn"]) + "." + str(current_campaign_state["phase"]), ()))

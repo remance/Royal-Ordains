@@ -17,14 +17,14 @@ def state_grand_process(self: Grand):
     camera = self.camera
     if not self.input_popup:
         # Update game time
-        dt = true_dt * self.game_speed
+        dt = true_dt * self.game_speed * 1000000000
         self.dt = dt  # apply dt with game_speed for calculation
 
         self.player_input()
 
         if dt:
-            if dt > 0.016:  # one frame update should not be longer than 0.016 second (60 fps) for calculation.
-                dt = 0.016  # make it so stutter and lag does not cause overtime issue.
+            # if dt > 0.016:  # one frame update should not be longer than 0.016 second (60 fps) for calculation.
+            #     dt = 0.016  # make it so stutter and lag does not cause overtime issue.
 
             if self.grand_process(dt):  # TRUE if phase changed
                 self.mini_cosmic_ui.reset()

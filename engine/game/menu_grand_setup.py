@@ -72,8 +72,8 @@ def menu_grand_setup(self: Game):
                           "pathfinding": {}, "direct_routing": {},
                           "possible_events": deepcopy(self.map_data.event_list),
                           "faction": faction_state, "eventlog": [],
-                          "cosmic_time": randint(0, 99999999999999999), "cosmic_event": {},
-                          "turn": 1, "phase": 1}
+                          "cosmic_time": randint(0, 3140), "cosmic_event": {},
+                          "turn": 1, "phase": 1}  # current comic loop is 3141 turns
 
         self.grand.prepare_new_campaign(self.campaign, player_faction, campaign_state)
 
