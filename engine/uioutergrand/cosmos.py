@@ -1,6 +1,7 @@
 from math import cos, sin, radians
 
 from pygame import Vector2, draw, Surface
+from pygame.mask import from_surface
 from pygame.transform import rotate
 
 from engine.constants import Turn_To_Phase
@@ -148,6 +149,7 @@ class CosmosUI(UIOuterGrand):
         self.no_earth_planets = {key: value for key, value in self.planets.items() if key != "earth"}
 
         self.rect = self.image.get_rect(center=(self.half_screen_width, self.half_screen_height))
+        self.mask = from_surface(self.image)
 
     def reset(self, cosmos_time):
         self.base_image = self.original_image.copy()
@@ -163,14 +165,18 @@ class CosmosUI(UIOuterGrand):
             inside_mouse_pos = Vector2(
                 (cursor.pos[0] - self.rect.topleft[0]),
                 (cursor.pos[1] - self.rect.topleft[1]))
-            for planet in self.planets.values():
-                if planet.rect.collidepoint(inside_mouse_pos):
-                    self.text_popup.popup(cursor.rect,
-                                          (self.grab_text(("cosmos", planet.cosmic_id, "Name")), "",
-                                           self.grab_text(("cosmos", planet.cosmic_id, "Description"))),
-                                          width_text_wrapper=self.max_description_box_width)
-                    self.add_to_outer_ui_menu_updater(self.text_popup)
-                    break
+            if self.mask.get_at(inside_mouse_pos):
+                for planet in self.planets.values():
+                    if planet.rect.collidepoint(inside_mouse_pos):
+                        self.text_popup.popup(cursor.rect,
+                                              (self.grab_text(("cosmos", planet.cosmic_id, "Name")), "",
+                                               self.grab_text(("cosmos", planet.cosmic_id, "Description"))),
+                                              width_text_wrapper=self.max_description_box_width)
+                        self.add_to_outer_ui_menu_updater(self.text_popup)
+                        break
+            elif cursor.event and not self.grand.mini_cosmic_ui.mouse_over:
+                self.remove_from_outer_ui_menu_updater(self)
+
         elif cursor.event and not self.grand.mini_cosmic_ui.mouse_over:
             self.remove_from_outer_ui_menu_updater(self)
 
@@ -181,7 +187,6 @@ class CosmosUI(UIOuterGrand):
         # if not self.sun:
         #     distance_text = font.render(f"{round(self.distance_to_sun / 1000, 1)} km", True, WHITE)
         #     win.blit(distance_text, (int(x - distance_text.get_width() / 2), int(y - distance_text.get_height() / 2)))
-
         line_width = self.line_width
         # draw movement trail lines
         for planet in self.no_earth_planets.values():
@@ -370,6 +375,7 @@ class CosmicEntity(UIOuterGrand):
             self.current_orbit_angle += self.orbit_speed * dt
             new_pos = self.orbit_process(self.parent.base_pos, self.orbit_radius, self.current_orbit_angle,
                                          self.orbit_angle)
+
             if self.movement_angle and self.base_pos:
                 sprite_angle = int(set_rotate(self.base_pos, new_pos))
                 if sprite_angle not in self.cache_rotate[self.cosmic_id]:
@@ -385,6 +391,7 @@ class CosmicEntity(UIOuterGrand):
                                                   self.epicycle_angle)
 
         self.base_pos = Vector2(self.base_pos)
+
         self.pos = (self.base_pos[0] * self.screen_scale_width, self.base_pos[1] * self.screen_scale_height)
         self.rect = self.image.get_rect(center=self.pos)
 

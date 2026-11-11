@@ -48,9 +48,10 @@ def change_phase(self):
                     # check for enemy army for battle
                     if not self.check_enemy_army():
                         # no enemy
+                        region_owner = current_campaign_state["region"][self.current_region]["control"]
                         if self.base_pos in self.region_settlement_pos_index and \
-                                current_campaign_state["region"][self.region_settlement_pos_index[self.base_pos]][
-                                    "control"] not in current_campaign_state["faction"][self.faction]["alliance"]:
+                                (region_owner != self.faction and
+                                 region_owner not in current_campaign_state["faction"][self.faction]["alliance"]):
                             # arrive at enemy settlement with no contest, change region control
                             grand.change_region_control(self.region_settlement_pos_index[self.base_pos], self.faction)
 

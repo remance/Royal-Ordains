@@ -300,6 +300,7 @@ class Grand:
         self.region_settlement_pos_index = {}
         self.region_list = {}
         self.route_list = {}
+        self.region_object_list = {}
         self.settlement_object_list = {}
         self.wonder_object_list = {}
 
@@ -461,7 +462,6 @@ class Grand:
         yield set_start_load(self, "Load animation")
         exist_diplomacy_character = []
         for faction_state in save_state_data["faction"].values():
-            print(faction_state["character"])
             if faction_state["character"]:
                 ruler = tuple(faction_state["character"].keys())[0]
                 if ruler:
@@ -538,13 +538,14 @@ class Grand:
         self.cosmic_ui.reset(self.current_campaign_state["cosmic_time"])
         self.mini_cosmic_ui.reset()
 
-        self.settlement_object_list = {}
+        self.region_object_list = {}
         self.wonder_object_list = {}
+        self.settlement_object_list = {}
         for region, region_state in self.current_campaign_state["region"].items():
             region_buildings = self.current_campaign_state["region"][region]["building"]
-            # create region objects
-            GrandRegion(region, self.region_list[region]["Region POS"],
-                        self.current_campaign_state["region"][region]["control"])
+            # create region ground objects
+            self.region_object_list[region] = GrandRegion(region, self.region_list[region]["Region POS"],
+                                                          self.current_campaign_state["region"][region]["control"])
 
             # create wonder objects
             for key, region_object in region_state["object"].items():
@@ -605,6 +606,9 @@ class Grand:
         self.player_key_bind_name = {value: key for key, value in self.player_key_bind.items()}
         self.player_key_press = {key: False for key in self.player_key_bind}
         self.player_key_hold = {key: False for key in self.player_key_bind}
+
+        self.army_list_ui.reset()
+        self.time_setting_ui.reset()
 
         self.screen.fill((0, 0, 0))
         self.add_to_outer_ui_menu_updater(self.cursor)
@@ -732,9 +736,8 @@ class Grand:
         self.current_music = None
         self.current_ambient = None
 
-        # remove all reference from battle object
+        # remove all reference from grand object
         self.army_list_ui.reset()
-        self.time_setting_ui.reset()
         self.player_selected_army = []
         self.campaign = None
         self.player_faction = None
@@ -755,6 +758,9 @@ class Grand:
         self.region_by_colour_index = {}
         self.region_list = {}
         self.route_list = {}
+        self.region_object_list = {}
+        self.wonder_object_list = {}
+        self.settlement_object_list = {}
 
         self.ai_process_list = []
 

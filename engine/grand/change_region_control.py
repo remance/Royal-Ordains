@@ -39,3 +39,4 @@ def change_region_control(self: Grand, region_id, new_faction_id):
         # collapse region management ui if player lose control while opening it
         self.region_management_ui.change_selected_region(None)
     self.mini_map.change_grand_faction(campaign_region_state)
+    self.region_object_list[region_id].change_owner_state(new_faction_id, play_animation=True)
