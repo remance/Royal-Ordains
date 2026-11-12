@@ -17,7 +17,7 @@ def state_grand_process(self: Grand):
     camera = self.camera
     if not self.input_popup:
         # Update game time
-        dt = true_dt * self.game_speed * 1000000000
+        dt = true_dt * self.game_speed
         self.dt = dt  # apply dt with game_speed for calculation
 
         self.player_input()

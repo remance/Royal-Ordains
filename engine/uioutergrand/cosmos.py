@@ -117,6 +117,8 @@ class CosmosUI(UIOuterGrand):
                                                   specific_base_pos=(750, 1836))
 
         # Add planets
+        """WITH THIS SETUP COSMOS TIME LOOP IS 3141.6 TURNS any change below may result in requiring to change that 
+        value all over the game code"""
         self.planets = {"pale_moon": CosmicEntity(10, 0, (230, 230, 230), "pale_moon",
                                                   orbit={"parent": self.terra, "speed": 1, "radius": 190}),
                         "dark_moon": CosmicEntity(10, 0, (30, 125, 230), "dark_moon",
@@ -344,7 +346,7 @@ class CosmicEntity(UIOuterGrand):
         self.rect = self.image.get_rect(center=self.pos)
 
     def reset(self, cosmos_time):
-        """Reset planet for new campaign"""
+        """Reset planet for new campaign or when reach full loop"""
         if self.parent:  # skip those that are static in place for reset
             self.base_pos = ()
             self.pos = ()

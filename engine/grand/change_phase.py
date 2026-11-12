@@ -17,8 +17,12 @@ def change_phase(self: Grand, phase_change: bool = True):
     region_campaign_state = current_campaign_state["region"]
 
     if phase_change:
-        self.cosmic_ui.phase_change()
         current_campaign_state["cosmic_time"] += time_per_phase
+        if current_campaign_state["cosmic_time"] != 3141.6:  # reset cosmos time
+            self.cosmic_ui.phase_change()
+        else:
+            current_campaign_state["cosmic_time"] = 0
+            self.cosmic_ui.reset(0)
         current_campaign_state["cosmic_event"] = {key: value - 1 for key, value in
                                                   current_campaign_state["cosmic_event"].items() if value > 1}
 
