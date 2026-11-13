@@ -1,13 +1,13 @@
 "ID","Coexistence Modifier","Property"
 "barren",,
-"castle","death:-20",
+"castle","death:-20","overdemanding"
 "dark","mountain:10",
 "death","castle:-20,doll:10","uncaring"
 "demon",,
 "desert",,
 "doll","death:10","unintegratable"
 "free",,
-"great","wood:-10","proud"
+"great","wood:-10","supremacy"
 "highland",,"rebellious"
 "holy","demon:-20",
 "magic",,
