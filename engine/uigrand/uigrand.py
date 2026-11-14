@@ -64,18 +64,46 @@ class DotInfoBanner(UIGrand):
         self.rect = self.image.get_rect(midtop=pos)
 
     def make_text_image(self, team, text):
-        banner = self.cache_banner_team[team]
-        if type(text) is str:
-            text_image = text_render_with_bg(text, self.font)
-        else:
-            text_image = make_long_text(text, self.font,
+        if type(team) is list:
+            # two side with different colour depending on their status as player, allies, enemy, or neutral
+            banner1 = self.cache_banner_team[team[0]]
+            banner2 = self.cache_banner_team[team[1]]
+
+            banner_left = banner1[0]
+            banner_right = banner2[2]
+
+            text_image = make_long_text(text[0], self.font,
                                         with_texture=(None, ((30, 30, 30), (255, 255, 255), 2)))
-        banner_left = banner[0]
-        banner_right = banner[2]
-        banner_body = smoothscale(banner[1], (text_image.get_width(), banner[1].get_height()))
-        banner_body_width = banner_body.get_width()
-        banner_body_height = banner_body.get_height()
-        banner_body.blit(text_image, text_image.get_rect(center=(banner_body_width / 2, banner_body_height / 2)))
+            banner_body1 = smoothscale(banner1[1], (text_image.get_width(), banner1[1].get_height()))
+            banner_body1_width = banner_body1.get_width()
+            banner_body_height = banner_body1.get_height()
+            banner_body1.blit(text_image, text_image.get_rect(center=(banner_body1_width / 2, banner_body_height / 2)))
+
+            text_image = make_long_text(text[1], self.font,
+                                        with_texture=(None, ((30, 30, 30), (255, 255, 255), 2)))
+            banner_body2 = smoothscale(banner2[1], (text_image.get_width(), banner2[1].get_height()))
+            banner_body2_width = banner_body2.get_width()
+            banner_body2.blit(text_image, text_image.get_rect(center=(banner_body2_width / 2, banner_body_height / 2)))
+            banner_body = Surface((banner_body1_width + banner_body2_width, banner_body_height), SRCALPHA)
+            banner_body1_rect = banner_body1.get_rect(topleft=(0, 0))
+            banner_body.blit(banner_body1, banner_body1_rect)
+            banner_body.blit(banner_body2, banner_body2.get_rect(topleft=banner_body1_rect.topright))
+            banner_body_width = banner_body.get_width()
+
+        else:
+            banner = self.cache_banner_team[team]
+            if type(text) is str:
+                text_image = text_render_with_bg(text, self.font)
+            else:
+                text_image = make_long_text(text, self.font,
+                                            with_texture=(None, ((30, 30, 30), (255, 255, 255), 2)))
+            banner_left = banner[0]
+            banner_right = banner[2]
+            banner_body = smoothscale(banner[1], (text_image.get_width(), banner[1].get_height()))
+            banner_body_width = banner_body.get_width()
+            banner_body_height = banner_body.get_height()
+            banner_body.blit(text_image, text_image.get_rect(center=(banner_body_width / 2, banner_body_height / 2)))
+
         self.image = Surface(((banner_left.get_width() * 2) + banner_body_width,
                               banner_body_height), SRCALPHA)
         left_rect = banner_left.get_rect()
@@ -148,40 +176,39 @@ class DotInfoBannerArmy(DotInfoBanner):
 
     def reset(self, state_value_list):
         if "battle" in state_value_list:
-            text = ((minimise_number_text(state_value_list[0][0]), self.grand_ui_images["number"]), "/",
-                    state_value_list[0][1] + "%", self.grand_ui_images["supply"], "VS",
-                    minimise_number_text(state_value_list[1][0]), self.grand_ui_images["number"], "/",
-                    state_value_list[1][1] + "%", self.grand_ui_images["supply"])
-            team = state_value_list[2]
+            text = ((state_value_list[0], self.grand_ui_images["number"], " V"),
+                    ("S ", state_value_list[1], self.grand_ui_images["number"]))
         else:
-            team = state_value_list[2]
             text = (minimise_number_text(state_value_list[0]), self.grand_ui_images["number"], "/",
                     state_value_list[1] + "%",
                     self.grand_ui_images["supply"])
-        self.make_text_image(team, text)
+        self.make_text_image(state_value_list[2], text)
         self.rect = self.image.get_rect(midtop=self.pos)
 
     def check_draw(self, active):
         grand_camera_ui_drawer = self.grand_camera_ui_drawer
+
         if active and self.rect.colliderect(self.camera.rect):
-            player_faction = self.grand.player_faction
-            if self.base_pos in self.grand.current_campaign_state["battle"]["dot"]:  # battle going on
-                state_value_list = [[0, "100"], [0, "100"], "neutral", "battle"]
-                for team, team_value in self.grand.current_campaign_state["battle"]["auto"][self.base_pos].items():
-                    total_supply = 0
-                    total_supply_usage = 0
+            grand = self.grand
+            player_faction = grand.player_faction
+            current_campaign_state = grand.current_campaign_state
+            player_faction_state = current_campaign_state["faction"][player_faction]
+            if self.base_pos in current_campaign_state["battle"]["dot"]:  # battle going on
+                battle_factions = current_campaign_state["battle"]["faction"][self.base_pos]
+                battle_state = current_campaign_state["battle"]["battles"][self.base_pos]
+                state_value_list = [0, 0, ["neutral", "neutral"], "battle"]
+                for team in (1, 2):
+                    team_state = battle_state["team"][team]
                     team_index = team - 1
-                    for army in team_value.values():
-                        if player_faction and state_value_list[2] not in ("player", "ally"):
-                            if army.belong_to_player_faction:
-                                state_value_list[2] = "player"
-                            elif army.faction in self.grand.current_campaign_state["faction"][player_faction]["alliance"]:
-                                state_value_list[2] = "ally"
-                            else:
-                                state_value_list[2] = "enemy"
-                        state_value_list[team_index][0] += army.total_number
-                    if total_supply_usage:
-                        state_value_list[team_index][1] = str(int(total_supply / total_supply_usage * 100))
+                    team_faction = battle_factions[team_index]
+                    if team_faction == player_faction:
+                        state_value_list[2][team_index] = "player"
+                    elif team_faction in player_faction_state["alliance"]:
+                        state_value_list[2][team_index] = "ally"
+                    elif team_faction != "free":
+                        state_value_list[2][team_index] = "enemy"
+                    if team_state["commander_character"] and team_state["commander_character"].alive:
+                        state_value_list[team_index] = minimise_number_text(1 + len(team_state["unit"]) + len(team_state["air_unit"]))
 
             else:
                 state_value_list = [0, "100", "neutral"]
@@ -194,7 +221,7 @@ class DotInfoBannerArmy(DotInfoBanner):
                     if player_faction and state_value_list[2] not in ("player", "ally"):
                         if army.belong_to_player_faction:
                             state_value_list[2] = "player"
-                        elif army.faction in self.grand.current_campaign_state["faction"][player_faction]["alliance"]:
+                        elif army.faction in current_campaign_state["faction"][player_faction]["alliance"]:
                             state_value_list[2] = "ally"
                         else:
                             state_value_list[2] = "enemy"
@@ -202,9 +229,9 @@ class DotInfoBannerArmy(DotInfoBanner):
                 if total_supply_usage:
                     state_value_list[1] = str(int(total_supply / total_supply_usage * 100))
 
-                if state_value_list != self.previous_state_value_list:
-                    self.previous_state_value_list = state_value_list
-                    self.reset(state_value_list)
+            if state_value_list != self.previous_state_value_list:
+                self.previous_state_value_list = state_value_list
+                self.reset(state_value_list)
 
             if self not in grand_camera_ui_drawer:
                 grand_camera_ui_drawer.add(self)

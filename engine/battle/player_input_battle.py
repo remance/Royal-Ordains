@@ -44,7 +44,7 @@ def change_pause(self: Battle):
 
 def key_call_leader(self: Battle, index: int):
     if index < len(self.team_state[self.player_team]["leader_call_list"]):
-        self.call_reinforcement(self.player_team, "leader", index)
+        self.call_reinforcement_to_battle(self.player_team, "leader", index)
 
 
 def key_call_leader_1(self: Battle):
@@ -61,7 +61,7 @@ def key_call_leader_3(self: Battle):
 
 def key_call_troop(self: Battle, index: int):
     if index < len(self.team_state[self.player_team]["troop_call_list"]):
-        self.call_reinforcement(self.player_team, "troop", index)
+        self.call_reinforcement_to_battle(self.player_team, "troop", index)
 
 
 def key_call_troop_1(self: Battle):

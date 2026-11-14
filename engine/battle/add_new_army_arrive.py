@@ -44,7 +44,7 @@ def add_new_army_arrive(self: Battle):
 
                 team_state["reinforcement_army"].append(army)
 
-                self.add_new_army_to_reinforcement(team, team_state, army)
+                self.add_new_army_to_reinforcement(team_state, army)
 
                 if team == player_team:
                     self.grand_event_notification.add_event(("event_good", grab_text(("ui", "info_text_your")) +

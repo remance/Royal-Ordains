@@ -2,12 +2,12 @@ def change_phase(self):
     grand = self.grand
     current_campaign_state = grand.current_campaign_state
     campaign_battle_dot = current_campaign_state["battle"]["dot"]
-    campaign_battle_factions = current_campaign_state["battle"]["factions"]
-    campaign_battle_armies = current_campaign_state["battle"]["armies"]
+    campaign_battle_faction = current_campaign_state["battle"]["faction"]
+    campaign_battle_army = current_campaign_state["battle"]["army"]
     dots_army_occupation = self.dots_army_occupation
     activity = self.activity
 
-    if self.game_id in campaign_battle_armies:  # in battle
+    if self.game_id in campaign_battle_army:  # in battle
         return
 
     elif "travel" in activity:
@@ -16,7 +16,7 @@ def change_phase(self):
             # move to next dot in route
             next_dot = activity["dot_routes"][0][1]
             if (self.activity["travel"] == "retreat" or next_dot not in campaign_battle_dot or
-                    self.faction in campaign_battle_factions[next_dot]):
+                    self.faction in campaign_battle_faction[next_dot]):
                 # can only move to that dots if no battle is taking place between other unrelated factions
 
                 activity["progress"] = 0  # reset progress

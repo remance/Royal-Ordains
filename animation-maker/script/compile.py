@@ -16,6 +16,7 @@ speech_type_background_colour = {"accept": (120, 120, 200), "war": (200, 120, 12
                                  "lose": (80, 80, 80), "offer": (120, 200, 120),
                                  "gain": (200, 200, 120)}
 
+
 def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_pool, effect_animation_pool,
                  character_list,
                  effect_list, strategy_list, compile_specific=None):
@@ -317,12 +318,14 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
             effect_animation_pool_save[effect_name] = {}
         if effect_name in effect_sprite_adjust:
             effect_raw_data_hash.update(str(effect_sprite_adjust[effect_name]).encode())
+
         for effect_part, frame_list in data.items():
             for surface in frame_list:
                 effect_raw_data_hash.update(image_avg_hashing(surface))
         effect_raw_data_hash = effect_raw_data_hash.hexdigest()
         if effect_name not in animation_load_index["effect"] or effect_raw_data_hash != animation_load_index["effect"][
             effect_name]:
+            max_width_size = 0
             for effect_part, frame_list in data.items():
                 if effect_part not in effect_animation_pool_save[effect_name]:
                     effect_animation_pool_save[effect_name][effect_part] = {0: {1: {1: {}}}}
@@ -331,6 +334,9 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                         effect_animation_pool_save[effect_name][effect_part][0][1][1][frame_index] = {
                             "sprite": {0: CompilableSurface(image)},
                             "offset": crop_offset}
+                        if image.width > max_width_size:
+                            max_width_size = surface.get_width()
+
                 if effect_name in effect_sprite_adjust:
                     for flip_value in effect_sprite_adjust[effect_name]:
                         if flip_value not in effect_animation_pool_save[effect_name][effect_part]:
@@ -356,7 +362,7 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
             recursive_remove_mask(effect_animation_pool_save)
             save_pickle_with_surfaces(join(data_dir, "animation", "effect", effect_name + ".xz"),
                                       effect_animation_pool_save)
-            animation_load_index["effect"][effect_name] = effect_raw_data_hash
+            animation_load_index["effect"][effect_name] = {"hash": effect_raw_data_hash, "max_width_size": max_width_size}
 
     with lzma.open(join(data_dir, "animation", "animation_load_index.xz"), "wb") as handle:
         pickle.dump(animation_load_index, handle)

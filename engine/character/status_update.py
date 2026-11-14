@@ -15,6 +15,7 @@ def status_update(self):
         self.animation_frame_play_time = self.Base_Animation_Frame_Play_Time
         self.health_regen = self.base_health_regen
         self.resource_regen = self.base_resource_regen
+        print(self.name, self.resource_regen)
         self.element_resistance = {element: value for
                                    element, value in self.base_element_resistance.items()}
         self.resource_cost_modifier = self.base_resource_cost_modifier
@@ -41,6 +42,7 @@ def status_update(self):
             for status in self.status_duration:
                 self.status_apply_funcs[status](self)
 
+        print(self.name, self.resource_regen, self.status_duration)
         if not self.false_order:
             self.commander_order = self.true_commander_order
 

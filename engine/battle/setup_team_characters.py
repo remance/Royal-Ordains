@@ -15,11 +15,11 @@ def setup_team_characters(self: Battle, stage_data: dict):
     """Setup all characters at the start of battle, not used for character spawn afterward"""
     for team, team_state in self.team_state.items():
         if "unit" in team_state:
-            if team_state["commander_unit"]:
-                data = {key: value for key, value in team_state["commander_unit"].items()}
+            if team_state["commander_character"]:
+                data = {key: value for key, value in team_state["commander_character"].items()}
                 data["Team"] = team
                 add_battle_char = CommanderBattleCharacter(self.last_char_game_id,
-                                                           team_state["commander_unit"])
+                                                           team_state["commander_character"])
                 add_battle_char.enter_stage()
                 commander_char = add_battle_char
                 self.team_commander[team] = commander_char

@@ -70,7 +70,6 @@ drop speed = assign value of dropping speed for air animation, higher value mean
 
 class Character(sprite.Sprite):
     battle = None
-    stat_data: dict = None
     character_list: dict = None
     race_list = dict = None
     containers = None
@@ -461,10 +460,6 @@ class BattleCharacter(Character):
         if self.team == 1:
             self.enemy_team = 2
 
-        # self.total_range_power_score = 0
-        # self.total_offence_power_score = 0
-        # self.total_defence_power_score = 0
-        self.total_power_score = 0
         self.start_pos = self.battle.team_state[self.team]["start_pos"]
         self.retreat_pos = self.start_pos * 2
         if not self.start_pos:
@@ -494,7 +489,7 @@ class BattleCharacter(Character):
         self.base_health = character_data["Health"]  # max health of character
         self.base_resource = 100
 
-        self.base_element_resistance = {key.split(" ")[0].lower(): self.race_list[character_data["Race"]] + character_data[key] for key in character_data if " Resistance" in key}
+        self.base_element_resistance = {key.split(" ")[0].lower(): self.race_list[character_data["Race"]][key.split(" ")[0] + " Resistance"] + character_data[key] for key in character_data if " Resistance" in key}
         self.base_critical_chance = 0.1
         self.base_health_regen = 0  # health regeneration modifier
         if self.is_summon:
@@ -835,6 +830,7 @@ class CommanderBattleCharacter(BattleCharacter):
         When the commander character die, every character in that team will enter broken state.
         They will no longer fight and instead retreat from battle.
         """
+        self.total_power_score = 0
         self.followers_len_check = [0, 0]
         self.max_followers_len_check = 0
         BattleCharacter.__init__(self, game_id, character_data, is_commander=True, additional_layer=100000000)
@@ -908,3 +904,139 @@ class SubShowcaseCharacter(Character):
         main_character.sub_characters.append(self)
         self.battle.battle_character_updater.remove(self)
         self.battle.all_battle_characters.remove(self)
+
+
+class GrandAutoCharacter:
+    character_list: dict = None
+    race_list = dict = None
+    effect_list: dict = None
+
+    def __int__(self, game_id: int, character_id: str, character_data: dict, main_character: GrandAutoCharacter = None,
+                is_summon: bool=False):
+        """Mini character with minimal stat stuffs for auto battle in grand"""
+        self.sub_characters = []
+        self.commander_character = commander_character
+
+        self.is_summon = is_summon
+
+        self.active = False
+        self.nearest_enemy = None
+        self.nearest_enemy_distance = None
+        self.nearest_enemy_pos = None
+        self.furthest_enemy = None
+        self.furthest_enemy_distance = None
+        self.furthest_enemy_pos = None
+        self.nearest_ally = None
+        self.nearest_ally_pos = None
+        self.nearest_ally_distance = None
+
+        self.character_type = character_data["Type"]
+        self.team = character_data["Team"]
+        self.enemy_team = 1
+        if self.team == 1:
+            self.enemy_team = 2
+
+        self.start_pos = self.battle.team_state[self.team]["start_pos"]
+        self.retreat_pos = self.start_pos * 2
+        if not self.start_pos:
+            self.retreat_pos = -10000
+
+        # Get char stat
+        self.commander_character = None
+        if commander_character:
+            self.commander_character = commander_character
+            self.ai_prepare = MethodType(troop_ai_prepare, self)
+        self.power_score = character_data["Power Score"]
+        self.original_offence = character_data["Offence"]
+        self.original_defence = character_data["Defence"]
+        self.supply = character_data["Supply Drop"]
+
+        self.base_offence = character_data["Offence"]
+        self.base_defence = character_data["Defence"]
+        self.base_speed = character_data["Speed"]
+
+        # add leadership from 3 active leaders (leader reduce leadership by half)
+        self.status_immunity = character_data["Status Immunity"]
+
+        self.base_health = character_data["Health"]  # max health of character
+        self.base_resource = 100
+
+        self.base_element_resistance = {
+            key.split(" ")[0].lower(): self.race_list[character_data["Race"]] + character_data[key] for key in
+            character_data if " Resistance" in key}
+        self.base_critical_chance = 0.1
+        self.base_health_regen = 0  # health regeneration modifier
+        if self.is_summon:
+            self.base_health_regen = -1
+        self.base_resource_regen = 1  # resource regeneration
+
+        self.base_resource_cost_modifier = 1
+
+        self.spawns = character_data["Spawns"]
+        self.body_mass = character_data["Mass"]
+        self.damaged_mass = self.body_mass * 2
+        self.knockdown_mass = self.body_mass * 4
+
+        # Final stat after receiving stat effect from various sources, reset every time status is updated
+        self.critical_chance = self.base_critical_chance
+        self.offence = self.base_offence
+        self.low_offence = self.offence * 0.5
+        self.defence = self.base_defence
+        self.element_resistance = self.base_element_resistance.copy()
+        self.speed = self.base_speed
+        self.dodge_chance = self.speed * 0.75
+        if self.dodge_chance > 90:
+            self.dodge_chance = 90
+        self.health_regen = self.base_health_regen
+        self.resource_regen = self.base_resource_regen
+
+        self.resource_cost_modifier = self.base_resource_cost_modifier
+
+        self.health1 = self.base_health * 0.01
+        self.health10 = self.base_health * 0.10
+
+        self.health = self.base_health
+        self.resource = self.base_resource
+
+        self.run_speed = 9 * self.speed
+        self.walk_speed = 4 * self.speed
+
+        # apply property as variable
+        if "Property" in character_data:
+            char_property = {key: value for key, value in character_data["Property"].items()}
+            for stuff in char_property:  # set attribute from property
+                self.__setattr__(stuff, char_property[stuff])
+
+        if self.no_run:  # cannot run, reset run variables to walk
+            self.run_command_action = self.walk_command_action
+            self.run_speed = self.walk_speed
+
+        self.ai_movement_timer = 0  # timer to move for AI
+
+        self.all_team_enemy_collision_grids = self.battle.all_team_ground_enemy_collision_grids
+        self.ground_enemy_collision_grids = self.battle.all_team_ground_enemy_collision_grids[self.team]
+        self.air_enemy_collision_grids = self.battle.all_team_air_enemy_collision_grids[self.team]
+        self.enemy_collision_grids = self.ground_enemy_collision_grids  # collision grid for self sprite attack
+        self.last_grid = self.battle.last_grid
+        self.ally_list = self.battle.all_team_ally[self.team]
+        self.near_ally = []
+        self.near_enemy = []
+
+        self.movesets = character_data["Move"]
+        self.die_moveset = character_data["Die Move"]
+        self.ai_range_modifier = 1
+
+        self.ai_min_attack_range = character_data["ai_min_attack_range"] * self.ai_range_modifier
+        self.ai_max_attack_range = character_data["ai_max_attack_range"] * self.ai_range_modifier
+        self.max_enemy_range_check = character_data["max_enemy_range_check"] * self.ai_range_modifier
+        self.ai_skirmish_range = character_data["ai_skirmish_range"] * self.ai_range_modifier
+        self.min_resource_move = character_data["min_resource_move"]
+        self.ai_min_effect_range = character_data["ai_min_effect_range"]
+        self.ai_enemy_max_effect_range = character_data["ai_enemy_max_effect_range"]
+        self.ai_ally_max_effect_range = character_data["ai_ally_max_effect_range"]
+
+        if self.movesets:
+            if self.is_commander:
+                self.ai_combat = MethodType(ai_combat_dict["leader"], self)
+            elif self.ai_behaviour in ai_combat_dict:
+                self.ai_combat = MethodType(ai_combat_dict[self.ai_behaviour], self)

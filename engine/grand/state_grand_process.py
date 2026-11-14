@@ -120,12 +120,12 @@ def state_grand_process(self: Grand):
                 # all army in the same battles retreat and lose battle
                 for army in self.player_selected_army:  # TODO finish retreat function here
                     army.issue_move_command(self.input_popup[2][0], direct=self.input_popup[2][1])
-                    # if army.base_pos in self.current_campaign_state["battle"]["auto"]:
-                    #     self.current_campaign_state["battle"]["auto"].remove(army.base_pos)
+                    # if army.base_pos in self.current_campaign_state["battle"]["battles"]:
+                    #     self.current_campaign_state["battle"]["battles"].remove(army.base_pos)
                     #
-                    # for battle in self.current_campaign_state["battle"]["auto"]:
+                    # for battle in self.current_campaign_state["battle"]["battles"]:
 
-                    # self.grand.current_campaign_state["battle"]["armies"].remove(self.game_id)
+                    # self.grand.current_campaign_state["battle"]["army"].remove(self.game_id)
                     self.add_sound_effect_queue(choice(self.sound_effect_pool["army_march"]),
                                                 self.base_camera_center_pos, 9999999999999,
                                                 0)

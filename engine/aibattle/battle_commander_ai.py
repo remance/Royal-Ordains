@@ -26,7 +26,7 @@ class BattleCommanderAI:
         if self.team == 1:
             self.enemy_team = 2
         self.can_retreat = can_retreat
-        self.call_reinforcement = self.battle.call_reinforcement
+        self.call_reinforcement = self.battle.call_reinforcement_to_battle
         self.call_in_air_group = self.battle.call_in_air_group
         self.current_weather = self.battle.current_weather
         self.activate_strategy = self.battle.activate_strategy
@@ -53,8 +53,8 @@ class BattleCommanderAI:
         self.has_cure_strategy = False
         self.has_clarity_strategy = False
 
-        self.reinforcement = self.battle.later_reinforcement["team"][team]
-        self.enemy_reinforcement = self.battle.later_reinforcement["team"][self.enemy_team]
+        self.reinforcement = self.team_state["later_reinforcement"]
+        self.enemy_reinforcement = self.enemy_team_state["later_reinforcement"]
 
         self.aggressive = 0  # determine how aggressive the AI commander is
         self.defensive = 0

@@ -46,9 +46,6 @@ def change_turn(self: Grand, turn_change: bool = True):
 
             self.cal_faction_culture(faction)
 
-            for region in faction_state["region"]:
-                self.cal_region_income_recruit(faction, region)
-
             for army in faction_state["army"]:
                 army.reset_stat(reset_player_army_card=True)
 

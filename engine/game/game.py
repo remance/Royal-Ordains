@@ -350,7 +350,6 @@ class Game:
             BattleCharacter.show_dmg_number = True
         Army.character_recruit_building_list = self.stat_data.character_recruit_building_list
         Army.character_list = self.character_list
-        Character.stat_data = self.stat_data
         Character.character_list = self.character_list
         Character.race_list = self.race_list
         Character.status_list = self.stat_data.status_list

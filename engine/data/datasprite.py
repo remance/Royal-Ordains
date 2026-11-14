@@ -323,7 +323,7 @@ def load_effect_sprites(effect_to_load, cache_animation_hash, data_dir, effect_a
         if (not Path(join(data_dir, "animation", "effect", "cache_" + effect + ".xz")).exists() or
                 (screen_scale != (1, 1) and (cache_animation_hash and (
                         screen_scale != cache_animation_hash["effect"][effect]["screen_scale"] or
-                        animation_load_index["effect"][effect] != cache_animation_hash["effect"][effect]["hash"])))):
+                        animation_load_index["effect"][effect]["hash"] != cache_animation_hash["effect"][effect]["hash"])))):
             # effect sprite or screen resolution got changed, load and scale for new cache
             loaded_effect_animation = load_pickle_with_surfaces(
                 join(data_dir, "animation", "effect", effect + ".xz"),
@@ -332,7 +332,7 @@ def load_effect_sprites(effect_to_load, cache_animation_hash, data_dir, effect_a
             # save sprite cache, and screen resolution size in hash cache for later game launch sprite scale check
             save_pickle_with_surfaces(join(
                 data_dir, "animation", "effect", "cache_" + effect + ".xz"), loaded_effect_animation)
-            cache_animation_hash["effect"][effect] = {"hash": animation_load_index["effect"][effect],
+            cache_animation_hash["effect"][effect] = {"hash": animation_load_index["effect"][effect]["hash"],
                                                       "screen_scale": screen_scale}
 
         else:

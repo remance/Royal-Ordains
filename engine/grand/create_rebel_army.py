@@ -59,7 +59,7 @@ def create_rebel_army(self: Grand, region_id: str, faction_state: dict, max_spaw
                 rebel_army["Supply"] += character_data["Supply"] * character_data["Capacity"]
 
     rebel_army["Max Supply"] = rebel_army["Supply"]
-    self.create_new_army(campaign_faction_state["free"], rebel_army, no_assemble=True)
+    self.create_new_army(campaign_faction_state["free"], rebel_army, no_assemble=True, no_enemy_check=False)
 
     if self.player_faction == region_state["control"]:
         self.event_notification_ui.add_new_event((

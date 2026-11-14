@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from uuid import uuid4
 
 if TYPE_CHECKING:
     from engine.game.game import Game
@@ -15,7 +16,7 @@ from pygame import Vector2, display, sprite
 from pygame.locals import *
 from pygame.mixer import Channel
 
-from engine.army.army import Army
+from engine.army.army import Army, GarrisonArmy
 from engine.battle.add_sound_effect_queue import add_sound_effect_queue
 from engine.battle.battle import set_start_load, set_done_load
 from engine.battle.change_game_state import change_game_state
@@ -303,6 +304,7 @@ class Grand:
         self.region_object_list = {}
         self.settlement_object_list = {}
         self.wonder_object_list = {}
+        self.garrison_army_list = {}
 
         # Create grand ui
         self.dots_army_info_banners = {}
@@ -522,7 +524,7 @@ class Grand:
         # setup armies, replace dict with object
         for faction, faction_state in self.current_campaign_state["faction"].items():
             for index, army in enumerate(tuple(faction_state["army"])):
-                self.create_new_army(faction_state, army, index=index, sort=False, no_assemble=True)
+                self.create_new_army(faction_state, army, index=index, sort=False, no_assemble=True, no_enemy_check=True)
 
         # create route graph for pathfinding
         if not self.current_campaign_state["pathfinding"]:
@@ -541,8 +543,9 @@ class Grand:
         self.region_object_list = {}
         self.wonder_object_list = {}
         self.settlement_object_list = {}
+        self.garrison_army_list = {}
         for region, region_state in self.current_campaign_state["region"].items():
-            region_buildings = self.current_campaign_state["region"][region]["building"]
+            region_buildings = region_state["building"]
             # create region ground objects
             self.region_object_list[region] = GrandRegion(region, self.region_list[region]["Region POS"],
                                                           self.current_campaign_state["region"][region]["control"])
@@ -556,6 +559,19 @@ class Grand:
             # create settlement objects
             self.settlement_object_list[region] = (
                 SettlementObject(region, self.region_list[region]["Settlement POS"], region_buildings[0]))
+
+            # create garrison army for each region
+            garrison_state = region_state["garrison"]
+            garrison_commander = None
+            if garrison_state["leader"]:
+                garrison_commander = garrison_state["leader"][0]
+            self.garrison_army_list[region] = GarrisonArmy(garrison_state["id"],
+                                                           region_state["control"],
+                                                           self.building_list[region_buildings[0][0]]["Culture"],
+                                                           garrison_commander,
+                                                           {"leader": garrison_state["leader"][1:],
+                                                            "troop": garrison_state["troop"], "air": garrison_state["air"]},
+                                                           garrison_state["strategy"])
 
         # setup camera position
         self.mini_map.camera_pos = None
@@ -761,6 +777,7 @@ class Grand:
         self.region_object_list = {}
         self.wonder_object_list = {}
         self.settlement_object_list = {}
+        self.garrison_army_list = {}
 
         self.ai_process_list = []
 

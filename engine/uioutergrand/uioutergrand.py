@@ -844,7 +844,7 @@ class ArmyList(GrandListUI, UIOuterGrand):
                                                                       (50 * self.screen_scale_width),
                                                                       10 * self.screen_scale_height)))
 
-        if army.game_id in self.grand.current_campaign_state["battle"]["armies"]:
+        if army.game_id in self.grand.current_campaign_state["battle"]["army"]:
             activity = self.grab_text(("ui", "info_text_combat"))
         elif "travel" in army.activity:
             activity = ">" + self.grab_text(("region", army.activity["destination"], "Name"))
@@ -1081,7 +1081,7 @@ class PlayerGrandInteract(UIOuterGrand):
                             (int(grand.base_cursor_pos[0]), int(grand.base_cursor_pos[1]))).rgb)
                         if region_colour in grand.region_by_colour_index:
                             region_id = grand.region_by_colour_index[region_colour]
-                            if any([army.game_id in grand.current_campaign_state["battle"]["armies"] for army in
+                            if any([army.game_id in grand.current_campaign_state["battle"]["army"] for army in
                                     grand.player_selected_army]):
                                 # player army in battle, this will cause battle lost and armies retreat from battle,
                                 # ask for confirmation first

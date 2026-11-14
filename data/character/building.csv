@@ -350,7 +350,7 @@
 "unique_great_depth_3_adventure_zone",,"unique_great_depth_2_adventure_zone",,,,,,,,,,,,-500,400,,,"gold:0.4","all","unique",
 "unique_great_depth_4_adventure_zone",,"unique_great_depth_3_adventure_zone",,,,,,,,,,,,-1000,500,,,"gold:0.5","all","unique",
 "unique_great_depth_5_adventure_zone",,"unique_great_depth_4_adventure_zone",,,,,,,,,,,,-1500,1000,,,"gold:1","all","unique",
-"unique_great_red_tree",,"unique_great_red_tree_destroyed",,,,,,"small_human_red_leaf_bandit",,,"small_human_red_leaf_bandit",,,50,,4,,"happiness:0.3","all","unique","done"
+"unique_great_red_tree",,"unique_great_red_tree_destroyed",,,,,,"small_cat_red_leaf_bandit",,,"small_human_red_leaf_bandit",,,50,,4,,"happiness:0.3","all","unique","done"
 "unique_great_red_tree_destroyed",,,,,,,,,,,,,,,50,-6,,,"all","unique",
 "unique_great_ruin",,,,,,,,,,,,,,,700,-5,,"gold:0.4","all","unique",
 "unique_great_sail",,,,,,,,,,,,,,,,,,,"all","unique",

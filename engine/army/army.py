@@ -9,6 +9,8 @@ from engine.army.remove_army_from_reserve import remove_army_from_reserve
 from engine.army.change_follower import change_follower
 from engine.army.reset_stat import reset_stat
 
+from engine.utils.common import empty_method
+
 
 class Army:
     character_recruit_building_list = None
@@ -27,8 +29,8 @@ class Army:
     reset_stat = reset_stat
 
     def __init__(self, army_id: str, faction: str, culture: str, commander_char_id: str, army_followers: dict,
-                 supply: int = 0, max_supply: int = 0, garrison_strategy: tuple | list = (),
-                 custom_preset_id=None, grand_state=None):
+                 supply: int = 0, max_supply: int = 0, is_garrison=False, garrison_strategy: tuple | list = (),
+                 custom_preset_id=None, grand_state=None, no_enemy_check=True):
         self.game_id = army_id
         self.faction = faction
         self.belong_to_player_faction = False
@@ -45,6 +47,7 @@ class Army:
         self.power = 0
         self.total_supply_usage = 0
         self.travel_time_modifier = 1
+        self.is_garrison = is_garrison
         self.garrison_strategy = garrison_strategy
         self.can_assemble = {}
         self.supply = supply
@@ -85,7 +88,7 @@ class Army:
             self.check_assemble()
 
         self.reset_stat(include_culture_influence=include_culture_influence)
-        if grand_state:
+        if not no_enemy_check:
             self.check_enemy_army()  # check for enemy/battle when it is created right away in grand
 
     @property
@@ -98,3 +101,13 @@ class Army:
                                 "enable_assemble": self.enable_assemble, "base_pos": self.base_pos,
                                 "current_region": self.current_region, },
                 }
+
+
+class GarrisonArmy(Army):
+    change_phase = empty_method
+
+    def __init__(self, army_id: str, faction: str, culture: str, commander_char_id: str, army_followers: dict,
+                 garrison_strategy: tuple | list = (), grand_state=None):
+        Army.__init__(self, army_id, faction, culture, commander_char_id, army_followers,
+                      0, 0, is_garrison=True, garrison_strategy=garrison_strategy,
+                      grand_state=grand_state)

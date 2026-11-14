@@ -120,9 +120,9 @@ class CosmosUI(UIOuterGrand):
         """WITH THIS SETUP COSMOS TIME LOOP IS 3141.6 TURNS any change below may result in requiring to change that 
         value all over the game code"""
         self.planets = {"pale_moon": CosmicEntity(10, 0, (230, 230, 230), "pale_moon",
-                                                  orbit={"parent": self.terra, "speed": 1, "radius": 190}),
+                                                  orbit={"parent": self.terra, "speed": 0.5, "radius": 190}),
                         "dark_moon": CosmicEntity(10, 0, (30, 125, 230), "dark_moon",
-                                                  orbit={"parent": self.terra, "speed": 0.8, "radius": 260}),
+                                                  orbit={"parent": self.terra, "speed": 0.4, "radius": 260}),
                         "red_planet": CosmicEntity(10, 0, (200, 30, 30), "red_planet",
                                                    orbit={"parent": self.terra, "speed": 0.048, "radius": 288},
                                                    epicycle={"speed": 0.16, "radius": 120}),
@@ -366,6 +366,7 @@ class CosmicEntity(UIOuterGrand):
                         self.image = self.base_image
                         self.using_event_image = True
                         break
+
         elif self.using_event_image:
             self.base_image = self.cosmos_ui_images[self.cosmic_id]
             self.image = self.base_image

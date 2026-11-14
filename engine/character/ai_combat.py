@@ -15,25 +15,25 @@ def check_status(who: BattleCharacter, status: str):
 
 
 def check_health_lower(who: BattleCharacter, value: (int, float)):
-    if who.base_health * value <= who.health:
+    if who.health <= who.base_health * value:
         return True
     return None
 
 
 def check_resource_lower(who: BattleCharacter, value: (int, float)):
-    if who.base_resource * value <= who.resource:
+    if who.resource <= who.base_resource * value:
         return True
     return None
 
 
 def check_health_higher(who: BattleCharacter, value: (int, float)):
-    if who.base_health * value >= who.health:
+    if who.health >= who.base_health * value:
         return True
     return None
 
 
 def check_resource_higher(who: BattleCharacter, value: (int, float)):
-    if who.base_resource * value >= value:
+    if who.resource >= who.base_resource * value:
         return True
     return None
 

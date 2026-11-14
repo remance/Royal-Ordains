@@ -1271,7 +1271,7 @@ class RegionManagement(UIOuterGrand):
         self.appear_repair_button = False
         self.appear_raze_button = False
         self.appear_pillage_button = False
-        self.image = Surface((1600 * self.screen_scale_width, 1080 * self.screen_scale_height))
+        self.image = Surface((1500 * self.screen_scale_width, 1000 * self.screen_scale_height))
         self.image.fill((150, 150, 150))
 
         self.unavailable_building_icon = self.building_portraits["unavailable"]["building_ui"]
@@ -1304,7 +1304,7 @@ class RegionManagement(UIOuterGrand):
 
         self.building_button_rects = {}
 
-        self.rect = self.image.get_rect(center=(self.screen_width * 0.25, self.screen_height / 2))
+        self.rect = self.image.get_rect(bottomleft=(0, self.screen_height))
 
         self.repair_button = self.grand_ui_images["building_repair"]
         self.raze_button_rect = self.grand_ui_images["building_raze"]
@@ -1609,7 +1609,6 @@ class RegionManagement(UIOuterGrand):
         elif (self.cursor.event and not grand.building_management_ui.mouse_over and
               not grand.army_deploy_tab_button.mouse_over and not grand.region_management_tab_button.mouse_over and
               not grand.time_setting_ui.mouse_over):
-            print(self.cursor.event_press, self.cursor.event)
             self.remove_from_outer_ui_menu_updater(grand.all_region_management_uis)
 
 
@@ -1701,7 +1700,7 @@ class BuildingManagement(UIOuterGrand):
             self.image = Surface((1400 * self.screen_scale_width, sum([
                 ceil(len(available_building_list) / 5) for available_building_list in
                 available_building_upgrade_by_type.values()]) * 240 * self.screen_scale_height))
-            self.rect = self.image.get_rect(midleft=grand.region_management_ui.rect.midright)
+            self.rect = self.image.get_rect(bottomleft=grand.region_management_ui.rect.bottomright)
             image_width = self.image.get_width()
             building_portraits = self.building_portraits
             culture_coas = self.culture_coas

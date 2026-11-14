@@ -10,14 +10,14 @@ from engine.grandarmyactor.grandarmyactor import GrandArmyActor
 
 
 def create_new_army(self: Grand, faction_state: dict, army_data: dict, index: (str, int) = "new",
-                    sort: bool = True, no_assemble: bool = False):
+                    sort: bool = True, no_assemble: bool = False, no_enemy_check: bool = False):
     """Create new active army"""
     faction_army_state = faction_state["army"]
     if index == "new":
         faction_army_state.append(None)
         index = -1
     army_faction = army_data["Faction"]
-    if no_assemble:  # deploy from provided data, no assembling required
+    if no_assemble:  # deploy from provided data or rebel, no assembling required
         grand_state = {"current_region": army_data["Region"], "activity": {}, "enable_resupply": True,
                        "enable_assemble": True}
         army_followers = {"leader": [[], [], []],
@@ -39,7 +39,7 @@ def create_new_army(self: Grand, faction_state: dict, army_data: dict, index: (s
                                      self.character_list[army_data["Commander"]]["Culture"],
                                      army_data["Commander"], army_followers,
                                      supply=army_data["Supply"], max_supply=army_data["Max Supply"],
-                                     grand_state=grand_state)
+                                     grand_state=grand_state, no_enemy_check=no_enemy_check)
 
     GrandArmyActor(faction_army_state[index], army_faction)
 

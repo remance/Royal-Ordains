@@ -446,7 +446,7 @@ class Command(UIOuterBattle):
                             self.popup_description("Call Leader " + str(index + 1),
                                                    self.leader_call_pool[index][1], character)
                             if self.event_press:  # call leader
-                                self.battle.call_reinforcement(self.player_team, "leader", index)
+                                self.battle.call_reinforcement_to_battle(self.player_team, "leader", index)
                         return
 
                 for index, rect in self.ground_portrait_rect.items():
@@ -456,7 +456,7 @@ class Command(UIOuterBattle):
                             self.popup_description("Call Troop " + str(index + 1),
                                                    self.troop_call_pool[index][1], character)
                             if self.event_press:  # call ground troop
-                                self.battle.call_reinforcement(self.player_team, "troop", index)
+                                self.battle.call_reinforcement_to_battle(self.player_team, "troop", index)
                             return
 
                 for air_group, rect in self.air_group_rect.items():

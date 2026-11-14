@@ -89,8 +89,7 @@ def state_battle_process(self: Battle):
         for battle_ai_commander in self.all_battle_ai_commanders:
             battle_ai_commander.update(dt)
 
-        if self.later_reinforcement:
-            self.check_reinforcement()
+        self.check_reinforcement()
 
         for team, team_state in self.team_state.items():
             team_state["strategy_cooldown"] = {key: [cooldown - dt if cooldown > dt else 0 for cooldown in value] for

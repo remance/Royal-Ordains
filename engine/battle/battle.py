@@ -26,7 +26,7 @@ from engine.battle.add_new_army_to_reinforcement import add_new_army_to_reinforc
 from engine.battle.add_sound_effect_queue import add_sound_effect_queue
 from engine.battle.add_strategy_to_team_state import add_strategy_to_team_state
 from engine.battle.call_in_air_group import call_in_air_group
-from engine.battle.call_reinforcement import call_reinforcement
+from engine.battle.call_reinforcement_to_battle import call_reinforcement_to_battle
 from engine.battle.change_game_state import change_game_state
 from engine.battle.check_battle_character_to_load import check_battle_character_to_load
 from engine.battle.check_event import check_event
@@ -95,7 +95,7 @@ class Battle:
     add_strategy_to_team_state = add_strategy_to_team_state
     back_to_battle_state = back_to_battle_state
     call_in_air_group = call_in_air_group
-    call_reinforcement = call_reinforcement
+    call_reinforcement_to_battle = call_reinforcement_to_battle
     change_game_state = change_game_state
     change_pause_update = change_pause_update
     check_battle_character_to_load = check_battle_character_to_load
@@ -309,7 +309,7 @@ class Battle:
         self.team_state = {team: {"faction": None, "culture": None, "strategy_resource": 0, "supply_resource": 0,
                                   "supply_reserve": 0, "total_supply": 0, "leadership": 0, "start_pos": 0,
                                   "leader_call_list": [], "troop_call_list": [],
-                                  "air_group": [], "strategy_cooldown": {}} for
+                                  "air_group": [], "strategy_cooldown": {}, "later_reinforcement": {}} for
                            team in team_list}
         self.team_commander = {team: None for team in team_list}
         self.team_deployed = {team: 0 for team in team_list}
@@ -318,8 +318,6 @@ class Battle:
         self.player_culture = None
         self.player_selected_strategy = None
 
-        self.later_reinforcement = {"weather": {}, "time": {},
-                                    "team": {team: {"air": [], "ground": []} for team in team_list}}
         self.team1_call_leader_cooldown_reinforcement = {}
         self.team1_call_troop_cooldown_reinforcement = {}
         self.team2_call_leader_cooldown_reinforcement = {}
@@ -436,11 +434,15 @@ class Battle:
         self.cutscene_playing = None
         self.current_scene = 1
 
-    def setup_battle_start(self, campaign, stage, full_team_state):
+    def setup_battle_start(self, campaign, stage, full_team_state, battle_state=None):
         """setup battle used for both auto and manual"""
-        self.map_data.read_map_data(campaign, stage)
-        stage_len = len(
-            [value for value in self.game.preset_map_data[stage]["data"].values() if "scene" in value["Type"]])
+        if not battle_state:
+            # not already loaded battle stage
+            self.map_data.read_map_data(campaign, stage)
+            stage_len = len(
+                [value for value in self.game.preset_map_data[stage]["data"].values() if "scene" in value["Type"]])
+        else:
+            stage_len = battle_state["stage_size"]
         base_stage_end = stage_len * Default_Screen_Width
 
         for team, team_state in full_team_state.items():
@@ -452,6 +454,7 @@ class Battle:
             team_state["leadership"] = 0
             team_state["start_pos"] *= base_stage_end
             team_state["active_leader"] = 0
+            team_state["later_reinforcement"] = {}
             # add available strategies to team stat
             if team_state["main_army"] and team_state["main_army"].commander_id:  # army exist
                 main_army = team_state["main_army"]
@@ -492,7 +495,7 @@ class Battle:
 
             for army in team_state["reinforcement_army"]:
                 if army.commander_id:
-                    self.add_new_army_to_reinforcement(team, team_state, army)
+                    self.add_new_army_to_reinforcement(team_state, army)
 
     def prepare_new_stage(self, attach_grand, campaign, stage, team_state, player_team, battle_name,
                           custom_stage_data, ai_retreat):
@@ -659,9 +662,12 @@ class Battle:
             if item["Arrive Condition"]:
                 for key, value in item["Arrive Condition"].items():
                     # use only first condition
-                    if value not in self.later_reinforcement[key]:
-                        self.later_reinforcement[key][value] = []
-                    self.later_reinforcement[key][value].append(item)
+                    later_reinforcement = self.team_state[item["Team"]]["later_reinforcement"]
+                    if key not in later_reinforcement:
+                        later_reinforcement[key] = {}
+                    if value not in later_reinforcement[key]:
+                        later_reinforcement[key][value] = []
+                    later_reinforcement[key][value].append(item)
                     break
 
         self.setup_team_characters(stage_data)
@@ -957,7 +963,7 @@ class Battle:
         self.team_state = {team: {"faction": None, "culture": None, "strategy_resource": 0,
                                   "supply_resource": 0, "supply_reserve": 0, "total_supply": 0, "leadership": 0,
                                   "start_pos": 0, "leader_call_list": [], "troop_call_list": [],
-                                  "air_group": [], "strategy": {}} for
+                                  "air_group": [], "strategy": {}, "later_reinforcement": {}} for
                            team in team_list}
         self.team1_call_leader_cooldown_reinforcement = {}
         self.team1_call_troop_cooldown_reinforcement = {}
@@ -965,8 +971,6 @@ class Battle:
         self.team2_call_troop_cooldown_reinforcement = {}
         self.all_battle_ai_commanders = []
 
-        self.later_reinforcement = {"weather": {}, "time": {},
-                                    "team": {team: {"air": [], "ground": []} for team in team_list}}
         self.ai_process_list = []
         self.team_commander = {team: None for team in team_list}
         self.player_commander = None
