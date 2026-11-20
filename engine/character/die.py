@@ -11,14 +11,14 @@ def die(self, retreat=False):
         self.battle.ai_process_list.remove(self)
     self.ally_list.remove(self)
 
-    for team in self.battle.all_team_enemy_check:
+    for team in self.battle.all_team_enemy:
         if team != self.team:
             for grid_x in self.grid_range_x:
                 for grid_y in self.grid_range_y:
                     self.all_team_enemy_collision_grids[team][grid_y][grid_x].remove(self)
                 self.all_team_enemy_collision_grids[team][-1][grid_x].remove(self)
-            if self in self.battle.all_team_enemy_check[team]:
-                self.battle.all_team_enemy_check[team].remove(self)
+            if self in self.battle.all_team_enemy[team]:
+                self.battle.all_team_enemy[team].remove(self)
 
     if self.indicator:
         clean_object(self.indicator)
@@ -61,7 +61,7 @@ def die(self, retreat=False):
             for _ in range(spawn_num):
                 start_pos = (self.base_pos[0] + uniform(-200, 200),
                              self.base_pos[1])
-                add_battle_character = engine.character.character.BattleCharacter(self.battle.last_char_game_id,
+                add_battle_character = engine.character.character.CombatCharacter(self.battle.last_char_game_id,
                                                                                   self.character_list[spawn_name] |
                                                                                   {"ID": spawn_name,
                                                                                    "Team": self.team, "POS": start_pos})
@@ -93,3 +93,59 @@ def commander_die(self):
             character.broken = True
     self.battle.team_commander[self.team] = None
     die(self)
+
+
+def auto_die(self, retreat=False):
+    """Character dead"""
+    # remove from updater
+    if self in self.battle.ai_process_list:
+        self.battle.ai_process_list.remove(self)
+    self.ally_list.remove(self)
+
+    for team in self.battle.all_team_enemy:
+        if team != self.team:
+            for grid_x in self.grid_range_x:
+                for grid_y in self.grid_range_y:
+                    self.all_team_enemy_collision_grids[team][grid_y][grid_x].remove(self)
+                self.all_team_enemy_collision_grids[team][-1][grid_x].remove(self)
+            if self in self.battle.all_team_enemy[team]:
+                self.battle.all_team_enemy[team].remove(self)
+
+    if self.main_character:
+        self.main_character.sub_characters.remove(self)
+        if (not self.main_character.sub_characters and not self.main_character.active_without_sub_character and
+                self.main_character.health):
+            # main character no longer has sub characters, check if main character is consider no longer active
+            # does not include main character that is dead already
+            self.main_character.health = 0
+    elif not retreat:  # count dead only for main character and not retreat
+        self.battle.team_loss[self.team] += 1
+    self.main_character = None
+
+    for sub_character in self.sub_characters:
+        sub_character.main_character = None
+    self.sub_characters = []
+
+    # return supply when die or retreat, summon does not give supply
+    if not self.is_summon:
+        if retreat:
+            # manage to retreat mean return some supply but not give any to enemy
+            self.battle.team_state[self.team]["supply_reserve"] += self.supply * 0.5
+        else:
+            self.battle.team_state[self.team]["supply_reserve"] += self.supply * 0.5
+            self.battle.team_state[self.enemy_team]["supply_reserve"] += self.supply * 0.25
+
+    if self.commander_character:  # remove self from leader stuff
+        if self.commander_character.alive:
+            self.commander_character.reset_commander_variables()
+        self.commander_character = None
+
+    if self.spawns:
+        for spawn_name, spawn_num in self.spawns.items():
+            for _ in range(spawn_num):
+                start_pos = (self.base_pos[0] + uniform(-200, 200),
+                             self.base_pos[1])
+                self.battle.add_auto_character(self.character_list[spawn_name] |
+                                               {"ID": spawn_name, "Team": self.team, "POS": start_pos})
+
+    self.status_duration = {}

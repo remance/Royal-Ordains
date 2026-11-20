@@ -30,7 +30,7 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
     except Exception:
         pass
 
-    animation_load_index = {"effect": {}, "character_load_index": {}}
+    animation_load_index = {"effect": {}, "character_load_index": {}, "character_animation_effect": {}}
     try:
         with lzma.open(join(data_dir, "animation", "animation_load_index.xz"), "rb") as read_file:
             animation_load_index = pickle.load(read_file)
@@ -237,15 +237,13 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                                 # exact sprite already exist, reuse that one instead to reduce memory/storage
                                 frame_data_list["right"]["sprite"] = \
                                     part_sprite_adjust[image_array]["sprite"]
-                                frame_data_list["right"]["offset"] = Vector2(
-                                    base_point[0] + crop_offset[0],
-                                    base_point[1] + crop_offset[1])
+                                frame_data_list["right"]["offset"] = Vector2(base_point[0] + crop_offset[0],
+                                                                             base_point[1] + crop_offset[1])
                             else:
                                 # not the same as existing sprite
                                 frame_data_list["right"]["sprite"] = CompilableSurface(image)
-                                frame_data_list["right"]["offset"] = Vector2(
-                                    base_point[0] + crop_offset[0],
-                                    base_point[1] + crop_offset[1])
+                                frame_data_list["right"]["offset"] = Vector2(base_point[0] + crop_offset[0],
+                                                                             base_point[1] + crop_offset[1])
 
                             part_sprite_adjust[animation_data_str] = {"sprite": frame_data_list["right"]["sprite"],
                                                                       "offset": frame_data_list["right"]["offset"]}
@@ -279,18 +277,27 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
     for character in character_list:
         # create list of effect that must be loaded along with character
         animation_load_index["character_load_index"][character] = []
+        animation_load_index["character_animation_effect"][character] = {}
 
-    # create effect sprite animation pool
     for character in animation_pool:  # recheck for independent effect
         for animation_name, animation_frame in animation_pool[character].items():
             if "EXCLUDE_" not in animation_name and "EVENT_" not in animation_name:
+                if animation_name not in animation_load_index["character_animation_effect"][character]:
+                    animation_load_index["character_animation_effect"][character][animation_name] = {"sprite": False,
+                                                                                                     "effect": []}
                 for frame_index, animation_data in enumerate(animation_frame):
+
+                    prop_list = animation_data["animation_property"] + animation_data["frame_property"]
+                    if "sprite_deal_damage" in prop_list:
+                        animation_load_index["character_animation_effect"][character][animation_name]["sprite"] = True
+
                     for part_header, part in animation_data.items():  # add ind effect to data
                         if "effect" in part_header and len(part) > 5 and part[
                             9] and "property" not in part_header:
                             add_ind_effect_adjust_sprite(effect_sprite_adjust, part)
                             if part[0] not in animation_load_index["character_load_index"][character]:
                                 animation_load_index["character_load_index"][character].append(part[0])
+
                             if part[0] in effect_list and effect_list[part[0]]["After Reach Effect"]:
                                 add_ind_effect_adjust_sprite(effect_sprite_adjust,
                                                              [effect_list[part[0]]["After Reach Effect"],
@@ -299,6 +306,8 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                                         animation_load_index["character_load_index"][character]:
                                     animation_load_index["character_load_index"][character].append(
                                         effect_list[part[0]]["After Reach Effect"])
+
+                            animation_load_index["character_animation_effect"][character][animation_name]["effect"].append(part[0])
 
     for strategy, strategy_data in strategy_list.items():
         # add from strategy with effects
@@ -311,6 +320,7 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
                         animation_load_index["character_load_index"][character].append(effect[0])
 
     print("effect")
+    # create effect sprite animation pool
     for effect_name, data in effect_animation_pool.items():
         effect_animation_pool_save = {}
         effect_raw_data_hash = md5()

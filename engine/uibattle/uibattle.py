@@ -329,7 +329,7 @@ class StrategyIcon(UIBattle):
 
 
 class DamageNumber(UIBattle):
-    cache_image = {team: {True: {}, False: {}} for team in team_colour}
+    cache_image = {team: {True: {}, False: {}} for team in Team_Colour}
 
     def __init__(self, value, pos, critical, team):
         self._layer = 9999999999999999997
@@ -341,10 +341,10 @@ class DamageNumber(UIBattle):
         if str_value not in self.cache_image[team][critical]:
             if critical:
                 self.image = text_render_with_bg(str_value, self.game.critical_damage_number_font,
-                                                 gf_colour=team_colour[team])
+                                                 gf_colour=Team_Colour[team])
             else:
                 self.image = text_render_with_bg(str_value, self.game.damage_number_font,
-                                                 gf_colour=team_colour[team])
+                                                 gf_colour=Team_Colour[team])
             self.cache_image[team][critical][str_value] = self.image
         else:
             self.image = self.cache_image[team][critical][str_value]

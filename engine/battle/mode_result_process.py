@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from engine.battle.battle import Battle
 
 
-def state_result_process(self: Battle):
+def mode_result_process(self: Battle):
     # update battle scene first here
     camera = self.camera
     self.scene.update()

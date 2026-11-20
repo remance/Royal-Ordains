@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
-from uuid import uuid4
 
 if TYPE_CHECKING:
     from engine.game.game import Game
@@ -17,9 +16,10 @@ from pygame.locals import *
 from pygame.mixer import Channel
 
 from engine.army.army import Army, GarrisonArmy
+from engine.autobattle.autobattle import AutoBattle
 from engine.battle.add_sound_effect_queue import add_sound_effect_queue
 from engine.battle.battle import set_start_load, set_done_load
-from engine.battle.change_game_state import change_game_state
+from engine.battle.change_game_mode import change_game_mode
 from engine.battle.drama_process import drama_process
 from engine.battle.play_sound_effect import play_sound_effect
 from engine.battle.shake_camera import shake_camera
@@ -55,8 +55,8 @@ from engine.grand.start_battle_engagement import start_battle_engagement
 from engine.grand.start_building_construction_or_repair import start_building_construction_or_repair
 from engine.grand.start_diplomacy_talk import start_diplomacy_talk
 from engine.grand.start_building_raze_or_pillage import start_building_raze_or_pillage
-from engine.grand.state_grand_process import state_grand_process
-from engine.grand.state_menu_process import state_menu_process, back_to_grand_state
+from engine.grand.mode_grand_process import mode_grand_process
+from engine.grand.mode_menu_process import mode_menu_process, back_to_grand_state
 from engine.grandarmyactor.grandarmyactor import GrandArmyActor
 from engine.grandobject.grandobject import GrandObject, SettlementObject
 from engine.grandregion.grandregion import GrandRegion
@@ -91,7 +91,7 @@ class Grand:
     cal_faction_culture = cal_faction_culture
     cal_faction_income_recruit = cal_faction_income_recruit
     cal_region_income_recruit = cal_region_income_recruit
-    change_game_state = change_game_state
+    change_game_mode = change_game_mode
     change_pause_update = change_pause_update
     cancel_building_construction_or_repair = cancel_building_construction_or_repair
     cancel_building_raze_or_pillage = cancel_building_raze_or_pillage
@@ -118,11 +118,11 @@ class Grand:
     start_building_construction_or_repair = start_building_construction_or_repair
     start_building_raze_or_pillage = start_building_raze_or_pillage
     start_diplomacy_talk = start_diplomacy_talk
-    state_process = state_grand_process
-    state_grand_process = state_grand_process
-    state_menu_process = state_menu_process
+    mode_process = mode_grand_process
+    mode_grand_process = mode_grand_process
+    mode_menu_process = mode_menu_process
 
-    process_list = {"grand": state_grand_process, "menu": state_menu_process}
+    mode_process_list = {"grand": mode_grand_process, "menu": mode_menu_process}
 
     def __init__(self, game: Game):
         self.game = game
@@ -268,6 +268,7 @@ class Grand:
 
         # Assign grand variables to class
         Army.grand = self
+        AutoBattle.grand = self
         GrandArmyActor.grand = self
         GrandObject.grand = self
         GrandRegion.grand = self
@@ -286,7 +287,7 @@ class Grand:
         self.base_cursor_pos = [0, 0]  # mouse base pos on the map based on camera position
         self.cursor_pos = [0, 0]
 
-        self.game_state = "grand"
+        self.game_mode = "grand"
         self.esc_menu_mode = "menu"
 
         self.player_selected_army = []
@@ -713,7 +714,7 @@ class Grand:
                     pygame.quit()
                     sys.exit()
 
-            return_state = self.state_process()  # run code based on current state
+            return_state = self.mode_process()  # run code based on current state
             if return_state is not None:
                 self.exit_grand()
                 return return_state

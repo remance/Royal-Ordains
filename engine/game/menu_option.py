@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -6,9 +7,8 @@ if TYPE_CHECKING:
 
 import pygame
 
-from engine.character.character import BattleCharacter
+from engine.character.character import CombatCharacter
 from engine.uibattle.uibattle import CharacterSpeechBox
-from engine.uioutergrand.uioutergrand import DiplomacyHead
 from engine.utils.common import edit_config
 
 
@@ -28,7 +28,7 @@ def menu_option(self: Game):
         self.back_mainmenu()
 
     elif self.keybind_button.event_press:
-        self.menu_state = "keybind"
+        self.menu_mode = "keybind"
 
         self.remove_from_ui_menu_updater(*self.option_text_list, *self.option_menu_sliders.values(),
                                          *self.value_boxes.values(), self.option_menu_buttons)
@@ -89,12 +89,12 @@ def menu_option(self: Game):
     elif self.show_dmg_box.event_press:
         if not self.show_dmg_box.tick:
             self.show_dmg_box.change_tick(True)
-            BattleCharacter.show_dmg_number = True
+            CombatCharacter.show_dmg_number = True
             edit_config("USER", "show_dmg_number", 1, self.config_path,
                         self.config)
         else:
             self.show_dmg_box.change_tick(False)
-            BattleCharacter.show_dmg_number = False
+            CombatCharacter.show_dmg_number = False
             edit_config("USER", "show_dmg_number", 0, self.config_path,
                         self.config)
 

@@ -3,10 +3,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from engine.battle.battle import BattleCommanderAI
+    from engine.battle.battle import AIBattleCommander
 
 
-def change_strategy(self: BattleCommanderAI):
+def change_strategy(self: AIBattleCommander):
     effect_list = self.battle.stat_data.effect_list
 
     self.own_strategy_type = {"weather": set(), "ally": set(), "enemy": set(), "summon": set(),

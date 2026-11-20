@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 from types import MethodType
 
 
-def change_game_state(self: Battle, new_state: str):
-    self.game_state = new_state
-    self.state_process = MethodType(self.process_list[new_state], self)
+def change_game_mode(self: Battle, new_state: str):
+    self.game_mode = new_state
+    self.mode_process = MethodType(self.mode_process_list[new_state], self)
     self.player_interact.reset()  # reset rubberband select ui

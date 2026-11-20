@@ -195,10 +195,10 @@ class DotInfoBannerArmy(DotInfoBanner):
             player_faction_state = current_campaign_state["faction"][player_faction]
             if self.base_pos in current_campaign_state["battle"]["dot"]:  # battle going on
                 battle_factions = current_campaign_state["battle"]["faction"][self.base_pos]
-                battle_state = current_campaign_state["battle"]["battles"][self.base_pos]
+                team_state = current_campaign_state["battle"]["battles"][self.base_pos].team_state
                 state_value_list = [0, 0, ["neutral", "neutral"], "battle"]
                 for team in (1, 2):
-                    team_state = battle_state["team"][team]
+                    this_team_state = team_state[team]
                     team_index = team - 1
                     team_faction = battle_factions[team_index]
                     if team_faction == player_faction:
@@ -207,8 +207,9 @@ class DotInfoBannerArmy(DotInfoBanner):
                         state_value_list[2][team_index] = "ally"
                     elif team_faction != "free":
                         state_value_list[2][team_index] = "enemy"
-                    if team_state["commander_character"] and team_state["commander_character"].alive:
-                        state_value_list[team_index] = minimise_number_text(1 + len(team_state["unit"]) + len(team_state["air_unit"]))
+                    if this_team_state["commander_character"] and this_team_state["commander_character"].alive:
+                        state_value_list[team_index] = minimise_number_text(
+                            1 + len(this_team_state["unit"]) + len(this_team_state["air_unit"]))
 
             else:
                 state_value_list = [0, "100", "neutral"]

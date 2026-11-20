@@ -12,7 +12,7 @@ import pygame
 from pygame import Sound, quit as pg_quit
 
 
-def state_grand_process(self: Grand):
+def mode_grand_process(self: Grand):
     true_dt = self.true_dt
     camera = self.camera
     if not self.input_popup:
@@ -94,7 +94,7 @@ def state_grand_process(self: Grand):
                     sound_ch.pause()
 
             self.menu_bar_ui.option_selected = None
-            self.change_game_state("menu")  # open menu
+            self.change_game_mode("menu")  # open menu
             self.remove_from_outer_ui_menu_updater(self.player_collapsable_uis)
             self.remove_from_outer_ui_menu_updater(self.cursor)
             self.add_to_ui_menu_updater(self.cursor)

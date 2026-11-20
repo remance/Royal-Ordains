@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -11,7 +12,7 @@ import pygame
 from pygame.mixer import Sound
 
 from engine.battleobject.battleobject import StageObject
-from engine.character.character import BattleCharacter
+from engine.character.character import CombatCharacter
 
 
 def event_process(self: Battle):
@@ -169,7 +170,7 @@ def event_process(self: Battle):
             weather_strength = 0
             if "strength" in child_event["Property"]:
                 weather_strength = child_event["Property"]["strength"]
-            self.current_weather.__init__(child_event["Object"], randint(0, 359),
+            self.current_weather.__init__(self, child_event["Object"], randint(0, 359),
                                           weather_strength)
             self.cutscene_playing.remove(child_event)
 
@@ -181,7 +182,7 @@ def event_process(self: Battle):
                     game_id = event_property["Game ID"]
                 if "Layer ID" in event_property:
                     layer_id = event_property["Layer ID"]
-                add_battle_character = BattleCharacter(game_id, layer_id, event_property | self.character_list[
+                add_battle_character = CombatCharacter(game_id, layer_id, event_property | self.character_list[
                     child_event["Object"]] |
                                                        {"ID": child_event["Object"],
                                                         "Ground Y POS": event_property["POS"][1]})

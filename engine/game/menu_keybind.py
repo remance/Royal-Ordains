@@ -10,7 +10,7 @@ import pygame
 
 def menu_keybind(self: Game):
     if self.back_button.event_press or self.esc_press:  # back to start_set menu
-        self.menu_state = "option"
+        self.menu_mode = "option"
         self.remove_from_ui_menu_updater(self.keybind_text.values(), self.keybind_icon.values())
         self.add_to_ui_menu_updater(self.option_menu_buttons, self.option_menu_sliders.values(),
                                     self.value_boxes.values())

@@ -8,44 +8,43 @@ from engine.aibattlecommander.gather_info import clever_gather_info_level
 from engine.utils.common import clean_object
 
 
-class BattleCommanderAI:
+class AIBattleCommander:
     """AI action depend on their personality stat where:
     aggressiveness determine their combat tactic,
     cleverness determine what and how they think on gathered information,
     swiftness determine how fast they can act on the given information
     """
-    battle = None
-
     change_strategy = change_strategy
     conduct_troop_call = conduct_troop_call
     conduct_commander = conduct_commander
 
-    def __init__(self, team, can_retreat=True):
+    def __init__(self, battle, team, can_retreat=True):
+        self.battle = battle
         self.team = team
         self.enemy_team = 1
         if self.team == 1:
             self.enemy_team = 2
         self.can_retreat = can_retreat
-        self.call_reinforcement = self.battle.call_reinforcement_to_battle
-        self.call_in_air_group = self.battle.call_in_air_group
-        self.current_weather = self.battle.current_weather
-        self.activate_strategy = self.battle.activate_strategy
-        self.character_list = self.battle.character_list
-        self.commander_character = self.battle.team_commander[team]
-        self.enemy_commander_character = self.battle.team_commander[self.enemy_team]
-        self.team_state = self.battle.team_state[team]
-        self.enemy_team_state = self.battle.team_state[self.enemy_team]
+        self.call_reinforcement_to_battle = battle.call_reinforcement_to_battle
+        self.call_in_air_group = battle.call_in_air_group
+        self.current_weather = battle.current_weather
+        self.activate_strategy = battle.activate_strategy
+        self.character_list = battle.character_list
+        self.commander_character = battle.team_commander[team]
+        self.enemy_commander_character = battle.team_commander[self.enemy_team]
+        self.team_state = battle.team_state[team]
+        self.enemy_team_state = battle.team_state[self.enemy_team]
         self.enemy_strategy = ()
 
-        self.ground_enemy_collision_grids = self.battle.all_team_ground_enemy_collision_grids[self.team]
-        self.air_enemy_collision_grids = self.battle.all_team_air_enemy_collision_grids[self.team]
+        self.ground_enemy_collision_grids = battle.all_team_ground_enemy_collision_grids[self.team]
+        self.air_enemy_collision_grids = battle.all_team_air_enemy_collision_grids[self.team]
 
-        self.ground_ally_collision_grids = self.battle.all_team_ground_enemy_collision_grids[self.enemy_team]
-        self.air_ally_collision_grids = self.battle.all_team_air_enemy_collision_grids[self.enemy_team]
-        self.can_cure_status_list = self.battle.can_cure_status_list
-        self.can_clarity_status_list = self.battle.can_clarity_status_list
-        self.strategy_list = self.battle.strategy_list
-        self.last_grid = self.battle.last_grid
+        self.ground_ally_collision_grids = battle.all_team_ground_enemy_collision_grids[self.enemy_team]
+        self.air_ally_collision_grids = battle.all_team_air_enemy_collision_grids[self.enemy_team]
+        self.can_cure_status_list = battle.can_cure_status_list
+        self.can_clarity_status_list = battle.can_clarity_status_list
+        self.strategy_list = battle.strategy_list
+        self.last_grid = battle.last_grid
         self.air_group = self.team_state["air_group"]
         self.own_strategy = tuple(self.team_state["strategy_cooldown"].keys())
         self.own_strategy_type = {"weather": set(), "ally": set(), "enemy": set(), "summon": set(),
@@ -104,7 +103,7 @@ class BattleCommanderAI:
             self.lower_act_time = 1 / self.swift
             self.higher_act_time = 30 / self.swift
             self.act_time = uniform(self.lower_act_time, self.higher_act_time)
-        self.start_pos = self.battle.team_state[self.team]["start_pos"]
+        self.start_pos = battle.team_state[self.team]["start_pos"]
 
     def update(self, dt):
         if self.commander_character.alive:

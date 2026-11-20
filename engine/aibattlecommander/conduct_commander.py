@@ -3,14 +3,14 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from engine.battle.battle import BattleCommanderAI
+    from engine.battle.battle import AIBattleCommander
 
 from random import uniform
 
 from engine.character.ai_prepare import find_grid_range
 
 
-def conduct_commander(self: BattleCommanderAI):
+def conduct_commander(self: AIBattleCommander):
     commander_character = self.commander_character
     commander_base_posx = commander_character.base_pos[0]
     enemy_commander_character = self.enemy_commander_character

@@ -14,7 +14,8 @@ from pygame.mixer import Sound, Channel
 from engine.army.army import Army
 from engine.battle.battle import Battle
 from engine.battleobject.battleobject import StageObject
-from engine.character.character import BaseBattleCharacter, BattleCharacter, ShowcaseBattleCharacter, SubShowcaseBattleCharacter
+from engine.character.character import BaseCharacter, NonCombatCharacter, CombatCharacter, ShowcaseCharacter, \
+    SubShowcaseCharacter
 from engine.constants import *
 from engine.data.datalocalisation import DataLocalisation
 from engine.data.datamap import DataMap
@@ -135,7 +136,7 @@ class Game:
         self.error_log.write("Game Version: " + self.game_version)
 
         self.campaign = "main"
-        self.menu_state = "main_menu"
+        self.menu_mode = "main_menu"
 
         # Read config file
         config = configparser.ConfigParser()  # initiate config reader
@@ -219,8 +220,8 @@ class Game:
         display.set_icon(icon)
 
         Game.screen_rect = self.screen.get_rect()
-        BaseBattleCharacter.screen_scale_width = self.screen_scale_width
-        BaseBattleCharacter.screen_scale_height = self.screen_scale_height
+        NonCombatCharacter.screen_scale_width = self.screen_scale_width
+        NonCombatCharacter.screen_scale_height = self.screen_scale_height
         Effect.screen_scale_width = self.screen_scale_width
         Effect.screen_scale_height = self.screen_scale_height
         ShowcaseEffect.screen_scale_width = self.screen_scale_width
@@ -287,8 +288,8 @@ class Game:
 
         # Assign containers
         ShowcaseEffect.containers = self.all_showcase_effects
-        ShowcaseBattleCharacter.containers = self.all_showcase_characters
-        SubShowcaseBattleCharacter.containers = self.all_showcase_characters
+        ShowcaseCharacter.containers = self.all_showcase_characters
+        SubShowcaseCharacter.containers = self.all_showcase_characters
         StaticImage.containers = self.ui_menu_updater, self.ui_menu_drawer
         MenuRotate.containers = self.ui_menu_updater, self.ui_menu_drawer
         MenuActor.containers = self.ui_menu_updater, self.ui_menu_drawer
@@ -347,19 +348,24 @@ class Game:
         self.load_sprite_background_threads = []
 
         if self.show_dmg_number:
-            BattleCharacter.show_dmg_number = True
-        Army.character_recruit_building_list = self.stat_data.character_recruit_building_list
+            CombatCharacter.show_dmg_number = True
         Army.character_list = self.character_list
-        BaseBattleCharacter.character_list = self.character_list
-        BaseBattleCharacter.race_list = self.race_list
-        BaseBattleCharacter.status_list = self.stat_data.status_list
-        BaseBattleCharacter.status_apply_funcs = self.stat_data.status_apply_funcs
-        BaseBattleCharacter.effect_list = self.stat_data.effect_list
-
+        Army.character_recruit_building_list = self.stat_data.character_recruit_building_list
+        BaseCharacter.character_list = self.character_list
+        BaseCharacter.collision_grid_height = self.screen_height / Collision_Grid_Y_Per_Battle_Scene
+        BaseCharacter.collision_grid_width = self.screen_width / Collision_Grid_X_Per_Battle_Scene  # collision grid size based on screen scale
+        BaseCharacter.effect_list = self.stat_data.effect_list
+        BaseCharacter.race_list = self.race_list
+        BaseCharacter.status_apply_funcs = self.stat_data.status_apply_funcs
+        BaseCharacter.status_list = self.stat_data.status_list
         Effect.character_list = self.character_list
-        Effect.effect_list = self.stat_data.effect_list
-
+        Effect.collision_grid_height = self.screen_height / Collision_Grid_Y_Per_Battle_Scene
+        Effect.collision_grid_width = self.screen_width / Collision_Grid_X_Per_Battle_Scene
         Effect.effect_animation_pool = self.effect_animation_pool
+        Effect.effect_list = self.stat_data.effect_list
+        Effect.sound_effect_pool = self.sound_effect_pool
+
+        NonCombatCharacter.sound_effect_pool = self.sound_effect_pool
         ShowcaseEffect.effect_animation_pool = self.effect_animation_pool
         StageObject.stage_object_animation_pool = self.stage_object_animation_pool
 
@@ -635,7 +641,7 @@ class Game:
         self.grand = Grand(self)
 
         Game.battle = self.battle
-        BaseBattleCharacter.battle = self.battle
+        NonCombatCharacter.battle = self.battle
         Effect.battle = self.battle
         StageObject.battle = self.battle
 
@@ -670,10 +676,10 @@ class Game:
                                                                [[0, key] for key in animation_list if
                                                                 key != "Default"]),
                                                            parent=self.screen, item_size=20)
-        self.lorebook_showcase_character = ShowcaseBattleCharacter(0, {"ID": Default_Showcase_Character,
+        self.lorebook_showcase_character = ShowcaseCharacter(0, {"ID": Default_Showcase_Character,
                                                                  "POS": Default_Showcase_Character_POS,
                                                                  "direction": "right"} |
-                                                                   self.character_list[Default_Showcase_Character])
+                                                             self.character_list[Default_Showcase_Character])
         self.lorebook_character_description_showcase = CharacterDescriptionShowCase()
         self.lorebook_character_moveset_showcase = CharacterMovesetShowCase()
         self.lorebook_character_description_showcase.change_character(Default_Showcase_Character)
@@ -722,7 +728,7 @@ class Game:
         self.text_delay = 0
         self.add_to_ui_menu_updater(self.main_menu_buttons)
 
-        self.menu_state_methods = {"main_menu": self.menu_main, "custom": self.menu_custom_setup,
+        self.menu_mode_methods = {"main_menu": self.menu_main, "custom": self.menu_custom_setup,
                                    "grand": self.menu_grand_setup, "lorebook": self.menu_lorebook,
                                    "beast": self.menu_lorebook_beast,
                                    "mission": self.menu_mission_setup,
@@ -945,7 +951,7 @@ class Game:
                             self.text_delay = 0
 
             else:
-                self.menu_state_methods[self.menu_state]()
+                self.menu_mode_methods[self.menu_mode]()
 
             self.ui_menu_drawer.draw(self.screen)
             display.update()

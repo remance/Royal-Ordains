@@ -26,18 +26,10 @@ def start_battle(self: Game, grand: Grand, campaign: str, stage: str, team_state
     gc.collect()  # collect no longer used object in previous battle from memory
 
     # Finish battle, check for next one
-    self.battle.change_game_state("battle")  # reset battle game state when end
+    self.battle.change_game_mode("battle")  # reset battle game state when end
     clear_event()
     # save_profile = self.save_data.save_profile
     # print(save_profile)
-
-    # save_profile["total kills"] += sum(self.battle.player_kill.values())
-    # save_profile["total damages"] += sum(self.battle.player_damage.values())
-    # for player, value in self.battle.player_kill.items():  # check for update for all active players to update state
-    #     character = self.game.player_char_select[player]["character"]
-    #     if character not in save_profile["kills"]:
-    #         save_profile["kills"][character] = 0
-    #     save_profile["kills"][character] += value
 
     # self.save_data.make_save_file(path_join(self.main_dir, "save", "game.dat"),
     #                               save_profile)

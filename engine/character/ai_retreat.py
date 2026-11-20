@@ -3,10 +3,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from engine.character.character import BaseBattleCharacter, BattleCharacter, GrandAutoCharacter
+    from engine.character.character import CombatCharacter, GrandAutoCharacter
 
 
-def common_ai(self: BattleCharacter, *args):
+def common_ai(self: CombatCharacter, *args):
     if not self.command_action and not self.no_move:
         self.command_action = self.run_command_action
         self.command_action["x_momentum"] = self.run_speed

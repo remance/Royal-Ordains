@@ -13,7 +13,7 @@ from engine.constants import Custom_Default_Culture
 
 def menu_custom_preset(self: Game):
     if self.preset_back_button.event_press or self.esc_press:  # back to custom battle setup menu
-        self.menu_state = "custom"
+        self.menu_mode = "custom"
         self.add_to_ui_menu_updater(self.custom_battle_menu_uis)
         self.remove_from_ui_menu_updater(self.custom_preset_menu_uis)
         self.custom_preset_culture_selector.change_culture_preset(Custom_Default_Culture)

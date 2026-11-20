@@ -10,7 +10,7 @@ from engine.constants import Custom_Default_Culture
 
 def menu_main(self: Game):
     if self.custom_battle_button.event_press:
-        self.menu_state = "custom"
+        self.menu_mode = "custom"
         self.background = self.background_image["empty_background"]
         for index in range(0, 4):
             self.custom_battle_team_setup[1].change_culture_preset(None, index)
@@ -25,7 +25,7 @@ def menu_main(self: Game):
     #     self.add_to_ui_updater(self.mission_menu_uis)
 
     elif self.lorebook_button.event_press:
-        self.menu_state = "beast"
+        self.menu_mode = "beast"
         self.custom_preset_culture_selector.change_culture_preset(Custom_Default_Culture)
         self.background = self.background_image["empty_background"]
 
@@ -34,7 +34,7 @@ def menu_main(self: Game):
         self.add_to_ui_menu_updater(self.lorebook_menu_uis)
 
     elif self.grand_button.event_press:
-        self.menu_state = "grand"
+        self.menu_mode = "grand"
         self.load_grand_campaign(self.campaign)
         self.custom_preset_culture_selector.change_culture_preset(self.map_data.default_grand_faction)
         self.background = self.background_image["empty_background"]
@@ -98,7 +98,7 @@ def menu_main(self: Game):
                           setup_battle=True)
 
     elif self.option_button.event_press:  # change main menu to option menu
-        self.menu_state = "option"
+        self.menu_mode = "option"
         self.remove_from_ui_menu_updater(self.main_menu_buttons, self.main_menu_actors)
         self.background = self.background_image["empty_background"]
         self.add_to_ui_menu_updater(self.option_menu_buttons, self.option_menu_sliders.values(),

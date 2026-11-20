@@ -502,15 +502,15 @@ class FactionSelector(UIMenu):
             else:  # unselected old one
                 self.image.blit(self.faction_coas[faction], self.faction_coa_rects[faction])
         self.selected_culture = new_select_faction
-        if self.game.menu_state == "grand":
+        if self.game.menu_mode == "grand":
             self.game.grand_setup_mini_map.change_faction(new_select_faction,
                                                           {key: value["Control"] for key, value in
                                                            self.game.map_data.region_list.items()})
             self.game.grand_faction_detail.change_faction(new_select_faction)
             self.game.grand_faction_showcase.change_faction(new_select_faction)
-        elif self.game.menu_state == "beast":
+        elif self.game.menu_mode == "beast":
             self.game.lorebook_showcase_character_selector.add(new_select_faction, None)
-        elif self.game.menu_state == "preset":
+        elif self.game.menu_mode == "preset":
             self.game.custom_preset_army_setup.change_culture_preset(new_select_faction)
 
     def update(self, dt):
@@ -578,7 +578,7 @@ class CharacterSelector(UIMenu):
     def add(self, faction=None, character_type=None, exist_unique_check=()):
         selector_character_list = ()
         if faction:
-            if self.game.menu_state in ("custom", "preset"):
+            if self.game.menu_mode in ("custom", "preset"):
                 if character_type in ("commander", "leader"):
                     selector_character_list = [value for value in
                                                self.custom_character_setup[faction]["leader"]["unique"] if value
@@ -734,7 +734,7 @@ class CharacterSelector(UIMenu):
                         if self.event_press:
                             self.button_sound_channel.play(choice(self.sound_effect_pool["button"]))
                             self.button_sound_channel.set_volume(game.play_effect_volume)
-                            if game.menu_state == "preset":
+                            if game.menu_mode == "preset":
                                 selected_portrait = game.custom_preset_army_setup.selected_portrait_index
                                 if selected_portrait[0] == "commander":
                                     game.custom_preset_army_setup.change_character(
@@ -743,7 +743,7 @@ class CharacterSelector(UIMenu):
                                     game.custom_preset_army_setup.change_character(
                                         selected_portrait[0].capitalize() + " " +
                                         str(selected_portrait[1] + 1), character_id)
-                            elif game.menu_state == "beast":
+                            elif game.menu_mode == "beast":
                                 lorebook_showcase_character = game.lorebook_showcase_character
                                 if lorebook_showcase_character.char_id != character_id:
                                     game.all_showcase_characters.remove(lorebook_showcase_character.sub_characters)

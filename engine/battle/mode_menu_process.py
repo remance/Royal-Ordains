@@ -13,7 +13,7 @@ from engine.uimenu.uimenu import ListAdapter
 from engine.utils.common import edit_config
 
 
-def state_menu_process(self: Battle):
+def mode_menu_process(self: Battle):
     # update battle scene first here
     self.ui_menu_updater.update(self.true_dt)  # update ui before more specific update
 
@@ -134,4 +134,4 @@ def back_to_battle_state(self):
         if sound_ch.get_busy():  # unpause all sound playing
             sound_ch.set_volume(self.play_effect_volume)
             sound_ch.unpause()
-    self.change_game_state("battle")
+    self.change_game_mode("battle")

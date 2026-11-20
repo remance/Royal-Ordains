@@ -49,8 +49,9 @@ def check_enemy_army(self):
             if self.faction == battle_faction[1] or battle_faction[1] in faction_state["alliance"]:
                 team = 2
             campaign_battle_armies.append(self.game_id)
-            team_state = current_campaign_state["battle"]["battles"][self.base_pos]["team"][team]
-            current_campaign_state["battle"]["battles"][self.base_pos]["team"][team]["reinforcement_army"].append(self)
+            team_state = current_campaign_state["battle"]["battles"][self.base_pos].team_state[team]
+            current_campaign_state["battle"]["battles"][self.base_pos].team_state[team]["reinforcement_army"].append(
+                self)
             if self.belong_to_player_faction and self.faction not in battle_faction:
                 # replace battle faction as player when player faction join for banner colouring
                 battle_faction[team - 1] = self.faction

@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 
 from random import randint, uniform
 
-from engine.character.character import BattleCharacter
+from engine.character.character import CombatCharacter
 from engine.constants import Default_Screen_Width, Collision_Grid_X_Per_Battle_Scene, Default_Battle_Ground_Pos
 from engine.effect.effect import Effect, DamageEffect
 from engine.uibattle.uibattle import StrategyIcon
@@ -42,7 +42,7 @@ def activate_strategy(self: Battle, team: int, strategy_id: str, base_pos_x: (in
                 break
         if stat_property:
             if "weather" in stat_property:  # strategy that change weather
-                self.current_weather.__init__(stat_property["weather"], randint(120, 250),
+                self.current_weather.__init__(self, stat_property["weather"], randint(120, 250),
                                               randint(0, 2))
 
         if stat["Effects"]:
@@ -94,7 +94,7 @@ def activate_strategy(self: Battle, team: int, strategy_id: str, base_pos_x: (in
                         start_x = self.base_stage_end
                     start_pos = (start_x, Default_Battle_Ground_Pos)
 
-                    add_battle_character = BattleCharacter(self.last_char_game_id,
+                    add_battle_character = CombatCharacter(self.last_char_game_id,
                                                            self.character_list[spawn_name] |
                                                            {"ID": spawn_name, "Team": team, "POS": start_pos},
                                                            is_summon=True)

@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from engine.battle.battle import BattleCommanderAI
+    from engine.battle.battle import AIBattleCommander
 
 from random import uniform, random, choice
 
@@ -16,7 +16,7 @@ troop_behaviour_class_to_call = {"attack_melee": ("melee_infantry", "flank_infan
                                                   "trap_infantry", "trap_siege")}
 
 
-def conduct_troop_call(self: BattleCommanderAI):
+def conduct_troop_call(self: AIBattleCommander):
     """Conduct troop call based on info and commander personality"""
     # commander = self.commander
     current_info = self.current_info
@@ -87,14 +87,14 @@ def conduct_troop_call(self: BattleCommanderAI):
                 min(roulette_key, key=lambda x: abs(x - int(random() * roulette_key[-1]) + 1))]
             if what_to_call:
                 if what_to_call == "leader":
-                    self.call_reinforcement(self.team, "leader", choice(leader_available_to_call))
+                    self.call_reinforcement_to_battle(self.team, "leader", choice(leader_available_to_call))
                 else:
                     class_to_call = troop_behaviour_class_to_call[what_to_call]
                     list_to_call = [key for key, value in troop_class_available_to_call.items() if
                                     value in class_to_call]
                     if list_to_call:
-                        self.call_reinforcement(self.team, "ground",
-                                                choice(list_to_call))
+                        self.call_reinforcement_to_battle(self.team, "ground",
+                                                          choice(list_to_call))
 
     # print(self.team_stat)
     # print(self.team_stat["troop_call_list"], self.team_stat["leader_call_list"])

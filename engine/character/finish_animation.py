@@ -14,7 +14,7 @@ def finish_animation(self, done):
         if current_moveset:
             # add move cooldown when the animation is completely done or interrupted
             if ("next action" not in current_action or self.interrupt_animation) and current_moveset["Cooldown"]:
-                self.move_cooldown[current_moveset["Move"]] = current_moveset["Cooldown"]
+                self.moveset_cooldown[current_moveset["Move"]] = current_moveset["Cooldown"]
             if done:  # apply status only for action animation that is finished playing, not interrupted
                 if current_moveset["Status"]:  # moveset apply status effect to self and allies in range
                     for effect in current_moveset["Status"]:

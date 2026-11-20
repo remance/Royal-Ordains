@@ -19,7 +19,7 @@ def check_event(self: Battle):
             if self.battle_time >= key:
                 if "weather" in event_list[key]:
                     # change weather
-                    self.current_weather.__init__(
+                    self.current_weather.__init__(self,
                         event_list[key]["weather"][0],
                         event_list[key]["weather"][1],
                         event_list[key]["weather"][2])

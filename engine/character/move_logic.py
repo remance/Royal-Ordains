@@ -160,10 +160,10 @@ def air_move_logic(self, dt):
                         self.in_drawer = False
                         self.invisible = True
                         if not self.invincible:
-                            for team in self.battle.all_team_enemy_check:
+                            for team in self.battle.all_team_enemy:
                                 if team != self.team:
                                     if self.team != 0:  # team 0 is not part of condition check:
-                                        self.battle.all_team_enemy_check[team].remove(self)
+                                        self.battle.all_team_enemy[team].remove(self)
 
                 self.pos = Vector2((self.base_pos[0] * self.screen_scale_width,
                                     self.base_pos[1] * self.screen_scale_height))

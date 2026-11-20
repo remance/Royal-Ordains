@@ -13,7 +13,7 @@ from pygame import quit as pg_quit
 from engine.utils.common import edit_config
 
 
-def state_menu_process(self: Grand):
+def mode_menu_process(self: Grand):
     camera = self.camera
     self.ui_menu_updater.update(self.true_dt)
     camera.update_with_in_camera_check(self.grand_camera_region_drawer)
@@ -110,4 +110,4 @@ def back_to_grand_state(self):
         if sound_ch.get_busy():  # unpause all sound playing
             sound_ch.set_volume(self.play_effect_volume)
             sound_ch.unpause()
-    self.change_game_state("grand")
+    self.change_game_mode("grand")

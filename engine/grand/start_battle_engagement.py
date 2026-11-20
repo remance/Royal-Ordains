@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from engine.grand.grand import Grand
 
+from engine.autobattle.autobattle import AutoBattle
 from random import randint
 
 
@@ -88,4 +89,4 @@ def start_battle_engagement(self: Grand, armies: dict, base_pos: tuple):
                     "corpse": [], "stage": stage, "stage_size": stage_len}
 
     self.battle.setup_battle_start(self.campaign, stage, battle_state["team"], battle_state=battle_state)
-    current_campaign_state["battle"]["battles"][base_pos] = battle_state
+    current_campaign_state["battle"]["battles"][base_pos] = AutoBattle(battle_state)

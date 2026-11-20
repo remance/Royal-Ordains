@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from engine.battle.battle import Battle
 
 from engine.battle.setup_team_characters import add_neutral_stage_character
-from engine.character.character import BattleCharacter
+from engine.character.character import CombatCharacter
 from engine.constants import Default_Battle_Ground_Pos
 
 
@@ -38,7 +38,7 @@ def check_reinforcement(self: Battle):
                                         if "POS" not in data:
                                             data["POS"] = (team_state["start_pos"], Default_Battle_Ground_Pos)
 
-                                        add_battle_character = BattleCharacter(self.last_char_game_id,
+                                        add_battle_character = CombatCharacter(self.last_char_game_id,
                                                                                data | self.character_list[character],
                                                                                self.team_commander[team])
                                         add_battle_character.enter_stage()

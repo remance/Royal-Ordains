@@ -53,7 +53,7 @@ class Effect(Sprite):
     Base_Animation_Frame_Play_Time = Base_Animation_Frame_Play_Time
     Default_Ground_Pos = Default_Battle_Ground_Pos
 
-    def __init__(self, owner: (dict, engine.character.character.BattleCharacter),
+    def __init__(self, owner: (dict, engine.character.character.CombatCharacter),
                  part_stat: (list, tuple), moveset=None, base_target_pos=None, from_owner=True):
         """Effect sprite that does not affect character on its own but can travel and
         create other Effect when reach target"""
@@ -505,7 +505,7 @@ class ShowcaseEffect(Effect):
 
     Default_Ground_Pos = Default_Showcase_Character_POS[1]
 
-    def __init__(self, owner: (dict, engine.character.character.BattleCharacter),
+    def __init__(self, owner: (dict, engine.character.character.CombatCharacter),
                  part_stat: (list, tuple), base_target_pos=None, from_owner=True):
         """Effect sprite that does not affect character on its own but can travel and
         create other Effect when reach target"""

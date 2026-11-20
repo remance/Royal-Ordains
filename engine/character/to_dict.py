@@ -1,33 +1,12 @@
 @property
 def character_to_dict(self) -> dict:
-    return {"ID": self.game_id, "team": self.team,
-            "Commander": self.commander_id, "army_followers": self.army_followers,
-            "Supply": self.supply, "Max Supply": self.max_supply, "custom_preset_id": self.custom_preset_id,
-            "grand_state": {"activity": self.activity, "enable_resupply": self.enable_resupply,
-                            "enable_assemble": self.enable_assemble, "base_pos": self.base_pos,
-                            "current_region": self.current_region, },
-            }
-
-
-@property
-def battle_character_to_dict(self) -> dict:
-    character_to_dict(self)
-    return {
-            }
-
-
-@property
-def air_character_to_dict(self) -> dict:
-    return {
+    return {"game_id": self.game_id, "health": self.health,
+            "resource": self.resource, "status_duration": self.status_duration,
+            "moveset_cooldown": self.moveset_cooldown, "Max commander_order": self.commander_order,
+            "base_pos": self.base_pos, "active": self.active,
             }
 
 
 @property
 def sub_character_to_dict(self) -> dict:
-    return {"ID": self.game_id, "faction": self.faction, "team": self.team,
-            "Commander": self.commander_id, "army_followers": self.army_followers,
-            "Supply": self.supply, "Max Supply": self.max_supply, "custom_preset_id": self.custom_preset_id,
-            "grand_state": {"activity": self.activity, "enable_resupply": self.enable_resupply,
-                            "enable_assemble": self.enable_assemble, "base_pos": self.base_pos,
-                            "current_region": self.current_region, },
-            }
+    return character_to_dict(self) | {"main_character_game_id": self.main_character.game_id}

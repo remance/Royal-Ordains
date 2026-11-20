@@ -49,7 +49,7 @@ def reach_target(self, how=None):
         elif "summon_spawn_ground" in effect_stat_property:
             char_stat["spawn_at_ground"] = effect_stat_property["summon_spawn_ground"]
 
-        add_battle_character = engine.character.character.BattleCharacter(
+        add_battle_character = engine.character.character.CombatCharacter(
             self.battle.last_char_game_id, self.character_list[summon] | char_stat, is_summon=True)
         add_battle_character.enter_stage()
         self.battle.last_char_game_id += 1

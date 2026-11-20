@@ -5,10 +5,9 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from engine.battle.battle import Battle
 
-from engine.character.character import BaseBattleCharacter, BattleCharacter, CommanderBattleCharacter
-from engine.constants import Default_Battle_Ground_Pos, Default_Battle_Float_Pos, Default_Battle_Air_Pos
-
-team_start_x_distance = 600
+from engine.character.character import NonCombatCharacter, CombatCharacter, CommanderCombatCharacter
+from engine.constants import Default_Battle_Ground_Pos, Default_Battle_Float_Pos, Default_Battle_Air_Pos, \
+    Team_Start_x_Distance
 
 
 def setup_team_characters(self: Battle, stage_data: dict):
@@ -18,7 +17,7 @@ def setup_team_characters(self: Battle, stage_data: dict):
             if team_state["commander_character"]:
                 data = {key: value for key, value in team_state["commander_character"].items()}
                 data["Team"] = team
-                add_battle_char = CommanderBattleCharacter(self.last_char_game_id,
+                add_battle_char = CommanderCombatCharacter(self.last_char_game_id,
                                                            team_state["commander_character"])
                 add_battle_char.enter_stage()
                 commander_char = add_battle_char
@@ -33,22 +32,22 @@ def setup_team_characters(self: Battle, stage_data: dict):
                 # unit in team_state indicate this is battle that player control from auto
                 data = {key: value for key, value in unit.items()}
                 data["Team"] = team
-                add_battle_char = BattleCharacter(self.last_char_game_id, data | self.character_list[data["ID"]])
+                add_battle_char = CombatCharacter(self.last_char_game_id, data | self.character_list[data["ID"]])
                 add_battle_char.enter_stage()
                 self.last_char_game_id += 1
 
         elif team_state["main_army"]:
             data = {}
             if self.team_state[team]["start_pos"] == 0:
-                start_x = team_start_x_distance
+                start_x = Team_Start_x_Distance
             else:
-                start_x = self.base_stage_end - team_start_x_distance
+                start_x = self.base_stage_end - Team_Start_x_Distance
             data["Team"] = team
             data["ID"] = team_state["main_army"].commander_id
             if "POS" not in data:
                 data["POS"] = (start_x, Default_Battle_Ground_Pos)
 
-            add_battle_char = CommanderBattleCharacter(self.last_char_game_id,
+            add_battle_char = CommanderCombatCharacter(self.last_char_game_id,
                                                        data | self.character_list[team_state["main_army"].commander_id])
             add_battle_char.enter_stage()
             commander_char = add_battle_char
@@ -79,11 +78,11 @@ def add_neutral_stage_character(self, input_data):
     else:
         data["POS"] = (data["POS"], Default_Battle_Ground_Pos)
     if "no_battle" in data["Stage Property"] or "no_battle" in character_data["Property"]:
-        add_battle_char = BaseBattleCharacter(self.last_char_game_id,
-                                              data | self.character_list[data["ID"]])
+        add_battle_char = NonCombatCharacter(self.last_char_game_id,
+                                             data | self.character_list[data["ID"]])
         add_battle_char.enter_stage()
         self.last_char_game_id += 1
     else:
-        add_battle_char = BattleCharacter(self.last_char_game_id, data | self.character_list[data["ID"]])
+        add_battle_char = CombatCharacter(self.last_char_game_id, data | self.character_list[data["ID"]])
         add_battle_char.enter_stage()
         self.last_char_game_id += 1

@@ -134,7 +134,7 @@ def menu_custom_setup(self: Game):
             self.back_mainmenu()
 
         elif self.custom_battle_preset_button.event_press:
-            self.menu_state = "preset"
+            self.menu_mode = "preset"
             self.before_save_preset_army_setup = deepcopy(self.save_data.player_custom_army_preset_save)
             self.custom_preset_culture_selector.change_culture_preset(Custom_Default_Culture)
             self.custom_preset_army_setup.change_culture_preset(Custom_Default_Culture)

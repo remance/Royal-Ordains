@@ -1,7 +1,8 @@
 def status_update(self, specific_dt=0.1):
     """Calculate stat with effect from weather, skill, and status"""
     self.status_duration = {key: value - specific_dt for key, value in self.status_duration.items() if value > specific_dt}
-    self.move_cooldown = {key: value - specific_dt for key, value in self.move_cooldown.items() if value > specific_dt}
+    self.moveset_cooldown = {key: value - specific_dt for key, value in self.moveset_cooldown.items() if
+                             value > specific_dt}
 
     current_weather = self.battle.current_weather
     if self.old_status_key != self.status_duration.keys() or (not self.immune_weather and (

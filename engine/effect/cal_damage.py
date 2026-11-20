@@ -5,7 +5,7 @@ from random import uniform
 def cal_damage(self, target, critical: bool, front_hit: bool):
     """
     Calculate damage on target
-    :param self: DamageEffect object
+    :param self: DamageEffect or character type object
     :param target: Target character object
     :param critical: Critical damage or not
     :param front_hit: Critical damage or not

@@ -8,14 +8,16 @@ from engine.uiouterbattle.uiouterbattle import UIOuterBattle
 from engine.utils.rotation import set_rotate
 
 
-class Weather(UIOuterBattle):
-    def __init__(self, weather_type, wind_angle, level):
-        self._layer = 99999999999999999999
-        UIOuterBattle.__init__(self)
-        self.weather_data = self.battle.weather_data
-        self.weather_matter_images = self.battle.sprite_data.weather_matter_images
+class Weather:
+    def __init__(self, battle, weather_type, wind_angle, level):
+        self.battle = battle
+        self.screen_width = battle.screen_width
+        self.screen_height = battle.screen_height
+        self.screen_size = (self.screen_width, self.screen_height)
+        self.weather_data = battle.weather_data
+        self.weather_matter_images = battle.sprite_data.weather_matter_images
         self.new_weather_reset = True
-        self.weather_matters = self.battle.weather_matters
+        self.weather_matters = battle.weather_matters
         self.weather_spawn_timer = {}
         self.weather_type = weather_type
         if self.weather_type == 0:
@@ -75,13 +77,14 @@ class Weather(UIOuterBattle):
         if "random_sprite_angle" in stat["Property"]:
             self.random_sprite_angle = True
 
-        self.battle.weather_ambient_channel.set_volume(0)
-        self.battle.weather_ambient_channel.stop()
-        if stat["Ambient"]:
-            if stat["Ambient"] in self.battle.weather_ambient_pool:
-                self.battle.weather_ambient_channel.play(Sound(self.battle.weather_ambient_pool[stat["Ambient"]]),
-                                                         loops=-1, fade_ms=100)
-                self.battle.weather_ambient_channel.set_volume(self.battle.play_effect_volume)
+        if battle.weather_ambient_channel:
+            battle.weather_ambient_channel.set_volume(0)
+            battle.weather_ambient_channel.stop()
+            if stat["Ambient"]:
+                if stat["Ambient"] in self.battle.weather_ambient_pool:
+                    battle.weather_ambient_channel.play(Sound(battle.weather_ambient_pool[stat["Ambient"]]),
+                                                        loops=-1, fade_ms=100)
+                battle.weather_ambient_channel.set_volume(battle.play_effect_volume)
         self.weather_now = str(self.weather_type) + "_" + str(self.level)
 
     def update(self, dt):
@@ -100,7 +103,7 @@ class Weather(UIOuterBattle):
             target = travel_to_map_border(random_pos, self.travel_angle_radians, self.screen_size)
             start_pos = travel_to_map_border(random_pos, self.spawn_angle_radians, self.screen_size)
         else:
-            target = (uniform(0, self.screen_width), self.screen_rect.height)
+            target = (uniform(0, self.screen_width), self.screen_height)
             start_pos = Vector2(target[0] + (self.screen_width * self.spawn_angle_radians_sin),
                                 target[1] - (self.screen_height * self.spawn_angle_radians_cos))
 

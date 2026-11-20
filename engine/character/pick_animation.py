@@ -92,7 +92,7 @@ def pick_animation(self):
     if animation_name in self.animation_pool:
         self.current_animation = self.animation_pool[animation_name]
     else:  # animation not found, use default  # TODO remove this in stable
-        print("notfound", self.name, animation_name, current_action, self.command_action)
+        print("notfound", self.char_id, animation_name, current_action, self.command_action)
         self.current_animation = self.animation_pool["Default"]
 
     if "reverse" not in current_action:
@@ -146,7 +146,7 @@ def pick_cutscene_animation(self, action):
     if animation_name in self.animation_pool:
         self.current_animation = self.animation_pool[animation_name]
     else:  # animation not found, use default
-        print("cutscene_animation_not_found", self.name, animation_name, action)
+        print("cutscene_animation_not_found", self.char_id, animation_name, action)
 
         self.current_animation = self.animation_pool["Default"]
 

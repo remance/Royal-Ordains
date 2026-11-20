@@ -10,10 +10,10 @@ from math import ceil
 
 from pygame.mixer import Sound
 
-from engine.constants import Opposite_Team, Phase_To_Battle_Time
+from engine.constants import Opposite_Team, Phase_To_Battle_Time, Battle_Supply_Transfer_Rate
 
 
-def state_battle_process(self: Battle):
+def mode_battle_process(self: Battle):
     camera = self.camera
     self.remove_from_outer_ui_menu_updater(self.text_popup)
     self.player_input()
@@ -27,7 +27,7 @@ def state_battle_process(self: Battle):
             if sound_ch.get_busy():  # pause all sound playing
                 sound_ch.pause()
 
-        self.change_game_state("menu")  # open menu
+        self.change_game_mode("menu")  # open menu
         self.scene_translation_text_popup.popup(
             (self.screen_rect.midleft[0], self.screen_height * 0.82),
             self.grab_text(
@@ -102,7 +102,7 @@ def state_battle_process(self: Battle):
 
             if team_state["supply_reserve"]:
                 if team_state["supply_reserve"] > 0:
-                    supply_transfer = team_state["supply_reserve"] * 0.004 * dt
+                    supply_transfer = team_state["supply_reserve"] * Battle_Supply_Transfer_Rate * dt
                 else:
                     supply_transfer = team_state["supply_reserve"]
                 team_state["supply_resource"] += supply_transfer
@@ -249,7 +249,7 @@ def state_battle_process(self: Battle):
                     self.add_to_ui_menu_updater(self.cursor)
 
                     self.battle_result_ui.show_result()
-                    self.change_game_state("result")
+                    self.change_game_mode("result")
                     self.end_delay = 0
 
         elif self.grand:  # update grand campaign during battle still ongoing

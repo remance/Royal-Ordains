@@ -18,7 +18,7 @@ from pygame.event import get as get_event, clear as clear_event
 from pygame.locals import *
 from pygame.mixer import Sound, Channel
 
-from engine.aibattlecommander.battle_commander_ai import BattleCommanderAI
+from engine.aibattlecommander.aibattlecommander import AIBattleCommander
 from engine.battle.activate_retreat import activate_retreat
 from engine.battle.activate_strategy import activate_strategy
 from engine.battle.add_new_army_arrive import add_new_army_arrive
@@ -27,7 +27,7 @@ from engine.battle.add_sound_effect_queue import add_sound_effect_queue
 from engine.battle.add_strategy_to_team_state import add_strategy_to_team_state
 from engine.battle.call_in_air_group import call_in_air_group
 from engine.battle.call_reinforcement_to_battle import call_reinforcement_to_battle
-from engine.battle.change_game_state import change_game_state
+from engine.battle.change_game_mode import change_game_mode
 from engine.battle.check_battle_character_to_load import check_battle_character_to_load
 from engine.battle.check_event import check_event
 from engine.battle.check_reinforcement import check_reinforcement
@@ -43,12 +43,12 @@ from engine.battle.player_input_cutscene import player_input_cutscene
 from engine.battle.setup_new_army_arrive import setup_new_army_arrive
 from engine.battle.setup_team_characters import setup_team_characters
 from engine.battle.shake_camera import shake_camera
-from engine.battle.state_battle_process import state_battle_process
-from engine.battle.state_menu_process import state_menu_process, back_to_battle_state
-from engine.battle.state_result_process import state_result_process
+from engine.battle.mode_battle_process import mode_battle_process
+from engine.battle.mode_menu_process import mode_menu_process, back_to_battle_state
+from engine.battle.mode_result_process import mode_result_process
 from engine.battleobject.battleobject import StageObject
 from engine.camera.camera import Camera
-from engine.character.character import BaseBattleCharacter
+from engine.character.character import NonCombatCharacter
 from engine.constants import *
 from engine.effect.effect import DamageEffect, Effect
 from engine.game.activate_input_popup import activate_input_popup
@@ -96,7 +96,7 @@ class Battle:
     back_to_battle_state = back_to_battle_state
     call_in_air_group = call_in_air_group
     call_reinforcement_to_battle = call_reinforcement_to_battle
-    change_game_state = change_game_state
+    change_game_mode = change_game_mode
     change_pause_update = change_pause_update
     check_battle_character_to_load = check_battle_character_to_load
     check_event = check_event
@@ -111,16 +111,16 @@ class Battle:
     play_sound_effect = play_sound_effect
     setup_new_army_arrive = setup_new_army_arrive
     setup_team_characters = setup_team_characters
-    state_battle_process = state_battle_process
-    state_process = state_battle_process
-    state_menu_process = state_menu_process
-    state_result_process = state_result_process
+    mode_battle_process = mode_battle_process
+    mode_process = mode_battle_process
+    mode_menu_process = mode_menu_process
+    mode_result_process = mode_result_process
     shake_camera = shake_camera
 
     battle = None
     battle_cursor = None
 
-    process_list = {"battle": state_battle_process, "menu": state_menu_process, "result": state_result_process}
+    mode_process_list = {"battle": mode_battle_process, "menu": mode_menu_process, "result": mode_result_process}
 
     def __init__(self, game: Game):
         self.game = game
@@ -199,7 +199,7 @@ class Battle:
         StrategyIcon.containers = self.battle_effect_updater, self.battle_camera_ui_drawer
         DamageEffect.containers = self.battle_effect_updater
         MatterSprite.containers = self.weather_matters, self.outer_ui_updater, self.outer_ui_drawer
-        BaseBattleCharacter.containers = self.battle_character_updater, self.all_battle_characters
+        NonCombatCharacter.containers = self.battle_character_updater, self.all_battle_characters
 
         self.cursor = game.cursor
 
@@ -270,7 +270,7 @@ class Battle:
                                                         subfolder=("ui", "cursor_battle")))  # no need to scale cursor
 
         # Assign battle variable to some classes
-        BattleCommanderAI.battle = self
+        AIBattleCommander.battle = self
         UIBattle.battle = self
         UIBattle.camera = self.camera
         UIBattle.battle_camera_ui_drawer = self.battle_camera_ui_drawer
@@ -279,17 +279,11 @@ class Battle:
         UIOuterBattle.text_popup = self.text_popup
         UIOuterBattle.add_to_outer_ui_menu_updater = self.add_to_outer_ui_menu_updater
         UIOuterBattle.remove_from_outer_ui_menu_updater = self.remove_from_outer_ui_menu_updater
-        BaseBattleCharacter.collision_grid_width = self.screen_width / Collision_Grid_X_Per_Battle_Scene  # collision grid size based on screen scale
-        BaseBattleCharacter.collision_grid_height = self.screen_height / Collision_Grid_Y_Per_Battle_Scene
-        BaseBattleCharacter.sound_effect_pool = self.sound_effect_pool
-        DamageEffect.collision_grid_width = self.screen_width / Collision_Grid_X_Per_Battle_Scene
-        DamageEffect.collision_grid_height = self.screen_height / Collision_Grid_Y_Per_Battle_Scene
-        Effect.sound_effect_pool = self.sound_effect_pool
 
         self.before_pause_game_speed = 1
         self.game_speed = 1
         self.all_team_ally = {index: sprite.Group() for index in team_list}
-        self.all_team_enemy_check = {index: sprite.Group() for index in team_list}  # for victory check
+        self.all_team_enemy = {index: sprite.Group() for index in team_list}  # for victory check
 
         self.all_team_ground_enemy_collision_grids = {index: () for index in team_list}
         self.all_team_air_enemy_collision_grids = {index: () for index in team_list}
@@ -299,12 +293,10 @@ class Battle:
         self.winner_team = None
         self.player_enemy_team = None
         self.player_input = None
-        self.player_damage = 0
-        self.player_kill = 0
         self.battle_scale = []
         self.battle_time = 0.0
 
-        self.current_weather = Weather(1, 0, 0)
+        self.current_weather = Weather(self, 1, 0, 0)
 
         self.team_state = {team: {"faction": None, "culture": None, "strategy_resource": 0, "supply_resource": 0,
                                   "supply_reserve": 0, "total_supply": 0, "leadership": 0, "start_pos": 0,
@@ -323,11 +315,11 @@ class Battle:
         self.team2_call_leader_cooldown_reinforcement = {}
         self.team2_call_troop_cooldown_reinforcement = {}
         self.awaiting_armies = {}
-        self.battle_ai_commander1 = BattleCommanderAI(1)
-        self.battle_ai_commander2 = BattleCommanderAI(2)
+        self.battle_ai_commander1 = AIBattleCommander(self, 1)
+        self.battle_ai_commander2 = AIBattleCommander(self, 2)
         self.all_battle_ai_commanders = []
 
-        self.game_state = "battle"
+        self.game_mode = "battle"
         self.esc_menu_mode = "menu"
 
         self.grand = None
@@ -674,11 +666,11 @@ class Battle:
         self.all_battle_ai_commanders = []
         if (self.player_team == 1 or not self.player_team) and self.battle.team_commander[2]:
             # commander exist for team 2
-            self.battle_ai_commander2.__init__(2, can_retreat=ai_retreat)
+            self.battle_ai_commander2.__init__(self, 2, can_retreat=ai_retreat)
             self.all_battle_ai_commanders.append(self.battle_ai_commander2)
         if (self.player_team == 2 or not self.player_team) and self.battle.team_commander[1]:
             # commander exist for team 1
-            self.battle_ai_commander1.__init__(1, can_retreat=ai_retreat)
+            self.battle_ai_commander1.__init__(self, 1, can_retreat=ai_retreat)
             self.all_battle_ai_commanders.append(self.battle_ai_commander1)
         self.all_battle_ai_commanders = tuple(self.all_battle_ai_commanders)
 
@@ -769,8 +761,6 @@ class Battle:
         self.drama_timer = 0
         self.dt = 0
         self.battle_cursor.shown = True
-        self.player_damage = 0
-        self.player_kill = 0
         self.battle_scale = []
 
         self.base_cursor_pos = [0, 0]  # mouse pos on the map based on camera position
@@ -891,7 +881,7 @@ class Battle:
                     #         self.game.setup_profiler()
                     #     self.game.profiler.switch_show_hide()
 
-            return_state = self.state_process()  # run code based on current state
+            return_state = self.mode_process()  # run code based on current state
             if return_state is not None:
                 return return_state
 
@@ -920,7 +910,7 @@ class Battle:
 
         for this_group in self.all_team_ally.values():
             this_group.empty()
-        for this_group in self.all_team_enemy_check.values():
+        for this_group in self.all_team_enemy.values():
             this_group.empty()
 
         # setup grid for collide check
@@ -992,7 +982,7 @@ class Battle:
         self.sound_effect_queue = {}
 
         # reset stuffs
-        self.current_weather.__init__(1, 0, 0)
+        self.current_weather.__init__(self, 1, 0, 0)
         self.game_speed = 1
         self.battle_time = 0.0
         self.drama_timer = 0  # reset drama text popup

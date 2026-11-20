@@ -6,5 +6,5 @@ if TYPE_CHECKING:
     from engine.grand.grand import Grand
 
 
-def end_battle(self: Grand, dot):
+def end_battle(self: Grand, battle):
     pass

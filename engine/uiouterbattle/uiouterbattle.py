@@ -558,7 +558,7 @@ class BattleScale(UIOuterBattle):
                 percent_scale = 0  # start point fo fill colour of team scale
                 for team, value in enumerate(self.battle_scale):
                     if value > 0:
-                        self.image.fill(team_colour[team],
+                        self.image.fill(Team_Colour[team],
                                         (width * percent_scale,
                                          0, width, height))
                         percent_scale += value
@@ -784,7 +784,7 @@ class TacticalMap(UIOuterBattle):
         self.strategy_status = []
 
         self.commander_icon_border = {team: self.make_icon_border(team, colour_modifier=1.5) for
-                                      team in team_colour}
+                                      team in Team_Colour}
         self.icon_width = self.commander_icon_border[1].get_width()
         self.icon_height = self.commander_icon_border[1].get_height()
         self.icon_center = (int(self.icon_width / 2), int(self.icon_height / 2))
@@ -794,7 +794,7 @@ class TacticalMap(UIOuterBattle):
         self.troop_dot_images = {}
         self.commander_health_state = {1: None, 2: None}
         self.commander_icon = {1: None, 2: None}
-        for team, colour in team_colour.items():
+        for team, colour in Team_Colour.items():
             dot = Surface((20 * self.screen_scale_width, 20 * self.screen_scale_height))
             dot.fill(colour)
             self.troop_dot_images[team] = dot
@@ -804,10 +804,10 @@ class TacticalMap(UIOuterBattle):
         image = Surface((200 * self.screen_scale_width, 200 * self.screen_scale_height), SRCALPHA)
         if colour_modifier != 1:
             draw.circle(image, [value * colour_modifier if value * colour_modifier <= 255 else 255
-                                for value in team_colour[team]], (image.get_width() / 2, image.get_height() / 2),
+                                for value in Team_Colour[team]], (image.get_width() / 2, image.get_height() / 2),
                         (image.get_width() / 2))
         else:
-            draw.circle(image, team_colour[team], (image.get_width() / 2, image.get_height() / 2),
+            draw.circle(image, Team_Colour[team], (image.get_width() / 2, image.get_height() / 2),
                         (image.get_width() / 2))
 
         return image

@@ -5,14 +5,16 @@ Default_Battle_Air_Pos = 800
 Default_Battle_Float_Pos = 1300
 Default_Battle_Ground_Pos = 2000
 Character_Gravity = 500
-team_colour = {0: (50, 190, 50), 1: (100, 110, 200), 2: (190, 50, 50)}
+Team_Colour = {0: (50, 190, 50), 1: (100, 110, 200), 2: (190, 50, 50)}
+Battle_Supply_Transfer_Rate = 0.004  # govern how fast supply reserve become active in battle
+Team_Start_x_Distance = 600
 
 """number of collision grids per scene in battle, more grids can improve collision detection performance when 
 battle involve huge number of characters"""
 Collision_Grid_X_Per_Battle_Scene = 4
 Collision_Grid_Y_Per_Battle_Scene = 2
 
-"""change to these value that no exist in data can break the game"""
+"""change to these value that not exist in data can break the game"""
 Custom_Default_Culture = "castle"
 Default_Showcase_Character = "leader_tulia"
 Default_Selected_Stage_Custom_Battle = "stage_custom1"
