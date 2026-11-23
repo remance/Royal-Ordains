@@ -269,7 +269,9 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
 
             save_pickle_with_surfaces(join(data_dir, "animation", character + ".xz"),
                                       character_animation_pool)
-            save_pickle_with_surfaces(join(data_dir, "animation", "diplomacy", character + ".xz"), grand_diplomacy_sprite_pool)
+            if grand_diplomacy_sprite_pool:  # only saved for character with diplomacy animation
+                save_pickle_with_surfaces(join(data_dir, "animation", "diplomacy", character + ".xz"),
+                                          grand_diplomacy_sprite_pool)
             # animation_load_index[character] = character_hash
 
     save_pickle_with_surfaces(join(data_dir, "animation", "grand_actor.xz"), grand_event_sprite_pool)
@@ -280,6 +282,9 @@ def compile_data(animation_dir, data_dir, animation_pool, default_body_sprite_po
         animation_load_index["character_animation_effect"][character] = {}
 
     for character in animation_pool:  # recheck for independent effect
+        if character not in animation_load_index["character_load_index"]:
+            animation_load_index["character_load_index"][character] = []
+            animation_load_index["character_animation_effect"][character] = {}
         for animation_name, animation_frame in animation_pool[character].items():
             if "EXCLUDE_" not in animation_name and "EVENT_" not in animation_name:
                 if animation_name not in animation_load_index["character_animation_effect"][character]:

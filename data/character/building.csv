@@ -302,7 +302,7 @@
 "small_settlement_2_warren_small",,"small_settlement_1_warren_tiny",,2,450,,"small_rabbit_leader_banner","small_rabbit_spear",,,,,,10,30,2,6,,"small","settlement","done"
 "small_settlement_3_warren_moderate",,"small_settlement_2_warren_small",,4,600,,"small_rabbit_leader_banner","small_rabbit_spear",,,,,,15,60,4,9,,"small","settlement","done"
 "small_settlement_4_warren_nice",,"small_settlement_3_warren_moderate",,5,900,,"small_rabbit_leader_knight","small_rabbit_spear,small_rabbit_sling",,,,,,25,90,6,12,,"small","settlement","done"
-"small_settlement_5_warren_great",,"small_settlement_4_warren_nice",,7,1500,,"small_rabbit_leader_knight","small_rabbit_spear,small_rabbit_spear,small_rabbit_sling",,,,,,50,150,9,15,,"small","settlement",
+"small_settlement_5_warren_great",,"small_settlement_4_warren_nice",,7,1500,,"small_rabbit_leader_knight","small_rabbit_spear,small_rabbit_spear,small_rabbit_sling",,,,,,50,150,9,15,,"small","settlement","done"
 "small_tech_a1_fur_hardener","small_settlement_1_warren_tiny","free_build","small_settlement_3_warren_moderate",2,400,,,,,,,,"small_rabbit_fur_oil,small_rabbit_cleaner,small_rabbit_footpad,small_global_capacity",,20,-6,,"gold:0.2,supply:0.2","small","tech","done"
 "small_tech_b1_weapon_smith","small_settlement_1_warren_tiny","free_build","small_settlement_4_warren_nice",5,1000,,,,,,,,"small_rabbit_better_spear,small_rabbit_better_shield,small_super_metal",,40,-8,,"gold:0.2,supply:0.2","small","tech",
 "small_tech_c1_study","small_settlement_1_warren_tiny","free_build","small_settlement_4_warren_nice",7,1200,,,,,,,,"small_global_happpiness,small_better_flower_ground,small_eagle_nutrient,small_rabbit_oath,small_rabbit_capacity",,,,,"gold:0.2,supply:0.2","small","tech","done"
