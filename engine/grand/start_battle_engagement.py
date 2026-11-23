@@ -23,7 +23,7 @@ def start_battle_engagement(self: Grand, armies: dict, base_pos: tuple):
     team_sub_armies = {1: [], 2: []}
     for team, army_list in armies.items():
         for index, army in enumerate(army_list):
-            if not index:
+            if index:
                 team_sub_armies[team].append(army)
 
             army.can_assemble = {}  # cancel assembling
@@ -56,7 +56,7 @@ def start_battle_engagement(self: Grand, armies: dict, base_pos: tuple):
                                  "main_army": None, "reinforcement_army": [],
                                  "supply_resource": 0, "supply_reserve": 0, "total_supply": 0, "leadership": 0,
                                  "leader_call_list": [], "troop_call_list": [],
-                                 "commander_character": None, "unit": [], "air_unit": [], "later_reinforcement": {}},
+                                 "commander_character": None, "unit": [], "later_reinforcement": {}},
                              1: {"faction": team_1_army.faction,
                                  "culture": team_1_army.culture,
                                  "strategy_resource": 0,
@@ -70,7 +70,7 @@ def start_battle_engagement(self: Grand, armies: dict, base_pos: tuple):
                                  "commander": {"aggressive": commander_1_stat["Commander AI Aggressiveness"],
                                                "clever": commander_1_stat["Commander AI Cleverness"],
                                                "swift": commander_1_stat["Commander AI Swiftness"]},
-                                 "unit": [], "air_unit": [], "later_reinforcement": {}},
+                                 "unit": [], "later_reinforcement": {}},
                              2: {"faction": team_2_army.faction,
                                  "culture": team_2_army.culture,
                                  "strategy_resource": 0,
@@ -84,7 +84,7 @@ def start_battle_engagement(self: Grand, armies: dict, base_pos: tuple):
                                  "commander": {"aggressive": commander_2_stat["Commander AI Aggressiveness"],
                                                "clever": commander_2_stat["Commander AI Cleverness"],
                                                "swift": commander_2_stat["Commander AI Swiftness"]},
-                                 "unit": [], "air_unit": [], "later_reinforcement": {}}},
+                                 "unit": [], "later_reinforcement": {}}},
                     "army": armies, "weather": None,
                     "corpse": [], "stage": stage, "stage_size": stage_len}
 

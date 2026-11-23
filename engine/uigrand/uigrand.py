@@ -173,15 +173,18 @@ class DotInfoBannerSettlement(DotInfoBanner):
 class DotInfoBannerArmy(DotInfoBanner):
     def __init__(self, base_pos, pos):
         DotInfoBanner.__init__(self, base_pos, pos)
+        self.battle_state = False
 
     def reset(self, state_value_list):
         if "battle" in state_value_list:
             text = ((state_value_list[0], self.grand_ui_images["number"], " V"),
                     ("S ", state_value_list[1], self.grand_ui_images["number"]))
+            self.battle_state = True
         else:
             text = (minimise_number_text(state_value_list[0]), self.grand_ui_images["number"], "/",
                     state_value_list[1] + "%",
                     self.grand_ui_images["supply"])
+            self.battle_state = False
         self.make_text_image(state_value_list[2], text)
         self.rect = self.image.get_rect(midtop=self.pos)
 
@@ -209,13 +212,15 @@ class DotInfoBannerArmy(DotInfoBanner):
                         state_value_list[2][team_index] = "enemy"
                     if this_team_state["commander_character"] and this_team_state["commander_character"].alive:
                         state_value_list[team_index] = minimise_number_text(
-                            1 + len(this_team_state["unit"]) + len(this_team_state["air_unit"]))
-
+                            1 + sum([len(item.group_character) for item in this_team_state["unit"]]))
             else:
                 state_value_list = [0, "100", "neutral"]
                 total_supply = 0
                 total_supply_usage = 0
-                for army in self.dots_army_occupation[self.base_pos]:
+                army_list = self.dots_army_occupation[self.base_pos].copy()
+                if self.base_pos in grand.dots_army_garrison:
+                    army_list.append(grand.dots_army_garrison[self.base_pos])
+                for army in army_list:
                     state_value_list[0] += army.total_number
                     total_supply += army.supply
                     total_supply_usage += army.total_supply_usage
@@ -241,8 +246,9 @@ class DotInfoBannerArmy(DotInfoBanner):
 
     def update(self, dt):
         active = False
-        if (self.base_pos in self.grand.current_campaign_state["battle"]["dot"] or
-                self.dots_army_occupation[self.base_pos]):
+        grand = self.grand
+        if (self.base_pos in grand.current_campaign_state["battle"]["dot"] or
+                self.dots_army_occupation[self.base_pos] or self.base_pos in grand.dots_army_garrison):
             active = True
 
         self.check_draw(active)

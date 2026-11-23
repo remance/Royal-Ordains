@@ -30,11 +30,12 @@ def conduct_troop_call(self: AIBattleCommander):
     current_supply = self.team_state["supply_resource"]
 
     # plan for troop related
-    troop_available_to_call = [item for index, item in enumerate(self.team_state["troop_call_list"]) if
+    troop_available_to_call = [item for index, item in enumerate(self.team_state["troop_call_list"][:5]) if
                                index not in troop_call_cooldown and current_supply >= item[2]]
-    leader_available_to_call = [index for index, item in enumerate(self.team_state["leader_call_list"]) if
+    leader_available_to_call = [index for index, item in enumerate(self.team_state["leader_call_list"][:5]) if
                                 index not in leader_call_cooldown and current_supply >= item[2]]
 
+    print(self.team, current_supply, self.team_state["troop_call_list"], self.team_state["leader_call_list"])
     character_list = self.character_list
     troop_class_available_to_call = {index: character_list[item[0]]["Behaviour Class"] for index, item in
                                      enumerate(troop_available_to_call)}
@@ -85,6 +86,7 @@ def conduct_troop_call(self: AIBattleCommander):
             roulette_key = tuple(roulette.keys())
             what_to_call = roulette[
                 min(roulette_key, key=lambda x: abs(x - int(random() * roulette_key[-1]) + 1))]
+
             if what_to_call:
                 if what_to_call == "leader":
                     self.call_reinforcement_to_battle(self.team, "leader", choice(leader_available_to_call))
@@ -95,10 +97,6 @@ def conduct_troop_call(self: AIBattleCommander):
                     if list_to_call:
                         self.call_reinforcement_to_battle(self.team, "ground",
                                                           choice(list_to_call))
-
-    # print(self.team_stat)
-    # print(self.team_stat["troop_call_list"], self.team_stat["leader_call_list"])
-    # print(troop_available_to_call, leader_available_to_call)
 
     if current_info:
         if "own_air_group" in current_info:
@@ -160,4 +158,3 @@ def conduct_troop_call(self: AIBattleCommander):
 
             if air_to_call:
                 self.call_in_air_group(self.team, air_to_call, self.team_state["start_pos"])
-    # print(air_available_to_call)

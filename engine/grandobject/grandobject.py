@@ -40,7 +40,7 @@ class GrandObject(Sprite):
             text_popup.popup(self.cursor.rect, (grand.grab_text(("building", self.sprite_id, "Name")), "",
                                                 grand.grab_text(("building", self.sprite_id, "Description"))),
                              width_text_wrapper=self.max_description_box_width)
-            grand.add_to_outer_ui_menu_updater(text_popup)
+            grand.add_to_outer_ui_updater(text_popup)
 
     def change_state(self, new_state):
         if self.building_state != new_state:
@@ -54,6 +54,7 @@ class GrandObject(Sprite):
                 self.image.blit(self.building_portraits["unique_progress"]["building_ui"], (0, 0))
             if not new_state[3]:  # inactive building from requirement not satisfied
                 self.image.blit(self.building_portraits["unique_unavailable"]["building_ui"], (0, 0))
+
 
 class SettlementObject(GrandObject):
     slot_rects = []

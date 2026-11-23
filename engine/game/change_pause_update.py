@@ -7,6 +7,6 @@ if TYPE_CHECKING:
 
 
 def change_pause_update(self: Game, pause: bool, except_list: (tuple, list) = ()):
-    for item in self.ui_menu_updater:
+    for item in self.ui_updater:
         if item not in except_list:
             item.pause = pause

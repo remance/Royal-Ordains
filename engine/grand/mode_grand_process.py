@@ -83,7 +83,7 @@ def mode_grand_process(self: Grand):
         # update and draw ui outside camera
         self.outer_ui_updater.update(true_dt)
         camera.out_update(self.outer_ui_drawer)
-        camera.out_update(self.ui_menu_drawer)
+        camera.out_update(self.ui_drawer)
 
         if self.esc_press:  # pause game and open menu
             self.music_channel.pause()
@@ -95,12 +95,12 @@ def mode_grand_process(self: Grand):
 
             self.menu_bar_ui.option_selected = None
             self.change_game_mode("menu")  # open menu
-            self.remove_from_outer_ui_menu_updater(self.player_collapsable_uis)
-            self.remove_from_outer_ui_menu_updater(self.cursor)
-            self.add_to_ui_menu_updater(self.cursor)
-            self.add_to_ui_menu_updater(self.grand_menu_button.values())  # add menu and its buttons to drawer
+            self.remove_from_outer_ui_updater(self.player_collapsable_uis)
+            self.remove_from_outer_ui_updater(self.cursor)
+            self.add_to_ui_updater(self.cursor)
+            self.add_to_ui_updater(self.grand_menu_button.values())  # add menu and its buttons to drawer
     else:  # have input text pop up on screen, stop everything else until done
-        self.ui_menu_updater.update(true_dt)
+        self.ui_updater.update(true_dt)
         camera.update_with_in_camera_check(self.grand_camera_region_drawer)
         # add route after map region draw to blit route dots on the map under other sprites.
         self.draw_route()
@@ -111,7 +111,7 @@ def mode_grand_process(self: Grand):
 
         # draw ui outside camera
         camera.out_update(self.outer_ui_drawer)
-        camera.out_update(self.ui_menu_drawer)
+        camera.out_update(self.ui_drawer)
 
         if self.input_ok_button.event_press:
             done = True
@@ -146,15 +146,15 @@ def mode_grand_process(self: Grand):
                 self.change_pause_update(False)
                 self.input_box.render_text("")
                 self.input_popup = None
-                self.remove_from_ui_menu_updater(self.all_input_popup_uis)
-                self.add_to_outer_ui_menu_updater(self.cursor)
-                self.remove_from_ui_menu_updater(self.cursor)
+                self.remove_from_ui_updater(self.all_input_popup_uis)
+                self.add_to_outer_ui_updater(self.cursor)
+                self.remove_from_ui_updater(self.cursor)
 
         elif self.input_cancel_button.event_press or self.input_close_button.event_press or self.esc_press:
             self.change_pause_update(False)
             self.input_box.render_text("")
             self.input_popup = None
-            self.remove_from_ui_menu_updater(self.all_input_popup_uis)
+            self.remove_from_ui_updater(self.all_input_popup_uis)
 
     # if self.current_campaign_state["cosmic_event"]:  # add colour effect to screen from cosmic
     #     for event in self.cosmic_event_list:

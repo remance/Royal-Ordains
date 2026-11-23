@@ -10,4 +10,4 @@ from engine.game.activate_input_popup import activate_input_popup as game_activa
 
 def activate_input_popup(self: Grand, input_popup, instruction, input_ui_list):
     game_activate_input_popup(self, input_popup, instruction, input_ui_list)
-    self.add_to_ui_menu_updater(self.cursor)
+    self.add_to_ui_updater(self.cursor)

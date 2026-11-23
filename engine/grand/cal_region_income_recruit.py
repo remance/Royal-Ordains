@@ -91,7 +91,8 @@ def cal_region_income_recruit(self: Grand, faction_id: str, region_id: str):
     if garrison_state != region_state["garrison"]:
         # reset garrison army when anything change
         region_state["garrison"] = garrison_state
-        garrison_army = self.garrison_army_list[region_id]
+        garrison_army = self.dots_army_garrison[self.region_list[region_id]["Settlement POS"]]
+
         garrison_commander = None
         if garrison_state["leader"]:
             garrison_commander = garrison_state["leader"][0]

@@ -27,8 +27,8 @@ Leadership_Add_Modifier = 0.3
 
 Phase_To_Game_Time = 1  # in second to 1 phase
 Turn_To_Phase = 12  # in phase to 1 turn
-Phase_To_Battle_Time = 60  # in second
-Phase_To_Round = 6  # battle round, 1 phase of 60 second battle time to simulate 6 actions per 10 seconds
+Phase_To_Battle_Time = 30  # in second
+Phase_To_Round = 6  # battle round, 1 phase (30 second battle time) to simulate 1 action per 5 seconds
 
 # number of turn a diplomacy event will have effect
 Diplomacy_Turn_Event_Gift = 30

@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from engine.character.character import CombatCharacter, GrandAutoCharacter
+    from engine.character.character import CombatCharacter, GrandAutoNonCombatCharacter
 
 from engine.constants import Phase_To_Round, Phase_To_Battle_Time
 
@@ -27,7 +27,7 @@ def ai_logic(self: CombatCharacter, dt: float):
         self.ai_retreat()
 
 
-def auto_ai_logic(self: GrandAutoCharacter):
+def auto_ai_logic(self: GrandAutoNonCombatCharacter):
     if not self.broken and "broken" not in self.commander_order:
         self.ai_prepare()
         if "idle" not in self.commander_order:

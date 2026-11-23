@@ -115,7 +115,7 @@ def make_image_by_frame(frame: Surface, final_size):
 
 
 class UIMenu(Sprite):
-    add_to_ui_menu_updater = None
+    add_to_ui_updater = None
     battle_ui_images = None
     building_portraits = None
     button_sound_channel = None
@@ -127,7 +127,7 @@ class UIMenu(Sprite):
     game = None
     grand_ui_images = None
     language = None
-    remove_from_ui_menu_updater = None
+    remove_from_ui_updater = None
     screen_center = None
     screen_height = None
     screen_rect = None
@@ -526,19 +526,19 @@ class FactionSelector(UIMenu):
                     else:
                         self.game.text_popup.popup(self.cursor.rect,
                                                    self.grab_text(("faction", faction, "Name")))
-                    self.add_to_ui_menu_updater(self.game.text_popup)
+                    self.add_to_ui_updater(self.game.text_popup)
                     if self.event_press:
                         self.button_sound_channel.play(choice(self.sound_effect_pool["button"]))
                         self.button_sound_channel.set_volume(self.game.play_effect_volume)
                         if self.is_popup:  # remove popup ui
-                            self.remove_from_ui_menu_updater(self)
+                            self.remove_from_ui_updater(self)
                             self.selected_culture = faction
                         else:
                             self.change_culture_preset(faction)
                     break
 
         elif self.cursor.select_up and self.is_popup:  # remove popup ui
-            self.remove_from_ui_menu_updater(self)
+            self.remove_from_ui_updater(self)
 
 
 class CharacterSelector(UIMenu):
@@ -748,7 +748,7 @@ class CharacterSelector(UIMenu):
                                 if lorebook_showcase_character.char_id != character_id:
                                     game.all_showcase_characters.remove(lorebook_showcase_character.sub_characters)
                                     game.all_showcase_characters.remove(lorebook_showcase_character)
-                                    self.remove_from_ui_menu_updater(
+                                    self.remove_from_ui_updater(
                                         (lorebook_showcase_character.sub_characters, lorebook_showcase_character))
                                     for character in lorebook_showcase_character.sub_characters:
                                         character.erase()
@@ -761,8 +761,8 @@ class CharacterSelector(UIMenu):
                                     lorebook_showcase_character.__init__(
                                         0, {"ID": character_id, "POS": pos,
                                             "direction": "right"} | character_data)
-                                    self.add_to_ui_menu_updater(lorebook_showcase_character,
-                                                                lorebook_showcase_character.sub_characters)
+                                    self.add_to_ui_updater(lorebook_showcase_character,
+                                                           lorebook_showcase_character.sub_characters)
                                     animation_list = list(
                                         game.sprite_data.character_animation_data[character_id].keys())
                                     for character in character_data["Sub Characters"]:
@@ -780,7 +780,7 @@ class CharacterSelector(UIMenu):
 
                             game.text_popup.popup(self.cursor.rect, char_stat,
                                                   width_text_wrapper=int(1000 * self.screen_scale_width))
-                            self.add_to_ui_menu_updater(game.text_popup)
+                            self.add_to_ui_updater(game.text_popup)
                     return
 
 
@@ -934,12 +934,12 @@ class CustomTeamSetupUI(UIMenu):
         self.team_setup[index]["culture"] = culture
         self.team_setup[index]["army"] = None
         self.image.blit(self.circle, self.culture_coa_rects[index])
-        self.remove_from_ui_menu_updater(self.game.custom_team_army_buttons[self.team][index])
+        self.remove_from_ui_updater(self.game.custom_team_army_buttons[self.team][index])
         if self.team_setup[index]["culture"]:
             self.image.blit(self.culture_coas[self.team_setup[index]["culture"]]["small"],
                             self.culture_coa_rects[index])
         if self.team_setup[index]["culture"] and self.team_setup[index]["culture"] != "random":
-            self.add_to_ui_menu_updater(self.game.custom_team_army_buttons[self.team][index])
+            self.add_to_ui_updater(self.game.custom_team_army_buttons[self.team][index])
 
         self.game.custom_team_army[self.team][index].__init__("", "", "", None,
                                                               {"leader": [], "troop": [], "air": []})
@@ -982,7 +982,7 @@ class CustomTeamSetupUI(UIMenu):
 
                 self.game.text_popup.popup((cursor_pos[0], cursor_pos[1] - (100 * self.screen_scale_height)),
                                            self.grab_text(("ui", "text_" + self.game.custom_team_players[self.team])))
-                self.add_to_ui_menu_updater(self.game.text_popup)
+                self.add_to_ui_updater(self.game.text_popup)
 
             else:
                 for index, rect in enumerate(self.culture_coa_rects):
@@ -993,20 +993,20 @@ class CustomTeamSetupUI(UIMenu):
                             show_pos = (self.rect.topleft[0] + rect.topright[0],
                                         self.rect.topleft[1] + rect.topright[1])
                             self.game.custom_culture_selector_popup.rect.topleft = show_pos
-                            self.add_to_ui_menu_updater(self.game.custom_culture_selector_popup)
+                            self.add_to_ui_updater(self.game.custom_culture_selector_popup)
                             self.selected_culture_rect = index
                             # reset other team setup ui in case player select faction rect while popup for other team
                             self.game.custom_battle_team_setup[Opposite_Team[self.team]].selected_culture_rect = None
 
                         elif self.event_alt_press:
-                            if self.game.custom_culture_selector_popup in self.game.ui_menu_updater:
-                                self.remove_from_ui_menu_updater(self.game.custom_culture_selector_popup)
+                            if self.game.custom_culture_selector_popup in self.game.ui_updater:
+                                self.remove_from_ui_updater(self.game.custom_culture_selector_popup)
                             self.change_culture_preset(None, index)
 
                         self.game.text_popup.popup(
                             (cursor_pos[0], cursor_pos[1] - (100 * self.screen_scale_height)),
                             self.grab_text(("culture", str(self.team_setup[index]["culture"]).lower(), "Name")))
-                        self.add_to_ui_menu_updater(self.game.text_popup)
+                        self.add_to_ui_updater(self.game.text_popup)
                         break
 
 
@@ -1264,7 +1264,7 @@ class PresetArmySetupUI(UIMenu):
                         self.game.text_popup.popup((self.cursor.pos[0],
                                                     self.cursor.pos[1] - (100 * self.screen_scale_height)),
                                                    character_name_text)
-                        self.add_to_ui_menu_updater(self.game.text_popup)
+                        self.add_to_ui_updater(self.game.text_popup)
                         return
 
 
@@ -2128,7 +2128,7 @@ class GrandFactionShowCase(UIMenu):
                                 ]
                 self.game.text_popup.popup(self.cursor.rect, culture_stat,
                                            width_text_wrapper=int(1400 * self.screen_scale_width))
-                self.add_to_ui_menu_updater(self.game.text_popup)
+                self.add_to_ui_updater(self.game.text_popup)
             else:
                 for rect_type, rect_list in self.showcase_rect.items():
                     for index, rect in enumerate(rect_list):
@@ -2140,7 +2140,7 @@ class GrandFactionShowCase(UIMenu):
 
                                 self.game.text_popup.popup(self.cursor.rect, char_stat,
                                                            width_text_wrapper=int(1200 * self.screen_scale_width))
-                                self.add_to_ui_menu_updater(self.game.text_popup)
+                                self.add_to_ui_updater(self.game.text_popup)
                             return
 
 

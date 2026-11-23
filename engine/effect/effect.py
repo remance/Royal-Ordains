@@ -512,7 +512,7 @@ class ShowcaseEffect(Effect):
         self._layer = 999999999999999999999997
 
         Sprite.__init__(self, self.containers)
-        self.battle.game.add_to_ui_menu_updater(self)
+        self.battle.game.add_to_ui_updater(self)
         self.show_frame = 0
         self.frame_timer = 0
         self.renew_sprite = True

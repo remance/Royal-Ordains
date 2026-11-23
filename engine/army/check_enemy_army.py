@@ -29,7 +29,7 @@ def check_enemy_army(self):
 
         if self.base_pos in self.region_settlement_pos_index and region_owner != self.faction and region_owner not in alliance:
             # enemy region, add garrison army if exist
-            garrison_army = grand.garrison_army_list[self.region_settlement_pos_index[self.base_pos]]
+            garrison_army = grand.dots_army_garrison[self.base_pos]
 
             if garrison_army.commander_id or battle_army_list[2]:
                 # either garrison has commander or normal army already exist that they can join

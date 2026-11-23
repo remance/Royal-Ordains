@@ -15,7 +15,7 @@ from engine.constants import Opposite_Team, Phase_To_Battle_Time, Battle_Supply_
 
 def mode_battle_process(self: Battle):
     camera = self.camera
-    self.remove_from_outer_ui_menu_updater(self.text_popup)
+    self.remove_from_outer_ui_updater(self.text_popup)
     self.player_input()
 
     if self.esc_press:  # pause game and open menu
@@ -33,9 +33,9 @@ def mode_battle_process(self: Battle):
             self.grab_text(
                 ("scene", self.scene.data[self.current_scene], "Text")),
             width_text_wrapper=self.screen_width)
-        self.add_to_ui_menu_updater(self.cursor, self.battle_menu_button.values(),
-                                    self.scene_translation_text_popup)  # add menu and its buttons to drawer
-        self.remove_from_outer_ui_menu_updater(self.battle_cursor)
+        self.add_to_ui_updater(self.cursor, self.battle_menu_button.values(),
+                               self.scene_translation_text_popup)  # add menu and its buttons to drawer
+        self.remove_from_outer_ui_updater(self.battle_cursor)
 
     # Update game time
     dt = self.true_dt * self.game_speed
@@ -240,13 +240,13 @@ def mode_battle_process(self: Battle):
             else:
                 self.end_delay += dt
                 if self.end_delay >= 5:  # show result
-                    self.remove_from_outer_ui_menu_updater(self.command_ui, self.strategy_select_ui,
-                                                           self.player_interact,
-                                                           self.battle_scale_ui, self.tactical_map_ui,
-                                                           self.battle_helper_ui, self.battle_cursor)
-                    self.add_to_outer_ui_menu_updater(self.battle_result_ui, self.out_of_battle_result_button)
+                    self.remove_from_outer_ui_updater(self.command_ui, self.strategy_select_ui,
+                                                      self.player_interact,
+                                                      self.battle_scale_ui, self.tactical_map_ui,
+                                                      self.battle_helper_ui, self.battle_cursor)
+                    self.add_to_outer_ui_updater(self.battle_result_ui, self.out_of_battle_result_button)
 
-                    self.add_to_ui_menu_updater(self.cursor)
+                    self.add_to_ui_updater(self.cursor)
 
                     self.battle_result_ui.show_result()
                     self.change_game_mode("result")

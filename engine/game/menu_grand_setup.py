@@ -15,7 +15,7 @@ from engine.constants import Culture_Policy_Integration
 
 def menu_grand_setup(self: Game):
     if self.setup_back_button.event_press or self.esc_press:  # back to start_set menu
-        self.remove_from_ui_menu_updater(self.grand_menu_uis)
+        self.remove_from_ui_updater(self.grand_menu_uis)
         self.grand_faction_selector.change_culture_preset(self.map_data.default_grand_faction)
         self.back_mainmenu()
 
@@ -82,7 +82,7 @@ def menu_grand_setup(self: Game):
         # after quit grand campaign
 
         gc.collect()  # collect no longer used object in grand from memory
-        self.remove_from_ui_menu_updater(self.grand_menu_uis)
+        self.remove_from_ui_updater(self.grand_menu_uis)
         self.grand_faction_selector.change_culture_preset(self.map_data.default_grand_faction)
         self.back_mainmenu()
 

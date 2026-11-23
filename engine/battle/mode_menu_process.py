@@ -15,14 +15,14 @@ from engine.utils.common import edit_config
 
 def mode_menu_process(self: Battle):
     # update battle scene first here
-    self.ui_menu_updater.update(self.true_dt)  # update ui before more specific update
+    self.ui_updater.update(self.true_dt)  # update ui before more specific update
 
     self.scene.update()
     self.camera.update(self.battle_camera_object_drawer)
 
     self.camera.update(self.battle_camera_ui_drawer)
     self.camera.out_update(self.outer_ui_drawer)
-    self.ui_menu_drawer.draw(self.screen)  # draw the UI
+    self.ui_drawer.draw(self.screen)  # draw the UI
 
     if self.input_popup:  # currently, have input pop up on screen, stop everything else until done
         if self.input_ok_button.event_press:
@@ -30,7 +30,7 @@ def mode_menu_process(self: Battle):
             self.input_box.render_text("")
             input_popup = self.input_popup[1]
             self.input_popup = None
-            self.remove_from_ui_menu_updater(self.input_popup_uis, self.confirm_popup_uis)
+            self.remove_from_ui_updater(self.input_popup_uis, self.confirm_popup_uis)
 
             if input_popup == "quit":  # quit game
                 pg_quit()
@@ -45,7 +45,7 @@ def mode_menu_process(self: Battle):
             self.change_pause_update(False)
             self.input_box.render_text("")
             self.input_popup = None
-            self.remove_from_ui_menu_updater(self.input_popup_uis, self.confirm_popup_uis)
+            self.remove_from_ui_updater(self.input_popup_uis, self.confirm_popup_uis)
 
     else:
         if self.esc_press and self.esc_menu_mode == "menu":  # in menu or option
@@ -59,8 +59,8 @@ def mode_menu_process(self: Battle):
 
                     elif key == "log":  # open battle log
                         self.esc_menu_mode = "battle"  # change to dialogue menu mode
-                        self.remove_from_ui_menu_updater(self.battle_menu_button.values(),
-                                                         self.scene_translation_text_popup)  # remove start_set esc menu button
+                        self.remove_from_ui_updater(self.battle_menu_button.values(),
+                                                    self.scene_translation_text_popup)  # remove start_set esc menu button
                         self.dialogue_box.__init__(self.dialogue_box.origin, self.dialogue_box.pivot,
                                                    self.dialogue_box.relative_size_inside_container,
                                                    ListAdapter([" ".join(item[0]) + item[1] for item in
@@ -68,15 +68,15 @@ def mode_menu_process(self: Battle):
                                                    self.dialogue_box.parent,
                                                    self.dialogue_box.visible_list_capacity,
                                                    layer=self.dialogue_box._layer)
-                        self.add_to_ui_menu_updater(self.esc_dialogue_button, self.dialogue_box)
+                        self.add_to_ui_updater(self.esc_dialogue_button, self.dialogue_box)
 
                     elif key == "option":  # open option menu
                         self.esc_menu_mode = "option"  # change to option menu mode
 
-                        self.remove_from_ui_menu_updater(self.battle_menu_button.values(),
-                                                         self.scene_translation_text_popup)  # remove start_set esc menu button
-                        self.add_to_ui_menu_updater(self.esc_option_menu_button, self.esc_slider_menu.values(),
-                                                    self.esc_value_boxes.values(), self.esc_option_text.values())
+                        self.remove_from_ui_updater(self.battle_menu_button.values(),
+                                                    self.scene_translation_text_popup)  # remove start_set esc menu button
+                        self.add_to_ui_updater(self.esc_option_menu_button, self.esc_slider_menu.values(),
+                                               self.esc_value_boxes.values(), self.esc_option_text.values())
 
                     elif key == "end":  # end battle
                         self.activate_input_popup(("confirm_input", "end_battle"),
@@ -92,10 +92,10 @@ def mode_menu_process(self: Battle):
         elif self.esc_menu_mode == "battle":  # battle log
             if self.esc_dialogue_button.event_press or self.esc_press:  # confirm or esc, close option menu
                 self.esc_menu_mode = "menu"  # go back to start_set esc menu
-                self.remove_from_ui_menu_updater(self.esc_dialogue_button,
-                                                 self.dialogue_box)  # remove option menu sprite
-                self.add_to_ui_menu_updater(self.battle_menu_button.values(),
-                                            self.scene_translation_text_popup)  # add start_set esc menu buttons back
+                self.remove_from_ui_updater(self.esc_dialogue_button,
+                                            self.dialogue_box)  # remove option menu sprite
+                self.add_to_ui_updater(self.battle_menu_button.values(),
+                                       self.scene_translation_text_popup)  # add start_set esc menu buttons back
 
         elif self.esc_menu_mode == "option":  # option menu
             for key, value in self.esc_slider_menu.items():
@@ -107,19 +107,19 @@ def mode_menu_process(self: Battle):
 
             if self.esc_option_menu_button.event_press or self.esc_press:  # confirm or esc, close option menu
                 self.esc_menu_mode = "menu"  # go back to start_set esc menu
-                self.remove_from_ui_menu_updater(self.esc_option_menu_button, self.esc_slider_menu.values(),
-                                                 self.esc_value_boxes.values(),
-                                                 self.esc_option_text.values())  # remove option menu sprite
-                self.add_to_ui_menu_updater(self.battle_menu_button.values(),
-                                            self.scene_translation_text_popup)  # add start_set esc menu buttons back
+                self.remove_from_ui_updater(self.esc_option_menu_button, self.esc_slider_menu.values(),
+                                            self.esc_value_boxes.values(),
+                                            self.esc_option_text.values())  # remove option menu sprite
+                self.add_to_ui_updater(self.battle_menu_button.values(),
+                                       self.scene_translation_text_popup)  # add start_set esc menu buttons back
 
 
 def back_to_battle_state(self):
-    self.remove_from_ui_menu_updater(self.battle_menu_button.values(), self.esc_option_menu_button,
-                                     self.esc_slider_menu.values(),
-                                     self.esc_value_boxes.values(), self.esc_option_text.values(), self.cursor,
-                                     self.scene_translation_text_popup)
-    self.add_to_outer_ui_menu_updater(self.battle_cursor)
+    self.remove_from_ui_updater(self.battle_menu_button.values(), self.esc_option_menu_button,
+                                self.esc_slider_menu.values(),
+                                self.esc_value_boxes.values(), self.esc_option_text.values(), self.cursor,
+                                self.scene_translation_text_popup)
+    self.add_to_outer_ui_updater(self.battle_cursor)
 
     self.music_channel.set_volume(self.play_music_volume)
     self.music_channel.unpause()

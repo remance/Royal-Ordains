@@ -82,13 +82,13 @@ class MiniCosmosUI(UIOuterGrand):
             else:
                 text.append(grab_text(("ui", "info_text_none")))
             self.text_popup.popup(("topright", self.cursor.rect.bottomleft), text)
-            self.add_to_outer_ui_menu_updater(self.text_popup)
+            self.add_to_outer_ui_updater(self.text_popup)
             if self.event_press:
                 if self.cosmic_ui not in self.grand.outer_ui_updater:
-                    self.add_to_outer_ui_menu_updater(self.cosmic_ui)
+                    self.add_to_outer_ui_updater(self.cosmic_ui)
                     self.cosmic_ui.update_image()
                 else:
-                    self.remove_from_outer_ui_menu_updater(self.cosmic_ui)
+                    self.remove_from_outer_ui_updater(self.cosmic_ui)
 
 
 class CosmosUI(UIOuterGrand):
@@ -175,13 +175,13 @@ class CosmosUI(UIOuterGrand):
                                               (self.grab_text(("cosmos", planet.cosmic_id, "Name")), "",
                                                self.grab_text(("cosmos", planet.cosmic_id, "Description"))),
                                               width_text_wrapper=self.max_description_box_width)
-                        self.add_to_outer_ui_menu_updater(self.text_popup)
+                        self.add_to_outer_ui_updater(self.text_popup)
                         break
             elif cursor.event and not grand.mini_cosmic_ui.mouse_over and not grand.time_setting_ui.mouse_over:
-                self.remove_from_outer_ui_menu_updater(self)
+                self.remove_from_outer_ui_updater(self)
 
         elif cursor.event and not grand.mini_cosmic_ui.mouse_over and not grand.time_setting_ui.mouse_over:
-            self.remove_from_outer_ui_menu_updater(self)
+            self.remove_from_outer_ui_updater(self)
 
     def update_image(self):
         # Draw, planet and line

@@ -40,8 +40,8 @@ class FakeGame:
         self.play_effect_volume = 0
         self.dt = 0.01
         self.sound_effect_pool = sound_effect_pool
-        self.add_to_ui_menu_updater = None
-        self.remove_from_ui_menu_updater = None
+        self.add_to_ui_updater = None
+        self.remove_from_ui_updater = None
         self.button_sound_channel = Channel(3)
         self.cache_font_text = {}
 
@@ -87,7 +87,7 @@ Game.screen_scale = screen_scale
 Game.language = language
 Game.ui_font = csv_read(data_dir, "ui_font.csv", ("ui",), header_key=True)
 Game.font_dir = join(data_dir, "font")
-Game.ui_menu_updater = ui_updater
+Game.ui_updater = ui_updater
 sound_effect_pool = DataSound().sound_effect_pool
 Game.game = FakeGame(sound_effect_pool)
 Battle.battle = FakeBattle()
@@ -98,13 +98,13 @@ Game.localisation = localisation
 for item in Game.ui_font:  # add ttf file extension for font data reading.
     Game.ui_font[item] = join(Game.font_dir, Game.ui_font[item]["Font"] + ".ttf")
 
-UIMenu.add_to_ui_menu_updater = Game.game.add_to_ui_menu_updater
+UIMenu.add_to_ui_updater = Game.game.add_to_ui_updater
 UIMenu.button_sound_channel = Game.game.button_sound_channel
 UIMenu.data_dir = data_dir
 UIMenu.cache_font_text = Game.game.cache_font_text
 UIMenu.game = Game.game
 UIMenu.localisation = localisation
-UIMenu.remove_from_ui_menu_updater = Game.game.remove_from_ui_menu_updater
+UIMenu.remove_from_ui_updater = Game.game.remove_from_ui_updater
 UIMenu.screen_height = screen_size[1]
 UIMenu.screen_scale_height = 1
 UIMenu.screen_scale_width = 1
@@ -157,12 +157,12 @@ exclude_p*: Exclude body parts of p* from export and compile
 """
 
 
-def add_to_ui_menu_updater(*args):
+def add_to_ui_updater(*args):
     ui_drawer.add(*args)
     ui_updater.add(*args)
 
 
-def remove_from_ui_menu_updater(*args):
+def remove_from_ui_updater(*args):
     ui_drawer.remove(*args)
     ui_updater.remove(*args)
 
@@ -431,7 +431,7 @@ class Button(Sprite):
         if "ON" in help_button.text:  # enable help description
             if self.rect.collidepoint(mouse_pos) and self.description is not None and not mouse_left_up:
                 text_popup.popup(cursor.rect, self.description)
-                add_to_ui_menu_updater(text_popup)
+                add_to_ui_updater(text_popup)
 
 
 class SwitchButton(Button):
@@ -728,7 +728,7 @@ class NameBox(Sprite):
         if "ON" in help_button.text:  # enable help description
             if self.rect.collidepoint(mouse_pos) and self.description and not mouse_left_up:
                 text_popup.popup(cursor.rect, self.description)
-                add_to_ui_menu_updater(text_popup)
+                add_to_ui_updater(text_popup)
 
 
 class ColourWheel(Sprite):
@@ -1516,7 +1516,7 @@ edit_delay = 0
 text_input_popup = (None, None)
 current_pool = animation_pool_data
 
-add_to_ui_menu_updater(cursor)
+add_to_ui_updater(cursor)
 
 showroom_size = default_sprite_size
 showroom_camera_pos = [0, 0]
@@ -1526,7 +1526,7 @@ showroom_base_point = ((default_sprite_size[0] / 2) + showroom_camera_pos[0],
                        (default_sprite_size[1] * 0.9) + showroom_camera_pos[1])
 showroom.showroom_base_point = ((showroom_size[0] / 2) + showroom_camera_pos[0],
                                 (showroom_size[1] * 0.9) + showroom_camera_pos[1])
-add_to_ui_menu_updater(showroom)
+add_to_ui_updater(showroom)
 
 image = smoothscale(load_image(current_data_dir, "film.png", screen_scale, "animation_maker_ui"),
                     (int(50 * screen_scale[0]), int(50 * screen_scale[1])))
@@ -1841,7 +1841,7 @@ frame_property_select = [[] for _ in range(max_frame)]
 anim_property_select = []
 anim_prop_list_box.scroll.change_image(new_row=0, row_size=len(anim_prop_list_box.namelist))
 frame_prop_list_box.scroll.change_image(new_row=0, row_size=len(frame_prop_list_box.namelist[current_frame]))
-add_to_ui_menu_updater(anim_prop_list_box, frame_prop_list_box, anim_prop_list_box.scroll, frame_prop_list_box.scroll)
+add_to_ui_updater(anim_prop_list_box, frame_prop_list_box, anim_prop_list_box.scroll, frame_prop_list_box.scroll)
 
 animation_selector = NameBox((600, image.get_height()), (screen_size[0] / 2, 0))
 part_selector = NameBox((300, image.get_height()), (reset_button.image.get_width() * 3.5,
@@ -1952,7 +1952,7 @@ while True:
     elif pygame.mouse.get_pressed()[2]:  # Hold left click
         mouse_right_down = True
 
-    remove_from_ui_menu_updater(text_popup)
+    remove_from_ui_updater(text_popup)
 
     if text_delay > 0:
         text_delay -= ui_dt
@@ -2175,25 +2175,25 @@ while True:
                                     text_input_popup = ("text_input", "new_character")
                                     input_ui.change_instruction("Enter Name:")
                                     input_box.render_text("")
-                                    add_to_ui_menu_updater(input_ui_popup)
+                                    add_to_ui_updater(input_ui_popup)
                                 elif animation_character != name.name:
                                     text_input_popup = ("confirm_input", "save_first", name.name)
                                     input_ui.change_instruction("Save Data First?")
-                                    add_to_ui_menu_updater(input_ui_popup)
+                                    add_to_ui_updater(input_ui_popup)
                             elif popup_list_box.action == "animation_select":
                                 if animation_name != name.name:
                                     change_animation(name.name)
                             for this_name in popup_namegroup:  # remove name list
                                 this_name.kill()
                                 del this_name
-                            remove_from_ui_menu_updater(popup_list_box, popup_list_box.scroll)
+                            remove_from_ui_updater(popup_list_box, popup_list_box.scroll)
                             popup_list_box.scroll.current_row = 0  # reset row
 
                 elif not popup_list_box.scroll.rect.collidepoint(mouse_pos):  # click other stuffs
                     for this_name in popup_namegroup:  # remove name list
                         this_name.kill()
                         del this_name
-                    remove_from_ui_menu_updater(popup_list_box, popup_list_box.scroll)
+                    remove_from_ui_updater(popup_list_box, popup_list_box.scroll)
 
             if not popup_click:  # button that can be clicked even when animation playing
                 if play_animation_button.rect.collidepoint(mouse_pos):
@@ -2220,7 +2220,7 @@ while True:
 
                 elif showroom_colour_button.rect.collidepoint(mouse_pos):
                     text_input_popup = ("text_input", "showroom_colour_")
-                    add_to_ui_menu_updater(colour_ui_popup)
+                    add_to_ui_updater(colour_ui_popup)
 
                 elif anim_prop_list_box.rect.collidepoint(mouse_pos) or frame_prop_list_box.rect.collidepoint(
                         mouse_pos):
@@ -2250,18 +2250,18 @@ while True:
                                     if name.name == "Custom":
                                         text_input_popup = ("text_input", "new_anim_prop")
                                         input_ui.change_instruction("Custom Property:")
-                                        add_to_ui_menu_updater(input_ui_popup)
+                                        add_to_ui_updater(input_ui_popup)
                                     elif name.name[-1] == "_" or re.search("[a-zA-Z]",
                                                                            name.name.split("_")[-1]) is None:
                                         # property that need number value
                                         if not name.selected:
                                             if "colour" in name.name:
                                                 text_input_popup = ("text_input", naming + "_prop_colour_" + name.name)
-                                                add_to_ui_menu_updater(colour_ui_popup)
+                                                add_to_ui_updater(colour_ui_popup)
                                             else:
                                                 text_input_popup = ("text_input", naming + "_prop_num_" + name.name)
                                                 input_ui.change_instruction("Input Number Value:")
-                                                add_to_ui_menu_updater(input_ui_popup)
+                                                add_to_ui_updater(input_ui_popup)
                                     else:
                                         name.select()
                                         select_list.append(name.name)
@@ -2286,7 +2286,7 @@ while True:
                     elif speed_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("text_input", "change_speed")
                         input_ui.change_instruction("Input Time Value:")
-                        add_to_ui_menu_updater(input_ui_popup)
+                        add_to_ui_updater(input_ui_popup)
 
                     elif all_copy_button.rect.collidepoint(mouse_pos):
                         copy_list = []
@@ -2506,7 +2506,7 @@ while True:
                         text_input_popup = ("text_input", "new_name")
                         input_ui.change_instruction("Rename Animation:")
                         input_box.render_text(animation_name)
-                        add_to_ui_menu_updater(input_ui_popup)
+                        add_to_ui_updater(input_ui_popup)
 
                     elif duplicate_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("text_input", "duplicate_animation")
@@ -2520,7 +2520,7 @@ while True:
                             last_char = str(int(animation_name[-2]) + 1)
                         input_box.render_text(animation_name + "(copy" + last_char + ")")
 
-                        add_to_ui_menu_updater(input_ui_popup)
+                        add_to_ui_updater(input_ui_popup)
 
                     elif filter_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("text_input", "filter")
@@ -2530,17 +2530,17 @@ while True:
                             input_filter = input_filter.replace(character, "")
                         input_filter = input_filter.replace(", ", ",")
                         input_box.render_text(input_filter)
-                        add_to_ui_menu_updater(input_ui_popup)
+                        add_to_ui_updater(input_ui_popup)
 
                     elif export_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("confirm_input", "export_animation")
                         input_ui.change_instruction("Export to PNGs?")
-                        add_to_ui_menu_updater(input_ui_popup)
+                        add_to_ui_updater(input_ui_popup)
 
                     elif export_full_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("confirm_input", "export_full_animation")
                         input_ui.change_instruction("Export to a Full PNGs?")
-                        add_to_ui_menu_updater(input_ui_popup)
+                        add_to_ui_updater(input_ui_popup)
 
                     elif flip_hori_button.rect.collidepoint(mouse_pos):
                         model.edit_part(mouse_pos, "flip1", specific_frame=current_frame)
@@ -2551,12 +2551,12 @@ while True:
                     elif zoom_d_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("text_input", "change_d_zoom")
                         input_ui.change_instruction("Input new selected parts' zoom value")
-                        add_to_ui_menu_updater(input_ui_popup)
+                        add_to_ui_updater(input_ui_popup)
 
                     elif zoom_dplus_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("text_input", "change_dplus_zoom")
                         input_ui.change_instruction("Input change to selected parts' zoom value")
-                        add_to_ui_menu_updater(input_ui_popup)
+                        add_to_ui_updater(input_ui_popup)
 
                     # elif flip_vert_button.rect.collidepoint(mouse_pos):
                     #     model.edit_part(mouse_pos, "flip2", specific_frame=current_frame)
@@ -2613,7 +2613,7 @@ while True:
                         if sound_selector.text != "None":
                             text_input_popup = ("text_input", "change_sound_distance")
                             input_ui.change_instruction("Input sound distance value:")
-                            add_to_ui_menu_updater(input_ui_popup)
+                            add_to_ui_updater(input_ui_popup)
 
                     elif character_part_button.rect.collidepoint(mouse_pos):
                         if model.part_selected:
@@ -2637,33 +2637,33 @@ while True:
                         text_input_popup = ("text_input", "new_animation")
                         input_ui.change_instruction("New Animation Name:")
                         input_box.render_text("")
-                        add_to_ui_menu_updater(input_ui_popup)
+                        add_to_ui_updater(input_ui_popup)
 
                     elif save_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("confirm_input", "save_animation")
                         input_ui.change_instruction("Save Data?")
-                        add_to_ui_menu_updater(input_ui_popup)
+                        add_to_ui_updater(input_ui_popup)
 
                     elif compile_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("confirm_input", "compile_animation")
                         input_ui.change_instruction("Compile This Char Anim?")
-                        add_to_ui_menu_updater(input_ui_popup)
+                        add_to_ui_updater(input_ui_popup)
 
                     elif compile_all_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("confirm_input", "compile_all_animation")
                         input_ui.change_instruction("Compile All Anim?")
-                        add_to_ui_menu_updater(input_ui_popup)
+                        add_to_ui_updater(input_ui_popup)
 
                     elif delete_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("confirm_input", "del_animation")
                         input_ui.change_instruction("Delete This Animation?")
-                        add_to_ui_menu_updater(input_ui_popup)
+                        add_to_ui_updater(input_ui_popup)
 
                     elif size_button.rect.collidepoint(mouse_pos):
                         text_input_popup = ("text_input", "change_size")
                         input_ui.change_instruction("Input Size Number:")
                         input_box.render_text("")
-                        add_to_ui_menu_updater(input_ui_popup)
+                        add_to_ui_updater(input_ui_popup)
 
                     elif animation_selector.rect.collidepoint(mouse_pos):
                         animation_list = list(current_pool[animation_character].keys())
@@ -3085,7 +3085,7 @@ while True:
 
             input_box.render_text("")
             text_input_popup = (None, None)
-            remove_from_ui_menu_updater(*input_ui_popup, *colour_ui_popup)
+            remove_from_ui_updater(*input_ui_popup, *colour_ui_popup)
 
         elif colour_wheel in ui_updater and mouse_left_up and colour_wheel.rect.collidepoint(mouse_pos):
             colour = str(colour_wheel.get_colour())
@@ -3100,7 +3100,7 @@ while True:
             colour_cancel_button.event = False
             input_box.render_text("")
             text_input_popup = (None, None)
-            remove_from_ui_menu_updater(*input_ui_popup, *confirm_ui_popup, *colour_ui_popup)
+            remove_from_ui_updater(*input_ui_popup, *confirm_ui_popup, *colour_ui_popup)
 
     ui_updater.update(dt)
     anim.play(showroom.image, (0, 0), activate_list)

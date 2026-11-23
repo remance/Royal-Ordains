@@ -1,4 +1,5 @@
 from engine.army.change_commander import change_commander
+from engine.army.change_follower import change_follower
 from engine.army.change_phase import change_phase
 from engine.army.check_assemble import check_assemble
 from engine.army.check_enemy_army import check_enemy_army
@@ -6,9 +7,7 @@ from engine.army.deploy_army_from_reserve import deploy_army_from_reserve
 from engine.army.issue_move_command import issue_move_command
 from engine.army.remove_army_from_active import remove_army_from_active
 from engine.army.remove_army_from_reserve import remove_army_from_reserve
-from engine.army.change_follower import change_follower
 from engine.army.reset_stat import reset_stat
-
 from engine.utils.common import empty_method
 
 
@@ -107,7 +106,9 @@ class GarrisonArmy(Army):
     change_phase = empty_method
 
     def __init__(self, army_id: str, faction: str, culture: str, commander_char_id: str, army_followers: dict,
-                 garrison_strategy: tuple | list = (), grand_state=None):
+                 garrison_strategy: tuple | list = ()):
         Army.__init__(self, army_id, faction, culture, commander_char_id, army_followers,
-                      0, 0, is_garrison=True, garrison_strategy=garrison_strategy,
-                      grand_state=grand_state)
+                      0, 0, is_garrison=True, garrison_strategy=garrison_strategy)
+        self.total_supply_usage = 0  # garrison army does not use supply to call unit
+        if self.faction == self.grand.player_faction:
+            self.belong_to_player_faction = True

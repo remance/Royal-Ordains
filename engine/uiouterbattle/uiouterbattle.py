@@ -20,8 +20,8 @@ from engine.utils.text_making import text_render_with_bg, text_render_with_textu
 class UIOuterBattle(UIBattle):
     cursor = None
     text_popup = None
-    add_to_outer_ui_menu_updater = None
-    remove_from_outer_ui_menu_updater = None
+    add_to_outer_ui_updater = None
+    remove_from_outer_ui_updater = None
 
     def __init__(self, player_cursor_interact=True, has_containers=False):
         """
@@ -507,7 +507,7 @@ class Command(UIOuterBattle):
         if call_remain:
             char_stat.append(grab_text(("ui", "info_header_call_remain")) + str(call_remain))
         self.text_popup.popup(self.rect.bottomleft, char_stat, width_text_wrapper=self.max_description_box_width)
-        self.add_to_outer_ui_menu_updater(self.text_popup)
+        self.add_to_outer_ui_updater(self.text_popup)
 
     def reset(self):
         self.image = self.base_image.copy()
@@ -747,7 +747,7 @@ class BattleHelper(UIOuterBattle):
             if not helper_mouse_over:
                 self.text_popup.popup(("topright", self.rect.bottomright), self.battle_info_text,
                                       width_text_wrapper=self.max_description_box_width)
-                self.add_to_outer_ui_menu_updater(self.text_popup)
+                self.add_to_outer_ui_updater(self.text_popup)
         if must_reset_image:
             self.reset_image()
 
@@ -757,6 +757,8 @@ class BattleHelper(UIOuterBattle):
 
 
 class TacticalMap(UIOuterBattle):
+    commander_icon_border = {}
+
     def __init__(self, tactic_alert_image):
         self._layer = 10
         UIOuterBattle.__init__(self)
@@ -768,7 +770,7 @@ class TacticalMap(UIOuterBattle):
         self.update_timer = 0
         self.map_scale_width = 1
         self.base_image = Surface((2200 * self.screen_scale_width, 200 * self.screen_scale_height), SRCALPHA)
-        self.base_image.fill((255, 255, 255, 125))
+        self.base_image.fill((155, 155, 155, 125))
         self.air_icon_pos_y = 30 * self.screen_scale_height
         self.strategy_alert_pos_y = 80 * self.screen_scale_height
         self.ground_icon_pos_y = 190 * self.screen_scale_height
@@ -783,8 +785,9 @@ class TacticalMap(UIOuterBattle):
         self.rect = self.image.get_rect(midtop=(self.screen_width / 2, 0))
         self.strategy_status = []
 
-        self.commander_icon_border = {team: self.make_icon_border(team, colour_modifier=1.5) for
-                                      team in Team_Colour}
+        if not self.commander_icon_border:
+            for team in Team_Colour:
+                self.commander_icon_border[team] = self.make_icon_border(team, colour_modifier=1.5)
         self.icon_width = self.commander_icon_border[1].get_width()
         self.icon_height = self.commander_icon_border[1].get_height()
         self.icon_center = (int(self.icon_width / 2), int(self.icon_height / 2))
@@ -800,7 +803,7 @@ class TacticalMap(UIOuterBattle):
             self.troop_dot_images[team] = dot
         self.character_rect = {}
 
-    def make_icon_border(self, team, colour_modifier=1):
+    def make_icon_border(self, team, colour_modifier: (int, float) = 1):
         image = Surface((200 * self.screen_scale_width, 200 * self.screen_scale_height), SRCALPHA)
         if colour_modifier != 1:
             draw.circle(image, [value * colour_modifier if value * colour_modifier <= 255 else 255
@@ -812,16 +815,18 @@ class TacticalMap(UIOuterBattle):
 
         return image
 
-    def setup(self):
+    def setup(self, add_camera=True):
         self.commander_health_state = {1: None, 2: None}
         self.commander_icon = {1: None, 2: None}
         self.strategy_status = []
         self.player_team = self.battle.player_team
         self.map_scale_width = self.battle.base_stage_end / self.image_width
-        self.camera_border_image = Surface((Default_Screen_Width / self.map_scale_width,
-                                            200 * self.screen_scale_height), SRCALPHA)
-        draw.rect(self.camera_border_image, (0, 0, 0), (0, 0, self.camera_border_image.get_width(), self.image_height),
-                  width=int(15 * self.screen_scale_width))
+        if add_camera:
+            self.camera_border_image = Surface((Default_Screen_Width / self.map_scale_width,
+                                                200 * self.screen_scale_height), SRCALPHA)
+            draw.rect(self.camera_border_image, (0, 0, 0),
+                      (0, 0, self.camera_border_image.get_width(), self.image_height),
+                      width=int(15 * self.screen_scale_width))
 
     def warn_strategy(self, strategy_base_posx):
         """Add bell icon to warn where enemy use strategy"""
@@ -829,101 +834,105 @@ class TacticalMap(UIOuterBattle):
                                            self.battle.base_camera_center_pos, 2000000, 0)
         self.strategy_status.append([strategy_base_posx / self.map_scale_width, 3])
 
-    def update(self, dt):
-        """update map"""
+    def draw_battle(self, add_camera=True):
         battle = self.battle
         player_team = battle.player_team
-        self.update_timer += battle.true_dt
-        if self.update_timer > 0.05:
-            self.image = self.base_image.copy()
-            image = self.image
-            map_scale_width = self.map_scale_width
-            # Draw camera border
+        self.image = self.base_image.copy()
+        image = self.image
+        map_scale_width = self.map_scale_width
+        # Draw camera border
+        if add_camera:
             image.blit(self.camera_border_image, self.camera_border_image.get_rect(
                 topleft=(battle.base_camera_left_bound / map_scale_width, 0)))
 
-            # draw commander
-            team_commander = battle.team_commander
-            for team, character in team_commander.items():
-                if character and (not character.invisible or character.team == player_team):
-                    # still show player character when invisible on map
-                    scaled_pos = (character.base_pos[0] / map_scale_width, self.ground_commander_icon_pos_y)
-                    health_state = round(character.health / character.base_health, 1)
-                    if health_state != self.commander_health_state[team]:
-                        # circle also indicate health
-                        back_icon = self.commander_icon_border[character.team].subsurface((
-                            0, self.icon_height - (self.icon_height * health_state),
-                            self.icon_width, self.icon_height - (self.icon_height * (1 - health_state))))
-                        back_command_icon = self.empty_command_icon.copy()
-                        back_command_icon.blit(back_icon, back_icon.get_rect(bottomleft=(0, self.icon_height)))
-                        character_icon = character.icon[character.direction]
-                        back_command_icon.blit(character_icon, character_icon.get_rect(center=self.icon_center))
-                        self.commander_icon[team] = back_command_icon
-                    image.blit(self.commander_icon[team], self.commander_icon[team].get_rect(midbottom=scaled_pos))
+        # draw commander
+        team_commander = battle.team_commander
+        for team, character in team_commander.items():
+            if character and (player_team and (not character.invisible or character.team == player_team)):
+                # still show player character when invisible on map
+                scaled_pos = (character.base_pos[0] / map_scale_width, self.ground_commander_icon_pos_y)
+                health_state = round(character.health / character.base_health, 1)
+                if health_state != self.commander_health_state[team]:
+                    # circle also indicate health
+                    back_icon = self.commander_icon_border[character.team].subsurface((
+                        0, self.icon_height - (self.icon_height * health_state),
+                        self.icon_width, self.icon_height - (self.icon_height * (1 - health_state))))
+                    back_command_icon = self.empty_command_icon.copy()
+                    back_command_icon.blit(back_icon, back_icon.get_rect(bottomleft=(0, self.icon_height)))
+                    character_icon = character.icon[character.direction]
+                    back_command_icon.blit(character_icon, character_icon.get_rect(center=self.icon_center))
+                    self.commander_icon[team] = back_command_icon
+                image.blit(self.commander_icon[team], self.commander_icon[team].get_rect(midbottom=scaled_pos))
 
-            # Draw character dots
-            air_icon_pos_y = self.air_icon_pos_y
-            ground_icon_pos_y = self.ground_icon_pos_y
-            for team, character_team in self.all_team_ally.items():
-                dot_image = self.troop_dot_images[team]
-                for character in character_team:
-                    if not character.invisible or character.team == player_team:
-                        if character.character_type == "air":
-                            image.blit(dot_image, dot_image.get_rect(midbottom=(
-                                character.base_pos[0] / map_scale_width, air_icon_pos_y)))
-                        elif not character.is_commander:
-                            image.blit(dot_image, dot_image.get_rect(midbottom=(
-                                character.base_pos[0] / map_scale_width, ground_icon_pos_y)))
+        # Draw character dots
+        air_icon_pos_y = self.air_icon_pos_y
+        ground_icon_pos_y = self.ground_icon_pos_y
+        for team, character_team in self.all_team_ally.items():
+            dot_image = self.troop_dot_images[team]
+            for character in character_team:
+                if not character.invisible or character.team == player_team:
+                    if character.character_type == "air":
+                        image.blit(dot_image, dot_image.get_rect(midbottom=(
+                            character.base_pos[0] / map_scale_width, air_icon_pos_y)))
+                    elif not character.is_commander:
+                        image.blit(dot_image, dot_image.get_rect(midbottom=(
+                            character.base_pos[0] / map_scale_width, ground_icon_pos_y)))
 
-            if battle.player_selected_strategy:
-                # draw activation line
-                line_start = ((team_commander[self.player_team].base_pos[
-                                   0] - self.current_strategy_base_activate_range) /
-                              map_scale_width)
-                line_end = ((team_commander[self.player_team].base_pos[
-                                 0] + self.current_strategy_base_activate_range) /
-                            map_scale_width)
+        if battle.player_selected_strategy:
+            # draw activation line
+            line_start = ((team_commander[self.player_team].base_pos[
+                               0] - self.current_strategy_base_activate_range) /
+                          map_scale_width)
+            line_end = ((team_commander[self.player_team].base_pos[
+                             0] + self.current_strategy_base_activate_range) /
+                        map_scale_width)
+            if line_start < 0:
+                line_start = 0
+            if line_end > self.image_width:
+                line_end = self.image_width
+            draw.line(image, (80, 120, 200),
+                      (line_start, 0),
+                      (line_start, self.image_height), width=self.strategy_line_width)
+
+            draw.line(image, (80, 120, 200),
+                      (line_end, 0),
+                      (line_end, self.image_height), width=self.strategy_line_width)
+
+            if battle.player_interact.show_strategy_activate_line:
+                # draw strategy range if player cursor is within activation range, mean strategy can be used
+                line_start = (battle.base_cursor_pos[
+                                  0] - self.current_strategy_base_range) / map_scale_width
+                line_end = (battle.base_cursor_pos[
+                                0] + self.current_strategy_base_range) / map_scale_width
                 if line_start < 0:
                     line_start = 0
                 if line_end > self.image_width:
                     line_end = self.image_width
-                draw.line(image, (80, 120, 200),
+
+                draw.line(image, (120, 180, 80),
                           (line_start, 0),
                           (line_start, self.image_height), width=self.strategy_line_width)
 
-                draw.line(image, (80, 120, 200),
+                draw.line(image, (120, 180, 80),
                           (line_end, 0),
                           (line_end, self.image_height), width=self.strategy_line_width)
 
-                if battle.player_interact.show_strategy_activate_line:
-                    # draw strategy range if player cursor is within activation range, mean strategy can be used
-                    line_start = (battle.base_cursor_pos[
-                                      0] - self.current_strategy_base_range) / map_scale_width
-                    line_end = (battle.base_cursor_pos[
-                                    0] + self.current_strategy_base_range) / map_scale_width
-                    if line_start < 0:
-                        line_start = 0
-                    if line_end > self.image_width:
-                        line_end = self.image_width
+        if self.strategy_status:
+            for status in self.strategy_status:
+                status[1] -= self.update_timer
+                image.blit(self.tactic_alert_image,
+                           self.tactic_alert_image.get_rect(center=(status[0],
+                                                                    self.strategy_alert_pos_y)))
 
-                    draw.line(image, (120, 180, 80),
-                              (line_start, 0),
-                              (line_start, self.image_height), width=self.strategy_line_width)
+                if status[1] <= 0:
+                    self.strategy_status.remove(status)
 
-                    draw.line(image, (120, 180, 80),
-                              (line_end, 0),
-                              (line_end, self.image_height), width=self.strategy_line_width)
-
-            if self.strategy_status:
-                for status in self.strategy_status:
-                    status[1] -= self.update_timer
-                    image.blit(self.tactic_alert_image,
-                               self.tactic_alert_image.get_rect(center=(status[0],
-                                                                        self.strategy_alert_pos_y)))
-
-                    if status[1] <= 0:
-                        self.strategy_status.remove(status)
-
+    def update(self, dt, add_camera=True):
+        """update map"""
+        battle = self.battle
+        self.update_timer += battle.true_dt
+        if self.update_timer > 0.05:
+            self.draw_battle()
             self.update_timer -= 0.1
         if UIMenu.update(self, dt):
             if self.event_press or self.event_alt_press:
@@ -1056,7 +1065,7 @@ class StrategySelect(UIOuterBattle):
                             text = self.cache_strategy_text_list[this_strategy]
                         self.text_popup.popup(self.rect.bottomleft, text,
                                               width_text_wrapper=self.max_description_box_width)
-                        self.add_to_outer_ui_menu_updater(self.text_popup)
+                        self.add_to_outer_ui_updater(self.text_popup)
                         if self.event_press:
                             if not min(tuple(self.player_team_stat["strategy_cooldown"].values())[index]):
                                 key_select_strategy(self.battle, index)
@@ -1303,6 +1312,7 @@ class Profiler(cProfile.Profile, UIOuterBattle):
 
     def __init__(self):
         UIOuterBattle.__init__(self, player_cursor_interact=False)
+        cProfile.Profile.__init__(self)
         self.size = (1200, 600)
         self.image = Surface(self.size)
         self.rect = Rect((0, 0, *self.size))
@@ -1326,7 +1336,6 @@ class Profiler(cProfile.Profile, UIOuterBattle):
             info_str = s_io.getvalue()
             self.enable()  # profiler must be re-enabled after get stats
             self.image.fill(0x112233)
-            self.image.blit(self.font.render("press F7 to clear times", True, Color("white")), (0, 0))
             for e, line in enumerate(info_str.split("\n"), 1):
                 self.image.blit(self.font.render(line, True, Color("white")), (0, e * 20))
         else:

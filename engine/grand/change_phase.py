@@ -142,3 +142,7 @@ def change_phase(self: Grand, phase_change: bool = True):
             self.culture_management_ui.reset()
         elif self.diplomacy_management_ui in self.outer_ui_updater:
             self.diplomacy_management_ui.reset()
+
+    if self.tactical_map_ui in self.outer_ui_updater:
+        self.tactical_map_ui.update_timer = 1
+        self.tactical_map_ui.update(0, add_camera=False)

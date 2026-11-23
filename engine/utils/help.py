@@ -15,8 +15,8 @@ class FakeGame:
         self.play_effect_volume = 0
         self.dt = 0.01
         self.sound_effect_pool = sound_effect_pool
-        self.add_to_ui_menu_updater = None
-        self.remove_from_ui_menu_updater = None
+        self.add_to_ui_updater = None
+        self.remove_from_ui_updater = None
         self.button_sound_channel = None
         self.cache_font_text = {}
         self.config = {"VERSION": {

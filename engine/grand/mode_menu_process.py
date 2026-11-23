@@ -15,7 +15,7 @@ from engine.utils.common import edit_config
 
 def mode_menu_process(self: Grand):
     camera = self.camera
-    self.ui_menu_updater.update(self.true_dt)
+    self.ui_updater.update(self.true_dt)
     camera.update_with_in_camera_check(self.grand_camera_region_drawer)
     # add route after map region draw to blit route dots on the map under other sprites.
     self.draw_route()
@@ -23,7 +23,7 @@ def mode_menu_process(self: Grand):
     camera.update_with_in_camera_check(self.grand_camera_object_drawer)
     camera.update(self.grand_camera_ui_drawer)
     camera.out_update(self.outer_ui_drawer)
-    camera.out_update(self.ui_menu_drawer)
+    camera.out_update(self.ui_drawer)
 
     if self.input_popup:  # currently, have input text pop up on screen, stop everything else until done.
         if self.input_ok_button.event_press:
@@ -31,7 +31,7 @@ def mode_menu_process(self: Grand):
             self.input_box.render_text("")
             input_popup = self.input_popup[1]
             self.input_popup = None
-            self.remove_from_ui_menu_updater(self.input_popup_uis, self.confirm_popup_uis, self.all_input_popup_uis)
+            self.remove_from_ui_updater(self.input_popup_uis, self.confirm_popup_uis, self.all_input_popup_uis)
 
             if input_popup == "quit":
                 pygame.time.wait(1000)
@@ -46,7 +46,7 @@ def mode_menu_process(self: Grand):
             self.change_pause_update(False)
             self.input_box.render_text("")
             self.input_popup = None
-            self.remove_from_ui_menu_updater(self.all_input_popup_uis)
+            self.remove_from_ui_updater(self.all_input_popup_uis)
     else:
         if self.esc_press and self.esc_menu_mode == "menu":  # in menu or option
             self.back_to_grand_state()
@@ -59,16 +59,16 @@ def mode_menu_process(self: Grand):
 
                     elif key == "option":  # open option menu
                         self.esc_menu_mode = "option"  # change to option menu mode
-                        self.remove_from_ui_menu_updater(
+                        self.remove_from_ui_updater(
                             self.grand_menu_button.values())  # remove start_set esc menu button
-                        self.add_to_ui_menu_updater(self.esc_option_menu_button, self.esc_slider_menu.values(),
-                                                    self.esc_value_boxes.values(), self.esc_option_text.values())
+                        self.add_to_ui_updater(self.esc_option_menu_button, self.esc_slider_menu.values(),
+                                               self.esc_value_boxes.values(), self.esc_option_text.values())
 
                     elif key == "save":  # open save menu
                         self.esc_menu_mode = "save"  # change to option menu mode
-                        self.remove_from_ui_menu_updater(
+                        self.remove_from_ui_updater(
                             self.grand_menu_button.values())  # remove start_set esc menu button
-                        self.add_to_ui_menu_updater()
+                        self.add_to_ui_updater()
 
                     elif key == "end":  # end battle
                         self.activate_input_popup(("confirm_input", "end_grand"),
@@ -91,17 +91,17 @@ def mode_menu_process(self: Grand):
 
             if self.esc_option_menu_button.event_press or self.esc_press:  # confirm or esc, close option menu
                 self.esc_menu_mode = "menu"  # go back to start_set esc menu
-                self.remove_from_ui_menu_updater(self.esc_option_menu_button, self.esc_slider_menu.values(),
-                                                 self.esc_value_boxes.values(),
-                                                 self.esc_option_text.values())  # remove option menu sprite
-                self.add_to_ui_menu_updater(self.grand_menu_button.values())  # add start_set esc menu buttons back
+                self.remove_from_ui_updater(self.esc_option_menu_button, self.esc_slider_menu.values(),
+                                            self.esc_value_boxes.values(),
+                                            self.esc_option_text.values())  # remove option menu sprite
+                self.add_to_ui_updater(self.grand_menu_button.values())  # add start_set esc menu buttons back
 
 
 def back_to_grand_state(self):
-    self.remove_from_ui_menu_updater(self.grand_menu_button.values(), self.esc_option_menu_button,
-                                     self.esc_slider_menu.values(), self.cursor,
-                                     self.esc_value_boxes.values(), self.esc_option_text.values())
-    self.add_to_outer_ui_menu_updater(self.cursor)
+    self.remove_from_ui_updater(self.grand_menu_button.values(), self.esc_option_menu_button,
+                                self.esc_slider_menu.values(), self.cursor,
+                                self.esc_value_boxes.values(), self.esc_option_text.values())
+    self.add_to_outer_ui_updater(self.cursor)
     self.music_channel.set_volume(self.play_music_volume)
     self.music_channel.unpause()
     self.ambient_channel.set_volume(self.play_effect_volume)

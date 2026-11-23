@@ -167,8 +167,8 @@ class Battle:
         # battle object group
         self.battle_camera_object_drawer = sprite.LayeredUpdates()
         self.battle_camera_ui_drawer = sprite.LayeredUpdates()  # this is drawer for ui in battle, does not move alonge with camera
-        self.ui_menu_updater = ReversedLayeredUpdates()
-        self.ui_menu_drawer = sprite.LayeredUpdates()
+        self.ui_updater = ReversedLayeredUpdates()
+        self.ui_drawer = sprite.LayeredUpdates()
 
         self.battle_character_updater = ReversedLayeredUpdates()  # updater for character objects,
         # higher layer characters got update first for the purpose of blit culling check
@@ -277,8 +277,8 @@ class Battle:
         UIBattle.battle_effect_updater = self.battle_effect_updater
         UIOuterBattle.cursor = self.battle_cursor  # use battle cursor for battle ui
         UIOuterBattle.text_popup = self.text_popup
-        UIOuterBattle.add_to_outer_ui_menu_updater = self.add_to_outer_ui_menu_updater
-        UIOuterBattle.remove_from_outer_ui_menu_updater = self.remove_from_outer_ui_menu_updater
+        UIOuterBattle.add_to_outer_ui_updater = self.add_to_outer_ui_updater
+        UIOuterBattle.remove_from_outer_ui_updater = self.remove_from_outer_ui_updater
 
         self.before_pause_game_speed = 1
         self.game_speed = 1
@@ -512,19 +512,19 @@ class Battle:
         self.player_enemy_team = None
         # add common battle ui
         if self.game.show_fps:
-            self.add_to_outer_ui_menu_updater(self.fps_count)
+            self.add_to_outer_ui_updater(self.fps_count)
         else:
-            self.remove_from_outer_ui_menu_updater(self.fps_count)
-        self.add_to_outer_ui_menu_updater(self.always_command_ui)
+            self.remove_from_outer_ui_updater(self.fps_count)
+        self.add_to_outer_ui_updater(self.always_command_ui)
         if self.player_team:
             self.player_enemy_team = (0, 2, 1)[self.player_team]
             self.player_culture = team_state[self.player_team]["culture"]
             self.player_input = MethodType(player_input_battle, self)
-            self.add_to_outer_ui_menu_updater(self.only_player_command_ui)
+            self.add_to_outer_ui_updater(self.only_player_command_ui)
         else:  # no player in battle, use another method that does not allow some hotkey input
             self.player_input = MethodType(battle_no_player_input_battle, self)
             self.player_culture = Custom_Default_Culture
-            self.remove_from_outer_ui_menu_updater(self.only_player_command_ui)
+            self.remove_from_outer_ui_updater(self.only_player_command_ui)
 
         # Stop all sound
         self.music_channel.stop()
@@ -773,8 +773,8 @@ class Battle:
         self.player_key_hold = {key: False for key in self.player_key_bind}
 
         self.screen.fill((0, 0, 0))
-        self.add_to_outer_ui_menu_updater(self.battle_cursor)
-        self.remove_from_ui_menu_updater(self.cursor)
+        self.add_to_outer_ui_updater(self.battle_cursor)
+        self.remove_from_ui_updater(self.cursor)
 
         if self.start_cutscene:
             # play start cutscene
@@ -786,11 +786,11 @@ class Battle:
         frame = 0
         clear_event()
         while True:  # battle running
-            # frame += 1
+            frame += 1
 
-            # if frame % 30 == 0 and hasattr(self.game, "profiler"):  # Remove for stable release, along with dev key
-            #     self.game.profiler.refresh()
-            #     frame = 0
+            if frame % 30 == 0 and hasattr(self.game, "profiler"):  # Remove for stable release, along with dev key
+                self.game.profiler.refresh()
+                frame = 0
 
             key_state = pygame.key.get_pressed()
             self.esc_press = False
@@ -873,13 +873,13 @@ class Battle:
                         self.grand_event_notification.add_event(("event_good", "test"))
                     elif event.key == K_KP_7:
                         self.activate_strategy(2, "Spell_huge_stone", 1000)
-                    # elif event.key == K_KP_8:  # clear profiler
-                    #     if hasattr(self.game, "profiler"):
-                    #         self.game.profiler.clear()
-                    # elif event.key == K_KP_9:  # show/hide profiler
-                    #     if not hasattr(self.game, "profiler"):
-                    #         self.game.setup_profiler()
-                    #     self.game.profiler.switch_show_hide()
+                    elif event.key == K_F11:  # clear profiler
+                        if self.game.profiler in self.outer_ui_updater:
+                            self.game.profiler.clear()
+                    elif event.key == K_F12:  # show/hide profiler
+                        if self.game.profiler not in self.outer_ui_updater:
+                            self.game.setup_profiler(self)
+                        self.game.profiler.switch_show_hide()
 
             return_state = self.mode_process()  # run code based on current state
             if return_state is not None:
@@ -888,19 +888,19 @@ class Battle:
             display.update()  # update game display, draw everything
             self.clock.tick(1000)  # clock update even if self pause
 
-    def add_to_ui_menu_updater(self, *args):
-        self.ui_menu_updater.add(*args)
-        self.ui_menu_drawer.add(*args)
+    def add_to_ui_updater(self, *args):
+        self.ui_updater.add(*args)
+        self.ui_drawer.add(*args)
 
-    def remove_from_ui_menu_updater(self, *args):
-        self.ui_menu_updater.remove(*args)
-        self.ui_menu_drawer.remove(*args)
+    def remove_from_ui_updater(self, *args):
+        self.ui_updater.remove(*args)
+        self.ui_drawer.remove(*args)
 
-    def add_to_outer_ui_menu_updater(self, *args):
+    def add_to_outer_ui_updater(self, *args):
         self.outer_ui_updater.add(*args)
         self.outer_ui_drawer.add(*args)
 
-    def remove_from_outer_ui_menu_updater(self, *args):
+    def remove_from_outer_ui_updater(self, *args):
         self.outer_ui_updater.remove(*args)
         self.outer_ui_drawer.remove(*args)
 
@@ -926,9 +926,9 @@ class Battle:
 
     def exit_battle(self):
         # remove menu and ui
-        self.remove_from_ui_menu_updater(self.battle_menu_button.values(), self.esc_slider_menu.values(),
-                                         self.esc_value_boxes.values(), self.esc_option_text.values(),
-                                         self.scene_translation_text_popup)
+        self.remove_from_ui_updater(self.battle_menu_button.values(), self.esc_slider_menu.values(),
+                                    self.esc_value_boxes.values(), self.esc_option_text.values(),
+                                    self.scene_translation_text_popup)
 
         self.battle_cursor.change_image("normal")
 
@@ -987,4 +987,4 @@ class Battle:
         self.battle_time = 0.0
         self.drama_timer = 0  # reset drama text popup
         self.ai_battle_speak_timer = 0
-        self.remove_from_outer_ui_menu_updater(self.drama_text)
+        self.remove_from_outer_ui_updater(self.drama_text)

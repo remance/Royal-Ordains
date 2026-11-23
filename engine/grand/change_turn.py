@@ -78,7 +78,7 @@ def change_turn(self: Grand, turn_change: bool = True):
                         region_state = campaign_region_state[region]
                         settlement_dot = region_state["dot"]
                         if (settlement_dot not in campaign_battle_state["dot"] or
-                                "free" in campaign_battle_state["factions"][settlement_dot]):
+                                "free" in campaign_battle_state["faction"][settlement_dot]):
                             # can only spawn rebel in region with no battle or free faction already fighting in it
                             happiness = region_state["income"]["happiness"]
                             if happiness < 0:

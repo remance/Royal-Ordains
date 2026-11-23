@@ -2,12 +2,11 @@ from math import ceil
 from random import choice
 
 from pygame import Vector2, Surface, SRCALPHA, Rect, draw, Color
-from pygame.sprite import spritecollideany
 
+from engine.constants import Base_Animation_Frame_Play_Time
 from engine.uibattle.uibattle import CharacterSpeechBox
 from engine.uimenu.uimenu import UIMenu, UIScroll
 from engine.uiouterbattle.drama import TextDrama
-from engine.constants import Base_Animation_Frame_Play_Time
 from engine.utils.text_making import (add_plus_to_number, add_comma_number, text_render_with_bg,
                                       make_long_text)
 
@@ -23,8 +22,8 @@ class UIOuterGrand(UIMenu):
         self.character_portraits = self.grand.character_portraits
         self.character_recruit_building_list = self.grand.stat_data.character_recruit_building_list
         self.text_popup = self.grand.text_popup
-        self.add_to_outer_ui_menu_updater = self.grand.add_to_outer_ui_menu_updater
-        self.remove_from_outer_ui_menu_updater = self.grand.remove_from_outer_ui_menu_updater
+        self.add_to_outer_ui_updater = self.grand.add_to_outer_ui_updater
+        self.remove_from_outer_ui_updater = self.grand.remove_from_outer_ui_updater
         self.max_description_box_width = int(1000 * self.screen_scale_width)
 
 
@@ -165,8 +164,8 @@ class DiplomacyHead(UIOuterGrand):
         self.current_animation = self.grand_diplomacy_animation_pool[character_id]["DIPLOMACY_" + speech_type]
         self.max_frame = len(self.current_animation) - 1
         self.image = self.current_animation[self.show_frame]["left"]["sprite"]
-        self.add_to_outer_ui_menu_updater(self)
-        self.add_to_outer_ui_menu_updater(DiplomacyHeadSpeechbox(self, choice(
+        self.add_to_outer_ui_updater(self)
+        self.add_to_outer_ui_updater(DiplomacyHeadSpeechbox(self, choice(
             self.grab_text(("diplomacy_speak", character_id))[speech_id])))
 
     def update(self, dt):
@@ -178,7 +177,7 @@ class DiplomacyHead(UIOuterGrand):
                 self.image = self.current_animation[self.show_frame]["left"]["sprite"]
         if self.speech not in self.grand.outer_ui_updater:
             self.speech = None
-            self.remove_from_outer_ui_menu_updater(self)
+            self.remove_from_outer_ui_updater(self)
 
 
 class FactionTopBar(UIOuterGrand):
@@ -265,7 +264,7 @@ class FactionTopBar(UIOuterGrand):
                                                 add_plus_to_number(add_comma_number(int(value2))))
                     self.text_popup.popup(self.cursor.rect, text,
                                           width_text_wrapper=self.max_description_box_width)
-                    self.add_to_outer_ui_menu_updater(self.text_popup)
+                    self.add_to_outer_ui_updater(self.text_popup)
                     break
 
 
@@ -367,15 +366,15 @@ class FactionCultureList(UIOuterGrand):
             if self.culture_management_button_rect.collidepoint(inside_mouse_pos):
                 if self.event_press:
                     if grand.culture_management_ui in grand.outer_ui_updater:
-                        self.remove_from_outer_ui_menu_updater(grand.player_collapsable_uis)
+                        self.remove_from_outer_ui_updater(grand.player_collapsable_uis)
                     else:
-                        self.remove_from_outer_ui_menu_updater(grand.player_collapsable_uis)
+                        self.remove_from_outer_ui_updater(grand.player_collapsable_uis)
                         grand.culture_management_ui.reset()
-                        self.add_to_outer_ui_menu_updater(grand.culture_management_uis)
+                        self.add_to_outer_ui_updater(grand.culture_management_uis)
                 else:
                     self.text_popup.popup(self.cursor.rect, grab_text(("ui", "info_text_policy_management")),
                                           width_text_wrapper=self.max_description_box_width)
-                    self.add_to_outer_ui_menu_updater(self.text_popup)
+                    self.add_to_outer_ui_updater(self.text_popup)
             else:
                 for culture, rect in self.culture_coa_rects.items():
                     if rect.collidepoint(inside_mouse_pos):
@@ -395,7 +394,7 @@ class FactionCultureList(UIOuterGrand):
                                 "penalty"])
                         self.text_popup.popup(self.cursor.rect, text,
                                               width_text_wrapper=self.max_description_box_width)
-                        self.add_to_outer_ui_menu_updater(self.text_popup)
+                        self.add_to_outer_ui_updater(self.text_popup)
                         break
 
 
@@ -444,33 +443,33 @@ class MenuBar(UIOuterGrand):
                             return
                         elif key == "army_reserve":
                             if grand.reserve_army_setup_ui not in grand.outer_ui_updater:
-                                self.remove_from_outer_ui_menu_updater(grand.player_collapsable_uis)
+                                self.remove_from_outer_ui_updater(grand.player_collapsable_uis)
                                 grand.reserve_army_setup_ui.reset(active=False)
                                 grand.grand_character_selector_ui.add(None)
                                 grand.reserve_army_list_ui.reset()
-                                self.add_to_outer_ui_menu_updater(grand.army_reserve_setup_uis)
+                                self.add_to_outer_ui_updater(grand.army_reserve_setup_uis)
                             else:
-                                self.remove_from_outer_ui_menu_updater(grand.player_collapsable_uis)
+                                self.remove_from_outer_ui_updater(grand.player_collapsable_uis)
                         elif key == "court":
                             if grand.court_management_ui not in grand.outer_ui_updater:
-                                self.remove_from_outer_ui_menu_updater(grand.player_collapsable_uis)
+                                self.remove_from_outer_ui_updater(grand.player_collapsable_uis)
                                 grand.court_management_ui.reset()
-                                self.add_to_outer_ui_menu_updater(grand.court_management_uis)
+                                self.add_to_outer_ui_updater(grand.court_management_uis)
                             else:
-                                self.remove_from_outer_ui_menu_updater(grand.player_collapsable_uis)
+                                self.remove_from_outer_ui_updater(grand.player_collapsable_uis)
                         elif key == "diplomacy":
                             if grand.diplomacy_management_ui not in grand.outer_ui_updater:
-                                self.remove_from_outer_ui_menu_updater(grand.player_collapsable_uis)
+                                self.remove_from_outer_ui_updater(grand.player_collapsable_uis)
                                 grand.diplomacy_management_ui.reset()
-                                self.add_to_outer_ui_menu_updater(grand.diplomacy_management_uis)
+                                self.add_to_outer_ui_updater(grand.diplomacy_management_uis)
                             else:
-                                self.remove_from_outer_ui_menu_updater(grand.player_collapsable_uis)
+                                self.remove_from_outer_ui_updater(grand.player_collapsable_uis)
                         elif key == "technology":
                             return
 
                     else:
                         self.text_popup.popup(("topright", cursor.rect.topleft), self.grab_text(("ui", "info_text_" + key)))
-                        self.add_to_outer_ui_menu_updater(self.text_popup)
+                        self.add_to_outer_ui_updater(self.text_popup)
                     return
         self.image = self.base_image
         self.hover_button = None
@@ -536,7 +535,7 @@ class TimeSettingOption(UIOuterGrand):
                     else:
                         self.text_popup.popup(("topright", cursor.rect.topleft),
                                               self.grab_text(("ui", "info_text_time_speed_" + str(index))))
-                        self.add_to_outer_ui_menu_updater(self.text_popup)
+                        self.add_to_outer_ui_updater(self.text_popup)
                     break
 
 
@@ -576,7 +575,7 @@ class ArmyListSortOption(UIOuterGrand):
                         self.grand.sort_player_army_list()
                     else:
                         self.text_popup.popup(self.cursor.rect, self.grab_text(("ui", "info_text_sort_" + option)))
-                        self.add_to_outer_ui_menu_updater(self.text_popup)
+                        self.add_to_outer_ui_updater(self.text_popup)
 
                     # re-blit all buttons to reset
                     for option2, rect2 in self.option_rects.items():
@@ -947,7 +946,7 @@ class ArmyList(GrandListUI, UIOuterGrand):
                                     text = (self.grab_text(("ui", "info_header_" + which)) +
                                             self.grab_text(("ui", "info_text_" + str(value))))
                                     self.text_popup.popup(self.cursor.rect, text)
-                                    self.add_to_outer_ui_menu_updater(self.text_popup)
+                                    self.add_to_outer_ui_updater(self.text_popup)
                                 return
 
                         if self.event_press:
@@ -966,7 +965,7 @@ class ArmyList(GrandListUI, UIOuterGrand):
                             # open army management ui
                             grand.army_setup_ui.reset(army)
                             grand.army_management_ui.reset(army)
-                            grand.add_to_outer_ui_menu_updater(grand.army_management_uis)
+                            grand.add_to_outer_ui_updater(grand.army_management_uis)
                         elif self.event_middle_mouse_press:
                             grand.camera_topleft_pos = Vector2(
                                 (army.base_pos[
@@ -979,7 +978,7 @@ class ArmyList(GrandListUI, UIOuterGrand):
                                 ("character", army.commander_id, "Name")),)
                             self.text_popup.popup(self.cursor.rect, text,
                                                   width_text_wrapper=self.max_description_box_width)
-                            self.add_to_outer_ui_menu_updater(self.text_popup)
+                            self.add_to_outer_ui_updater(self.text_popup)
                         break
 
 
@@ -1058,19 +1057,35 @@ class PlayerGrandInteract(UIOuterGrand):
                         else:
                             grand.player_selected_army = []
                             all_settlement_objects = grand.grand_settlement_objects
-                            selected_settlement_object = spritecollideany(self, all_settlement_objects)
-                            if (selected_settlement_object and selected_settlement_object.region in
-                                    grand.current_campaign_state["faction"][player_faction]["region"]):
-                                # click on player owned settlement
-                                grand.remove_from_outer_ui_menu_updater(grand.player_collapsable_uis)
-                                grand.army_deploy_tab_button.selected = True
-                                grand.army_deploy_tab_button.change_selection()
-                                grand.region_management_tab_button.selected = False
-                                grand.region_management_tab_button.change_selection()
-                                grand.region_management_tab_button.activate_toggle()
-                                grand.region_management_ui.change_selected_region(selected_settlement_object.region)
-                            else:  # select at no settlement, remove region management ui
-                                grand.region_management_ui.change_selected_region(None)
+                            region_colour = tuple(grand.base_world_map.get_at(
+                                (int(grand.base_cursor_pos[0]), int(grand.base_cursor_pos[1]))).rgb)
+                            if region_colour in grand.region_by_colour_index:
+                                region_id = grand.region_by_colour_index[region_colour]
+                                if (grand.settlement_object_list[region_id].rect.colliderect(self.rect) and
+                                        region_id in grand.current_campaign_state["faction"][player_faction]["region"]):
+                                    # click on player owned settlement
+                                    grand.remove_from_outer_ui_updater(grand.player_collapsable_uis)
+                                    grand.army_deploy_tab_button.selected = True
+                                    grand.army_deploy_tab_button.change_selection()
+                                    grand.region_management_tab_button.selected = False
+                                    grand.region_management_tab_button.change_selection()
+                                    grand.region_management_tab_button.activate_toggle()
+                                    grand.region_management_ui.change_selected_region(region_id)
+                                else:  # select at no settlement, remove region management ui
+                                    grand.region_management_ui.change_selected_region(None)
+                                    # check for clicking at battle banner
+                                    for banner in grand.dots_army_info_banners_by_region[region_id]:
+                                        if (banner.rect.colliderect(self.rect) and banner.battle_state and
+                                                grand.player_faction in
+                                                grand.current_campaign_state["battle"]["faction"][banner.base_pos]):
+                                            # show tactical map when press at battle banner with player faction
+                                            this_battle = grand.current_campaign_state["battle"]["battles"][
+                                                banner.base_pos]
+                                            tactical_map_ui = grand.tactical_map_ui
+                                            if tactical_map_ui.battle != this_battle:
+                                                tactical_map_ui.battle = this_battle
+                                                tactical_map_ui.setup()
+                                            grand.add_to_outer_ui_updater(grand.tactical_map_uis)
 
                         grand.army_list_ui.draw_card_list_to_ui(player_armies, grand.player_selected_army)
                         self.reset()

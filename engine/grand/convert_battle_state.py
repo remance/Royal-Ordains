@@ -17,4 +17,3 @@ def convert_battle_state_for_save(self, battle_state):
         team_value["reinforcement_army"] = [(army.game_id, army.faction) for army in team_value["reinforcement_army"]]
         team_value["commander_character"]
         team_value["commander_character"]["unit"]
-        team_value["commander_character"]["air_unit"]

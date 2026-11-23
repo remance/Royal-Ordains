@@ -65,12 +65,12 @@ def event_process(self: Battle):
                         self.screen_fade.reset(text=text, font_texture=use_font_texture,
                                                instant_fade=instant_fade, text_fade_in=text_fade_in,
                                                text_delay=text_delay, fade_speed=speed, fade_out=fade_out)
-                        self.add_to_outer_ui_menu_updater(self.screen_fade)
+                        self.add_to_outer_ui_updater(self.screen_fade)
                     else:
                         if self.screen_fade.done:
                             if "no auto fade out" not in event_property:
                                 self.screen_fade.reset()
-                                self.remove_from_outer_ui_menu_updater(self.screen_fade)
+                                self.remove_from_outer_ui_updater(self.screen_fade)
                             self.cutscene_in_progress = False
                             self.cutscene_playing.remove(child_event)
                 elif child_event["Animation"] == "wait":
@@ -223,7 +223,7 @@ def event_process(self: Battle):
         if "select" in event_property:
             if event_property["select"] == "yesno":
                 if self.decision_select not in self.outer_ui_updater:
-                    self.add_to_outer_ui_menu_updater(self.decision_select)
+                    self.add_to_outer_ui_updater(self.decision_select)
 
         if "wait" in event_property or "interact" in event_property or \
                 "select" in event_property:

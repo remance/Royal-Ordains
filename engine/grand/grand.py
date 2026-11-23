@@ -73,7 +73,7 @@ from engine.uioutergrand.uioutergrandcollapsible import (ArmyDeployManagement, P
                                                          DiplomacyManagement, PresetArmyGrandCharacterSelector,
                                                          RegionManagement, BuildingManagement, PresetArmyReserveList,
                                                          RegionManagementToggleButton, ArmyDeployToggleButton,
-                                                         ArmySetup, ArmyManagement)
+                                                         GrandTacticalMap, ArmySetup, ArmyManagement)
 from engine.updater.updater import ReversedLayeredUpdates
 from engine.utils.common import clean_group_object
 
@@ -164,12 +164,12 @@ class Grand:
         self.grand_camera_region_drawer = sprite.LayeredUpdates()
         self.grand_camera_ui_updater = sprite.LayeredUpdates()  # for ui on grand map, all image pos should be based on the screen
         self.grand_camera_ui_drawer = sprite.LayeredUpdates()
-        self.ui_menu_drawer = sprite.LayeredUpdates()
+        self.ui_drawer = sprite.LayeredUpdates()
 
         self.outer_ui_updater = ReversedLayeredUpdates()  # updater for ui on screen, update from top to bottom ui layer
         self.outer_ui_drawer = sprite.LayeredUpdates()  # drawer for ui on screen, does not move along with camera
 
-        self.ui_menu_updater = ReversedLayeredUpdates()
+        self.ui_updater = ReversedLayeredUpdates()
 
         self.grand_object_updater = ReversedLayeredUpdates()  # updater for actor objects
         self.grand_camera_object_drawer = sprite.LayeredUpdates()
@@ -297,6 +297,7 @@ class Grand:
         self.current_campaign_state = {"cosmic_event": ()}
         self.settlement_dots = {}
         self.dots_army_occupation = {}
+        self.dots_army_garrison = {}
 
         self.region_by_colour_index = {}
         self.region_settlement_pos_index = {}
@@ -305,10 +306,10 @@ class Grand:
         self.region_object_list = {}
         self.settlement_object_list = {}
         self.wonder_object_list = {}
-        self.garrison_army_list = {}
 
         # Create grand ui
         self.dots_army_info_banners = {}
+        self.dots_army_info_banners_by_region = {}
         self.dots_settlement_info_banners = {}
         self.dots_settlement_name_banners = {}
         self.travel_dot_images = {1: {}, 2: {}, 3: {}, 4: {}}  # get added during campaign prepare
@@ -413,6 +414,10 @@ class Grand:
 
         self.army_management_uis = (self.army_management_ui, self.army_setup_ui)
 
+        self.tactical_map_ui = GrandTacticalMap(self.game.battle_ui_images["tactic_alert"])
+
+        self.tactical_map_uis = (self.tactical_map_ui)
+
         self.event_notification_ui = EventNotification()
 
         self.fps_count = FPSCount(self)  # FPS number counter
@@ -435,12 +440,12 @@ class Grand:
                                        list(self.court_management_uis) + list(self.region_management_uis) +
                                        list(self.army_management_uis) +
                                        # list(self.tech) +
-                                       [self.cosmic_ui])
+                                       [self.cosmic_ui, self.tactical_map_ui])
 
         self.always_uis = (self.player_interact, self.mini_map, self.map_setting_option_ui,
                            self.mini_cosmic_ui, self.time_setting_ui, self.menu_bar_ui, self.cursor)
 
-        self.add_to_outer_ui_menu_updater(self.always_uis)
+        self.add_to_outer_ui_updater(self.always_uis)
 
     def prepare_new_campaign(self, campaign, player_faction, save_state_data=None):
         for message in self.inner_prepare_new_campaign(campaign, player_faction, save_state_data):
@@ -474,9 +479,9 @@ class Grand:
 
         yield set_start_load(self, "Campaign setup")
         if self.game.show_fps:
-            self.add_to_outer_ui_menu_updater(self.fps_count)
+            self.add_to_outer_ui_updater(self.fps_count)
         else:
-            self.remove_from_outer_ui_menu_updater(self.fps_count)
+            self.remove_from_outer_ui_updater(self.fps_count)
 
         grand_config = configparser.ConfigParser()  # initiate config reader
         grand_config.read_file(open(join(self.data_dir, "map", "world", campaign, "grand.ini")))  # read config file
@@ -508,6 +513,8 @@ class Grand:
             for dot in route_data["Dots"]:
                 dot_pos_x = dot[0] * self.map_shown_to_base_scale_width
                 dot_pos_y = dot[1] * self.map_shown_to_base_scale_height
+                region_colour = tuple(self.base_world_map.get_at(dot).rgb)
+                region_id = self.region_by_colour_index[region_colour]
                 army_dot_pos_y_offset = (50 * self.screen_scale_height)
                 if dot in self.settlement_dots and dot not in self.dots_settlement_name_banners:  # settlement dot
                     army_dot_pos_y_offset = (200 * self.screen_scale_height)
@@ -521,7 +528,9 @@ class Grand:
                 if dot not in self.dots_army_info_banners:
                     self.dots_army_info_banners[dot] = DotInfoBannerArmy(
                         dot, (dot_pos_x, dot_pos_y + army_dot_pos_y_offset))
-
+                    if region_id not in self.dots_army_info_banners_by_region:
+                        self.dots_army_info_banners_by_region[region_id] = []
+                    self.dots_army_info_banners_by_region[region_id].append(self.dots_army_info_banners[dot])
         # setup armies, replace dict with object
         for faction, faction_state in self.current_campaign_state["faction"].items():
             for index, army in enumerate(tuple(faction_state["army"])):
@@ -544,8 +553,9 @@ class Grand:
         self.region_object_list = {}
         self.wonder_object_list = {}
         self.settlement_object_list = {}
-        self.garrison_army_list = {}
+        self.dots_army_garrison = {}
         for region, region_state in self.current_campaign_state["region"].items():
+            region_settlement_pos = self.region_list[region]["Settlement POS"]
             region_buildings = region_state["building"]
             # create region ground objects
             self.region_object_list[region] = GrandRegion(region, self.region_list[region]["Region POS"],
@@ -559,20 +569,21 @@ class Grand:
 
             # create settlement objects
             self.settlement_object_list[region] = (
-                SettlementObject(region, self.region_list[region]["Settlement POS"], region_buildings[0]))
+                SettlementObject(region, region_settlement_pos, region_buildings[0]))
 
             # create garrison army for each region
             garrison_state = region_state["garrison"]
             garrison_commander = None
             if garrison_state["leader"]:
                 garrison_commander = garrison_state["leader"][0]
-            self.garrison_army_list[region] = GarrisonArmy(garrison_state["id"],
-                                                           region_state["control"],
-                                                           self.building_list[region_buildings[0][0]]["Culture"],
-                                                           garrison_commander,
-                                                           {"leader": garrison_state["leader"][1:],
+            self.dots_army_garrison[region_settlement_pos] = GarrisonArmy(garrison_state["id"],
+                                                                          region_state["control"],
+                                                                          self.building_list[region_buildings[0][0]][
+                                                                              "Culture"],
+                                                                          garrison_commander,
+                                                                          {"leader": garrison_state["leader"][1:],
                                                             "troop": garrison_state["troop"], "air": garrison_state["air"]},
-                                                           garrison_state["strategy"])
+                                                                          garrison_state["strategy"])
 
         # setup camera position
         self.mini_map.camera_pos = None
@@ -593,11 +604,11 @@ class Grand:
 
         if player_faction:
             self.player_input = MethodType(player_input_grand, self)
-            self.add_to_outer_ui_menu_updater(self.only_player_has_faction_uis)
+            self.add_to_outer_ui_updater(self.only_player_has_faction_uis)
             self.army_list_ui.reset()
         else:  # no player faction, camera at center
             self.player_input = MethodType(battle_no_player_input_grand, self)
-            self.remove_from_outer_ui_menu_updater(self.only_player_has_faction_uis)
+            self.remove_from_outer_ui_updater(self.only_player_has_faction_uis)
 
         self.change_turn(turn_change=False)
         self.sort_player_army_list()
@@ -628,20 +639,20 @@ class Grand:
         self.time_setting_ui.reset()
 
         self.screen.fill((0, 0, 0))
-        self.add_to_outer_ui_menu_updater(self.cursor)
+        self.add_to_outer_ui_updater(self.cursor)
         yield set_done_load()
 
     def run_grand(self):
         frame = 0
         while True:  # grand running
             self.screen.fill((120, 120, 200))  # draw sea
-            self.remove_from_outer_ui_menu_updater(self.text_popup)
+            self.remove_from_outer_ui_updater(self.text_popup)
 
-            # frame += 1
-            #
-            # if frame >= 30 and hasattr(self.game, "profiler"):  # Remove for stable release, along with dev key
-            #     self.game.profiler.refresh()
-            #     frame = 0
+            frame += 1
+
+            if frame >= 30 and hasattr(self.game, "profiler"):  # Remove for stable release, along with dev key
+                self.game.profiler.refresh()
+                frame = 0
 
             key_state = pygame.key.get_pressed()
             self.esc_press = False
@@ -703,13 +714,13 @@ class Grand:
                     # self.screen_shake_value = 11111
                     # elif event.key == K_F7:
                     # self.screen_shake_value = 11111
-                    # elif event.key == K_F11:  # clear profiler
-                    #     if hasattr(self.game, "profiler"):
-                    #         self.game.profiler.clear()
-                    # elif event.key == K_F12:  # show/hide profiler
-                    #     if not hasattr(self.game, "profiler"):
-                    #         self.game.setup_profiler()
-                    #     self.game.profiler.switch_show_hide()
+                    elif event.key == K_F11:  # clear profiler
+                        if self.game.profiler in self.outer_ui_updater:
+                            self.game.profiler.clear()
+                    elif event.key == K_F12:  # show/hide profiler
+                        if self.game.profiler not in self.outer_ui_updater:
+                            self.game.setup_profiler(self)
+                        self.game.profiler.switch_show_hide()
                 elif event.type == QUIT:  # quit game
                     pygame.quit()
                     sys.exit()
@@ -722,27 +733,27 @@ class Grand:
             display.update()  # update game display, draw everything
             self.clock.tick(1000)  # clock update even if self pause
 
-    def add_to_ui_menu_updater(self, *args):
-        self.ui_menu_updater.add(*args)
-        self.ui_menu_drawer.add(*args)
+    def add_to_ui_updater(self, *args):
+        self.ui_updater.add(*args)
+        self.ui_drawer.add(*args)
 
-    def remove_from_ui_menu_updater(self, *args):
-        self.ui_menu_updater.remove(*args)
-        self.ui_menu_drawer.remove(*args)
+    def remove_from_ui_updater(self, *args):
+        self.ui_updater.remove(*args)
+        self.ui_drawer.remove(*args)
 
-    def add_to_outer_ui_menu_updater(self, *args):
+    def add_to_outer_ui_updater(self, *args):
         self.outer_ui_updater.add(*args)
         self.outer_ui_drawer.add(*args)
 
-    def remove_from_outer_ui_menu_updater(self, *args):
+    def remove_from_outer_ui_updater(self, *args):
         self.outer_ui_updater.remove(*args)
         self.outer_ui_drawer.remove(*args)
 
     def exit_grand(self):
         # remove menu and ui
-        self.remove_from_ui_menu_updater(self.grand_menu_button.values(), self.esc_slider_menu.values(),
-                                         self.esc_value_boxes.values(), self.esc_option_text.values(),
-                                         self.player_collapsable_uis)
+        self.remove_from_ui_updater(self.grand_menu_button.values(), self.esc_slider_menu.values(),
+                                    self.esc_value_boxes.values(), self.esc_option_text.values(),
+                                    self.player_collapsable_uis)
 
         # stop all sounds
         self.music_channel.stop()
@@ -778,9 +789,10 @@ class Grand:
         self.region_object_list = {}
         self.wonder_object_list = {}
         self.settlement_object_list = {}
-        self.garrison_army_list = {}
+        self.dots_army_garrison = {}
 
         self.ai_process_list = []
+        self.tactical_map_ui.battle = None
 
         self.diplomacy_head_talk_queue = []
 
@@ -789,4 +801,4 @@ class Grand:
         self.sound_effect_queue = {}
 
         self.drama_timer = 0  # reset drama text popup
-        self.remove_from_ui_menu_updater(self.drama_text)
+        self.remove_from_ui_updater(self.drama_text)

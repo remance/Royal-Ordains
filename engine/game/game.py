@@ -76,8 +76,8 @@ class Game:
     language = None
     localisation = None
     cursor = None
-    ui_menu_updater = None
-    ui_menu_drawer = None
+    ui_updater = None
+    ui_drawer = None
 
     screen_rect = None
     screen_scale = (1, 1)
@@ -279,8 +279,8 @@ class Game:
                                 self.list_font1: {}, self.list_font2: {}, self.list_font3: {}}
 
         # Initialise groups
-        Game.ui_menu_updater = ReversedLayeredUpdates()  # main drawer for ui in main menu
-        Game.ui_menu_drawer = sprite.LayeredUpdates()
+        Game.ui_updater = ReversedLayeredUpdates()  # main drawer for ui in main menu
+        Game.ui_drawer = sprite.LayeredUpdates()
 
         self.all_showcase_characters = sprite.Group()
         self.all_showcase_effects = sprite.Group()
@@ -290,9 +290,9 @@ class Game:
         ShowcaseEffect.containers = self.all_showcase_effects
         ShowcaseCharacter.containers = self.all_showcase_characters
         SubShowcaseCharacter.containers = self.all_showcase_characters
-        StaticImage.containers = self.ui_menu_updater, self.ui_menu_drawer
-        MenuRotate.containers = self.ui_menu_updater, self.ui_menu_drawer
-        MenuActor.containers = self.ui_menu_updater, self.ui_menu_drawer
+        StaticImage.containers = self.ui_updater, self.ui_drawer
+        MenuRotate.containers = self.ui_updater, self.ui_drawer
+        MenuActor.containers = self.ui_updater, self.ui_drawer
 
         # SubsectionName.containers = self.ui_updater, self.ui_drawer, self.battle_ui_updater, self.battle_ui_drawer
 
@@ -369,7 +369,7 @@ class Game:
         ShowcaseEffect.effect_animation_pool = self.effect_animation_pool
         StageObject.stage_object_animation_pool = self.stage_object_animation_pool
 
-        UIMenu.add_to_ui_menu_updater = self.add_to_ui_menu_updater
+        UIMenu.add_to_ui_updater = self.add_to_ui_updater
         UIMenu.battle_ui_images = self.battle_ui_images
         UIMenu.building_portraits = self.building_portraits
         UIMenu.button_sound_channel = self.button_sound_channel
@@ -380,7 +380,7 @@ class Game:
         UIMenu.grand_ui_images = self.grand_ui_images
         UIMenu.language = self.language
         UIMenu.localisation = self.localisation
-        UIMenu.remove_from_ui_menu_updater = self.remove_from_ui_menu_updater
+        UIMenu.remove_from_ui_updater = self.remove_from_ui_updater
         UIMenu.screen_center = (self.screen_width / 2, self.screen_height / 2)
         UIMenu.screen_height = self.screen_height
         UIMenu.screen_rect = self.screen_rect
@@ -390,14 +390,14 @@ class Game:
         UIMenu.screen_width = self.screen_width
         UIMenu.sound_effect_pool = self.sound_effect_pool
         UIMenu.ui_font = self.ui_font
-        UIMenu.updater = self.ui_menu_updater
+        UIMenu.updater = self.ui_updater
 
         # Create main menu interface
 
         # Create game cursor, make sure it is the first object in ui to be created, so it is always update first
         Game.cursor = MenuCursor(load_images(self.data_dir, subfolder=("ui", "cursor_menu")))  # no need to scale cursor
         UIMenu.cursor = self.cursor
-        self.add_to_ui_menu_updater(self.cursor)
+        self.add_to_ui_updater(self.cursor)
 
         BrownMenuButton.button_frame = load_image(self.game.data_dir,
                                                   "new_button.png", subfolder=("ui", "mainmenu_ui"))
@@ -647,7 +647,7 @@ class Game:
 
         self.fps_count = FPSCount(self)  # FPS number counter
         if self.show_fps:
-            self.add_to_ui_menu_updater(self.fps_count)
+            self.add_to_ui_updater(self.fps_count)
         if self.use_simple_text:
             CharacterSpeechBox.simple_font = True
 
@@ -662,7 +662,7 @@ class Game:
         self.lorebook_showcase_box = StaticImage((self.screen_width * 0.558, self.screen_height * 0.4),
                                                  load_image(self.game.data_dir, "showcase_box.png",
                                                             self.screen_scale, ("ui", "mainmenu_ui")), 0)
-        self.remove_from_ui_menu_updater(self.lorebook_showcase_box)
+        self.remove_from_ui_updater(self.lorebook_showcase_box)
 
         self.sprite_data.load_character_animation((Default_Showcase_Character,))
         animation_list = list(self.sprite_data.character_animation_data[Default_Showcase_Character].keys())
@@ -726,7 +726,7 @@ class Game:
         self.dt = 0
         self.input_delay = 0
         self.text_delay = 0
-        self.add_to_ui_menu_updater(self.main_menu_buttons)
+        self.add_to_ui_updater(self.main_menu_buttons)
 
         self.menu_mode_methods = {"main_menu": self.menu_main, "custom": self.menu_custom_setup,
                                    "grand": self.menu_grand_setup, "lorebook": self.menu_lorebook,
@@ -760,17 +760,20 @@ class Game:
 
         self.loading_screen("start")
 
-    def add_to_ui_menu_updater(self, *args):
-        self.ui_menu_updater.add(*args)
-        self.ui_menu_drawer.add(*args)
+    def add_to_ui_updater(self, *args):
+        self.ui_updater.add(*args)
+        self.ui_drawer.add(*args)
 
-    def remove_from_ui_menu_updater(self, *args):
-        self.ui_menu_updater.remove(*args)
-        self.ui_menu_drawer.remove(*args)
+    def remove_from_ui_updater(self, *args):
+        self.ui_updater.remove(*args)
+        self.ui_drawer.remove(*args)
 
-    def setup_profiler(self):
-        self.profiler.enable()
-        self.battle.add_to_outer_ui_menu_updater(self.profiler)
+    def setup_profiler(self, class_object):
+        try:
+            self.profiler.enable()
+        except ValueError:
+            pass
+        class_object.add_to_outer_ui_updater(self.profiler)
 
     def update(self):
         clear_event()
@@ -781,7 +784,7 @@ class Game:
                         thread.join()
                         self.load_sprite_background_threads.remove(thread)
             # Get user input
-            self.remove_from_ui_menu_updater(self.text_popup)
+            self.remove_from_ui_updater(self.text_popup)
             self.dt = self.clock.get_time() / 1000  # dt before game_speed
             if self.input_delay:
                 self.input_delay -= self.dt
@@ -836,7 +839,7 @@ class Game:
                     pygame.quit()
                     sys.exit()
 
-            self.ui_menu_updater.update(self.dt)
+            self.ui_updater.update(self.dt)
 
             # Reset screen
             self.screen.blit(self.background, (0, 0))  # blit background over instead of clear() to reset screen
@@ -932,13 +935,13 @@ class Game:
                         self.change_pause_update(False)
                         self.input_box.render_text("")
                         self.input_popup = None
-                        self.remove_from_ui_menu_updater(self.all_input_popup_uis)
+                        self.remove_from_ui_updater(self.all_input_popup_uis)
 
                 elif self.input_cancel_button.event_press or self.input_close_button.event_press or self.esc_press:
                     self.change_pause_update(False)
                     self.input_box.render_text("")
                     self.input_popup = None
-                    self.remove_from_ui_menu_updater(self.all_input_popup_uis)
+                    self.remove_from_ui_updater(self.all_input_popup_uis)
 
                 elif input_popup[0] == "text_input":
                     if not self.text_delay:
@@ -953,6 +956,6 @@ class Game:
             else:
                 self.menu_mode_methods[self.menu_mode]()
 
-            self.ui_menu_drawer.draw(self.screen)
+            self.ui_drawer.draw(self.screen)
             display.update()
             self.clock.tick(1000)

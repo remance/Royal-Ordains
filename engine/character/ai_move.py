@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from engine.character.character import NonCombatCharacter, CombatCharacter, GrandAutoCharacter
+    from engine.character.character import NonCombatCharacter, CombatCharacter, GrandAutoNonCombatCharacter
 
 from random import choice, uniform
 
@@ -258,11 +258,11 @@ ai_move_dict = {"default": stationary_ai, "nice": nice_ai, "curious": curious_ai
 commander_inner_move_dict = {"melee": commander_melee_ai, "range": commander_range_ai, "mix": commander_range_ai}
 
 
-def auto_random_walk(self: GrandAutoCharacter):
+def auto_random_walk(self: GrandAutoNonCombatCharacter):
     self.base_pos[0] += uniform(-self.walk_speed, self.walk_speed)
 
 
-def auto_move_to_target_order(self: GrandAutoCharacter):
+def auto_move_to_target_order(self: GrandAutoNonCombatCharacter):
     """Move function for grand auto character, character move to target point right away rather than perform animation"""
     base_pos_x = self.base_pos[0]
     if "move" in self.commander_order:
@@ -295,7 +295,7 @@ def auto_move_to_target_order(self: GrandAutoCharacter):
                 self.base_pos[0] = self.base_stage_end
 
 
-def auto_move_away_from_enemy(self: GrandAutoCharacter):
+def auto_move_away_from_enemy(self: GrandAutoNonCombatCharacter):
     base_pos_x = self.base_pos[0]
     command_target_x = self.nearest_enemy_pos[0]
     if base_pos_x > command_target_x:  # run to left direction
@@ -311,12 +311,12 @@ def auto_move_away_from_enemy(self: GrandAutoCharacter):
             self.base_pos[0] = self.base_stage_end
 
 
-def auto_nice_ai(self: GrandAutoCharacter):
+def auto_nice_ai(self: GrandAutoNonCombatCharacter):
     """Just walk around doing nothing"""
     random_walk(self)
 
 
-def auto_curious_ai(self: GrandAutoCharacter):
+def auto_curious_ai(self: GrandAutoNonCombatCharacter):
     """Run to nearby enemy within range"""
     if self.nearest_enemy:
         # keep moving to attack target point, stop moving if there are enemy to attack

@@ -15,8 +15,8 @@ def menu_main(self: Game):
         for index in range(0, 4):
             self.custom_battle_team_setup[1].change_culture_preset(None, index)
             self.custom_battle_team_setup[2].change_culture_preset(None, index)
-        self.remove_from_ui_menu_updater(self.main_menu_buttons, self.main_menu_actors)
-        self.add_to_ui_menu_updater(self.custom_battle_menu_uis)
+        self.remove_from_ui_updater(self.main_menu_buttons, self.main_menu_actors)
+        self.add_to_ui_updater(self.custom_battle_menu_uis)
 
     # elif self.mission_button.event_press:
     #     self.menu_state = "mission"
@@ -30,16 +30,16 @@ def menu_main(self: Game):
         self.background = self.background_image["empty_background"]
 
         self.lorebook_showcase_character_selector.add(self.lorebook_faction_selector.selected_culture, None)
-        self.remove_from_ui_menu_updater(self.main_menu_buttons, self.main_menu_actors)
-        self.add_to_ui_menu_updater(self.lorebook_menu_uis)
+        self.remove_from_ui_updater(self.main_menu_buttons, self.main_menu_actors)
+        self.add_to_ui_updater(self.lorebook_menu_uis)
 
     elif self.grand_button.event_press:
         self.menu_mode = "grand"
         self.load_grand_campaign(self.campaign)
         self.custom_preset_culture_selector.change_culture_preset(self.map_data.default_grand_faction)
         self.background = self.background_image["empty_background"]
-        self.remove_from_ui_menu_updater(self.main_menu_buttons, self.main_menu_actors)
-        self.add_to_ui_menu_updater(self.grand_menu_uis)
+        self.remove_from_ui_updater(self.main_menu_buttons, self.main_menu_actors)
+        self.add_to_ui_updater(self.grand_menu_uis)
 
     elif self.test_battle_button.event_press:
         self.custom_team_army[1][0].__init__("", "small", "small", "leader_bigta",
@@ -99,11 +99,11 @@ def menu_main(self: Game):
 
     elif self.option_button.event_press:  # change main menu to option menu
         self.menu_mode = "option"
-        self.remove_from_ui_menu_updater(self.main_menu_buttons, self.main_menu_actors)
+        self.remove_from_ui_updater(self.main_menu_buttons, self.main_menu_actors)
         self.background = self.background_image["empty_background"]
-        self.add_to_ui_menu_updater(self.option_menu_buttons, self.option_menu_sliders.values(),
-                                    self.value_boxes.values(),
-                                    self.option_text_list)
+        self.add_to_ui_updater(self.option_menu_buttons, self.option_menu_sliders.values(),
+                               self.value_boxes.values(),
+                               self.option_text_list)
 
     elif self.quit_button.event_press or self.esc_press:  # open quit game confirmation input
         self.activate_input_popup(("confirm_input", "quit"), self.grab_text(("ui", "input_quit_game")),
