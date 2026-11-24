@@ -90,4 +90,3 @@ def change_turn(self: Grand, turn_change: bool = True):
                                     len(self.dots_army_occupation[settlement_dot]) < 40):
                                 # rebel!, hard limit rebel not showing up when there are more than 40 armies exist there
                                 self.create_rebel_army(region, faction_state, int(uniform(20, 20 + (-happiness * 2))))
-    self.change_phase(phase_change=turn_change)

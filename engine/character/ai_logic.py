@@ -5,9 +5,9 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from engine.character.character import CombatCharacter, GrandAutoNonCombatCharacter
 
-from engine.constants import Phase_To_Round, Phase_To_Battle_Time
+from engine.constants import Phase_To_Round, Round_To_Battle_Time
 
-Tick_to_Second = Phase_To_Battle_Time / Phase_To_Round
+Tick_to_Second = Round_To_Battle_Time / Phase_To_Round
 
 
 def ai_logic(self: CombatCharacter, dt: float):

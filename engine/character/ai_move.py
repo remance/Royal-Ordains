@@ -3,7 +3,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from engine.character.character import NonCombatCharacter, CombatCharacter, GrandAutoNonCombatCharacter
+    from engine.character.character import NonCombatCharacter, CombatCharacter, GrandAutoNonCombatCharacter, \
+    AirCombatCharacter
 
 from random import choice, uniform
 
@@ -65,13 +66,13 @@ def move_to_target_order(self: (NonCombatCharacter, CombatCharacter)):
 
 def move_away_from_enemy(self: (NonCombatCharacter, CombatCharacter)):
     base_pos_x = self.base_pos[0]
-    command_target_x = self.nearest_enemy_pos[0]
+
     if abs(base_pos_x - self.start_pos) > self.run_speed:
         # ignore if already at start point
         if not self.command_action:
             self.command_action = self.run_command_action
             self.command_action["x_momentum"] = self.run_speed
-            if base_pos_x > command_target_x:
+            if base_pos_x > self.retreat_pos:  # move back to retreat point
                 self.command_action["direction"] = "left"
             else:
                 self.command_action["direction"] = "right"
@@ -207,7 +208,7 @@ def commander_range_ai(self: CombatCharacter):
     leader_common_ai(self, self.ai_max_attack_range)
 
 
-def air_ai(self: CombatCharacter):
+def air_ai(self: AirCombatCharacter):
     if not self.command_action:
         # air unit keep moving at all time
         if "back" in self.commander_order:
@@ -220,6 +221,26 @@ def air_ai(self: CombatCharacter):
                 command_target_x = enemy_commander_character.base_pos[0]
             else:  # if enemy commander not exist then attack enemy respawn point
                 command_target_x = self.commander_order[1]
+        else:  # move to nearest enemy in attack range instead
+            command_target_x = self.nearest_enemy_pos[0]
+
+        self.command_action = self.run_command_action
+        self.command_action["x_momentum"] = self.run_speed
+        if self.base_pos[0] > command_target_x:
+            self.command_action["direction"] = "left"
+        else:
+            self.command_action["direction"] = "right"
+
+
+def interceptor_ai(self: AirCombatCharacter):
+    """interceptor character does not care about enemy commander because they can't attack it anyway"""
+    if not self.command_action:
+        # air unit keep moving at all time
+        if "back" in self.commander_order:
+            command_target_x = self.commander_order[1]
+        elif not self.nearest_enemy or self.nearest_enemy_distance > self.ai_max_attack_range:
+            # move to command point if no nearby enemy
+            command_target_x = self.commander_order[1]
         else:  # move to nearest enemy in attack range instead
             command_target_x = self.nearest_enemy_pos[0]
 
@@ -253,7 +274,7 @@ def leader_ai(self: CombatCharacter):
 ai_move_dict = {"default": stationary_ai, "nice": nice_ai, "curious": curious_ai,
                 "territorial": nice_ai, "melee": melee_ai, "range": range_ai, "mix": mix_ai, "flank": flank_ai,
                 "trap": stationary_ai, "boss_cheer": observer_ai, "commander": leader_ai,
-                "interceptor": air_ai, "fighter": air_ai, "bomber": air_ai}
+                "interceptor": interceptor_ai, "fighter": air_ai, "bomber": air_ai}
 
 commander_inner_move_dict = {"melee": commander_melee_ai, "range": commander_range_ai, "mix": commander_range_ai}
 

@@ -35,7 +35,6 @@ def conduct_troop_call(self: AIBattleCommander):
     leader_available_to_call = [index for index, item in enumerate(self.team_state["leader_call_list"][:5]) if
                                 index not in leader_call_cooldown and current_supply >= item[2]]
 
-    print(self.team, current_supply, self.team_state["troop_call_list"], self.team_state["leader_call_list"])
     character_list = self.character_list
     troop_class_available_to_call = {index: character_list[item[0]]["Behaviour Class"] for index, item in
                                      enumerate(troop_available_to_call)}

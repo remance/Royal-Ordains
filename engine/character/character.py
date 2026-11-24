@@ -11,8 +11,7 @@ from pygame.sprite import Sprite
 from engine.character.ai_combat import ai_combat_dict, check_ai_condition
 from engine.character.ai_logic import ai_logic
 from engine.character.ai_move import ai_move_dict, move_away_from_enemy, move_to_target_order
-from engine.character.ai_prepare import (get_near_enemy, ai_prepare, troop_ai_prepare, sub_character_ai_prepare,
-                                         interceptor_ai_prepare, bomber_ai_prepare, fighter_ai_prepare)
+from engine.character.ai_prepare import get_near_enemy, ai_prepare_dict
 from engine.character.ai_retreat import ai_retreat_dict
 from engine.character.ai_speak import ai_speak
 from engine.character.apply_status import apply_status
@@ -223,7 +222,9 @@ class BaseCharacter:
         self.base_health = character_data["Health"]  # max health of character
         self.base_resource = 100
 
-        self.base_element_resistance = {key.split(" ")[0].lower(): self.race_list[character_data["Race"]][key.split(" ")[0] + " Resistance"] + character_data[key] for key in character_data if " Resistance" in key}
+        self.base_element_resistance = {key.split(" ")[0].lower(): character_data[key] for
+                                        key in character_data if " Resistance" in key}
+
         self.base_critical_chance = 0.1
         self.base_health_regen = 0  # health regeneration modifier
         if self.is_summon:  # summon start with negative health regen so it does not last forever
@@ -277,7 +278,6 @@ class NonCombatCharacter(Sprite, BaseCharacter):
     rect = image.get_rect()
 
     ai_logic = ai_logic
-    ai_prepare = ai_prepare
     ai_speak = ai_speak
     apply_status = apply_status
     cal_damage = cal_damage
@@ -381,12 +381,12 @@ class NonCombatCharacter(Sprite, BaseCharacter):
 
         self.update_sprite = False
 
+        self.ai_prepare = MethodType(ai_prepare_dict["default"], self)
         self.ai_move = MethodType(ai_move_dict["default"], self)
         if self.is_commander:  # commander use behaviour that move based on player/ ai commander order
             self.ai_move = MethodType(ai_move_dict["commander"], self)
         elif self.ai_behaviour in ai_move_dict:
             self.ai_move = MethodType(ai_move_dict[self.ai_behaviour], self)
-
         self.ai_combat = MethodType(ai_combat_dict["default"], self)
         self.ai_retreat = MethodType(ai_retreat_dict["default"], self)
         if self.ai_behaviour in ai_retreat_dict:
@@ -540,8 +540,8 @@ class CombatCharacter(NonCombatCharacter):
         if commander_character:
             # replace ai prepare logic with troop one
             self.commander_character = commander_character
-            self.ai_prepare = MethodType(troop_ai_prepare, self)
-
+        if self.ai_behaviour in ai_prepare_dict:
+            self.ai_prepare = MethodType(ai_prepare_dict[self.ai_behaviour], self)
         self.start_pos = self.battle.team_state[self.team]["start_pos"]
         self.retreat_pos = self.start_pos * 2
         if not self.start_pos:
@@ -751,7 +751,6 @@ class CombatCharacter(NonCombatCharacter):
 class SubCombatCharacter(CombatCharacter):
     is_sub_character = True
 
-    ai_prepare = sub_character_ai_prepare
     move_logic = sub_move_logic
 
     to_dict = sub_character_to_dict
@@ -766,6 +765,8 @@ class SubCombatCharacter(CombatCharacter):
         """
         self.main_character = main_character
         CombatCharacter.__init__(self, game_id, character_data, additional_layer="main")
+        # replace ai prepare with sub character regardless of behaviour
+        self.ai_prepare = MethodType(ai_prepare_dict["sub_character"], self)
         self.anchor_pos = character_data["Anchor POS"]
         if self.main_character.direction == "right":
             self.pos = Vector2(((self.base_pos[0] - self.anchor_pos[0]) * self.screen_scale_width,
@@ -799,13 +800,6 @@ class AirCombatCharacter(CombatCharacter):
         CombatCharacter.__init__(self, game_id, character_data, commander_character=commander_character)
         self.all_team_enemy_collision_grids = self.battle.all_team_air_enemy_collision_grids
         self.character_type = "air"
-        if self.ai_behaviour == "interceptor":
-            self.ai_prepare = MethodType(interceptor_ai_prepare, self)
-        elif self.ai_behaviour == "bomber":
-            self.ai_prepare = MethodType(bomber_ai_prepare, self)
-        else:
-            self.ai_prepare = MethodType(fighter_ai_prepare, self)
-
         self.enemy_collision_grids = self.air_enemy_collision_grids
 
     def update(self, dt: float):

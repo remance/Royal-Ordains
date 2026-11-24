@@ -6,8 +6,9 @@ def change_phase(self):
     campaign_battle_army = current_campaign_state["battle"]["army"]
     dots_army_occupation = self.dots_army_occupation
     activity = self.activity
-
     if self.game_id in campaign_battle_army:  # in battle
+        if self.belong_to_player_faction:
+            grand.army_list_ui.reset_card(self)
         return
 
     elif "travel" in activity:

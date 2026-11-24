@@ -282,11 +282,11 @@ class Battle:
 
         self.before_pause_game_speed = 1
         self.game_speed = 1
-        self.all_team_ally = {index: sprite.Group() for index in team_list}
-        self.all_team_enemy = {index: sprite.Group() for index in team_list}  # for victory check
+        self.all_team_ally = {team: sprite.Group() for team in team_list}
+        self.all_team_enemy = {team: sprite.Group() for team in team_list}  # for victory check
 
-        self.all_team_ground_enemy_collision_grids = {index: () for index in team_list}
-        self.all_team_air_enemy_collision_grids = {index: () for index in team_list}
+        self.all_team_ground_enemy_collision_grids = {team: () for team in team_list}
+        self.all_team_air_enemy_collision_grids = {team: () for team in team_list}
         self.last_grid = None
 
         self.player_team = None
@@ -641,12 +641,12 @@ class Battle:
         self.clean_character_group()
         # grids for collision are kept in y, x metrix
         # the last y grid is used strategy/range collision for ALL characters where height play no part, so + 1 grid y per
-        self.all_team_ground_enemy_collision_grids = {index: [[
+        self.all_team_ground_enemy_collision_grids = {team: [[
             sprite.Group() for _ in range(int(stage_len * Collision_Grid_X_Per_Battle_Scene))] for
-            _ in range(Collision_Grid_Y_Per_Battle_Scene + 1)] for index in team_list}
-        self.all_team_air_enemy_collision_grids = {index: [[
+            _ in range(Collision_Grid_Y_Per_Battle_Scene + 1)] for team in team_list}
+        self.all_team_air_enemy_collision_grids = {team: [[
             sprite.Group() for _ in range(int(stage_len * Collision_Grid_X_Per_Battle_Scene))] for
-            _ in range(Collision_Grid_Y_Per_Battle_Scene + 1)] for index in team_list}
+            _ in range(Collision_Grid_Y_Per_Battle_Scene + 1)] for team in team_list}
 
         self.last_grid = int(stage_len * Collision_Grid_X_Per_Battle_Scene)
 

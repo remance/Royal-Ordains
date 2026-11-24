@@ -28,13 +28,13 @@ from engine.game.change_pause_update import change_pause_update
 from engine.grand.activate_input_popup import activate_input_popup
 from engine.grand.add_diplomacy_history_event import add_diplomacy_history_event
 from engine.grand.add_diplomacy_talk_queue import add_diplomacy_talk_queue
-from engine.grand.auto_battle_process import auto_battle_process
 from engine.grand.cal_faction_culture import cal_faction_culture
 from engine.grand.cal_faction_income_recruit import cal_faction_income_recruit
 from engine.grand.cal_region_income_recruit import cal_region_income_recruit
 from engine.grand.cancel_building_construction_or_repair import cancel_building_construction_or_repair
 from engine.grand.cancel_building_raze_or_pillage import cancel_building_raze_or_pillage
 from engine.grand.change_phase import change_phase
+from engine.grand.change_round import change_round
 from engine.grand.change_region_control import change_region_control
 from engine.grand.change_turn import change_turn
 from engine.grand.check_region_building_available_upgrade import check_region_building_available_upgrade
@@ -86,7 +86,6 @@ class Grand:
     add_diplomacy_history_event = add_diplomacy_history_event
     add_diplomacy_talk_queue = add_diplomacy_talk_queue
     add_sound_effect_queue = add_sound_effect_queue
-    auto_battle_process = auto_battle_process
     back_to_grand_state = back_to_grand_state
     cal_faction_culture = cal_faction_culture
     cal_faction_income_recruit = cal_faction_income_recruit
@@ -96,6 +95,7 @@ class Grand:
     cancel_building_construction_or_repair = cancel_building_construction_or_repair
     cancel_building_raze_or_pillage = cancel_building_raze_or_pillage
     change_phase = change_phase
+    change_round = change_round
     change_region_control = change_region_control
     change_turn = change_turn
     check_region_building_available_upgrade = check_region_building_available_upgrade
@@ -239,7 +239,7 @@ class Grand:
 
         self.game_speed = 0
         self.before_pause_game_speed = 0
-        self.phase_timer = 0
+        self.round_timer = 0
         self.show_route = True
 
         self.screen = self.game.screen
@@ -611,6 +611,7 @@ class Grand:
             self.remove_from_outer_ui_updater(self.only_player_has_faction_uis)
 
         self.change_turn(turn_change=False)
+        self.change_phase(phase_change=False)
         self.sort_player_army_list()
 
         self.event_notification_ui.update_image()
@@ -625,7 +626,7 @@ class Grand:
         self.ui_timer = 0
         self.drama_timer = 0
         self.dt = 0
-        self.phase_timer = 0
+        self.round_timer = 0
 
         self.base_cursor_pos = [0, 0]  # mouse pos on the map based on camera position
         self.cursor_pos = [0, 0]

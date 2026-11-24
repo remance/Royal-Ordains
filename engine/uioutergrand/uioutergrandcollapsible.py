@@ -1885,7 +1885,7 @@ class ArmyManagement(UIOuterGrand):
 
 class GrandTacticalMap(TacticalMap, UIOuterGrand):
     def __init__(self, tactic_alert_image):
-        UIOuterGrand.__init__(self, player_cursor_interact=False)
+        UIOuterGrand.__init__(self, player_cursor_interact=True)
         TacticalMap.__init__(self, tactic_alert_image)
         self.player_interact = False
         self.battle = None
@@ -1894,9 +1894,63 @@ class GrandTacticalMap(TacticalMap, UIOuterGrand):
     def update(self, dt, add_camera=False):
         grand = self.grand
         if self.update_timer:
-            self.draw_battle(add_camera=add_camera)
+            self.draw_battle()
             self.update_timer = 0
-        if UIOuterGrand.update(self, dt):
-            pass
-        elif self.cursor.event:  # and not grand.army_management_ui.mouse_over and not grand.time_setting_ui.mouse_over:
+
+        if not UIOuterGrand.update(self, dt) and self.cursor.event and not grand.time_setting_ui.mouse_over:
+            print('what')
             self.remove_from_outer_ui_updater(grand.tactical_map_uis)
+
+    def draw_battle(self):
+        battle = self.battle
+        self.image = self.base_image.copy()
+        image = self.image
+        map_scale_width = self.map_scale_width
+
+        # draw commander
+        team_commander = battle.team_commander
+        for team, character in team_commander.items():
+            if character:
+                # still show player character when invisible on map
+                scaled_pos = (character.base_pos[0] / map_scale_width, self.ground_commander_icon_pos_y)
+                health_state = round(character.health / character.base_health, 1)
+                if health_state != self.commander_health_state[team]:
+                    # circle also indicate health
+                    back_icon = self.commander_icon_border[character.team].subsurface((
+                        0, self.icon_height - (self.icon_height * health_state),
+                        self.icon_width, self.icon_height - (self.icon_height * (1 - health_state))))
+                    back_command_icon = self.empty_command_icon.copy()
+                    back_command_icon.blit(back_icon, back_icon.get_rect(bottomleft=(0, self.icon_height)))
+                    character_icon = character.icon[character.direction]
+                    back_command_icon.blit(character_icon, character_icon.get_rect(center=self.icon_center))
+                    self.commander_icon[team] = back_command_icon
+                image.blit(self.commander_icon[team], self.commander_icon[team].get_rect(midbottom=scaled_pos))
+
+        # Draw character dots
+        air_icon_pos_y = self.air_icon_pos_y
+        ground_icon_pos_y = self.ground_icon_pos_y
+        for team, character_team in self.battle.all_team_ally.items():
+            dot_image = self.troop_dot_images[team]
+            for unit in character_team:
+                for character in unit.group_character:
+                    character_pos_x = unit.base_pos[0]
+                    if unit.direction == "right":
+                        character_pos_x -= character["group_pos"]
+                    else:
+                        character_pos_x += character["group_pos"]
+                    if unit.character_type == "air":
+                        image.blit(dot_image, dot_image.get_rect(midbottom=(
+                            character_pos_x / map_scale_width, air_icon_pos_y)))
+                    elif not unit.is_commander:
+                        image.blit(dot_image, dot_image.get_rect(midbottom=(
+                            character_pos_x / map_scale_width, ground_icon_pos_y)))
+
+        if self.strategy_status:
+            for status in self.strategy_status:
+                status[1] -= self.update_timer
+                image.blit(self.tactic_alert_image,
+                           self.tactic_alert_image.get_rect(center=(status[0],
+                                                                    self.strategy_alert_pos_y)))
+
+                if status[1] <= 0:
+                    self.strategy_status.remove(status)

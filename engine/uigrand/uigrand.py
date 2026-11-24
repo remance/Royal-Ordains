@@ -178,7 +178,7 @@ class DotInfoBannerArmy(DotInfoBanner):
     def reset(self, state_value_list):
         if "battle" in state_value_list:
             text = ((state_value_list[0], self.grand_ui_images["number"], " V"),
-                    ("S ", state_value_list[1], self.grand_ui_images["number"]))
+                    (" S ", state_value_list[1], self.grand_ui_images["number"]))
             self.battle_state = True
         else:
             text = (minimise_number_text(state_value_list[0]), self.grand_ui_images["number"], "/",

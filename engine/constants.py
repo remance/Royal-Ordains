@@ -25,10 +25,10 @@ Default_Weather_Custom_Battle = 1
 Default_Weather_Strength_Custom_Battle = 0
 Leadership_Add_Modifier = 0.3
 
-Phase_To_Game_Time = 1  # in second to 1 phase
+Round_To_Game_Time = 0.2  # in second to 1 round
 Turn_To_Phase = 12  # in phase to 1 turn
-Phase_To_Battle_Time = 30  # in second
-Phase_To_Round = 6  # battle round, 1 phase (30 second battle time) to simulate 1 action per 5 seconds
+Round_To_Battle_Time = 6  # in second
+Phase_To_Round = 5  # battle round, 1 phase (30 second battle time above) to simulate 1 action per 5 seconds
 
 # number of turn a diplomacy event will have effect
 Diplomacy_Turn_Event_Gift = 30

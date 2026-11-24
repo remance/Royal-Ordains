@@ -763,14 +763,13 @@ class TacticalMap(UIOuterBattle):
         self._layer = 10
         UIOuterBattle.__init__(self)
         self.tactic_alert_image = tactic_alert_image
-        self.all_team_ally = self.battle.all_team_ally
         self.battle_camera_object_drawer = self.battle.battle_camera_object_drawer
         self.battle_camera = self.battle.camera
         self.player_team = 1
         self.update_timer = 0
         self.map_scale_width = 1
-        self.base_image = Surface((2200 * self.screen_scale_width, 200 * self.screen_scale_height), SRCALPHA)
-        self.base_image.fill((155, 155, 155, 125))
+        self.base_image = Surface((2200 * self.screen_scale_width, 200 * self.screen_scale_height))
+        self.base_image.fill((155, 155, 155))
         self.air_icon_pos_y = 30 * self.screen_scale_height
         self.strategy_alert_pos_y = 80 * self.screen_scale_height
         self.ground_icon_pos_y = 190 * self.screen_scale_height
@@ -834,16 +833,15 @@ class TacticalMap(UIOuterBattle):
                                            self.battle.base_camera_center_pos, 2000000, 0)
         self.strategy_status.append([strategy_base_posx / self.map_scale_width, 3])
 
-    def draw_battle(self, add_camera=True):
+    def draw_battle(self):
         battle = self.battle
         player_team = battle.player_team
         self.image = self.base_image.copy()
         image = self.image
         map_scale_width = self.map_scale_width
         # Draw camera border
-        if add_camera:
-            image.blit(self.camera_border_image, self.camera_border_image.get_rect(
-                topleft=(battle.base_camera_left_bound / map_scale_width, 0)))
+        image.blit(self.camera_border_image, self.camera_border_image.get_rect(
+            topleft=(battle.base_camera_left_bound / map_scale_width, 0)))
 
         # draw commander
         team_commander = battle.team_commander
@@ -867,7 +865,7 @@ class TacticalMap(UIOuterBattle):
         # Draw character dots
         air_icon_pos_y = self.air_icon_pos_y
         ground_icon_pos_y = self.ground_icon_pos_y
-        for team, character_team in self.all_team_ally.items():
+        for team, character_team in self.battle.all_team_ally.items():
             dot_image = self.troop_dot_images[team]
             for character in character_team:
                 if not character.invisible or character.team == player_team:

@@ -10,7 +10,7 @@ from math import ceil
 
 from pygame.mixer import Sound
 
-from engine.constants import Opposite_Team, Phase_To_Battle_Time, Battle_Supply_Transfer_Rate
+from engine.constants import Opposite_Team, Round_To_Battle_Time, Battle_Supply_Transfer_Rate
 
 
 def mode_battle_process(self: Battle):
@@ -253,9 +253,9 @@ def mode_battle_process(self: Battle):
                     self.end_delay = 0
 
         elif self.grand:  # update grand campaign during battle still ongoing
-            # time in battle is slower than time in grand campaign where 1 battle minute is equal to 1 phase
+            # time in battle is slower than time in grand campaign
             # instead of 1 second in campaign at normal game speed
-            self.grand.grand_process(dt / Phase_To_Battle_Time)
+            self.grand.grand_process(dt / Round_To_Battle_Time)
 
     else:  # game speed pause
         for character in self.battle_character_updater:

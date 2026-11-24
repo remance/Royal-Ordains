@@ -244,7 +244,7 @@ class CharacterSpeechBox(UIBattle):
         if add_battle_log:
             self.battle.save_data.save_profile["battle log"].append(
                 ("(" + datetime.now().strftime("%d/%m/%Y %H:%M:%S") + ") At " + self.battle.stage + ", " +
-                 character.name + ": ", text))
+                 self.grab_text(("character", character.char_id, "Name")) + ": ", text))
             if len(self.battle.save_data.save_profile["battle log"]) > 500:
                 self.battle.save_data.save_profile["battle log"] = self.battle.save_data.save_profile["battle log"][
                                                                    1:]

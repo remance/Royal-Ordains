@@ -5,20 +5,25 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from engine.grand.grand import Grand
 
-from engine.constants import Phase_To_Game_Time, Turn_To_Phase
+from engine.constants import Round_To_Game_Time, Turn_To_Phase, Phase_To_Round
 
 
 def grand_process(self: Grand, dt: float):
-    self.phase_timer += dt
-    if self.phase_timer > Phase_To_Game_Time:
-        self.phase_timer -= Phase_To_Game_Time
-        if self.current_campaign_state["phase"] < Turn_To_Phase:
-            self.current_campaign_state["phase"] += 1
+    self.round_timer += dt
+    if self.round_timer > Round_To_Game_Time:
+        self.round_timer -= Round_To_Game_Time
+        if self.current_campaign_state["round"] < Phase_To_Round:
+            self.current_campaign_state["round"] += 1
+        else:
+            self.current_campaign_state["round"] = 1
+            if self.current_campaign_state["phase"] < Turn_To_Phase:
+                self.current_campaign_state["phase"] += 1
+            else:  # pass final phase, increase turn and reset phase
+                self.current_campaign_state["phase"] = 1
+                self.current_campaign_state["turn"] += 1
+                self.change_turn()
             self.change_phase()
-        else:  # pass phase 10, increase turn and reset phase
-            self.current_campaign_state["phase"] = 1
-            self.current_campaign_state["turn"] += 1
-            self.change_turn()
+        self.change_round()
 
         # if self.ai_process_list:
         #     limit = int(len(self.ai_process_list) / 20)

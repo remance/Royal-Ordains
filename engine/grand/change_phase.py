@@ -132,9 +132,6 @@ def change_phase(self: Grand, phase_change: bool = True):
 
             self.cal_faction_income_recruit(faction)
 
-        for battle in current_campaign_state["battle"]["battles"].values():  # process all auto battle
-            battle.change_phase()
-
     if self.player_faction:
         self.faction_culture_list_ui.culture_change()
         if self.culture_management_ui in self.outer_ui_updater:

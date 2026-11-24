@@ -2,16 +2,17 @@ from functools import lru_cache
 from operator import itemgetter
 
 from engine.constants import Default_Screen_Width, Collision_Grid_X_Per_Battle_Scene
+from engine.utils.common import empty_method
 
 grid_width = Default_Screen_Width / Collision_Grid_X_Per_Battle_Scene
 
 
 @lru_cache(maxsize=10000)
-def find_grid_range(base_pos_x, max_enemy_range_check, last_grid):
-    grid_left = int((base_pos_x - max_enemy_range_check) / grid_width)
+def find_grid_range(base_pos_x, max_range_check, last_grid):
+    grid_left = int((base_pos_x - max_range_check) / grid_width)
     if grid_left < 0:
         grid_left = 0
-    grid_right = int((base_pos_x + max_enemy_range_check) / grid_width) + 1
+    grid_right = int((base_pos_x + max_range_check) / grid_width) + 1
     if grid_right > last_grid:
         grid_right = last_grid
     return range(grid_left, grid_right)
@@ -47,32 +48,29 @@ def base_ai_prepare(self):
     self.furthest_enemy = None
     self.furthest_enemy_distance = None
     self.furthest_enemy_pos = None
-    return find_grid_range(self.base_pos[0], self.max_enemy_range_check, self.last_grid)
+    self.nearest_ally = None
+    self.nearest_ally_pos = None
+    self.nearest_ally_distance = None
+    return find_grid_range(int(self.base_pos[0]), self.max_enemy_range_check, self.last_grid)
 
 
-def troop_ai_prepare(self):
-    """find distance of enemies within range"""
+def ground_ai_prepare(self):
+    """find distance of enemies and allies within range"""
     grid_range = base_ai_prepare(self)
     near_enemy = [enemy for grid in grid_range for enemy in self.ground_enemy_collision_grids[-1][grid] if
                   not enemy.invisible and not enemy.no_target]
     self.get_near_enemy(near_enemy)
 
-
-def ai_prepare(self):
-    """find distance of enemies and allies within range"""
-    troop_ai_prepare(self)
-    base_pos = self.base_pos
-    ai_ally_max_effect_range = self.ai_ally_max_effect_range
-    self.nearest_ally = None
-    self.nearest_ally_pos = None
-    self.nearest_ally_distance = None
-    self.near_ally = sorted({key: key.base_pos.distance_to(base_pos) for key in self.ally_list}.items(),
-                            key=itemgetter(1))  # sort the closest friend
-    self.near_ally = [key for key in self.near_ally if key[1] <= ai_ally_max_effect_range and key[0] is not self]
-    if self.near_ally:
-        self.nearest_ally = self.near_ally[0][0]
-        self.nearest_ally_pos = self.near_ally[0][0].base_pos
-        self.nearest_ally_distance = self.near_ally[0][1]
+    if self.ai_ally_max_effect_range:
+        base_pos = self.base_pos
+        ai_ally_max_effect_range = self.ai_ally_max_effect_range
+        self.near_ally = sorted({key: key.base_pos.distance_to(base_pos) for key in self.ally_list}.items(),
+                                key=itemgetter(1))  # sort the closest friend
+        self.near_ally = [key for key in self.near_ally if key[1] <= ai_ally_max_effect_range and key[0] is not self]
+        if self.near_ally:
+            self.nearest_ally = self.near_ally[0][0]
+            self.nearest_ally_pos = self.near_ally[0][0].base_pos
+            self.nearest_ally_distance = self.near_ally[0][1]
 
 
 def sub_character_ai_prepare(self):
@@ -116,3 +114,10 @@ def fighter_ai_prepare(self):
                                                                   self.air_enemy_collision_grids[-1][grid] if
                                                                   not enemy.invisible and not enemy.no_target]
     self.get_near_enemy(near_enemy)
+
+
+ai_prepare_dict = {"default": empty_method, "melee": ground_ai_prepare, "range": ground_ai_prepare,
+                   "mix": ground_ai_prepare, "flank": ground_ai_prepare, "nice": ground_ai_prepare,
+                   "curious": ground_ai_prepare, "territorial": ground_ai_prepare, "trap": ground_ai_prepare,
+                   "interceptor": interceptor_ai_prepare, "fighter": fighter_ai_prepare,
+                   "bomber": bomber_ai_prepare, "sub_character": sub_character_ai_prepare}

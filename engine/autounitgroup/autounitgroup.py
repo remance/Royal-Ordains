@@ -7,15 +7,15 @@ from engine.autounitgroup.ai_combat import auto_ai_combat_dict
 from engine.autounitgroup.ai_logic import auto_ai_logic
 from engine.autounitgroup.ai_move import auto_move_to_target_order, auto_ai_move_dict
 from engine.autounitgroup.ai_retreat import auto_ai_retreat_dict
-from engine.character.ai_prepare import (get_near_enemy, ai_prepare, troop_ai_prepare)
+from engine.character.ai_prepare import get_near_enemy
+from engine.autounitgroup.ai_prepare import auto_ai_prepare_dict
 from engine.character.character import BaseCharacter
-from engine.character.enter_stage import (enter_stage, battle_character_enter_stage)
+from engine.character.enter_stage import enter_stage, battle_character_enter_stage
 from engine.utils.common import empty_method
 
 
 class AutoUnitGroup(Sprite, BaseCharacter):
     ai_logic = auto_ai_logic
-    ai_prepare = ai_prepare
     enter_stage = enter_stage
     pick_animation = empty_method
     move_to_target_order = auto_move_to_target_order
@@ -66,15 +66,14 @@ class AutoUnitGroup(Sprite, BaseCharacter):
         self.nearest_ally_pos = None
         self.nearest_ally_distance = None
 
-        if not is_commander:
-            self.ai_prepare = MethodType(troop_ai_prepare, self)
+        if self.ai_behaviour in auto_ai_prepare_dict:
+            self.ai_prepare = MethodType(auto_ai_prepare_dict[self.ai_behaviour], self)
+        else:
+            self.ai_prepare = MethodType(auto_ai_prepare_dict["default"], self)
 
         self.all_team_enemy = self.battle.all_team_enemy
-        self.all_team_enemy_collision_grids = self.battle.all_team_ground_enemy_collision_grids
-        self.ground_enemy_collision_grids = self.battle.all_team_ground_enemy_collision_grids[self.team]
-        self.air_enemy_collision_grids = self.battle.all_team_air_enemy_collision_grids[self.team]
-        self.enemy_collision_grids = self.ground_enemy_collision_grids  # collision grid for self sprite attack
-        self.last_grid = self.battle.last_grid
+        self.all_ground_enemy = self.battle.all_team_ground_enemy_collision_grids[self.team][-1]
+        self.all_air_enemy = self.battle.all_team_air_enemy_collision_grids[self.team][-1]
         self.ally_list = self.battle.all_team_ally[self.team]
         self.near_ally = []
         self.near_enemy = []
@@ -133,157 +132,6 @@ class AutoUnitGroup(Sprite, BaseCharacter):
         else:
             self.enter_stage()
 
-#
-# class GrandAutoNonCombatCharacter(Sprite, BaseCharacter):
-#     ai_logic = auto_ai_logic
-#     ai_prepare = ai_prepare
-#     enter_stage = enter_stage
-#     pick_animation = empty_method
-#     move_to_target_order = auto_move_to_target_order
-#     enter_stage = battle_character_enter_stage
-#     get_near_enemy = get_near_enemy
-#
-#     def __init__(self, battle, game_id: int, character_data: dict, is_commander: bool = False, is_summon: bool = False,
-#                  load_current_state: (None, dict) = None):
-#         Sprite.__init__(self)  # not really sprite, just for using group function
-#         BaseCharacter.__init__(self, game_id, character_data, is_commander=is_commander, is_summon=is_summon)
-#
-#         self.battle = battle
-#         self.animation_load_index = self.battle.animation_load_index["character_load_index"][self.char_id]
-#         self.sub_characters = []
-#
-#         self.team = character_data["Team"]
-#         self.enemy_team = 1
-#         if self.team == 1:
-#             self.enemy_team = 2
-#
-#         self.base_pos = Vector2(character_data["base_pos"])
-#         self.start_pos = self.battle.team_state[self.team]["start_pos"]
-#         self.retreat_pos = self.start_pos * 2
-#         if not self.start_pos:
-#             self.retreat_pos = -10000
-#
-#         self.base_stage_end = self.battle.base_stage_end
-#         self.direction = "right"
-#         if self.base_pos[0] > self.base_stage_end / 2:
-#             self.direction = "left"
-#
-#
-# class GrandAutoCombatCharacter(GrandAutoNonCombatCharacter):
-#
-#
-#     def __init__(self, battle, game_id: int, character_data: dict, is_commander: bool = False, is_summon: bool = False,
-#                  load_current_state: (None, dict) = None):
-#         """Minimal character with minimal stat stuffs for auto battle in grand, used for every type of character"""
-#         GrandAutoNonCombatCharacter.__init__(self, battle, game_id, character_data, is_commander, is_summon, load_current_state)
-#         self.active = False
-#         self.nearest_enemy = None
-#         self.nearest_enemy_distance = None
-#         self.nearest_enemy_pos = None
-#         self.furthest_enemy = None
-#         self.furthest_enemy_distance = None
-#         self.furthest_enemy_pos = None
-#         self.nearest_ally = None
-#         self.nearest_ally_pos = None
-#         self.nearest_ally_distance = None
-#
-#         if not is_commander:
-#             self.ai_prepare = MethodType(troop_ai_prepare, self)
-#
-#         self.all_team_enemy = self.battle.all_team_enemy
-#         self.all_team_enemy_collision_grids = self.battle.all_team_ground_enemy_collision_grids
-#         self.ground_enemy_collision_grids = self.battle.all_team_ground_enemy_collision_grids[self.team]
-#         self.air_enemy_collision_grids = self.battle.all_team_air_enemy_collision_grids[self.team]
-#         self.enemy_collision_grids = self.ground_enemy_collision_grids  # collision grid for self sprite attack
-#         self.last_grid = self.battle.last_grid
-#         self.ally_list = self.battle.all_team_ally[self.team]
-#         self.near_ally = []
-#         self.near_enemy = []
-#
-#         self.movesets = character_data["Move"]
-#         self.die_moveset = character_data["Die Move"]
-#         self.ai_range_modifier = 1
-#
-#         self.ai_min_attack_range = character_data["ai_min_attack_range"] * self.ai_range_modifier
-#         self.ai_max_attack_range = character_data["ai_max_attack_range"] * self.ai_range_modifier
-#         self.max_enemy_range_check = character_data["max_enemy_range_check"] * self.ai_range_modifier
-#         self.ai_skirmish_range = character_data["ai_skirmish_range"] * self.ai_range_modifier
-#         self.min_resource_move = character_data["min_resource_move"]
-#         self.ai_min_effect_range = character_data["ai_min_effect_range"]
-#         self.ai_enemy_max_effect_range = character_data["ai_enemy_max_effect_range"]
-#         self.ai_ally_max_effect_range = character_data["ai_ally_max_effect_range"]
-#
-#         self.ai_move = MethodType(auto_ai_move_dict["default"], self)
-#         if self.is_commander:  # commander use behaviour that move based on player/ ai commander order
-#             self.ai_move = MethodType(auto_ai_move_dict["commander"], self)
-#         elif self.ai_behaviour in auto_ai_move_dict:
-#             self.ai_move = MethodType(auto_ai_move_dict[self.ai_behaviour], self)
-#
-#         self.ai_retreat = MethodType(auto_ai_retreat_dict["default"], self)
-#         if self.ai_behaviour in auto_ai_retreat_dict:
-#             self.ai_retreat = MethodType(auto_ai_retreat_dict[self.ai_behaviour], self)
-#
-#         if self.movesets:
-#             if self.is_commander:
-#                 self.ai_combat = MethodType(auto_ai_combat_dict["leader"], self)
-#             elif self.ai_behaviour in auto_ai_combat_dict:
-#                 self.ai_combat = MethodType(auto_ai_combat_dict[self.ai_behaviour], self)
-#
-#         if load_current_state:  # assign value from loaded state to variable
-#             self.health = load_current_state["health"]
-#             self.resource = load_current_state["resource"]
-#             self.status_duration = load_current_state["status_duration"]
-#             self.moveset_cooldown = load_current_state["moveset_cooldown"]
-#             self.commander_order = load_current_state["commander_order"]
-#             self.base_pos = Vector2(load_current_state["base_pos"])
-#             self.active = load_current_state["active"]
-#             self.status_update(specific_dt=0)
-#
-#         self.enter_stage()
-#
-#
-# class SubGrandAutoCharacter(GrandAutoNonCombatCharacter):
-#     is_sub_character = True
-#
-#     ai_prepare = sub_character_ai_prepare
-#     move_logic = sub_move_logic
-#
-#     to_dict = sub_character_to_dict
-#
-#     def __init__(self, battle, game_id: int, character_data: dict, main_character: CombatCharacter):
-#         """
-#         SubBattleCharacter object represent a battle character that is linked to a main BattleCharacter
-#
-#         In that when the main character die, the sub character will also die even if they have separate health,
-#         sub character will also move along with the main character, they can attack while the main character move
-#         Some examples are archer on tower or big creature
-#         """
-#         self.main_character = main_character
-#         GrandAutoNonCombatCharacter.__init__(self, battle, game_id, character_data)
-#
-#         main_character.sub_characters.append(self)
-#         if main_character.max_enemy_range_check < self.max_enemy_range_check:
-#             main_character.max_enemy_range_check = self.max_enemy_range_check
-#         self.is_leader = main_character.is_leader
-#
-#
-# class CommanderGrandAutoCharacter(GrandAutoCombatCharacter):
-#     die = commander_die
-#
-#     def __init__(self, battle, game_id: int, character_data: dict):
-#         """
-#         CommanderBattleCharacter object represent the team commander
-#
-#         When the commander character die, every character in that team will enter broken state.
-#         They will no longer fight and instead retreat from battle.
-#         """
-#         self.total_power_score = 0
-#         self.followers_len_check = [0, 0]
-#         self.max_followers_len_check = 0
-#         GrandAutoCombatCharacter.__init__(self, battle, game_id, character_data, is_commander=True)
-#         max_ai_commander_range = self.ai_max_attack_range
-#         for strategy in self.battle.team_state[self.team]["strategy_cooldown"]:
-#             strategy_stat = self.battle.strategy_list[strategy]
-#             if strategy_stat["Activate Range"] > max_ai_commander_range:
-#                 max_ai_commander_range = strategy_stat["Activate Range"]
-#         self.optimal_ai_commander_range = max_ai_commander_range * 0.75
+        if character_data["ID"] in self.battle.character_portraits:
+            self.icon = self.battle.character_portraits[character_data["ID"]]["small"]
+            self.command_icon = self.battle.character_portraits[character_data["ID"]]["mini"]["right"]

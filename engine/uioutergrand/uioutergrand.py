@@ -801,15 +801,19 @@ class ArmyList(GrandListUI, UIOuterGrand):
                                                                      -10 * self.screen_scale_height))
             card_image.blit(commander_image, commander_image_rect)
 
+        army_remain_supply_percent = 1
+        if army.max_supply:
+            army_remain_supply_percent = army.supply / army.max_supply
+
         supply_text_colour = (255, 255, 255)
-        if army.supply / army.max_supply < 0.2:
+        if army_remain_supply_percent < 0.2:
             supply_text_colour = (150, 20, 20)
 
         if army.total_supply_usage:
             supply_available_text = "% (" + str(int(army.supply / army.total_supply_usage * 100)) + "%)"
         else:
             supply_available_text = "% (100%)"
-        supply_text = (str(int(army.supply / army.max_supply * 100)) + supply_available_text)
+        supply_text = (str(int(army_remain_supply_percent * 100)) + supply_available_text)
         if supply_text not in self.cache_value_text_font:
             text_surface = text_render_with_bg(supply_text,
                                                self.font, (0, 0, 0), supply_text_colour)
@@ -897,22 +901,22 @@ class ArmyList(GrandListUI, UIOuterGrand):
             inside_mouse_pos = Vector2(
                 (self.cursor.pos[0] - self.rect.topleft[0]),
                 (self.cursor.pos[1] - self.rect.topleft[1]))
+            grand = self.grand
             if self.cursor.scroll_up:
                 if self.current_row > 0:
                     self.current_row -= 1
                     self.scroll.change_image(self.current_row, self.scroll_total_row)
                     self.draw_card_list_to_ui(
-                        self.grand.current_campaign_state["faction"][self.grand.player_faction]["army"],
-                        self.grand.player_selected_army)
+                        grand.current_campaign_state["faction"][grand.player_faction]["army"],
+                        grand.player_selected_army)
             elif self.cursor.scroll_down:
                 if self.current_row < self.total_row:
                     self.current_row += 1
                     self.scroll.change_image(self.current_row, self.scroll_total_row)
                     self.draw_card_list_to_ui(
-                        self.grand.current_campaign_state["faction"][self.grand.player_faction]["army"],
-                        self.grand.player_selected_army)
+                        grand.current_campaign_state["faction"][grand.player_faction]["army"],
+                        grand.player_selected_army)
             else:
-                grand = self.grand
                 for index, rect in enumerate(self.card_rects):
                     if rect.collidepoint(inside_mouse_pos) and self.current_row + index < len(self.card_list):
                         army = grand.current_campaign_state["faction"][grand.player_faction][
@@ -935,8 +939,8 @@ class ArmyList(GrandListUI, UIOuterGrand):
                                             army.enable_resupply = True
                                     self.add_assemble_resupply_button_to_card(army, which)
                                     self.draw_card_list_to_ui(
-                                        self.grand.current_campaign_state["faction"][self.grand.player_faction]["army"],
-                                        self.grand.player_selected_army)
+                                        grand.current_campaign_state["faction"][grand.player_faction]["army"],
+                                        grand.player_selected_army)
 
                                 else:
                                     if which == "assemble":
@@ -959,8 +963,8 @@ class ArmyList(GrandListUI, UIOuterGrand):
                             else:
                                 grand.player_selected_army = [army]
                             self.draw_card_list_to_ui(
-                                self.grand.current_campaign_state["faction"][self.grand.player_faction]["army"],
-                                self.grand.player_selected_army)
+                                grand.current_campaign_state["faction"][grand.player_faction]["army"],
+                                grand.player_selected_army)
                         elif self.event_alt_press:
                             # open army management ui
                             grand.army_setup_ui.reset(army)
@@ -1056,7 +1060,6 @@ class PlayerGrandInteract(UIOuterGrand):
                                 grand.player_selected_army = army_select_list
                         else:
                             grand.player_selected_army = []
-                            all_settlement_objects = grand.grand_settlement_objects
                             region_colour = tuple(grand.base_world_map.get_at(
                                 (int(grand.base_cursor_pos[0]), int(grand.base_cursor_pos[1]))).rgb)
                             if region_colour in grand.region_by_colour_index:

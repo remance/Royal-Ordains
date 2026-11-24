@@ -31,8 +31,8 @@ def cal_damage(self, target, critical: bool, front_hit: bool):
     if critical:
         damage *= 2
 
-    # Damage cannot be negative (it would heal instead)
-    if damage < 0:
-        damage = 0
+    # Damage cannot be negative (it would heal instead) or lower than 1
+    if damage < 1:
+        damage = 1
 
     return damage

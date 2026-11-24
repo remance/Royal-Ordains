@@ -64,7 +64,8 @@ def auto_common_ai(self: GrandAutoNonCombatCharacter):
             #
             # if enemy_status:
             if self.power:
-                for enemy in [enemy2 for enemy2 in self.near_enemy if abs(self.base_pos[0] - enemy2.base_pos[0])]:
+                for enemy_group in [enemy_group2 for enemy_group2 in self.near_enemy if
+                                    abs(self.base_pos[0] - enemy_group2.base_pos[0])]:
                     hit_angle = -90
                     front_hit = False
                     if self.base_pos[0] >= target.base_pos[0]:
@@ -103,7 +104,7 @@ def auto_common_ai(self: GrandAutoNonCombatCharacter):
                                     else:
                                         self.base_pos[0] += uniform(impact_x * 0.8, impact_x * 1.2) - self.damaged_mass
 
-                    penetrate -= enemy.body_mass
+                    penetrate -= enemy_group.body_mass
                     if penetrate <= 0:
                         break
 

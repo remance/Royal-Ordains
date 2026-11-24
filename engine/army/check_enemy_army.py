@@ -3,7 +3,7 @@ def check_enemy_army(self):
     current_campaign_state = grand.current_campaign_state
     campaign_battle_dot = current_campaign_state["battle"]["dot"]
     campaign_battle_faction = current_campaign_state["battle"]["faction"]
-    campaign_battle_armies = current_campaign_state["battle"]["army"]
+    campaign_battle_army = current_campaign_state["battle"]["army"]
     faction_state = current_campaign_state["faction"][self.faction]
     dots_army_occupation = self.dots_army_occupation
     if self.base_pos not in campaign_battle_dot:
@@ -20,12 +20,12 @@ def check_enemy_army(self):
                 if not enemy_alliance:
                     enemy_alliance = current_campaign_state["faction"][self.faction]["alliance"]
                     battle_army_list[2].append(army)
-                    campaign_battle_armies.append(army)
+                    campaign_battle_army.append(army.game_id)
                 elif army.faction in enemy_alliance:  # enemy army join the battle
-                    # only 2 alliances can fight in a battle,
-                    # other factions will wait while others in battle
+                    # only 2 related alliances can fight in a battle,
+                    # other factions will wait until battle finish
                     battle_army_list[2].append(army)
-                    campaign_battle_armies.append(army)
+                    campaign_battle_army.append(army.game_id)
 
         if self.base_pos in self.region_settlement_pos_index and region_owner != self.faction and region_owner not in alliance:
             # enemy region, add garrison army if exist
@@ -48,7 +48,7 @@ def check_enemy_army(self):
             team = 1
             if self.faction == battle_faction[1] or battle_faction[1] in faction_state["alliance"]:
                 team = 2
-            campaign_battle_armies.append(self.game_id)
+            campaign_battle_army.append(self.game_id)
             team_state = current_campaign_state["battle"]["battles"][self.base_pos].team_state[team]
             current_campaign_state["battle"]["battles"][self.base_pos].team_state[team]["reinforcement_army"].append(
                 self)

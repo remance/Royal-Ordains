@@ -7,9 +7,9 @@ if TYPE_CHECKING:
 
 from engine.battle.setup_team_characters import add_neutral_stage_character
 from engine.battle.check_reinforcement import condition_check
-from engine.constants import Default_Battle_Ground_Pos, Phase_To_Battle_Time, Phase_To_Round
+from engine.constants import Default_Battle_Ground_Pos, Round_To_Battle_Time, Phase_To_Round
 
-Round_to_Second = Phase_To_Battle_Time / Phase_To_Round
+Round_to_Second = Round_To_Battle_Time / Phase_To_Round
 
 
 def check_reinforcement(self: AutoBattle):

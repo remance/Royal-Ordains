@@ -38,6 +38,8 @@ class Effect(Sprite):
     screen_scale = (1, 1)
     screen_scale_width = screen_scale[0]
     screen_scale_height = screen_scale[1]
+    collision_grid_height = 0
+    collision_grid_width = 0
 
     adjust_sprite = adjust_sprite
     cal_damage = cal_damage
@@ -366,7 +368,6 @@ class Effect(Sprite):
 
 class DamageEffect(Effect):
     adjust_sprite = damage_effect_adjust_sprite
-    collision_grid_width = 0
 
     def __init__(self, owner, stat, moveset, base_target_pos=None, from_owner=True):
         Effect.__init__(self, owner, stat, moveset=moveset, base_target_pos=base_target_pos,
