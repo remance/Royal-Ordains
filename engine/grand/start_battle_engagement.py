@@ -12,8 +12,8 @@ from random import randint
 def start_battle_engagement(self: Grand, armies: dict, base_pos: tuple):
     current_campaign_state = self.current_campaign_state
     campaign_battle_dot = current_campaign_state["battle"]["dot"]
-    campaign_battle_armies = current_campaign_state["battle"]["army"]
-    campaign_battle_factions = current_campaign_state["battle"]["faction"]
+    campaign_battle_army = current_campaign_state["battle"]["army"]
+    campaign_battle_faction = current_campaign_state["battle"]["faction"]
 
     campaign_battle_dot.append(base_pos)
 
@@ -27,8 +27,8 @@ def start_battle_engagement(self: Grand, armies: dict, base_pos: tuple):
                 team_sub_armies[team].append(army)
 
             army.can_assemble = {}  # cancel assembling
-            if army not in campaign_battle_armies:
-                campaign_battle_armies.append(army)
+            if army.game_id not in campaign_battle_army:
+                campaign_battle_army.append(army.game_id)
                 army.activity = {"battle": True}
 
             if army.belong_to_player_faction:
@@ -45,7 +45,7 @@ def start_battle_engagement(self: Grand, armies: dict, base_pos: tuple):
         stage_len = len(
             [value for value in self.game.preset_map_data[stage]["data"].values() if "scene" in value["Type"]])
 
-    campaign_battle_factions[base_pos] = [team_1_army.faction, team_2_army.faction]
+    campaign_battle_faction[base_pos] = [team_1_army.faction, team_2_army.faction]
 
     commander_1_stat = self.character_list[team_1_army.commander_id]
     commander_2_stat = self.character_list[team_2_army.commander_id]

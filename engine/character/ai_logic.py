@@ -25,16 +25,3 @@ def ai_logic(self: CombatCharacter, dt: float):
                 self.ai_movement_timer = 0
     else:
         self.ai_retreat()
-
-
-def auto_ai_logic(self: GrandAutoNonCombatCharacter):
-    if not self.broken and "broken" not in self.commander_order:
-        self.ai_prepare()
-        if "idle" not in self.commander_order:
-            # move first
-            self.ai_move()
-        if self.nearest_enemy and self.nearest_enemy_distance <= self.ai_max_attack_range:
-            # perform attack
-            self.ai_combat()
-    else:
-        self.ai_retreat()

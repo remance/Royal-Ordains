@@ -39,5 +39,10 @@ def call_reinforcement_to_battle(self: Battle, team: int, call_type: str, charac
         team_state["supply_resource"] -= call_pool[character_index][2]
         if character_to_call[1] <= 0:
             call_pool.remove(character_to_call)
+            if character_index in cooldown_check:
+                cooldown_check.pop(character_index)
+            for key in tuple(cooldown_check.keys()):
+                if key > character_index:
+                    cooldown_check[key - 1] = cooldown_check.pop(key)
         else:
             cooldown_check[character_index] = character_stat["Reinforce Time"]

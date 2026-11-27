@@ -45,7 +45,7 @@ def menu_main(self: Game):
         self.custom_team_army[1][0].__init__("", "small", "small", "leader_bigta",
                                              {"leader": [["leader_adaqua", True], ["small_rabbit_leader_shaman", True],
                                                          ["small_rabbit_leader_banner", True], ],
-                                              "troop": [["small_rabbit_tower", True], ["small_snail_sword", True],
+                                              "troop": [["small_rabbit_rifle", True], ["small_snail_sword", True],
                                                         ["small_rabbit_trebuchet", True], ],
                                               "air": []}, supply=10000)
         self.custom_team_army[1][1].__init__("", "small", "small", "leader_amgarn",

@@ -26,8 +26,7 @@ def check_reinforcement(self: AutoBattle):
                             add_neutral_stage_character(self, key_data)
                             reinforcement.remove(key_data)  # remove added reinforcement from list
                 else:
-                    if self.team_commander[team] and self.team_commander[team].alive and \
-                            len(self.all_team_ally[team]) < 500:  # prevent too many characters per team in battle:
+                    if self.team_commander[team] and self.team_commander[team].alive:
                         # team reinforcement allow only if commander exist and alive
                         if condition == "ground":
                             if reinforcement:

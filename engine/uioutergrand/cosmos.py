@@ -111,7 +111,7 @@ class CosmosUI(UIOuterGrand):
 
         # Create the earth
         self.terra = CosmicEntity(15, 0, (50, 50, 180), "earth",
-                                  specific_base_pos=(1250, 1080))  # center of cosmos ui image before scaling
+                                  specific_base_pos=(1400, 1080))  # center of cosmos ui image before scaling
 
         comet_hidden_planet_center = CosmicEntity(0, 0, (255, 255, 255), "",
                                                   specific_base_pos=(750, 1836))

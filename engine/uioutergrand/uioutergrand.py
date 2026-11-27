@@ -3,7 +3,7 @@ from random import choice
 
 from pygame import Vector2, Surface, SRCALPHA, Rect, draw, Color
 
-from engine.constants import Base_Animation_Frame_Play_Time
+from engine.constants import Base_Animation_Frame_Play_Time, Round_To_Game_Time
 from engine.uibattle.uibattle import CharacterSpeechBox
 from engine.uimenu.uimenu import UIMenu, UIScroll
 from engine.uiouterbattle.drama import TextDrama
@@ -794,7 +794,6 @@ class ArmyList(GrandListUI, UIOuterGrand):
 
     def draw_army_card(self, army):
         card_image = self.empty_card_image.copy()
-
         if army.commander_id:
             commander_image = self.character_portraits[army.commander_id]["tiny"]["right"]
             commander_image_rect = commander_image.get_rect(topleft=(self.card_icon_rects["assemble"].topright[0],
@@ -1086,8 +1085,11 @@ class PlayerGrandInteract(UIOuterGrand):
                                                 banner.base_pos]
                                             tactical_map_ui = grand.tactical_map_ui
                                             if tactical_map_ui.battle != this_battle:
+                                                # reset tactical map ui and redraw right away
                                                 tactical_map_ui.battle = this_battle
                                                 tactical_map_ui.setup()
+                                                tactical_map_ui.update_timer = Round_To_Game_Time
+                                                tactical_map_ui.update(0)
                                             grand.add_to_outer_ui_updater(grand.tactical_map_uis)
 
                         grand.army_list_ui.draw_card_list_to_ui(player_armies, grand.player_selected_army)

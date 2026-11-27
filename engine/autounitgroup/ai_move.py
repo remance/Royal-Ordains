@@ -93,8 +93,8 @@ def auto_curious_ai(self: AutoUnitGroup):
 
 def auto_melee_ai(self: AutoUnitGroup):
     if "idle" not in self.commander_order:
-        if ("move" not in self.commander_order and
-                (not self.nearest_enemy or self.nearest_enemy_distance > self.ai_min_attack_range)):
+        if ("move" in self.commander_order or
+                not self.nearest_enemy or self.nearest_enemy_distance > self.ai_min_attack_range):
             # keep moving to attack target point, stop moving if there are enemy to attack
             self.move_to_target_order()
         elif not self.all_team_enemy[self.team]:
@@ -249,13 +249,7 @@ def auto_leader_ai(self: AutoUnitGroup):
             command_target_x = self.commander_order[1]
             distance_to_target = abs(self.base_pos[0] - command_target_x)
             if distance_to_target > (self.run_speed / 2):
-                if not self.command_action:
-                    self.command_action = self.run_command_action
-                    self.command_action["x_momentum"] = self.run_speed
-                    if command_target_x > self.base_pos[0]:
-                        self.direction = "right"
-                    else:
-                        self.direction = "left"
+                auto_commander_inner_move_dict[self.ai_behaviour](self)
             else:  # reach move target, issue stay order that will prevent leader from using move with no_stay condition
                 self.issue_commander_order(("stay", self.base_pos[0]))
         elif "attack" in self.commander_order:  # use normal leader behaviour to move

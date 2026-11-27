@@ -757,6 +757,7 @@ class BattleHelper(UIOuterBattle):
 
 
 class TacticalMap(UIOuterBattle):
+    background_colour = (155, 155, 155)
     commander_icon_border = {}
 
     def __init__(self, tactic_alert_image):
@@ -768,14 +769,13 @@ class TacticalMap(UIOuterBattle):
         self.player_team = 1
         self.update_timer = 0
         self.map_scale_width = 1
-        self.base_image = Surface((2200 * self.screen_scale_width, 200 * self.screen_scale_height))
-        self.base_image.fill((155, 155, 155))
+        self.image = Surface((2200 * self.screen_scale_width, 200 * self.screen_scale_height))
+        self.image.fill(self.background_colour)
         self.air_icon_pos_y = 30 * self.screen_scale_height
         self.strategy_alert_pos_y = 80 * self.screen_scale_height
         self.ground_icon_pos_y = 190 * self.screen_scale_height
         self.ground_commander_icon_pos_y = 200 * self.screen_scale_height
         self.camera_border_image = None
-        self.image = self.base_image.copy()
         self.image_width = self.image.get_width()
         self.image_height = self.image.get_height()
         self.current_strategy_base_range = None
@@ -797,7 +797,7 @@ class TacticalMap(UIOuterBattle):
         self.commander_health_state = {1: None, 2: None}
         self.commander_icon = {1: None, 2: None}
         for team, colour in Team_Colour.items():
-            dot = Surface((20 * self.screen_scale_width, 20 * self.screen_scale_height))
+            dot = Surface((30 * self.screen_scale_width, 30 * self.screen_scale_height))
             dot.fill(colour)
             self.troop_dot_images[team] = dot
         self.character_rect = {}
@@ -836,8 +836,10 @@ class TacticalMap(UIOuterBattle):
     def draw_battle(self):
         battle = self.battle
         player_team = battle.player_team
-        self.image = self.base_image.copy()
+        commander_icon = self.commander_icon
         image = self.image
+        image.fill(self.background_colour)
+        icon_height = self.icon_height
         map_scale_width = self.map_scale_width
         # Draw camera border
         image.blit(self.camera_border_image, self.camera_border_image.get_rect(
@@ -853,14 +855,14 @@ class TacticalMap(UIOuterBattle):
                 if health_state != self.commander_health_state[team]:
                     # circle also indicate health
                     back_icon = self.commander_icon_border[character.team].subsurface((
-                        0, self.icon_height - (self.icon_height * health_state),
-                        self.icon_width, self.icon_height - (self.icon_height * (1 - health_state))))
+                        0, icon_height - (icon_height * health_state),
+                        self.icon_width, icon_height - (icon_height * (1 - health_state))))
                     back_command_icon = self.empty_command_icon.copy()
-                    back_command_icon.blit(back_icon, back_icon.get_rect(bottomleft=(0, self.icon_height)))
+                    back_command_icon.blit(back_icon, back_icon.get_rect(bottomleft=(0, icon_height)))
                     character_icon = character.icon[character.direction]
                     back_command_icon.blit(character_icon, character_icon.get_rect(center=self.icon_center))
-                    self.commander_icon[team] = back_command_icon
-                image.blit(self.commander_icon[team], self.commander_icon[team].get_rect(midbottom=scaled_pos))
+                    commander_icon[team] = back_command_icon
+                image.blit(commander_icon[team], commander_icon[team].get_rect(midbottom=scaled_pos))
 
         # Draw character dots
         air_icon_pos_y = self.air_icon_pos_y
@@ -878,6 +880,7 @@ class TacticalMap(UIOuterBattle):
 
         if battle.player_selected_strategy:
             # draw activation line
+            image_height = self.image_height
             line_start = ((team_commander[self.player_team].base_pos[
                                0] - self.current_strategy_base_activate_range) /
                           map_scale_width)
@@ -890,11 +893,11 @@ class TacticalMap(UIOuterBattle):
                 line_end = self.image_width
             draw.line(image, (80, 120, 200),
                       (line_start, 0),
-                      (line_start, self.image_height), width=self.strategy_line_width)
+                      (line_start, image_height), width=self.strategy_line_width)
 
             draw.line(image, (80, 120, 200),
                       (line_end, 0),
-                      (line_end, self.image_height), width=self.strategy_line_width)
+                      (line_end, image_height), width=self.strategy_line_width)
 
             if battle.player_interact.show_strategy_activate_line:
                 # draw strategy range if player cursor is within activation range, mean strategy can be used
@@ -909,11 +912,11 @@ class TacticalMap(UIOuterBattle):
 
                 draw.line(image, (120, 180, 80),
                           (line_start, 0),
-                          (line_start, self.image_height), width=self.strategy_line_width)
+                          (line_start, image_height), width=self.strategy_line_width)
 
                 draw.line(image, (120, 180, 80),
                           (line_end, 0),
-                          (line_end, self.image_height), width=self.strategy_line_width)
+                          (line_end, image_height), width=self.strategy_line_width)
 
         if self.strategy_status:
             for status in self.strategy_status:
@@ -925,13 +928,13 @@ class TacticalMap(UIOuterBattle):
                 if status[1] <= 0:
                     self.strategy_status.remove(status)
 
-    def update(self, dt, add_camera=True):
+    def update(self, dt):
         """update map"""
         battle = self.battle
         self.update_timer += battle.true_dt
         if self.update_timer > 0.05:
             self.draw_battle()
-            self.update_timer -= 0.1
+            self.update_timer -= 0.05
         if UIMenu.update(self, dt):
             if self.event_press or self.event_alt_press:
                 battle.camera_center_pos[0] = ((self.cursor.pos[0] - self.rect.topleft[0]) * self.map_scale_width *

@@ -1,47 +1,58 @@
-infinity = float("inf")
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from engine.character.character import AirCombatCharacter
 
 
 def health_resource_logic(self):
-    """Health and resource calculation"""
-    if self.health != infinity:
-        if self.health_regen:
-            # negative regen number will reduce hp here
-            self.health += self.health_regen * self.timer
-            if self.health < 0:
-                self.health = 0  # can't have negative hp
-            elif self.health > self.base_health:
-                self.health = self.base_health  # hp can't exceed max hp
+    """Health and resource regen calculation"""
+    health = self.health
+    if health < self.base_health and self.health_regen:
+        # negative regen number will reduce hp here
+        health += self.health_regen * self.timer
+        if health < 0:
+            health = 0  # can't have negative hp
+        elif health > self.base_health:
+            health = self.base_health  # hp can't exceed max hp
+        self.health = health
 
-    if self.resource != infinity:
-        if self.resource_regen:
-            self.resource += self.resource_regen * self.timer
-            if self.resource < 0:
-                self.resource = 0
-            elif self.resource > self.base_resource:  # resource cannot exceed the max resource
-                self.resource = self.base_resource
+    resource = self.resource
+    if resource < self.base_resource and self.resource_regen:
+        resource += self.resource_regen * self.timer
+        if resource < 0:
+            resource = 0
+        elif resource > self.base_resource:  # resource cannot exceed the max resource
+            resource = self.base_resource
+        self.resource = resource
 
 
-def air_health_resource_logic(self):
-    """Health and resource calculation"""
+def air_health_resource_logic(self: AirCombatCharacter):
+    """Health and resource regen calculation for air character that has active and non active state"""
+    health = self.health
+    resource = self.resource
     if self.active:
-        if self.health != infinity:
-            if self.health_regen:
-                # negative regen number will reduce hp here
-                self.health += self.health_regen * self.timer
-                if self.health < 0:
-                    self.health = 0  # can't have negative hp
-                elif self.health > self.base_health:
-                    self.health = self.base_health  # hp can't exceed max hp
+        if health < self.base_health and self.health_regen:
+            # negative regen number will reduce hp here
+            health += self.health_regen * self.timer
+            if health < 0:
+                health = 0  # can't have negative hp
+            elif health > self.base_health:
+                health = self.base_health  # hp can't exceed max hp
 
-        if self.resource != infinity:
-            self.resource -= self.timer
-            if self.resource <= self.min_resource_move:
-                self.resource = 0
+        if resource < self.base_resource and self.resource_regen:
+            resource -= self.timer
+            if resource <= self.min_resource_move:
+                resource = 0
                 self.issue_commander_order(("back", self.retreat_pos))
     else:
         # replenish health and resource while not active in battle
-        if self.health != infinity and self.health < self.base_health:
-            self.health += 10 * self.timer
+        if health < self.base_health and self.health_regen:
+            health += 10 * self.timer
 
-        if self.resource != infinity and self.resource < self.base_resource:
-            self.resource += (self.resource_regen * 2) * self.timer
+        if resource < self.base_resource and self.resource_regen:
+            resource += (self.resource_regen * 2) * self.timer
+
+    self.health = health
+    self.resource = resource

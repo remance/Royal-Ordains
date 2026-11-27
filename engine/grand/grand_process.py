@@ -9,18 +9,19 @@ from engine.constants import Round_To_Game_Time, Turn_To_Phase, Phase_To_Round
 
 
 def grand_process(self: Grand, dt: float):
-    self.round_timer += dt
-    if self.round_timer > Round_To_Game_Time:
-        self.round_timer -= Round_To_Game_Time
-        if self.current_campaign_state["round"] < Phase_To_Round:
-            self.current_campaign_state["round"] += 1
+    current_campaign_state = self.current_campaign_state
+    current_campaign_state["round_timer"] += dt
+    if current_campaign_state["round_timer"] > Round_To_Game_Time:
+        current_campaign_state["round_timer"] -= Round_To_Game_Time
+        if current_campaign_state["round"] < Phase_To_Round:
+            current_campaign_state["round"] += 1
         else:
-            self.current_campaign_state["round"] = 1
-            if self.current_campaign_state["phase"] < Turn_To_Phase:
-                self.current_campaign_state["phase"] += 1
+            current_campaign_state["round"] = 1
+            if current_campaign_state["phase"] < Turn_To_Phase:
+                current_campaign_state["phase"] += 1
             else:  # pass final phase, increase turn and reset phase
-                self.current_campaign_state["phase"] = 1
-                self.current_campaign_state["turn"] += 1
+                current_campaign_state["phase"] = 1
+                current_campaign_state["turn"] += 1
                 self.change_turn()
             self.change_phase()
         self.change_round()

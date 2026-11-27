@@ -30,6 +30,7 @@ Turn_To_Phase = 12  # in phase to 1 turn
 Round_To_Battle_Time = 6  # in second
 Phase_To_Round = 5  # battle round, 1 phase (30 second battle time above) to simulate 1 action per 5 seconds
 
+
 # number of turn a diplomacy event will have effect
 Diplomacy_Turn_Event_Gift = 30
 Diplomacy_Turn_Event_Battle = 15
@@ -59,3 +60,4 @@ Default_Showcase_Character_air_POS = (Default_Screen_Width * 0.5, Default_Screen
 Weak_To_Element = {"fire": "water", "water": "air", "earth": "fire", "air": "earth", "magic": None,
                    "stab": None, "slash": None, "crush": None}
 Opposite_Team = {1: 2, 2: 1}
+Phase_To_Game_Time = Round_To_Game_Time * Phase_To_Round

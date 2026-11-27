@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 
 from pygame import Vector2
 
-from engine.constants import Round_To_Game_Time
+from engine.constants import Phase_To_Game_Time
 
 infinity = float("inf")
 
@@ -19,7 +19,7 @@ def move_logic(self: GrandArmyActor, dt: float):
         self.pos = Vector2(self.target_pos)
     else:
         move = self.target_pos - self.pos
-        move_speed = move.length() / (Round_To_Game_Time / 2)
+        move_speed = move.length() / (Phase_To_Game_Time / 2)
         move.normalize_ip()
         move *= move_speed * dt
         self.pos += move

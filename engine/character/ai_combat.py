@@ -3,56 +3,58 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from engine.autounitgroup.autounitgroup import AutoUnitGroup
     from engine.character.character import CombatCharacter
 
 from random import choice, uniform
+from engine.utils.common import empty_method
 
 
-def check_status(who: CombatCharacter, status: str):
+def check_status(who: (AutoUnitGroup, CombatCharacter), status: str):
     if status not in who.status_duration:
         return True
     return None
 
 
-def check_health_lower(who: CombatCharacter, value: (int, float)):
+def check_health_lower(who: (AutoUnitGroup, CombatCharacter), value: (int, float)):
     if who.health <= who.base_health * value:
         return True
     return None
 
 
-def check_resource_lower(who: CombatCharacter, value: (int, float)):
+def check_resource_lower(who: (AutoUnitGroup, CombatCharacter), value: (int, float)):
     if who.resource <= who.base_resource * value:
         return True
     return None
 
 
-def check_health_higher(who: CombatCharacter, value: (int, float)):
+def check_health_higher(who: (AutoUnitGroup, CombatCharacter), value: (int, float)):
     if who.health >= who.base_health * value:
         return True
     return None
 
 
-def check_resource_higher(who: CombatCharacter, value: (int, float)):
+def check_resource_higher(who: (AutoUnitGroup, CombatCharacter), value: (int, float)):
     if who.resource >= who.base_resource * value:
         return True
     return None
 
 
-def check_engage(who: CombatCharacter, value: (int, float)):
+def check_engage(who: (AutoUnitGroup, CombatCharacter), value: (int, float)):
     """Check if who has enemy in provided range"""
     if who.nearest_enemy_distance > value:
         return True
     return None
 
 
-def check_target_type(who: CombatCharacter, value: str):
+def check_target_type(who: (AutoUnitGroup, CombatCharacter), value: str):
     """Check if who match the target type value"""
     if who.character_type == value:
         return True
     return None
 
 
-def check_no_stay(who: CombatCharacter, value: bool):
+def check_no_stay(who: (AutoUnitGroup, CombatCharacter), value: bool):
     """Check that commander order is not stay"""
     check = "stay" not in who.commander_order  # require local variable due to comparison chain issue with is boolean
     if check is value:
@@ -66,7 +68,7 @@ ai_condition_check_dict = {"health>": check_health_higher, "resource>": check_re
                            "target_type": check_target_type, "no_stay": check_no_stay}
 
 
-def leader_condition_check(self: CombatCharacter, value):
+def leader_condition_check(self: (AutoUnitGroup, CombatCharacter), value):
     """Require leader to meet condition"""
     if self.commander_character:
         for condition2, value2 in value.items():
@@ -76,7 +78,7 @@ def leader_condition_check(self: CombatCharacter, value):
     return None
 
 
-def allies_condition_check(self: CombatCharacter, value):
+def allies_condition_check(self: (AutoUnitGroup, CombatCharacter), value):
     """Require all nearby allies to meet condition"""
     for character in self.near_ally:
         for condition2, value2 in value.items():
@@ -85,7 +87,7 @@ def allies_condition_check(self: CombatCharacter, value):
     return True
 
 
-def ally_condition_check(self: CombatCharacter, value):
+def ally_condition_check(self: (AutoUnitGroup, CombatCharacter), value):
     """Require one nearby ally to meet condition"""
     for character in self.near_ally:
         for condition2, value2 in value.items():
@@ -94,7 +96,7 @@ def ally_condition_check(self: CombatCharacter, value):
     return None
 
 
-def self_condition_check(self: CombatCharacter, value):
+def self_condition_check(self: (AutoUnitGroup, CombatCharacter), value):
     """Require self to meet condition"""
     for condition2, value2 in value.items():
         if not ai_condition_check_dict[condition2](self, value2):
@@ -102,7 +104,7 @@ def self_condition_check(self: CombatCharacter, value):
     return True
 
 
-def enemy_condition_check(self: CombatCharacter, value):
+def enemy_condition_check(self: (AutoUnitGroup, CombatCharacter), value):
     """Require nearest enemy to meet condition"""
     if self.nearest_enemy and self.nearest_enemy.alive:
         for condition2, value2 in value.items():
@@ -117,23 +119,25 @@ ai_who_check_dict = {"leader": leader_condition_check, "allies": allies_conditio
                      "enemy": enemy_condition_check}
 
 
-def check_ai_condition(self: CombatCharacter, condition_dict):
+def check_ai_condition(self: (AutoUnitGroup, CombatCharacter), condition_dict):
     for condition, value in condition_dict.items():
         if not ai_who_check_dict[condition](self, value):
             return None
     return True
 
 
-def find_move_to_attack(self: CombatCharacter):
+def find_move_to_attack(self: (AutoUnitGroup, CombatCharacter)):
     # has enemy to attack and within max range attack
     # blind cause random direction melee attack but will not allow ranged attack
     resource = self.resource
+    nearest_enemy_distance = self.nearest_enemy_distance
     furthest_enemy_distance = self.furthest_enemy_distance
+    moveset_cooldown = self.moveset_cooldown
     possible_attacks = [value for move, value in self.movesets.items() if
-                        move not in self.moveset_cooldown and value["Resource Cost"] <= resource and
+                        move not in moveset_cooldown and value["Resource Cost"] <= resource and
                         ((not self.blind and (not value["AI Range"] or
                                               ("far_target" not in value["Property"] and
-                                               value["AI Range"] >= self.nearest_enemy_distance) or
+                                               value["AI Range"] >= nearest_enemy_distance) or
                                               ("far_target" in value["Property"] and furthest_enemy_distance and
                                                value["AI Range"] >= furthest_enemy_distance))) or
                          (self.blind and not value["Range"])) and
@@ -147,11 +151,6 @@ def find_move_to_attack(self: CombatCharacter):
         else:
             self.command_action = self.moveset_command_action | {"target": self.furthest_enemy_pos}
         return True
-
-
-def no_ai(self: CombatCharacter):
-    """No attack at all"""
-    pass
 
 
 # def cheer_ai(self):
@@ -201,6 +200,6 @@ def air_ai(self: CombatCharacter):
         self.ai_timer = 0.5
 
 
-ai_combat_dict = {"default": no_ai, "melee": common_ai, "range": common_ai, "mix": common_ai,
+ai_combat_dict = {"default": empty_method, "melee": common_ai, "range": common_ai, "mix": common_ai,
                   "flank": common_ai, "nice": common_ai, "curious": common_ai, "territorial": common_ai,
                   "trap": common_ai, "leader": common_ai, "interceptor": air_ai, "fighter": air_ai, "bomber": air_ai}

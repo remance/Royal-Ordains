@@ -1,4 +1,4 @@
-def apply_status(self, status):
+def apply_status(self, status: str):
     # from engine.effect.effect import StatusEffect
     if status not in self.status_immunity:
         status_stat = self.status_list[status]  # get status stat

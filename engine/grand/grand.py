@@ -239,7 +239,6 @@ class Grand:
 
         self.game_speed = 0
         self.before_pause_game_speed = 0
-        self.round_timer = 0
         self.show_route = True
 
         self.screen = self.game.screen
@@ -626,7 +625,6 @@ class Grand:
         self.ui_timer = 0
         self.drama_timer = 0
         self.dt = 0
-        self.round_timer = 0
 
         self.base_cursor_pos = [0, 0]  # mouse pos on the map based on camera position
         self.cursor_pos = [0, 0]

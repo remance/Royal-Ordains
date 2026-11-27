@@ -22,21 +22,20 @@ def hit_collide_check(self):
                     if enemy not in self.already_hit:
                         self.already_hit.append(enemy)
                         if uniform(self.low_offence, self.offence) > uniform(0, enemy.dodge_chance):  # check for dodge
+                            self.hit_register(enemy)
                             if not self.duration:
                                 self.penetrate -= enemy.body_mass
-                                if self.penetrate < 0:
+                                if self.penetrate <= 0:
                                     self.penetrate = 0
-                            self.hit_register(enemy)
-                            if not self.penetrate:
-                                if self.is_effect_type:
-                                    if self.remain_check:
-                                        if self.after_reach == "bounce":
-                                            sprite_bounce(self)
-                                    elif self.len_current_animation == 1:
-                                        self.reach_target()
+                                    if self.is_effect_type:
+                                        if self.remain_check:
+                                            if self.after_reach == "bounce":
+                                                sprite_bounce(self)
+                                        elif self.len_current_animation == 1:
+                                            self.reach_target()
+                                            return True
+                                    else:
                                         return True
-                                else:
-                                    return True
 
 
 # def melee_impact_crash_check(self, enemy):

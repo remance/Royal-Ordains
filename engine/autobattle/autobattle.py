@@ -28,6 +28,7 @@ class AutoBattle:
     def __init__(self, battle_state):
         grand = self.grand
         self.character_portraits = grand.character_portraits
+        self.effect_list = grand.effect_list
         self.screen_rect = grand.screen_rect
         self.screen_width = grand.screen_width
         self.screen_height = grand.screen_height
@@ -134,24 +135,26 @@ class AutoBattle:
 
         self.check_reinforcement()
 
+        for team in (1, 2):  # update commander, skip team 0 since it should not have commander
+            if team:
+                commander_character = team_state["commander_character"]
+                if commander_character:
+                    commander_character.status_update(specific_dt=Round_To_Battle_Time)
+                    commander_character.ai_logic()
+
         for team in (0, 1, 2):  # update unit
             # get all active units for acting
             team_state = self.team_state[team]
             all_active_unit += team_state["unit"]
 
-            # commander act first
-            if team:  # skip team 0 since it should not have commander
-                commander_character = team_state["commander_character"]
-                commander_character.status_update(specific_dt=Round_To_Battle_Time)
-                commander_character.ai_logic()
-
         # for auto battle unit take action queue based on their speed stat
         all_active_unit.sort(key=lambda x: x.speed, reverse=True)
         for unit in all_active_unit:
             # update status first
-            unit.status_update(specific_dt=Round_To_Battle_Time)
-            # move or take action
-            unit.ai_logic()
+            if unit.alive:
+                unit.status_update(specific_dt=Round_To_Battle_Time)
+                # move or take action
+                unit.ai_logic()
 
         self.battle_time += Round_To_Battle_Time
 

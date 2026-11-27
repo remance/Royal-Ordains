@@ -3,7 +3,7 @@ from pygame import Vector2
 from engine.utils.rotation import set_rotate
 
 
-def move_logic(self, dt, done):
+def move_logic(self, dt: float, done: bool):
     """
     Sprite movement logic
     @param self: Effect object
@@ -23,23 +23,24 @@ def move_logic(self, dt, done):
                 speed = 0
 
     if self.travel_distance:  # sprite that can move
+        base_pos = self.base_pos
         if self.direct_shot:
-            new_pos = Vector2(self.base_pos[0] - (speed * self.sin_angle),
-                              self.base_pos[1] - (speed * self.cos_angle))
+            new_pos = Vector2(base_pos[0] - (speed * self.sin_angle),
+                              base_pos[1] - (speed * self.cos_angle))
         else:
             move_x = self.travel_distance / (speed * dt)
             x = self.travel_progress + move_x
             y = (x * self.sin_angle - 0.5 * (x ** 2) /
                  (self.velocity ** 2 * self.cos_angle ** 2))
 
-            new_pos = Vector2(self.base_pos[0] + move_x, self.start_pos[1] - y)
-        move = new_pos - self.base_pos
+            new_pos = Vector2(base_pos[0] + move_x, self.start_pos[1] - y)
+        move = new_pos - base_pos
         if move.length():  # sprite move
             move.normalize_ip()
             move *= speed * dt
-            new_pos = self.base_pos + move
+            new_pos = base_pos + move
             if not self.travel_spin:
-                self.angle = set_rotate(self.base_pos, new_pos)
+                self.angle = set_rotate(base_pos, new_pos)
             else:  # spin while travel instead of angle to front direction
                 self.angle += (dt * 1000)
                 if self.angle >= 360:
@@ -50,7 +51,7 @@ def move_logic(self, dt, done):
             self.renew_sprite = True
             if self.ignore_ground:
                 self.travel_distance -= move.length()
-                if self.base_pos.distance_to(self.base_target_pos) < 100:
+                if new_pos.distance_to(self.base_target_pos) < 100:
                     self.travel_distance = 0
 
             if not self.random_move and (not self.travel_distance or
@@ -58,7 +59,7 @@ def move_logic(self, dt, done):
                                              0] > self.effect_base_stage_end or
                                          (not self.ignore_ground and new_pos[1] >= self.base_ground_pos) or new_pos[
                                              1] < -10000):
-                # pass outside of map or no longer move
+                # pass outside of stage or no longer move
                 if new_pos[1] >= self.base_ground_pos:
                     # reach ground
                     self.travel_distance = 0

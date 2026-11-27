@@ -146,7 +146,6 @@ def conduct_commander(self: AIBattleCommander):
             commander_what_to_do = "far_support"
             if self.defensive >= safety_first:
                 commander_what_to_do = "observe"
-
     if commander_what_to_do == "observe":
         start_pos = commander_character.start_pos
         if abs(commander_base_posx - start_pos) > 200:

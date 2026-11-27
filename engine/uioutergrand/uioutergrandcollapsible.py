@@ -1891,20 +1891,21 @@ class GrandTacticalMap(TacticalMap, UIOuterGrand):
         self.battle = None
         self.rect = self.image.get_rect(midtop=(self.screen_width / 2, self.screen_height * 0.15))
 
-    def update(self, dt, add_camera=False):
+    def update(self, dt):
         grand = self.grand
         if self.update_timer:
             self.draw_battle()
             self.update_timer = 0
 
         if not UIOuterGrand.update(self, dt) and self.cursor.event and not grand.time_setting_ui.mouse_over:
-            print('what')
             self.remove_from_outer_ui_updater(grand.tactical_map_uis)
 
     def draw_battle(self):
         battle = self.battle
-        self.image = self.base_image.copy()
         image = self.image
+        image.fill(self.background_colour)
+        commander_icon = self.commander_icon
+        icon_height = self.icon_height
         map_scale_width = self.map_scale_width
 
         # draw commander
@@ -1917,14 +1918,14 @@ class GrandTacticalMap(TacticalMap, UIOuterGrand):
                 if health_state != self.commander_health_state[team]:
                     # circle also indicate health
                     back_icon = self.commander_icon_border[character.team].subsurface((
-                        0, self.icon_height - (self.icon_height * health_state),
-                        self.icon_width, self.icon_height - (self.icon_height * (1 - health_state))))
+                        0, icon_height - (icon_height * health_state),
+                        self.icon_width, icon_height - (icon_height * (1 - health_state))))
                     back_command_icon = self.empty_command_icon.copy()
-                    back_command_icon.blit(back_icon, back_icon.get_rect(bottomleft=(0, self.icon_height)))
+                    back_command_icon.blit(back_icon, back_icon.get_rect(bottomleft=(0, icon_height)))
                     character_icon = character.icon[character.direction]
                     back_command_icon.blit(character_icon, character_icon.get_rect(center=self.icon_center))
-                    self.commander_icon[team] = back_command_icon
-                image.blit(self.commander_icon[team], self.commander_icon[team].get_rect(midbottom=scaled_pos))
+                    commander_icon[team] = back_command_icon
+                image.blit(commander_icon[team], commander_icon[team].get_rect(midbottom=scaled_pos))
 
         # Draw character dots
         air_icon_pos_y = self.air_icon_pos_y

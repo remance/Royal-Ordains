@@ -116,7 +116,7 @@ def fighter_ai_prepare(self):
     self.get_near_enemy(near_enemy)
 
 
-ai_prepare_dict = {"default": empty_method, "melee": ground_ai_prepare, "range": ground_ai_prepare,
+ai_prepare_dict = {"default": ground_ai_prepare, "melee": ground_ai_prepare, "range": ground_ai_prepare,
                    "mix": ground_ai_prepare, "flank": ground_ai_prepare, "nice": ground_ai_prepare,
                    "curious": ground_ai_prepare, "territorial": ground_ai_prepare, "trap": ground_ai_prepare,
                    "interceptor": interceptor_ai_prepare, "fighter": fighter_ai_prepare,

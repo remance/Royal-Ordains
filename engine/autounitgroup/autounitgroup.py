@@ -5,10 +5,16 @@ from pygame.sprite import Sprite
 
 from engine.autounitgroup.ai_combat import auto_ai_combat_dict
 from engine.autounitgroup.ai_logic import auto_ai_logic
-from engine.autounitgroup.ai_move import auto_move_to_target_order, auto_ai_move_dict
+from engine.autounitgroup.ai_move import auto_move_to_target_order, auto_ai_move_dict, auto_move_away_from_enemy
 from engine.autounitgroup.ai_retreat import auto_ai_retreat_dict
 from engine.character.ai_prepare import get_near_enemy
+from engine.character.ai_combat import check_ai_condition
+from engine.character.apply_status import apply_status
+from engine.character.health_resource_logic import health_resource_logic, air_health_resource_logic
 from engine.autounitgroup.ai_prepare import auto_ai_prepare_dict
+from engine.autounitgroup.cal_damage_and_loss import cal_damage_and_loss
+from engine.autounitgroup.character_die import character_die
+from engine.autounitgroup.group_die import group_die
 from engine.character.character import BaseCharacter
 from engine.character.enter_stage import enter_stage, battle_character_enter_stage
 from engine.utils.common import empty_method
@@ -16,26 +22,36 @@ from engine.utils.common import empty_method
 
 class AutoUnitGroup(Sprite, BaseCharacter):
     ai_logic = auto_ai_logic
+    apply_status = apply_status
+    cal_damage_and_loss = cal_damage_and_loss
+    character_die = character_die
+    check_ai_condition = check_ai_condition
     enter_stage = enter_stage
+    group_die = group_die
     pick_animation = empty_method
+    move_away_from_enemy = auto_move_away_from_enemy
     move_to_target_order = auto_move_to_target_order
     battle_character_enter_stage = battle_character_enter_stage
     get_near_enemy = get_near_enemy
 
+    # static variable
+    sprite_width = 0  # auto unit has no sprite width for collision or distance check
+
     def __init__(self, battle, game_id: int, character_data: dict, is_commander: bool = False, is_summon: bool = False,
-                 no_combat=False, load_current_state: (None, dict) = None):
+                 no_combat=False, load_current_state: (None, dict) = None, specific_number: int = 0):
         """This represent a group or swarm of one unit call in battle to reduce the workload of individual calculation,
         for example entire group receive status rather than individual and perform action together per round"""
         Sprite.__init__(self)
         BaseCharacter.__init__(self, game_id, character_data, is_commander, is_summon)
         self.battle = battle
+        if not specific_number:
+            specific_number = character_data["Arrive Per Call"]
         if not is_summon:
-            self.group_character = [{"health": self.health, "group_pos": index * 10} for index, unit in
-                                    enumerate(range(character_data["Arrive Per Call"]))]
+            self.group_character = [{"health": self.health, "group_pos": index * 20, "sub_character": []}
+                                    for index, unit in enumerate(range(specific_number))]
         else:
-            self.group_character = [{"health": self.health, "group_pos": 0}]
+            self.group_character = [{"health": self.health, "group_pos": 0, "sub_character": []}]
         self.animation_load_index = self.battle.animation_load_index["character_load_index"][self.char_id]
-        self.sub_characters = []
 
         self.battle = battle
 
@@ -45,10 +61,12 @@ class AutoUnitGroup(Sprite, BaseCharacter):
             self.enemy_team = 2
 
         self.base_pos = Vector2(character_data["base_pos"])
-        self.start_pos = self.battle.team_state[self.team]["start_pos"]
-        self.retreat_pos = self.start_pos * 2
+        self.team_state = self.battle.team_state[self.team]
+        self.start_pos = self.team_state["start_pos"]
         if not self.start_pos:
             self.retreat_pos = -10000
+        else:
+            self.retreat_pos = self.start_pos * 2
 
         self.base_stage_end = self.battle.base_stage_end
         self.direction = "right"
@@ -121,7 +139,7 @@ class AutoUnitGroup(Sprite, BaseCharacter):
         self.followers_len_check = [0, 0]
         self.max_followers_len_check = 0
         max_ai_commander_range = self.ai_max_attack_range
-        for strategy in self.battle.team_state[self.team]["strategy_cooldown"]:
+        for strategy in self.team_state["strategy_cooldown"]:
             strategy_stat = self.battle.strategy_list[strategy]
             if strategy_stat["Activate Range"] > max_ai_commander_range:
                 max_ai_commander_range = strategy_stat["Activate Range"]
@@ -129,6 +147,12 @@ class AutoUnitGroup(Sprite, BaseCharacter):
 
         if not no_combat:
             self.battle_character_enter_stage()
+            for team in self.battle.all_team_enemy:
+                if team != self.team and not self.no_target:
+                    if self.character_type == "ground":
+                        self.battle.all_team_ground_enemy_collision_grids[team][0].append(self)
+                    else:
+                        self.battle.all_team_air_enemy_collision_grids[team][0].append(self)
         else:
             self.enter_stage()
 

@@ -543,9 +543,10 @@ class CombatCharacter(NonCombatCharacter):
         if self.ai_behaviour in ai_prepare_dict:
             self.ai_prepare = MethodType(ai_prepare_dict[self.ai_behaviour], self)
         self.start_pos = self.battle.team_state[self.team]["start_pos"]
-        self.retreat_pos = self.start_pos * 2
         if not self.start_pos:
             self.retreat_pos = -10000
+        else:
+            self.retreat_pos = self.start_pos * 2
 
         # Variables related to sound
         self.knock_down_sound_distance = self.knock_down_sound_distance + self.body_mass
@@ -656,9 +657,9 @@ class CombatCharacter(NonCombatCharacter):
                     hold_check = True
 
             if self.sprite_deal_damage and self.penetrate:
-                self.hit_collide_check()
-                if hold_check and self.already_hit:  # release hold when hit something
+                if hold_check and self.hit_collide_check():  # release hold when hit something
                     hold_check = False
+                    self.hold_timer = 5
                 if not self.penetrate and "run" in self.current_action:
                     # remove momentum only in running attack animation when penetrate run out
                     self.x_momentum = 0
